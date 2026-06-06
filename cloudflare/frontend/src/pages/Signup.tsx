@@ -51,7 +51,7 @@ const TIERS: {
 export function Signup() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { register } = useAuthStore();
+  const { register, updateUser } = useAuthStore();
   const redirectUrl = searchParams.get('redirect');
   const [cycle, setCycle] = useState<'monthly' | 'annual'>(() =>
     searchParams.get('cycle') === 'annual' ? 'annual' : 'monthly'
@@ -120,7 +120,13 @@ export function Signup() {
       if (intent.threadName) {
         try {
           const { threads } = (await threadsApi.list()).data;
-          if (threads.length === 0) await threadsApi.create({ name: intent.threadName });
+          // Persist the default thread id so Today / Reading Room / Constellation
+          // can fetch this user's entries immediately after signup (without it,
+          // those thread-keyed views render empty until the next /me refresh).
+          const threadId = threads.length === 0
+            ? (await threadsApi.create({ name: intent.threadName })).data.thread.id
+            : threads[0].id;
+          if (threadId) updateUser({ defaultThreadId: threadId });
         } catch {
           /* non-fatal */
         }

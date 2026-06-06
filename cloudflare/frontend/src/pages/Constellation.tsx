@@ -1,8 +1,8 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ClothShell } from '../components/ClothShell';
-import { useAuthStore } from '../../stores/authStore';
-import { familyApi, threadsApi, memoriesApi } from '../../services/api';
+import { ClothShell } from '../loom/components/ClothShell';
+import { useAuthStore } from '../stores/authStore';
+import { familyApi, threadsApi, memoriesApi } from '../services/api';
 
 /**
  * Screen 08 — The Constellation

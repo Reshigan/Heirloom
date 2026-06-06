@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ClothShell } from '../components/ClothShell';
+import { ClothShell } from '../loom/components/ClothShell';
 
 /**
  * Screen 05 — The Unlock

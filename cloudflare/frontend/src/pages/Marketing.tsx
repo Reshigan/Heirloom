@@ -1,16 +1,16 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { TapestryCanvas } from '../components/TapestryCanvas';
-import { HLogo } from '../components/HLogo';
-import { SecurityDot } from '../components/Frame';
+import { TapestryCanvas } from '../loom/components/TapestryCanvas';
+import { HLogo } from '../loom/components/HLogo';
+import { SecurityDot } from '../loom/components/Frame';
 import {
   getDeferredPrompt, isIOS, isStandalone,
   onInstallStateChange, promptInstall, wasInstalled,
-} from '../../lib/pwa';
+} from '../lib/pwa';
 
 // Lazy-load the 3D cloth — pulls Three.js (~600KB)
 const ClothCanvas3D = lazy(() =>
-  import('../components/ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
+  import('../loom/components/ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
 );
 
 // ── Demo cloth — a fictional family's 70-year thread ─────────────────

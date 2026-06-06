@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ClothShell } from '../components/ClothShell';
-import { voiceApi } from '../../services/api';
-import { useAuthStore } from '../../stores/authStore';
+import { ClothShell } from '../loom/components/ClothShell';
+import { voiceApi } from '../services/api';
+import { useAuthStore } from '../stores/authStore';
 
 const DYE_HEX: Record<string, string> = {
   madder: '#e84030', cochineal: '#d42868', kermes: '#f05268',

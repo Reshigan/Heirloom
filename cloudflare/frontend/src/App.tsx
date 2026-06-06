@@ -7,7 +7,8 @@ import { isNativePlatform } from './services/pushNotificationService';
 import { clearChunkReloadFlag } from './lib/chunkReload';
 import { PwaNudge } from './components/PwaNudge';
 import { BottomNav } from './loom/components/BottomNav';
-import { OfflineGate } from './loom/pages/Offline';
+import { ClothBackdrop } from './loom/components/ClothBackdrop';
+import { OfflineGate } from './pages/Offline';
 import { useLoomTheme } from './loom/theme';
 
 import { Login } from './pages/Login';
@@ -18,6 +19,7 @@ const ForgotPassword = lazy(() => import('./pages/ForgotPassword').then(m => ({ 
 const ResetPassword = lazy(() => import('./pages/ResetPassword').then(m => ({ default: m.ResetPassword })));
 const Compose = lazy(() => import('./pages/Compose').then(m => ({ default: m.Compose })));
 const Record = lazy(() => import('./pages/Record').then(m => ({ default: m.Record })));
+const PhotoQuick = lazy(() => import('./pages/PhotoQuick').then(m => ({ default: m.PhotoQuick })));
 const Family = lazy(() => import('./pages/Family').then(m => ({ default: m.Family })));
 const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })));
 const Billing = lazy(() => import('./pages/Billing').then(m => ({ default: m.Billing })));
@@ -73,7 +75,7 @@ const QandA = lazy(() => import('./pages/QandA').then(m => ({ default: m.QandA }
 const Join = lazy(() => import('./pages/Join').then(m => ({ default: m.Join })));
 
 // Wave 1-3 routes
-const Today           = lazy(() => import('./loom/pages/Today').then(m => ({ default: m.Today })));
+const Today           = lazy(() => import('./pages/Today').then(m => ({ default: m.Today })));
 const Pricing         = lazy(() => import('./pages/Pricing').then(m => ({ default: m.Pricing })));
 const Showcase        = lazy(() => import('./pages/Showcase').then(m => ({ default: m.Showcase })));
 const Onboarding      = lazy(() => import('./pages/Onboarding').then(m => ({ default: m.Onboarding })));
@@ -81,7 +83,7 @@ const InviteCard      = lazy(() => import('./pages/InviteCard').then(m => ({ def
 const Memories        = lazy(() => import('./pages/Memories').then(m => ({ default: m.Memories })));
 
 const ThreadsIndex    = lazy(() => import('./pages/ThreadsIndex').then(m => ({ default: m.ThreadsIndex })));
-const PwaHome         = lazy(() => import('./loom/pages/PwaHome').then(m => ({ default: m.PwaHome })));
+const PwaHome         = lazy(() => import('./pages/PwaHome').then(m => ({ default: m.PwaHome })));
 const InheritanceCard = lazy(() => import('./pages/InheritanceCard').then(m => ({ default: m.InheritanceCard })));
 
 // Book + scenario pages
@@ -94,17 +96,16 @@ const ScenarioVoiceUnborn   = lazy(() => import('./pages/ScenarioPages').then(m 
 
 // The Loom — the live marketing + design system.
 // See cloudflare/frontend/src/loom/DESIGN.md.
-const LoomThreshold = lazy(() => import('./loom/pages/Threshold').then(m => ({ default: m.Threshold })));
-const LoomWeft = lazy(() => import('./loom/pages/Weft').then(m => ({ default: m.Weft })));
-const LoomComposer = lazy(() => import('./loom/pages/Composer').then(m => ({ default: m.Composer })));
-const LoomTiedOff = lazy(() => import('./loom/pages/TiedOff').then(m => ({ default: m.TiedOff })));
-const LoomUnlock = lazy(() => import('./loom/pages/Unlock').then(m => ({ default: m.Unlock })));
-const LoomEcho = lazy(() => import('./loom/pages/Echo').then(m => ({ default: m.Echo })));
-const LoomReadingRoom = lazy(() => import('./loom/pages/ReadingRoom').then(m => ({ default: m.ReadingRoom })));
-const LoomConstellation = lazy(() => import('./loom/pages/Constellation').then(m => ({ default: m.Constellation })));
-const LoomMarketing = lazy(() => import('./loom/pages/Marketing').then(m => ({ default: m.Marketing })));
-const LoomLetterRoom = lazy(() => import('./loom/pages/LetterRoom').then(m => ({ default: m.LetterRoom })));
-const LoomVoiceRoom = lazy(() => import('./loom/pages/VoiceRoom').then(m => ({ default: m.VoiceRoom })));
+const LoomThreshold = lazy(() => import('./pages/Threshold').then(m => ({ default: m.Threshold })));
+const LoomWeft = lazy(() => import('./pages/Weft').then(m => ({ default: m.Weft })));
+const LoomTiedOff = lazy(() => import('./pages/TiedOff').then(m => ({ default: m.TiedOff })));
+const LoomUnlock = lazy(() => import('./pages/Unlock').then(m => ({ default: m.Unlock })));
+const LoomEcho = lazy(() => import('./pages/Echo').then(m => ({ default: m.Echo })));
+const LoomReadingRoom = lazy(() => import('./pages/ReadingRoom').then(m => ({ default: m.ReadingRoom })));
+const LoomConstellation = lazy(() => import('./pages/Constellation').then(m => ({ default: m.Constellation })));
+const LoomMarketing = lazy(() => import('./pages/Marketing').then(m => ({ default: m.Marketing })));
+const LoomLetterRoom = lazy(() => import('./pages/LetterRoom').then(m => ({ default: m.LetterRoom })));
+const LoomVoiceRoom = lazy(() => import('./pages/VoiceRoom').then(m => ({ default: m.VoiceRoom })));
 const LoomComposeLetter = lazy(() => import('./pages/ComposeLetter').then(m => ({ default: m.ComposeLetter })));
 
 const queryClient = new QueryClient({
@@ -211,12 +212,28 @@ function PushNotificationHandler() {
 function LoomShellRoot({ children }: { children: React.ReactNode }) {
   const { theme } = useLoomTheme();
   return (
-    <div className="loom" data-theme={theme} style={{ minHeight: '100vh' }}>
-      <Suspense
-        fallback={<div style={{ minHeight: '100vh', backgroundColor: 'var(--ink)' }} />}
-      >
-        {children}
-      </Suspense>
+    <div className="loom" data-theme={theme} style={{ minHeight: '100vh', position: 'relative', background: 'var(--ink)' }}>
+      {/* Global cloth substrate — the animated tapestry behind every screen,
+          mounted once so there is a single WebGL context for the whole app. */}
+      <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        <ClothBackdrop opacity={0.42} threadOpacity={0.55} />
+        {/* legibility scrim — keeps prose readable over the busiest weave */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'radial-gradient(120% 90% at 50% 0%, rgba(14,14,12,0.35) 0%, rgba(14,14,12,0.62) 60%, rgba(14,14,12,0.8) 100%)',
+          }}
+        />
+      </div>
+      <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
+        <Suspense
+          fallback={<div style={{ minHeight: '100vh' }} />}
+        >
+          {children}
+        </Suspense>
+      </div>
     </div>
   );
 }
@@ -327,6 +344,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Record />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/photo"
+            element={
+              <ProtectedRoute>
+                <PhotoQuick />
               </ProtectedRoute>
             }
           />
@@ -520,7 +545,7 @@ export default function App() {
           <Route path="/loom/today" element={<ProtectedRoute><Today /></ProtectedRoute>} />
           <Route path="/loom/pwa"   element={<PwaHome />} />
           <Route path="/loom/weft" element={<ProtectedRoute><LoomWeft /></ProtectedRoute>} />
-          <Route path="/loom/compose" element={<ProtectedRoute><LoomComposer /></ProtectedRoute>} />
+          <Route path="/loom/compose" element={<Navigate to="/compose" replace />} />
           <Route path="/loom/tied" element={<ProtectedRoute><LoomTiedOff /></ProtectedRoute>} />
           <Route path="/loom/unlock" element={<LoomUnlock />} />
           <Route path="/loom/echo" element={<LoomEcho />} />

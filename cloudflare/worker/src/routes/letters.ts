@@ -11,6 +11,36 @@ import { recordRevision, withinGrace, mutableUntilFrom } from '../lib/legacyArch
 
 export const lettersRoutes = new Hono<AppEnv>();
 
+/**
+ * The composer (§6.3) offers five delivery triggers — now, date, death,
+ * milestone, event — but the letters table CHECK constraint only permits
+ * IMMEDIATE / SCHEDULED / POSTHUMOUS. Normalize the richer UI vocabulary onto
+ * the storage enum here, at the API boundary, so the DB contract stays intact
+ * and writes never 500 on a constraint violation:
+ *   death            → POSTHUMOUS (released by the dead-man's-switch; bookPdf
+ *                      already excludes POSTHUMOUS from the printed archive)
+ *   milestone/event  → SCHEDULED, held with a null scheduled_date (no generic
+ *                      cron sweeps letters on scheduled_date, so it stays
+ *                      sealed until released — the intended "at the milestone")
+ *   date             → SCHEDULED
+ *   anything else    → IMMEDIATE
+ */
+function normalizeDeliveryTrigger(t: unknown): 'IMMEDIATE' | 'SCHEDULED' | 'POSTHUMOUS' {
+  switch (String(t ?? '').toUpperCase()) {
+    case 'SCHEDULED':
+    case 'DATE':
+    case 'MILESTONE':
+    case 'EVENT':
+      return 'SCHEDULED';
+    case 'POSTHUMOUS':
+    case 'AFTER_DEATH':
+    case 'DEATH':
+      return 'POSTHUMOUS';
+    default:
+      return 'IMMEDIATE';
+  }
+}
+
 // AI-powered letter suggestion using TinyLLM with Cloudflare Workers AI
 lettersRoutes.post('/ai-suggest', async (c) => {
   const body = await c.req.json();
@@ -250,18 +280,19 @@ lettersRoutes.post('/', async (c) => {
   
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-  
+  const trigger = normalizeDeliveryTrigger(deliveryTrigger);
+
   // Store encrypted flag and IV if provided (E2E encryption)
   const mutableUntil = mutableUntilFrom(now);
   await c.env.DB.prepare(`
     INSERT INTO letters (id, user_id, title, salutation, body, signature, delivery_trigger, scheduled_date, encrypted, encryption_iv, mutable_until, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, userId, title || null, salutation || null, letterBody, signature || null, deliveryTrigger || 'IMMEDIATE', scheduledDate || null, encrypted ? 1 : 0, encryption_iv || null, mutableUntil, now, now).run();
+  `).bind(id, userId, title || null, salutation || null, letterBody, signature || null, trigger, scheduledDate || null, encrypted ? 1 : 0, encryption_iv || null, mutableUntil, now, now).run();
 
   // Dual-write into the Family Thread; SCHEDULED letters get a DATE unlock.
   await mirrorIntoDefaultThread(c.env, userId, {
     title: title || salutation || null,
-    dateLock: deliveryTrigger === 'SCHEDULED' ? scheduledDate || null : null,
+    dateLock: trigger === 'SCHEDULED' ? scheduledDate || null : null,
   });
 
   if (recipientIds && recipientIds.length > 0) {
@@ -317,6 +348,9 @@ lettersRoutes.patch('/:id', async (c) => {
 
   const { title, salutation, body: letterBody, signature, deliveryTrigger, scheduledDate, recipientIds, encrypted, encryption_iv } = body;
   const now = new Date().toISOString();
+  // Normalize only when the client actually sends a trigger; undefined leaves
+  // the existing value untouched via COALESCE below.
+  const normalizedTrigger = deliveryTrigger != null ? normalizeDeliveryTrigger(deliveryTrigger) : null;
 
   // Append-only: snapshot prior values to the immutable revision log before edit.
   await recordRevision(c.env, 'letter', letterId, userId, {
@@ -349,9 +383,9 @@ lettersRoutes.patch('/:id', async (c) => {
     title ?? null, 
     salutation ?? null, 
     letterBody ?? null, 
-    signature ?? null, 
-    deliveryTrigger ?? null, 
-    scheduledDate ?? null, 
+    signature ?? null,
+    normalizedTrigger,
+    scheduledDate ?? null,
     encrypted !== undefined ? (encrypted ? 1 : 0) : null,
     encryption_iv ?? null,
     now, 

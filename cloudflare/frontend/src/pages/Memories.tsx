@@ -20,9 +20,35 @@ interface Memory {
   description?: string | null;
   type?: string;
   emotion?: string | null;
+  fileUrl?: string | null;
+  fileKey?: string | null;
+  mimeType?: string | null;
+  metadata?: { to?: string; recipientName?: string; entryDate?: string; images?: { fileUrl?: string }[] } | null;
   createdAt?: string;
   created_at?: string;
 }
+
+/** The lived date the author assigned (entryDate) wins over the row's createdAt. */
+function entryDateOf(m: Memory): string {
+  return m.metadata?.entryDate || m.createdAt || m.created_at || '';
+}
+
+/** A person this entry is addressed to / about, when recorded in metadata. */
+function personOf(m: Memory): string | null {
+  const p = m.metadata?.to || m.metadata?.recipientName;
+  return p && p.trim() ? p.trim() : null;
+}
+
+/** The displayable image for an entry, if it has one. */
+function imageOf(m: Memory): string | null {
+  if (m.fileUrl && m.mimeType && m.mimeType.startsWith('image/')) return m.fileUrl;
+  if (m.fileUrl && (m.type === 'PHOTO' || m.type === 'photo')) return m.fileUrl;
+  const first = m.metadata?.images?.[0]?.fileUrl;
+  return first || null;
+}
+
+type Filters = { year: string; month: string; type: string; query: string; emotion: string; person: string };
+const EMPTY_FILTERS: Filters = { year: '', month: '', type: '', query: '', emotion: '', person: '' };
 
 function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; activeEmotion?: string }) {
   const queryClient = useQueryClient();
@@ -62,7 +88,7 @@ function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; act
   });
 
   const dyeColor = DYE_COLORS[(m.type as string) ?? 'memory'] ?? DYE_COLORS['memory'];
-  const dateStr = new Date(m.createdAt ?? m.created_at ?? '').toLocaleDateString(undefined, {
+  const dateStr = new Date(entryDateOf(m)).toLocaleDateString(undefined, {
     year: 'numeric', month: 'short', day: 'numeric',
   });
 
@@ -125,10 +151,31 @@ function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; act
         ) : null;
       })()}
 
+      {imageOf(m) && (
+        <img
+          src={imageOf(m) as string}
+          alt={m.title ?? ''}
+          loading="lazy"
+          style={{
+            display: 'block',
+            width: '100%',
+            height: 'auto',
+            marginBottom: 10,
+            background: 'var(--ink-raise, rgba(255,255,255,0.03))',
+          }}
+        />
+      )}
+
       {m.title && (
         <p className="hl-serif" style={{ fontSize: 13, fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px', letterSpacing: '0.01em' }}>
           {m.title}
         </p>
+      )}
+
+      {personOf(m) && (
+        <span className="hl-mono" style={{ display: 'inline-block', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 6 }}>
+          for {personOf(m)}
+        </span>
       )}
 
       {editing ? (
@@ -213,12 +260,16 @@ function emotionMatchesMemory(m: Memory, emotionValue: string): boolean {
 
 function FilterBar({ memories, filters, setFilters }: {
   memories: Memory[];
-  filters: { year: string; month: string; type: string; query: string; emotion: string };
-  setFilters: (f: { year: string; month: string; type: string; query: string; emotion: string }) => void;
+  filters: Filters;
+  setFilters: (f: Filters) => void;
 }) {
   const years = Array.from(new Set(
-    memories.map(m => new Date(m.createdAt ?? m.created_at ?? '').getFullYear())
+    memories.map(m => new Date(entryDateOf(m)).getFullYear())
   )).sort((a, b) => b - a);
+
+  const people = Array.from(new Set(
+    memories.map(personOf).filter((p): p is string => !!p)
+  )).sort((a, b) => a.localeCompare(b));
 
   const selectStyle: React.CSSProperties = {
     background: 'transparent',
@@ -235,7 +286,7 @@ function FilterBar({ memories, filters, setFilters }: {
     WebkitAppearance: 'none' as const,
   };
 
-  const active = filters.year || filters.month || filters.type || filters.query || filters.emotion;
+  const active = filters.year || filters.month || filters.type || filters.query || filters.emotion || filters.person;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
@@ -263,10 +314,17 @@ function FilterBar({ memories, filters, setFilters }: {
           {MONTHS.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
         </select>
 
+        {people.length > 0 && (
+          <select value={filters.person} onChange={e => setFilters({ ...filters, person: e.target.value })} style={selectStyle}>
+            <option value="">all people</option>
+            {people.map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
+        )}
+
         {active && (
           <button
             type="button"
-            onClick={() => setFilters({ year: '', month: '', type: '', query: '', emotion: '' })}
+            onClick={() => setFilters(EMPTY_FILTERS)}
             style={{
               background: 'transparent', border: 0, padding: 0,
               cursor: 'pointer', fontFamily: 'var(--mono)',
@@ -322,7 +380,7 @@ function FilterBar({ memories, filters, setFilters }: {
 
 export function Memories() {
   const { isAuthenticated } = useAuthStore();
-  const [filters, setFilters] = useState({ year: '', month: '', type: '', query: '', emotion: '' });
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const listenerPrompt = useListener();
 
   const { data, isLoading } = useQuery({
@@ -335,7 +393,7 @@ export function Memories() {
 
   const memories = allMemories
     .filter(m => {
-      const d = new Date(m.createdAt ?? m.created_at ?? '');
+      const d = new Date(entryDateOf(m));
       if (filters.year && String(d.getFullYear()) !== filters.year) return false;
       if (filters.month && String(d.getMonth() + 1) !== filters.month) return false;
       if (filters.type && (m.type ?? 'memory') !== filters.type) return false;
@@ -344,12 +402,13 @@ export function Memories() {
         if (!`${m.title ?? ''} ${m.description ?? ''}`.toLowerCase().includes(q)) return false;
       }
       if (filters.emotion && !emotionMatchesMemory(m, filters.emotion)) return false;
+      if (filters.person && personOf(m) !== filters.person) return false;
       return true;
     })
     .sort((a, b) => {
       // When filtering (emotion or other filters active), sort newest-first
-      const da = new Date(a.createdAt ?? a.created_at ?? '').getTime();
-      const db = new Date(b.createdAt ?? b.created_at ?? '').getTime();
+      const da = new Date(entryDateOf(a)).getTime();
+      const db = new Date(entryDateOf(b)).getTime();
       return db - da;
     });
 
@@ -358,13 +417,13 @@ export function Memories() {
       topbarLeft={<Link to="/loom/today" className="hl-link" style={{ fontSize: 12, color: 'rgba(244,236,216,0.5)', letterSpacing: '0.08em' }}>← today</Link>}
       topbarCenter="memories"
       topbarRight={
-        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <span className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.1em' }}>
-            {memories.length}/{allMemories.length} {allMemories.length === 1 ? 'entry' : 'entries'}
+            {memories.length}/{allMemories.length}
           </span>
-          <Link to="/compose" className="hl-link warm" style={{ fontSize: 12, letterSpacing: '0.08em' }}>
-            add →
-          </Link>
+          <Link to="/compose" className="hl-link" style={{ fontSize: 12, letterSpacing: '0.08em' }}>write</Link>
+          <Link to="/photo" className="hl-link" style={{ fontSize: 12, letterSpacing: '0.08em' }}>photo</Link>
+          <Link to="/record" className="hl-link warm" style={{ fontSize: 12, letterSpacing: '0.08em' }}>voice</Link>
         </div>
       }
     >
@@ -407,8 +466,11 @@ export function Memories() {
             <Link to="/compose" className="hl-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
               Write a memory →
             </Link>
+            <Link to="/photo" className="hl-link warm" style={{ fontSize: 14 }}>
+              add a photograph →
+            </Link>
             <Link to="/record" className="hl-link warm" style={{ fontSize: 14 }}>
-              or record a voice →
+              record a voice →
             </Link>
           </div>
           <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 24, maxWidth: '46ch' }}>

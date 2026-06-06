@@ -737,7 +737,9 @@ html {
 
 .hl-screen {
   font-family: var(--sans);
-  background: var(--ink);
+  /* transparent so the single global cloth substrate (LoomShellRoot) shows
+     through every screen — the animated tapestry is the universal backdrop. */
+  background: transparent;
   color: var(--bone);
   width: 100%;
   min-height: 100%;
@@ -749,7 +751,10 @@ html {
   overscroll-behavior-y: none;
 }
 .hl-screen.parchment {
-  background: var(--parchment);
+  /* transparent so the global cloth shows through; the dark-mode token
+     remap (above) already flips --parchment-ink to bone, so text stays
+     legible over the woven substrate. */
+  background: transparent;
   color: var(--parchment-ink);
 }
 .hl-screen * { box-sizing: border-box; }

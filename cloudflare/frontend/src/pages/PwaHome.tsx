@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useRole } from '../../hooks/useRole';
-import { useTapestryEntries } from '../../hooks/useTapestryEntries';
-import { useListener } from '../../hooks/useListener';
-import { useIsNewUser } from '../../hooks/useIsNewUser';
-import { useAuthStore } from '../../stores/authStore';
-import { memoriesApi } from '../../services/api';
-import { ClothShell } from '../components/ClothShell';
-import { HLogo } from '../components/HLogo';
-import { BottomNav } from '../components/BottomNav';
-import { PwaWizard, shouldShowWizard } from '../components/PwaWizard';
-import type { UserRole } from '../../hooks/useRole';
-import type { CanvasEntry } from '../components/TapestryCanvas';
+import { useRole } from '../hooks/useRole';
+import { useTapestryEntries } from '../hooks/useTapestryEntries';
+import { useListener } from '../hooks/useListener';
+import { useIsNewUser } from '../hooks/useIsNewUser';
+import { useAuthStore } from '../stores/authStore';
+import { memoriesApi } from '../services/api';
+import { ClothShell } from '../loom/components/ClothShell';
+import { HLogo } from '../loom/components/HLogo';
+import { BottomNav } from '../loom/components/BottomNav';
+import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
+import type { UserRole } from '../hooks/useRole';
+import type { CanvasEntry } from '../loom/components/TapestryCanvas';
 
 /* ─── Date anchor — journal-style today stamp ────────────────────────────── */
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];

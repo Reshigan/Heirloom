@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useListener } from '../../hooks/useListener';
-import { useAuthStore } from '../../stores/authStore';
-import { aiApi } from '../../services/api';
-import { ClothShell } from '../components/ClothShell';
-import { HLogo } from '../components/HLogo';
+import { useListener } from '../hooks/useListener';
+import { useAuthStore } from '../stores/authStore';
+import { aiApi } from '../services/api';
+import { ClothShell } from '../loom/components/ClothShell';
+import { HLogo } from '../loom/components/HLogo';
 
 /**
  * Screen 06 — The Listener (Echo)

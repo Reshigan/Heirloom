@@ -183,7 +183,7 @@ export const capsulesApi = {
 export const engagementApi = {
   getLegacyScore: () => api.get('/engagement/legacy-score'),
   getFamilyFeed: () => api.get('/engagement/family-feed'),
-  getOnThisDay: () => api.get('/memories/on-this-day'),
+  getOnThisDay: () => api.get('/memory-cards/on-this-day'),
   invite: (data: { email: string; name?: string }) =>
     api.post('/engagement/invite', data),
   acceptFamilyInvite: (inviteCode: string) =>

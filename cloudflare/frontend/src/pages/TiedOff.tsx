@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ClothShell } from '../components/ClothShell';
-import { lettersApi } from '../../services/api';
-import { useAuthStore } from '../../stores/authStore';
+import { ClothShell } from '../loom/components/ClothShell';
+import { lettersApi } from '../services/api';
+import { useAuthStore } from '../stores/authStore';
 
 /**
  * Screen 04 — Tied Off
@@ -235,7 +235,7 @@ export function TiedOff() {
             >
               no threads are tied off yet.{' '}
               <Link
-                to="/loom/compose"
+                to="/compose"
                 style={{ color: 'var(--warm)', textDecoration: 'none' }}
               >
                 seal a letter →

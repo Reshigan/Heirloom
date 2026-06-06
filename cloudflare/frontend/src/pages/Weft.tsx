@@ -1,16 +1,16 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ClothShell } from '../components/ClothShell';
-import { HLogo } from '../components/HLogo';
-import { Loom, type LoomEntry, type LoomLigature } from '../components/Loom';
-import { ViewToggle } from '../components/ViewToggle';
-import { EmptyThread } from '../components/EmptyThread';
-import { WeftPull } from '../components/WeftPull';
-import { WeftCentury } from '../components/WeftCentury';
-import { memoriesApi, lettersApi, voiceApi, threadsApi } from '../../services/api';
-import { useAuthStore } from '../../stores/authStore';
-import { useListener } from '../../hooks/useListener';
+import { ClothShell } from '../loom/components/ClothShell';
+import { HLogo } from '../loom/components/HLogo';
+import { Loom, type LoomEntry, type LoomLigature } from '../loom/components/Loom';
+import { ViewToggle } from '../loom/components/ViewToggle';
+import { EmptyThread } from '../loom/components/EmptyThread';
+import { WeftPull } from '../loom/components/WeftPull';
+import { WeftCentury } from '../loom/components/WeftCentury';
+import { memoriesApi, lettersApi, voiceApi, threadsApi } from '../services/api';
+import { useAuthStore } from '../stores/authStore';
+import { useListener } from '../hooks/useListener';
 
 /**
  * Screen 02 — The Weft
@@ -41,7 +41,10 @@ function toEntries(
   let lane = 0;
 
   for (const m of memories) {
-    const d = new Date(m.memory_date || m.created_at);
+    // The list API returns camelCase `createdAt` and the user-chosen date in
+    // metadata.entryDate; prefer the entry date so the thread sits on the cloth
+    // where the memory actually happened, not when it was typed.
+    const d = new Date(m.metadata?.entryDate || m.memory_date || m.createdAt || m.created_at);
     if (isNaN(d.getTime())) continue;
     all.push({ year: d.getFullYear(), month: d.getMonth() + 1, lane: lane++ % 5, kind: 'memory', title: m.title ?? undefined });
   }

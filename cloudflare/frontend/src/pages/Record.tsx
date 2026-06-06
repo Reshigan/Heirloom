@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { voiceApi, familyApi } from '../services/api';
+import { voiceApi, familyApi, getAuthHeaders } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
+import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { TapestryEdge } from '../loom/components/Frame';
 
 /**
@@ -181,7 +182,7 @@ export function Record() {
       const uploadResponse = await fetch(upload.uploadUrl ?? upload.url, {
         method: 'PUT',
         body: audioBlob,
-        headers: { 'Content-Type': contentType },
+        headers: { 'Content-Type': contentType, ...getAuthHeaders() },
       });
       if (!uploadResponse.ok) {
         throw new Error(`Upload failed: ${uploadResponse.status}`);
@@ -208,7 +209,7 @@ export function Record() {
       queryClient.invalidateQueries({ queryKey: ['weft-voice'] });
       queryClient.invalidateQueries({ queryKey: ['new-user-check-voice'] });
       setSealedCeremony(true);
-      setTimeout(() => navigate('/memories'), 1400);
+      setTimeout(() => navigate('/memories'), 4200);
     },
     onError: (err: unknown) => {
       const msg = err instanceof Error ? err.message : 'Could not save the recording.';
@@ -226,12 +227,12 @@ export function Record() {
       style={{
         position: 'absolute',
         inset: 0,
-        background: 'var(--ink)',
+        background: 'transparent',
         overflow: 'hidden',
       }}
     >
       {/* ── topbar ───────────────────────────────────────────────── */}
-      <div className="hl-topbar">
+      <div className="hl-topbar" style={{ position: 'relative', zIndex: 10 }}>
         {/* left: HLogo */}
         <Link
           to="/memories"
@@ -267,6 +268,7 @@ export function Record() {
           bottom: 80,
           left: 0,
           right: 0,
+          zIndex: 10,
           overflowY: 'auto',
           overflowX: 'hidden',
           display: 'flex',
@@ -757,55 +759,26 @@ export function Record() {
 
       {/* ── sealed voice ceremony ─────────────────────────────────── */}
       {sealedCeremony && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background: 'var(--ink)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 16,
-            animation: 'hl-fade 360ms var(--ease) both',
-            zIndex: 100,
-          }}
-        >
-          <span
-            style={{
-              fontFamily: 'var(--mono)',
-              fontSize: 32,
-              color: 'var(--warm)',
-              letterSpacing: '0.04em',
-              animation: 'hl-rise 720ms var(--ease) 180ms both',
-            }}
-          >
-            ∞
-          </span>
-          <span
-            className="hl-serif hl-italic"
-            style={{
-              fontSize: 18,
-              color: 'var(--bone)',
-              animation: 'hl-rise 720ms var(--ease) 360ms both',
-              fontVariationSettings: '"opsz" 18',
-            }}
-          >
-            spoken · sealed
-          </span>
-          <span
-            className="hl-mono"
-            style={{
-              fontSize: 11,
-              color: 'var(--bone-faint)',
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              animation: 'hl-rise 720ms var(--ease) 540ms both',
-            }}
-          >
-            {mm}:{ss} bound to the loom
-          </span>
-        </div>
+        <WeaveCeremony
+          dye="saffron"
+          entryDate={entryDate}
+          seed={title || addresseeName || 'voice'}
+          eyebrow="spoken · woven into the cloth"
+          headline="Your voice is part of the cloth."
+          footer={
+            <span
+              className="hl-mono"
+              style={{
+                fontSize: 11,
+                color: 'var(--bone-faint)',
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {mm}:{ss} bound to the loom
+            </span>
+          }
+        />
       )}
     </div>
   );

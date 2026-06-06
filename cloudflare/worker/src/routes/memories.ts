@@ -501,14 +501,34 @@ memoriesRoutes.post('/', async (c) => {
   const textToClassify = `${title} ${description || ''}`.trim();
   const emotionResult = await classifyEmotionWithAI(textToClassify, c.env.AI);
   
-  // Sanitize metadata — only allow known string/number keys to prevent proto-pollution
-  // and block the metadata.to notification-injection vector.
-  const ALLOWED_METADATA_KEYS = new Set(['location', 'tags', 'weather', 'device', 'source', 'color', 'caption']);
+  // Sanitize metadata — only allow known keys to prevent proto-pollution and
+  // block the metadata.to notification-injection vector. Scalar keys take
+  // string/number values; `images` is the composer's photo array; `tags` a
+  // string list. Everything else (incl. metadata.to) is dropped.
+  const SCALAR_METADATA_KEYS = new Set([
+    'location', 'weather', 'device', 'source', 'color', 'caption',
+    'visibility', 'dye', 'dyeMotif', 'entryDate',
+  ]);
   const safeUserMeta: Record<string, unknown> = {};
   if (metadata && typeof metadata === 'object') {
     for (const [k, v] of Object.entries(metadata as Record<string, unknown>)) {
-      if (ALLOWED_METADATA_KEYS.has(k) && (typeof v === 'string' || typeof v === 'number')) {
+      if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
+      if (SCALAR_METADATA_KEYS.has(k) && (typeof v === 'string' || typeof v === 'number')) {
         safeUserMeta[k] = v;
+      } else if (k === 'tags' && Array.isArray(v)) {
+        safeUserMeta[k] = v.filter((t) => typeof t === 'string').slice(0, 50);
+      } else if (k === 'images' && Array.isArray(v)) {
+        safeUserMeta[k] = v
+          .filter((im) => im && typeof im === 'object')
+          .slice(0, 30)
+          .map((im) => {
+            const o = im as Record<string, unknown>;
+            return {
+              fileKey: typeof o.fileKey === 'string' ? o.fileKey : undefined,
+              fileUrl: typeof o.fileUrl === 'string' ? o.fileUrl : undefined,
+              mimeType: typeof o.mimeType === 'string' ? o.mimeType : undefined,
+            };
+          });
       }
     }
   }

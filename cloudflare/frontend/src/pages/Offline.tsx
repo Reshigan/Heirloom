@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { memoriesApi } from '../../services/api';
-import { useAuthStore } from '../../stores/authStore';
+import { memoriesApi } from '../services/api';
+import { useAuthStore } from '../stores/authStore';
 
 /**
  * Offline — the in-app offline experience, matching the PwaOffline

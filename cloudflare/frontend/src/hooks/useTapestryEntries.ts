@@ -53,7 +53,10 @@ export function useTapestryEntries(): { entries: CanvasEntry[]; isError: boolean
     let n = 0;
 
     for (const m of mems) {
-      const date = new Date(m.createdAt ?? m.created_at ?? m.memory_date ?? Date.now());
+      // The lived date the author assigned wins over the row's createdAt, so a memory
+      // written today about 1995 weaves at 1995 on the cloth.
+      const when = m.metadata?.entryDate ?? m.memory_date ?? m.createdAt ?? m.created_at;
+      const date = new Date(when ?? Date.now());
       if (isNaN(date.getTime())) continue;
       all.push({ date, n: n++, dye: pickDye(m.type ?? 'memory'), tier: 'family', author: m.userId ?? m.user_id });
     }

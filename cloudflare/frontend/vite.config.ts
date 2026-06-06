@@ -10,7 +10,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        // VITE_PROXY_TARGET lets a local edge worker (wrangler dev, :8787)
+        // stand in for the Express backend (:3001) without CORS in dev tests.
+        target: process.env.VITE_PROXY_TARGET || 'http://localhost:3001',
         changeOrigin: true,
       },
       // Proxy gift-voucher pricing to the live edge API so the /gift page

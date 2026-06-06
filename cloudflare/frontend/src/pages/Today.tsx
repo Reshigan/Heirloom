@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ClothShell } from '../components/ClothShell';
-import { TapestryCanvas } from '../components/TapestryCanvas';
-import { useListener } from '../../hooks/useListener';
-import { useTapestryEntries } from '../../hooks/useTapestryEntries';
-import { useAuthStore } from '../../stores/authStore';
-import { aiApi, engagementApi } from '../../services/api';
+import { ClothShell } from '../loom/components/ClothShell';
+import { TapestryCanvas } from '../loom/components/TapestryCanvas';
+import { useListener } from '../hooks/useListener';
+import { useTapestryEntries } from '../hooks/useTapestryEntries';
+import { useAuthStore } from '../stores/authStore';
+import { aiApi, engagementApi } from '../services/api';
 
 interface OnThisDayEntry {
   id: string;
@@ -48,7 +48,9 @@ export function Today() {
     engagementApi.getOnThisDay()
       .then(r => {
         const raw = r.data;
-        const list: OnThisDayEntry[] = Array.isArray(raw) ? raw : (raw?.memories ?? raw?.data ?? []);
+        const list: OnThisDayEntry[] = Array.isArray(raw)
+          ? raw
+          : (raw?.memoriesFromThisDay ?? raw?.memories ?? raw?.data ?? []);
         setOnThisDay(list);
         setOnThisDayError(false);
       })

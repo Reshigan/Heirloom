@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ClothShell } from '../components/ClothShell';
-import { HLogo } from '../components/HLogo';
-import { Loom } from '../components/Loom';
+import { ClothShell } from '../loom/components/ClothShell';
+import { HLogo } from '../loom/components/HLogo';
+import { Loom } from '../loom/components/Loom';
 
 /**
  * Screen 01 — The Threshold

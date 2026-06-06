@@ -4,8 +4,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { memoriesApi, lettersApi, familyApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
-import { TapestryCanvas } from '../loom/components/TapestryCanvas';
-import type { CanvasEntry } from '../loom/components/TapestryCanvas';
+import { WeaveCeremony } from '../loom/components/WeaveCeremony';
+import { uploadMemoryImage, validateImage } from '../utils/uploadImage';
 import {
   ComposerRail,
   DyeControl,
@@ -29,6 +29,17 @@ interface FamilyMember {
   id: string;
   name: string;
   relationship?: string;
+}
+
+interface ComposeImage {
+  id: string;
+  url: string; // local object URL for preview
+  uploading: boolean;
+  progress: number;
+  fileKey?: string;
+  fileUrl?: string;
+  mimeType?: string;
+  error?: boolean;
 }
 
 /* ─── To: field with family autosuggest ─────────────────────────────── */
@@ -425,6 +436,19 @@ function EntryDateField({
 
 /* ─── Draft persistence ─────────────────────────────────────────────── */
 const DRAFT_PREFIX = 'hl-compose-draft:';
+
+// Derive a graceful title from the opening of the body when the author leaves it blank.
+// First sentence (or first line), trimmed to ~48 chars on a word boundary.
+function deriveTitle(body: string): string {
+  const text = body.trim().replace(/\s+/g, ' ');
+  if (!text) return 'untitled';
+  const firstUnit = (text.split(/(?<=[.!?])\s/)[0] || text).split('\n')[0].trim();
+  const candidate = firstUnit || text;
+  if (candidate.length <= 48) return candidate.replace(/[.!?,;:\s]+$/, '');
+  const clipped = candidate.slice(0, 48);
+  const lastSpace = clipped.lastIndexOf(' ');
+  return (lastSpace > 24 ? clipped.slice(0, lastSpace) : clipped).replace(/[.!?,;:\s]+$/, '') + '…';
+}
 type DraftData = {
   title?: string;
   body?: string;
@@ -467,7 +491,8 @@ export function Compose() {
   const [woven, setWoven] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [writingFocused, setWritingFocused] = useState(false);
-  const wovenAtRef = useRef<number | null>(null);
+  const [images, setImages] = useState<ComposeImage[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -555,13 +580,55 @@ export function Compose() {
     setBody(e.target.value);
   }, []);
 
-  // Navigate to memories after the "woven" celebration fades
+  const addImages = useCallback((files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    Array.from(files).forEach((file) => {
+      const err = validateImage(file);
+      if (err) {
+        setError(err);
+        return;
+      }
+      const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const url = URL.createObjectURL(file);
+      setImages((prev) => [...prev, { id, url, uploading: true, progress: 0, mimeType: file.type }]);
+      uploadMemoryImage(file, (pct) =>
+        setImages((prev) => prev.map((im) => (im.id === id ? { ...im, progress: pct } : im))),
+      )
+        .then((res) =>
+          setImages((prev) =>
+            prev.map((im) =>
+              im.id === id
+                ? { ...im, uploading: false, progress: 100, fileKey: res.fileKey, fileUrl: res.fileUrl }
+                : im,
+            ),
+          ),
+        )
+        .catch(() =>
+          setImages((prev) => prev.map((im) => (im.id === id ? { ...im, uploading: false, error: true } : im))),
+        );
+    });
+  }, []);
+
+  const removeImage = useCallback((id: string) => {
+    setImages((prev) => {
+      const target = prev.find((im) => im.id === id);
+      if (target) URL.revokeObjectURL(target.url);
+      return prev.filter((im) => im.id !== id);
+    });
+  }, []);
+
+  const uploadingCount = images.filter((im) => im.uploading).length;
+  const readyImages = images.filter((im) => im.fileKey && !im.error);
+  const hasContent = body.trim().length > 0 || (!isLetter && readyImages.length > 0);
+
+  // Navigate after the "woven" celebration fades — letters land in the Letters room,
+  // memories in the gallery; both first show the cloth weave.
   useEffect(() => {
     if (!woven) return;
-    wovenAtRef.current = performance.now();
-    const t = setTimeout(() => navigate('/memories'), 4200);
+    const dest = isLetter ? '/letters' : '/memories';
+    const t = setTimeout(() => navigate(dest), 4200);
     return () => clearTimeout(t);
-  }, [woven, navigate]);
+  }, [woven, navigate, isLetter]);
 
   // Listener AI hint — uses recipient name as the "to" context
   const { suggestion, loading: listenerLoading, refresh: listenerRefresh } =
@@ -611,12 +678,23 @@ export function Compose() {
         }
         return data;
       } else {
+        const photos = images.filter((im) => im.fileKey && !im.error);
+        const primary = photos[0];
         return memoriesApi
           .create({
-            type: 'LETTER',
-            title: title.trim() || 'untitled',
+            type: primary ? 'PHOTO' : 'LETTER',
+            title: title.trim() || deriveTitle(body),
             description: body.trim(),
-            metadata: { visibility, dye, dyeMotif: dye, entryDate },
+            fileKey: primary?.fileKey,
+            fileUrl: primary?.fileUrl,
+            mimeType: primary?.mimeType,
+            metadata: {
+              visibility,
+              dye,
+              dyeMotif: dye,
+              entryDate,
+              images: photos.map((p) => ({ fileKey: p.fileKey, fileUrl: p.fileUrl, mimeType: p.mimeType })),
+            },
           })
           .then((r) => r.data);
       }
@@ -627,18 +705,20 @@ export function Compose() {
         queryClient.invalidateQueries({ queryKey: ['new-user-check-letters'] });
         queryClient.invalidateQueries({ queryKey: ['letters'] });
         queryClient.invalidateQueries({ queryKey: ['weft-letters'] });
-        navigate('/letters');
       } else {
         queryClient.invalidateQueries({ queryKey: ['new-user-check-memories'] });
         queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
         queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
-        setWoven(true);
       }
+      // Every authored entry ends in the cloth — letters now weave too (invariant A).
+      setWoven(true);
     },
     onError: (err: any) => {
       setError(err?.response?.data?.error ?? 'Could not save the entry.');
     },
   });
+
+  const submitDisabled = save.isPending || !hasContent || uploadingCount > 0;
 
   const handleCancel = useCallback(() => {
     if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
@@ -662,104 +742,48 @@ export function Compose() {
 
   // Woven celebration (memory mode only)
   if (woven) {
-    const wovenEntry: CanvasEntry = {
-      date: new Date(entryDate),
-      n: Math.abs(title.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) || 42,
-      dye,
-      tier: 'family',
-    };
-
     return (
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'var(--ink)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 40,
-        }}
-      >
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-          <TapestryCanvas
-            height={72}
-            entries={[wovenEntry]}
-            kind="specimen"
-            animate
-            newEntryAt={wovenAtRef.current}
-            opts={{
-              tStart: new Date(+new Date(entryDate) - 86400000 * 180),
-              tEnd: new Date(+new Date(entryDate) + 86400000 * 180),
-              background: '#0e0e0c',
-              warpEvery: 9,
-              showDecadeMarks: false,
-              showFraySelvedge: false,
-              showWarpHair: false,
-            }}
-          />
-        </div>
-        <p
-          style={{
-            fontFamily: 'var(--mono)',
-            fontSize: 10,
-            letterSpacing: '0.32em',
-            textTransform: 'uppercase',
-            color: 'var(--warm)',
-            margin: '0 0 20px',
-          }}
-        >
-          woven into the thread
-        </p>
-        <p
-          style={{
-            fontFamily: 'var(--serif)',
-            fontSize: 'clamp(22px, 4vw, 36px)',
-            fontWeight: 300,
-            color: 'var(--bone)',
-            textAlign: 'center',
-            lineHeight: 1.3,
-            margin: '0 0 40px',
-            maxWidth: 480,
-          }}
-        >
-          Your memory is part of the cloth.
-        </p>
-        <div
-          style={{
-            borderTop: '1px solid var(--rule)',
-            paddingTop: 28,
-            textAlign: 'center',
-            maxWidth: 400,
-          }}
-        >
-          <p
-            style={{
-              fontFamily: 'var(--mono)',
-              fontSize: 10,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
-              margin: '0 0 16px',
-            }}
-          >
-            threads grow richer with voices
-          </p>
-          <Link
-            to="/family"
-            style={{
-              fontFamily: 'var(--serif)',
-              fontSize: 16,
-              color: 'var(--warm)',
-              textDecoration: 'none',
-              letterSpacing: '0.04em',
-            }}
-          >
-            Bring someone into the thread →
-          </Link>
-        </div>
-      </div>
+      <WeaveCeremony
+        dye={isLetter ? 'indigo' : dye}
+        entryDate={entryDate}
+        seed={title || recipientName || 'thread'}
+        eyebrow={isLetter ? 'woven into the cloth' : 'woven into the thread'}
+        headline={
+          isLetter
+            ? recipientName.trim()
+              ? `Your letter to ${recipientName.trim()} is part of the cloth.`
+              : 'Your letter is part of the cloth.'
+            : 'Your memory is part of the cloth.'
+        }
+        footer={
+          <>
+            <p
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+                margin: '0 0 16px',
+              }}
+            >
+              threads grow richer with voices
+            </p>
+            <Link
+              to="/family"
+              style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 16,
+                color: 'var(--warm)',
+                textDecoration: 'none',
+                letterSpacing: '0.04em',
+              }}
+            >
+              Bring someone into the thread →
+            </Link>
+          </>
+        }
+      />
     );
   }
 
@@ -770,12 +794,12 @@ export function Compose() {
         position: 'absolute',
         inset: 0,
         overflow: 'hidden',
-        background: 'var(--ink)',
+        background: 'transparent',
         color: 'var(--bone)',
       }}
     >
       {/* Topbar */}
-      <div className="hl-topbar" style={{ borderBottom: '1px solid var(--rule)' }}>
+      <div className="hl-topbar" style={{ borderBottom: '1px solid var(--rule)', position: 'relative', zIndex: 10 }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
           <HLogo size={18} wordmark mono color="var(--bone-dim)" wordColor="var(--bone-dim)" glow={false} />
           <span
@@ -834,6 +858,7 @@ export function Compose() {
           right: 0,
           overflowY: 'auto',
           padding: '48px clamp(20px, 5vw, 48px) 100px',
+          zIndex: 10,
           opacity: revealed ? 1 : 0,
           transform: revealed ? 'translateY(0)' : 'translateY(12px)',
           transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
@@ -983,6 +1008,139 @@ export function Compose() {
             </div>
           </div>
 
+          {/* ── Photos (memory mode only) ─────────────────────────────── */}
+          {!isLetter && (
+            <div style={{ marginTop: 28, paddingLeft: 'clamp(16px, 3vw, 28px)' }}>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => {
+                  addImages(e.target.files);
+                  e.target.value = '';
+                }}
+                style={{ display: 'none' }}
+              />
+
+              {images.length > 0 && (
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))',
+                    gap: 10,
+                    marginBottom: 16,
+                  }}
+                >
+                  {images.map((im) => (
+                    <div key={im.id} style={{ position: 'relative', aspectRatio: '1 / 1', overflow: 'hidden' }}>
+                      <img
+                        src={im.url}
+                        alt=""
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          display: 'block',
+                          filter: im.uploading ? 'brightness(0.6)' : 'none',
+                          opacity: im.error ? 0.4 : 1,
+                          transition: `filter 360ms ${ease}`,
+                        }}
+                      />
+                      {/* hairline upload progress — never a spinner */}
+                      {im.uploading && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            left: 0,
+                            bottom: 0,
+                            height: 2,
+                            width: `${im.progress}%`,
+                            background: 'var(--warm)',
+                            transition: 'width 180ms linear',
+                          }}
+                        />
+                      )}
+                      {im.error && (
+                        <span
+                          className="hl-mono"
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 9,
+                            letterSpacing: '0.12em',
+                            textTransform: 'uppercase',
+                            color: 'var(--danger)',
+                            textAlign: 'center',
+                            padding: 4,
+                          }}
+                        >
+                          failed
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeImage(im.id)}
+                        aria-label="Remove photo"
+                        style={{
+                          position: 'absolute',
+                          top: 4,
+                          right: 4,
+                          width: 24,
+                          height: 24,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: 'rgba(14,14,12,0.7)',
+                          border: 0,
+                          color: 'var(--bone)',
+                          fontFamily: 'var(--mono)',
+                          fontSize: 13,
+                          lineHeight: 1,
+                          cursor: 'pointer',
+                          padding: 0,
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                style={{
+                  background: 'transparent',
+                  border: '1px solid var(--rule)',
+                  color: 'var(--bone-dim)',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  padding: '9px 16px',
+                  cursor: 'pointer',
+                  minHeight: 40,
+                  transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = 'var(--bone)';
+                  e.currentTarget.style.borderColor = 'var(--bone-dim)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = 'var(--bone-dim)';
+                  e.currentTarget.style.borderColor = 'var(--rule)';
+                }}
+              >
+                {images.length > 0 ? '+ add another photo' : '+ add a photo'}
+              </button>
+            </div>
+          )}
+
           {/* Listener */}
           <div style={{ marginTop: 28, paddingLeft: 'clamp(16px, 3vw, 28px)' }}>
             <ListenerLine
@@ -1063,8 +1221,12 @@ export function Compose() {
               type="button"
               onClick={() => {
                 setError(null);
-                if (!body.trim()) {
-                  setError('Write something — even a sentence.');
+                if (uploadingCount > 0) {
+                  setError('Wait for photos to finish uploading.');
+                  return;
+                }
+                if (!hasContent) {
+                  setError(isLetter ? 'Write something — even a sentence.' : 'Write something, or add a photo.');
                   return;
                 }
                 if (isLetter && deliveryTrigger === 'date' && !scheduledDate) {
@@ -1073,7 +1235,7 @@ export function Compose() {
                 }
                 save.mutate();
               }}
-              disabled={save.isPending || !body.trim()}
+              disabled={submitDisabled}
               style={{
                 background: 'var(--warm)',
                 border: '1px solid var(--warm)',
@@ -1083,16 +1245,16 @@ export function Compose() {
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
                 padding: '10px 24px',
-                cursor: save.isPending || !body.trim() ? 'default' : 'pointer',
+                cursor: submitDisabled ? 'default' : 'pointer',
                 minHeight: 40,
-                opacity: save.isPending || !body.trim() ? 0.45 : 1,
+                opacity: submitDisabled ? 0.45 : 1,
                 transition: 'opacity 180ms var(--ease), transform 180ms var(--ease)',
               }}
               onMouseEnter={(e) => {
-                if (!save.isPending && body.trim()) e.currentTarget.style.opacity = '0.85';
+                if (!submitDisabled) e.currentTarget.style.opacity = '0.85';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = save.isPending || !body.trim() ? '0.45' : '1';
+                e.currentTarget.style.opacity = submitDisabled ? '0.45' : '1';
               }}
               onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.97)'; }}
               onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}

@@ -13,7 +13,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 const NAV = [
   { label: 'cloth',  href: '/loom/weft' },
-  { label: 'memory', href: '/loom/compose' },
+  { label: 'memory', href: '/compose' },
   { label: '∞',      href: '/loom/pwa',    center: true },
   { label: 'letter', href: '/loom/letter' },
   { label: 'voice',  href: '/loom/voice' },

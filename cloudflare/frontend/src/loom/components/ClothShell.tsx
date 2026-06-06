@@ -1,30 +1,19 @@
-import { lazy, Suspense, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import type { ClothEntry } from './ClothCanvas3D';
+import { CLOTH_BG_ENTRIES } from './ClothBackdrop';
 
-const ClothCanvas3D = lazy(() =>
-  import('./ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
-);
-
-// Deterministic background entries — shared across all rooms
-function sineHash(n: number): number {
-  const x = Math.sin(n * 9301 + 49297) * 233280;
-  return x - Math.floor(x);
-}
-const DYE_KEYS = ['madder','cochineal','kermes','saffron','weld','walnut','oakgall','woad','indigo','iron'] as const;
-
-export const CLOTH_BG_ENTRIES = Array.from({ length: 48 }, (_, i) => ({
-  date: new Date(1952 + Math.floor(sineHash(i * 17 + 1) * 74), 0, 1),
-  dye: DYE_KEYS[i % DYE_KEYS.length],
-  locked: i % 4 === 0,
-}));
+// Re-exported for back-compat — the canonical source now lives in ClothBackdrop.
+export { CLOTH_BG_ENTRIES };
 
 interface ClothShellProps {
   children: ReactNode;
   topbarLeft?: ReactNode;
   topbarCenter?: ReactNode;
   topbarRight?: ReactNode;
+  /** @deprecated cloth is now a single global backdrop (LoomShellRoot) */
   backdropOpacity?: number;
   noTopbar?: boolean;
+  /** @deprecated cloth is now a single global backdrop (LoomShellRoot) */
   entries?: ClothEntry[];
 }
 
@@ -33,31 +22,14 @@ export function ClothShell({
   topbarLeft,
   topbarCenter,
   topbarRight,
-  backdropOpacity = 0.4,
   noTopbar = false,
-  entries,
 }: ClothShellProps) {
   return (
     <div
       className="loom"
       data-theme="dark"
-      style={{ position: 'fixed', inset: 0, background: '#0e0e0c', overflow: 'hidden' }}
+      style={{ position: 'fixed', inset: 0, background: 'transparent', overflow: 'hidden' }}
     >
-      {/* Animated cloth backdrop */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute', inset: 0,
-          opacity: backdropOpacity,
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-      >
-        <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#0e0e0c' }} />}>
-          <ClothCanvas3D entries={entries ?? CLOTH_BG_ENTRIES} />
-        </Suspense>
-      </div>
-
       {/* Topbar */}
       {!noTopbar && (
         <header
