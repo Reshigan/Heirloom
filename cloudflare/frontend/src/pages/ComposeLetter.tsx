@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useMemo, useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { familyApi, lettersApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
@@ -26,6 +26,9 @@ export function ComposeLetter() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  const [searchParams] = useSearchParams();
+  const letterId = searchParams.get('id');
+
   const [salutation, setSalutation] = useState('');
   const [body, setBody] = useState('');
   const [signature, setSignature] = useState('');
@@ -47,6 +50,30 @@ export function ComposeLetter() {
   const members: FamilyMember[] = Array.isArray(family) ? family : [];
   const recipient = members[recipientIdx] ?? null;
 
+  const { data: existingLetter } = useQuery({
+    queryKey: ['letter', letterId],
+    queryFn: () => lettersApi.getOne(letterId!).then((r) => r.data),
+    enabled: !!letterId,
+  });
+
+  useEffect(() => {
+    if (!existingLetter) return;
+    if (existingLetter.salutation) setSalutation(existingLetter.salutation);
+    if (existingLetter.body) setBody(existingLetter.body);
+    if (existingLetter.signature) setSignature(existingLetter.signature);
+    if (existingLetter.scheduledDate) setScheduledDate(existingLetter.scheduledDate);
+    const trigger = existingLetter.deliveryTrigger;
+    if (trigger === 'SCHEDULED') setDeliveryTrigger('date');
+    else if (trigger === 'AFTER_DEATH') setDeliveryTrigger('death');
+    else if (trigger === 'MILESTONE') setDeliveryTrigger('milestone');
+    else setDeliveryTrigger('now');
+    // Select recipient by ID match
+    if (existingLetter.recipients?.[0]?.id && members.length > 0) {
+      const idx = members.findIndex((m: FamilyMember) => m.id === existingLetter.recipients[0].id);
+      if (idx !== -1) setRecipientIdx(idx);
+    }
+  }, [existingLetter, members]);
+
   const sealedUntil = useMemo(() => {
     if (deliveryTrigger !== 'date' || !scheduledDate) return null;
     const d = new Date(`${scheduledDate}T00:00:00`);
@@ -67,7 +94,7 @@ export function ComposeLetter() {
           : deliveryTrigger === 'milestone'
             ? 'MILESTONE'
             : 'IMMEDIATE';
-    const { data } = await lettersApi.create({
+    const payload = {
       title: salutation.trim() || 'A letter',
       salutation: salutation.trim() || null,
       body: body.trim(),
@@ -75,9 +102,21 @@ export function ComposeLetter() {
       deliveryTrigger: trigger,
       scheduledDate: trigger === 'SCHEDULED' ? scheduledDate : null,
       recipientIds: recipient ? [recipient.id] : [],
-    });
-    if (seal && data?.id) {
-      await lettersApi.seal(data.id);
+    };
+    let data: any;
+    if (letterId) {
+      const res = await lettersApi.update(letterId, payload);
+      data = res.data;
+      // Only seal if not already sealed
+      if (seal && !existingLetter?.sealedAt) {
+        await lettersApi.seal(letterId);
+      }
+    } else {
+      const res = await lettersApi.create(payload);
+      data = res.data;
+      if (seal && data?.id) {
+        await lettersApi.seal(data.id);
+      }
     }
     return data;
   };
@@ -88,7 +127,7 @@ export function ComposeLetter() {
       queryClient.invalidateQueries({ queryKey: ['new-user-check-letters'] });
       queryClient.invalidateQueries({ queryKey: ['letters'] });
       queryClient.invalidateQueries({ queryKey: ['weft-letters'] });
-      navigate('/letters');
+      navigate('/loom/letter');
     },
     onError: (e: any) =>
       setError(e?.response?.data?.error ?? 'Could not save the letter.'),
@@ -100,7 +139,7 @@ export function ComposeLetter() {
       queryClient.invalidateQueries({ queryKey: ['new-user-check-letters'] });
       queryClient.invalidateQueries({ queryKey: ['letters'] });
       queryClient.invalidateQueries({ queryKey: ['weft-letters'] });
-      navigate('/letters');
+      navigate('/loom/letter');
     },
     onError: (e: any) =>
       setError(e?.response?.data?.error ?? 'Could not seal the letter.'),
