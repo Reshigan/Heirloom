@@ -103,6 +103,9 @@ const LoomEcho = lazy(() => import('./loom/pages/Echo').then(m => ({ default: m.
 const LoomReadingRoom = lazy(() => import('./loom/pages/ReadingRoom').then(m => ({ default: m.ReadingRoom })));
 const LoomConstellation = lazy(() => import('./loom/pages/Constellation').then(m => ({ default: m.Constellation })));
 const LoomMarketing = lazy(() => import('./loom/pages/Marketing').then(m => ({ default: m.Marketing })));
+const LoomLetterRoom = lazy(() => import('./loom/pages/LetterRoom').then(m => ({ default: m.LetterRoom })));
+const LoomVoiceRoom = lazy(() => import('./loom/pages/VoiceRoom').then(m => ({ default: m.VoiceRoom })));
+const LoomComposeLetter = lazy(() => import('./pages/ComposeLetter').then(m => ({ default: m.ComposeLetter })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -524,6 +527,9 @@ export default function App() {
           <Route path="/loom/read" element={<LoomReadingRoom />} />
           <Route path="/loom/kin" element={<ProtectedRoute><LoomConstellation /></ProtectedRoute>} />
           <Route path="/loom/marketing" element={<LoomMarketing />} />
+          <Route path="/loom/letter" element={<ProtectedRoute><LoomLetterRoom /></ProtectedRoute>} />
+          <Route path="/loom/voice" element={<ProtectedRoute><LoomVoiceRoom /></ProtectedRoute>} />
+          <Route path="/loom/compose-letter" element={<ProtectedRoute><LoomComposeLetter /></ProtectedRoute>} />
 
           {/* Catch all - 404 page */}
           <Route path="*" element={<NotFound />} />
