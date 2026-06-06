@@ -192,7 +192,11 @@ app.use('*', cors({
       'https://staging.heirloom.blue',
       ...(isDev ? ['http://localhost:3000'] : []),
     ];
-    return allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+    // [W5] Return null for disallowed origins so Hono's cors() middleware
+    // omits the Access-Control-Allow-Origin header entirely, rather than
+    // reflecting the first allowed origin — which would grant CORS to every
+    // request regardless of whether the origin is in the allow-list.
+    return allowedOrigins.includes(origin) ? origin : null;
   },
   credentials: true,
   allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],

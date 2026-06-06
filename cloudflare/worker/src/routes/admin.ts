@@ -34,7 +34,30 @@ const adminAuth = async (c: any, next: any) => {
 };
 
 // Admin login
+// [W4] Rate limit: max 5 attempts per 15 minutes per IP — tighter than the
+// user auth limit (10/60s) because admin credentials grant much wider access.
 adminRoutes.post('/login', async (c) => {
+  const ip = c.req.header('cf-connecting-ip') || c.req.header('x-forwarded-for') || 'unknown';
+  try {
+    const id = c.env.RATE_LIMITER.idFromName(`admin-login:${ip}`);
+    const limiter = c.env.RATE_LIMITER.get(id);
+    // 5 attempts per 900 000 ms (15 minutes)
+    const response = await limiter.fetch(
+      new Request(`http://internal/check?ip=${encodeURIComponent(ip)}&limit=5&window=900000`)
+    );
+    const result = await response.json() as { allowed: boolean; remaining: number; reset: number };
+    if (!result.allowed) {
+      return c.json(
+        { error: 'Too many login attempts. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(result.reset) } }
+      );
+    }
+  } catch (err) {
+    console.error('Admin login rate limiter error:', err);
+    // Fail closed: block the request if the rate-limiter is unavailable.
+    return c.json({ error: 'Service temporarily unavailable' }, 503);
+  }
+
   const body = await c.req.json();
   const { email, password } = body;
   

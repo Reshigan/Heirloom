@@ -175,20 +175,10 @@ threadsRoutes.get('/', async (c) => {
   return c.json({ threads: rows.results });
 });
 
-// GET /api/threads/:id — single thread detail (membership required)
-threadsRoutes.get('/:id', async (c) => {
-  const userId = c.get('userId');
-  if (!userId) return c.json({ error: 'Authentication required' }, 401);
-
-  const threadId = c.req.param('id');
-  const member = await getMembership(c.env, threadId, userId);
-  if (!member) return c.json({ error: 'Not a member of this thread' }, 403);
-
-  const thread = await c.env.DB.prepare(`SELECT * FROM threads WHERE id = ?`).bind(threadId).first();
-  if (!thread) return c.json({ error: 'Thread not found' }, 404);
-
-  return c.json({ thread, membership: member });
-});
+// NOTE [W3]: GET /:id is registered AFTER all literal sub-routes (inbox/upcoming,
+// inbox/recent, starter-prompts) at the bottom of this file. Hono matches
+// routes in registration order, so the literal routes must be registered first
+// or they would be shadowed by the parameterised /:id handler.
 
 // ============================================================================
 // MEMBERS
@@ -704,4 +694,27 @@ threadsRoutes.get('/starter-prompts', async (c) => {
   const stmt = c.env.DB.prepare(sql);
   const result = args.length ? await stmt.bind(...args).all() : await stmt.all();
   return c.json({ prompts: result.results });
+});
+
+// ============================================================================
+// [W3] GET /api/threads/:id — single thread detail (membership required)
+//
+// Registered LAST so literal sub-routes above (/inbox/upcoming, /inbox/recent,
+// /starter-prompts) are matched before this parameterised handler. Hono
+// evaluates handlers in registration order; a /:id registered earlier would
+// shadow those literal paths.
+// ============================================================================
+
+threadsRoutes.get('/:id', async (c) => {
+  const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Authentication required' }, 401);
+
+  const threadId = c.req.param('id');
+  const member = await getMembership(c.env, threadId, userId);
+  if (!member) return c.json({ error: 'Not a member of this thread' }, 403);
+
+  const thread = await c.env.DB.prepare(`SELECT * FROM threads WHERE id = ?`).bind(threadId).first();
+  if (!thread) return c.json({ error: 'Thread not found' }, 404);
+
+  return c.json({ thread, membership: member });
 });

@@ -133,9 +133,10 @@ inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
     SELECT id, name, email FROM legacy_contacts WHERE id = ?
   `).bind(legacyContactId).first();
   
-  // Get letters shared with this recipient (via family member relationship)
+  // Get letters sealed for the owner. Letters are the only content type
+  // with explicit recipient scoping (via the letters table structure).
   const letters = await c.env.DB.prepare(`
-    SELECT 
+    SELECT
       l.id,
       l.title,
       l.salutation,
@@ -149,38 +150,15 @@ inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
     ORDER BY l.created_at DESC
   `).bind(ownerId).all();
 
-  // Get memories shared with this recipient
-  const memories = await c.env.DB.prepare(`
-    SELECT
-      m.id,
-      m.title,
-      m.description,
-      m.description_enc,
-      m.description_iv,
-      m.file_url,
-      m.mime_type,
-      m.emotion,
-      m.created_at
-    FROM memories m
-    WHERE m.user_id = ? AND m.deleted_at IS NULL
-    ORDER BY m.created_at DESC
-  `).bind(ownerId).all();
-
-  // Get voice recordings shared with this recipient
-  const voiceRecordings = await c.env.DB.prepare(`
-    SELECT
-      v.id,
-      v.title,
-      v.description,
-      v.file_url,
-      v.duration,
-      v.emotion,
-      v.transcript,
-      v.created_at
-    FROM voice_recordings v
-    WHERE v.user_id = ? AND v.deleted_at IS NULL
-    ORDER BY v.created_at DESC
-  `).bind(ownerId).all();
+  // [W2] Memories and voice recordings do not have a per-recipient column in
+  // the current schema, so returning them for every recipient would expose ALL
+  // of the owner's content to every legacy contact regardless of intent.
+  // Until explicit recipient association is added to the schema (e.g. a
+  // memory_recipients junction table), these sections return empty arrays so
+  // that no content leaks across recipients.
+  //
+  // TODO: Add a `memory_recipients` and `voice_recipients` junction table,
+  // then replace the empty arrays below with queries filtered by legacyContactId.
 
   return c.json({
     letters: letters.results.map((l: any) => ({
@@ -193,25 +171,12 @@ inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
       sealedAt: l.sealed_at,
       createdAt: l.created_at,
     })),
-    memories: await Promise.all(memories.results.map(async (m: any) => ({
-      id: m.id,
-      title: m.title,
-      description: await readDescription(c.env, m),
-      fileUrl: m.file_url,
-      fileType: m.mime_type,
-      emotion: m.emotion,
-      createdAt: m.created_at,
-    }))),
-    voiceRecordings: voiceRecordings.results.map((v: any) => ({
-      id: v.id,
-      title: v.title,
-      description: v.description,
-      fileUrl: v.file_url,
-      duration: v.duration,
-      emotion: v.emotion,
-      transcript: v.transcript,
-      createdAt: v.created_at,
-    })),
+    // Recipient-scoped memories coming soon (see TODO above).
+    memories: [],
+    recipientScopedMemories: false,
+    // Recipient-scoped voice recordings coming soon (see TODO above).
+    voiceRecordings: [],
+    recipientScopedVoice: false,
   });
 });
 

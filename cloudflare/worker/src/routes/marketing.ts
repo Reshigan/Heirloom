@@ -2,6 +2,31 @@ import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
 
+// Local JWT verification — same algorithm as lib/auth.ts verifyJWT.
+// Required because marketing.ts must not accept unsigned JWT payloads.
+async function verifyMarketingJWT(token: string, secret: string): Promise<any> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['verify'],
+  );
+  const [headerB64, payloadB64, signatureB64] = token.split('.');
+  if (!headerB64 || !payloadB64 || !signatureB64) throw new Error('Malformed token');
+  const data = encoder.encode(`${headerB64}.${payloadB64}`);
+  const signature = Uint8Array.from(
+    atob(signatureB64.replace(/-/g, '+').replace(/_/g, '/')),
+    (c) => c.charCodeAt(0),
+  );
+  const valid = await crypto.subtle.verify('HMAC', key, signature, data);
+  if (!valid) throw new Error('Invalid token signature');
+  const payload = JSON.parse(atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/')));
+  if (payload.exp && Date.now() >= payload.exp * 1000) throw new Error('Token expired');
+  return payload;
+}
+
 const marketingRoutes = new Hono<AppEnv>();
 
 const adminAuth = async (c: any, next: any) => {
@@ -11,7 +36,9 @@ const adminAuth = async (c: any, next: any) => {
   }
   const token = authHeader.slice(7);
   try {
-    // First try KV session (same as admin.ts)
+    // Only accept KV-backed admin sessions (same as admin.ts adminAuth).
+    // Bare UUID lookups and unsigned JWT decodes have been removed — both
+    // allow authentication without a signature or password and are insecure.
     const adminSession = await c.env.KV.get(`admin:session:${token}`);
     if (adminSession) {
       const session = JSON.parse(adminSession);
@@ -20,23 +47,7 @@ const adminAuth = async (c: any, next: any) => {
       await next();
       return;
     }
-    
-    // Fallback: try direct admin ID lookup
-    const admin = await c.env.DB.prepare('SELECT * FROM admin_users WHERE id = ?').bind(token).first();
-    if (admin) {
-      c.set('adminId', admin.id);
-      c.set('adminRole', admin.role);
-      await next();
-      return;
-    }
-    
-    // Fallback: try JWT decode
-    const decoded = JSON.parse(atob(token.split('.')[1]));
-    const adminUser = await c.env.DB.prepare('SELECT * FROM admin_users WHERE id = ?').bind(decoded.adminId).first();
-    if (!adminUser) return c.json({ error: 'Unauthorized' }, 401);
-    c.set('adminId', adminUser.id);
-    c.set('adminRole', adminUser.role);
-    await next();
+    return c.json({ error: 'Unauthorized' }, 401);
   } catch {
     return c.json({ error: 'Invalid token' }, 401);
   }
@@ -508,12 +519,14 @@ marketingRoutes.get('/referral/code', async (c) => {
   if (!authHeader?.startsWith('Bearer ')) {
     return c.json({ error: 'Unauthorized' }, 401);
   }
-  
+
   const token = authHeader.slice(7);
   let userId: string;
   try {
-    const decoded = JSON.parse(atob(token.split('.')[1]));
-    userId = decoded.userId;
+    // [W1] Verify HMAC signature before trusting any payload claim.
+    const payload = await verifyMarketingJWT(token, c.env.JWT_SECRET);
+    userId = payload.userId ?? payload.sub;
+    if (!userId) throw new Error('No user identity in token');
   } catch {
     return c.json({ error: 'Invalid token' }, 401);
   }
@@ -545,32 +558,64 @@ marketingRoutes.get('/referral/code', async (c) => {
   });
 });
 
+// [W6] Require a valid, signature-verified JWT so anonymous callers cannot
+// record arbitrary referral conversions.  Also validate that referredUserId
+// refers to a real users row before inserting the conversion record.
 marketingRoutes.post('/referral/track', async (c) => {
+  // Auth: require a signed user JWT
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader?.startsWith('Bearer ')) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+  const token = authHeader.slice(7);
+  try {
+    const payload = await verifyMarketingJWT(token, c.env.JWT_SECRET);
+    const callerId = payload.userId ?? payload.sub;
+    if (!callerId) throw new Error('No user identity in token');
+    // Verify KV session is still active (same as requireAuth in lib/auth.ts)
+    const session = await c.env.KV.get(`session:${payload.sessionId}`);
+    if (!session) return c.json({ error: 'Session expired' }, 401);
+  } catch {
+    return c.json({ error: 'Invalid token' }, 401);
+  }
+
   const body = await c.req.json();
   const { code, referredUserId } = body;
-  
+
+  if (!code || !referredUserId) {
+    return c.json({ error: 'code and referredUserId are required' }, 400);
+  }
+
+  // Validate referredUserId references a real user
+  const referredUser = await c.env.DB.prepare(
+    'SELECT id FROM users WHERE id = ?'
+  ).bind(referredUserId).first();
+  if (!referredUser) {
+    return c.json({ error: 'Invalid referredUserId' }, 400);
+  }
+
   const referralCode = await c.env.DB.prepare(
     'SELECT * FROM referral_codes WHERE code = ? AND is_active = 1'
   ).bind(code).first();
-  
+
   if (!referralCode) {
     return c.json({ error: 'Invalid referral code' }, 400);
   }
-  
+
   if (referralCode.max_uses && (referralCode.uses_count as number) >= (referralCode.max_uses as number)) {
     return c.json({ error: 'Referral code has reached maximum uses' }, 400);
   }
-  
+
   const id = crypto.randomUUID().replace(/-/g, '');
   await c.env.DB.prepare(`
     INSERT INTO referral_conversions (id, referral_code_id, referred_user_id, referrer_user_id, status)
     VALUES (?, ?, ?, ?, 'PENDING')
   `).bind(id, referralCode.id, referredUserId, referralCode.user_id).run();
-  
+
   await c.env.DB.prepare(`
     UPDATE referral_codes SET uses_count = uses_count + 1 WHERE id = ?
   `).bind(referralCode.id).run();
-  
+
   return c.json({ success: true });
 });
 
