@@ -65,6 +65,7 @@ export function Composer() {
   // Save state (shared between paper + letter modes)
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   // Typewriter demo effect
   useEffect(() => {
@@ -108,6 +109,7 @@ export function Composer() {
   const handleSave = async () => {
     if (!isAuthenticated || !user?.defaultThreadId) return;
     setSaving(true);
+    setSaveError(null);
     try {
       await threadsApi.createEntry(user.defaultThreadId, {
         title: entryTitle,
@@ -118,6 +120,7 @@ export function Composer() {
       setTimeout(() => setSaved(false), 3000);
     } catch (e) {
       console.error('save failed', e);
+      setSaveError('Could not save. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -127,6 +130,7 @@ export function Composer() {
   const handleSealLetter = async () => {
     if (!isAuthenticated) return;
     setSaving(true);
+    setSaveError(null);
     try {
       const res = await lettersApi.create({
         salutation: 'Dear ' + (recipientName || 'you'),
@@ -140,6 +144,7 @@ export function Composer() {
       setTimeout(() => setSaved(false), 3000);
     } catch (e) {
       console.error('seal letter failed', e);
+      setSaveError('Could not save. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -147,6 +152,22 @@ export function Composer() {
 
   // Inline save status line (used in both paper + letter modes)
   const SaveStatus = () => {
+    if (saveError) {
+      return (
+        <span
+          role="alert"
+          style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 10,
+            color: 'var(--danger)',
+            letterSpacing: '0.1em',
+            fontStyle: 'italic',
+          }}
+        >
+          {saveError}
+        </span>
+      );
+    }
     if (saved) {
       return (
         <span
