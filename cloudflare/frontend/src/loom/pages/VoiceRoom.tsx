@@ -151,6 +151,8 @@ export function VoiceRoom() {
                         fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em',
                         textTransform: 'uppercase', color: 'rgba(176,122,74,0.7)',
                         textDecoration: 'none', borderBottom: '1px solid rgba(176,122,74,0.25)',
+                        padding: '12px 6px', minHeight: 44,
+                        display: 'inline-flex', alignItems: 'center',
                       }}
                     >
                       edit
@@ -162,7 +164,10 @@ export function VoiceRoom() {
                       aria-controls={`audio-${entry.id}`}
                       onClick={() => handlePlay(entry.id)}
                       style={{
-                        background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                        background: 'transparent', border: 0,
+                        padding: '10px 8px', minHeight: 44,
+                        display: 'inline-flex', alignItems: 'center',
+                        cursor: 'pointer',
                         fontFamily: 'var(--mono)', fontSize: 13,
                         color: 'rgba(244,236,216,0.55)',
                         lineHeight: 1,
