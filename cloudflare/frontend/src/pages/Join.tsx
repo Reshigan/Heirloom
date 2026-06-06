@@ -123,12 +123,12 @@ export function Join() {
           </>
         ) : (
           <>
-            <p className="hl-eyebrow" style={{ color: 'var(--warm)', marginBottom: 16 }}>you've been invited</p>
+            <p className="hl-eyebrow" style={{ color: 'var(--warm)', marginBottom: 16 }}>you've been included</p>
             <h1 className="hl-serif hl-tight" style={{ fontSize: 'clamp(24px, 6vw, 32px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px', letterSpacing: '-0.016em', lineHeight: 1.2 }}>
-              Join your family's thousand-year thread.
+              Your thread is waiting for your voice.
             </h1>
             <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', lineHeight: 1.7, fontWeight: 300, margin: '0 0 8px' }}>
-              Heirloom is a perpetual, append-only archive owned by your bloodline. Every word you write today is a permanent thread in your family's cloth.
+              Someone in your family has woven a permanent record of memories, letters, and stories — owned by your bloodline, not a platform. You've been included. Add your voice, or simply read what has been written.
             </p>
 
             <div

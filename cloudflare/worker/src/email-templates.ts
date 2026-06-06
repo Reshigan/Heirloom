@@ -1044,11 +1044,11 @@ export const threadInvitationEmail = (
   role: string,
   acceptUrl: string,
 ) => ({
-  subject: `${inviterName} invited you to the ${threadName} thread on Heirloom`,
+  subject: `${inviterName} included you in the ${threadName} thread`,
   html: baseTemplate(`
-    <h2>You've Been Invited</h2>
+    <h2>You've Been Included</h2>
     <p>Dear ${esc(inviteeName)},</p>
-    <p><span class="warm">${esc(inviterName)}</span> has invited you to join the
+    <p><span class="warm">${esc(inviterName)}</span> has included you in the
     <span class="warm">${esc(threadName)}</span> family thread on Heirloom.</p>
     <div class="info-box">
       <p><strong>Your role:</strong> <span class="warm">${esc(role)}</span></p>
@@ -1185,15 +1185,13 @@ export const familyReferralInviteEmail = (
   relationship: string,
   inviteUrl: string,
 ) => ({
-  subject: `${referrerName} invited you to join Heirloom`,
+  subject: `${referrerName} included you in their family thread`,
   html: baseTemplate(`
-    <div class="section">
-      <p class="section-label">family invitation</p>
-      <h2>You've been invited to preserve your family's story.</h2>
-      <p><strong>${esc(referrerName)}</strong> has added you as <em>${esc(relationship) || 'a family member'}</em> on Heirloom — a thousand-year family thread where every entry is preserved forever.</p>
-      <a href="${safeUrl(inviteUrl)}" class="button-warm">Accept invitation</a>
-      <p class="muted">Or copy this link: ${esc(inviteUrl)}</p>
-    </div>
+    <h2>You've been included in ${esc(referrerName)}'s thread.</h2>
+    <p><strong>${esc(referrerName)}</strong> has woven a permanent family record on Heirloom and included you as <em>${esc(relationship) || 'a family member'}</em>.</p>
+    <p>Add your voice, or simply read what has been written. Every entry is append-only — nothing is deleted, nothing rewrites the past.</p>
+    <a href="${safeUrl(inviteUrl)}" class="button-warm">Join the thread →</a>
+    <p class="muted" style="font-size: 14px; margin-top: 28px;">If you weren't expecting this, you can safely ignore this email.</p>
   `),
 });
 

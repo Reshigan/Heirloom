@@ -168,7 +168,7 @@ engagementRoutes.post('/invite', requireAuth, async (c) => {
   await sendEmail(c.env, {
     from: 'Heirloom <admin@heirloom.blue>',
     to: email,
-    subject: `${inviterName} invited you to preserve family memories on Heirloom`,
+    subject: `${inviterName} included you in a family thread on Heirloom`,
     html: familyInviteEmail(inviterName, name || 'there', inviteUrl, inviteCode),
   }, 'FAMILY_INVITE');
   
@@ -727,7 +727,7 @@ function familyInviteEmail(inviterName: string, inviteeName: string, inviteUrl: 
 
     <!-- eyebrow -->
     <p style="margin:0 0 14px;font-family:'Courier New',monospace;font-size:10px;letter-spacing:0.28em;text-transform:uppercase;color:#6b6b68;">
-      you've been invited
+      you've been included
     </p>
 
     <!-- headline -->
@@ -737,10 +737,10 @@ function familyInviteEmail(inviterName: string, inviteeName: string, inviteUrl: 
 
     <!-- body -->
     <p style="margin:0 0 16px;font-size:16px;line-height:1.7;color:#b8b0a0;font-weight:normal;">
-      Heirloom is a perpetual, append-only archive owned by your bloodline — not a platform. Every word written today becomes a permanent thread in your family's cloth.
+      Heirloom is a perpetual, append-only family archive — owned by your bloodline, not a platform. Every word woven in becomes a permanent record.
     </p>
     <p style="margin:0 0 40px;font-size:16px;line-height:1.7;color:#b8b0a0;font-weight:normal;">
-      ${inviterName} has invited you, ${inviteeName}, to join and weave your own voice into the same cloth.
+      ${inviteeName}, you're already part of this cloth. Add your voice, or simply read what has been written.
     </p>
 
     <!-- invite code box -->
