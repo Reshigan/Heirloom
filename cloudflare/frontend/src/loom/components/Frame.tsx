@@ -126,18 +126,15 @@ function UserMenu() {
           </p>
         </div>
         <div style={{ padding: '6px 0', borderBottom: '1px solid var(--rule)' }}>
-          <Link to="/memories" className="hl-menu-item" onClick={() => setOpen(false)}>Memories</Link>
-          <Link to="/ask" className="hl-menu-item" onClick={() => setOpen(false)}>Ask the thread</Link>
-          <Link to="/family" className="hl-menu-item" onClick={() => setOpen(false)}>Family</Link>
-        </div>
-        <div style={{ padding: '6px 0', borderBottom: '1px solid var(--rule)' }}>
-          <Link to="/settings" className="hl-menu-item" onClick={() => setOpen(false)}>Settings</Link>
-          <Link to="/billing" className="hl-menu-item" onClick={() => setOpen(false)}>Billing</Link>
+          <Link to="/family"             className="hl-menu-item" onClick={() => setOpen(false)}>family</Link>
+          <Link to="/settings"           className="hl-menu-item" onClick={() => setOpen(false)}>settings</Link>
+          <Link to="/billing"            className="hl-menu-item" onClick={() => setOpen(false)}>billing</Link>
+          <Link to="/gift-subscriptions" className="hl-menu-item" onClick={() => setOpen(false)}>gift a membership</Link>
         </div>
         <div style={{ padding: '6px 0' }}>
           <button type="button" className="hl-menu-item danger"
             onClick={() => { setOpen(false); logout(); }}>
-            Sign out
+            sign out
           </button>
         </div>
       </div>
@@ -222,6 +219,10 @@ function routeLabel(pathname: string): string {
   if (pathname.startsWith('/qa'))           return 'ask the thread';
   if (pathname.startsWith('/invite'))       return 'invite';
   if (pathname.startsWith('/wrapped'))      return 'wrapped';
+  if (pathname.startsWith('/loom/letter'))         return 'letter';
+  if (pathname.startsWith('/loom/voice'))          return 'voice';
+  if (pathname.startsWith('/loom/compose-letter')) return 'compose letter';
+  if (pathname.startsWith('/gift-subscriptions'))  return 'gift';
   return 'heirloom';
 }
 
