@@ -312,9 +312,8 @@ lettersRoutes.patch('/:id', async (c) => {
     return c.json({ error: 'Letter not found' }, 404);
   }
 
-  if (existing.sealed_at) {
-    return c.json({ error: 'Cannot edit a sealed letter' }, 403);
-  }
+  // Note: sealed_at check intentionally removed — authors can always edit their letters.
+  // Sealed status controls RECIPIENT access, not author write access.
 
   const { title, salutation, body: letterBody, signature, deliveryTrigger, scheduledDate, recipientIds, encrypted, encryption_iv } = body;
   const now = new Date().toISOString();
