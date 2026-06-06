@@ -515,97 +515,68 @@ export function PwaHome() {
         <div style={{
           position: 'absolute',
           inset: 0,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 48,
-          padding: '0 40px',
-          textAlign: 'center',
+          overflowY: 'auto',
+          overflowX: 'hidden',
         }}>
-          <div>
-            <div
-              style={{
-                fontFamily: 'var(--serif)',
-                fontVariationSettings: "'opsz' 48",
-                fontSize: 'clamp(26px, 5vw, 40px)',
-                fontWeight: 300,
-                color: 'var(--bone)',
-                lineHeight: 1.25,
-                letterSpacing: '-0.01em',
-                marginBottom: 20,
-              }}
-            >
-              your thread begins here.
+          <div style={{
+            padding: 'clamp(40px, 9vw, 64px) clamp(20px, 5vw, 32px)',
+            maxWidth: 520,
+            paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))',
+          }}>
+            <div className="hl-eyebrow" style={{ marginBottom: 18, color: 'var(--warm)' }}>
+              entry no. 0001
             </div>
-            <div
-              style={{
-                fontFamily: 'var(--serif)',
-                fontSize: 17,
-                fontStyle: 'italic',
-                color: 'var(--bone-dim)',
-                lineHeight: 1.6,
-                maxWidth: 440,
-              }}
-            >
-              write one thing. a memory, a letter to someone not yet born, a voice note before you forget.
-              the cloth takes whatever you give it.
+            <h2 className="hl-serif hl-tight" style={{
+              fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 300, lineHeight: 1.15,
+              margin: '0 0 18px', color: 'var(--bone)', fontVariationSettings: '"opsz" 30',
+            }}>
+              There is someone who needs to read this.<br />Just not yet.
+            </h2>
+            <p className="hl-serif" style={{
+              fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 300,
+              color: 'var(--bone-dim)', lineHeight: 1.68, margin: '0 0 28px', maxWidth: '40ch',
+            }}>
+              Write a letter today. Seal it for a date, a milestone, a death — or the moment you choose.
+              It holds safe and finds them exactly when you intended.
+            </p>
+
+            {/* Sealed letter preview */}
+            <div style={{
+              display: 'flex', flexDirection: 'column', gap: 6,
+              padding: '12px 16px 12px 18px',
+              border: '1px solid rgba(244,236,216,0.10)',
+              borderLeft: '2px solid rgba(176,122,74,0.55)',
+              marginBottom: 28,
+            }}>
+              <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                sealed · delivery: your choice
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <span className="hl-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>∞</span>
+                <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
+                  your first letter — written today
+                </span>
+              </div>
             </div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%', maxWidth: 360 }}>
-            <Link
-              to="/compose"
-              style={{
-                display: 'block',
-                padding: '14px 28px',
-                border: '1px solid var(--bone-dim)',
-                fontFamily: 'var(--mono)',
-                fontSize: 11,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: 'var(--bone)',
-                textDecoration: 'none',
-                textAlign: 'center',
-                transition: 'border-color 360ms cubic-bezier(0.16,1,0.3,1), color 360ms cubic-bezier(0.16,1,0.3,1)',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--warm)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--warm)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--bone-dim)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone)'; }}
-            >
-              write a memory
-            </Link>
-            <Link
-              to="/record"
-              style={{
-                display: 'block',
-                padding: '14px 28px',
-                border: '1px solid var(--rule)',
-                fontFamily: 'var(--mono)',
-                fontSize: 11,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-dim)',
-                textDecoration: 'none',
-                textAlign: 'center',
-                transition: 'border-color 360ms cubic-bezier(0.16,1,0.3,1), color 360ms cubic-bezier(0.16,1,0.3,1)',
-              }}
-              onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--bone-dim)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.borderColor = 'var(--rule)'; (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone-dim)'; }}
-            >
-              record your voice
-            </Link>
-          </div>
-          <div
-            style={{
-              fontFamily: 'var(--serif)',
-              fontSize: 14,
-              fontStyle: 'italic',
-              color: 'var(--bone-faint)',
-              maxWidth: 360,
-              lineHeight: 1.7,
-            }}
-          >
-            the listener is waiting.<br />
-            what did you almost forget to write down today?
+
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', marginBottom: 36 }}>
+              <Link to="/compose" className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>
+                Write your first sealed letter →
+              </Link>
+              <Link to="/record" style={{
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
+                color: 'var(--bone-dim)', textDecoration: 'none', borderBottom: '1px solid var(--rule)', paddingBottom: 1,
+              }}>or speak →</Link>
+            </div>
+
+            {prompt && (
+              <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 16 }}>
+                <div className="hl-eyebrow" style={{ marginBottom: 8, color: 'var(--bone-faint)' }}>the listener</div>
+                <p className="hl-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.7, margin: 0 }}>
+                  {prompt}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}
