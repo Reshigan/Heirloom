@@ -166,7 +166,17 @@ export function Settings() {
 
   return (
     <ClothShell
-      topbarLeft={<Link to="/loom" className="hl-link warm" style={{ fontSize: 12, letterSpacing: '0.08em' }}>← back</Link>}
+      topbarLeft={
+        <Link
+          to="/loom"
+          style={{
+            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em',
+            textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
+          }}
+        >
+          ← heirloom
+        </Link>
+      }
       topbarCenter="settings"
     >
       <style>{RESPONSIVE_CSS}</style>
