@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { familyApi, engagementApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
@@ -229,7 +229,17 @@ export function Family() {
 
   return (
     <ClothShell
-      topbarLeft={<span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'rgba(244,236,216,0.5)', letterSpacing: '0.08em' }}>← <a href="/loom/today" style={{ color: 'inherit', textDecoration: 'none' }}>today</a></span>}
+      topbarLeft={
+  <Link
+    to="/loom"
+    style={{
+      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em',
+      textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
+    }}
+  >
+    ← heirloom
+  </Link>
+}
       topbarCenter="family"
       topbarRight={!atLimit && !showForm ? (
         <button type="button" className="hl-btn" onClick={() => openForm('add')} style={{ fontSize: 10, padding: '5px 12px' }}>add →</button>
