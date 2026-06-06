@@ -20,9 +20,13 @@ function useEntryCount(): number | null {
 }
 
 // ── System security status ─────────────────────────────────────────────────
+// Only polls /api/health when authenticated — avoids 500 browser console
+// errors on public/marketing pages where the API is not expected to respond.
 function useSystemStatus(): 'green' | 'red' | null {
+  const { isAuthenticated } = useAuthStore();
   const [status, setStatus] = useState<'green' | 'red' | null>(null);
   useEffect(() => {
+    if (!isAuthenticated) return;
     let cancelled = false;
     const check = async () => {
       try {
@@ -35,7 +39,7 @@ function useSystemStatus(): 'green' | 'red' | null {
     check();
     const id = setInterval(check, 60_000);
     return () => { cancelled = true; clearInterval(id); };
-  }, []);
+  }, [isAuthenticated]);
   return status;
 }
 

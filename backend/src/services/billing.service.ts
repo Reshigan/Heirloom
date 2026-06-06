@@ -37,8 +37,16 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   BRL: 'R$',
 };
 
+// Currencies that have no minor units — Stripe expects whole-currency integers directly.
+// Full list: https://stripe.com/docs/currencies#zero-decimal
+const ZERO_DECIMAL_CURRENCIES = new Set([
+  'BIF', 'CLP', 'GNF', 'JPY', 'KMF', 'KRW', 'MGA', 'PYG', 'RWF',
+  'UGX', 'VND', 'VUV', 'XAF', 'XOF', 'XPF',
+]);
+
 export interface PriceInCurrency {
-  amount: number;
+  amount: number;         // whole-currency display amount (e.g. 9.19 EUR, 1494 JPY)
+  stripeUnitAmount: number; // value to pass as Stripe unit_amount (cents for standard, whole units for zero-decimal)
   currency: string;
   symbol: string;
   formatted: string;
@@ -52,15 +60,23 @@ export const billingService = {
     const currency = targetCurrency.toUpperCase();
     const rate = EXCHANGE_RATES[currency] || 1;
     const symbol = CURRENCY_SYMBOLS[currency] || '$';
-    
-    // Convert USD cents → target-currency whole-currency amount (e.g. 999 cents → 9.19 EUR).
-    // Math.round(usdCents * rate) gives the amount in target minor units; dividing by 100
-    // converts to whole-currency. This avoids the /100 * 100 double-conversion that would
-    // produce cents instead of whole-currency when `amount` is later passed to Stripe.
-    const amount = Math.round(usdCents * rate) / 100;
+    const isZeroDecimal = ZERO_DECIMAL_CURRENCIES.has(currency);
+
+    if (isZeroDecimal) {
+      // Zero-decimal currencies (e.g. JPY): Stripe expects whole units directly.
+      // usdCents / 100 → USD dollars, * rate → target whole units.
+      const stripeUnitAmount = Math.round(usdCents / 100 * rate);
+      const amount = stripeUnitAmount; // display amount equals Stripe unit amount
+      const formatted = `${symbol}${amount}`;
+      return { amount, stripeUnitAmount, currency, symbol, formatted };
+    }
+
+    // Standard currencies (e.g. EUR, GBP): Stripe expects minor units (cents).
+    // usdCents * rate → target minor units (e.g. 999 * 0.92 = 919 EUR-cents).
+    const stripeUnitAmount = Math.round(usdCents * rate);
+    const amount = stripeUnitAmount / 100; // whole-currency for display
     const formatted = `${symbol}${amount.toFixed(2)}`;
-    
-    return { amount, currency, symbol, formatted };
+    return { amount, stripeUnitAmount, currency, symbol, formatted };
   },
 
   /**
@@ -274,7 +290,7 @@ export const billingService = {
             name: `Heirloom ${tier.charAt(0) + tier.slice(1).toLowerCase()} Plan`,
             description: `${billingCycle === 'yearly' ? 'Annual' : 'Monthly'} subscription`,
           },
-          unit_amount: Math.round(priceData.amount * 100),
+          unit_amount: priceData.stripeUnitAmount,
           recurring: {
             interval: billingCycle === 'yearly' ? 'year' : 'month',
           },

@@ -41,6 +41,26 @@ describe('billingService — convertCurrency', () => {
   it('always formats to two decimal places', () => {
     expect(billingService.convertCurrency(500, 'USD').formatted).toBe('$5.00');
   });
+
+  it('JPY (zero-decimal currency): amount is whole yen and stripeUnitAmount is not multiplied by 100', () => {
+    // 999 USD cents / 100 = $9.99 USD; $9.99 × 149.50 JPY/USD ≈ 1494 whole yen
+    const jpy = billingService.convertCurrency(999, 'JPY');
+    expect(jpy.currency).toBe('JPY');
+    expect(jpy.symbol).toBe('¥');
+    // display amount should be ~1494 whole yen
+    expect(jpy.amount).toBeCloseTo(1494, 0);
+    // Stripe unit_amount for JPY must equal the whole-yen value directly (no *100)
+    expect(jpy.stripeUnitAmount).toBeCloseTo(1494, 0);
+    // Guard against 100x overcharge regression: stripeUnitAmount must NOT be ~149,401
+    expect(jpy.stripeUnitAmount).toBeLessThan(10_000);
+  });
+
+  it('standard currencies expose correct stripeUnitAmount in minor units', () => {
+    // 999 USD cents × 0.92 EUR rate = 919 EUR-cents
+    const eur = billingService.convertCurrency(999, 'EUR');
+    expect(eur.stripeUnitAmount).toBeCloseTo(919, 0);
+    expect(eur.amount).toBeCloseTo(9.19, 2);
+  });
 });
 
 describe('billingService — getPricingInCurrency', () => {

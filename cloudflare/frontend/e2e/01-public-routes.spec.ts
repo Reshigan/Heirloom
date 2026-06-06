@@ -33,12 +33,15 @@ for (const route of PUBLIC_ROUTES) {
         const text = msg.text();
         // Filter out known benign noise: DevTools, favicon, and CORS errors from
         // localhost that would not occur on the production origin (api.heirloom.blue
-        // only allowlists heirloom.blue in CORS, not localhost).
+        // only allowlists heirloom.blue in CORS, not localhost). Chrome surfaces CORS
+        // failures as 'CORS policy'; WebKit (mobile profile) surfaces them as
+        // 'Access-Control-Allow-Origin' — both are filtered.
         if (
           !text.includes('DevTools') &&
           !text.includes('favicon') &&
           !text.includes('net::ERR_') &&
           !text.includes('CORS policy') &&
+          !text.includes('Access-Control-Allow-Origin') &&
           !text.includes('Failed to fetch')
         ) {
           criticalErrors.push(text);

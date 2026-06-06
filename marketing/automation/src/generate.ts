@@ -67,6 +67,13 @@ Produce ONE source post we'll adapt across platforms. Output strict JSON, no pro
 JSON only. No markdown fences. No explanation.`;
 }
 
+function stripFences(raw: string): string {
+  return raw
+    .replace(/^```(?:json|javascript|js)?\s*\n?/i, '')
+    .replace(/\n?```\s*$/i, '')
+    .trim();
+}
+
 export async function generateSourcePost(input: GenerateInput): Promise<SourcePost> {
   const userPrompt = buildUserPrompt(input);
 
@@ -89,8 +96,8 @@ export async function generateSourcePost(input: GenerateInput): Promise<SourcePo
   }
 
   const raw = textBlock.text.trim();
-  // Tolerate accidental markdown fences.
-  const json = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
+  // Tolerate accidental markdown fences (including ```json, ```javascript, ```js).
+  const json = stripFences(raw);
 
   let parsed: unknown;
   try {

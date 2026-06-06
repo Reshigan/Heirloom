@@ -66,6 +66,13 @@ interface VariantInput {
   platforms: PlatformKey[];
 }
 
+function stripFences(raw: string): string {
+  return raw
+    .replace(/^```(?:json|javascript|js)?\s*\n?/i, '')
+    .replace(/\n?```\s*$/i, '')
+    .trim();
+}
+
 export async function generateVariants({ source, platforms }: VariantInput): Promise<Variant[]> {
   const platformBlock = platforms
     .map((p) => `### ${p}\n${PLATFORM_GUIDELINES[p]}`)
@@ -121,7 +128,7 @@ JSON only.`;
   }
 
   const raw = textBlock.text.trim();
-  const json = raw.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "");
+  const json = stripFences(raw);
 
   let parsed: unknown;
   try {
