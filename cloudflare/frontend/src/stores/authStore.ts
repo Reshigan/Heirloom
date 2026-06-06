@@ -127,6 +127,11 @@ export const useAuthStore = create<AuthState>()(
           try {
             navigator.serviceWorker?.controller?.postMessage('CLEAR_API_CACHE');
           } catch { /* SW not available in this context */ }
+          // Signal App.tsx to clear the React Query cache so stale user data
+          // is not served to the next account on a shared device.
+          try {
+            window.dispatchEvent(new Event('heirloom-logout'));
+          } catch { /* ignore */ }
           set({ user: null, isAuthenticated: false });
         }
       },

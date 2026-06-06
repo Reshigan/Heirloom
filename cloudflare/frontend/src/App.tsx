@@ -129,8 +129,11 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   if (!_hasHydrated) return <div style={{ minHeight: '100vh', backgroundColor: 'var(--ink)' }} />;
   if (isAuthenticated) {
     // Honor a ?redirect= param so gift/redeem flows land on the right page after login.
+    // Sanitize to prevent open redirect: only allow same-origin paths (start with /,
+    // but not //).
     const params = new URLSearchParams(window.location.search);
-    const to = params.get('redirect') || '/loom';
+    const raw = params.get('redirect') || '/loom';
+    const to = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/loom';
     return <Navigate to={to} replace />;
   }
   return <>{children}</>;
@@ -144,9 +147,16 @@ function PendingInviteAcceptor() {
     if (!isAuthenticated || !user) return;
     const code = localStorage.getItem(PENDING_INVITE_KEY);
     if (!code) return;
-    localStorage.removeItem(PENDING_INVITE_KEY);
+    // Only remove the code after the API call succeeds; on failure it stays
+    // in localStorage and will be retried on the next load.
     import('./services/api').then(({ engagementApi }) => {
-      engagementApi.acceptFamilyInvite(code).catch(() => {});
+      engagementApi.acceptFamilyInvite(code)
+        .then(() => {
+          localStorage.removeItem(PENDING_INVITE_KEY);
+        })
+        .catch((err) => {
+          console.error('Failed to accept family invite:', err);
+        });
     });
   }, [isAuthenticated, user]);
   return null;
@@ -213,6 +223,14 @@ export default function App() {
   // a future redeploy can recover stale tabs (see lib/chunkReload.ts).
   useEffect(() => {
     clearChunkReloadFlag();
+  }, []);
+
+  // Clear the React Query cache when logout fires so stale user data is not
+  // served to the next account on a shared device (F6).
+  useEffect(() => {
+    const handler = () => queryClient.clear();
+    window.addEventListener('heirloom-logout', handler);
+    return () => window.removeEventListener('heirloom-logout', handler);
   }, []);
 
   return (

@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
 import { TapestryEdge } from '../loom/components/Frame';
+import api from '../services/api';
 
 interface GoldLegacyVoucherInfo {
   code: string;
@@ -84,19 +85,10 @@ export function GoldLegacyRedeem() {
     setIsRedeeming(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch(
-        `${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/redeem`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ code: code.toUpperCase() }),
-        }
-      );
-      const data = await res.json();
+      // Use the axios api instance so the auth interceptor handles token
+      // refresh automatically — raw fetch bypasses the 401→refresh→retry logic.
+      const res = await api.post('/gift-vouchers/redeem', { code: code.toUpperCase() });
+      const data = res.data;
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ['subscription'] });
         queryClient.invalidateQueries({ queryKey: ['limits'] });

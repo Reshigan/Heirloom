@@ -67,8 +67,9 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError);
-        clearTokens();
+        // Read hadSession BEFORE clearTokens() removes 'heirloom-auth'.
         const hadSession = !!localStorage.getItem('heirloom-auth');
+        clearTokens();
         window.location.href = hadSession ? '/login?session_expired=true' : '/login';
         return Promise.reject(refreshError);
       }

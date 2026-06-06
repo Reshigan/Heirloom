@@ -21,7 +21,7 @@ export function Today() {
   const { isAuthenticated } = useAuthStore();
   const [prompt, setPrompt] = useState<string>(localPrompt);
   const [onThisDay, setOnThisDay] = useState<OnThisDayEntry[]>([]);
-  const entries = useTapestryEntries();
+  const { entries } = useTapestryEntries();
 
   // Fetch real AI prompt when authenticated
   useEffect(() => {

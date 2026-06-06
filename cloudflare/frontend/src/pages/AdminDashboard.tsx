@@ -18,7 +18,13 @@ const useAdminAuth = () => {
     }
   }, [token, adminUser, navigate]);
 
-  return adminUser ? JSON.parse(adminUser) : null;
+  if (!adminUser) return null;
+  try {
+    return JSON.parse(adminUser);
+  } catch {
+    navigate('/admin/login');
+    return null;
+  }
 };
 
 
@@ -38,16 +44,19 @@ export function AdminDashboard() {
   const { data: overview } = useQuery({
     queryKey: ['admin-overview'],
     queryFn: () => adminApi.getAnalyticsOverview().then(r => r.data),
+    enabled: !!localStorage.getItem('adminToken'),
   });
 
   const { data: revenue } = useQuery({
     queryKey: ['admin-revenue'],
     queryFn: () => adminApi.getAnalyticsRevenue().then(r => r.data),
+    enabled: !!localStorage.getItem('adminToken'),
   });
 
   const { data: userAnalytics } = useQuery({
     queryKey: ['admin-user-analytics'],
     queryFn: () => adminApi.getAnalyticsUsers().then(r => r.data),
+    enabled: !!localStorage.getItem('adminToken'),
   });
 
   const { data: coupons } = useQuery({
