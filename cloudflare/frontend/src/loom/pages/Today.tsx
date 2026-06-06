@@ -20,15 +20,26 @@ export function Today() {
   const localPrompt = useListener();
   const { isAuthenticated } = useAuthStore();
   const [prompt, setPrompt] = useState<string>(localPrompt);
+  const [promptUnavailable, setPromptUnavailable] = useState(false);
   const [onThisDay, setOnThisDay] = useState<OnThisDayEntry[]>([]);
   const { entries } = useTapestryEntries();
+  const [onThisDayError, setOnThisDayError] = useState(false);
 
   // Fetch real AI prompt when authenticated
   useEffect(() => {
     if (!isAuthenticated) return;
     aiApi.getPrompt()
-      .then(r => { if (r.data?.text) setPrompt(r.data.text); })
-      .catch(() => {});
+      .then(r => {
+        if (r.data?.text) {
+          setPrompt(r.data.text);
+          setPromptUnavailable(false);
+        }
+      })
+      .catch((err) => {
+        console.error('[Today] AI prompt fetch failed:', err);
+        setPromptUnavailable(true);
+        // localPrompt (from useListener) remains as the fallback
+      });
   }, [isAuthenticated]);
 
   // Fetch "on this day" memories when authenticated
@@ -39,8 +50,12 @@ export function Today() {
         const raw = r.data;
         const list: OnThisDayEntry[] = Array.isArray(raw) ? raw : (raw?.memories ?? raw?.data ?? []);
         setOnThisDay(list);
+        setOnThisDayError(false);
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error('[Today] on-this-day fetch failed:', err);
+        setOnThisDayError(true);
+      });
   }, [isAuthenticated]);
   const [revealed, setRevealed] = useState(false);
   const [vpW, setVpW] = useState(typeof window !== 'undefined' ? window.innerWidth : 1440);
@@ -133,7 +148,7 @@ export function Today() {
           <div style={{ marginTop: 52, borderTop: '1px solid var(--rule)', paddingTop: 20 }}>
             <div className="hl-eyebrow" style={{ marginBottom: 10, color: 'var(--bone-faint)' }}>the listener</div>
             <p className="hl-serif" style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.7, margin: 0, maxWidth: '44ch' }}>
-              {prompt}
+              {promptUnavailable ? 'prompt unavailable' : prompt}
             </p>
           </div>
         </div>
@@ -210,26 +225,32 @@ export function Today() {
         )}
 
         {/* On this day — real data when authenticated */}
-        {onThisDay.length > 0 && (
+        {(onThisDay.length > 0 || onThisDayError) && (
           <div
             style={{ marginTop: 40, borderTop: '1px solid var(--rule)', paddingTop: 20,
               opacity: revealed ? 1 : 0, transition: `opacity 1400ms ${ease}`, transitionDelay: '540ms' }}
           >
             <div className="hl-eyebrow" style={{ marginBottom: 14 }}>on this day</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {onThisDay.slice(0, 3).map((m) => (
-                <div key={m.id} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  {m.yearsAgo !== undefined && (
-                    <span className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-                      {m.yearsAgo} {m.yearsAgo === 1 ? 'year' : 'years'} ago
+            {onThisDayError ? (
+              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', fontStyle: 'italic', letterSpacing: '0.08em', margin: 0 }}>
+                unavailable
+              </p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {onThisDay.slice(0, 3).map((m) => (
+                  <div key={m.id} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    {m.yearsAgo !== undefined && (
+                      <span className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                        {m.yearsAgo} {m.yearsAgo === 1 ? 'year' : 'years'} ago
+                      </span>
+                    )}
+                    <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, color: 'var(--bone-dim)', fontStyle: 'italic', lineHeight: 1.5 }}>
+                      {m.title ?? m.description ?? '—'}
                     </span>
-                  )}
-                  <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, color: 'var(--bone-dim)', fontStyle: 'italic', lineHeight: 1.5 }}>
-                    {m.title ?? m.description ?? '—'}
-                  </span>
-                </div>
-              ))}
-            </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

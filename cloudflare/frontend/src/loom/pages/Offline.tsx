@@ -278,17 +278,83 @@ export function Offline() {
 
 export default Offline;
 
+const BATCH_SIZE = 3;
+
 /**
  * useSyncHoldingQueue — when the device transitions from offline → online,
- * drain the in-memory holding queue by posting entries to the API.
+ * drain the holding queue by posting entries to the API in batches of 3.
  * Entries that succeed are removed from localStorage; failed ones stay
  * so they retry on the next reconnect.
+ *
+ * Returns a triggerSync callback so external callers (e.g. the SW message
+ * handler) can force a sync attempt without waiting for an online transition.
  */
-function useSyncHoldingQueue(online: boolean): void {
+function useSyncHoldingQueue(online: boolean): { triggerSync: () => void } {
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
   const wasOfflineRef = useRef(false);
   const isSyncingRef = useRef(false);
+
+  // [SW3] On mount, if the user is authenticated and the queue is non-empty,
+  // mark wasOfflineRef so the next online=true effect fires a sync. This
+  // recovers entries that were stranded by a 401/token-expiry during a prior
+  // offline period — after the user logs back in, the queue will sync.
+  useEffect(() => {
+    if (isAuthenticated && readQueue().length > 0) {
+      wasOfflineRef.current = true;
+    }
+  }, [isAuthenticated]);
+
+  const runSync = useCallback(async (active: { current: boolean }) => {
+    if (!isAuthenticated || isSyncingRef.current) return;
+
+    const queue = readQueue();
+    if (queue.length === 0) {
+      wasOfflineRef.current = false;
+      return;
+    }
+
+    isSyncingRef.current = true;
+
+    // [SW1] We use type: 'LETTER' because it is the only text-content type in
+    // the backend createMemorySchema (the alternatives are PHOTO/VOICE/VIDEO
+    // which are all media). This is semantically the least-wrong option for
+    // freeform text. Identify offline-originated entries via metadata.offline === true.
+    const results: PromiseSettledResult<string>[] = [];
+    for (let i = 0; i < queue.length; i += BATCH_SIZE) {
+      // [SW4] Process in batches of 3 to avoid hammering the API
+      const batch = queue.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.allSettled(
+        batch.map(async (entry) => {
+          await memoriesApi.create({
+            type: 'LETTER',
+            title: 'offline note',
+            description: entry.text,
+            metadata: { offline: true, offlineAt: entry.at, dye: entry.dye },
+          });
+          return entry.id;
+        })
+      );
+      results.push(...batchResults);
+      if (!active.current) break;
+    }
+
+    isSyncingRef.current = false;
+    wasOfflineRef.current = false;
+
+    if (!active.current) return;
+
+    const synced = results
+      .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled')
+      .map((r) => r.value);
+    if (synced.length > 0) {
+      writeQueue(readQueue().filter((e) => !synced.includes(e.id)));
+      queryClient.invalidateQueries({ queryKey: ['memories'] });
+      queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
+      queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
+      queryClient.invalidateQueries({ queryKey: ['new-user-check-memories'] });
+    }
+  }, [isAuthenticated, queryClient]);
 
   useEffect(() => {
     if (!online) {
@@ -298,44 +364,21 @@ function useSyncHoldingQueue(online: boolean): void {
     // Guard: only sync on the offline→online transition, and only once at a time
     if (!wasOfflineRef.current || !isAuthenticated || isSyncingRef.current) return;
 
-    const queue = readQueue();
-    if (queue.length === 0) {
-      wasOfflineRef.current = false;
-      return;
+    const active = { current: true };
+    runSync(active);
+    return () => { active.current = false; };
+  }, [online, isAuthenticated, runSync]);
+
+  // Expose a callback so the SW message handler can force a sync attempt
+  const triggerSync = useCallback(() => {
+    wasOfflineRef.current = true;
+    if (online && isAuthenticated && !isSyncingRef.current) {
+      const active = { current: true };
+      runSync(active);
     }
+  }, [online, isAuthenticated, runSync]);
 
-    let active = true;
-    isSyncingRef.current = true;
-
-    Promise.allSettled(
-      queue.map(async (entry) => {
-        await memoriesApi.create({
-          type: 'LETTER',
-          title: 'offline note',
-          description: entry.text,
-          metadata: { offline: true, offlineAt: entry.at, dye: entry.dye },
-        });
-        return entry.id;
-      })
-    ).then((results) => {
-      // Only update state if the component is still mounted
-      isSyncingRef.current = false;
-      wasOfflineRef.current = false;
-      if (!active) return;
-      const synced = results
-        .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled')
-        .map((r) => r.value);
-      if (synced.length > 0) {
-        writeQueue(readQueue().filter((e) => !synced.includes(e.id)));
-        queryClient.invalidateQueries({ queryKey: ['memories'] });
-        queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
-        queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
-        queryClient.invalidateQueries({ queryKey: ['new-user-check-memories'] });
-      }
-    });
-
-    return () => { active = false; };
-  }, [online, isAuthenticated, queryClient]);
+  return { triggerSync };
 }
 
 /**
@@ -371,7 +414,21 @@ export function useOnline(): boolean {
  */
 export function OfflineGate({ children }: { children: ReactNode }) {
   const online = useOnline();
-  useSyncHoldingQueue(online);
+  const { triggerSync } = useSyncHoldingQueue(online);
+
+  // [SW2] Listen for PROCESS_OFFLINE_QUEUE messages from the service worker.
+  // The SW sends this message when the 'hl-queue-sync' background sync fires,
+  // relaying it to open clients so the app can drain the queue.
+  useEffect(() => {
+    const handler = (event: MessageEvent) => {
+      if (event.data?.type === 'PROCESS_OFFLINE_QUEUE') {
+        triggerSync();
+      }
+    };
+    navigator.serviceWorker?.addEventListener('message', handler);
+    return () => navigator.serviceWorker?.removeEventListener('message', handler);
+  }, [triggerSync]);
+
   if (online) return <>{children}</>;
   return <Offline />;
 }

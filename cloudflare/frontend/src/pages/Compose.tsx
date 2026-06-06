@@ -472,13 +472,9 @@ export function Compose() {
   const draftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load family members for autosuggest
-  const { data: familyData } = useQuery({
+  const { data: familyData, isError: familyError } = useQuery({
     queryKey: ['family'],
-    queryFn: () =>
-      familyApi
-        .getAll()
-        .then((r) => r.data as FamilyMember[])
-        .catch(() => []),
+    queryFn: () => familyApi.getAll().then((r) => r.data as FamilyMember[]),
     enabled: isAuthenticated,
     staleTime: 5 * 60 * 1000,
   });
@@ -862,6 +858,20 @@ export function Compose() {
 
           {/* ── Step 1: Who is this for? ──────────────────────────────── */}
           <div style={{ opacity: writingFocused ? 0.5 : 1, transition: `opacity 720ms ${ease}` }}>
+            {familyError && (
+              <p
+                style={{
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: 11,
+                  color: 'var(--bone-faint)',
+                  fontStyle: 'italic',
+                  margin: '0 0 12px',
+                  letterSpacing: '0.04em',
+                }}
+              >
+                Could not load family members.
+              </p>
+            )}
             <ToField
               members={members}
               recipientId={recipientId}

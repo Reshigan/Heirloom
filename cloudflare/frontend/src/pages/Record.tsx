@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { voiceApi, familyApi } from '../services/api';
+import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
 import { TapestryEdge } from '../loom/components/Frame';
 
@@ -36,6 +37,7 @@ export function Record() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
+  const { isAuthenticated } = useAuthStore();
 
   const [title, setTitle] = useState('');
   const [transcript, setTranscript] = useState('');
@@ -53,10 +55,11 @@ export function Record() {
   const [deliveryTrigger, setDeliveryTrigger] = useState<SpeakTrigger>('now');
   const [scheduledDate, setScheduledDate] = useState('');
 
-  // Family autosuggest
+  // Family autosuggest — only fetch when authenticated to avoid 401s
   const { data: familyData } = useQuery({
     queryKey: ['family'],
     queryFn: () => familyApi.getAll().then(r => (r.data as any)?.members ?? r.data ?? []),
+    enabled: isAuthenticated,
   });
   const familyMembers: { id: string; name: string; relationship?: string }[] =
     Array.isArray(familyData) ? familyData : [];
@@ -175,11 +178,14 @@ export function Record() {
         filename,
         contentType,
       });
-      await fetch(upload.uploadUrl ?? upload.url, {
+      const uploadResponse = await fetch(upload.uploadUrl ?? upload.url, {
         method: 'PUT',
         body: audioBlob,
         headers: { 'Content-Type': contentType },
       });
+      if (!uploadResponse.ok) {
+        throw new Error(`Upload failed: ${uploadResponse.status}`);
+      }
       const { data } = await voiceApi.create({
         title: title.trim() || PROMPTS[promptIdx],
         transcript: transcript.trim() || null,
