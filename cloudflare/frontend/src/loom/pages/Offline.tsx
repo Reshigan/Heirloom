@@ -330,6 +330,7 @@ function useSyncHoldingQueue(online: boolean): void {
         queryClient.invalidateQueries({ queryKey: ['memories'] });
         queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
         queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
+        queryClient.invalidateQueries({ queryKey: ['new-user-check-memories'] });
       }
     });
 

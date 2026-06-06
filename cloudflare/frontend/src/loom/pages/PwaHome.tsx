@@ -181,7 +181,7 @@ function AuthHome({
   // Visitor — no cloth, just invite
   if (role === 'visitor') {
     return (
-      <div style={{ padding: `36px ${P}` }}>
+      <div style={{ padding: `36px ${P}`, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
         <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>preview</span>
         <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 24px', lineHeight: 1.15 }}>
           {greeting}
@@ -194,7 +194,7 @@ function AuthHome({
   // Awaiting / legacy — no cloth
   if (role === 'future_member') {
     return (
-      <div style={{ padding: `36px ${P}` }}>
+      <div style={{ padding: `36px ${P}`, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
         <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>awaiting</span>
         <p className="hl-serif" style={{ fontSize: 16, fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.6 }}>
           A thread is being prepared for you.
@@ -206,7 +206,7 @@ function AuthHome({
   // First-run: no entries yet — show sealed letter prompt
   if (count === 0 && role !== 'reader' && role !== 'successor') {
     return (
-      <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 560 }}>
+      <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 560, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
         <div className="hl-eyebrow" style={{ marginBottom: 18, color: 'var(--warm)' }}>
           entry no. 0001
         </div>
@@ -478,7 +478,7 @@ export function PwaHome() {
   const role = useRole();
   const entries = useTapestryEntries();
   const prompt  = useListener();
-  const { isNewUser } = useIsNewUser();
+  const { isNewUser, isLoading: isNewUserLoading } = useIsNewUser();
   const [wizardDone, setWizardDone] = useState(() => !shouldShowWizard());
   const { isAuthenticated } = useAuthStore();
   const [stats, setStats] = useState<{ entries: number; members: number } | null>(null);
@@ -511,7 +511,7 @@ export function PwaHome() {
       {!wizardDone && <PwaWizard onDone={() => setWizardDone(true)} />}
 
       {/* First-run experience — shown when the user has no entries yet */}
-      {isNewUser && (
+      {!isNewUserLoading && isNewUser && (
         <div style={{
           position: 'absolute',
           inset: 0,

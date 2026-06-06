@@ -85,6 +85,7 @@ export function ComposeLetter() {
   const draft = useMutation({
     mutationFn: () => persist(false),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['new-user-check-letters'] });
       queryClient.invalidateQueries({ queryKey: ['letters'] });
       queryClient.invalidateQueries({ queryKey: ['weft-letters'] });
       navigate('/letters');
@@ -96,6 +97,7 @@ export function ComposeLetter() {
   const seal = useMutation({
     mutationFn: () => persist(true),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['new-user-check-letters'] });
       queryClient.invalidateQueries({ queryKey: ['letters'] });
       queryClient.invalidateQueries({ queryKey: ['weft-letters'] });
       navigate('/letters');

@@ -200,6 +200,7 @@ export function Record() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
       queryClient.invalidateQueries({ queryKey: ['weft-voice'] });
+      queryClient.invalidateQueries({ queryKey: ['new-user-check-voice'] });
       setSealedCeremony(true);
       setTimeout(() => navigate('/memories'), 1400);
     },

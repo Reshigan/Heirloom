@@ -628,10 +628,12 @@ export function Compose() {
     onSuccess: () => {
       localStorage.removeItem(draftKey);
       if (isLetter) {
+        queryClient.invalidateQueries({ queryKey: ['new-user-check-letters'] });
         queryClient.invalidateQueries({ queryKey: ['letters'] });
         queryClient.invalidateQueries({ queryKey: ['weft-letters'] });
         navigate('/letters');
       } else {
+        queryClient.invalidateQueries({ queryKey: ['new-user-check-memories'] });
         queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
         queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
         setWoven(true);
