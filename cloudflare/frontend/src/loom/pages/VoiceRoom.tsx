@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../components/ClothShell';
@@ -18,7 +18,7 @@ function dyeFor(id: string): string {
 }
 
 function formatDuration(seconds: number | null): string {
-  if (!seconds) return '';
+  if (seconds === null || seconds === undefined) return '';
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return `${m}:${String(s).padStart(2, '0')}`;
@@ -40,6 +40,15 @@ const WAVEFORM_HEIGHTS = [12, 20, 8, 24, 16, 10, 22, 14, 6, 18, 20, 10];
 export function VoiceRoom() {
   const { isAuthenticated } = useAuthStore();
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  function handlePlay(entryId: string) {
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    setPlayingId((prev) => (prev === entryId ? null : entryId));
+  }
 
   const { data, isLoading } = useQuery({
     queryKey: ['voice'],
@@ -148,8 +157,10 @@ export function VoiceRoom() {
                     </Link>
                     <button
                       type="button"
+                      aria-label={isPlaying ? 'Stop voice recording' : 'Play voice recording'}
                       aria-expanded={isPlaying}
-                      onClick={() => setPlayingId(isPlaying ? null : entry.id)}
+                      aria-controls={`audio-${entry.id}`}
+                      onClick={() => handlePlay(entry.id)}
                       style={{
                         background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                         fontFamily: 'var(--mono)', fontSize: 13,
@@ -193,15 +204,17 @@ export function VoiceRoom() {
                 </div>
 
                 {/* Expanded audio player */}
-                {isPlaying && (
+                {isPlaying && entry.fileUrl && (
                   <div
+                    id={`audio-${entry.id}`}
                     style={{
                       marginTop: 8,
                       animation: `hl-fade 360ms ${EASE}`,
                     }}
                   >
                     <audio
-                      src={entry.fileUrl ?? ''}
+                      ref={(el) => { audioRef.current = el; }}
+                      src={entry.fileUrl}
                       autoPlay
                       controls
                       onEnded={() => setPlayingId(null)}
