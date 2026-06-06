@@ -1,53 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { HLogo } from '../loom/components/HLogo';
+import { ClothShell } from '../loom/components/ClothShell';
 import { giftSubscriptionsApi } from '../services/api';
-
-// ── MktBar ────────────────────────────────────────────────────────────────────
-function MktBar() {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '24px 56px',
-        borderBottom: '1px solid var(--parchment-rule)',
-      }}
-    >
-      <Link to="/" style={{ textDecoration: 'none' }}>
-        <HLogo size={20} wordmark mono color="var(--parchment-ink)" wordColor="#1a1916" />
-      </Link>
-      <nav
-        style={{
-          display: 'flex',
-          gap: 32,
-          fontFamily: 'var(--mono)',
-          fontSize: 10.5,
-          letterSpacing: '0.32em',
-          textTransform: 'uppercase',
-          color: 'var(--parchment-dim)',
-        }}
-      >
-        {[
-          { to: '/',        label: 'home'     },
-          { to: '/founders', label: 'pledge'  },
-          { to: '/gift',    label: 'gift'     },
-          { to: '/login',   label: 'sign in'  },
-        ].map(({ to, label }) => (
-          <Link
-            key={to}
-            to={to}
-            style={{ color: 'inherit', textDecoration: 'none' }}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
-    </div>
-  );
-}
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const OCCASION_STYLES = [
@@ -175,10 +130,21 @@ export function GiftSubscriptions() {
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
-    <div className="hl-screen parchment" style={{ overflowY: 'auto' }}>
-      <MktBar />
-
-      <div style={{ padding: '64px 56px' }}>
+    <ClothShell
+      topbarLeft={
+        <Link
+          to="/loom"
+          style={{
+            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em',
+            textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
+          }}
+        >
+          ← heirloom
+        </Link>
+      }
+      topbarCenter="gift"
+    >
+      <div style={{ padding: 'clamp(24px, 5vw, 48px)', paddingBottom: 80 }}>
 
         {/* Page header */}
         <h1
@@ -188,7 +154,7 @@ export function GiftSubscriptions() {
             fontWeight: 300,
             margin: 0,
             marginBottom: 40,
-            color: 'var(--parchment-ink)',
+            color: 'var(--bone)',
             letterSpacing: '-0.022em',
           }}
         >
@@ -211,8 +177,8 @@ export function GiftSubscriptions() {
                       s === step
                         ? 'var(--warm)'
                         : s < step
-                        ? 'var(--parchment-dim)'
-                        : 'var(--parchment-faint)',
+                        ? 'var(--bone-dim)'
+                        : 'var(--bone-faint)',
                   }}
                 >
                   {String(s).padStart(2, '0')} {label}
@@ -223,7 +189,7 @@ export function GiftSubscriptions() {
                       width: 20,
                       height: 1,
                       background:
-                        s < step ? 'var(--warm)' : 'var(--parchment-rule)',
+                        s < step ? 'var(--warm)' : 'var(--rule)',
                       display: 'inline-block',
                     }}
                   />
@@ -243,7 +209,7 @@ export function GiftSubscriptions() {
                   fontSize: 10,
                   letterSpacing: '0.28em',
                   textTransform: 'uppercase',
-                  color: 'var(--parchment-dim)',
+                  color: 'var(--bone-dim)',
                   margin: 0,
                 }}
               >
@@ -259,9 +225,9 @@ export function GiftSubscriptions() {
                     className="hl-mono"
                     style={{
                       background: billingPeriod === p ? 'var(--ink)' : 'transparent',
-                      color: billingPeriod === p ? 'var(--warm)' : 'var(--parchment-dim)',
-                      border: '1px solid var(--parchment-rule)',
-                      borderLeft: i === 0 ? '1px solid var(--parchment-rule)' : 'none',
+                      color: billingPeriod === p ? 'var(--warm)' : 'var(--bone-dim)',
+                      border: '1px solid var(--rule)',
+                      borderLeft: i === 0 ? '1px solid var(--rule)' : 'none',
                       padding: '6px 16px',
                       fontSize: 9,
                       letterSpacing: '0.24em',
@@ -293,8 +259,8 @@ export function GiftSubscriptions() {
                         position: 'absolute',
                         top: -10,
                         right: -2,
-                        background: 'var(--parchment-rule)',
-                        color: 'var(--parchment-dim)',
+                        background: 'var(--rule)',
+                        color: 'var(--bone-dim)',
                         fontFamily: 'var(--mono)',
                         fontSize: 8,
                         letterSpacing: '0.12em',
@@ -335,13 +301,13 @@ export function GiftSubscriptions() {
                       textAlign:       'left',
                       padding:         '36px 32px',
                       background:      isFamily ? 'var(--ink)' : 'transparent',
-                      color:           isFamily ? 'var(--bone)' : 'var(--parchment-ink)',
+                      color:           isFamily ? 'var(--bone)' : 'var(--bone)',
                       borderTop:       isFamily || selected
                         ? '1px solid var(--warm)'
-                        : '1px solid var(--parchment-rule)',
-                      borderBottom:    '1px solid var(--parchment-rule)',
-                      borderRight:     '1px solid var(--parchment-rule)',
-                      borderLeft:      isFirst ? '1px solid var(--parchment-rule)' : 'none',
+                        : '1px solid var(--rule)',
+                      borderBottom:    '1px solid var(--rule)',
+                      borderRight:     '1px solid var(--rule)',
+                      borderLeft:      isFirst ? '1px solid var(--rule)' : 'none',
                       cursor:          'pointer',
                       outline:         'none',
                     }}
@@ -353,7 +319,7 @@ export function GiftSubscriptions() {
                         fontSize:      10,
                         letterSpacing: '0.28em',
                         textTransform: 'uppercase',
-                        color:         isFamily ? 'var(--bone-dim)' : 'var(--parchment-dim)',
+                        color:         isFamily ? 'var(--bone-dim)' : 'var(--bone-dim)',
                         marginBottom:  12,
                       }}
                     >
@@ -366,7 +332,7 @@ export function GiftSubscriptions() {
                       style={{
                         fontStyle:   'italic',
                         fontSize:    14,
-                        color:       isFamily ? 'var(--bone-dim)' : 'var(--parchment-dim)',
+                        color:       isFamily ? 'var(--bone-dim)' : 'var(--bone-dim)',
                         marginBottom: 16,
                       }}
                     >
@@ -398,7 +364,7 @@ export function GiftSubscriptions() {
                         fontSize:      10,
                         letterSpacing: '0.24em',
                         textTransform: 'uppercase',
-                        color:         isFamily ? 'var(--bone-dim)' : 'var(--parchment-dim)',
+                        color:         isFamily ? 'var(--bone-dim)' : 'var(--bone-dim)',
                         marginBottom:  28,
                       }}
                     >
@@ -426,7 +392,7 @@ export function GiftSubscriptions() {
                             gap:        10,
                             fontFamily: 'var(--mono)',
                             fontSize:   11,
-                            color:      isFamily ? 'var(--bone-dim)' : 'var(--parchment-dim)',
+                            color:      isFamily ? 'var(--bone-dim)' : 'var(--bone-dim)',
                           }}
                         >
                           <span
@@ -434,7 +400,7 @@ export function GiftSubscriptions() {
                               display:         'inline-block',
                               width:           6,
                               height:          1,
-                              background:      isFamily ? 'var(--bone-faint)' : 'var(--parchment-rule)',
+                              background:      isFamily ? 'var(--bone-faint)' : 'var(--rule)',
                               flexShrink:      0,
                               alignSelf:       'center',
                             }}
@@ -451,8 +417,8 @@ export function GiftSubscriptions() {
                         style={{
                           display:       'inline-block',
                           background:    selected ? 'var(--warm)' : isFamily ? 'var(--warm)' : 'transparent',
-                          color:         selected || isFamily ? 'var(--ink)' : 'var(--parchment-ink)',
-                          border:        selected || isFamily ? 'none' : '1px solid var(--parchment-rule)',
+                          color:         selected || isFamily ? 'var(--ink)' : 'var(--bone)',
+                          border:        selected || isFamily ? 'none' : '1px solid var(--rule)',
                           padding:       '12px 20px',
                           fontFamily:    'var(--mono)',
                           fontSize:      10,
@@ -476,7 +442,7 @@ export function GiftSubscriptions() {
                 fontSize:      10,
                 letterSpacing: '0.28em',
                 textTransform: 'uppercase',
-                color:         'var(--parchment-dim)',
+                color:         'var(--bone-dim)',
                 marginBottom:  16,
               }}
             >
@@ -493,7 +459,7 @@ export function GiftSubscriptions() {
                     border:
                       selectedStyle === style.id
                         ? '1px solid var(--warm)'
-                        : '1px solid var(--parchment-rule)',
+                        : '1px solid var(--rule)',
                     padding:       '7px 14px',
                     fontSize:      10,
                     letterSpacing: '0.2em',
@@ -501,7 +467,7 @@ export function GiftSubscriptions() {
                     color:
                       selectedStyle === style.id
                         ? 'var(--warm)'
-                        : 'var(--parchment-dim)',
+                        : 'var(--bone-dim)',
                     cursor: 'pointer',
                   }}
                 >
@@ -521,7 +487,7 @@ export function GiftSubscriptions() {
                 fontSize:      10,
                 letterSpacing: '0.28em',
                 textTransform: 'uppercase',
-                color:         'var(--parchment-dim)',
+                color:         'var(--bone-dim)',
                 marginBottom:  28,
               }}
             >
@@ -536,7 +502,7 @@ export function GiftSubscriptions() {
                     fontSize:      10,
                     letterSpacing: '0.24em',
                     textTransform: 'uppercase',
-                    color:         'var(--parchment-dim)',
+                    color:         'var(--bone-dim)',
                     marginBottom:  8,
                   }}
                 >
@@ -557,7 +523,7 @@ export function GiftSubscriptions() {
                     fontSize:      10,
                     letterSpacing: '0.24em',
                     textTransform: 'uppercase',
-                    color:         'var(--parchment-dim)',
+                    color:         'var(--bone-dim)',
                     marginBottom:  8,
                   }}
                 >
@@ -578,7 +544,7 @@ export function GiftSubscriptions() {
                     fontSize:      10,
                     letterSpacing: '0.24em',
                     textTransform: 'uppercase',
-                    color:         'var(--parchment-dim)',
+                    color:         'var(--bone-dim)',
                     marginBottom:  8,
                   }}
                 >
@@ -599,7 +565,7 @@ export function GiftSubscriptions() {
                     fontSize:      10,
                     letterSpacing: '0.24em',
                     textTransform: 'uppercase',
-                    color:         'var(--parchment-dim)',
+                    color:         'var(--bone-dim)',
                     marginBottom:  8,
                   }}
                 >
@@ -615,7 +581,7 @@ export function GiftSubscriptions() {
                   className="hl-mono"
                   style={{
                     fontSize:      10,
-                    color:         'var(--parchment-faint)',
+                    color:         'var(--bone-faint)',
                     marginTop:     6,
                   }}
                 >
@@ -635,7 +601,7 @@ export function GiftSubscriptions() {
                 fontSize:      10,
                 letterSpacing: '0.28em',
                 textTransform: 'uppercase',
-                color:         'var(--parchment-dim)',
+                color:         'var(--bone-dim)',
                 marginBottom:  28,
               }}
             >
@@ -650,7 +616,7 @@ export function GiftSubscriptions() {
                     fontSize:      10,
                     letterSpacing: '0.24em',
                     textTransform: 'uppercase',
-                    color:         'var(--parchment-dim)',
+                    color:         'var(--bone-dim)',
                     marginBottom:  8,
                   }}
                 >
@@ -671,7 +637,7 @@ export function GiftSubscriptions() {
                     fontSize:      10,
                     letterSpacing: '0.24em',
                     textTransform: 'uppercase',
-                    color:         'var(--parchment-dim)',
+                    color:         'var(--bone-dim)',
                     marginBottom:  8,
                   }}
                 >
@@ -697,7 +663,7 @@ export function GiftSubscriptions() {
                 fontSize:      10,
                 letterSpacing: '0.28em',
                 textTransform: 'uppercase',
-                color:         'var(--parchment-dim)',
+                color:         'var(--bone-dim)',
                 marginBottom:  28,
               }}
             >
@@ -705,7 +671,7 @@ export function GiftSubscriptions() {
             </p>
             <div
               style={{
-                border:       '1px solid var(--parchment-rule)',
+                border:       '1px solid var(--rule)',
                 padding:      '24px',
                 marginBottom: 24,
               }}
@@ -717,7 +683,7 @@ export function GiftSubscriptions() {
                   alignItems:     'baseline',
                   paddingBottom:  16,
                   marginBottom:   16,
-                  borderBottom:   '1px solid var(--parchment-rule)',
+                  borderBottom:   '1px solid var(--rule)',
                 }}
               >
                 <div>
@@ -727,14 +693,14 @@ export function GiftSubscriptions() {
                       fontStyle:   'italic',
                       fontSize:    16,
                       margin:      '0 0 2px',
-                      color:       'var(--parchment-ink)',
+                      color:       'var(--bone)',
                     }}
                   >
                     {formData.recipientName}
                   </p>
                   <p
                     className="hl-mono"
-                    style={{ fontSize: 10, color: 'var(--parchment-faint)', margin: 0 }}
+                    style={{ fontSize: 10, color: 'var(--bone-faint)', margin: 0 }}
                   >
                     {formData.recipientEmail}
                   </p>
@@ -757,7 +723,7 @@ export function GiftSubscriptions() {
                   display:        'flex',
                   justifyContent: 'space-between',
                   padding:        '8px 0',
-                  borderBottom:   '1px solid var(--parchment-rule)',
+                  borderBottom:   '1px solid var(--rule)',
                 }}
               >
                 <span
@@ -766,14 +732,14 @@ export function GiftSubscriptions() {
                     fontSize:      10,
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase',
-                    color:         'var(--parchment-faint)',
+                    color:         'var(--bone-faint)',
                   }}
                 >
                   plan
                 </span>
                 <span
                   className="hl-serif"
-                  style={{ fontSize: 14, color: 'var(--parchment-dim)', fontStyle: 'italic' }}
+                  style={{ fontSize: 14, color: 'var(--bone-dim)', fontStyle: 'italic' }}
                 >
                   {selectedTierData?.name} · {billingPeriod === 'monthly' ? '1 month' : '1 year'}
                 </span>
@@ -792,7 +758,7 @@ export function GiftSubscriptions() {
                     fontSize:      10,
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase',
-                    color:         'var(--parchment-faint)',
+                    color:         'var(--bone-faint)',
                   }}
                 >
                   total
@@ -817,7 +783,7 @@ export function GiftSubscriptions() {
                   style={{
                     marginTop:  16,
                     paddingTop: 16,
-                    borderTop:  '1px solid var(--parchment-rule)',
+                    borderTop:  '1px solid var(--rule)',
                   }}
                 >
                   <p
@@ -826,7 +792,7 @@ export function GiftSubscriptions() {
                       fontSize:      9,
                       letterSpacing: '0.24em',
                       textTransform: 'uppercase',
-                      color:         'var(--parchment-faint)',
+                      color:         'var(--bone-faint)',
                       marginBottom:  8,
                     }}
                   >
@@ -836,7 +802,7 @@ export function GiftSubscriptions() {
                     className="hl-serif"
                     style={{
                       fontStyle: 'italic',
-                      color:     'var(--parchment-dim)',
+                      color:     'var(--bone-dim)',
                       fontSize:  14,
                       margin:    0,
                     }}
@@ -849,7 +815,7 @@ export function GiftSubscriptions() {
               {formData.scheduledDate && (
                 <p
                   className="hl-mono"
-                  style={{ fontSize: 10, color: 'var(--parchment-faint)', marginTop: 12 }}
+                  style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 12 }}
                 >
                   scheduled for {new Date(formData.scheduledDate).toLocaleDateString()}
                 </p>
@@ -889,7 +855,7 @@ export function GiftSubscriptions() {
             justifyContent: 'space-between',
             marginTop:      40,
             paddingTop:     28,
-            borderTop:      '1px solid var(--parchment-rule)',
+            borderTop:      '1px solid var(--rule)',
             maxWidth:       step === 1 ? 'none' : 520,
           }}
         >
@@ -900,8 +866,8 @@ export function GiftSubscriptions() {
             style={{
               opacity:     step === 1 ? 0 : 1,
               pointerEvents: step === 1 ? 'none' : 'auto',
-              color:       'var(--parchment-ink)',
-              borderColor: 'var(--parchment-rule)',
+              color:       'var(--bone)',
+              borderColor: 'var(--rule)',
             }}
           >
             back
@@ -925,7 +891,7 @@ export function GiftSubscriptions() {
               style={{
                 height:     1,
                 border:     0,
-                background: 'var(--parchment-rule)',
+                background: 'var(--rule)',
                 marginBottom: 32,
               }}
             />
@@ -935,7 +901,7 @@ export function GiftSubscriptions() {
                 fontSize:      10,
                 letterSpacing: '0.28em',
                 textTransform: 'uppercase',
-                color:         'var(--parchment-dim)',
+                color:         'var(--bone-dim)',
                 marginBottom:  24,
               }}
             >
@@ -950,7 +916,7 @@ export function GiftSubscriptions() {
                     justifyContent: 'space-between',
                     alignItems:     'baseline',
                     padding:        '14px 0',
-                    borderBottom:   '1px solid var(--parchment-rule)',
+                    borderBottom:   '1px solid var(--rule)',
                   }}
                 >
                   <div>
@@ -960,14 +926,14 @@ export function GiftSubscriptions() {
                         fontStyle: 'italic',
                         fontSize:  15,
                         margin:    '0 0 2px',
-                        color:     'var(--parchment-ink)',
+                        color:     'var(--bone)',
                       }}
                     >
                       {gift.recipient_name}
                     </p>
                     <p
                       className="hl-mono"
-                      style={{ fontSize: 9, color: 'var(--parchment-faint)', margin: 0 }}
+                      style={{ fontSize: 9, color: 'var(--bone-faint)', margin: 0 }}
                     >
                       {gift.tier} plan
                     </p>
@@ -979,7 +945,7 @@ export function GiftSubscriptions() {
                         fontSize:      9,
                         letterSpacing: '0.2em',
                         textTransform: 'uppercase',
-                        color:         'var(--parchment-faint)',
+                        color:         'var(--bone-faint)',
                         margin:        '0 0 2px',
                       }}
                     >
@@ -987,7 +953,7 @@ export function GiftSubscriptions() {
                     </p>
                     <p
                       className="hl-mono"
-                      style={{ fontSize: 9, color: 'var(--parchment-faint)', margin: 0 }}
+                      style={{ fontSize: 9, color: 'var(--bone-faint)', margin: 0 }}
                     >
                       {new Date(gift.created_at).toLocaleDateString()}
                     </p>
@@ -1015,8 +981,8 @@ export function GiftSubscriptions() {
         >
           <div
             style={{
-              background: 'var(--parchment)',
-              border:     '1px solid var(--parchment-rule)',
+              background: 'var(--ink)',
+              border:     '1px solid var(--rule)',
               borderTop:  '1px solid var(--warm)',
               padding:    '48px',
               maxWidth:   440,
@@ -1030,7 +996,7 @@ export function GiftSubscriptions() {
                 fontSize:      9,
                 letterSpacing: '0.32em',
                 textTransform: 'uppercase',
-                color:         'var(--parchment-dim)',
+                color:         'var(--bone-dim)',
                 marginBottom:  20,
               }}
             >
@@ -1042,7 +1008,7 @@ export function GiftSubscriptions() {
                 fontSize:   36,
                 fontWeight: 300,
                 margin:     '0 0 16px',
-                color:      'var(--parchment-ink)',
+                color:      'var(--bone)',
               }}
             >
               Gift sent.
@@ -1051,7 +1017,7 @@ export function GiftSubscriptions() {
               style={{
                 fontFamily:  'var(--serif)',
                 fontStyle:   'italic',
-                color:       'var(--parchment-dim)',
+                color:       'var(--bone-dim)',
                 fontSize:    15,
                 margin:      '0 0 32px',
                 lineHeight:  1.7,
@@ -1065,8 +1031,8 @@ export function GiftSubscriptions() {
             {giftResult.giftCode && (
               <div
                 style={{
-                  borderTop:    '1px solid var(--parchment-rule)',
-                  borderBottom: '1px solid var(--parchment-rule)',
+                  borderTop:    '1px solid var(--rule)',
+                  borderBottom: '1px solid var(--rule)',
                   padding:      '16px 0',
                   marginBottom: 32,
                 }}
@@ -1077,7 +1043,7 @@ export function GiftSubscriptions() {
                     fontSize:      9,
                     letterSpacing: '0.28em',
                     textTransform: 'uppercase',
-                    color:         'var(--parchment-faint)',
+                    color:         'var(--bone-faint)',
                     marginBottom:  8,
                   }}
                 >
@@ -1117,6 +1083,6 @@ export function GiftSubscriptions() {
           </div>
         </div>
       )}
-    </div>
-  );
+  </ClothShell>
+);
 }
