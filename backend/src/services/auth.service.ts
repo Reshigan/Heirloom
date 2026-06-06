@@ -272,8 +272,25 @@ export const authService = {
    * Logout all sessions for user
    */
   async logoutAll(userId: string): Promise<void> {
+    // Read all active sessions for this user so we can delete their specific Redis cache
+    // entries. The cache key is session:<accessToken> but the DB stores refresh tokens;
+    // we can't reconstruct access tokens from the DB. Instead, we scope the Redis deletes
+    // to the tokens we do know (refresh tokens stored in DB), then rely on JWT_EXPIRES_IN
+    // TTL for any already-issued access tokens — which is correct because the DB sessions
+    // are deleted below, blocking any further refresh.
+    const sessions = await prisma.session.findMany({
+      where: { userId },
+      select: { token: true }, // refresh token stored in DB
+    });
+
     await prisma.session.deleteMany({ where: { userId } });
-    await cache.delPattern(`session:*`);
+
+    // Delete refresh-token-keyed cache entries for this user (belt-and-suspenders;
+    // the primary cache is keyed by access token which expires by TTL).
+    for (const session of sessions) {
+      await cache.del(cache.sessionKey(session.token)).catch(() => {});
+    }
+
     logger.info(`All sessions terminated for user: ${userId}`);
   },
 

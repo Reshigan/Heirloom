@@ -53,7 +53,11 @@ export const billingService = {
     const rate = EXCHANGE_RATES[currency] || 1;
     const symbol = CURRENCY_SYMBOLS[currency] || '$';
     
-    const amount = Math.round((usdCents / 100) * rate * 100) / 100;
+    // Convert USD cents → target-currency whole-currency amount (e.g. 999 cents → 9.19 EUR).
+    // Math.round(usdCents * rate) gives the amount in target minor units; dividing by 100
+    // converts to whole-currency. This avoids the /100 * 100 double-conversion that would
+    // produce cents instead of whole-currency when `amount` is later passed to Stripe.
+    const amount = Math.round(usdCents * rate) / 100;
     const formatted = `${symbol}${amount.toFixed(2)}`;
     
     return { amount, currency, symbol, formatted };

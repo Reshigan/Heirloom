@@ -63,7 +63,8 @@ export function initializeScheduledJobs(): void {
 
       for (const letter of dueLetters) {
         for (const recipient of letter.recipients) {
-          if (recipient.familyMember.email) {
+          if (!recipient.familyMember.email) continue;
+          try {
             await emailService.sendLetterDelivery(
               recipient.familyMember.email,
               recipient.familyMember.name,
@@ -75,6 +76,7 @@ export function initializeScheduledJobs(): void {
               }
             );
 
+            // Only record delivery after a successful send so failures are retried next run.
             await prisma.letterDelivery.create({
               data: {
                 letterId: letter.id,
@@ -84,6 +86,11 @@ export function initializeScheduledJobs(): void {
                 deliveredAt: new Date(),
               },
             });
+          } catch (recipientError) {
+            logger.error(
+              `Failed to deliver letter ${letter.id} to ${recipient.familyMember.email}: ${recipientError}`
+            );
+            // Continue to the next recipient; no LetterDelivery record created so this is retried.
           }
         }
       }

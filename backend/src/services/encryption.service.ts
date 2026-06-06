@@ -249,8 +249,12 @@ export const encryptionService = {
    * Hash sensitive data for storage (one-way)
    */
   hashData(data: string): string {
+    // Decode the master key from base64 so both createKeyEscrow and hashData
+    // use the same raw key bytes. Using the raw base64 string here would hash
+    // with different key material than the buffer used in createKeyEscrow.
+    const keyBuffer = Buffer.from(env.ENCRYPTION_MASTER_KEY, 'base64');
     return crypto
-      .createHmac('sha256', env.ENCRYPTION_MASTER_KEY)
+      .createHmac('sha256', keyBuffer)
       .update(data)
       .digest('hex');
   },
