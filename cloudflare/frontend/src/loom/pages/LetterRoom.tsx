@@ -6,9 +6,9 @@ import { lettersApi } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
 
 const DYE_HEX: Record<string, string> = {
-  madder: '#c0614a', indigo: '#3d5a8a', weld: '#d4a843',
-  saffron: '#e8a825', kermes: '#9e3a5a', walnut: '#7a5c3a',
-  oakgall: '#5a4a3a', woad: '#5b7fa6', cochineal: '#b84060', iron: '#4a4a4a',
+  madder: '#e84030', cochineal: '#d42868', kermes: '#f05268',
+  saffron: '#f5c832', weld: '#edae2e', walnut: '#a07040',
+  oakgall: '#7c5c4a', woad: '#4898d8', indigo: '#3878e8', iron: '#4a4a46',
 };
 const DYE_KEYS = Object.keys(DYE_HEX);
 
@@ -47,11 +47,7 @@ export function LetterRoom() {
     enabled: isAuthenticated,
   });
 
-  const letters: Letter[] = Array.isArray((data as any)?.data)
-    ? (data as any).data
-    : Array.isArray(data)
-    ? (data as any)
-    : [];
+  const letters: Letter[] = (data as { data: Letter[] } | null)?.data ?? [];
 
   const topbarLeft = (
     <Link
@@ -143,6 +139,7 @@ export function LetterRoom() {
                   <div style={{ display: 'flex', gap: 10 }}>
                     <button
                       type="button"
+                      aria-expanded={isExpanded}
                       onClick={() => setExpandedId(isExpanded ? null : letter.id)}
                       style={{
                         background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
