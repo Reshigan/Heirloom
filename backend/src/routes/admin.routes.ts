@@ -1,15 +1,27 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { env } from '../config/env';
+import { env, PRICING } from '../config/env';
 import prisma from '../config/database';
 import { asyncHandler, ApiError } from '../middleware/error.middleware';
 import { AdminRole } from '@prisma/client';
 
 const router = Router();
 
-// Admin JWT secret (separate from user JWT)
-const ADMIN_JWT_SECRET = env.JWT_SECRET + '_admin';
+// Admin JWT secret — must be independent from JWT_SECRET.
+// Falls back to the legacy derived value for backward compatibility, but emits a
+// warning so operators know to set ADMIN_JWT_SECRET in their environment.
+const ADMIN_JWT_SECRET = (() => {
+  if (process.env.ADMIN_JWT_SECRET) {
+    return process.env.ADMIN_JWT_SECRET;
+  }
+  console.warn(
+    '[SECURITY] ADMIN_JWT_SECRET env var is not set. ' +
+    'Falling back to JWT_SECRET + "_admin". ' +
+    'Set a separate ADMIN_JWT_SECRET (min 32 chars) before going to production.'
+  );
+  return env.JWT_SECRET + '_admin';
+})();
 
 // Admin authentication middleware
 export const authenticateAdmin = asyncHandler(async (req: Request, res: Response, next: any) => {
@@ -326,11 +338,12 @@ router.get('/analytics/revenue', authenticateAdmin, asyncHandler(async (req: Req
     where: { status: 'ACTIVE', tier: { not: 'FREE' } },
   });
 
-  // Estimate MRR (Monthly Recurring Revenue) based on tier pricing
+  // Estimate MRR (Monthly Recurring Revenue) based on canonical PRICING constants.
+  // ESSENTIAL and FAMILY have monthly prices; LEGACY is yearly-only, so amortise.
   const tierPricing: Record<string, number> = {
-    ESSENTIAL: 999, // $9.99
-    FAMILY: 1999, // $19.99
-    LEGACY: 4999 / 12, // $49.99/year = ~$4.17/month
+    ESSENTIAL: PRICING.ESSENTIAL.monthly, // 499 cents = $4.99/mo
+    FAMILY: PRICING.FAMILY.monthly, // 999 cents = $9.99/mo
+    LEGACY: PRICING.LEGACY.yearly / 12, // 19900/12 cents = ~$16.58/mo
   };
 
   const mrr = subscriptions.reduce((sum, sub) => {

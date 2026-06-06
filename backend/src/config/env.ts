@@ -22,6 +22,9 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('7d'),
   JWT_REFRESH_SECRET: z.string().min(32),
   JWT_REFRESH_EXPIRES_IN: z.string().default('30d'),
+  // Admin JWT secret — must be independent from JWT_SECRET. Optional for backward
+  // compatibility (falls back to JWT_SECRET + '_admin' with a deprecation warning).
+  ADMIN_JWT_SECRET: z.string().min(32).optional(),
 
   // AWS S3
   AWS_REGION: z.string(),

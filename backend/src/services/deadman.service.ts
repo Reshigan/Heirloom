@@ -174,14 +174,23 @@ export const deadManSwitchService = {
       const daysUntil = Math.ceil(
         (dms.nextCheckInDue.getTime() - Date.now()) / (1000 * 60 * 60 * 24)
       );
-      
-      // Send reminder at 7, 3, 1 days
+
+      // Send reminder at 7, 3, 1 days — but only once per UTC calendar day per daysUntil
+      // value. The hourly cron would otherwise fire this up to 24 times on the same day.
       if ([7, 3, 1].includes(daysUntil)) {
+        const utcDay = new Date().toISOString().slice(0, 10); // e.g. "2026-06-06"
+        const sentKey = `dms:reminder:sent:${dms.userId}:${daysUntil}:${utcDay}`;
+        const alreadySent = await cache.get<boolean>(sentKey);
+        if (alreadySent) continue;
+
         await emailService.sendCheckInReminder(
           dms.user.email,
           dms.user.firstName,
           daysUntil
         );
+
+        // Mark as sent for the rest of this UTC day (26 hours TTL to span hour boundaries).
+        await cache.set(sentKey, true, 26 * 60 * 60);
       }
     }
 
@@ -203,12 +212,15 @@ export const deadManSwitchService = {
 
     // Update status based on missed count
     if (missedCount === 1) {
-      // First miss - send warning
+      // First miss - send warning and advance nextCheckInDue by the grace period
+      // so the hourly cron won't re-process this switch until the grace period expires.
+      const gracePeriodEnd = new Date(Date.now() + dms.gracePeriodDays * 24 * 60 * 60 * 1000);
       await prisma.deadManSwitch.update({
         where: { userId },
         data: {
           status: 'WARNING',
           missedCheckIns: missedCount,
+          nextCheckInDue: gracePeriodEnd,
         },
       });
 
@@ -218,9 +230,10 @@ export const deadManSwitchService = {
         dms.gracePeriodDays
       );
 
-      logger.warn(`User ${userId} missed first check-in, in warning period`);
-    } else if (missedCount >= 2) {
-      // Multiple misses - trigger switch
+      logger.warn(`User ${userId} missed first check-in, in warning period until ${gracePeriodEnd}`);
+    } else if (missedCount >= 2 && dms.nextCheckInDue && dms.nextCheckInDue <= new Date()) {
+      // Grace period has passed (nextCheckInDue updated above to gracePeriodEnd on first miss),
+      // and we have at least two missed check-ins — trigger the switch.
       await this.triggerSwitch(userId);
     }
   },
