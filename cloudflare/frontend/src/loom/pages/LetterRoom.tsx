@@ -83,7 +83,7 @@ export function LetterRoom() {
           to="/loom/compose-letter"
           style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            borderLeft: '2px solid var(--warm)', padding: '10px 14px',
+            borderLeft: '3px solid var(--warm)', padding: '10px 14px',
             marginBottom: 28, textDecoration: 'none',
           }}
         >
@@ -191,7 +191,7 @@ export function LetterRoom() {
                     style={{
                       marginTop: 12, paddingTop: 12,
                       borderTop: '1px solid rgba(244,236,216,0.08)',
-                      animation: `hl-fade-in 360ms ${EASE}`,
+                      animation: `hl-fade 360ms ${EASE}`,
                     }}
                   >
                     <p style={{
