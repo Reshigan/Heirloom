@@ -4,7 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
  * BottomNav — the persistent 5-item typographic bar at the foot of the
  * authenticated loom PWA shell.
  *
- * Five destinations: cloth · compose · ∞ (home) · letters · listen.
+ * Five destinations: cloth · memory · ∞ (home) · letter · voice.
  * The ∞ center item is the only mark — no icons, per §2.6.
  * Anchored above the iPhone home indicator via env(safe-area-inset-bottom).
  * Active route: bone. Inactive: bone at 32% opacity.
@@ -12,11 +12,11 @@ import { Link, useLocation } from 'react-router-dom';
  */
 
 const NAV = [
-  { label: 'cloth',   href: '/loom/weft' },
-  { label: 'compose', href: '/loom/compose' },
-  { label: '∞',       href: '/loom/pwa',    center: true },
-  { label: 'letters', href: '/loom/read' },
-  { label: 'listen',  href: '/loom/echo' },
+  { label: 'cloth',  href: '/loom/weft' },
+  { label: 'memory', href: '/loom/compose' },
+  { label: '∞',      href: '/loom/pwa',    center: true },
+  { label: 'letter', href: '/loom/letter' },
+  { label: 'voice',  href: '/loom/voice' },
 ] as const;
 
 export function BottomNav() {
