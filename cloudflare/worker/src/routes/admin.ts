@@ -598,7 +598,7 @@ adminRoutes.patch('/support/tickets/:id', adminAuth, async (c) => {
   
   // Get current ticket status before update
   const currentTicket = await c.env.DB.prepare(`
-    SELECT t.status, t.ticket_number, t.subject, u.email, u.first_name
+    SELECT t.user_id, t.status, t.ticket_number, t.subject, u.email, u.first_name
     FROM support_tickets t
     JOIN users u ON t.user_id = u.id
     WHERE t.id = ?
@@ -614,25 +614,44 @@ adminRoutes.patch('/support/tickets/:id', adminAuth, async (c) => {
     WHERE id = ?
   `).bind(status, assignedTo || adminId, priority, now, status, now, ticketId).run();
   
-  // Send email notification when ticket is resolved
-  if (status === 'RESOLVED' && currentTicket && currentTicket.status !== 'RESOLVED' && currentTicket.email && c.env.RESEND_API_KEY) {
+  // When a ticket is freshly resolved, tell the user — in-app + email.
+  if (status === 'RESOLVED' && currentTicket && currentTicket.status !== 'RESOLVED') {
+    const userName = (currentTicket.first_name as string) || 'there';
     try {
-      const userName = (currentTicket.first_name as string) || 'there';
-      const emailContent = supportTicketResolvedEmail(
-        userName,
-        currentTicket.ticket_number as string,
-        currentTicket.subject as string,
+      await c.env.DB.prepare(`
+        INSERT INTO notifications (id, user_id, type, title, message, data, read, created_at)
+        VALUES (?, ?, 'support_resolved', ?, ?, ?, 0, ?)
+      `).bind(
+        crypto.randomUUID(),
+        currentTicket.user_id,
+        `Resolved · ${currentTicket.ticket_number}`,
         resolutionNote
-      );
-      
-      await sendEmail(c.env, {
-        from: 'Heirloom <noreply@heirloom.blue>',
-        to: currentTicket.email as string,
-        subject: emailContent.subject,
-        html: emailContent.html,
-      }, 'SUPPORT_TICKET_RESOLVED');
-    } catch (emailError) {
-      console.error('Failed to send ticket resolved email:', emailError);
+          ? (resolutionNote.length > 160 ? `${resolutionNote.slice(0, 157)}…` : resolutionNote)
+          : `Your request "${currentTicket.subject}" has been resolved.`,
+        JSON.stringify({ ticketId, ticketNumber: currentTicket.ticket_number }),
+        now,
+      ).run();
+    } catch (notifErr) {
+      console.error('Failed to create in-app notification for ticket resolution:', notifErr);
+    }
+
+    if (currentTicket.email) {
+      try {
+        const emailContent = supportTicketResolvedEmail(
+          userName,
+          currentTicket.ticket_number as string,
+          currentTicket.subject as string,
+          resolutionNote
+        );
+        await sendEmail(c.env, {
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: currentTicket.email as string,
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }, 'SUPPORT_TICKET_RESOLVED');
+      } catch (emailError) {
+        console.error('Failed to send ticket resolved email:', emailError);
+      }
     }
   }
   
@@ -710,41 +729,60 @@ adminRoutes.post('/support/tickets/:id/reply', adminAuth, async (c) => {
   
   // Get ticket details and user info for email
   const ticket = await c.env.DB.prepare(`
-    SELECT t.ticket_number, t.subject, u.email, u.first_name, u.last_name
+    SELECT t.user_id, t.ticket_number, t.subject, u.email, u.first_name, u.last_name
     FROM support_tickets t
     JOIN users u ON t.user_id = u.id
     WHERE t.id = ?
   `).bind(ticketId).first();
-  
+
   // Get admin name for email
   const admin = await c.env.DB.prepare(`
     SELECT first_name, last_name FROM admin_users WHERE id = ?
   `).bind(adminId).first();
   const adminName = admin ? `${(admin.first_name as string) || ''} ${(admin.last_name as string) || ''}`.trim() || 'Heirloom Support' : 'Heirloom Support';
-  
-  // Send email notification to user
-  if (ticket && ticket.email && c.env.RESEND_API_KEY) {
+
+  // Notify the user — in-app notification + email. (Email provider is chosen
+  // inside sendEmail: MS Graph primary, Resend fallback — so don't gate on a
+  // single provider's key.)
+  if (ticket) {
+    const userName = (ticket.first_name as string) || 'there';
     try {
-      const userName = (ticket.first_name as string) || 'there';
-      const emailContent = supportTicketReplyEmail(
-        userName,
-        ticket.ticket_number as string,
-        ticket.subject as string,
-        message,
-        adminName
-      );
-      
-      await sendEmail(c.env, {
-        from: 'Heirloom <noreply@heirloom.blue>',
-        to: ticket.email as string,
-        subject: emailContent.subject,
-        html: emailContent.html,
-      }, 'SUPPORT_TICKET_REPLY');
-    } catch (emailError) {
-      console.error('Failed to send ticket reply email:', emailError);
+      await c.env.DB.prepare(`
+        INSERT INTO notifications (id, user_id, type, title, message, data, read, created_at)
+        VALUES (?, ?, 'support_reply', ?, ?, ?, 0, ?)
+      `).bind(
+        crypto.randomUUID(),
+        ticket.user_id,
+        `Support replied · ${ticket.ticket_number}`,
+        message.length > 160 ? `${message.slice(0, 157)}…` : message,
+        JSON.stringify({ ticketId, ticketNumber: ticket.ticket_number }),
+        now,
+      ).run();
+    } catch (notifErr) {
+      console.error('Failed to create in-app notification for ticket reply:', notifErr);
+    }
+
+    if (ticket.email) {
+      try {
+        const emailContent = supportTicketReplyEmail(
+          userName,
+          ticket.ticket_number as string,
+          ticket.subject as string,
+          message,
+          adminName
+        );
+        await sendEmail(c.env, {
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: ticket.email as string,
+          subject: emailContent.subject,
+          html: emailContent.html,
+        }, 'SUPPORT_TICKET_REPLY');
+      } catch (emailError) {
+        console.error('Failed to send ticket reply email:', emailError);
+      }
     }
   }
-  
+
   // Log audit action
   await logAuditAction(c.env, adminId, 'REPLY_TICKET', { ticketId });
   

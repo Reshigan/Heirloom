@@ -211,6 +211,12 @@ export const settingsApi = {
   markAllNotificationsRead: () => api.post('/settings/notifications/read-all'),
   submitTicket: (data: { subject: string; category: string; description: string; userEmail?: string; userName?: string }) =>
     api.post('/support/ticket', data),
+  // Support assistant (AI chatbot + escalation to a human)
+  supportChat: (data: { message: string; conversationId?: string; history?: Array<{ role: 'user' | 'assistant'; content: string }> }) =>
+    api.post('/support/chat', data),
+  supportEscalate: (data: { conversationId?: string; transcript?: string; subject?: string }) =>
+    api.post('/support/escalate', data),
+  getSupportConversations: () => api.get('/support/conversations'),
   // Family Echo Inbox
   getInbox: () => api.get('/settings/inbox'),
   markInboxMessageRead: (id: string) => api.patch(`/settings/inbox/${id}/read`),

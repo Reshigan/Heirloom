@@ -130,6 +130,7 @@ function UserMenu() {
           <Link to="/settings"           className="hl-menu-item" onClick={() => setOpen(false)}>settings</Link>
           <Link to="/billing"            className="hl-menu-item" onClick={() => setOpen(false)}>billing</Link>
           <Link to="/gift-subscriptions" className="hl-menu-item" onClick={() => setOpen(false)}>gift a membership</Link>
+          <Link to="/help"               className="hl-menu-item" onClick={() => setOpen(false)}>help &amp; support</Link>
         </div>
         <div style={{ padding: '6px 0' }}>
           <button type="button" className="hl-menu-item danger"

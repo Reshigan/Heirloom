@@ -405,11 +405,13 @@ export function Signup() {
           mode="setup"
           onComplete={() => {
             setShowVaultSetup(false);
-            navigate(redirectUrl || '/loom');
+            // Fresh signup → product tour + first-entry onboarding (unless a
+            // deep-link redirect was requested, which takes precedence).
+            navigate(redirectUrl || '/onboarding');
           }}
           onSkip={() => {
             setShowVaultSetup(false);
-            navigate(redirectUrl || '/loom');
+            navigate(redirectUrl || '/onboarding');
           }}
         />
       ) : null}

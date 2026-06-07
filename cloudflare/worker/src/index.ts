@@ -100,7 +100,9 @@ export interface Env {
   
   // Admin notifications
   ADMIN_NOTIFICATION_EMAIL?: string;
-  
+  // Where the in-app support assistant escalates to a human (defaults to admin@heirloom.blue)
+  SUPPORT_ESCALATION_EMAIL?: string;
+
   // APNs (iOS Push Notifications)
   APNS_TEAM_ID?: string;
   APNS_KEY_ID?: string;

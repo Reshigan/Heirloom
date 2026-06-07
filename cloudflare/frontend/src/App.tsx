@@ -79,6 +79,7 @@ const Today           = lazy(() => import('./pages/Today').then(m => ({ default:
 const Pricing         = lazy(() => import('./pages/Pricing').then(m => ({ default: m.Pricing })));
 const Showcase        = lazy(() => import('./pages/Showcase').then(m => ({ default: m.Showcase })));
 const Onboarding      = lazy(() => import('./pages/Onboarding').then(m => ({ default: m.Onboarding })));
+const HelpSupport     = lazy(() => import('./pages/HelpSupport').then(m => ({ default: m.HelpSupport })));
 const InviteCard      = lazy(() => import('./pages/InviteCard').then(m => ({ default: m.InviteCard })));
 const Memories        = lazy(() => import('./pages/Memories').then(m => ({ default: m.Memories })));
 
@@ -510,6 +511,7 @@ export default function App() {
 
                                                                                                     {/* Heirloom v2 Protected Routes */}
           <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+          <Route path="/help" element={<ProtectedRoute><HelpSupport /></ProtectedRoute>} />
           <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
           <Route path="/ask" element={<ProtectedRoute><QandA /></ProtectedRoute>} />
           <Route path="/qa" element={<Navigate to="/ask" replace />} />

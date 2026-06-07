@@ -91,7 +91,7 @@ function MktBar() {
       <nav style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
         {[
           { to: '/',          label: 'home'    },
-          { to: '/founders',  label: 'pledge'  },
+          { to: '/founder',  label: 'pledge'  },
           { to: '/record',    label: 'archive' },
         ].map(({ to, label }) => (
           <Link
@@ -433,7 +433,7 @@ export function FoundersWall() {
             {remaining === 1 ? 'seat' : 'seats'} left.
           </p>
           <Link
-            to="/founders"
+            to="/founder"
             className="hl-btn"
             style={{
               background: 'var(--warm)',
@@ -471,7 +471,7 @@ export function FoundersWall() {
           </span>
           {[
             { to: '/',         label: 'home'   },
-            { to: '/founders', label: 'pledge' },
+            { to: '/founder', label: 'pledge' },
           ].map(({ to, label }) => (
             <Link
               key={to}

@@ -32,6 +32,9 @@ export function AdminDashboard() {
   const navigate = useNavigate();
   const admin = useAdminAuth();
   const [activeTab, setActiveTab] = useState('overview');
+  // Legacy sub-navigation — quarantines the speculative/auxiliary features
+  type LegacySub = 'marketing' | 'social' | 'coupons' | 'vouchers' | 'gold-legacy' | 'reports' | 'usage' | 'emails' | 'admins' | 'audit' | 'incidents';
+  const [legacySub, setLegacySub] = useState<LegacySub>('marketing');
   const [showCouponModal, setShowCouponModal] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
   const [userSearch, setUserSearch] = useState('');
@@ -62,11 +65,13 @@ export function AdminDashboard() {
   const { data: coupons } = useQuery({
     queryKey: ['admin-coupons'],
     queryFn: () => adminApi.getCoupons().then(r => r.data),
+    enabled: activeTab === 'legacy' && legacySub === 'coupons',
   });
 
   const { data: users } = useQuery({
     queryKey: ['admin-users', userSearch],
     queryFn: () => adminApi.getUsers({ search: userSearch, limit: 20 }).then(r => r.data),
+    enabled: activeTab === 'users',
   });
 
   const { data: tickets } = useQuery({
@@ -91,19 +96,19 @@ export function AdminDashboard() {
   const { data: auditLogs } = useQuery({
     queryKey: ['admin-audit-logs'],
     queryFn: () => adminApi.getAuditLogs({ limit: 50 }).then(r => r.data),
-    enabled: activeTab === 'audit',
+    enabled: activeTab === 'legacy' && legacySub === 'audit',
   });
 
   const { data: adminUsers } = useQuery({
     queryKey: ['admin-admin-users'],
     queryFn: () => adminApi.getAdminUsers().then(r => r.data),
-    enabled: activeTab === 'admins',
+    enabled: activeTab === 'legacy' && legacySub === 'admins',
   });
 
   const { data: emailLogs } = useQuery({
     queryKey: ['admin-email-logs'],
     queryFn: () => adminApi.getEmailLogs({ limit: 50 }).then(r => r.data),
-    enabled: activeTab === 'emails',
+    enabled: activeTab === 'legacy' && legacySub === 'emails',
   });
 
   const { data: billingErrors } = useQuery({
@@ -121,13 +126,13 @@ export function AdminDashboard() {
   const { data: revenueReport } = useQuery({
     queryKey: ['admin-revenue-report'],
     queryFn: () => adminApi.getRevenueReport().then(r => r.data),
-    enabled: activeTab === 'reports',
+    enabled: activeTab === 'legacy' && legacySub === 'reports',
   });
 
     const { data: userGrowth } = useQuery({
       queryKey: ['admin-user-growth'],
       queryFn: () => adminApi.getUserGrowthReport().then(r => r.data),
-      enabled: activeTab === 'reports',
+      enabled: activeTab === 'legacy' && legacySub === 'reports',
     });
 
     const { data: giftVouchers, refetch: refetchVouchers } = useQuery({
@@ -139,7 +144,7 @@ export function AdminDashboard() {
         });
         return res.json();
       },
-      enabled: activeTab === 'vouchers',
+      enabled: activeTab === 'legacy' && legacySub === 'vouchers',
     });
 
     const { data: voucherStats } = useQuery({
@@ -151,7 +156,7 @@ export function AdminDashboard() {
         });
         return res.json();
       },
-      enabled: activeTab === 'vouchers',
+      enabled: activeTab === 'legacy' && legacySub === 'vouchers',
     });
 
     const { data: goldLegacyVouchers, refetch: refetchGoldLegacy } = useQuery({
@@ -163,13 +168,13 @@ export function AdminDashboard() {
         });
         return res.json();
       },
-      enabled: activeTab === 'gold-legacy',
+      enabled: activeTab === 'legacy' && legacySub === 'gold-legacy',
     });
 
     const { data: usageAnalytics } = useQuery({
       queryKey: ['admin-usage-analytics'],
       queryFn: () => adminApi.getUsageAnalytics().then(r => r.data),
-      enabled: activeTab === 'usage',
+      enabled: activeTab === 'legacy' && legacySub === 'usage',
       refetchInterval: 60000,
     });
 
@@ -183,9 +188,6 @@ export function AdminDashboard() {
     const [showVoucherModal, setShowVoucherModal] = useState(false);
     const [showGoldLegacyModal, setShowGoldLegacyModal] = useState(false);
 
-  type AdminTab = 'users' | 'tickets' | 'incidents' | 'audit';
-  const [tab, setTab] = useState<AdminTab>('users');
-
     const handleLogout = () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
@@ -194,26 +196,36 @@ export function AdminDashboard() {
 
   if (!admin) return null;
 
+    // Primary tabs — what the system is today
     const tabs = [
       { id: 'overview', label: 'Overview' },
-      { id: 'usage', label: 'Usage' },
-      { id: 'encryption', label: 'Encryption' },
-      { id: 'marketing', label: 'Marketing' },
       { id: 'users', label: 'Users' },
+      { id: 'support', label: 'Support' },
+      { id: 'billing', label: 'Billing' },
+      { id: 'encryption', label: 'Encryption' },
+      { id: 'system', label: 'System' },
+      { id: 'legacy', label: 'Legacy' },
+    ];
+
+    // Legacy sub-nav — relocated speculative/auxiliary features
+    const legacyTabs: { id: LegacySub; label: string }[] = [
+      { id: 'marketing', label: 'Marketing' },
+      { id: 'social', label: 'Social' },
       { id: 'coupons', label: 'Coupons' },
       { id: 'vouchers', label: 'Gift Vouchers' },
       { id: 'gold-legacy', label: 'Gold Legacy' },
-      { id: 'billing', label: 'Billing' },
-      { id: 'support', label: 'Support' },
-      { id: 'system', label: 'System' },
-      { id: 'audit', label: 'Audit Logs' },
-      { id: 'admins', label: 'Admins' },
-      { id: 'emails', label: 'Emails' },
       { id: 'reports', label: 'Reports' },
-      { id: 'social', label: 'Social' },
+      { id: 'usage', label: 'Usage' },
+      { id: 'emails', label: 'Emails' },
+      { id: 'admins', label: 'Admins' },
+      { id: 'audit', label: 'Audit Logs' },
+      { id: 'incidents', label: 'Incidents' },
     ];
 
-  const activeSection = tabs.find(t => t.id === activeTab)?.label.toLowerCase() ?? activeTab;
+  const activeSection =
+    activeTab === 'legacy'
+      ? `legacy · ${legacyTabs.find(t => t.id === legacySub)?.label.toLowerCase() ?? legacySub}`
+      : tabs.find(t => t.id === activeTab)?.label.toLowerCase() ?? activeTab;
 
   return (
     <AppFrame width="wide">
@@ -246,37 +258,31 @@ export function AdminDashboard() {
 
       <div>
 
-        {/* ── Ops sub-tabs: users · tickets · incidents · audit ─────────── */}
-        <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--rule)', marginBottom: 40 }}>
-          {(['users', 'tickets', 'incidents', 'audit'] as AdminTab[]).map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTab(t)}
-              style={{
-                background: 'transparent', border: 0, cursor: 'pointer', padding: '16px 24px',
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
-                color: tab === t ? 'var(--bone)' : 'var(--bone-faint)',
-                borderBottom: tab === t ? '1px solid var(--warm)' : '1px solid transparent',
-                marginBottom: -1,
-                transition: `color var(--dur-fast) var(--ease)`,
-              }}
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-
-        {tab === 'tickets' && (
-          <div>
-            <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 24 }}>
-              Support queue — zero-knowledge: thread IDs only, no entry content
-            </p>
-            <p className="hl-serif" style={{ color: 'var(--bone-dim)', fontStyle: 'italic' }}>No open tickets.</p>
+        {/* ── Legacy sub-nav — quarantined speculative/auxiliary features ── */}
+        {activeTab === 'legacy' && (
+          <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--rule)', marginBottom: 40, overflowX: 'auto' }}>
+            {legacyTabs.map(({ id, label }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setLegacySub(id)}
+                style={{
+                  background: 'transparent', border: 0, cursor: 'pointer', padding: '12px 18px',
+                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'lowercase',
+                  color: legacySub === id ? 'var(--bone)' : 'var(--bone-faint)',
+                  borderBottom: legacySub === id ? '1px solid var(--warm)' : '1px solid transparent',
+                  marginBottom: -1, whiteSpace: 'nowrap',
+                  transition: 'color 180ms var(--loom-ease)',
+                }}
+              >
+                {label.toLowerCase()}
+              </button>
+            ))}
           </div>
         )}
 
-        {tab === 'incidents' && (
+        {/* Legacy · Incidents — mock kill-switches + pins */}
+        {activeTab === 'legacy' && legacySub === 'incidents' && (
           <div>
             <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 24 }}>
               Kill-switches + pins
@@ -287,28 +293,6 @@ export function AdminDashboard() {
             </div>
           </div>
         )}
-
-        {tab === 'audit' && (
-          <div>
-            <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 24 }}>
-              Forensic log — zero-knowledge: metadata only
-            </p>
-            {[
-              { ts: '2026-06-01 09:14', actor: 'admin@heirloom.blue', action: 'user.viewed', resource: 'usr_abc123' },
-              { ts: '2026-06-01 08:52', actor: 'system', action: 'billing.renewed', resource: 'usr_def456' },
-            ].map((entry, i) => (
-              <div key={i} style={{ display: 'grid', gridTemplateColumns: '160px 1fr 160px 1fr', gap: '0 24px', padding: '12px 0', borderBottom: '1px solid var(--rule)' }}>
-                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{entry.ts}</span>
-                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-dim)' }}>{entry.actor}</span>
-                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)' }}>{entry.action}</span>
-                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{entry.resource}</span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {tab === 'users' && (
-          <>
 
         {/* Overview Tab */}
         {activeTab === 'overview' && (
@@ -373,7 +357,7 @@ export function AdminDashboard() {
         )}
 
         {/* Usage Analytics Tab */}
-        {activeTab === 'usage' && (
+        {activeTab === 'legacy' && legacySub === 'usage' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
             <p className="loom-eyebrow" style={{ marginBottom: -16 }}>Usage Analytics</p>
 
@@ -615,10 +599,10 @@ export function AdminDashboard() {
         )}
 
         {/* Marketing Tab */}
-        {activeTab === 'marketing' && <MarketingTab />}
+        {activeTab === 'legacy' && legacySub === 'marketing' && <MarketingTab />}
 
         {/* Coupons Tab */}
-        {activeTab === 'coupons' && (
+        {activeTab === 'legacy' && legacySub === 'coupons' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <p className="loom-eyebrow">Coupon Management</p>
@@ -633,7 +617,7 @@ export function AdminDashboard() {
         )}
 
         {/* Gift Vouchers Tab */}
-        {activeTab === 'vouchers' && (
+        {activeTab === 'legacy' && legacySub === 'vouchers' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <p className="loom-eyebrow">Gift Voucher Management</p>
@@ -690,7 +674,7 @@ export function AdminDashboard() {
         )}
 
         {/* Gold Legacy Tab */}
-        {activeTab === 'gold-legacy' && (
+        {activeTab === 'legacy' && legacySub === 'gold-legacy' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
@@ -851,35 +835,68 @@ export function AdminDashboard() {
           </div>
         )}
 
-        {/* Support Tab */}
+        {/* Support Tab — the live ticket queue (open + AI-assistant escalations) */}
         {activeTab === 'support' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p className="loom-eyebrow">Support Tickets</p>
+              <p className="loom-eyebrow">Support Queue</p>
               <div style={{ display: 'flex', gap: 16 }}>
                 <span className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)' }}>{tickets?.data?.filter((t: any) => t.status === 'OPEN').length || 0} OPEN</span>
                 <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>{tickets?.data?.filter((t: any) => t.status === 'IN_PROGRESS').length || 0} IN PROGRESS</span>
+                <span className="loom-mono" style={{ fontSize: 11, color: 'var(--danger)' }}>{tickets?.data?.filter((t: any) => t.status === 'ESCALATED' || t.category === 'CHATBOT_ESCALATION').length || 0} ESCALATED</span>
               </div>
             </div>
             <Panel>
-              <LedgerTable cols={['Subject', 'User', 'Priority', 'Status', 'Created', 'Actions']} empty="No support tickets">
-                {tickets?.data?.map((ticket: any) => (
-                  <tr key={ticket.id} style={{ borderBottom: '1px solid var(--rule)' }}>
-                    <td style={tdStyle}>
-                      <div style={{ color: 'var(--bone)' }}>{ticket.subject}</div>
-                      <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{ticket.category}</div>
-                    </td>
-                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--bone-dim)' }}>{ticket.user?.email || ticket.email}</td>
-                    <td style={tdStyle}>
-                      <span className="loom-mono" style={{ fontSize: 11, color: ticket.priority === 'HIGH' ? 'var(--danger)' : ticket.priority === 'MEDIUM' ? 'var(--warm)' : 'var(--bone-faint)' }}>{ticket.priority}</span>
-                    </td>
-                    <td style={tdStyle}><StatusWord value={ticket.status} /></td>
-                    <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--bone-faint)' }}>{new Date(ticket.createdAt).toLocaleDateString()}</td>
-                    <td style={{ ...tdStyle, textAlign: 'right' }}>
-                      <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => setSelectedTicket(ticket.id)}>View</button>
-                    </td>
-                  </tr>
-                ))}
+              <LedgerTable cols={['Subject', 'User', 'Category', 'Status', 'Created', '']} empty="No tickets in the queue.">
+                {tickets?.data && tickets.data.length > 0
+                  ? tickets.data.map((ticket: any) => {
+                      const isEscalated = ticket.status === 'ESCALATED' || ticket.category === 'CHATBOT_ESCALATION';
+                      return (
+                        <tr
+                          key={ticket.id}
+                          onClick={() => setSelectedTicket(ticket.id)}
+                          style={{
+                            borderBottom: '1px solid var(--rule)',
+                            cursor: 'pointer',
+                            borderLeft: isEscalated ? '2px solid var(--danger)' : '2px solid transparent',
+                          }}
+                          onMouseOver={(e) => (e.currentTarget.style.background = 'var(--ink-card)')}
+                          onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
+                        >
+                          <td style={tdStyle}>
+                            <div style={{ color: 'var(--bone)' }}>{ticket.subject}</div>
+                            <span
+                              className="loom-mono"
+                              style={{ fontSize: 11, color: ticket.priority === 'HIGH' ? 'var(--danger)' : ticket.priority === 'MEDIUM' ? 'var(--warm)' : 'var(--bone-faint)' }}
+                            >
+                              {ticket.priority}
+                            </span>
+                          </td>
+                          <td style={tdStyle}>
+                            <div style={{ color: 'var(--bone-dim)', fontSize: 13 }}>{ticket.user?.name || '—'}</div>
+                            <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{ticket.user?.email || ticket.email}</div>
+                          </td>
+                          <td style={tdStyle}>
+                            <span
+                              className="loom-mono"
+                              style={{ fontSize: 11, color: ticket.category === 'CHATBOT_ESCALATION' ? 'var(--danger)' : 'var(--bone-dim)' }}
+                            >
+                              {ticket.category === 'CHATBOT_ESCALATION' ? 'CHATBOT ESCALATION' : (ticket.category || '—')}
+                            </span>
+                          </td>
+                          <td style={tdStyle}>
+                            {ticket.status === 'ESCALATED'
+                              ? <span className="loom-mono" style={{ fontSize: 11, color: 'var(--danger)' }}>ESCALATED</span>
+                              : <StatusWord value={ticket.status} />}
+                          </td>
+                          <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--bone-faint)' }}>{new Date(ticket.createdAt).toLocaleDateString()}</td>
+                          <td style={{ ...tdStyle, textAlign: 'right' }}>
+                            <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>open →</span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  : null}
               </LedgerTable>
             </Panel>
           </div>
@@ -923,7 +940,7 @@ export function AdminDashboard() {
         )}
 
         {/* Audit Logs Tab */}
-        {activeTab === 'audit' && (
+        {activeTab === 'legacy' && legacySub === 'audit' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <p className="loom-eyebrow">Audit Logs</p>
             <Panel>
@@ -942,7 +959,7 @@ export function AdminDashboard() {
         )}
 
         {/* Admin Users Tab */}
-        {activeTab === 'admins' && (
+        {activeTab === 'legacy' && legacySub === 'admins' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <p className="loom-eyebrow">Admin Users</p>
@@ -965,7 +982,7 @@ export function AdminDashboard() {
         )}
 
         {/* Emails Tab */}
-        {activeTab === 'emails' && (
+        {activeTab === 'legacy' && legacySub === 'emails' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <p className="loom-eyebrow">Email Management</p>
             <Panel>
@@ -992,7 +1009,7 @@ export function AdminDashboard() {
         )}
 
         {/* Reports Tab */}
-        {activeTab === 'reports' && (
+        {activeTab === 'legacy' && legacySub === 'reports' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <p className="loom-eyebrow">Reports & Analytics</p>
 
@@ -1057,12 +1074,10 @@ export function AdminDashboard() {
         )}
 
         {/* Social Calendar Tab */}
-        {activeTab === 'social' && (
+        {activeTab === 'legacy' && legacySub === 'social' && (
           <SocialCalendarTab />
         )}
 
-          </>
-        )}
       </div>
 
       {/* Modals */}

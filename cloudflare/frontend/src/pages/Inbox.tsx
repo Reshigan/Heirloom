@@ -131,7 +131,7 @@ export function Inbox() {
             {received.map((m) => (
               <Link
                 key={m.id}
-                to={`/memories/${m.id}`}
+                to={`/loom/read?entry=${m.id}`}
                 style={{ textDecoration: 'none', display: 'block' }}
               >
                 <div

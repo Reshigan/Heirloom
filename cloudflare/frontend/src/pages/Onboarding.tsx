@@ -1,12 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { threadsApi, familyReferralsApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Tour } from '../loom/components/Tour';
 
 // ── Types ─────────────────────────────────────────────────────────────────
-type Step = 'thread' | 'entry' | 'invite';
-const STEPS: Step[] = ['thread', 'entry', 'invite'];
+// The thread itself is created at signup (from the signup form), so onboarding
+// opens with the product tour, then the first entry, then an invite. It never
+// re-creates the thread.
+type Step = 'tour' | 'entry' | 'invite';
+const STEPS: Step[] = ['tour', 'entry', 'invite'];
 
 // ── Styles ────────────────────────────────────────────────────────────────
 
@@ -98,19 +102,34 @@ export function Onboarding() {
   const [stepIndex, setStepIndex] = useState(0);
   const step = STEPS[stepIndex];
 
-  // Step 0 — thread name
-  const [threadName, setThreadName] = useState(
-    user?.lastName ? `The ${user.lastName} Thread` : ''
-  );
-
-  // Step 1 — first entry
+  // First entry
   const [firstEntry, setFirstEntry] = useState('');
 
-  // Step 2 — invite
+  // Invite
   const [inviteEmail, setInviteEmail] = useState('');
 
-  // Persisted across steps
-  const [threadId, setThreadId] = useState<string | null>(null);
+  // The thread already exists (created at signup). Resolve its id so the first
+  // entry lands on it — prefer the stored defaultThreadId, fall back to the
+  // thread list, and only as a last resort create one.
+  const [threadId, setThreadId] = useState<string | null>(user?.defaultThreadId ?? null);
+
+  useEffect(() => {
+    if (threadId) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { threads } = (await threadsApi.list()).data;
+        if (cancelled) return;
+        if (threads.length > 0) {
+          setThreadId(threads[0].id);
+          updateUser({ defaultThreadId: threads[0].id });
+        }
+      } catch {
+        /* non-fatal — submitEntry will create one if still missing */
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [threadId, updateUser]);
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -126,43 +145,40 @@ export function Onboarding() {
   }
 
   // ── Step handlers ────────────────────────────────────────────────────
-  async function submitThread() {
-    if (!threadName.trim()) return;
-    setBusy(true);
-    setError(null);
+
+  // Resolve the thread id, creating one only if signup somehow didn't.
+  async function ensureThreadId(): Promise<string | null> {
+    if (threadId) return threadId;
     try {
-      const { data } = await threadsApi.create({
-        name: threadName.trim(),
-        default_visibility: 'FAMILY',
-      });
+      const name = user?.lastName ? `The ${user.lastName} Thread` : 'Our Family Thread';
+      const { data } = await threadsApi.create({ name, default_visibility: 'FAMILY' });
       const id = data.thread.id;
       setThreadId(id);
-      // Persist defaultThreadId so Today/PwaHome can immediately fetch entries
       updateUser({ defaultThreadId: id });
-      setStepIndex(1);
+      return id;
     } catch {
-      setError('Could not create your thread. Please try again.');
-    } finally {
-      setBusy(false);
+      return null;
     }
   }
 
   async function submitEntry() {
-    if (!firstEntry.trim() || !threadId) {
-      // Skip gracefully if no entry — thread already exists
+    if (!firstEntry.trim()) {
       setStepIndex(2);
       return;
     }
     setBusy(true);
     setError(null);
     try {
-      await threadsApi.createEntry(threadId, {
-        body_ciphertext: firstEntry.trim(),
-        visibility: 'FAMILY',
-        era_year: new Date().getFullYear(),
-      });
+      const id = await ensureThreadId();
+      if (id) {
+        await threadsApi.createEntry(id, {
+          body_ciphertext: firstEntry.trim(),
+          visibility: 'FAMILY',
+          era_year: new Date().getFullYear(),
+        });
+      }
     } catch {
-      // Non-fatal — thread is created, continue
+      // Non-fatal — continue forward
     } finally {
       setBusy(false);
       setStepIndex(2);
@@ -191,34 +207,13 @@ export function Onboarding() {
   }
 
   function handleNext() {
-    if (step === 'thread') submitThread();
-    else if (step === 'entry') submitEntry();
+    if (step === 'entry') submitEntry();
     else submitInvite();
   }
 
   // ── Screen content ───────────────────────────────────────────────────
-  const screens: Record<Step, React.ReactNode> = {
-    thread: (
-      <>
-        <div style={eyebrow}>your family thread</div>
-        <h1 style={heading}>Name the thread.</h1>
-        <p style={sub}>
-          This is the vessel. Every memory you and your family write
-          lives here — permanently, across generations.
-        </p>
-        <input
-          style={inputStyle}
-          value={threadName}
-          onChange={(e) => setThreadName(e.target.value)}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          onKeyDown={(e) => e.key === 'Enter' && handleNext()}
-          placeholder="The Smith Thread"
-          autoFocus
-        />
-      </>
-    ),
-
+  // The 'tour' step is rendered full-bleed (see below) and isn't in this map.
+  const screens: Record<'entry' | 'invite', React.ReactNode> = {
     entry: (
       <>
         <div style={eyebrow}>first entry</div>
@@ -264,12 +259,17 @@ export function Onboarding() {
 
   // ── CTA label ────────────────────────────────────────────────────────
   const ctaLabel = busy
-    ? step === 'thread'  ? 'creating…'
-    : step === 'entry'   ? 'sealing…'
-    :                      'inviting…'
-    : step === 'thread'  ? 'begin →'
-    : step === 'entry'   ? 'seal it →'
-    :                      'invite →';
+    ? step === 'entry' ? 'sealing…' : 'inviting…'
+    : step === 'entry' ? 'seal it →' : 'invite →';
+
+  // The product tour leads onboarding; it manages its own progress + actions.
+  if (step === 'tour') {
+    return (
+      <ClothShell noTopbar>
+        <Tour onDone={() => setStepIndex(1)} />
+      </ClothShell>
+    );
+  }
 
   return (
     <ClothShell noTopbar>
@@ -303,7 +303,7 @@ export function Onboarding() {
             type="button"
             className="hl-btn"
             onClick={handleNext}
-            disabled={busy || (step === 'thread' && !threadName.trim()) || (step === 'entry' && !firstEntry.trim())}
+            disabled={busy || (step === 'entry' && !firstEntry.trim())}
           >
             {ctaLabel}
           </button>

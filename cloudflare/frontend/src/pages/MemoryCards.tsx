@@ -773,7 +773,7 @@ export function MemoryCards() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => navigate(`/memories/${memory.id}`)}
+                              onClick={() => navigate(`/loom/read?entry=${memory.id}`)}
                               className="hl-link warm"
                               style={{
                                 background: 'transparent',

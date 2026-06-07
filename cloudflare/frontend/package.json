@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "check:routes": "node scripts/check-routes.mjs",
+    "build": "node scripts/check-routes.mjs && tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.tsx",
     "deploy": "npm run build && wrangler pages deploy dist --project-name=heirloom",
