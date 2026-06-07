@@ -9,8 +9,9 @@ name: Social autopost
 
 on:
   schedule:
-    - cron: "0 14 * * *"   # 10am ET — morning peak
-    - cron: "0 21 * * *"   # 5pm ET — end-of-workday peak
+    # One strong post per day — compounding cadence, not a volume blast
+    # (brand voice rule 14). 14:00 UTC ≈ 10am ET, the morning engagement peak.
+    - cron: "0 14 * * *"
   workflow_dispatch:
     inputs:
       mode:
