@@ -39,6 +39,9 @@ const PRECACHE = [
   // Splash teardown safety-net — must be available offline so the splash
   // doesn't get stuck if the network is absent on first load.
   '/splash-boot.js',
+  // Theme cold-boot — resolves the saved theme before first paint so the
+  // splash matches; precache so the no-flash boot also works offline.
+  '/theme-boot.js',
 ];
 
 self.addEventListener('install', (event) => {

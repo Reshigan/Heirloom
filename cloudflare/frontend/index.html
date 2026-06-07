@@ -8,6 +8,19 @@
     <meta name="theme-color" content="#0e0e0c" />
     <title>Heirloom — your family's thousand-year thread</title>
 
+    <!-- Theme cold-boot — resolve the saved theme onto <html> BEFORE first
+         paint so a light-mode visitor never sees the dark splash flash ("the
+         old theme"). MUST be synchronous + in <head>, and MUST be external
+         (prod CSP `script-src 'self'` blocks inline scripts). -->
+    <script src="/theme-boot.js"></script>
+    <style>
+      /* Root substrate + splash track the resolved theme so the very first
+         browser paint already matches (no dark→light flash on the marketing
+         page). theme-boot.js sets html[data-theme] before this paints. */
+      html { background: #0e0e0c; }
+      html[data-theme="light"] { background: #f5ece0; }
+    </style>
+
     <!-- Installable PWA -->
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=20260602" />
@@ -61,6 +74,14 @@
       #hl-splash .hl-splash-track { position: absolute; bottom: 96px; left: 20%; right: 20%; height: 1px; background: rgba(176, 122, 74, 0.18); overflow: hidden; }
       #hl-splash .hl-splash-fill { height: 1px; width: 30%; background: #b07a4a; animation: hl-splash-shuttle 1400ms cubic-bezier(0.16, 1, 0.3, 1) infinite; }
       #hl-splash .hl-splash-label { position: absolute; bottom: 64px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(244, 236, 216, 0.32); }
+      /* Light theme — paper splash so a light-mode visitor opens onto bone,
+         not a flash of ink. Values mirror .loom[data-theme="light"]. */
+      html[data-theme="light"] #hl-splash { background: #f5ece0; color: #120e0a; }
+      html[data-theme="light"] #hl-splash .hl-splash-mark { color: #a05c20; }
+      html[data-theme="light"] #hl-splash .hl-splash-word { color: rgba(18, 14, 10, 0.58); }
+      html[data-theme="light"] #hl-splash .hl-splash-track { background: rgba(160, 92, 32, 0.18); }
+      html[data-theme="light"] #hl-splash .hl-splash-fill { background: #a05c20; }
+      html[data-theme="light"] #hl-splash .hl-splash-label { color: rgba(18, 14, 10, 0.40); }
       @keyframes hl-splash-shuttle { 0% { transform: translateX(-110%); } 100% { transform: translateX(440%); } }
       @media (prefers-reduced-motion: reduce) {
         #hl-splash .hl-splash-fill { animation: none; width: 62%; }
