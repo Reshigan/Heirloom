@@ -547,7 +547,7 @@ export default function App() {
           <Route path="/loom/weft" element={<ProtectedRoute><LoomWeft /></ProtectedRoute>} />
           <Route path="/loom/compose" element={<Navigate to="/compose" replace />} />
           <Route path="/loom/tied" element={<ProtectedRoute><LoomTiedOff /></ProtectedRoute>} />
-          <Route path="/loom/unlock" element={<LoomUnlock />} />
+          <Route path="/loom/unlock" element={<ProtectedRoute><LoomUnlock /></ProtectedRoute>} />
           <Route path="/loom/echo" element={<LoomEcho />} />
           <Route path="/loom/read" element={<LoomReadingRoom />} />
           <Route path="/loom/kin" element={<ProtectedRoute><LoomConstellation /></ProtectedRoute>} />

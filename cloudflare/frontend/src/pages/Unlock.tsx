@@ -1,5 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
+import { lettersApi } from '../services/api';
+import { useAuthStore } from '../stores/authStore';
 
 /**
  * Screen 05 — The Unlock
@@ -10,23 +13,97 @@ import { ClothShell } from '../loom/components/ClothShell';
  * sealed-date dissolve as the entry's title and prose fade up in warm. Nothing
  * burns, melts, sparks, or glows. §2.6 forbids the fire/wax/key/vault family of
  * literal-metaphor objects, glassmorphism, gradient meshes, drop shadows, and
- * floating cards that translate on entry — this screen used to do all of them.
+ * floating cards that translate on entry.
  *
  *   phase 0  sealed     — ∞ + the sealed dates, at rest
  *   phase 1  dissolve    — the 720ms cross-fade (∞/date out, letter in)
  *   phase 2  the letter  — the prose, readable
  *   phase 3  the artifact— a portrait card to pass to descendants
  *
- * The sequence loops on a calm cadence; the top-bar right slot toggles it.
+ * The letter is the signed-in author's own — the most recent sealed letter
+ * whose delivery date has arrived. No mock content: when nothing has untied
+ * yet, the EmptyUnlock prompt holds the screen.
  */
 const VEIL = 'opacity var(--loom-dur-veil) var(--loom-ease)';
 
+interface UnlockLetter {
+  recipient: string;
+  salutation: string;
+  body: string;
+  signature: string;
+  writtenDate: string;   // formatted, when the letter was written
+  sealedDate: string;    // formatted, when it was tied off
+  openedDate: string;    // formatted, when it untied
+  years: number;         // whole years between sealed and opened
+}
+
+const fmtDate = (iso?: string | null): string =>
+  iso ? new Date(iso).toISOString().slice(0, 10).replace(/-/g, '·') : '';
+
+function wholeYears(fromIso?: string | null, toIso?: string | null): number {
+  if (!fromIso || !toIso) return 0;
+  const ms = new Date(toIso).getTime() - new Date(fromIso).getTime();
+  return Math.max(0, Math.round(ms / (365.25 * 24 * 3600 * 1000)));
+}
+
 export function Unlock() {
+  const { isAuthenticated, user } = useAuthStore();
+  const [letter, setLetter] = useState<UnlockLetter | null>(null);
+  const [loading, setLoading] = useState(true);
   const [phase, setPhase] = useState(0);
   const [paused, setPaused] = useState(false);
 
+  const authorName = useMemo(
+    () => [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim(),
+    [user],
+  );
+
+  // Load the author's most recently untied sealed letter (real data only).
   useEffect(() => {
-    if (paused) return;
+    if (!isAuthenticated) { setLoading(false); return; }
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data } = await lettersApi.getAll({ status: 'sealed', limit: 100 });
+        const rows: any[] = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
+        const now = Date.now();
+        // "Untied" = sealed, has a delivery date, and that date has arrived.
+        const matured = rows
+          .filter((l) => l.sealedAt && l.scheduledDate && new Date(l.scheduledDate).getTime() <= now)
+          .sort((a, b) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime());
+        const head = matured[0];
+        if (!head) { if (!cancelled) setLoading(false); return; }
+
+        // Pull the full body (the list only carries a preview).
+        const full = (await lettersApi.getOne(head.id)).data;
+        if (cancelled) return;
+        const recipient =
+          full.recipients?.[0]?.name ||
+          head.recipients?.[0]?.name ||
+          (full.salutation || '').replace(/^(dear|to)\s+/i, '').replace(/[,，]\s*$/, '') ||
+          'someone';
+        setLetter({
+          recipient,
+          salutation: full.salutation || `${recipient},`,
+          body: (full.body || '').trim(),
+          signature: full.signature || authorName || '',
+          writtenDate: fmtDate(full.createdAt || head.createdAt),
+          sealedDate: fmtDate(full.sealedAt || head.sealedAt),
+          openedDate: fmtDate(full.scheduledDate || head.scheduledDate),
+          years: wholeYears(full.sealedAt || head.sealedAt, full.scheduledDate || head.scheduledDate),
+        });
+      } catch {
+        // Network/auth failure → empty state, never fabricated content.
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [isAuthenticated, authorName]);
+
+  // The reveal cadence only runs once we actually have a letter to unseal.
+  useEffect(() => {
+    if (!letter || paused) return;
     const timers: ReturnType<typeof setTimeout>[] = [];
     const cycle = () => {
       setPhase(0);
@@ -37,7 +114,16 @@ export function Unlock() {
     };
     cycle();
     return () => timers.forEach(clearTimeout);
-  }, [paused]);
+  }, [letter, paused]);
+
+  // ── No matured letter (or not signed in / still loading) → honest empty state ──
+  if (!letter) {
+    return (
+      <ClothShell topbarCenter="sealed" backdropOpacity={0.5}>
+        <EmptyUnlock loading={loading} authed={isAuthenticated} />
+      </ClothShell>
+    );
+  }
 
   return (
     <ClothShell
@@ -47,10 +133,7 @@ export function Unlock() {
           className="loom-mono loom-faint"
           style={{ display: 'flex', gap: 14, alignItems: 'center' }}
         >
-          <span
-            aria-hidden
-            style={{ width: 5, height: 5, background: 'var(--warm)' }}
-          />
+          <span aria-hidden style={{ width: 5, height: 5, background: 'var(--warm)' }} />
           a thread unties · today
           <span
             onClick={() => setPaused((p) => !p)}
@@ -85,8 +168,7 @@ export function Unlock() {
               className="loom-mono"
               style={{ fontSize: 11, color: 'var(--bone-faint)', marginTop: 8 }}
             >
-              tied off 2026·05·04 &nbsp;·&nbsp; opens 2055·11·08 &nbsp;·&nbsp; for iris
-              hartshorn-vega &nbsp;·&nbsp; on her 31st
+              tied off {letter.sealedDate} &nbsp;·&nbsp; untied {letter.openedDate} &nbsp;·&nbsp; for {letter.recipient}
             </div>
           </div>
 
@@ -129,7 +211,7 @@ export function Unlock() {
                       marginTop: 22,
                     }}
                   >
-                    sealed · twenty-nine years
+                    sealed · {letter.years === 1 ? 'one year' : `${letter.years} years`}
                   </div>
                 </div>
               </div>
@@ -146,7 +228,7 @@ export function Unlock() {
                   pointerEvents: phase >= 1 && phase < 3 ? 'auto' : 'none',
                 }}
               >
-                <div style={{ maxWidth: 560, textAlign: 'left' }}>
+                <div style={{ maxWidth: 560, textAlign: 'left', maxHeight: 360, overflowY: 'auto' }}>
                   <div
                     className="loom-mono"
                     style={{
@@ -158,7 +240,7 @@ export function Unlock() {
                       marginBottom: 22,
                     }}
                   >
-                    written 2026 · 05 · 04 &nbsp;·&nbsp; oak street, kitchen, 22:14
+                    written {letter.writtenDate}
                   </div>
                   <div
                     className="loom-serif"
@@ -170,7 +252,7 @@ export function Unlock() {
                       color: 'var(--warm)',
                     }}
                   >
-                    Iris,
+                    {letter.salutation}
                   </div>
                   <div
                     className="loom-body"
@@ -180,29 +262,26 @@ export function Unlock() {
                       lineHeight: 1.85,
                       textWrap: 'pretty',
                       fontVariationSettings: "'opsz' 14",
+                      whiteSpace: 'pre-wrap',
                     }}
                   >
-                    Thirty-one is the age I was when your mother was born. The kitchen window had
-                    daffodils that year too — slanted late-may light, the color of a strong tea. I
-                    want you to know:&nbsp;
-                    <span className="loom-warm-text" style={{ fontStyle: 'italic' }}>
-                      everything I will never get to tell you, I have woven into this thread.
-                    </span>
-                    &nbsp;Hold it lightly. Pass it on.
+                    {letter.body}
                   </div>
-                  <div
-                    style={{
-                      marginTop: 24,
-                      fontFamily: "'Source Serif 4', serif",
-                      fontVariationSettings: "'opsz' 28",
-                      fontSize: 22,
-                      fontStyle: 'italic',
-                      fontWeight: 300,
-                      color: 'var(--bone-dim)',
-                    }}
-                  >
-                    — Eleanor
-                  </div>
+                  {letter.signature && (
+                    <div
+                      style={{
+                        marginTop: 24,
+                        fontFamily: "'Source Serif 4', serif",
+                        fontVariationSettings: "'opsz' 28",
+                        fontSize: 22,
+                        fontStyle: 'italic',
+                        fontWeight: 300,
+                        color: 'var(--bone-dim)',
+                      }}
+                    >
+                      — {letter.signature}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -218,7 +297,7 @@ export function Unlock() {
                   pointerEvents: phase < 3 ? 'none' : 'auto',
                 }}
               >
-                <ShareCard />
+                <ShareCard letter={letter} />
               </div>
             </div>
           </div>
@@ -248,9 +327,72 @@ export function Unlock() {
   );
 }
 
+/* ─── No thread has untied yet ─────────────────────────────────────────── */
+function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean }) {
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        inset: 0,
+        display: 'grid',
+        placeItems: 'center',
+        textAlign: 'center',
+        padding: '0 24px',
+      }}
+    >
+      <div style={{ maxWidth: 480 }}>
+        <div
+          style={{
+            fontFamily: "'Source Serif 4', serif",
+            fontVariationSettings: "'opsz' 72",
+            fontSize: 88,
+            fontWeight: 300,
+            lineHeight: 1,
+            color: 'var(--warm)',
+            marginBottom: 28,
+          }}
+        >
+          ∞
+        </div>
+        {loading ? (
+          <div className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
+            reading the loom…
+          </div>
+        ) : (
+          <>
+            <div
+              className="loom-serif"
+              style={{ fontSize: 22, fontStyle: 'italic', fontWeight: 300, color: 'var(--bone)', lineHeight: 1.6 }}
+            >
+              No thread has untied yet.
+            </div>
+            <div
+              className="loom-body loom-dim"
+              style={{ fontSize: 15, marginTop: 14, lineHeight: 1.7 }}
+            >
+              When a sealed letter reaches its date, the loom unties it here — its
+              prose fading up exactly when you meant it to arrive.
+            </div>
+            <div className="loom-eyebrow" style={{ marginTop: 32, display: 'flex', justifyContent: 'center', gap: 22 }}>
+              <Link to="/compose" className="loom-btn" style={{ textDecoration: 'none' }}>
+                seal a letter
+              </Link>
+              {authed && (
+                <Link to="/loom/tied" className="loom-btn-ghost" style={{ textDecoration: 'none' }}>
+                  see what's waiting
+                </Link>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ─── The artifact — a portrait card to pass on. Type on ink, one hairline,
    one warm accent. No gradients, no glow, no shadow (§2.6). ───────────────── */
-function ShareCard() {
+function ShareCard({ letter }: { letter: UnlockLetter }) {
   return (
     <div
       style={{
@@ -289,7 +431,7 @@ function ShareCard() {
               marginBottom: 14,
             }}
           >
-            29
+            {letter.years}
           </div>
           <div
             className="loom-serif"
@@ -302,13 +444,13 @@ function ShareCard() {
               margin: '0 auto 26px',
             }}
           >
-            years between
+            {letter.years === 1 ? 'year' : 'years'} between
             <br />
-            <span className="loom-warm-text">when she sealed it</span>
+            <span className="loom-warm-text">when it was sealed</span>
             <br />
             and
             <br />
-            <span className="loom-warm-text">when you read it</span>
+            <span className="loom-warm-text">when it was read</span>
           </div>
 
           <div
@@ -324,10 +466,10 @@ function ShareCard() {
             }}
           >
             <div style={{ marginBottom: 6 }}>
-              <span style={{ color: 'var(--warm)' }}>·</span> sealed 2026·05·04
+              <span style={{ color: 'var(--warm)' }}>·</span> sealed {letter.sealedDate}
             </div>
             <div>
-              <span style={{ color: 'var(--warm)' }}>·</span> opened 2055·11·08
+              <span style={{ color: 'var(--warm)' }}>·</span> opened {letter.openedDate}
             </div>
           </div>
 
@@ -341,11 +483,9 @@ function ShareCard() {
               marginTop: 18,
             }}
           >
-            she was thirty-one
+            written for
             <br />
-            when she wrote it.
-            <br />
-            so are you.
+            {letter.recipient}.
           </div>
         </div>
       </div>
@@ -369,7 +509,7 @@ function ShareCard() {
           className="loom-mono"
           style={{ fontSize: 8, color: 'var(--warm)', letterSpacing: '0.12em' }}
         >
-          /iris
+          ∞
         </span>
       </div>
     </div>
