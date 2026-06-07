@@ -263,9 +263,9 @@ giftVoucherRoutes.post('/checkout', async (c) => {
       INSERT INTO gift_vouchers (
         code, purchaser_user_id, purchaser_email, purchaser_name,
         recipient_email, recipient_name, recipient_message,
-        tier, billing_cycle, duration_months, amount, currency,
+        tier, billing_cycle, duration_months, amount, charged_amount, currency,
         stripe_checkout_session_id, status, expires_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'PENDING', ?)
     `).bind(
       voucherCode,
       userId,
@@ -278,6 +278,7 @@ giftVoucherRoutes.post('/checkout', async (c) => {
       billingCycle.toLowerCase(),
       durationMonths,
       amount,
+      chargeAmount,
       currency.toUpperCase(),
       session.id,
       expiresAt.toISOString()
@@ -1103,7 +1104,10 @@ giftVoucherRoutes.get('/admin/stats', adminAuth, async (c) => {
       SUM(CASE WHEN status = 'SENT' THEN 1 ELSE 0 END) as sent,
       SUM(CASE WHEN status = 'REDEEMED' THEN 1 ELSE 0 END) as redeemed,
       SUM(CASE WHEN status = 'EXPIRED' THEN 1 ELSE 0 END) as expired,
-      SUM(CASE WHEN status IN ('PAID', 'SENT', 'REDEEMED') THEN amount ELSE 0 END) as total_revenue,
+      -- Collected revenue = what the giver was actually charged (10% off). Old
+      -- rows predate charged_amount, so fall back to face value.
+      SUM(CASE WHEN status IN ('PAID', 'SENT', 'REDEEMED') THEN COALESCE(charged_amount, amount) ELSE 0 END) as total_revenue,
+      -- Membership value handed to recipients = full face value (they redeem in full).
       SUM(CASE WHEN status = 'REDEEMED' THEN amount ELSE 0 END) as redeemed_value
     FROM gift_vouchers
   `).first();
