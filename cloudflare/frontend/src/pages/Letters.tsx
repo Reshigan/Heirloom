@@ -12,6 +12,8 @@ interface Letter {
   deliveryTrigger?: string;
   scheduledDate?: string | null;
   sealedAt?: string | null;
+  milestoneLabel?: string | null;
+  deliveredAt?: string | null;
   createdAt: string;
 }
 
@@ -194,10 +196,22 @@ function LetterRow({ letter }: { letter: Letter }) {
   const [expanded, setExpanded] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const [confirmRelease, setConfirmRelease] = useState(false);
+
   const deleteMut = useMutation({
     mutationFn: () => lettersApi.delete(letter.id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['letters'] }),
   });
+
+  const releaseMut = useMutation({
+    mutationFn: () => lettersApi.release(letter.id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['letters'] }),
+  });
+
+  // A milestone letter waits sealed with no date until the family judges the
+  // milestone has arrived, then the author releases it (emails recipients).
+  const isMilestone = !!letter.milestoneLabel && !letter.scheduledDate;
+  const released = !!letter.deliveredAt;
 
   if (deleteMut.isSuccess) return null;
 
@@ -281,12 +295,50 @@ function LetterRow({ letter }: { letter: Letter }) {
             </p>
           )}
           <div className="hl-mono" style={{ fontSize: 9.5, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
-            {letter.scheduledDate
+            {released
+              ? `released ${formatDate(letter.deliveredAt!)}`
+              : isMilestone
+              ? `sealed · opens on ${letter.milestoneLabel}`
+              : letter.scheduledDate
               ? `sealed · opens ${formatDate(letter.scheduledDate)}`
               : letter.deliveryTrigger
               ? `sealed · opens on ${letter.deliveryTrigger.toLowerCase().replace('_', ' ')}`
               : 'sealed · time-locked'}
           </div>
+
+          {/* Milestone release — the only ceremony the family controls by hand.
+              Shown when the letter waits on a milestone and hasn't been released. */}
+          {isMilestone && !released && (
+            <div style={{ marginTop: 18, paddingTop: 16, borderTop: '1px solid var(--rule)' }}>
+              {!confirmRelease ? (
+                <>
+                  <p className="hl-serif" style={{ fontSize: 13.5, lineHeight: 1.7, color: 'var(--bone-dim)', fontStyle: 'italic', margin: '0 0 12px', maxWidth: '52ch' }}>
+                    Has this milestone arrived? Release the letter to deliver it to {recipient || 'the recipient'} by email. This can't be undone.
+                  </p>
+                  <button type="button" onClick={() => setConfirmRelease(true)} className="hl-btn" style={{ cursor: 'pointer' }}>
+                    Release this letter →
+                  </button>
+                </>
+              ) : (
+                <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--warm)' }}>
+                    Deliver now?
+                  </span>
+                  <button type="button" onClick={() => releaseMut.mutate()} disabled={releaseMut.isPending}
+                    style={{ background: 'transparent', border: '1px solid var(--warm)', borderRadius: 0, padding: '5px 12px', cursor: releaseMut.isPending ? 'wait' : 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--warm)', opacity: releaseMut.isPending ? 0.6 : 1 }}>
+                    {releaseMut.isPending ? 'releasing…' : 'confirm release'}
+                  </button>
+                  <button type="button" onClick={() => setConfirmRelease(false)} disabled={releaseMut.isPending}
+                    style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                    not yet
+                  </button>
+                  {releaseMut.isError && (
+                    <span className="hl-mono" style={{ fontSize: 9.5, color: 'var(--dye-madder)', letterSpacing: '0.1em' }}>could not release — try again</span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 

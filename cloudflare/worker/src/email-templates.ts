@@ -426,6 +426,57 @@ export const letterDeliveryEmail = (
   `),
 });
 
+// Milestone teaser — sent the moment a milestone letter is sealed, to a
+// recipient who may not yet be on Heirloom. The content stays sealed; this only
+// tells them something is waiting for a named moment ("your wedding day"). It is
+// deliberately evocative — the anticipation is the hook that brings people in.
+export const letterMilestoneTeaserEmail = (
+  recipientName: string,
+  senderName: string,
+  milestoneLabel: string
+) => ({
+  subject: `${senderName} left you a letter — to be opened on ${milestoneLabel}`,
+  html: baseTemplate(`
+    <h2>A letter is waiting for you</h2>
+    <p>Dear ${esc(recipientName)},</p>
+    <p>${esc(senderName)} has written you a letter through Heirloom and sealed it
+       for a single moment yet to come:</p>
+    <div class="letter-box">
+      <p class="salutation" style="text-align:center; font-style:italic;">to be opened on ${esc(milestoneLabel)}</p>
+    </div>
+    <p>It stays sealed until then. When the day arrives, your family will release it —
+       or, if you keep your own thread on Heirloom, you'll be able to open it yourself
+       and weave it into your cloth.</p>
+    <div style="text-align:center; margin: 28px 0;">
+      <a href="${APP_URL}" class="button-warm">Start your own thread</a>
+    </div>
+    <div class="seal">
+      <div class="seal-icon">&#8734;</div>
+      <p class="seal-text">Sealed with love</p>
+    </div>
+  `),
+});
+
+// Sent to the letter's author when a recipient opens what they left — the
+// quiet confirmation that the words arrived and were read.
+export const letterOpenedNotificationEmail = (
+  authorName: string,
+  recipientName: string,
+  milestoneLabel: string | null
+) => ({
+  subject: `${recipientName} opened your letter`,
+  html: baseTemplate(`
+    <h2>Your letter was opened</h2>
+    <p>Dear ${esc(authorName)},</p>
+    <p>${esc(recipientName)} has just opened the letter you left them${milestoneLabel ? ` for ${esc(milestoneLabel)}` : ''}.
+       Your words have been read, and the letter now lives in their cloth too.</p>
+    <div class="seal">
+      <div class="seal-icon">&#8734;</div>
+      <p class="seal-text">The thread continues</p>
+    </div>
+  `),
+});
+
 export const escrowKeyReleaseEmail = (
   beneficiaryName: string,
   userName: string,

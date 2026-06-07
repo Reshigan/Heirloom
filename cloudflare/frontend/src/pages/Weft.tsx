@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
+import { LettersAwaitingMe } from '../loom/components/LettersAwaitingMe';
 import { HLogo } from '../loom/components/HLogo';
 import { type LoomEntry, type LoomDye, type LoomKind } from '../loom/components/Loom';
 import { TapestryCanvas, type CanvasEntry } from '../loom/components/TapestryCanvas';
@@ -130,6 +131,12 @@ export function Weft() {
     queryFn: () => voiceApi.getAll({ limit: 500 }).then((r) => r.data),
     enabled: isAuthenticated,
   });
+  // Letters received from others and opened are woven into your cloth too.
+  const { data: receivedData } = useQuery({
+    queryKey: ['letters-received'],
+    queryFn: () => lettersApi.received().then((r) => r.data).catch(() => null),
+    enabled: isAuthenticated,
+  });
 
   const { data: threadMembersData } = useQuery({
     queryKey: ['weft-thread-members', user?.defaultThreadId],
@@ -144,8 +151,19 @@ export function Weft() {
     const mems = Array.isArray((memoriesData as any)?.data) ? (memoriesData as any).data : [];
     const lets = Array.isArray((lettersData as any)?.data) ? (lettersData as any).data : [];
     const vox = Array.isArray((voiceData as any)?.data) ? (voiceData as any).data : [];
-    return toEntries(mems, lets, vox);
-  }, [memoriesData, lettersData, voiceData]);
+    // Opened received letters sit on the cloth at the moment they were woven in
+    // (delivered_at), attributed to the original author via recipients[0].name.
+    const received = (Array.isArray((receivedData as any)?.data) ? (receivedData as any).data : []).map((r: any) => ({
+      id: r.id,
+      title: r.title || 'a letter',
+      salutation: r.salutation,
+      createdAt: r.deliveredAt || r.createdAt,
+      sealedAt: null,
+      recipients: [{ name: r.from }],
+      metadata: null,
+    }));
+    return toEntries(mems, [...lets, ...received], vox);
+  }, [memoriesData, lettersData, voiceData, receivedData]);
 
   const focusedEntry = hover != null ? allEntries[hover] : null;
 
@@ -360,6 +378,13 @@ export function Weft() {
               showWarpHair: true,
             }}
           />
+        </div>
+
+        {/* The open region — a letter released to you surfaces here, on the cloth
+            itself. Renders nothing until one waits, then takes the top as a
+            priority call to open (the Unlock ceremony weaves it into the cloth). */}
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 25, background: 'var(--ink)' }}>
+          <LettersAwaitingMe />
         </div>
 
         <div className="weft-header-left">

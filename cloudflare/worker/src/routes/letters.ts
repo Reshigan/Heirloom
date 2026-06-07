@@ -8,6 +8,8 @@ import type { Env, AppEnv } from '../index';
 import { generateLetterSuggestion, classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
 import { mirrorIntoDefaultThread, mirrorLetterUpdate, mirrorLetterDelete } from '../services/threadMesh';
 import { recordRevision, withinGrace, mutableUntilFrom } from '../lib/legacyArchive';
+import { sendEmail } from '../utils/email';
+import { letterDeliveryEmail, letterMilestoneTeaserEmail, letterOpenedNotificationEmail } from '../email-templates';
 
 export const lettersRoutes = new Hono<AppEnv>();
 
@@ -197,6 +199,7 @@ lettersRoutes.get('/', async (c) => {
     scheduledDate: letter.scheduled_date,
     milestoneLabel: letter.milestone_label,
     sealedAt: letter.sealed_at,
+    deliveredAt: letter.delivered_at,
     encrypted: !!letter.encrypted,
     recipients: recipientMap[letter.id] || [],
     createdAt: letter.created_at,
@@ -216,11 +219,99 @@ lettersRoutes.get('/', async (c) => {
   });
 });
 
+// Milestone letters waiting for ME (the logged-in recipient).
+//
+// A milestone letter is held sealed (delivery_trigger SCHEDULED, null
+// scheduled_date) and carries a milestone_label. We link recipients to platform
+// users by email: a letter is "awaiting me" if one of its recipients shares the
+// current user's email, it isn't yet delivered, and it isn't my own letter.
+// Registered BEFORE GET /:id so "awaiting-me" isn't parsed as a letter id.
+lettersRoutes.get('/awaiting-me', async (c) => {
+  const userId = c.get('userId');
+  const me = await c.env.DB.prepare(`SELECT email, first_name, last_name FROM users WHERE id = ?`).bind(userId).first() as
+    | { email: string; first_name: string; last_name: string }
+    | null;
+  if (!me?.email) return c.json({ data: [] });
+
+  const rows = await c.env.DB.prepare(`
+    SELECT l.id, l.salutation, l.milestone_label, l.created_at,
+           u.first_name AS author_first, u.last_name AS author_last
+    FROM letters l
+    JOIN letter_recipients lr ON lr.letter_id = l.id
+    JOIN family_members fm ON fm.id = lr.family_member_id
+    JOIN users u ON u.id = l.user_id
+    WHERE lower(fm.email) = lower(?)
+      AND l.user_id != ?
+      AND l.milestone_label IS NOT NULL
+      AND l.sealed_at IS NOT NULL
+      AND l.delivered_at IS NULL
+      AND l.deleted_at IS NULL
+    ORDER BY l.created_at DESC
+    LIMIT 50
+  `).bind(me.email, userId).all();
+
+  return c.json({
+    data: (rows.results as any[]).map((r) => ({
+      id: r.id,
+      salutation: r.salutation,
+      milestoneLabel: r.milestone_label,
+      from: `${r.author_first ?? ''} ${r.author_last ?? ''}`.trim() || 'your family',
+      createdAt: r.created_at,
+    })),
+  });
+});
+
+// Letters I've received and opened — these become part of MY cloth.
+//
+// Once a recipient opens a released letter, it's woven into their own tapestry:
+// the words another author left them now belong to their thread too. This
+// returns the full opened letters addressed to the current user (by email),
+// carrying the original author's identity for dye/attribution.
+// Registered BEFORE GET /:id.
+lettersRoutes.get('/received', async (c) => {
+  const userId = c.get('userId');
+  const me = await c.env.DB.prepare(`SELECT email FROM users WHERE id = ?`).bind(userId).first() as
+    | { email: string }
+    | null;
+  if (!me?.email) return c.json({ data: [] });
+
+  const rows = await c.env.DB.prepare(`
+    SELECT l.id, l.title, l.salutation, l.body, l.signature, l.milestone_label,
+           l.delivered_at, l.created_at,
+           u.first_name AS author_first, u.last_name AS author_last
+    FROM letters l
+    JOIN letter_recipients lr ON lr.letter_id = l.id
+    JOIN family_members fm ON fm.id = lr.family_member_id
+    JOIN users u ON u.id = l.user_id
+    WHERE lower(fm.email) = lower(?)
+      AND l.user_id != ?
+      AND l.delivered_at IS NOT NULL
+      AND l.deleted_at IS NULL
+    ORDER BY l.delivered_at DESC
+    LIMIT 200
+  `).bind(me.email, userId).all();
+
+  return c.json({
+    data: (rows.results as any[]).map((r) => ({
+      id: r.id,
+      title: r.title,
+      salutation: r.salutation,
+      body: r.body,
+      signature: r.signature,
+      milestoneLabel: r.milestone_label,
+      from: `${r.author_first ?? ''} ${r.author_last ?? ''}`.trim() || 'your family',
+      deliveredAt: r.delivered_at,
+      createdAt: r.created_at,
+      received: true,
+    })),
+  });
+});
+
 // Get a specific letter
 lettersRoutes.get('/:id', async (c) => {
   const userId = c.get('userId');
   const letterId = c.req.param('id');
-  
+
   const letter = await c.env.DB.prepare(`
     SELECT * FROM letters WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(letterId, userId).first();
@@ -246,6 +337,7 @@ lettersRoutes.get('/:id', async (c) => {
     scheduledDate: letter.scheduled_date,
     milestoneLabel: letter.milestone_label,
     sealedAt: letter.sealed_at,
+    deliveredAt: letter.delivered_at,
     encrypted: !!letter.encrypted,
     encryptionIv: letter.encryption_iv,
     recipients: recipients.results.map((r: any) => ({
@@ -326,6 +418,7 @@ lettersRoutes.post('/', async (c) => {
     signature: letter?.signature,
     deliveryTrigger: letter?.delivery_trigger,
     milestoneLabel: letter?.milestone_label,
+    deliveredAt: letter?.delivered_at,
     encrypted: !!letter?.encrypted,
     encryptionIv: letter?.encryption_iv,
     createdAt: letter?.created_at,
@@ -434,6 +527,7 @@ lettersRoutes.patch('/:id', async (c) => {
     signature: letter?.signature,
     deliveryTrigger: letter?.delivery_trigger,
     milestoneLabel: letter?.milestone_label,
+    deliveredAt: letter?.delivered_at,
     encrypted: !!letter?.encrypted,
     encryptionIv: letter?.encryption_iv,
     updatedAt: letter?.updated_at,
@@ -479,8 +573,30 @@ lettersRoutes.post('/:id/seal', async (c) => {
           .bind(crypto.randomUUID(), letterId, recipient.email, now, now)
       )
     );
+
+    // Milestone teaser (viral hook): the moment a milestone letter is sealed,
+    // tell each recipient something awaits them for the named moment — without
+    // revealing the content. The letter itself stays sealed until release/open.
+    if (existing.milestone_label) {
+      const author = await c.env.DB.prepare(`SELECT first_name, last_name FROM users WHERE id = ?`).bind(userId).first() as
+        | { first_name: string; last_name: string }
+        | null;
+      const senderName = `${author?.first_name ?? ''} ${author?.last_name ?? ''}`.trim() || 'Someone in your family';
+      for (const recipient of recipientsWithEmail) {
+        try {
+          const { subject, html } = letterMilestoneTeaserEmail(
+            recipient.name || 'there',
+            senderName,
+            String(existing.milestone_label)
+          );
+          await sendEmail(c.env, { from: 'Heirloom <noreply@heirloom.blue>', to: recipient.email, subject, html }, 'letter_milestone_teaser');
+        } catch (err) {
+          console.error('Milestone teaser email failed', recipient.email, err);
+        }
+      }
+    }
   }
-  
+
   const letter = await c.env.DB.prepare(`
     SELECT * FROM letters WHERE id = ?
   `).bind(letterId).first();
@@ -490,6 +606,156 @@ lettersRoutes.post('/:id/seal', async (c) => {
     title: letter?.title,
     sealedAt: letter?.sealed_at,
     message: 'Letter sealed successfully',
+  });
+});
+
+// Release a milestone letter (author / family action).
+//
+// Milestone letters are held sealed with no scheduled date — nothing auto-fires
+// them (and we deliberately never auto-open on a keyword match). When the family
+// judges the milestone has arrived, the author releases the letter: every
+// recipient with a saved email is sent the letter by email, and the letter is
+// marked delivered so any on-platform recipient sees it as opened too.
+lettersRoutes.post('/:id/release', async (c) => {
+  const userId = c.get('userId');
+  const letterId = c.req.param('id');
+
+  const letter = await c.env.DB.prepare(`
+    SELECT * FROM letters WHERE id = ? AND user_id = ? AND deleted_at IS NULL
+  `).bind(letterId, userId).first() as any;
+
+  if (!letter) return c.json({ error: 'Letter not found' }, 404);
+  if (!letter.sealed_at) return c.json({ error: 'Letter must be sealed before it can be released' }, 400);
+  if (letter.delivered_at) return c.json({ error: 'Letter has already been released' }, 400);
+
+  const author = await c.env.DB.prepare(`SELECT first_name, last_name FROM users WHERE id = ?`).bind(userId).first() as
+    | { first_name: string; last_name: string }
+    | null;
+  const senderName = `${author?.first_name ?? ''} ${author?.last_name ?? ''}`.trim() || 'your family';
+
+  const recipients = await c.env.DB.prepare(`
+    SELECT fm.email, fm.name FROM family_members fm
+    JOIN letter_recipients lr ON fm.id = lr.family_member_id
+    WHERE lr.letter_id = ?
+  `).bind(letterId).all();
+
+  const recipientsWithEmail = (recipients.results as any[]).filter((r) => r.email);
+  const now = new Date().toISOString();
+  let sent = 0;
+
+  for (const recipient of recipientsWithEmail) {
+    try {
+      const { subject, html } = letterDeliveryEmail(recipient.name || 'there', senderName, {
+        salutation: letter.salutation || '',
+        body: letter.body || '',
+        signature: letter.signature || '',
+      });
+      await sendEmail(
+        c.env,
+        {
+          from: 'Heirloom <noreply@heirloom.blue>',
+          to: recipient.email,
+          subject,
+          html,
+        },
+        'letter_delivery'
+      );
+      await c.env.DB.prepare(`
+        UPDATE letter_deliveries SET status = 'DELIVERED', sent_at = ?, delivered_at = ?, updated_at = ?
+        WHERE letter_id = ? AND recipient_email = ?
+      `).bind(now, now, now, letterId, recipient.email).run();
+      sent++;
+    } catch (err) {
+      console.error('Letter release email failed', recipient.email, err);
+    }
+  }
+
+  await c.env.DB.prepare(`
+    UPDATE letters SET delivered_at = ?, updated_at = ? WHERE id = ?
+  `).bind(now, now, letterId).run();
+
+  return c.json({ id: letterId, deliveredAt: now, emailsSent: sent, message: 'Letter released' });
+});
+
+// Open a milestone letter (recipient action).
+//
+// A logged-in recipient (matched by email against the letter's recipients) opens
+// the letter the family released — marking it delivered if it wasn't already, and
+// returning the full letter body to reveal. Human-confirmed: the recipient chooses
+// to open; we never reveal it automatically.
+lettersRoutes.post('/:id/open', async (c) => {
+  const userId = c.get('userId');
+  const letterId = c.req.param('id');
+
+  const me = await c.env.DB.prepare(`SELECT email, first_name, last_name FROM users WHERE id = ?`).bind(userId).first() as
+    | { email: string; first_name: string; last_name: string }
+    | null;
+  if (!me?.email) return c.json({ error: 'No email on account' }, 400);
+
+  const letter = await c.env.DB.prepare(`
+    SELECT l.* FROM letters l
+    JOIN letter_recipients lr ON lr.letter_id = l.id
+    JOIN family_members fm ON fm.id = lr.family_member_id
+    WHERE l.id = ?
+      AND lower(fm.email) = lower(?)
+      AND l.sealed_at IS NOT NULL
+      AND l.deleted_at IS NULL
+    LIMIT 1
+  `).bind(letterId, me.email).first() as any;
+
+  if (!letter) return c.json({ error: 'Letter not found or not addressed to you' }, 404);
+
+  const now = new Date().toISOString();
+  const firstOpen = !letter.delivered_at;
+  if (firstOpen) {
+    await c.env.DB.prepare(`UPDATE letters SET delivered_at = ?, updated_at = ? WHERE id = ?`)
+      .bind(now, now, letterId).run();
+
+    // Notify the originator — but only on the first open, and only if they're
+    // still alive (a triggered/verified/released dead-man switch means they're
+    // gone, and a "your letter was opened" note would be macabre).
+    try {
+      const switchRow = await c.env.DB.prepare(`
+        SELECT status FROM dead_man_switches WHERE user_id = ? ORDER BY created_at DESC LIMIT 1
+      `).bind(letter.user_id).first() as { status: string } | null;
+      const deceased = !!switchRow && ['TRIGGERED', 'VERIFIED', 'RELEASED'].includes(switchRow.status);
+
+      if (!deceased) {
+        const author = await c.env.DB.prepare(`SELECT email, first_name, last_name FROM users WHERE id = ?`)
+          .bind(letter.user_id).first() as { email: string; first_name: string; last_name: string } | null;
+        const recipientName = `${me.first_name ?? ''} ${me.last_name ?? ''}`.trim() || 'Someone';
+        const authorName = `${author?.first_name ?? ''} ${author?.last_name ?? ''}`.trim() || 'there';
+
+        await c.env.DB.prepare(`
+          INSERT INTO notifications (id, user_id, type, title, message, data, created_at)
+          VALUES (?, ?, 'LETTER_OPENED', ?, ?, ?, ?)
+        `).bind(
+          crypto.randomUUID(),
+          letter.user_id,
+          'Your letter was opened',
+          `${recipientName} opened the letter you left them${letter.milestone_label ? ` for ${letter.milestone_label}` : ''}.`,
+          JSON.stringify({ letterId, recipientName }),
+          now
+        ).run();
+
+        if (author?.email) {
+          const { subject, html } = letterOpenedNotificationEmail(authorName, recipientName, letter.milestone_label || null);
+          await sendEmail(c.env, { from: 'Heirloom <noreply@heirloom.blue>', to: author.email, subject, html }, 'letter_opened');
+        }
+      }
+    } catch (err) {
+      console.error('Originator open-notification failed', letterId, err);
+    }
+  }
+
+  return c.json({
+    id: letter.id,
+    title: letter.title,
+    salutation: letter.salutation,
+    body: letter.body,
+    signature: letter.signature,
+    milestoneLabel: letter.milestone_label,
+    openedAt: letter.delivered_at || now,
   });
 });
 

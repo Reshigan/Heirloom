@@ -128,6 +128,12 @@ export const lettersApi = {
   delete: (id: string) => api.delete(`/letters/${id}`),
   aiSuggest: (data: { salutation?: string; body?: string; signature?: string; recipientNames?: string; tone?: string; occasion?: string }) =>
     api.post('/letters/ai-suggest', data),
+  // Milestone letters: human-confirmed delivery. The author releases when the
+  // family judges the milestone has arrived; an on-platform recipient opens it.
+  release: (id: string) => api.post(`/letters/${id}/release`),
+  open: (id: string) => api.post(`/letters/${id}/open`),
+  awaitingMe: () => api.get('/letters/awaiting-me'),
+  received: () => api.get('/letters/received'),
 };
 
 // Voice API

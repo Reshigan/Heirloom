@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { LettersAwaitingMe } from '../loom/components/LettersAwaitingMe';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeFromMetadata, dyeForId, dyeVar, moodForDye, type Dye } from '../loom/dye';
@@ -67,10 +68,11 @@ export function LoomIndex() {
     queryKey: ['loom-index'],
     enabled: isAuthenticated,
     queryFn: async () => {
-      const [mem, let_, vox] = await Promise.all([
+      const [mem, let_, vox, recv] = await Promise.all([
         memoriesApi.getAll({ limit: 500 }).then((r) => r.data).catch(() => null),
         lettersApi.getAll({ limit: 500 }).then((r) => r.data).catch(() => null),
         voiceApi.getAll({ limit: 500 }).then((r) => r.data).catch(() => null),
+        lettersApi.received().then((r) => r.data).catch(() => null),
       ]);
       const list: IndexEntry[] = [];
 
@@ -106,6 +108,19 @@ export function LoomIndex() {
           id: v.id, kind: 'voice', ord, iso, year,
           title: v.title?.trim() || 'A recording',
           recipient: firstRecipient(v), dye, mood: moodForDye(dye), href: ROOM_HREF.voice,
+        });
+      }
+
+      // Letters received from others and opened — woven into your own cloth,
+      // attributed to (and dyed for) the original author.
+      const recvs = Array.isArray((recv as any)?.data) ? (recv as any).data : [];
+      for (const r of recvs) {
+        const { ord, iso, year } = parseDate(r.deliveredAt || r.createdAt);
+        const dye = dyeForId(r.id);
+        list.push({
+          id: r.id, kind: 'letter', ord, iso, year,
+          title: r.title?.trim() || r.salutation?.trim() || `A letter from ${r.from}`,
+          recipient: r.from || null, dye, mood: moodForDye(dye), href: ROOM_HREF.letter,
         });
       }
 
@@ -155,6 +170,9 @@ export function LoomIndex() {
           transition: `opacity 360ms ${EASE}`, zIndex: 30, pointerEvents: 'none',
         }}
       />
+
+      {/* Recipient milestone nudge — a quiet line when a letter has been released to you. */}
+      <LettersAwaitingMe />
 
       <div style={{ padding: 'clamp(24px, 5vw, 48px)', paddingBottom: 120, maxWidth: 680 }}>
         {/* Count + axis selector */}
