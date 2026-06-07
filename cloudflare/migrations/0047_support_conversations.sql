@@ -15,7 +15,11 @@ CREATE TABLE IF NOT EXISTS support_conversations (
 CREATE INDEX IF NOT EXISTS idx_support_conv_user ON support_conversations(user_id);
 CREATE INDEX IF NOT EXISTS idx_support_conv_updated ON support_conversations(updated_at);
 
-CREATE TABLE IF NOT EXISTS support_messages (
+-- NB: a separate `support_messages` table already exists (migration 0002,
+-- keyed by ticket_id for human ticket threads). The assistant's chat turns are
+-- a distinct concern, so they live in their own table to avoid colliding with
+-- that schema (a CREATE TABLE IF NOT EXISTS would otherwise silently no-op).
+CREATE TABLE IF NOT EXISTS support_chat_messages (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   conversation_id TEXT NOT NULL REFERENCES support_conversations(id) ON DELETE CASCADE,
   role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
@@ -23,4 +27,4 @@ CREATE TABLE IF NOT EXISTS support_messages (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
-CREATE INDEX IF NOT EXISTS idx_support_msg_conv ON support_messages(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_support_chat_msg_conv ON support_chat_messages(conversation_id);

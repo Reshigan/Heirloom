@@ -167,7 +167,7 @@ supportRoutes.post('/chat', async (c) => {
   // Persist the user message.
   try {
     await c.env.DB.prepare(
-      `INSERT INTO support_messages (id, conversation_id, role, content, created_at) VALUES (?, ?, 'user', ?, ?)`
+      `INSERT INTO support_chat_messages (id, conversation_id, role, content, created_at) VALUES (?, ?, 'user', ?, ?)`
     ).bind(crypto.randomUUID(), conversationId, message, now).run();
   } catch (e) {
     console.error('support: failed to persist user message', e);
@@ -200,7 +200,7 @@ supportRoutes.post('/chat', async (c) => {
   // Persist the assistant reply.
   try {
     await c.env.DB.prepare(
-      `INSERT INTO support_messages (id, conversation_id, role, content, created_at) VALUES (?, ?, 'assistant', ?, ?)`
+      `INSERT INTO support_chat_messages (id, conversation_id, role, content, created_at) VALUES (?, ?, 'assistant', ?, ?)`
     ).bind(crypto.randomUUID(), conversationId, reply, new Date().toISOString()).run();
     await c.env.DB.prepare(`UPDATE support_conversations SET updated_at = ? WHERE id = ?`)
       .bind(new Date().toISOString(), conversationId).run();
@@ -226,7 +226,7 @@ supportRoutes.get('/conversations', async (c) => {
     // Attach messages for each conversation (bounded set, kept simple).
     const withMessages = await Promise.all(rows.map(async (conv) => {
       const msgs = await c.env.DB.prepare(
-        `SELECT role, content, created_at FROM support_messages WHERE conversation_id = ? ORDER BY created_at ASC`
+        `SELECT role, content, created_at FROM support_chat_messages WHERE conversation_id = ? ORDER BY created_at ASC`
       ).bind(conv.id).all();
       return { ...conv, messages: msgs.results || [] };
     }));
@@ -255,7 +255,7 @@ supportRoutes.post('/escalate', async (c) => {
   if (conv) {
     try {
       const msgs = await c.env.DB.prepare(
-        `SELECT role, content FROM support_messages WHERE conversation_id = ? ORDER BY created_at ASC`
+        `SELECT role, content FROM support_chat_messages WHERE conversation_id = ? ORDER BY created_at ASC`
       ).bind(conv.id).all();
       transcript = ((msgs.results || []) as any[])
         .map((m) => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
