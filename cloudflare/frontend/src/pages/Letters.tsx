@@ -226,7 +226,7 @@ function LetterRow({ letter }: { letter: Letter }) {
 
   function handleClick() {
     if (!sealed) {
-      navigate(`/letters/new?id=${letter.id}`);
+      navigate(`/compose?id=${letter.id}`);
     } else {
       setExpanded((v) => !v);
     }

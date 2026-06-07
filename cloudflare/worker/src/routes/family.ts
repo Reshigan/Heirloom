@@ -248,7 +248,7 @@ familyRoutes.patch('/:id', async (c) => {
         avatar_url = COALESCE(?, avatar_url),
         updated_at = ?
     WHERE id = ?
-  `).bind(name, relationship, email, phone, birthDate, notes, avatarUrl, now, memberId).run();
+  `).bind(name ?? null, relationship ?? null, email ?? null, phone ?? null, birthDate ?? null, notes ?? null, avatarUrl ?? null, now, memberId).run();
   
   const member = await c.env.DB.prepare(`
     SELECT * FROM family_members WHERE id = ?

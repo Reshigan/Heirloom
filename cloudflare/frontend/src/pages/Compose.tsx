@@ -519,6 +519,39 @@ export function Compose() {
     }
   }, [searchParams, members, recipientId]);
 
+  // Load an existing draft letter from ?id= (editing an unsealed draft from the
+  // Letters room). Prefill composer state so the draft's content is restored.
+  const editId = searchParams.get('id');
+  const prefilledRef = useRef(false);
+  const { data: draftLetter } = useQuery({
+    queryKey: ['letter', editId],
+    queryFn: () => lettersApi.getOne(editId as string).then((r) => r.data),
+    enabled: isAuthenticated && !!editId,
+    staleTime: 60 * 1000,
+  });
+  useEffect(() => {
+    if (!draftLetter || prefilledRef.current) return;
+    prefilledRef.current = true;
+    setTitle(draftLetter.title ?? '');
+    setBody(draftLetter.body ?? '');
+    const firstRecipient = Array.isArray(draftLetter.recipients) ? draftLetter.recipients[0] : null;
+    if (firstRecipient) {
+      setRecipientId(firstRecipient.id);
+      setRecipientName(firstRecipient.name ?? '');
+    } else if (draftLetter.salutation) {
+      setRecipientName(draftLetter.salutation);
+    }
+    const triggerMap: Record<string, DeliveryTrigger> = {
+      IMMEDIATE: 'now',
+      SCHEDULED: 'date',
+      POSTHUMOUS: 'death',
+    };
+    if (draftLetter.deliveryTrigger) {
+      setDeliveryTrigger(triggerMap[String(draftLetter.deliveryTrigger).toUpperCase()] ?? 'now');
+    }
+    if (draftLetter.scheduledDate) setScheduledDate(draftLetter.scheduledDate);
+  }, [draftLetter]);
+
   // isLetter: true when any recipient name is set
   const isLetter = !!(recipientId || recipientName.trim());
 

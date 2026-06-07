@@ -366,6 +366,13 @@ voiceRoutes.post('/', async (c) => {
 
   // Add recipients
   if (recipientIds && recipientIds.length > 0) {
+    // Ownership guard — all family_member_ids must belong to the authenticated user
+    const ownedCheck = await c.env.DB.prepare(
+      `SELECT COUNT(*) as n FROM family_members WHERE id IN (${recipientIds.map(() => '?').join(',')}) AND user_id = ?`
+    ).bind(...recipientIds, userId).first() as { n: number } | null;
+    if (!ownedCheck || ownedCheck.n !== recipientIds.length) {
+      return c.json({ error: 'One or more recipients not found' }, 400);
+    }
     for (const recipientId of recipientIds) {
       await c.env.DB.prepare(`
         INSERT INTO voice_recipients (id, voice_recording_id, family_member_id, created_at)

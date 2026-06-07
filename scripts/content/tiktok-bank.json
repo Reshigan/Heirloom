@@ -1,0 +1,50 @@
+[
+  {
+    "id": "fathersday-ask",
+    "season": "fathers-day",
+    "hook": "Ask your dad one question tonight.",
+    "beats": [
+      { "text": "Not “how are you.”" },
+      { "text": "Ask what he was like at 25 — before he was your dad.", "italic": true },
+      { "text": "Record his answer." },
+      { "text": "Lock it for a grandchild who isn’t born yet.", "italic": true, "warm": true }
+    ],
+    "cta": "Start your family’s thread."
+  },
+  {
+    "id": "evergreen-the-gap",
+    "season": null,
+    "hook": "You know your dad’s job.",
+    "beats": [
+      { "text": "You don’t know the year he almost quit.", "italic": true },
+      { "text": "Or what he was afraid of at thirty." },
+      { "text": "The stories don’t survive on their own." },
+      { "text": "Record one before it’s only yours to guess at.", "warm": true }
+    ],
+    "cta": "Start your family’s thread."
+  },
+  {
+    "id": "evergreen-the-voice",
+    "season": null,
+    "hook": "One day you’ll forget the sound of her voice.",
+    "beats": [
+      { "text": "Not the face. The face is in every photo." },
+      { "text": "The voice goes first.", "italic": true },
+      { "text": "Record three minutes of her telling one story." },
+      { "text": "A grandchild not born yet will hear it.", "warm": true }
+    ],
+    "cta": "Start your family’s thread."
+  },
+  {
+    "id": "grandparents-the-question",
+    "season": "grandparents-day",
+    "hook": "Your grandparents lived a whole life before you.",
+    "beats": [
+      { "text": "Ask them about the version of themselves you never met." },
+      { "text": "What did they want at twenty?", "italic": true },
+      { "text": "Record the answer this week." },
+      { "text": "Lock it into a thread that outlives all of you.", "warm": true }
+    ],
+    "cta": "Start your family’s thread."
+  }
+]

@@ -345,7 +345,7 @@ referralsRoutes.post('/accept', async (c) => {
     UPDATE family_referrals 
     SET status = 'accepted', referred_user_id = ?, accepted_at = ?, storage_bonus_mb = 100
     WHERE id = ?
-  `).bind(body.userId, now, referral.id).run();
+  `).bind(c.get('userId'), now, referral.id).run();
   
   // Give referrer bonus storage
   const acceptedCount = await c.env.DB.prepare(`

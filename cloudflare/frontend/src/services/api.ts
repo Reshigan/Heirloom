@@ -41,6 +41,14 @@ api.interceptors.request.use((config) => {
 // Handle token refresh on 401 and rate limiting on 429
 // Per-request retry tracking via originalRequest._retry (H5: removed shared
 // module-level retryCount which caused a race condition under concurrent calls).
+//
+// Concurrent-401 race: the worker refresh token is single-use, so when several
+// requests 401 at once the first refresh would invalidate the token and the
+// rest would fail → force-logout mid-session. We gate refresh behind a single
+// module-level in-flight promise; all concurrent 401s await the same refresh,
+// then retry with the new access token.
+let refreshPromise: Promise<string> | null = null;
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -59,11 +67,20 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        const { data } = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('refreshToken', data.refreshToken);
-        originalRequest.headers.Authorization = `Bearer ${data.token}`;
+        // Share a single refresh across all concurrent 401s.
+        if (!refreshPromise) {
+          refreshPromise = (async () => {
+            const refreshToken = localStorage.getItem('refreshToken');
+            const { data } = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('refreshToken', data.refreshToken);
+            return data.token as string;
+          })().finally(() => {
+            refreshPromise = null;
+          });
+        }
+        const newToken = await refreshPromise;
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
         return api(originalRequest);
       } catch (refreshError) {
         console.error('Token refresh failed:', refreshError);

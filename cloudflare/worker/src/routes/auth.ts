@@ -900,7 +900,11 @@ async function signJWT(payload: any, secret: string): Promise<string> {
 async function verifyJWT(token: string, secret: string): Promise<any> {
   const encoder = new TextEncoder();
   const [headerB64, payloadB64, signatureB64] = token.split('.');
-  
+
+  // Reject algorithm-confusion / tampered headers before verifying.
+  const header = JSON.parse(atob(headerB64.replace(/-/g, '+').replace(/_/g, '/')));
+  if (header.alg !== 'HS256' || header.typ !== 'JWT') throw new Error('Invalid token header');
+
   const key = await crypto.subtle.importKey(
     'raw',
     encoder.encode(secret),

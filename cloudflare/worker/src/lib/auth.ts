@@ -11,6 +11,8 @@ async function verifyJWT(token: string, secret: string): Promise<any> {
     ['verify'],
   );
   const [headerB64, payloadB64, signatureB64] = token.split('.');
+  const header = JSON.parse(atob(headerB64.replace(/-/g, '+').replace(/_/g, '/')));
+  if (header.alg !== 'HS256' || header.typ !== 'JWT') throw new Error('Invalid token');
   const data = encoder.encode(`${headerB64}.${payloadB64}`);
   const signature = Uint8Array.from(
     atob(signatureB64.replace(/-/g, '+').replace(/_/g, '/')),

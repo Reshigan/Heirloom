@@ -1093,6 +1093,11 @@ async function verifyJWT(token: string, secret: string): Promise<any> {
   );
   
   const [headerB64, payloadB64, signatureB64] = token.split('.');
+
+  // Reject algorithm-confusion / tampered headers before verifying.
+  const header = JSON.parse(atob(headerB64.replace(/-/g, '+').replace(/_/g, '/')));
+  if (header.alg !== 'HS256' || header.typ !== 'JWT') throw new Error('Invalid token header');
+
   const data = encoder.encode(`${headerB64}.${payloadB64}`);
   const signature = Uint8Array.from(atob(signatureB64.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
   

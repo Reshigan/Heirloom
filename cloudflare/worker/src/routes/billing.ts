@@ -1341,7 +1341,7 @@ billingRoutes.post('/webhook', async (c) => {
         
         if (userId) {
           await c.env.DB.prepare(`
-            UPDATE subscriptions SET status = 'CANCELED', tier = 'STARTER', stripe_subscription_id = NULL, updated_at = ? WHERE user_id = ?
+            UPDATE subscriptions SET status = 'CANCELLED', tier = 'STARTER', stripe_subscription_id = NULL, updated_at = ? WHERE user_id = ?
           `).bind(now, userId).run();
         }
         break;

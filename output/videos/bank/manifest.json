@@ -1,0 +1,22 @@
+[
+  {
+    "id": "fathersday-ask",
+    "season": "fathers-day",
+    "file": "output/videos/bank/fathersday-ask.mp4"
+  },
+  {
+    "id": "evergreen-the-gap",
+    "season": null,
+    "file": "output/videos/bank/evergreen-the-gap.mp4"
+  },
+  {
+    "id": "evergreen-the-voice",
+    "season": null,
+    "file": "output/videos/bank/evergreen-the-voice.mp4"
+  },
+  {
+    "id": "grandparents-the-question",
+    "season": "grandparents-day",
+    "file": "output/videos/bank/grandparents-the-question.mp4"
+  }
+]
