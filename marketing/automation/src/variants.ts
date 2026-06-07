@@ -30,7 +30,10 @@ const variantSchema = z.object({
     "youtubeshorts",
   ]),
   caption: z.string().min(10),
-  hashtags: z.array(z.string()).max(10),
+  // Clamp rather than reject: the Instagram guideline asks for up to 12 tags, so
+  // a valid IG variant would overflow a hard .max(10) and kill the whole daily
+  // run. Trim to 12 (the highest any platform guideline requests).
+  hashtags: z.array(z.string()).transform((tags) => tags.slice(0, 12)),
   imageSpec: z.object({
     aspectRatio: z.string(),
     width: z.number(),
