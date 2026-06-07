@@ -491,7 +491,7 @@ export const familyReferralsApi = {
 
 // Gift Subscriptions API
 export const giftSubscriptionsApi = {
-  getPricing: () => api.get('/gift-vouchers/pricing'),
+  getPricing: (currency?: string) => api.get('/gift-vouchers/pricing', { params: currency ? { currency } : undefined }),
   purchase: (data: {
     purchaserEmail: string;
     purchaserName: string;
@@ -500,6 +500,7 @@ export const giftSubscriptionsApi = {
     tier: string;
     billingCycle: 'monthly' | 'quarterly' | 'yearly' | 'lifetime';
     recipientMessage?: string;
+    currency?: string;
   }) => api.post('/gift-vouchers/checkout', data),
   redeem: (giftCode: string) => api.post('/gift-vouchers/redeem', { giftCode }),
   getPurchased: () => api.get('/gift-vouchers/purchased'),

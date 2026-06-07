@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { giftSubscriptionsApi } from '../services/api';
+import { giftSubscriptionsApi, settingsApi } from '../services/api';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const OCCASION_STYLES = [
@@ -62,9 +62,17 @@ export function GiftSubscriptions() {
   const [giftResult, setGiftResult]   = useState<any>(null);
 
   // ── API queries ──────────────────────────────────────────────────────────────
+  // The buyer's preferred currency drives localized gift pricing (e.g. INR has a
+  // FAMILY monthly price); fall back to USD until the profile resolves.
+  const { data: profileData } = useQuery({
+    queryKey: ['settings', 'profile'],
+    queryFn: () => settingsApi.getProfile().then(r => r.data),
+  });
+  const currency: string = (profileData as any)?.preferredCurrency || 'USD';
+
   const { data: pricing } = useQuery({
-    queryKey: ['giftPricing'],
-    queryFn: () => giftSubscriptionsApi.getPricing().then(r => r.data),
+    queryKey: ['giftPricing', currency],
+    queryFn: () => giftSubscriptionsApi.getPricing(currency).then(r => r.data),
   });
 
   const { data: purchasedGifts } = useQuery({
@@ -84,6 +92,7 @@ export function GiftSubscriptions() {
           ? 'lifetime'
           : billingPeriod === 'monthly' ? 'monthly' : 'yearly',
         recipientMessage: formData.personalMessage,
+        currency,
       }),
     onSuccess: (response) => {
       setGiftResult(response.data);
