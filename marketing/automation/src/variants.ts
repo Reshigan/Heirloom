@@ -67,6 +67,10 @@ const client = new Anthropic({
 interface VariantInput {
   source: SourcePost;
   platforms: PlatformKey[];
+  // Active seasonal discovery tags (Father's Day etc.). When present, the model
+  // is told to fold 1-2 in on the hashtag platforms so the post lands on the
+  // in-season hashtag pages where intent peaks. Empty/absent outside a window.
+  seasonHashtags?: string[];
 }
 
 function stripFences(raw: string): string {
@@ -76,17 +80,26 @@ function stripFences(raw: string): string {
     .trim();
 }
 
-export async function generateVariants({ source, platforms }: VariantInput): Promise<Variant[]> {
+export async function generateVariants({ source, platforms, seasonHashtags }: VariantInput): Promise<Variant[]> {
   const platformBlock = platforms
     .map((p) => `### ${p}\n${PLATFORM_GUIDELINES[p]}`)
     .join("\n\n");
+
+  // Hashtag-driven discovery surfaces only. Tags do nothing on x/bluesky/
+  // facebook/linkedin-prose, so don't waste the in-season tags there.
+  const HASHTAG_PLATFORMS: PlatformKey[] = ["instagram", "reels", "tiktok", "threads", "youtubeshorts"];
+  const seasonBlock =
+    seasonHashtags && seasonHashtags.length
+      ? `\n\nACTIVE SEASON — high-intent discovery tags: ${seasonHashtags.join(", ")}.
+On the hashtag platforms only (${HASHTAG_PLATFORMS.filter((p) => platforms.includes(p)).join(", ") || "none in this run"}), include 1-2 of these in the hashtags array so the post lands on the in-season hashtag pages. Do NOT add them to platforms that don't use hashtags. Stay within each platform's hashtag count. Never let the seasonal tag turn the post into gift-product marketing — the post is still a specific, true thing; the tag is only for placement.`
+      : "";
 
   const userPrompt = `Source post (one idea, multiple platforms below):
 
 Hook: ${source.hook}
 Body: ${source.body}
 CTA: ${source.cta}
-Hashtag candidates: ${source.hashtags.join(", ")}
+Hashtag candidates: ${source.hashtags.join(", ")}${seasonBlock}
 
 Platforms to produce variants for:
 

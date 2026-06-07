@@ -13,7 +13,7 @@
 import "dotenv/config";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { themeForDate } from "./themes.js";
+import { themeForDate, seasonForDate, seasonalHashtagsForDate } from "./themes.js";
 import { generateSourcePost, SourcePost } from "./generate.js";
 import { generateVariants } from "./variants.js";
 import { post } from "./post.js";
@@ -95,8 +95,12 @@ async function postAll(source?: SourcePost): Promise<void> {
   }
 
   const platforms = parsePlatforms();
+  const seasonHashtags = seasonalHashtagsForDate();
+  if (seasonHashtags.length) {
+    console.log(`[variants] seasonal discovery tags active: ${seasonHashtags.join(", ")}`);
+  }
   console.log(`[variants] generating ${platforms.length} platform variants…`);
-  const variants = await generateVariants({ source: today, platforms });
+  const variants = await generateVariants({ source: today, platforms, seasonHashtags });
 
   const dateKey = new Date().toISOString().slice(0, 10);
   await writeJson(`output/${dateKey}/variants.json`, variants);
@@ -153,6 +157,23 @@ async function metrics(): Promise<void> {
 }
 
 async function daily(): Promise<void> {
+  // Seasonal cadence. One anchor post every day (the 14:00 UTC slot). A second
+  // post fires only inside the four high-intent windows (Mother's/Father's/
+  // Grandparents/Christmas) via the 22:00 UTC slot — so outside the peaks we
+  // hold at one-a-day (brand voice rule 14: compounding, not volume).
+  //
+  // The morning cron always runs. The evening cron is seasonal-only: when it
+  // fires on a schedule outside a window, skip cleanly. Manual workflow_dispatch
+  // is always intentional, so it never skips.
+  const now = new Date();
+  const season = seasonForDate(now);
+  const isEveningSlot = now.getUTCHours() >= 20;
+  const scheduled = process.env.GITHUB_EVENT_NAME === "schedule";
+  if (scheduled && isEveningSlot && !season) {
+    console.log("[skip] evening slot is seasonal-only and no season is active today. Nothing posted.");
+    return;
+  }
+  if (season) console.log(`[daily] seasonal window active: ${season.id}`);
   const source = await generate();
   await postAll(source);
 }

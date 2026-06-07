@@ -4,14 +4,22 @@ name: Social autopost
 # See marketing/PLAYBOOK.md and marketing/automation/README.md.
 #
 # Triggers:
-#   - daily at 14:00 UTC (~10am ET, peak engagement window for US audience)
+#   - daily   at 14:00 UTC (~10am ET) — the always-on anchor post
+#   - seasonal at 22:00 UTC (~6pm ET) — fires only inside the four peak windows
+#     (Mother's/Father's/Grandparents/Christmas); run.ts skips it otherwise
 #   - manual: workflow_dispatch with optional `mode` input
+#
+# Net cadence: one post a day year-round, two a day during the seasonal peaks
+# (brand voice rule 14 — compounding, not a volume blast; the boost only lands
+# where buying/visiting intent genuinely spikes).
 
 on:
   schedule:
-    # One strong post per day — compounding cadence, not a volume blast
-    # (brand voice rule 14). 14:00 UTC ≈ 10am ET, the morning engagement peak.
+    # Anchor post — every day. 14:00 UTC ≈ 10am ET, the morning engagement peak.
     - cron: "0 14 * * *"
+    # Seasonal second post — fires daily but run.ts no-ops it outside a window.
+    # 22:00 UTC ≈ 6pm ET, the evening peak.
+    - cron: "0 22 * * *"
   workflow_dispatch:
     inputs:
       mode:

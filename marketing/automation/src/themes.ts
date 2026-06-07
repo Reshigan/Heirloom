@@ -129,6 +129,34 @@ export const SEASONAL_WINDOWS: SeasonalWindow[] = [
   },
 ];
 
+// High-intent discovery tags per seasonal window. These are the search/landing
+// terms people actually browse during the peak — including one tag on the post
+// lands it on that hashtag's page (Instagram/Threads/Shorts) and surfaces it in
+// the matching Pinterest/LinkedIn topic where buying intent is highest. Kept to
+// gift/occasion language because that is what people search in-season; the
+// always-on community tags (#familyhistory etc.) still come from the platform
+// guideline. Lowercase, no '#'.
+export const SEASONAL_HASHTAGS: Record<string, string[]> = {
+  "mothers-day": ["mothersday", "mothersdaygift", "mothersdaygiftideas", "giftformom"],
+  "fathers-day": ["fathersday", "fathersdaygift", "fathersdaygiftideas", "giftfordad"],
+  "grandparents-day": ["grandparentsday", "grandparents", "grandparentlove"],
+  "christmas": ["christmasgift", "christmasgiftideas", "familychristmas", "meaningfulgift"],
+};
+
+// The active seasonal window for a date, or null outside the four peaks. Drives
+// both the seasonal copy override (themeForDate) and the seasonal posting
+// cadence + discovery tags in run.ts / variants.ts.
+export function seasonForDate(date: Date = new Date()): SeasonalWindow | null {
+  return SEASONAL_WINDOWS.find((w) => inWindow(date, w)) ?? null;
+}
+
+// Convenience: the discovery tags for whatever season is active, or [] outside
+// a window.
+export function seasonalHashtagsForDate(date: Date = new Date()): string[] {
+  const s = seasonForDate(date);
+  return s ? SEASONAL_HASHTAGS[s.id] ?? [] : [];
+}
+
 function isoWeek(date: Date): number {
   const tmp = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
   const dayNum = tmp.getUTCDay() || 7;
