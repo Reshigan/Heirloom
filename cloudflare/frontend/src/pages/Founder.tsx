@@ -508,7 +508,6 @@ export function Founder() {
             )}
           </div>
 
-          {/* sealed record placeholder */}
           <div
             style={{
               border:    '1px solid var(--rule)',

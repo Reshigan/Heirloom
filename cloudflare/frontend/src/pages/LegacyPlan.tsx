@@ -34,7 +34,7 @@ function MktBar() {
       >
         <Link to="/"        style={{ color: 'inherit', textDecoration: 'none' }}>see the cloth</Link>
         <Link to="/founder" style={{ color: 'inherit', textDecoration: 'none' }}>founder</Link>
-        <Link to="/signup"  style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
+        <Link to="/pricing" style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
         <Link to="/login"   style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
       </nav>
     </header>

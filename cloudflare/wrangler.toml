@@ -70,14 +70,14 @@ crons = [
 ENVIRONMENT = "production"
 APP_URL = "https://heirloom.blue"
 API_URL = "https://api.heirloom.blue"
-ADMIN_NOTIFICATION_EMAIL = "reshigan@gonxt.tech"
+ADMIN_NOTIFICATION_EMAIL = "admin@heirloom.blue"
 
 # Web Push (VAPID). Public key + subject are NOT secret (the public key is sent to
 # every browser as the applicationServerKey); the matching private key is the
 # VAPID_PRIVATE_KEY secret below. VAPID_PUBLIC_KEY must equal the frontend's
 # VITE_VAPID_PUBLIC_KEY (cloudflare/frontend/.env.production).
 VAPID_PUBLIC_KEY = "nuiTXfo2MgIaSGqGMtQWPUU31OtXkBe3WT46vuHj-Bz0TfPg_XFvXskqlsZw-As_v0f-7iXtz1pt2TK28OQh-w"
-VAPID_SUBJECT = "mailto:hello@heirloom.blue"
+VAPID_SUBJECT = "mailto:admin@heirloom.blue"
 
 # Secrets (set via `wrangler secret put`)
 # - JWT_SECRET

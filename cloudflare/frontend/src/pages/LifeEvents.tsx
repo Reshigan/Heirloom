@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Frame } from '../loom/components/Frame';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
@@ -634,9 +635,9 @@ export function LifeEvents() {
                     <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-faint)', margin: '0 0 16px' }}>
                       Add family members first, or enter a recipient manually below.
                     </p>
-                    <a href="/family" className="hl-btn" style={{ textDecoration: 'none' }}>
+                    <Link to="/family" className="hl-btn" style={{ textDecoration: 'none' }}>
                       add family members
-                    </a>
+                    </Link>
                   </div>
                 )}
                 <div style={{ paddingTop: 16, borderTop: '1px solid var(--rule)' }}>

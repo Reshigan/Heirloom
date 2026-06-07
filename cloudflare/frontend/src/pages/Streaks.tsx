@@ -460,8 +460,8 @@ export function Streaks() {
                       {currentChallenge.hashtag} · {currentChallenge.submissionCount || 0} entries
                     </span>
                   </div>
-                  <a
-                    href="/challenges"
+                  <Link
+                    to="/challenges"
                     className="hl-btn"
                     style={{
                       textDecoration: 'none',
@@ -473,7 +473,7 @@ export function Streaks() {
                     }}
                   >
                     join theme
-                  </a>
+                  </Link>
                 </div>
               </section>
             )}

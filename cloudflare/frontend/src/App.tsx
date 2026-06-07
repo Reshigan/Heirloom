@@ -414,6 +414,14 @@ export default function App() {
                                             </ProtectedRoute>
                                           }
                                         />
+                                        <Route
+                                          path="/wrapped/:year"
+                                          element={
+                                            <ProtectedRoute>
+                                              <Wrapped />
+                                            </ProtectedRoute>
+                                          }
+                                        />
                                                                                 <Route
                                                                                   path="/future-letter"
                                                                                   element={

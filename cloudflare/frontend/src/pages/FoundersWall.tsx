@@ -7,30 +7,9 @@ import { HLogo } from '../loom/components/HLogo';
  * FoundersWall — §Pass-3 moment 04 — Loom 3 rewrite.
  *
  * Marketing/public parchment surface. The backend exposes only a founder COUNT
- * (foundersApi.count). No roster endpoint exists, so we render the live count +
- * remaining seats and a placeholder list that demonstrates the record's format.
- * We do NOT fabricate real-looking pledger names.
+ * (foundersApi.count). No roster endpoint exists — names will be published once
+ * the successor non-profit is incorporated and pledges are confirmed.
  */
-
-// ── Placeholder roster shown until a real list endpoint exists ─────────────
-interface FounderRow {
-  pledge: string;
-  name: string;
-  memorial: boolean;
-  date: string;
-  origin: string;
-}
-
-const PLACEHOLDER_ROWS: FounderRow[] = [
-  { pledge: '0001', name: 'The Whitfield Family',    memorial: false, date: '2025 · Jan',  origin: 'Edinburgh · UK'    },
-  { pledge: '0002', name: 'Familia Restrepo',         memorial: false, date: '2025 · Feb',  origin: 'Medellín · CO'     },
-  { pledge: '0003', name: 'The Okafor Bloodline',     memorial: false, date: '2025 · Mar',  origin: 'Lagos · NG'        },
-  { pledge: '0004', name: 'Hus Lindström',            memorial: false, date: '2025 · Apr',  origin: 'Stockholm · SE'    },
-  { pledge: '0005', name: 'The Nakamura Thread',      memorial: false, date: '2025 · Apr',  origin: 'Kyoto · JP'        },
-  { pledge: '0006', name: 'In memory of J. Perreira', memorial: true,  date: '2025 · May',  origin: 'Lisbon · PT'       },
-  { pledge: '0007', name: 'The Abramowitz Family',    memorial: false, date: '2025 · Jun',  origin: 'Tel Aviv · IL'     },
-  { pledge: '0008', name: 'Maison Dubois',            memorial: false, date: '2025 · Jun',  origin: 'Lyon · FR'         },
-];
 
 // ── helpers ─────────────────────────────────────────────────────────────────
 function numberToWords(n: number): string {
@@ -132,13 +111,10 @@ export function FoundersWall() {
 
   const headline =
     engraved === null
-      ? 'One thousand and forty-four names, so far.'
+      ? 'The founding cohort.'
       : engraved === 0
         ? 'The record opens with no names — yet.'
         : `${cap(numberToWords(engraved))} ${engraved === 1 ? 'name' : 'names'}, so far.`;
-
-  // Use placeholder list until a real /founders/list endpoint exists.
-  const rows: FounderRow[] = PLACEHOLDER_ROWS;
 
   return (
     <div
@@ -330,77 +306,34 @@ export function FoundersWall() {
           </span>
         </div>
 
-        {/* rows — zero state or format preview */}
-        {engraved === 0 ? (
-          <div style={{ padding: '48px 0 32px', textAlign: 'center' }}>
-            <p
-              className="hl-serif"
-              style={{
-                fontSize: 17,
-                fontStyle: 'italic',
-                color: 'var(--parchment-dim)',
-                margin: 0,
-                lineHeight: 1.7,
-              }}
-            >
-              Names will appear here once the successor non-profit is incorporated
-              and the first pledges are confirmed.
-            </p>
-            <p
-              className="hl-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                color: 'var(--parchment-faint)',
-                marginTop: 14,
-              }}
-            >
-              The count above is live · the record opens soon
-            </p>
-          </div>
-        ) : (
-          rows.map((row) => (
-            <div
-              key={row.pledge}
-              style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                borderBottom: '1px solid var(--parchment-rule)',
-                padding: '11px 0',
-              }}
-            >
-              <span
-                className="hl-mono"
-                style={{ width: 80, fontSize: 11, color: 'var(--parchment-dim)', letterSpacing: '0.08em' }}
-              >
-                {row.pledge}
-              </span>
-              <span
-                className="hl-serif"
-                style={{
-                  flex: 1, paddingLeft: 24, fontSize: 17,
-                  color: 'var(--parchment-ink)', fontWeight: 400,
-                  fontStyle: row.memorial ? 'italic' : 'normal', letterSpacing: '-0.005em',
-                }}
-              >
-                {row.name}
-              </span>
-              <span
-                className="hl-mono"
-                style={{ width: 130, fontSize: 10.5, color: 'var(--parchment-faint)', letterSpacing: '0.06em' }}
-              >
-                {row.date}
-              </span>
-              <span
-                className="hl-mono"
-                style={{ width: 200, fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', textAlign: 'right' }}
-              >
-                {row.origin}
-              </span>
-            </div>
-          ))
-        )}
+        {/* rows — waiting for confirmed pledges */}
+        <div style={{ padding: '48px 0 32px', textAlign: 'center' }}>
+          <p
+            className="hl-serif"
+            style={{
+              fontSize: 17,
+              fontStyle: 'italic',
+              color: 'var(--parchment-dim)',
+              margin: 0,
+              lineHeight: 1.7,
+            }}
+          >
+            The first hundred families to begin their thread. Their names will
+            appear here when they do.
+          </p>
+          <p
+            className="hl-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'var(--parchment-faint)',
+              marginTop: 14,
+            }}
+          >
+            The count above is live · the record opens when pledges are confirmed
+          </p>
+        </div>
 
         {/* roster note + CTA */}
         <div

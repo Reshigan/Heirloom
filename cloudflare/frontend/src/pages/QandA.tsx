@@ -217,9 +217,8 @@ export function QandA() {
                         {state.sources.length === 1 ? 'entry' : 'entries'}
                       </span>{' '}
                       that touch <em>"{state.question}"</em>. They are cited below, each
-                      opening to the entry it came from. The Listener does not yet compose a
-                      woven answer — it shows only the true entries your question touches,
-                      never words it has invented.
+                      opening to the entry it came from. The Listener shows only the true
+                      entries your question touches, never words it has invented.
                     </>
                   ) : (
                     <>

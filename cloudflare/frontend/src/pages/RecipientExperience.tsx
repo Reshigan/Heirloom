@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { HLogo } from '../loom/components/HLogo';
 import api from '../services/api';
@@ -122,8 +122,8 @@ export function RecipientExperience() {
       </span>
 
       {/* Right: "create account →" warm */}
-      <a
-        href="/signup"
+      <Link
+        to="/signup"
         className="hl-mono"
         style={{
           fontSize: 10.5,
@@ -137,7 +137,7 @@ export function RecipientExperience() {
         onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.opacity = '1'; }}
       >
         create account →
-      </a>
+      </Link>
     </div>
   );
 
@@ -201,13 +201,13 @@ export function RecipientExperience() {
             The gift link you followed is no longer valid. It may have already been claimed
             or the sender may have updated their settings.
           </p>
-          <a
-            href="/"
+          <Link
+            to="/"
             className="hl-btn"
             style={{ display: 'inline-flex' }}
           >
             Return home
-          </a>
+          </Link>
         </div>
       </div>
     );

@@ -11,7 +11,7 @@ function MktBar() {
       <span style={{ display: 'flex', gap: 32, fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}>
         <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>see the cloth</Link>
         <Link to="/founder" style={{ color: 'inherit', textDecoration: 'none' }}>founder</Link>
-        <Link to="/signup" style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
+        <Link to="/pricing" style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
         <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
       </span>
     </div>
