@@ -7,6 +7,7 @@ import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { mirrorIntoDefaultThread, mirrorVoiceUpdate, mirrorVoiceDelete } from '../services/threadMesh';
 import { recordRevision, withinGrace, mutableUntilFrom } from '../lib/legacyArchive';
+import { checkStorageQuota } from '../lib/quota';
 
 export const voiceRoutes = new Hono<AppEnv>();
 
@@ -338,6 +339,7 @@ voiceRoutes.get('/:id', async (c) => {
 // Create a new voice recording
 voiceRoutes.post('/', async (c) => {
   const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Authentication required' }, 401);
   const body = await c.req.json();
   
     const { title, description, fileUrl, fileKey, duration, fileSize, transcript, emotion, recipientIds, recordingDate } = body;
@@ -345,7 +347,20 @@ voiceRoutes.post('/', async (c) => {
     if (!title) {
       return c.json({ error: 'Title is required' }, 400);
     }
-  
+
+    // Enforce the plan's storage cap before persisting the recording.
+    const incomingBytes = Number(fileSize) || 0;
+    if (incomingBytes > 0) {
+      const quota = await checkStorageQuota(c.env, userId, incomingBytes);
+      if (!quota.ok) {
+        return c.json({
+          error: 'Storage limit reached for your plan. Upgrade for more room, or remove a few large items.',
+          used: quota.used,
+          cap: quota.cap,
+        }, 413);
+      }
+    }
+
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
     // Use recordingDate if provided (for historic recordings), otherwise use current date

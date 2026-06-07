@@ -1,18 +1,18 @@
 /**
  * Heirloom Billing Routes - PRODUCTION VERSION
  * 
- * 3-tier pricing with regional PPP adjustments:
- * - Starter: $4.99/mo - 5GB storage, 1 user
- * - Family: $9.99/mo - 50GB storage, 5 family members
- * - Legacy: $19.99/mo - 500GB storage, unlimited family
- * 
+ * Freemium 3-tier model with regional PPP adjustments:
+ * - Free:    $0 forever - capped (the mass-adoption on-ramp)
+ * - Family:  $6.99/mo or $69/yr - the paid family subscription
+ * - Founder: $249 one-time, lifetime (the old 'LEGACY' slot, now one-time)
+ *
  * Regional Pricing Tiers:
  * - Tier 1: US, UK, CA, AU, NZ (full price)
  * - Tier 2: EU, Western Europe (EUR pricing)
  * - Tier 3: ZA, BR, MX, Southeast Asia (50% PPP)
  * - Tier 4: IN, NG, KE, PK (annual-only, 30% PPP)
- * 
- * 14-day free trial with credit card required.
+ *
+ * 30-day Family trial, no credit card; drops to Free (never locks out).
  * Auto-detects country from Cloudflare for regional pricing.
  */
 
@@ -77,106 +77,42 @@ const COUNTRY_CURRENCY: Record<string, string> = {
 // =============================================================================
 // PRICING BY CURRENCY - Updated for new pricing structure
 // =============================================================================
+// Freemium model (mass adoption):
+//   FREE     — $0 forever (capped; never charged — no PRICING row needed)
+//   FAMILY   — recurring monthly/yearly subscription (yearly = 2 months free)
+//   FOUNDER  — single one-time lifetime purchase (the old 'LEGACY' tier slot)
+// Localized PPP amounts re-scaled to the new model. Stripe is charged the exact
+// number below via dynamic price_data (no fixed price IDs), so the displayed
+// price always equals the charged price.
 const PRICING: Record<string, {
   symbol: string;
   code: string;
   tier: PricingTier;
   annualOnly?: boolean;
-  STARTER: { monthly: number; yearly: number };
   FAMILY: { monthly: number; yearly: number };
-  LEGACY: { monthly: number; yearly: number };
+  FOUNDER: { lifetime: number };
 }> = {
-  // Tier 1 - Full price
-  USD: {
-    symbol: '$', code: 'USD', tier: 'tier1',
-    STARTER: { monthly: 4.99, yearly: 49.99 },
-    FAMILY: { monthly: 9.99, yearly: 99.99 },
-    LEGACY: { monthly: 19.99, yearly: 199.99 },
-  },
-  GBP: {
-    symbol: '£', code: 'GBP', tier: 'tier1',
-    STARTER: { monthly: 3.99, yearly: 39.99 },
-    FAMILY: { monthly: 7.99, yearly: 79.99 },
-    LEGACY: { monthly: 15.99, yearly: 159.99 },
-  },
-  CAD: {
-    symbol: 'C$', code: 'CAD', tier: 'tier1',
-    STARTER: { monthly: 6.99, yearly: 69.99 },
-    FAMILY: { monthly: 13.99, yearly: 139.99 },
-    LEGACY: { monthly: 27.99, yearly: 279.99 },
-  },
-  AUD: {
-    symbol: 'A$', code: 'AUD', tier: 'tier1',
-    STARTER: { monthly: 7.99, yearly: 79.99 },
-    FAMILY: { monthly: 15.99, yearly: 159.99 },
-    LEGACY: { monthly: 31.99, yearly: 319.99 },
-  },
-  NZD: {
-    symbol: 'NZ$', code: 'NZD', tier: 'tier1',
-    STARTER: { monthly: 8.99, yearly: 89.99 },
-    FAMILY: { monthly: 17.99, yearly: 179.99 },
-    LEGACY: { monthly: 35.99, yearly: 359.99 },
-  },
-  
-  // Tier 2 - EU pricing
-  EUR: {
-    symbol: '€', code: 'EUR', tier: 'tier2',
-    STARTER: { monthly: 3.99, yearly: 39.99 },
-    FAMILY: { monthly: 7.99, yearly: 79.99 },
-    LEGACY: { monthly: 14.99, yearly: 149.99 },
-  },
-  
-  // Tier 3 - 50% PPP (ZAR as base)
-  ZAR: {
-    symbol: 'R', code: 'ZAR', tier: 'tier3',
-    STARTER: { monthly: 49, yearly: 499 },
-    FAMILY: { monthly: 99, yearly: 999 },
-    LEGACY: { monthly: 169, yearly: 1699 },
-  },
-  BRL: {
-    symbol: 'R$', code: 'BRL', tier: 'tier3',
-    STARTER: { monthly: 14.99, yearly: 149.99 },
-    FAMILY: { monthly: 29.99, yearly: 299.99 },
-    LEGACY: { monthly: 59.99, yearly: 599.99 },
-  },
-  MXN: {
-    symbol: 'MX$', code: 'MXN', tier: 'tier3',
-    STARTER: { monthly: 49, yearly: 499 },
-    FAMILY: { monthly: 99, yearly: 999 },
-    LEGACY: { monthly: 199, yearly: 1999 },
-  },
-  PHP: {
-    symbol: '₱', code: 'PHP', tier: 'tier3',
-    STARTER: { monthly: 149, yearly: 1499 },
-    FAMILY: { monthly: 299, yearly: 2999 },
-    LEGACY: { monthly: 599, yearly: 5999 },
-  },
-  
-  // Tier 4 - 30% PPP, annual-only
-  INR: {
-    symbol: '₹', code: 'INR', tier: 'tier4', annualOnly: true,
-    STARTER: { monthly: 0, yearly: 1499 },
-    FAMILY: { monthly: 0, yearly: 2999 },
-    LEGACY: { monthly: 0, yearly: 5999 },
-  },
-  NGN: {
-    symbol: '₦', code: 'NGN', tier: 'tier4', annualOnly: true,
-    STARTER: { monthly: 0, yearly: 14999 },
-    FAMILY: { monthly: 0, yearly: 29999 },
-    LEGACY: { monthly: 0, yearly: 59999 },
-  },
-  KES: {
-    symbol: 'KSh', code: 'KES', tier: 'tier4', annualOnly: true,
-    STARTER: { monthly: 0, yearly: 4999 },
-    FAMILY: { monthly: 0, yearly: 9999 },
-    LEGACY: { monthly: 0, yearly: 19999 },
-  },
-  PKR: {
-    symbol: 'Rs', code: 'PKR', tier: 'tier4', annualOnly: true,
-    STARTER: { monthly: 0, yearly: 9999 },
-    FAMILY: { monthly: 0, yearly: 19999 },
-    LEGACY: { monthly: 0, yearly: 39999 },
-  },
+  // Tier 1 — full price
+  USD: { symbol: '$',   code: 'USD', tier: 'tier1', FAMILY: { monthly: 6.99,  yearly: 69  }, FOUNDER: { lifetime: 249 } },
+  GBP: { symbol: '£',   code: 'GBP', tier: 'tier1', FAMILY: { monthly: 5.99,  yearly: 59  }, FOUNDER: { lifetime: 199 } },
+  CAD: { symbol: 'C$',  code: 'CAD', tier: 'tier1', FAMILY: { monthly: 9.99,  yearly: 99  }, FOUNDER: { lifetime: 329 } },
+  AUD: { symbol: 'A$',  code: 'AUD', tier: 'tier1', FAMILY: { monthly: 10.99, yearly: 109 }, FOUNDER: { lifetime: 369 } },
+  NZD: { symbol: 'NZ$', code: 'NZD', tier: 'tier1', FAMILY: { monthly: 11.99, yearly: 119 }, FOUNDER: { lifetime: 399 } },
+
+  // Tier 2 — EU pricing
+  EUR: { symbol: '€',   code: 'EUR', tier: 'tier2', FAMILY: { monthly: 5.99,  yearly: 59  }, FOUNDER: { lifetime: 229 } },
+
+  // Tier 3 — 50% PPP
+  ZAR: { symbol: 'R',   code: 'ZAR', tier: 'tier3', FAMILY: { monthly: 69,    yearly: 690 }, FOUNDER: { lifetime: 3999 } },
+  BRL: { symbol: 'R$',  code: 'BRL', tier: 'tier3', FAMILY: { monthly: 19.99, yearly: 199 }, FOUNDER: { lifetime: 999 } },
+  MXN: { symbol: 'MX$', code: 'MXN', tier: 'tier3', FAMILY: { monthly: 69,    yearly: 690 }, FOUNDER: { lifetime: 3999 } },
+  PHP: { symbol: '₱',   code: 'PHP', tier: 'tier3', FAMILY: { monthly: 199,   yearly: 1999 }, FOUNDER: { lifetime: 9999 } },
+
+  // Tier 4 — 30% PPP, annual-only (no monthly)
+  INR: { symbol: '₹',   code: 'INR', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 1999 },  FOUNDER: { lifetime: 14999 } },
+  NGN: { symbol: '₦',   code: 'NGN', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 13999 }, FOUNDER: { lifetime: 199999 } },
+  KES: { symbol: 'KSh', code: 'KES', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 6999 },  FOUNDER: { lifetime: 24999 } },
+  PKR: { symbol: 'Rs',  code: 'PKR', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 13999 }, FOUNDER: { lifetime: 49999 } },
 };
 
 const DEFAULT_CURRENCY = 'USD';
@@ -209,11 +145,15 @@ function getCountryFromRequest(c: any): string {
 // TIER LIMITS - Feature-based tiers
 // =============================================================================
 const TIER_LIMITS = {
+  // FREE tier (DB tier 'FREE'/'STARTER'). The free tier is gated on STORAGE and
+  // THREADS only — every feature is available to try, but capped to one thread
+  // and 500 MB so families upgrade for room and more threads, not features.
   STARTER: {
-    maxStorage: 5 * 1024 * 1024 * 1024, // 5GB
-    maxStorageLabel: '5 GB',
-    maxMemoriesPerMonth: 50,
-    maxFamilyMembers: 1,
+    maxStorage: 512 * 1024 * 1024, // 500 MB
+    maxStorageLabel: '500 MB',
+    maxThreads: 1,
+    maxMemoriesPerMonth: -1, // unlimited within storage
+    maxFamilyMembers: -1,
     maxRecipients: -1,
     maxLetters: -1,
     maxVoiceMinutes: -1,
@@ -233,6 +173,7 @@ const TIER_LIMITS = {
   FAMILY: {
     maxStorage: 50 * 1024 * 1024 * 1024, // 50GB
     maxStorageLabel: '50 GB',
+    maxThreads: -1,
     maxMemoriesPerMonth: -1, // unlimited
     maxFamilyMembers: 5,
     maxRecipients: -1,
@@ -256,6 +197,7 @@ const TIER_LIMITS = {
   LEGACY: {
     maxStorage: 500 * 1024 * 1024 * 1024, // 500GB
     maxStorageLabel: '500 GB',
+    maxThreads: -1,
     maxMemoriesPerMonth: -1, // unlimited
     maxFamilyMembers: -1, // unlimited
     maxRecipients: -1,
@@ -286,6 +228,7 @@ const TIER_LIMITS = {
   FOREVER: {
     maxStorage: 500 * 1024 * 1024 * 1024, // 500GB
     maxStorageLabel: '500 GB',
+    maxThreads: -1,
     maxMemoriesPerMonth: -1,
     maxFamilyMembers: -1,
     maxRecipients: -1,
@@ -328,55 +271,11 @@ const LEGACY_MAP: Record<string, string> = {
   'FREE': 'STARTER', 'ESSENTIAL': 'STARTER', 'PREMIUM': 'FAMILY', 'FOREVER': 'LEGACY', 'PLUS': 'FAMILY'
 };
 
-// =============================================================================
-// STRIPE PRICE IDS (Multi-currency - created via Stripe API)
-// NOTE: These price IDs need to be updated in Stripe Dashboard with new prices
-// =============================================================================
-const STRIPE_PRICE_IDS: Record<string, Record<string, Record<string, string>>> = {
-  // USD: FAMILY tier has real price_1 IDs. STARTER and LEGACY are pending creation.
-  // TODO: Create Stripe products for USD STARTER/LEGACY tiers in Stripe Dashboard → Products.
-  // Until real price_1 IDs are set here, checkout falls back to dynamic price_data
-  // which Stripe accepts for most currencies but isn't tracked in the Dashboard.
-  // Steps: Dashboard → Products → Add product → Add price → copy price_1... ID here.
-  USD: {
-    STARTER: { monthly: '', yearly: '' },
-    FAMILY: { monthly: 'price_1TdZWS0wv1f1SxUquiLv7wes', yearly: 'price_1TdZWT0wv1f1SxUq9UtXdiVx' },
-    LEGACY: { monthly: '', yearly: '' },
-  },
-  // TODO: Create Stripe products for GBP/EUR tiers in Stripe Dashboard → Products.
-  // Until real price_1 IDs are set here, checkout falls back to dynamic price_data
-  // which Stripe accepts for most currencies but isn't tracked in the Dashboard.
-  // Steps: Dashboard → Products → Add product → Add price → copy price_1... ID here.
-  GBP: {
-    STARTER: { monthly: '', yearly: '' },
-    FAMILY: { monthly: '', yearly: '' },
-    LEGACY: { monthly: '', yearly: '' },
-  },
-  EUR: {
-    STARTER: { monthly: '', yearly: '' },
-    FAMILY: { monthly: '', yearly: '' },
-    LEGACY: { monthly: '', yearly: '' },
-  },
-  // TODO: ZAR/INR/NGN entries below use placeholder price IDs (not real price_1... IDs).
-  // These must be replaced with real Stripe price IDs before ZAR/INR/NGN checkout can work.
-  // Steps: Dashboard → Products → Add product → Add price (select ZAR/INR/NGN currency)
-  // → copy the price_1... ID and replace the placeholder string here.
-  ZAR: {
-    STARTER: { monthly: 'price_starter_monthly_zar', yearly: 'price_starter_yearly_zar' },
-    FAMILY: { monthly: 'price_family_monthly_zar', yearly: 'price_family_yearly_zar' },
-    LEGACY: { monthly: 'price_legacy_monthly_zar', yearly: 'price_legacy_yearly_zar' },
-  },
-  INR: {
-    STARTER: { yearly: 'price_starter_yearly_inr' },
-    FAMILY: { yearly: 'price_family_yearly_inr' },
-    LEGACY: { yearly: 'price_legacy_yearly_inr' },
-  },
-  NGN: {
-    STARTER: { yearly: 'price_starter_yearly_ngn' },
-    FAMILY: { yearly: 'price_family_yearly_ngn' },
-    LEGACY: { yearly: 'price_legacy_yearly_ngn' },
-  },
-};
+// NOTE: Checkout always uses dynamic Stripe `price_data` built from the PRICING
+// table above (see /checkout). We deliberately do NOT use pre-created fixed
+// Stripe Price IDs — a fixed price object's amount can't be changed from code,
+// so it would silently desync from the displayed price. Dynamic price_data
+// guarantees Stripe charges exactly the amount the user was shown.
 
 function normalizeTier(tier: string): keyof typeof TIER_LIMITS {
   const upper = (tier || 'STARTER').toUpperCase();
@@ -412,100 +311,81 @@ billingRoutes.get('/pricing', async (c) => {
     pricingTier,
     isAnnualOnly,
     trialDays: TRIAL_DAYS,
+    // Flat fields the web Pricing page reads directly for localized display.
+    FAMILY: { monthly: prices.FAMILY.monthly, yearly: prices.FAMILY.yearly },
+    FOUNDER: { lifetime: prices.FOUNDER.lifetime },
     tiers: [
       {
-        id: 'STARTER',
-        name: 'Starter',
-        description: 'Perfect for individuals starting their legacy',
-        storage: '5 GB',
-        maxFamilyMembers: 1,
-        maxMemoriesPerMonth: 50,
-        monthly: isAnnualOnly ? null : { 
-          amount: prices.STARTER.monthly, 
-          display: `${prices.symbol}${prices.STARTER.monthly}` 
-        },
-        yearly: { 
-          amount: prices.STARTER.yearly, 
-          display: `${prices.symbol}${prices.STARTER.yearly}`, 
-          perMonth: `${prices.symbol}${(prices.STARTER.yearly / 12).toFixed(2)}`,
-          savings: '17% off'
-        },
+        id: 'FREE',
+        name: 'Free',
+        description: 'Start your family thread at no cost, forever',
+        storage: '500 MB',
+        maxThreads: 1,
+        maxFamilyMembers: -1,
+        price: { amount: 0, display: `${prices.symbol}0` },
         features: [
-          '1 user account',
-          '50 memory entries/month',
-          '5GB storage',
-          'Basic AI memory prompts',
-          'Email support',
-          'Standard export (PDF)',
+          'One family thread',
+          '500 MB storage',
+          'Try every feature — voice, photo & written',
+          'Invite your whole family',
+          'Export anytime — no lock-in',
         ],
       },
       {
         id: 'FAMILY',
         name: 'Family',
-        description: 'Share memories across generations',
+        description: 'The whole family, unlimited, with the keepsake features',
         storage: '50 GB',
+        maxThreads: -1,
         maxFamilyMembers: 5,
         maxMemoriesPerMonth: -1,
         popular: true,
-        monthly: isAnnualOnly ? null : { 
-          amount: prices.FAMILY.monthly, 
-          display: `${prices.symbol}${prices.FAMILY.monthly}` 
+        monthly: isAnnualOnly ? null : {
+          amount: prices.FAMILY.monthly,
+          display: `${prices.symbol}${prices.FAMILY.monthly}`
         },
-        yearly: { 
-          amount: prices.FAMILY.yearly, 
-          display: `${prices.symbol}${prices.FAMILY.yearly}`, 
+        yearly: {
+          amount: prices.FAMILY.yearly,
+          display: `${prices.symbol}${prices.FAMILY.yearly}`,
           perMonth: `${prices.symbol}${(prices.FAMILY.yearly / 12).toFixed(2)}`,
-          savings: '17% off'
+          savings: '2 months free'
         },
         features: [
+          'Unlimited threads & entries',
+          'Voice entries',
+          'Time-locked & sealed entries',
           'Up to 5 family members',
-          'Unlimited memory entries',
           '50GB storage',
-          'Advanced AI prompts & suggestions',
-          'AI-powered memory insights',
-          'Priority email support',
-          'Premium export (PDF, video montage)',
-          'Family tree integration',
+          'Family tree + premium export',
         ],
       },
       {
-        id: 'LEGACY',
-        name: 'Legacy',
-        description: 'The ultimate preservation package',
+        id: 'FOUNDER',
+        name: 'Founder',
+        description: 'Everything in Family, once, for life',
         storage: '500 GB',
+        maxThreads: -1,
         maxFamilyMembers: -1,
-        maxMemoriesPerMonth: -1,
-        monthly: isAnnualOnly ? null : { 
-          amount: prices.LEGACY.monthly, 
-          display: `${prices.symbol}${prices.LEGACY.monthly}` 
-        },
-        yearly: { 
-          amount: prices.LEGACY.yearly, 
-          display: `${prices.symbol}${prices.LEGACY.yearly}`, 
-          perMonth: `${prices.symbol}${(prices.LEGACY.yearly / 12).toFixed(2)}`,
-          savings: '17% off'
+        oneTime: {
+          amount: prices.FOUNDER.lifetime,
+          display: `${prices.symbol}${prices.FOUNDER.lifetime}`,
         },
         features: [
-          'Unlimited family members',
-          'Unlimited memory entries',
-          '500GB storage',
-          'Living Legacy AI Avatar (coming soon)',
-          'Voice-to-memory transcription',
-          'Collaborative memory editing',
-          'Dedicated support',
-          'API access',
-          'White-glove onboarding',
-          'Physical memory book printing (1/year)',
+          'Everything in Family, forever',
+          'One-time payment — never billed again',
+          'Founder badge + pledge number',
+          'Locked price for life',
+          'Vote on the product roadmap',
         ],
       },
     ],
     trial: {
       days: TRIAL_DAYS,
       tier: TRIAL_TIER,
-      creditCardRequired: true,
-      description: 'Full access to Family tier features for 30 days',
+      creditCardRequired: false,
+      description: 'Full Family access for 30 days, then drops to Free — never locked out',
     },
-    annualSavings: '17% off (2 months free)',
+    annualSavings: '2 months free',
   });
 });
 
@@ -522,10 +402,13 @@ billingRoutes.get('/subscription', async (c) => {
     return c.json({ tier: 'STARTER', status: 'ACTIVE', storage: '500 MB', limits: TIER_LIMITS.STARTER, trialDaysRemaining: 0 });
   }
   
-  // During a trial, honour the intended TRIAL_TIER so the user gets full
-  // Family-level access without having subscribed yet.
+  // During an ACTIVE trial, honour TRIAL_TIER so the user gets full Family-level
+  // access without subscribing. Once the trial window passes we DON'T lock out —
+  // the user simply drops to their stored (Free) tier. No subscription required.
   const rawTier = normalizeTier(sub.tier as string);
-  const tier = (sub.status === 'TRIALING' ? TRIAL_TIER : rawTier) as keyof typeof TIER_LIMITS;
+  const trialActive = sub.status === 'TRIALING' && !!sub.trial_ends_at &&
+    new Date(sub.trial_ends_at as string).getTime() > Date.now();
+  const tier = (trialActive ? TRIAL_TIER : rawTier) as keyof typeof TIER_LIMITS;
 
   let trialDaysRemaining = 0;
   if (sub.status === 'TRIALING' && sub.trial_ends_at) {
@@ -548,11 +431,13 @@ billingRoutes.get('/limits', async (c) => {
   const userId = c.get('userId');
   // Prioritize ACTIVE subscriptions over TRIALING, and get the most recent one
   const sub = await c.env.DB.prepare(`
-    SELECT tier, status FROM subscriptions WHERE user_id = ?
+    SELECT tier, status, trial_ends_at FROM subscriptions WHERE user_id = ?
     ORDER BY CASE status WHEN 'ACTIVE' THEN 0 WHEN 'TRIALING' THEN 1 ELSE 2 END, created_at DESC
   `).bind(userId).first();
   const rawTier = normalizeTier(sub?.tier as string || 'STARTER');
-  const tier = (sub?.status === 'TRIALING' ? TRIAL_TIER : rawTier) as keyof typeof TIER_LIMITS;
+  const trialActive = sub?.status === 'TRIALING' && !!sub?.trial_ends_at &&
+    new Date(sub.trial_ends_at as string).getTime() > Date.now();
+  const tier = (trialActive ? TRIAL_TIER : rawTier) as keyof typeof TIER_LIMITS;
   const tierLimits = TIER_LIMITS[tier];
   
   const memoriesResult = await c.env.DB.prepare('SELECT COUNT(*) as count, COALESCE(SUM(file_size), 0) as total FROM memories WHERE user_id = ?').bind(userId).first();
@@ -637,12 +522,10 @@ billingRoutes.post('/calculate', async (c) => {
   const currency = getCurrencyForCountry(country);
   const prices = PRICING[currency];
   const normalizedTier = normalizeTier(tier);
-  // Map FOREVER to LEGACY for backward compatibility
-  const pricingTier = (normalizedTier === 'FOREVER' ? 'LEGACY' : normalizedTier) as 'STARTER' | 'FAMILY' | 'LEGACY';
-  const tierPrices = prices[pricingTier];
-  
-  if (!tierPrices) return c.json({ error: 'Invalid tier' }, 400);
-  
+  // Family is the only recurring plan; Free is $0 and Founder is a one-time pledge (/founder).
+  if (normalizedTier !== 'FAMILY') return c.json({ error: 'Only the Family plan is billed here.' }, 400);
+  const tierPrices = prices.FAMILY;
+
   const isYearly = billingCycle === 'yearly';
   let basePrice = isYearly ? tierPrices.yearly : tierPrices.monthly;
   let discount = 0;
@@ -671,12 +554,13 @@ billingRoutes.post('/checkout', async (c) => {
   const currency = getCurrencyForCountry(country);
   const prices = PRICING[currency];
   const normalizedTier = normalizeTier(tier);
-  // Map FOREVER to LEGACY for backward compatibility
-  const pricingTier = (normalizedTier === 'FOREVER' ? 'LEGACY' : normalizedTier) as 'STARTER' | 'FAMILY' | 'LEGACY';
-  const tierPrices = prices[pricingTier];
-  
-  if (!tierPrices) return c.json({ error: 'Invalid tier' }, 400);
-  
+  // Family is the only recurring checkout. Free needs no payment; Founder is the
+  // one-time lifetime pledge handled at /founder (founders.ts).
+  if (normalizedTier !== 'FAMILY') {
+    return c.json({ error: 'The Founder plan is a one-time pledge — visit /founder. Only the Family plan is billed here.' }, 400);
+  }
+  const tierPrices = prices.FAMILY;
+
   const isYearly = billingCycle === 'yearly';
   let finalPrice = isYearly ? tierPrices.yearly : tierPrices.monthly;
   let appliedDiscount: { type: 'coupon' | 'influencer'; code: string; percent: number } | null = null;
@@ -736,13 +620,7 @@ billingRoutes.post('/checkout', async (c) => {
   // Create Stripe checkout session
   try {
     const billingInterval = isYearly ? 'yearly' : 'monthly';
-    
-    // Use pre-created Stripe Price IDs only when they're real (start with 'price_1').
-    // Placeholder strings (e.g. 'price_family_monthly_usd') are treated as null so
-    // the price_data fallback below is used instead.
-    const rawPriceId = STRIPE_PRICE_IDS[currency]?.[normalizedTier]?.[billingInterval];
-    const stripePriceId = rawPriceId?.startsWith('price_1') ? rawPriceId : null;
-    
+
     // Build checkout session params
     const userIdStr = userId || '';
     const params: Record<string, string> = {
@@ -767,20 +645,15 @@ billingRoutes.post('/checkout', async (c) => {
       params['subscription_data[metadata][influencer_code]'] = appliedDiscount?.code || '';
     }
     
-    if (stripePriceId) {
-      // Use pre-created Stripe Price ID
-      params['line_items[0][price]'] = stripePriceId;
-      params['line_items[0][quantity]'] = '1';
-    } else {
-      // Fallback to dynamic pricing for non-USD currencies
-      const priceInCents = Math.round(finalPrice * 100);
-      params['line_items[0][price_data][currency]'] = currency.toLowerCase();
-      params['line_items[0][price_data][product_data][name]'] = `Heirloom ${normalizedTier} Plan`;
-      params['line_items[0][price_data][product_data][description]'] = `${TIER_LIMITS[normalizedTier].maxStorageLabel} storage with all features`;
-      params['line_items[0][price_data][unit_amount]'] = priceInCents.toString();
-      params['line_items[0][price_data][recurring][interval]'] = isYearly ? 'year' : 'month';
-      params['line_items[0][quantity]'] = '1';
-    }
+    // Dynamic price_data built from the PRICING table, so Stripe charges exactly
+    // the displayed amount (see STRIPE PRICE IDS note above).
+    const priceInCents = Math.round(finalPrice * 100);
+    params['line_items[0][price_data][currency]'] = currency.toLowerCase();
+    params['line_items[0][price_data][product_data][name]'] = `Heirloom ${normalizedTier} Plan`;
+    params['line_items[0][price_data][product_data][description]'] = `${TIER_LIMITS[normalizedTier].maxStorageLabel} storage with all features`;
+    params['line_items[0][price_data][unit_amount]'] = priceInCents.toString();
+    params['line_items[0][price_data][recurring][interval]'] = isYearly ? 'year' : 'month';
+    params['line_items[0][quantity]'] = '1';
     
     const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
       method: 'POST',

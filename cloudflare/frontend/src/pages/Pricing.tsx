@@ -6,16 +6,14 @@ import { PLAN_FEATURES } from '../lib/plans';
 interface PricingData {
   symbol: string;
   code: string;
-  STARTER?: { monthly: number; yearly: number };
   FAMILY?: { monthly: number; yearly: number };
-  LEGACY?: { yearly?: number };
+  FOUNDER?: { lifetime?: number };
 }
 
 const FALLBACK: PricingData = {
   symbol: '$', code: 'USD',
-  STARTER: { monthly: 0, yearly: 0 },
-  FAMILY: { monthly: 9.99, yearly: 99 },
-  LEGACY: { yearly: 240 },
+  FAMILY: { monthly: 6.99, yearly: 69 },
+  FOUNDER: { lifetime: 249 },
 };
 
 function fmt(symbol: string, n: number): string {
@@ -29,17 +27,21 @@ export function Pricing() {
   useEffect(() => {
     billingApi.getPricing().then((r: any) => {
       const d = r.data ?? r;
-      if (d?.FAMILY?.monthly) setPricing(d);
+      if (d?.FAMILY && d?.FOUNDER) setPricing(d);
     }).catch(() => {});
   }, []);
 
   const s = pricing.symbol;
+  // Some currencies (e.g. INR) are yearly-only — monthly is 0. Force the annual
+  // view there so Family never renders a "$0 / month".
+  const annualOnly = !pricing.FAMILY?.monthly;
+  const showAnnual = annual || annualOnly;
 
   const tiers = [
     {
-      id: 'STARTER',
+      id: 'FREE',
       name: 'Free',
-      price: '—',
+      price: fmt(s, 0),
       priceBilledAnnually: null as string | null,
       sub: 'forever',
       subAnnual: null as string | null,
@@ -51,21 +53,21 @@ export function Pricing() {
     {
       id: 'FAMILY',
       name: 'Family',
-      price: fmt(s, pricing.FAMILY?.monthly ?? 9.99),
-      priceBilledAnnually: fmt(s, pricing.FAMILY?.yearly ?? 99),
+      price: fmt(s, pricing.FAMILY?.monthly ?? 6.99),
+      priceBilledAnnually: fmt(s, pricing.FAMILY?.yearly ?? 69),
       sub: '/ month',
       subAnnual: '/ year · 2 months free',
       features: PLAN_FEATURES.FAMILY,
-      cta: 'Start 30-day trial',
+      cta: 'Start free 30-day trial',
       to: '/signup?tier=FAMILY',
       warm: true,
     },
     {
-      id: 'LEGACY',
+      id: 'FOUNDER',
       name: 'Founder',
-      price: fmt(s, pricing.LEGACY?.yearly ?? 240),
+      price: fmt(s, pricing.FOUNDER?.lifetime ?? 249),
       priceBilledAnnually: null as string | null,
-      sub: 'once, lifetime',
+      sub: 'once · lifetime',
       subAnnual: null as string | null,
       features: PLAN_FEATURES.LEGACY,
       cta: 'Become a founder',
@@ -123,10 +125,10 @@ export function Pricing() {
               <h2 className="hl-eyebrow dark" style={{ marginBottom: 16, margin: 0, padding: 0, font: 'inherit' }}>{tier.name}</h2>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 8 }}>
                 <span className="hl-serif" style={{ fontSize: 40, fontWeight: 300, color: 'var(--parchment-ink)' }}>
-                  {annual && tier.priceBilledAnnually ? tier.priceBilledAnnually : tier.price}
+                  {showAnnual && tier.priceBilledAnnually ? tier.priceBilledAnnually : tier.price}
                 </span>
                 <span className="hl-mono" style={{ fontSize: 11, color: 'var(--parchment-dim)', letterSpacing: '0.08em' }}>
-                  {annual && tier.subAnnual ? tier.subAnnual : tier.sub}
+                  {showAnnual && tier.subAnnual ? tier.subAnnual : tier.sub}
                 </span>
               </div>
 
@@ -143,7 +145,7 @@ export function Pricing() {
 
               <div style={{ marginTop: 40 }}>
                 <Link
-                  to={annual && tier.id === 'FAMILY' ? '/signup?tier=FAMILY&cycle=annual' : tier.to}
+                  to={showAnnual && tier.id === 'FAMILY' ? '/signup?tier=FAMILY&cycle=annual' : tier.to}
                   className={tier.warm ? 'hl-btn' : 'hl-btn ghost'}
                   style={!tier.warm ? { color: 'var(--parchment-ink)', borderColor: 'var(--parchment-rule)' } : {}}
                 >

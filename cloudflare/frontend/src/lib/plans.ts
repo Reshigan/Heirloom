@@ -15,51 +15,52 @@ export const PLAN_DISPLAY: Record<string, string> = {
 
 export const PLAN_CTA: Record<string, string> = {
   STARTER:  'Begin free',
-  FAMILY:   'Start 30-day trial',
+  FAMILY:   'Start free 30-day trial',
   LEGACY:   'Become a founder',
 };
 
 export const PLAN_FEATURES: Record<string, string[]> = {
   STARTER: [
-    '1 thread',
-    '30 entries / yr',
-    'Read-only inheritance link',
-    'Export anytime',
+    'One family thread',
+    '500 MB storage',
+    'Try every feature — voice, photo & written',
+    'Invite your whole family',
+    'Export anytime — no lock-in',
   ],
   FAMILY: [
-    'Unlimited threads',
-    'Unlimited entries',
-    'Time-locked entries',
+    'Unlimited threads & entries',
     'Voice entries',
+    'Time-locked & sealed entries',
     'Up to 5 family members',
-    '30-day trial',
+    '50 GB storage',
   ],
   LEGACY: [
-    'Everything in Family',
+    'Everything in Family, forever',
+    'One-time payment — never billed again',
     'Founder badge + pledge number',
-    'Locked price forever',
+    'Locked price for life',
     'Vote on the product roadmap',
   ],
 };
 
 export const PLAN_LIMITS: Record<string, Array<[string, string]>> = {
   STARTER: [
-    ['memories', '50'],
-    ['letters', '10'],
-    ['voice', '15 min'],
-    ['storage', '1 GB'],
+    ['threads', '1'],
+    ['members', 'unlimited'],
+    ['voice', 'included'],
+    ['storage', '500 MB'],
   ],
   FAMILY: [
-    ['memories', 'unlimited'],
-    ['letters', 'unlimited'],
-    ['voice', '180 min'],
-    ['storage', '25 GB'],
+    ['threads', 'unlimited'],
+    ['members', '5'],
+    ['voice', 'unlimited'],
+    ['storage', '50 GB'],
   ],
   LEGACY: [
-    ['memories', 'unlimited'],
-    ['letters', 'unlimited'],
+    ['threads', 'unlimited'],
+    ['members', 'unlimited'],
     ['voice', 'unlimited'],
-    ['storage', '100 GB'],
+    ['storage', '500 GB'],
   ],
 };
 

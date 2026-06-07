@@ -88,15 +88,20 @@ threadsRoutes.post('/', async (c) => {
     return c.json({ error: 'Thread name too long (max 200)' }, 400);
   }
 
-  // Check thread creation limit by tier
+  // Check thread creation limit by tier. Free is capped at one thread; every
+  // paid tier (and an active 30-day Family trial) gets unlimited threads, which
+  // matches what the pricing page promises. An expired trial reads as Free.
   const threadSubscription = await c.env.DB.prepare(
-    'SELECT tier FROM subscriptions WHERE user_id = ? ORDER BY created_at DESC LIMIT 1'
-  ).bind(userId).first<{ tier: string }>();
+    'SELECT tier, status, trial_ends_at FROM subscriptions WHERE user_id = ? ORDER BY created_at DESC LIMIT 1'
+  ).bind(userId).first<{ tier: string; status: string; trial_ends_at: string | null }>();
 
   const threadTier = threadSubscription?.tier?.toUpperCase() ?? 'STARTER';
-  const threadLimit = (threadTier === 'LEGACY' || threadTier === 'FOREVER') ? Infinity
-    : threadTier === 'FAMILY' || threadTier === 'ESSENTIAL' ? 5
-    : 1; // STARTER: 1 thread
+  const threadTrialActive = threadSubscription?.status === 'TRIALING'
+    && !!threadSubscription?.trial_ends_at
+    && new Date(threadSubscription.trial_ends_at).getTime() > Date.now();
+  const isPaidThreadTier = threadTier === 'LEGACY' || threadTier === 'FOREVER'
+    || threadTier === 'FAMILY' || threadTier === 'ESSENTIAL';
+  const threadLimit = (threadTrialActive || isPaidThreadTier) ? Infinity : 1; // FREE/STARTER: 1 thread
 
   const threadCount = await c.env.DB.prepare(
     'SELECT COUNT(*) as count FROM threads WHERE founder_user_id = ?'

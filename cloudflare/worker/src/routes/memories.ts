@@ -15,6 +15,7 @@ import {
   withinGrace,
 } from '../lib/legacyArchive';
 import { sendEmail } from '../utils/email';
+import { checkStorageQuota } from '../lib/quota';
 
 export const memoriesRoutes = new Hono<AppEnv>();
 
@@ -484,6 +485,7 @@ memoriesRoutes.get('/:id', async (c) => {
 // Create a new memory
 memoriesRoutes.post('/', async (c) => {
   const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Authentication required' }, 401);
   const body = await c.req.json();
   
     const { type, title, description, fileUrl, fileKey, fileSize, mimeType, metadata, recipientIds, memoryDate, encrypted, encryption_iv } = body;
@@ -491,7 +493,20 @@ memoriesRoutes.post('/', async (c) => {
     if (!type || !title) {
       return c.json({ error: 'Type and title are required' }, 400);
     }
-  
+
+    // Enforce the plan's storage cap before persisting a file-backed entry.
+    const incomingBytes = Number(fileSize) || 0;
+    if (incomingBytes > 0) {
+      const quota = await checkStorageQuota(c.env, userId, incomingBytes);
+      if (!quota.ok) {
+        return c.json({
+          error: 'Storage limit reached for your plan. Upgrade for more room, or remove a few large items.',
+          used: quota.used,
+          cap: quota.cap,
+        }, 413);
+      }
+    }
+
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
     // Use memoryDate if provided (for historic memories), otherwise use current date

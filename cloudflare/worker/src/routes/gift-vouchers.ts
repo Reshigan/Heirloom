@@ -41,29 +41,29 @@ function generateVoucherCode(): string {
 // 'monthly'/'yearly').
 const GIFT_PRICING: Record<string, Partial<Record<string, Partial<Record<string, number>>>>> = {
   USD: {
-    FAMILY: { monthly: 999, yearly: 9900 },
-    LEGACY: { lifetime: 24000 },
-    FOREVER: { lifetime: 24000 }, // legacy alias
+    FAMILY: { monthly: 699, yearly: 6900 },
+    LEGACY: { lifetime: 24900 },
+    FOREVER: { lifetime: 24900 }, // legacy alias
   },
   GBP: {
-    FAMILY: { monthly: 799, yearly: 7999 },
-    LEGACY: { lifetime: 19200 },
-    FOREVER: { lifetime: 19200 },
+    FAMILY: { monthly: 599, yearly: 5900 },
+    LEGACY: { lifetime: 19900 },
+    FOREVER: { lifetime: 19900 },
   },
   EUR: {
-    FAMILY: { monthly: 799, yearly: 7999 },
-    LEGACY: { lifetime: 18000 },
-    FOREVER: { lifetime: 18000 },
+    FAMILY: { monthly: 599, yearly: 5900 },
+    LEGACY: { lifetime: 22900 },
+    FOREVER: { lifetime: 22900 },
   },
   ZAR: {
-    FAMILY: { monthly: 9900, yearly: 99900 },
-    LEGACY: { lifetime: 240000 },
-    FOREVER: { lifetime: 240000 },
+    FAMILY: { monthly: 6900, yearly: 69000 },
+    LEGACY: { lifetime: 399900 },
+    FOREVER: { lifetime: 399900 },
   },
   INR: {
-    FAMILY: { monthly: 29990, yearly: 299900 },
-    LEGACY: { lifetime: 599900 },
-    FOREVER: { lifetime: 599900 },
+    FAMILY: { yearly: 199900 },
+    LEGACY: { lifetime: 1499900 },
+    FOREVER: { lifetime: 1499900 },
   },
 };
 

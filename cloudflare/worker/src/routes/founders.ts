@@ -20,7 +20,7 @@ import { sendEmail } from '../utils/email';
 
 export const founderRoutes = new Hono<AppEnv>();
 
-const PLEDGE_AMOUNT_USD = 240;
+const PLEDGE_AMOUNT_USD = 249;
 const PLEDGE_CAP = 100;
 
 founderRoutes.post('/pledge', async (c) => {
@@ -61,9 +61,11 @@ founderRoutes.post('/pledge', async (c) => {
      VALUES (?, ?, ?, ?, ?, 'PLEDGED')`,
   ).bind(id, name, email, familyName, notes).run();
 
-  // Create Stripe Checkout session for the $999 one-time pledge.
-  // The webhook (billing.ts) listens for 'founder_pledge' metadata and
-  // marks PAID + assigns pledge_number atomically.
+  // Create a Stripe Checkout session for the one-time Founder pledge.
+  // We charge via dynamic price_data (unit_amount from PLEDGE_AMOUNT_USD) rather
+  // than a fixed Stripe Price ID, so the amount billed always matches what the
+  // page shows. The webhook (billing.ts) listens for 'founder_pledge' metadata
+  // and marks PAID + assigns pledge_number atomically.
   let checkoutUrl: string | null = null;
   const stripeKey = (c.env as AppEnv['Bindings'] & { STRIPE_SECRET_KEY?: string }).STRIPE_SECRET_KEY;
   if (stripeKey) {
@@ -79,7 +81,10 @@ founderRoutes.post('/pledge', async (c) => {
           customer_email: email,
           success_url: `${c.env.APP_URL}/founder/welcome?session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${c.env.APP_URL}/founder?canceled=1`,
-          'line_items[0][price]': 'price_1TdZWT0wv1f1SxUq6SKMsLV0',
+          'line_items[0][price_data][currency]': 'usd',
+          'line_items[0][price_data][unit_amount]': String(PLEDGE_AMOUNT_USD * 100),
+          'line_items[0][price_data][product_data][name]': 'Heirloom Founder — Lifetime',
+          'line_items[0][price_data][product_data][description]': 'One-time lifetime Family-tier access for your bloodline, a Founder number, and your name in the continuity record.',
           'line_items[0][quantity]': '1',
           'metadata[type]': 'founder_pledge',
           'metadata[pledge_id]': id,
