@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { familyApi, lettersApi } from '../services/api';
+import { familyApi, legacyContactsApi, lettersApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
 import { TapestryEdge, UserMenu } from '../loom/components/Frame';
 import { RecipientPicker } from '../loom/components/RecipientPicker';
@@ -24,6 +24,13 @@ interface FamilyMember {
   email?: string | null;
 }
 
+interface LegacyContact {
+  id: string;
+  name: string;
+  email: string;
+  relationship: string;
+}
+
 export function ComposeLetter() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -42,6 +49,7 @@ export function ComposeLetter() {
     'now',
   );
   const [signatureTouched, setSignatureTouched] = useState(false);
+  const [legacyRecipientIds, setLegacyRecipientIds] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const user = useAuthStore((s) => s.user);
@@ -55,6 +63,20 @@ export function ComposeLetter() {
         .catch(() => []),
   });
   const members: FamilyMember[] = Array.isArray(family) ? family : [];
+
+  const { data: legacyContactsData } = useQuery({
+    queryKey: ['legacy-contacts'],
+    queryFn: () =>
+      legacyContactsApi
+        .getAll()
+        .then((r) => {
+          const d = r.data as any;
+          // API returns a flat array directly
+          return (Array.isArray(d) ? d : d?.contacts ?? []) as LegacyContact[];
+        })
+        .catch(() => [] as LegacyContact[]),
+  });
+  const legacyContacts: LegacyContact[] = Array.isArray(legacyContactsData) ? legacyContactsData : [];
 
   const { data: existingLetter } = useQuery({
     queryKey: ['letter', letterId],
@@ -87,6 +109,11 @@ export function ComposeLetter() {
       setRecipientId(r.id);
       setRecipientName(r.name ?? '');
     }
+    // Populate legacy recipients if the API returns them
+    const legacyRecs = (existingLetter as any).legacyRecipients;
+    if (Array.isArray(legacyRecs) && legacyRecs.length > 0) {
+      setLegacyRecipientIds(legacyRecs.map((lc: any) => lc.id ?? lc));
+    }
   }, [existingLetter]);
 
   // Auto-populate the signature with the author's name. Only while it's still
@@ -109,6 +136,12 @@ export function ComposeLetter() {
     });
   }, [deliveryTrigger, scheduledDate]);
 
+  const toggleLegacyContact = (id: string) => {
+    setLegacyRecipientIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  };
+
   const persist = async (seal: boolean) => {
     const trigger =
       deliveryTrigger === 'date' && scheduledDate
@@ -127,6 +160,7 @@ export function ComposeLetter() {
       scheduledDate: trigger === 'SCHEDULED' ? scheduledDate : null,
       milestoneLabel: deliveryTrigger === 'milestone' ? milestoneLabel.trim() || null : null,
       recipientIds: recipientId ? [recipientId] : [],
+      legacyRecipientIds,
     };
     let data: any;
     if (letterId) {
@@ -484,6 +518,51 @@ export function ComposeLetter() {
               placeholder="a name (optional)"
             />
           </div>
+
+          {/* legacy contact recipients — only shown if contacts exist */}
+          {legacyContacts.length > 0 && (
+            <div style={{ marginTop: 16 }}>
+              <p
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  margin: '0 0 8px',
+                }}
+              >
+                also for
+              </p>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {legacyContacts.map((contact) => {
+                  const selected = legacyRecipientIds.includes(contact.id);
+                  return (
+                    <button
+                      key={contact.id}
+                      type="button"
+                      onClick={() => toggleLegacyContact(contact.id)}
+                      style={{
+                        background: 'none',
+                        border: `1px solid ${selected ? 'var(--warm)' : 'var(--rule)'}`,
+                        borderRadius: 0,
+                        cursor: 'pointer',
+                        padding: '4px 8px',
+                        fontFamily: 'var(--mono)',
+                        fontSize: 10,
+                        letterSpacing: '0.14em',
+                        textTransform: 'uppercase',
+                        color: selected ? 'var(--warm)' : 'var(--bone-faint)',
+                        transition: 'color 180ms cubic-bezier(0.16,1,0.3,1), border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
+                    >
+                      {contact.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <hr className="hl-rule" style={{ marginTop: 28 }} />
 
