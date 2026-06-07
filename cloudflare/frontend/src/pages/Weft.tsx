@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
 import { type LoomEntry, type LoomDye, type LoomKind } from '../loom/components/Loom';
 import { TapestryCanvas, type CanvasEntry } from '../loom/components/TapestryCanvas';
@@ -258,12 +259,21 @@ export function Weft() {
     </span>
   );
 
+  // Shared right-side topbar slot: view toggle + the profile menu (settings,
+  // billing, family…). The profile menu rides every authed screen.
+  const rightSlot = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      {toggle}
+      <UserMenu />
+    </div>
+  );
+
   if (mode === 'empty' || entries.length === 0) {
     return (
       <ClothShell
         topbarLeft={<HLogo size="sm" wordmark />}
         topbarCenter="the tapestry"
-        topbarRight={toggle}
+        topbarRight={rightSlot}
         backdropOpacity={0.3}
       >
         <EmptyThread onWeave={() => navigate('/compose')} onRecord={() => navigate('/record')} />
@@ -283,7 +293,7 @@ export function Weft() {
       <ClothShell
         topbarLeft={<HLogo size="sm" wordmark />}
         topbarCenter="the tapestry"
-        topbarRight={toggle}
+        topbarRight={rightSlot}
         backdropOpacity={0.3}
       >
         <WeftPull entries={allEntries} />
@@ -296,7 +306,7 @@ export function Weft() {
       <ClothShell
         topbarLeft={<HLogo size="sm" wordmark />}
         topbarCenter="the tapestry"
-        topbarRight={toggle}
+        topbarRight={rightSlot}
         backdropOpacity={0.3}
       >
         <WeftCentury entries={allEntries} kin={kinForCentury} />
@@ -312,6 +322,7 @@ export function Weft() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           {entryCount}
           {toggle}
+          <UserMenu />
         </div>
       }
       backdropOpacity={0.3}
@@ -414,8 +425,22 @@ export function Weft() {
               </div>
             </div>
           ) : (
-            <div className="loom-body loom-dim" style={{ fontStyle: 'italic', fontSize: 16 }}>
-              {listenerPrompt}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap' }}>
+              <span
+                className="loom-mono"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {displayName}’s tapestry
+              </span>
+              <span className="loom-body loom-dim" style={{ fontStyle: 'italic', fontSize: 16 }}>
+                {listenerPrompt}
+              </span>
             </div>
           )}
         </div>

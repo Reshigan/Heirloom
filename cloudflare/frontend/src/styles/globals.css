@@ -78,6 +78,7 @@
   --bone-faint: rgba(244, 236, 216, 0.44);
   --bone-low: rgba(244, 236, 216, 0.24);
   --bone-ghost: rgba(244, 236, 216, 0.14);
+  --weave-color: rgba(244, 236, 216, 0.10);
   --rule: rgba(244, 236, 216, 0.11);
   --rule-strong: rgba(244, 236, 216, 0.20);
   --warm: #b07a4a;
@@ -174,6 +175,7 @@
   --bone-faint:   rgba(18, 14, 10, 0.48);
   --bone-low:     rgba(18, 14, 10, 0.32);
   --bone-ghost:   rgba(18, 14, 10, 0.18);
+  --weave-color:  rgba(18, 14, 10, 0.13);
   --rule:         rgba(18, 14, 10, 0.12);
   --rule-strong:  rgba(18, 14, 10, 0.22);
   --rule-warm:    rgba(140, 70, 20, 0.32);
@@ -1292,6 +1294,22 @@ html {
   opacity: 0.42;
   pointer-events: none;
 }
+/* Universal woven-cloth ground — the basketweave from the marketing site.
+   Dense fine warp+weft + a coarser thread-bundle layer = woven texture, not
+   "the lines". Themeable via --weave-color (dark + light). Signal, low-contrast;
+   sits behind content (z-index 0), content rides above. */
+.hl-cloth-weave {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(90deg, var(--weave-color) 0, var(--weave-color) 1px, transparent 1px, transparent 4px),
+    repeating-linear-gradient(0deg,  var(--weave-color) 0, var(--weave-color) 1px, transparent 1px, transparent 4px),
+    repeating-linear-gradient(90deg, var(--weave-color) 0, var(--weave-color) 2px, transparent 2px, transparent 16px),
+    repeating-linear-gradient(0deg,  var(--weave-color) 0, var(--weave-color) 2px, transparent 2px, transparent 16px);
+  background-position: 0 0, 0 0, 0 0, 8px 8px;
+}
+
 .loom-weft__pick {
   position: absolute;
   height: 2px;

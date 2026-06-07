@@ -3,8 +3,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { familyApi, lettersApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
-import { TapestryEdge } from '../loom/components/Frame';
+import { TapestryEdge, UserMenu } from '../loom/components/Frame';
 import { RecipientPicker } from '../loom/components/RecipientPicker';
+import { useAuthStore } from '../stores/authStore';
 
 /**
  * ComposeLetter — loom3 standalone rewrite (§6.3 Composer · letter mode).
@@ -36,10 +37,14 @@ export function ComposeLetter() {
   const [recipientName, setRecipientName] = useState('');
   const [recipientId, setRecipientId] = useState<string | null>(null);
   const [scheduledDate, setScheduledDate] = useState('');
+  const [milestoneLabel, setMilestoneLabel] = useState('');
   const [deliveryTrigger, setDeliveryTrigger] = useState<'now' | 'date' | 'death' | 'milestone'>(
     'now',
   );
+  const [signatureTouched, setSignatureTouched] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const user = useAuthStore((s) => s.user);
 
   const { data: family } = useQuery({
     queryKey: ['family'],
@@ -61,11 +66,19 @@ export function ComposeLetter() {
     if (!existingLetter) return;
     if (existingLetter.salutation) setSalutation(existingLetter.salutation);
     if (existingLetter.body) setBody(existingLetter.body);
-    if (existingLetter.signature) setSignature(existingLetter.signature);
+    if (existingLetter.signature) {
+      setSignature(existingLetter.signature);
+      setSignatureTouched(true);
+    }
+    if (existingLetter.milestoneLabel) setMilestoneLabel(existingLetter.milestoneLabel);
     if (existingLetter.scheduledDate) setScheduledDate(existingLetter.scheduledDate);
     const trigger = existingLetter.deliveryTrigger;
-    if (trigger === 'SCHEDULED') setDeliveryTrigger('date');
-    else if (trigger === 'AFTER_DEATH') setDeliveryTrigger('death');
+    // The worker normalises milestone onto SCHEDULED with a null date; a present
+    // milestoneLabel is what distinguishes it from a plain dated seal.
+    if (trigger === 'SCHEDULED' && existingLetter.milestoneLabel && !existingLetter.scheduledDate)
+      setDeliveryTrigger('milestone');
+    else if (trigger === 'SCHEDULED') setDeliveryTrigger('date');
+    else if (trigger === 'POSTHUMOUS' || trigger === 'AFTER_DEATH') setDeliveryTrigger('death');
     else if (trigger === 'MILESTONE') setDeliveryTrigger('milestone');
     else setDeliveryTrigger('now');
     // Select recipient by ID match
@@ -75,6 +88,15 @@ export function ComposeLetter() {
       setRecipientName(r.name ?? '');
     }
   }, [existingLetter]);
+
+  // Auto-populate the signature with the author's name. Only while it's still
+  // pristine — once the user types their own sign-off we never overwrite it,
+  // and an existing letter's saved signature always wins.
+  useEffect(() => {
+    if (signatureTouched || signature || letterId) return;
+    const full = [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim();
+    if (full) setSignature(`— ${full}`);
+  }, [user, signatureTouched, signature, letterId]);
 
   const sealedUntil = useMemo(() => {
     if (deliveryTrigger !== 'date' || !scheduledDate) return null;
@@ -103,6 +125,7 @@ export function ComposeLetter() {
       signature: signature.trim() || null,
       deliveryTrigger: trigger,
       scheduledDate: trigger === 'SCHEDULED' ? scheduledDate : null,
+      milestoneLabel: deliveryTrigger === 'milestone' ? milestoneLabel.trim() || null : null,
       recipientIds: recipientId ? [recipientId] : [],
     };
     let data: any;
@@ -167,6 +190,9 @@ export function ComposeLetter() {
         color: 'var(--bone)',
       }}
     >
+      {/* woven-cloth ground — the letter is written on the same cloth as the loom */}
+      <div className="hl-cloth-weave" aria-hidden style={{ opacity: 0.5 }} />
+
       {/* hl-topbar */}
       <div
         className="hl-topbar"
@@ -223,33 +249,36 @@ export function ComposeLetter() {
           sealed · for the future
         </span>
 
-        {/* right: save draft */}
-        <button
-          type="button"
-          onClick={() => {
-            setError(null);
-            if (!body.trim()) {
-              setError('Write the letter first — even a line.');
-              return;
-            }
-            draft.mutate();
-          }}
-          disabled={busy}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: busy ? 'not-allowed' : 'pointer',
-            fontFamily: 'var(--mono)',
-            fontSize: 11,
-            letterSpacing: '0.08em',
-            color: 'var(--warm)',
-            padding: 0,
-            opacity: busy ? 0.5 : 1,
-            transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
-          }}
-        >
-          {draft.isPending ? 'saving…' : 'save draft →'}
-        </button>
+        {/* right: save draft + profile menu */}
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
+          <button
+            type="button"
+            onClick={() => {
+              setError(null);
+              if (!body.trim()) {
+                setError('Write the letter first — even a line.');
+                return;
+              }
+              draft.mutate();
+            }}
+            disabled={busy}
+            style={{
+              background: 'none',
+              border: 'none',
+              cursor: busy ? 'not-allowed' : 'pointer',
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.08em',
+              color: 'var(--warm)',
+              padding: 0,
+              opacity: busy ? 0.5 : 1,
+              transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+            }}
+          >
+            {draft.isPending ? 'saving…' : 'save draft →'}
+          </button>
+          <UserMenu />
+        </span>
       </div>
 
       {/* scrollable content */}
@@ -325,7 +354,10 @@ export function ComposeLetter() {
           {/* signature */}
           <input
             value={signature}
-            onChange={(e) => setSignature(e.target.value)}
+            onChange={(e) => {
+              setSignatureTouched(true);
+              setSignature(e.target.value);
+            }}
             placeholder="— your name"
             style={{
               width: '100%',
@@ -397,7 +429,46 @@ export function ComposeLetter() {
                 }}
               />
             )}
+
+            {deliveryTrigger === 'milestone' && (
+              <input
+                type="text"
+                value={milestoneLabel}
+                onChange={(e) => setMilestoneLabel(e.target.value)}
+                placeholder="which milestone — e.g. her 18th birthday"
+                style={{
+                  flex: 1,
+                  minWidth: 220,
+                  background: 'transparent',
+                  border: 0,
+                  borderBottom: '1px solid var(--rule)',
+                  color: 'var(--bone)',
+                  caretColor: 'var(--warm)',
+                  fontFamily: 'var(--serif)',
+                  fontSize: 15,
+                  padding: '2px 0 4px',
+                  outline: 'none',
+                }}
+              />
+            )}
           </div>
+
+          {deliveryTrigger === 'milestone' && (
+            <p
+              className="hl-mono"
+              style={{
+                marginTop: 10,
+                fontSize: 10,
+                letterSpacing: '0.1em',
+                color: 'var(--bone-faint)',
+                maxWidth: 420,
+                lineHeight: 1.6,
+              }}
+            >
+              the letter stays sealed and is opened by your family when this
+              milestone arrives.
+            </p>
+          )}
 
           {/* recipient row — autocomplete over friends & family, add-new inline */}
           <div style={{ marginTop: 16, maxWidth: 340 }}>
@@ -459,6 +530,10 @@ export function ComposeLetter() {
               }
               if (deliveryTrigger === 'date' && !scheduledDate) {
                 setError('Choose the date this letter unseals.');
+                return;
+              }
+              if (deliveryTrigger === 'milestone' && !milestoneLabel.trim()) {
+                setError('Name the milestone this letter waits for.');
                 return;
               }
               seal.mutate();

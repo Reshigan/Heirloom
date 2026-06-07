@@ -195,6 +195,7 @@ lettersRoutes.get('/', async (c) => {
     signature: letter.signature,
     deliveryTrigger: letter.delivery_trigger,
     scheduledDate: letter.scheduled_date,
+    milestoneLabel: letter.milestone_label,
     sealedAt: letter.sealed_at,
     encrypted: !!letter.encrypted,
     recipients: recipientMap[letter.id] || [],
@@ -243,6 +244,7 @@ lettersRoutes.get('/:id', async (c) => {
     signature: letter.signature,
     deliveryTrigger: letter.delivery_trigger,
     scheduledDate: letter.scheduled_date,
+    milestoneLabel: letter.milestone_label,
     sealedAt: letter.sealed_at,
     encrypted: !!letter.encrypted,
     encryptionIv: letter.encryption_iv,
@@ -267,17 +269,18 @@ lettersRoutes.post('/', async (c) => {
     salutation, 
     body: letterBody, 
     signature, 
-    deliveryTrigger, 
-    scheduledDate, 
+    deliveryTrigger,
+    scheduledDate,
+    milestoneLabel,
     recipientIds,
     encrypted,
-    encryption_iv 
+    encryption_iv
   } = body;
-  
+
   if (!letterBody) {
     return c.json({ error: 'Letter body is required' }, 400);
   }
-  
+
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   const trigger = normalizeDeliveryTrigger(deliveryTrigger);
@@ -285,9 +288,9 @@ lettersRoutes.post('/', async (c) => {
   // Store encrypted flag and IV if provided (E2E encryption)
   const mutableUntil = mutableUntilFrom(now);
   await c.env.DB.prepare(`
-    INSERT INTO letters (id, user_id, title, salutation, body, signature, delivery_trigger, scheduled_date, encrypted, encryption_iv, mutable_until, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, userId, title || null, salutation || null, letterBody, signature || null, trigger, scheduledDate || null, encrypted ? 1 : 0, encryption_iv || null, mutableUntil, now, now).run();
+    INSERT INTO letters (id, user_id, title, salutation, body, signature, delivery_trigger, scheduled_date, milestone_label, encrypted, encryption_iv, mutable_until, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(id, userId, title || null, salutation || null, letterBody, signature || null, trigger, scheduledDate || null, milestoneLabel || null, encrypted ? 1 : 0, encryption_iv || null, mutableUntil, now, now).run();
 
   // Dual-write into the Family Thread; SCHEDULED letters get a DATE unlock.
   await mirrorIntoDefaultThread(c.env, userId, {
@@ -322,6 +325,7 @@ lettersRoutes.post('/', async (c) => {
     body: letter?.body,
     signature: letter?.signature,
     deliveryTrigger: letter?.delivery_trigger,
+    milestoneLabel: letter?.milestone_label,
     encrypted: !!letter?.encrypted,
     encryptionIv: letter?.encryption_iv,
     createdAt: letter?.created_at,
@@ -346,7 +350,7 @@ lettersRoutes.patch('/:id', async (c) => {
   // Note: sealed_at check intentionally removed — authors can always edit their letters.
   // Sealed status controls RECIPIENT access, not author write access.
 
-  const { title, salutation, body: letterBody, signature, deliveryTrigger, scheduledDate, recipientIds, encrypted, encryption_iv } = body;
+  const { title, salutation, body: letterBody, signature, deliveryTrigger, scheduledDate, milestoneLabel, recipientIds, encrypted, encryption_iv } = body;
   const now = new Date().toISOString();
   // Normalize only when the client actually sends a trigger; undefined leaves
   // the existing value untouched via COALESCE below.
@@ -360,6 +364,7 @@ lettersRoutes.patch('/:id', async (c) => {
     signature: existing.signature,
     delivery_trigger: existing.delivery_trigger,
     scheduled_date: existing.scheduled_date,
+    milestone_label: existing.milestone_label,
     encrypted: existing.encrypted,
     encryption_iv: existing.encryption_iv,
     updated_at: existing.updated_at,
@@ -375,20 +380,22 @@ lettersRoutes.patch('/:id', async (c) => {
         signature = COALESCE(?, signature),
         delivery_trigger = COALESCE(?, delivery_trigger),
         scheduled_date = COALESCE(?, scheduled_date),
+        milestone_label = COALESCE(?, milestone_label),
         encrypted = COALESCE(?, encrypted),
         encryption_iv = COALESCE(?, encryption_iv),
         updated_at = ?
     WHERE id = ?
   `).bind(
-    title ?? null, 
-    salutation ?? null, 
-    letterBody ?? null, 
+    title ?? null,
+    salutation ?? null,
+    letterBody ?? null,
     signature ?? null,
     normalizedTrigger,
     scheduledDate ?? null,
+    milestoneLabel ?? null,
     encrypted !== undefined ? (encrypted ? 1 : 0) : null,
     encryption_iv ?? null,
-    now, 
+    now,
     letterId
   ).run();
   
@@ -426,6 +433,7 @@ lettersRoutes.patch('/:id', async (c) => {
     body: letter?.body,
     signature: letter?.signature,
     deliveryTrigger: letter?.delivery_trigger,
+    milestoneLabel: letter?.milestone_label,
     encrypted: !!letter?.encrypted,
     encryptionIv: letter?.encryption_iv,
     updatedAt: letter?.updated_at,

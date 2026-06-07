@@ -64,7 +64,7 @@ export function SecurityDot({ size = 6 }: { size?: number }) {
   );
 }
 
-function UserMenu() {
+export function UserMenu() {
   const { user, logout } = useAuthStore();
   const [open, setOpen] = useState(false);
   if (!user) return null;

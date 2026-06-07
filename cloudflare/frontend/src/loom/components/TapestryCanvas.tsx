@@ -324,52 +324,16 @@ export function drawCloth(
   ctx.fillStyle = sheen;
   ctx.fillRect(0, 0, W, H);
 
-  // ── Warp threads — structural vertical fibres, slightly more visible now
-  //    Each warp gets: soft glow pass + core hairline + occasional highlight
+  // ── Warp positions — collected for the interlace/crimp pass on entries.
+  //    The visible vertical warp strokes are intentionally NOT drawn here: the
+  //    woven ground now comes from the `.hl-cloth-weave` basketweave behind the
+  //    canvas (matches the marketing site). Drawing full-height lines on top of
+  //    it reproduced the old "lines" look the cloth is meant to replace.
   const warpXs: number[] = [];  // collected for interlace pass
   const rnd = hlSeed(7);
   for (let x = 0; x < W + 4; x += warpEvery) {
     const jitter = (rnd() - 0.5) * 1.8;
-    const xx = x + jitter;
-    warpXs.push(xx);
-    const baseAlpha = 0.09 + rnd() * 0.09;
-    const isHighlight = rnd() > 0.72;
-
-    // Glow pass
-    ctx.strokeStyle = `rgba(244,236,216,${(baseAlpha * 0.4).toFixed(3)})`;
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = 'butt';
-    ctx.beginPath();
-    for (let y = 0; y <= H; y += 8) {
-      const warpSag = Math.sin((y / H) * Math.PI) * sag * 4;
-      if (y === 0) ctx.moveTo(xx + warpSag, y);
-      else ctx.lineTo(xx + warpSag, y);
-    }
-    ctx.stroke();
-
-    // Core warp thread
-    ctx.strokeStyle = `rgba(244,236,216,${baseAlpha.toFixed(3)})`;
-    ctx.lineWidth = 0.7 + rnd() * 0.5;
-    ctx.beginPath();
-    for (let y = 0; y <= H; y += 8) {
-      const warpSag = Math.sin((y / H) * Math.PI) * sag * 4;
-      if (y === 0) ctx.moveTo(xx + warpSag, y);
-      else ctx.lineTo(xx + warpSag, y);
-    }
-    ctx.stroke();
-
-    // Occasional warp highlight (linen sheen)
-    if (isHighlight) {
-      ctx.strokeStyle = `rgba(244,236,216,${(baseAlpha * 0.6).toFixed(3)})`;
-      ctx.lineWidth = 0.4;
-      ctx.beginPath();
-      for (let y = 0; y <= H; y += 8) {
-        const warpSag = Math.sin((y / H) * Math.PI) * sag * 4 - 0.8;
-        if (y === 0) ctx.moveTo(xx + warpSag, y);
-        else ctx.lineTo(xx + warpSag, y);
-      }
-      ctx.stroke();
-    }
+    warpXs.push(x + jitter);
   }
 
   // ── Ghost cloth pass — drawn BEFORE real entries (shows target/potential state)
@@ -746,10 +710,14 @@ export function TapestryCanvas({
   }, [canvasW, height, kind, animate, noPan]);
 
   return (
-    <div ref={containerRef} style={{ width: widthProp ?? '100%', height, overflow: 'hidden' }}>
+    <div
+      ref={containerRef}
+      style={{ position: 'relative', width: widthProp ?? '100%', height, overflow: 'hidden' }}
+    >
+      {kind === 'full' && <div className="hl-cloth-weave" aria-hidden />}
       <canvas
         ref={canvasRef}
-        style={{ width: canvasW, height, display: 'block' }}
+        style={{ position: 'relative', zIndex: 1, width: canvasW, height, display: 'block' }}
         aria-hidden
       />
     </div>
