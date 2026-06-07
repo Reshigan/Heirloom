@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { challengesApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -89,8 +90,24 @@ export function Challenges() {
     resize: 'none',
   };
 
+  const backLink = (
+    <Link
+      to="/loom"
+      style={{
+        fontFamily: 'var(--mono)',
+        fontSize: 10,
+        letterSpacing: '0.16em',
+        color: 'var(--bone-faint)',
+        textDecoration: 'none',
+        textTransform: 'uppercase',
+      }}
+    >
+      ← heirloom
+    </Link>
+  );
+
   return (
-    <Frame left="challenges">
+    <ClothShell topbarLeft={backLink} topbarCenter="challenges">
       <div style={{ padding: '40px 0' }}>
 
         {/* Page header */}
@@ -514,6 +531,6 @@ export function Challenges() {
           </div>
         </div>
       )}
-    </Frame>
+    </ClothShell>
   );
 }

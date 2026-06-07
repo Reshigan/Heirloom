@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { memoryCardsApi, aiApi } from '../services/api';
 
 // ── Dye swatch colours (10-stop natural-dye palette) ─────────────────────────
@@ -70,7 +70,10 @@ export function OnThisDay() {
   const dateStr = today.toLocaleDateString(undefined, { month: 'long', day: 'numeric' });
 
   return (
-    <Frame left="on this day">
+    <ClothShell
+      topbarLeft={<Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>}
+      topbarCenter="on this day"
+    >
       <div
         style={{
           padding: 'clamp(16px, 4vw, 48px)',
@@ -240,7 +243,7 @@ export function OnThisDay() {
           </ul>
         )}
       </div>
-    </Frame>
+    </ClothShell>
   );
 }
 

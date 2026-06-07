@@ -117,7 +117,7 @@
   /* Cloth legibility scrim — layered beneath the ambient dye sparks so prose
      stays readable while the living colour shows through. Default = vault ink;
      the light theme overrides it to parchment below. */
-  --cloth-scrim: radial-gradient(120% 90% at 50% 0%, rgba(14,14,12,0.30) 0%, rgba(14,14,12,0.55) 60%, rgba(14,14,12,0.74) 100%);
+  --cloth-scrim: rgba(14,14,12,0.62);
 
   /* Timing */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -190,7 +190,7 @@
   --glass-border: rgba(18, 14, 10, 0.12);
 
   /* Parchment scrim — keeps light mode reading as paper, not ink-washed. */
-  --cloth-scrim: radial-gradient(120% 90% at 50% 0%, rgba(245,236,224,0.34) 0%, rgba(245,236,224,0.60) 60%, rgba(245,236,224,0.80) 100%);
+  --cloth-scrim: rgba(245,236,224,0.72);
 
   /* Parchment-safe dye palette — the bright dyes (saffron/weld/kermes…) wash
      out as text/swatches on the #f5ece0 surface; darken them so dye-as-signal
@@ -1243,21 +1243,13 @@ html {
 }
 .loom-frame__body { position: relative; overflow-x: hidden; overflow-y: auto; }
 
-/* ─── The horizon: single warm light, bottom 36% ───────────────── */
+/* ─── The horizon: flat warm light, bottom 36% ───────────────── */
 .loom-horizon {
   position: absolute;
-  will-change: opacity;
   left: 0; right: 0; bottom: 0;
   height: 36%;
   pointer-events: none;
-  background:
-    radial-gradient(ellipse 80% 100% at 50% 100%, var(--loom-warm-glow), transparent 70%),
-    linear-gradient(to top, rgba(176, 122, 74, 0.10), transparent 70%);
-  animation: loom-breathe var(--loom-dur-breath) var(--loom-ease) infinite;
-}
-@keyframes loom-breathe {
-  0%, 100% { opacity: 0.92; }
-  50%      { opacity: 1.0; }
+  background: linear-gradient(to top, rgba(176, 122, 74, 0.06), transparent 80%);
 }
 
 /* Logo 3D float — applied by HLogo to the icon mark */
@@ -1272,14 +1264,7 @@ html {
   }
 }
 
-/* ─── Page-level grain ─────────────────────────────────────────── */
-.loom-grain {
-  position: absolute; inset: 0;
-  pointer-events: none;
-  opacity: 0.04;
-  mix-blend-mode: screen;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-}
+/* .loom-grain removed — feTurbulence noise is an ART_DIRECTION anti-pattern */
 
 /* ─── The Weft (the central novel primitive) ───────────────────── */
 .loom-weft {

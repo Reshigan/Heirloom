@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { milestonesApi } from '../services/api';
 
 const milestoneTypes = [
@@ -105,8 +106,12 @@ export function Milestones() {
   const milestoneList: any[] = milestones || [];
   const upcomingList: any[] = upcoming || [];
 
+  const backLink = (
+    <Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>
+  );
+
   return (
-    <Frame left="milestones">
+    <ClothShell topbarLeft={backLink} topbarCenter="milestones">
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '52px 40px 80px' }}>
 
         {/* Page header */}
@@ -551,6 +556,6 @@ export function Milestones() {
           </div>
         </div>
       )}
-    </Frame>
+    </ClothShell>
   );
 }

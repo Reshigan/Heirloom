@@ -887,36 +887,75 @@ async function verifyStripeSignature(
   return computedSignature === expectedSignature;
 }
 
+// Validate that metadata.tier is consistent with the amount actually charged.
+// Stripe metadata is attacker-controlled so we cross-check against amount_total.
+// USD reference amounts (cents): FAMILY monthly = 699, FOUNDER lifetime = 24900.
+// We accept any amount >= 24900 as FOUNDER and any amount < 24900 as FAMILY,
+// regardless of metadata, so localised non-USD amounts are handled gracefully.
+function validateTierFromAmount(metadataTier: string, amountTotal: number): 'FAMILY' | 'FOUNDER' {
+  const upper = (metadataTier || '').toUpperCase();
+  const claimedFounder = upper === 'FOUNDER' || upper === 'LEGACY' || upper === 'FOREVER';
+  // Threshold: $249 USD in cents. Non-USD amounts for Founder are always >> 699.
+  const paidEnoughForFounder = amountTotal >= 24900;
+
+  if (claimedFounder && !paidEnoughForFounder) {
+    // Claimed Founder but only paid Family-level — downgrade to FAMILY
+    console.warn(`Tier spoof attempt: metadata says ${metadataTier} but amount_total=${amountTotal}; granting FAMILY`);
+    return 'FAMILY';
+  }
+  if (!claimedFounder && paidEnoughForFounder) {
+    // Claimed Family but paid Founder-level — upgrade to FOUNDER
+    console.warn(`Tier under-claim: metadata says ${metadataTier} but amount_total=${amountTotal}; granting FOUNDER`);
+    return 'FOUNDER';
+  }
+  return claimedFounder ? 'FOUNDER' : 'FAMILY';
+}
+
 // Stripe webhook handler
 billingRoutes.post('/webhook', async (c) => {
   const signature = c.req.header('stripe-signature');
   const body = await c.req.text();
-  
+
   if (!c.env.STRIPE_WEBHOOK_SECRET || !signature) {
     return c.json({ error: 'Webhook not configured' }, 400);
   }
-  
+
   const isValid = await verifyStripeSignature(body, signature, c.env.STRIPE_WEBHOOK_SECRET);
   if (!isValid) {
     console.error('Invalid Stripe webhook signature');
     return c.json({ error: 'Invalid signature' }, 401);
   }
-  
+
   try {
     const event = JSON.parse(body) as {
+      id: string;
       type: string;
       data: {
         object: {
           id: string;
           customer?: string;
           customer_email?: string;
+          amount_total?: number;
           metadata?: { user_id?: string; tier?: string; billing_cycle?: string; type?: string; voucher_code?: string; pledge_id?: string; ship_to_json?: string; thread_id?: string };
           subscription?: string;
           payment_intent?: string;
         };
       };
     };
-    
+
+    // Idempotency: ensure each Stripe event is processed at most once.
+    // D1's INSERT OR IGNORE + changes() == 0 means already processed.
+    await c.env.DB.prepare(
+      `CREATE TABLE IF NOT EXISTS processed_webhook_events (event_id TEXT PRIMARY KEY, processed_at INTEGER NOT NULL)`
+    ).run();
+    const insertResult = await c.env.DB.prepare(
+      `INSERT OR IGNORE INTO processed_webhook_events (event_id, processed_at) VALUES (?, ?)`
+    ).bind(event.id, Date.now()).run();
+    if (insertResult.meta.changes === 0) {
+      // Already processed — return 200 so Stripe stops retrying
+      return c.json({ received: true, duplicate: true });
+    }
+
     const now = new Date().toISOString();
     
     switch (event.type) {
@@ -1092,9 +1131,12 @@ billingRoutes.post('/webhook', async (c) => {
         
               // Handle regular subscription checkout
               const userId = session.metadata?.user_id;
-              const tier = session.metadata?.tier || 'STARTER';
+              const rawTierMeta = session.metadata?.tier || 'STARTER';
+              // Cross-validate metadata.tier against the amount actually charged
+              // to prevent tier-spoofing via manipulated session metadata.
+              const tier = validateTierFromAmount(rawTierMeta, session.amount_total ?? 0);
               const billingCycle = session.metadata?.billing_cycle || 'monthly';
-        
+
               if (userId) {
                 const existing = await c.env.DB.prepare('SELECT id FROM subscriptions WHERE user_id = ?').bind(userId).first();
                 const customerId = session.customer || null;

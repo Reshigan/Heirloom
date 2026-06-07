@@ -3,18 +3,18 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { voiceApi, familyApi, getAuthHeaders } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
-import { HLogo } from '../loom/components/HLogo';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
-import { TapestryEdge } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { RecipientPicker } from '../loom/components/RecipientPicker';
 
 /**
  * Record — ComposerSpeak (Loom 3 · §6.3).
  *
- * Standalone dark ink screen. Three concentric breath rings, oversized mono
- * timer, plain-text stop control, prompt carousel at bottom. Full MediaRecorder
- * flow: start → pause/resume → stop → save via signed URL + voiceApi.create.
+ * Single hairline square border, oversized mono timer, plain-text controls.
+ * Full MediaRecorder flow: start → pause/resume → stop → save via signed URL + voiceApi.create.
  */
+
+const MAX_RECORDING_SECS = 300; // 5 min — used for hairline progress
 
 const PROMPTS = [
   'What did your mother say about the war?',
@@ -221,163 +221,113 @@ export function Record() {
   const ss = String(elapsed % 60).padStart(2, '0');
   const live = recordingState === 'recording' || recordingState === 'paused';
 
-  return (
-    <div
-      className="hl-screen"
-      style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'transparent',
-        overflow: 'hidden',
-      }}
-    >
-      {/* ── topbar ───────────────────────────────────────────────── */}
-      <div className="hl-topbar" style={{ position: 'relative', zIndex: 10 }}>
-        {/* left: HLogo */}
-        <Link
-          to="/loom/index"
-          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
-        >
-          <HLogo size={18} wordmark />
-        </Link>
+  // Hairline progress: 0→1 over MAX_RECORDING_SECS while recording
+  const progress = recordingState === 'recording' || recordingState === 'paused'
+    ? Math.min(elapsed / MAX_RECORDING_SECS, 1)
+    : 0;
 
-        {/* center: context label */}
-        <span
-          className="hl-counter"
+  return (
+    <ClothShell
+      topbarLeft={
+        <Link
+          to="/loom"
           style={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            whiteSpace: 'nowrap',
+            fontFamily: 'var(--mono)',
+            fontSize: 11,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+            textDecoration: 'none',
           }}
         >
-          speak
-        </span>
-
-        {/* right: cancel */}
-        <Link to="/loom/index" className="hl-link warm" style={{ fontSize: 14 }}>
-          cancel →
+          ← heirloom
         </Link>
-      </div>
+      }
+      topbarCenter="record"
+    >
+      {/* Hairline recording progress — shown only while live */}
+      {live && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            height: 1,
+            width: `${progress * 100}%`,
+            background: 'var(--warm)',
+            transition: 'width 1000ms linear',
+            zIndex: 30,
+          }}
+        />
+      )}
 
-      {/* ── ring + timer stage ───────────────────────────────────── */}
+      {/* ── main content area ──────────────────────────────────────── */}
       <div
         style={{
-          position: 'absolute',
-          top: 'calc(56px + env(safe-area-inset-top, 0px))',
-          bottom: 80,
-          left: 0,
-          right: 0,
-          zIndex: 10,
-          overflowY: 'auto',
-          overflowX: 'hidden',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: recordingState === 'idle' ? 'flex-start' : 'center',
+          minHeight: '100%',
+          paddingTop: recordingState === 'idle' ? 40 : 0,
+          paddingBottom: 40,
           gap: 0,
-          paddingTop: recordingState === 'idle' ? 28 : 0,
         }}
       >
-        {/* three concentric rings */}
-        <div style={{ position: 'relative', width: 240, height: 240, flexShrink: 0 }}>
-          {/* outer */}
-          <span
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: 240,
-              height: 240,
-              border: '1px solid var(--bone-dim)',
-              borderRadius: '50%',
-              animation:
-                recordingState === 'recording'
-                  ? 'loom-breathe 1400ms cubic-bezier(0.16,1,0.3,1) infinite'
-                  : 'none',
-            }}
-          />
-          {/* inner — 196px: offset (240-196)/2 = 22 */}
-          <span
-            style={{
-              position: 'absolute',
-              top: 22,
-              left: 22,
-              width: 196,
-              height: 196,
-              border: '1px solid var(--bone-low)',
-              borderRadius: '50%',
-              animation:
-                recordingState === 'recording'
-                  ? 'loom-breathe 1400ms cubic-bezier(0.16,1,0.3,1) infinite 360ms'
-                  : 'none',
-            }}
-          />
-          {/* innermost — 152px: offset (240-152)/2 = 44 */}
-          <span
-            style={{
-              position: 'absolute',
-              top: 44,
-              left: 44,
-              width: 152,
-              height: 152,
-              border: '1px solid var(--bone-faint)',
-              borderRadius: '50%',
-              opacity: 0.5,
-              animation:
-                recordingState === 'recording'
-                  ? 'loom-breathe 1400ms cubic-bezier(0.16,1,0.3,1) infinite 720ms'
-                  : 'none',
-            }}
-          />
-
-          {/* center: timer or begin tap */}
-          <span
-            style={{
-              position: 'absolute',
-              inset: 0,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            {recordingState === 'idle' ? (
-              <button
-                type="button"
-                onClick={start}
-                style={{
-                  background: 'transparent',
-                  border: 0,
-                  padding: 0,
-                  cursor: 'pointer',
-                  fontFamily: 'var(--mono)',
-                  fontSize: 13,
-                  letterSpacing: '0.32em',
-                  textTransform: 'uppercase',
-                  color: 'var(--warm)',
-                }}
-              >
-                speak
-              </button>
-            ) : (
-              <span
-                className="hl-mono"
-                style={{
-                  fontSize: 48,
-                  letterSpacing: '0.04em',
-                  color: recordingState === 'paused' ? 'var(--bone-dim)' : 'var(--bone)',
-                  lineHeight: 1,
-                }}
-              >
-                {mm}:{ss}
-              </span>
-            )}
-          </span>
+        {/* ── square border + timer ──────────────────────────────── */}
+        <div
+          style={{
+            width: 200,
+            height: 200,
+            flexShrink: 0,
+            border: `1px solid ${live && recordingState === 'recording' ? 'var(--warm)' : 'var(--bone-faint)'}`,
+            borderRadius: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'border-color 360ms cubic-bezier(0.16,1,0.3,1)',
+          }}
+        >
+          {recordingState === 'idle' ? (
+            /* begin recording button — centered inside the square */
+            <button
+              type="button"
+              onClick={start}
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: 0,
+                cursor: 'pointer',
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.32em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+              }}
+            >
+              begin recording
+            </button>
+          ) : (
+            /* timer */
+            <span
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 'clamp(48px, 8vw, 72px)',
+                letterSpacing: '0.04em',
+                color: recordingState === 'paused' ? 'var(--bone-faint)' : 'var(--bone)',
+                lineHeight: 1,
+                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+            >
+              {mm}:{ss}
+            </span>
+          )}
         </div>
 
-        {/* stop button */}
+        {/* ── controls below square ─────────────────────────────── */}
         {live ? (
-          <div style={{ marginTop: 32, display: 'flex', gap: 32, alignItems: 'center' }}>
+          <div style={{ marginTop: 28, display: 'flex', gap: 32, alignItems: 'center' }}>
             <button
               type="button"
               onClick={stop}
@@ -388,13 +338,13 @@ export function Record() {
                 cursor: 'pointer',
                 color: 'var(--warm)',
                 fontFamily: 'var(--mono)',
-                fontSize: 13,
-                letterSpacing: '0.28em',
+                fontSize: 10,
+                letterSpacing: '0.32em',
                 textTransform: 'uppercase',
                 borderBottom: '1px solid currentColor',
               }}
             >
-              seal
+              stop recording
             </button>
             <button
               type="button"
@@ -404,10 +354,10 @@ export function Record() {
                 border: 0,
                 padding: 0,
                 cursor: 'pointer',
-                color: 'var(--bone-dim)',
+                color: 'var(--bone-faint)',
                 fontFamily: 'var(--mono)',
-                fontSize: 11,
-                letterSpacing: '0.24em',
+                fontSize: 10,
+                letterSpacing: '0.28em',
                 textTransform: 'uppercase',
               }}
             >
@@ -416,11 +366,11 @@ export function Record() {
           </div>
         ) : null}
 
-        {/* Pre-recording fields: to, date, delivery — scrollable section */}
+        {/* ── pre-recording fields (idle only) ──────────────────── */}
         {recordingState === 'idle' ? (
           <div
             style={{
-              marginTop: 28,
+              marginTop: 32,
               display: 'flex',
               flexDirection: 'column',
               gap: 0,
@@ -429,7 +379,7 @@ export function Record() {
               padding: '0 24px',
             }}
           >
-            {/* To: field — autocomplete over friends & family, add-new inline */}
+            {/* To: field */}
             <div style={{ marginBottom: 14 }}>
               <RecipientPicker
                 label="to"
@@ -448,7 +398,7 @@ export function Record() {
             <div style={{ marginBottom: 20 }}>
               <div
                 style={{
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: 'var(--mono)',
                   fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase',
                   color: 'var(--bone-faint)', marginBottom: 6,
                 }}
@@ -456,7 +406,7 @@ export function Record() {
                 date
               </div>
               <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 6, borderBottom: '1px solid var(--rule)', paddingBottom: 4 }}>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, letterSpacing: '0.04em', color: 'var(--bone-dim)' }}>
+                <span style={{ fontFamily: 'var(--mono)', fontSize: 13, letterSpacing: '0.04em', color: 'var(--bone-faint)' }}>
                   {entryDate
                     ? new Date(`${entryDate}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
                     : 'today'}
@@ -474,7 +424,7 @@ export function Record() {
             <div style={{ marginBottom: 20 }}>
               <div
                 style={{
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: 'var(--mono)',
                   fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase',
                   color: 'var(--bone-faint)', marginBottom: 6,
                 }}
@@ -500,7 +450,7 @@ export function Record() {
                     >
                       <span style={{
                         display: 'block',
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: 'var(--mono)',
                         fontSize: 13, letterSpacing: '0.08em',
                         color: active ? 'var(--bone)' : 'var(--bone-faint)',
                         transition: 'color 180ms var(--ease)',
@@ -510,7 +460,7 @@ export function Record() {
                       {(active || opt.value === 'death' || opt.value === 'milestone' || opt.value === 'event') && (
                         <span style={{
                           display: 'block', marginTop: 2,
-                          fontFamily: "'JetBrains Mono', monospace",
+                          fontFamily: 'var(--mono)',
                           fontSize: 10, letterSpacing: '0.06em',
                           color: 'var(--bone-faint)', fontStyle: 'italic',
                         }}>
@@ -526,7 +476,7 @@ export function Record() {
                             style={{
                               background: 'transparent', border: '1px solid var(--rule)',
                               color: 'var(--bone)',
-                              fontFamily: "'JetBrains Mono', monospace",
+                              fontFamily: 'var(--mono)',
                               fontSize: 13, padding: '6px 10px', colorScheme: 'dark',
                               borderRadius: 0, outline: 'none', width: '100%', maxWidth: 180,
                               boxSizing: 'border-box',
@@ -545,7 +495,7 @@ export function Record() {
               className="hl-serif hl-italic"
               style={{
                 fontSize: 18,
-                color: 'var(--bone-dim)',
+                color: 'var(--bone-faint)',
                 textAlign: 'center',
                 lineHeight: 1.45,
                 fontVariationSettings: '"opsz" 20',
@@ -554,10 +504,36 @@ export function Record() {
             >
               {PROMPTS[promptIdx]}
             </p>
+
+            {/* Prompt prev/next */}
+            <div
+              style={{
+                marginTop: 20,
+                display: 'flex',
+                alignItems: 'baseline',
+                justifyContent: 'center',
+                gap: 24,
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setPromptIdx((i) => (i - 1 + PROMPTS.length) % PROMPTS.length)}
+                style={promptCard()}
+              >
+                ←
+              </button>
+              <button
+                type="button"
+                onClick={() => setPromptIdx((i) => (i + 1) % PROMPTS.length)}
+                style={promptCard()}
+              >
+                →
+              </button>
+            </div>
           </div>
         ) : null}
 
-        {/* transcription result — editable after recording stops */}
+        {/* ── transcript (after recording stops) ────────────────── */}
         {recordingState === 'recorded' ? (
           <textarea
             value={transcript}
@@ -572,7 +548,7 @@ export function Record() {
               background: 'transparent',
               border: 0,
               borderBottom: '1px solid var(--rule)',
-              color: 'var(--bone-dim)',
+              color: 'var(--bone-faint)',
               fontFamily: 'var(--serif)',
               fontSize: 17,
               fontStyle: 'italic',
@@ -584,7 +560,7 @@ export function Record() {
           />
         ) : null}
 
-        {/* save / discard row (after recording) */}
+        {/* ── save / discard row ────────────────────────────────── */}
         {recordingState === 'recorded' ? (
           <div
             style={{
@@ -600,7 +576,6 @@ export function Record() {
               <audio controls src={audioUrl} style={{ height: 32, opacity: 0.7 }} />
             ) : null}
 
-            {/* title field */}
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -636,10 +611,10 @@ export function Record() {
                 border: 0,
                 padding: '0 0 2px',
                 cursor: 'pointer',
-                color: 'var(--bone-dim)',
+                color: 'var(--bone-faint)',
                 fontFamily: 'var(--mono)',
-                fontSize: 11,
-                letterSpacing: '0.18em',
+                fontSize: 10,
+                letterSpacing: '0.28em',
                 textTransform: 'uppercase',
                 borderBottom: '1px solid var(--rule)',
               }}
@@ -649,7 +624,7 @@ export function Record() {
           </div>
         ) : null}
 
-        {/* error */}
+        {/* ── error ─────────────────────────────────────────────── */}
         {error ? (
           <p
             role="alert"
@@ -667,42 +642,6 @@ export function Record() {
         ) : null}
       </div>
 
-      {/* ── prompt cards — horizontal scroll at bottom ───────────── */}
-      {recordingState === 'idle' ? (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: 24,
-            left: 0,
-            right: 0,
-            display: 'flex',
-            alignItems: 'baseline',
-            justifyContent: 'center',
-            gap: 24,
-            overflowX: 'auto',
-            padding: '0 32px',
-            scrollbarWidth: 'none',
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setPromptIdx((i) => (i - 1 + PROMPTS.length) % PROMPTS.length)}
-            style={promptCard()}
-          >
-            ← {PROMPTS[(promptIdx - 1 + PROMPTS.length) % PROMPTS.length]}
-          </button>
-          <button
-            type="button"
-            onClick={() => setPromptIdx((i) => (i + 1) % PROMPTS.length)}
-            style={promptCard()}
-          >
-            {PROMPTS[(promptIdx + 1) % PROMPTS.length]} →
-          </button>
-        </div>
-      ) : null}
-
-      <TapestryEdge />
-
       {/* ── sealed voice ceremony ─────────────────────────────────── */}
       {sealedCeremony && (
         <WeaveCeremony
@@ -713,8 +652,8 @@ export function Record() {
           headline="Your voice is part of the cloth."
           footer={
             <span
-              className="hl-mono"
               style={{
+                fontFamily: 'var(--mono)',
                 fontSize: 11,
                 color: 'var(--bone-faint)',
                 letterSpacing: '0.22em',
@@ -726,7 +665,7 @@ export function Record() {
           }
         />
       )}
-    </div>
+    </ClothShell>
   );
 }
 
@@ -736,14 +675,9 @@ function promptCard(): React.CSSProperties {
     border: 0,
     padding: 0,
     cursor: 'pointer',
-    color: 'var(--bone-dim)',
-    fontFamily: 'var(--serif)',
-    fontStyle: 'italic',
-    fontSize: 16,
-    maxWidth: '22ch',
-    textAlign: 'center',
-    opacity: 0.7,
-    lineHeight: 1.45,
-    whiteSpace: 'normal',
+    color: 'var(--bone-faint)',
+    fontFamily: 'var(--mono)',
+    fontSize: 13,
+    letterSpacing: '0.12em',
   };
 }

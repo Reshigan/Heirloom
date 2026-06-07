@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { streaksApi, challengesApi } from '../services/api';
 
 // Dye names in rotation for activity grid cells
@@ -82,8 +83,24 @@ export function Streaks() {
     return days;
   })();
 
+  const backLink = (
+    <Link
+      to="/loom"
+      style={{
+        fontFamily: 'var(--mono)',
+        fontSize: 10,
+        letterSpacing: '0.16em',
+        color: 'var(--bone-faint)',
+        textDecoration: 'none',
+        textTransform: 'uppercase',
+      }}
+    >
+      ← heirloom
+    </Link>
+  );
+
   return (
-    <Frame left="streaks">
+    <ClothShell topbarLeft={backLink} topbarCenter="streaks">
       <div
         style={{
           maxWidth: 720,
@@ -518,6 +535,7 @@ export function Streaks() {
       </div>
 
       {/* ── Hold thread overlay ── */}
+
       {showFreezeModal && (
         <div
           style={{
@@ -600,6 +618,6 @@ export function Streaks() {
           </div>
         </div>
       )}
-    </Frame>
+    </ClothShell>
   );
 }

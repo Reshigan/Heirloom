@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { familyReferralsApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -78,7 +79,10 @@ export function Referrals() {
   };
 
   return (
-    <Frame left="referrals">
+    <ClothShell
+      topbarLeft={<Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>}
+      topbarCenter="referrals"
+    >
       <div
         style={{
           maxWidth: 780,
@@ -708,6 +712,6 @@ export function Referrals() {
           </div>
         </div>
       )}
-    </Frame>
+    </ClothShell>
   );
 }

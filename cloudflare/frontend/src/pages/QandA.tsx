@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { searchApi } from '../services/api';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 
 /**
  * QandA — Loom 3 "ask the thread" (RAG, cited).
@@ -96,7 +96,10 @@ export function QandA() {
   }
 
   return (
-    <Frame left="ask the thread">
+    <ClothShell
+      topbarLeft={<Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>}
+      topbarCenter="ask the thread"
+    >
       <style>{`
         @media (max-width: 767px) {
           .qanda-grid { grid-template-columns: 1fr !important; }
@@ -366,7 +369,7 @@ export function QandA() {
           </aside>
         </div>
       </div>
-    </Frame>
+    </ClothShell>
   );
 }
 

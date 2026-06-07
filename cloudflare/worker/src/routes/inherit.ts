@@ -133,8 +133,11 @@ inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
     SELECT id, name, email FROM legacy_contacts WHERE id = ?
   `).bind(legacyContactId).first();
   
-  // Get letters sealed for the owner. Letters are the only content type
-  // with explicit recipient scoping (via the letters table structure).
+  // Only return letters explicitly addressed to this legacy contact.
+  // letter_legacy_recipients is the access-control junction table populated
+  // when the author adds a legacy contact as a recipient in the composer.
+  // Letters not present in that table for this legacyContactId are NOT visible —
+  // this prevents all sealed letters leaking to every inherit session holder.
   const letters = await c.env.DB.prepare(`
     SELECT
       l.id,
@@ -146,9 +149,12 @@ inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
       l.sealed_at,
       l.created_at
     FROM letters l
-    WHERE l.user_id = ? AND l.sealed_at IS NOT NULL AND l.deleted_at IS NULL
+    INNER JOIN letter_legacy_recipients llr ON llr.letter_id = l.id
+    WHERE llr.legacy_contact_id = ?
+      AND l.sealed_at IS NOT NULL
+      AND l.deleted_at IS NULL
     ORDER BY l.created_at DESC
-  `).bind(ownerId).all();
+  `).bind(legacyContactId).all();
 
   // [W2] Memories and voice recordings do not have a per-recipient column in
   // the current schema, so returning them for every recipient would expose ALL
@@ -182,11 +188,11 @@ inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
 
 // Get a specific letter
 inheritRoutes.get('/content/letter/:id', validateRecipientSession, async (c) => {
-  const ownerId = c.get('ownerId');
+  const legacyContactId = c.get('legacyContactId');
   const letterId = c.req.param('id');
   
   const letter = await c.env.DB.prepare(`
-    SELECT 
+    SELECT
       l.id,
       l.title,
       l.salutation,
@@ -196,8 +202,12 @@ inheritRoutes.get('/content/letter/:id', validateRecipientSession, async (c) => 
       l.sealed_at,
       l.created_at
     FROM letters l
-    WHERE l.id = ? AND l.user_id = ? AND l.sealed_at IS NOT NULL
-  `).bind(letterId, ownerId).first();
+    INNER JOIN letter_legacy_recipients llr ON llr.letter_id = l.id
+    WHERE l.id = ?
+      AND llr.legacy_contact_id = ?
+      AND l.sealed_at IS NOT NULL
+      AND l.deleted_at IS NULL
+  `).bind(letterId, legacyContactId).first();
   
   if (!letter) {
     return c.json({ error: 'Letter not found' }, 404);
@@ -253,6 +263,7 @@ inheritRoutes.get('/content/voice/:id', validateRecipientSession, async (c) => {
 // AI-powered semantic search across all inherited content
 inheritRoutes.post('/search', validateRecipientSession, async (c) => {
   const ownerId = c.get('ownerId');
+  const legacyContactId = c.get('legacyContactId');
   const body = await c.req.json();
   const { query } = body;
   
@@ -261,23 +272,23 @@ inheritRoutes.post('/search', validateRecipientSession, async (c) => {
   }
   
   try {
-    // Fetch all content for this owner
+    // Fetch content scoped to this recipient.
+    // Letters: only those explicitly addressed to this legacy contact.
+    // Memories / voice: no per-recipient junction table yet — return empty (see TODO below).
     const [letters, memories, voiceRecordings] = await Promise.all([
       c.env.DB.prepare(`
-        SELECT id, title, salutation, body, signature, emotion, sealed_at, created_at
-        FROM letters WHERE user_id = ? AND sealed_at IS NOT NULL AND deleted_at IS NULL
-        ORDER BY created_at DESC
-      `).bind(ownerId).all(),
-      c.env.DB.prepare(`
-        SELECT id, title, description, description_enc, description_iv, file_url, file_type, emotion, created_at
-        FROM memories WHERE user_id = ? AND deleted_at IS NULL
-        ORDER BY created_at DESC
-      `).bind(ownerId).all(),
-      c.env.DB.prepare(`
-        SELECT id, title, description, file_url, duration, emotion, transcript, created_at
-        FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL
-        ORDER BY created_at DESC
-      `).bind(ownerId).all()
+        SELECT l.id, l.title, l.salutation, l.body, l.signature, l.emotion, l.sealed_at, l.created_at
+        FROM letters l
+        INNER JOIN letter_legacy_recipients llr ON llr.letter_id = l.id
+        WHERE llr.legacy_contact_id = ? AND l.sealed_at IS NOT NULL AND l.deleted_at IS NULL
+        ORDER BY l.created_at DESC
+      `).bind(legacyContactId).all(),
+      // [W2] memories and voice_recordings have no per-recipient junction table yet.
+      // Returning all of an owner's content here would expose unaddressed content to
+      // every inherit session. Return empty results until memory_recipients /
+      // voice_recipients junction tables are added.
+      Promise.resolve({ results: [] }),
+      Promise.resolve({ results: [] })
     ]);
     
     // Build searchable content with context

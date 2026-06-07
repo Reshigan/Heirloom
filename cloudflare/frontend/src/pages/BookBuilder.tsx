@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { memoriesApi, lettersApi, voiceApi, booksApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -184,7 +184,10 @@ export function BookBuilder() {
     : [DYE_HEX.madder, DYE_HEX.indigo, DYE_HEX.saffron, DYE_HEX.weld];
 
   return (
-    <Frame left="book builder">
+    <ClothShell
+      topbarLeft={<Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>}
+      topbarCenter="book builder"
+    >
       {/* scrollable inner */}
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '48px 32px 80px' }}>
 
@@ -743,7 +746,7 @@ export function BookBuilder() {
           )}
         </div>
       </div>
-    </Frame>
+    </ClothShell>
   );
 }
 

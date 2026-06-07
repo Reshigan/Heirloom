@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { memoriesApi } from '../services/api';
@@ -13,9 +14,22 @@ export default function Wrapped() {
     enabled: isAuthenticated,
   });
 
+  const [copied, setCopied] = useState(false);
   const memories: any[] = Array.isArray(data) ? data : [];
   const thisYear = memories.filter((m: any) => new Date(m.createdAt ?? m.created_at).getFullYear() === YEAR);
   const activeMonths = new Set(thisYear.map((m: any) => new Date(m.createdAt ?? m.created_at).getMonth())).size;
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/wrapped/${YEAR}`;
+    const text = `${thisYear.length} entries. ${activeMonths} months active. Our family thread — ${YEAR}.`;
+    if (navigator.share) {
+      await navigator.share({ title: `${YEAR} — Heirloom Wrapped`, text, url }).catch(() => null);
+    } else {
+      await navigator.clipboard.writeText(url).catch(() => null);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   return (
     <AppFrame left="wrapped">
@@ -39,9 +53,15 @@ export default function Wrapped() {
           ))}
         </div>
 
-        <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 48 }}>
-          share this year's thread →
-        </p>
+        <button
+          type="button"
+          onClick={handleShare}
+          style={{ background: 'transparent', border: 0, cursor: 'pointer', padding: 0, marginTop: 48 }}
+        >
+          <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+            {copied ? 'link copied' : 'share this year\'s thread →'}
+          </span>
+        </button>
       </div>
     </AppFrame>
   );

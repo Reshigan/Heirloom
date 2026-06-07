@@ -356,15 +356,16 @@ lettersRoutes.post('/', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   
-  const { 
-    title, 
-    salutation, 
-    body: letterBody, 
-    signature, 
+  const {
+    title,
+    salutation,
+    body: letterBody,
+    signature,
     deliveryTrigger,
     scheduledDate,
     milestoneLabel,
     recipientIds,
+    legacyRecipientIds,
     encrypted,
     encryption_iv
   } = body;
@@ -406,6 +407,23 @@ lettersRoutes.post('/', async (c) => {
     );
   }
 
+  // Populate inherit access-control table for legacy contact recipients.
+  // legacyRecipientIds are legacy_contacts.id values owned by this user.
+  if (legacyRecipientIds && legacyRecipientIds.length > 0) {
+    const lcCheck = await c.env.DB.prepare(
+      `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ?`
+    ).bind(...legacyRecipientIds, userId).first() as { n: number } | null;
+    if (!lcCheck || lcCheck.n !== legacyRecipientIds.length) {
+      return c.json({ error: 'One or more legacy contact recipients not found' }, 400);
+    }
+    await c.env.DB.batch(
+      legacyRecipientIds.map((contactId: string) =>
+        c.env.DB.prepare(`INSERT OR IGNORE INTO letter_legacy_recipients (letter_id, legacy_contact_id) VALUES (?, ?)`)
+          .bind(id, contactId)
+      )
+    );
+  }
+
   const letter = await c.env.DB.prepare(`
     SELECT * FROM letters WHERE id = ?
   `).bind(id).first();
@@ -443,7 +461,7 @@ lettersRoutes.patch('/:id', async (c) => {
   // Note: sealed_at check intentionally removed — authors can always edit their letters.
   // Sealed status controls RECIPIENT access, not author write access.
 
-  const { title, salutation, body: letterBody, signature, deliveryTrigger, scheduledDate, milestoneLabel, recipientIds, encrypted, encryption_iv } = body;
+  const { title, salutation, body: letterBody, signature, deliveryTrigger, scheduledDate, milestoneLabel, recipientIds, legacyRecipientIds, encrypted, encryption_iv } = body;
   const now = new Date().toISOString();
   // Normalize only when the client actually sends a trigger; undefined leaves
   // the existing value untouched via COALESCE below.
@@ -511,6 +529,25 @@ lettersRoutes.patch('/:id', async (c) => {
     );
   }
   
+  // Update legacy contact recipients if provided — replace the full set.
+  if (legacyRecipientIds !== undefined) {
+    await c.env.DB.prepare(`DELETE FROM letter_legacy_recipients WHERE letter_id = ?`).bind(letterId).run();
+    if (legacyRecipientIds && legacyRecipientIds.length > 0) {
+      const lcCheck = await c.env.DB.prepare(
+        `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ?`
+      ).bind(...legacyRecipientIds, userId).first() as { n: number } | null;
+      if (!lcCheck || lcCheck.n !== legacyRecipientIds.length) {
+        return c.json({ error: 'One or more legacy contact recipients not found' }, 400);
+      }
+      await c.env.DB.batch(
+        legacyRecipientIds.map((contactId: string) =>
+          c.env.DB.prepare(`INSERT OR IGNORE INTO letter_legacy_recipients (letter_id, legacy_contact_id) VALUES (?, ?)`)
+            .bind(letterId, contactId)
+        )
+      );
+    }
+  }
+
   if (title !== undefined || salutation !== undefined) {
     await mirrorLetterUpdate(c.env, letterId, { title, salutation });
   }

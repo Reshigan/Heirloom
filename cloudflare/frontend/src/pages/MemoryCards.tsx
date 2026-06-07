@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { memoryCardsApi, memoriesApi } from '../services/api';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 
 interface CardStyle {
   id: string;
@@ -161,8 +161,12 @@ export function MemoryCards() {
     displayDate: '',
   };
 
+  const backLink = (
+    <Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>
+  );
+
   return (
-    <Frame left="memory cards">
+    <ClothShell topbarLeft={backLink} topbarCenter="memory cards">
       <div
         style={{
           maxWidth: 900,
@@ -864,7 +868,7 @@ export function MemoryCards() {
           </div>
         )}
       </div>
-    </Frame>
+    </ClothShell>
   );
 }
 

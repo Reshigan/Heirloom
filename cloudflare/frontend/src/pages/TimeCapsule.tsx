@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { capsulesApi, threadsApi } from '../services/api';
 
 type CapsuleStatus = 'open' | 'sealed' | 'unlocked';
@@ -247,8 +247,24 @@ export function TimeCapsule() {
     },
   });
 
+  const backLink = (
+    <Link
+      to="/loom"
+      style={{
+        fontFamily: 'var(--mono)',
+        fontSize: 10,
+        letterSpacing: '0.16em',
+        color: 'var(--bone-faint)',
+        textDecoration: 'none',
+        textTransform: 'uppercase',
+      }}
+    >
+      ← heirloom
+    </Link>
+  );
+
   return (
-    <Frame left="time capsules">
+    <ClothShell topbarLeft={backLink} topbarCenter="time capsules">
       <div
         style={{
           maxWidth: 720,
@@ -563,7 +579,7 @@ export function TimeCapsule() {
           </div>
         </div>
       )}
-    </Frame>
+    </ClothShell>
   );
 }
 

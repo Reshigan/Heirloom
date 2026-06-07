@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { giftsApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 
 interface GiftConfig {
@@ -96,9 +96,14 @@ export function GiftAMemory() {
     if (canSubmit) sendMutation.mutate();
   };
 
+  const topbar = {
+    left: <Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>,
+    center: 'gift a memory',
+  };
+
   if (sendMutation.isSuccess) {
     return (
-      <Frame left="gift a memory">
+      <ClothShell topbarLeft={topbar.left} topbarCenter={topbar.center}>
         <div
           style={{
             padding: '64px 32px 80px',
@@ -184,12 +189,12 @@ export function GiftAMemory() {
             </button>
           </div>
         </div>
-      </Frame>
+      </ClothShell>
     );
   }
 
   return (
-    <Frame left="gift a memory">
+    <ClothShell topbarLeft={topbar.left} topbarCenter={topbar.center}>
       <div
         style={{
           padding: '64px 32px 80px',
@@ -451,7 +456,7 @@ export function GiftAMemory() {
           </p>
         )}
       </div>
-    </Frame>
+    </ClothShell>
   );
 }
 

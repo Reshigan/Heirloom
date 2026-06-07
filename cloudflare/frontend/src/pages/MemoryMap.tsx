@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ProgressHair } from '../components/ui/ProgressHair';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { memoriesApi } from '../services/api';
 
 interface MapMemory {
@@ -54,8 +54,24 @@ export function MemoryMap() {
 
   const locations = groupByLocation(memories);
 
+  const backLink = (
+    <Link
+      to="/loom"
+      style={{
+        fontFamily: 'var(--mono)',
+        fontSize: 10,
+        letterSpacing: '0.16em',
+        color: 'var(--bone-faint)',
+        textDecoration: 'none',
+        textTransform: 'uppercase',
+      }}
+    >
+      ← heirloom
+    </Link>
+  );
+
   return (
-    <Frame left="memory map">
+    <ClothShell topbarLeft={backLink} topbarCenter="memory map">
       {/* content wrapper */}
       <div
         style={{
@@ -283,7 +299,7 @@ export function MemoryMap() {
           </>
         )}
       </div>
-    </Frame>
+    </ClothShell>
   );
 }
 

@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { voiceApi, aiApi } from '../services/api';
-import { HLogo } from '../loom/components/HLogo';
-import { TapestryEdge } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 
 const SILENCE_THRESHOLD = 0.01;
 
@@ -249,74 +248,65 @@ export function InterviewMode() {
     return Math.max(0.1, baseHeight * (0.3 + audioInfluence));
   });
 
-  return (
-    <div
-      className="hl-screen"
-      style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
+  const backLink = (
+    <Link
+      to="/loom"
+      style={{
+        fontFamily: 'var(--mono)',
+        fontSize: 10,
+        letterSpacing: '0.16em',
+        color: 'var(--bone-faint)',
+        textDecoration: 'none',
+        textTransform: 'uppercase',
+      }}
     >
-      {/* hl-topbar: HLogo + label | center counter | end interview */}
-      <div className="hl-topbar">
-        {/* left: logo + page label */}
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
-          <Link to="/loom" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-            <HLogo size={18} wordmark />
-          </Link>
-          <span style={{ color: 'var(--bone-low)' }}>·</span>
-          <span>interview mode</span>
-        </span>
+      ← heirloom
+    </Link>
+  );
 
-        {/* center: duration counter */}
+  const centerSlot = (
+    <span
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 8,
+      }}
+    >
+      {isRecording && !isPaused && (
         <span
-          className="hl-counter"
           style={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            whiteSpace: 'nowrap',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 8,
+            display: 'inline-block',
+            width: 4,
+            height: 4,
+            background: 'var(--danger)',
+            borderRadius: 0,
+            animation: 'hl-blink 1400ms steps(1) infinite',
           }}
-        >
-          {isRecording && !isPaused && (
-            <span
-              style={{
-                display: 'inline-block',
-                width: 4,
-                height: 4,
-                background: 'var(--danger)',
-                borderRadius: 0,
-                animation: 'hl-blink 1400ms steps(1) infinite',
-              }}
-            />
-          )}
-          <b>{formatTime(duration)}</b>
-        </span>
+        />
+      )}
+      {formatTime(duration)}
+    </span>
+  );
 
-        {/* right: end interview link */}
-        <span>
-          <Link
-            to="/record"
-            className="hl-link warm"
-            style={{ textDecoration: 'none' }}
-          >
-            end interview →
-          </Link>
-        </span>
-      </div>
+  const endLink = (
+    <Link
+      to="/record"
+      style={{
+        fontFamily: 'var(--mono)',
+        fontSize: 10,
+        letterSpacing: '0.16em',
+        color: 'var(--warm)',
+        textDecoration: 'none',
+        textTransform: 'uppercase',
+      }}
+    >
+      end interview →
+    </Link>
+  );
 
-      {/* scrollable content area */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 56,
-          bottom: 80,
-          left: 0,
-          right: 0,
-          overflowY: 'auto',
-          overflowX: 'hidden',
-        }}
-      >
+  return (
+    <ClothShell topbarLeft={backLink} topbarCenter={centerSlot} topbarRight={endLink}>
+      <div>
         <div
           style={{
             maxWidth: 640,
@@ -552,15 +542,13 @@ export function InterviewMode() {
         </div>
       </div>
 
-      <TapestryEdge />
-
       <style>{`
         @keyframes hl-blink {
           0%, 100% { opacity: 1; }
           50%       { opacity: 0; }
         }
       `}</style>
-    </div>
+    </ClothShell>
   );
 }
 
