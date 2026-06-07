@@ -13,7 +13,7 @@
 import "dotenv/config";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { themeForDate } from "./themes.js";
+import { themeForDate, seasonalHashtagsForDate } from "./themes.js";
 import { generateSourcePost } from "./generate.js";
 import { generateVariants } from "./variants.js";
 import { PlatformKey } from "./voice.js";
@@ -128,7 +128,11 @@ async function run(): Promise<void> {
         date: monday,
       });
 
-      const variants = await generateVariants({ source, platforms: PLATFORMS });
+      // Weeks that fall inside a seasonal window carry that window's discovery
+      // tags, same as the live daily run — so the banked seasonal posts are
+      // ready to land on the in-season hashtag pages.
+      const seasonHashtags = seasonalHashtagsForDate(monday);
+      const variants = await generateVariants({ source, platforms: PLATFORMS, seasonHashtags });
 
       await writeJson(`${outDir}/source.json`, { week: weekLabel, date: monday.toISOString().slice(0, 10), theme, source });
       await writeJson(`${outDir}/variants.json`, variants);
