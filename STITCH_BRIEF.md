@@ -1,5 +1,10 @@
 # Heirloom — Stitch Design Brief
 
+> ⚠️ **DEPRECATED.** This was a generation directive for the Google Stitch AI design tool and is
+> no longer the authoritative design spec. The cloth theme (`ClothCanvas3D` / `ClothShell`) is
+> the canonical implementation. See [ART_DIRECTION.md](ART_DIRECTION.md) for the design
+> constitution and [CLAUDE.md](CLAUDE.md) for project instructions.
+
 ---
 
 ## ⛬ Directive to Stitch / Claude design / any generative design agent

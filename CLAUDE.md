@@ -2,57 +2,62 @@
 
 > Heirloom is a **Family Thread**: a perpetual, append-only, multi-author, multi-generational
 > story archive owned by a bloodline, not a single user. Positioning: *"Start your family's
-> thousand-year thread."* Web at `heirloom.blue` + installable PWA. The authoritative product/
-> design spec is [STITCH_BRIEF.md](STITCH_BRIEF.md) — read it before touching UI.
+> thousand-year thread."* Web at `heirloom.blue` + installable PWA. The authoritative design
+> constitution is [ART_DIRECTION.md](ART_DIRECTION.md) — read it before touching UI.
 
 ## Repository map
 
 | Path | Stack | What it is |
 |---|---|---|
-| **`cloudflare/frontend/`** ⭐ | React 18 + Vite + TS + Tailwind | **THE LIVE, DEPLOYED web app + PWA.** Deployed to Cloudflare Pages via `.github/workflows/deploy-cloudflare.yml`. Contains the `src/loom/` Tapestry subsystem (the migration toward STITCH_BRIEF). **This is the tree to edit for product/UX work.** |
+| **`cloudflare/frontend/`** ⭐ | React 18 + Vite + TS + Tailwind | **THE LIVE, DEPLOYED web app + PWA.** Deployed to Cloudflare Pages via `.github/workflows/deploy-cloudflare.yml`. The `src/loom/` subsystem is the canonical cloth interface — `ClothCanvas3D`, `ClothShell`, `ClothBackdrop`, and room components. **This is the tree to edit for product/UX work.** |
 | `cloudflare/worker/`, `cloudflare/` | Workers, D1 | Edge API + DB migrations. The only pre-existing tests (`cloudflare/worker/src/__tests__`). |
-| `frontend/` | React 18 + Vite + TS | ⚠️ **NOT deployed.** An older in-progress redesign (the "Hearth"/fire-metaphor direction — itself a §2.6 anti-pattern). Kept in-repo but superseded by `cloudflare/frontend`. Don't invest here unless explicitly reviving it. |
 | `backend/` | Node + Express + TS + Prisma | API server (note: the Cloudflare worker is the edge API; this Express backend is the fuller service). `npm test` = vitest — suite established in this pass (encryption/auth/billing/env). |
 | `mobile/` | Capacitor | Native shells. |
 | `marketing/automation/` | TS + tsx + Anthropic SDK + zod | **Autonomous content engine** — daily generate + multi-platform post. Runs via GitHub Actions. |
 | `scripts/` | Node | Asset/video/social generation. |
 
-## Design constitution (NON-NEGOTIABLE — full detail in STITCH_BRIEF.md §2)
+## Design constitution (full detail in ART_DIRECTION.md)
 
-The product is **the Tapestry** — a woven cloth where every family entry is one weft thread; the
-cloth itself is the interface (no dashboard, no feed, no nav rail). The five "world-first
-invariants" (§1.5): (A) Tapestry-is-the-interface, (B) append-only counter always visible,
-(C) the Listener is the ambient AI surface (one typographic line, never a chatbot), (D) the
-Unlock is the only ceremony (720ms), (E) print + textile fidelity.
+The interface is built on the **cloth** — a 3D woven fabric (`ClothCanvas3D`) where every family
+entry is a weft thread. The cloth is the home surface. Everything else (Composer, Rooms, Letters,
+Voice, Settings) sits on top of it via `ClothShell` + `ClothBackdrop`.
 
-- **Type is the hero.** Source Serif 4 (variable optical serif — display + prose), Inter (UI),
-  JetBrains Mono (archival). No 4th typeface. (The Claude Design handoff bundle superseded the
-  brief's original Newsreader with Source Serif 4 for letterpress fidelity — now canonical across
-  the live app; legacy Cinzel/Cormorant/Caveat are retired. Tokens + `hl-*` primitives live in
-  `cloudflare/frontend/src/styles/globals.css`.)
-- **One emotional color:** sealing-wax `warm #b07a4a`, used at **<3% surface area**. Everything else
-  is bone `#f4ecd8` on ink `#0e0e0c`. The 10-stop natural-dye palette (§2.7) is the family's identity
-  system — each member owns a dye that travels with them as signal everywhere in the product:
-  - **Left-margin thread:** 3px solid left-border in the member's dye, with 14px padding. The thread is authorship, not decoration.
-  - **Name color:** `DYE_TEXT` lightened variants (e.g. madder→`#d97860`) so names read on ink without washing out.
-  - **Section temperature:** Record room = indigo, Compose room = madder, Letters room = kermes.
-  - **Entry type attribution:** Where member dye is unavailable, dye by type (memory=madder, letter=indigo, voice=saffron, event=weld, milestone=cochineal).
-  - **Rule:** Dyes are signal, never decoration — no dye backgrounds, no dye buttons, no dye fills. Dye lives only at the thread edge and in the name.
-- **Negative space is the composition** (60–70% empty). **0px radius** default (2px inputs, never >4px). 1px hairlines only.
-- **Motion has meaning or it's cut.** One curve `cubic-bezier(0.16,1,0.3,1)`; durations 180/360/720/1400ms only.
-- **Anti-patterns that FAIL review (§2.6):** glassmorphism, gradient meshes, floating cards w/ translateY hover,
-  icon libraries (product has **no icons** — `∞` is the only mark), decorative emoji, spinners (use a hairline
-  progress bar), toasts (inline status only), avatar circles, any literal metaphor object (fire/vault/key/quill).
+**The five rules (from ART_DIRECTION.md):**
+1. Type is the hero — Source Serif 4 (display + prose), Inter (UI), JetBrains Mono (archival). No fourth typeface.
+2. One color has emotion — sealing-wax `warm #b07a4a` at <3% surface area. Everything else is bone `#f4ecd8` on ink `#0e0e0c`.
+3. Negative space is the composition — 60–70% of any view is empty.
+4. Motion has meaning or it's removed — one curve `cubic-bezier(0.16,1,0.3,1)`; durations 180/360/720/1400ms only.
+5. Outside time — if a visual move signals "this is 2026," cut it.
 
-> ⚠️ The **`cloudflare/frontend/src/loom/`** subsystem is the canonical implementation of the brief
-> (Tapestry, the Wall/ReadingRoom, the Unwoven Thread/Composer, the Unlock, the Listener/Echo). When
-> building product UI, extend the loom subsystem and prefer its primitives. The non-deployed `frontend/`
-> tree uses a "Hearth"/fire metaphor that is itself a §2.6 anti-pattern — don't pattern-match off it.
+**Color tokens** (canonical in `src/styles/globals.css`):
+`ink #0e0e0c` · `bone #f4ecd8` · `bone-dim rgba(244,236,216,0.55)` · `bone-faint rgba(244,236,216,0.32)` · `rule rgba(244,236,216,0.08)` · `warm #b07a4a` · `warm-bright #cf935a` · `warm-dim #8c5a30`
+
+**The 10-stop natural-dye palette** (`src/loom/dye.ts`) is the family's identity system — each member
+owns a dye that travels as signal: left-margin thread (3px left-border), name color (`DYE_TEXT`
+variants). Dyes are signal only — no dye backgrounds, buttons, or fills.
+
+**Anti-patterns (kill on sight):**
+- Glassmorphism, frosted glass, blurred backgrounds
+- Gradient meshes, conic gradients, animated noise
+- Icon libraries — the product has no icons; `∞` is the only mark
+- Decorative emoji
+- Loading spinners — use the `ProgressHair` hairline progress bar
+- Toast notifications — inline status only
+- Avatar circles / `rounded-full` identity chips
+- Any motion that doesn't carry information
+
+> ⚠️ The **`cloudflare/frontend/src/loom/`** subsystem is the canonical product implementation.
+> `ClothCanvas3D` is the cloth. `ClothShell` is the app chrome. `ClothBackdrop` is the global
+> ambient cloth layer. When building new screens, extend these — never add a global nav bar, tab
+> bar, or dashboard grid on top of the cloth.
+>
+> `STITCH_BRIEF.md` in the repo root is a legacy design-tool directive (for Google Stitch) and
+> is **no longer the authoritative spec**. Ignore it.
 
 ## Commands
 
 ```bash
-# Frontend — EDIT cloudflare/frontend (the deployed tree), NOT frontend/
+# Frontend — EDIT cloudflare/frontend (the deployed tree)
 cd cloudflare/frontend && npm run dev   # vite dev server
 npm run build                           # tsc && vite build = the typecheck/launch gate (currently clean)
 
@@ -72,11 +77,7 @@ npm run typecheck
 ## Testing — current reality
 
 - **Live frontend (`cloudflare/frontend`):** `tsc --noEmit` / `npm run build` pass clean (0 errors). Component tests TBD.
-- **Backend:** vitest suite established this pass — `backend/vitest.config.ts` + `src/test/setup.ts`
-  (sets throwaway env so `config/env.ts` parses; mocks Redis/Prisma at the test-file level). Covers
-  `encryption.service` (zero-knowledge crypto round-trips/tamper-detection), `auth.service`
-  (bcrypt + JWT), `billing.service` (currency math), `env` (tier/pricing invariants). **37 tests, green.**
-  Run: `cd backend && npm test` (needs `npm install` + `npx prisma generate` first).
+- **Backend:** vitest suite — `backend/vitest.config.ts` + `src/test/setup.ts`. Covers encryption, auth, billing, env. **37 tests, green.** Run: `cd backend && npm test` (needs `npm install` + `npx prisma generate` first).
 - **Worker:** `cloudflare/worker/src/__tests__/utils.test.ts`.
 - Verify before claiming done: run the actual command and read the output. No "should pass."
 
@@ -92,6 +93,5 @@ the only hard requirement for generation.
 ## Conventions
 
 - TS strict throughout. Pages are lazy-loaded in `App.tsx` (Landing eager). Auth via `useAuthStore` (Zustand).
-- Match the surrounding file's idiom. The brief's vocabulary (Tapestry, the Wall, the Listener, the
-  Sealed Note, the Unwoven Thread, Bloodline) is canonical — name components by it.
-- Reference the brief by section (e.g. "§6.3 Composer") in commits and PRs touching UI.
+- Match the surrounding file's idiom. Canonical vocabulary: **the Cloth**, the Wall, the Sealed Note, the Unwoven Thread, the Composer, the Bloodline. Name components by it.
+- Extend the cloth system (`ClothCanvas3D`, `ClothShell`, `ClothBackdrop`, room components) rather than building outside it.

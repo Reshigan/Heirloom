@@ -1,8 +1,8 @@
 # Heirloom — Global Launch Plan
 
 Owner: autonomous engineering pass. Goal: get Heirloom launch-ready (tests green, UX polished to
-the [STITCH_BRIEF.md](STITCH_BRIEF.md) constitution), the marketing engine verified, 12 weeks of
-content shipped, and zero-budget viral mechanics built. Status legend: ☐ todo · ◐ in progress · ☑ done.
+the [ART_DIRECTION.md](ART_DIRECTION.md) cloth-theme constitution), the marketing engine verified,
+12 weeks of content shipped, and zero-budget viral mechanics built. Status legend: ☐ todo · ◐ in progress · ☑ done.
 
 ---
 

@@ -1,9 +1,10 @@
 # Heirloom — UX / Design Audit (LIVE deployed tree)
 
 **Scope.** `cloudflare/frontend/src` — the tree deployed by `.github/workflows/deploy-cloudflare.yml`.
-This supersedes the earlier `UX_AUDIT.md` that mistakenly audited the dead `/frontend` redesign.
-Audited against `STITCH_BRIEF.md` §1.5 (world-first invariants), §2 (visual constitution),
-§2.6 (anti-patterns), §2.7 (dye palette), §6.0 (persistent elements), §11 (definition of done).
+Audited against [ART_DIRECTION.md](ART_DIRECTION.md) (the cloth-theme design constitution).
+NOTE: This audit was originally written against STITCH_BRIEF.md (now deprecated). The findings
+remain directionally valid but the cloth system (`ClothCanvas3D` / `ClothShell`) is now the
+canonical implementation target — not the STITCH_BRIEF Tapestry invariants.
 
 **One-line verdict.** The `/loom/*` demo subsystem is a faithful, restrained sketch of the brief's
 voice — but it is a *nine-screen marketing walk-through wired to `/loom/*`*, not the product. The
