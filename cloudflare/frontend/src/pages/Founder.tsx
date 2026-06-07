@@ -2,15 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { foundersApi, type FounderCount } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
-import { TapestryCanvas, type CanvasEntry } from '../loom/components/TapestryCanvas';
-
-// Deterministic hero backdrop — module-level so it's stable across renders
-const HERO_ENTRIES: CanvasEntry[] = Array.from({ length: 80 }, (_, i) => ({
-  date: new Date(1948 + Math.floor(i * 0.65), (i * 3) % 12, 1),
-  n: i,
-  dye: (['madder', 'indigo', 'saffron', 'weld', 'woad', 'cochineal'] as const)[i % 6],
-  tier: 'family' as const,
-}));
 
 const BENEFITS: { heading: string; body: string }[] = [
   {
@@ -115,18 +106,6 @@ export function Founder() {
       className="hl-screen"
       style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
     >
-      {/* ── animated specimen cloth hero ────────────────────────────────── */}
-      <div style={{ background: 'var(--ink)', marginBottom: 0, position: 'absolute', top: 0, left: 0, right: 0, zIndex: 0, pointerEvents: 'none' }}>
-        <TapestryCanvas
-          width={typeof window !== 'undefined' ? window.innerWidth : 1280}
-          height={240}
-          entries={HERO_ENTRIES}
-          kind="specimen"
-          animate
-          opts={{ tStart: new Date(1948, 0, 1), tEnd: new Date(2026, 0, 1), background: '#0e0e0c' }}
-        />
-      </div>
-
       {/* ── topbar ────────────────────────────────────────────────────────── */}
       <header
         style={{
@@ -140,7 +119,7 @@ export function Founder() {
           letterSpacing:   '0.22em',
           color:           'var(--bone-dim)',
           position:        'absolute',
-          top:              240,
+          top:              0,
           left:             0,
           right:            0,
           zIndex:           10,
@@ -196,7 +175,7 @@ export function Founder() {
       <div
         style={{
           position:              'absolute',
-          top:                    316,
+          top:                    84,
           bottom:                 0,
           left:                   0,
           right:                  0,

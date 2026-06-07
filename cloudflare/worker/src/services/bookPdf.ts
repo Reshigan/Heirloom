@@ -14,7 +14,18 @@
  * Typography: StandardFonts only (no external font fetching).
  *   - TimesRoman / TimesRomanBold → body + headings
  *   - Helvetica / HelveticaBold → labels, eyebrows
- * Color: printed B&W — the warm accent (#b07a4a) maps to ~40% gray.
+ *
+ * Colour: printed FULL-COLOUR premium. The cover renders the family's
+ * cloth — one weft thread per entry, dyed in the natural-dye palette
+ * (madder, indigo, saffron, weld, cochineal…) — so each printed book
+ * carries the bloodline's identity in its true hues. The warm accent
+ * (#b07a4a) prints as itself, not grey.
+ *
+ * Lulu print brand spec (case-wrap hardcover, FCPRE, 80# coated white,
+ * gloss): full-colour, bone (#f4ecd8) on ink (#0e0e0c), warm hairlines.
+ * Final wrap dimensions (back + spine + front + bleed) are resolved from
+ * Lulu's cover-dimensions API at submit time; this front-face artifact is
+ * rendered full-bleed at trim so it survives that wrap unchanged.
  */
 
 import { PDFDocument, StandardFonts, rgb, type PDFPage, type PDFFont } from 'pdf-lib';
@@ -38,6 +49,31 @@ const CONTENT_W = W - MARGIN_X * 2;
 const INK  = rgb(0.055, 0.055, 0.047);
 const DIM  = rgb(0.38, 0.38, 0.36);
 const WARM = rgb(0.69, 0.478, 0.29);
+const BONE = rgb(0.957, 0.925, 0.847);
+
+// Natural-dye palette (STITCH_BRIEF §2.7) — true-hue, for the woven cloth
+// cover. Keyed to entry type so the printed cloth mirrors the family's
+// actual content mix: memory=madder, letter=indigo, voice=saffron,
+// event=weld, milestone=cochineal. Unknown types fall back to madder.
+const DYES = {
+  madder:    rgb(0.69, 0.27, 0.22), // #b04538 — memory
+  indigo:    rgb(0.18, 0.24, 0.38), // #2e3d61 — letter
+  saffron:   rgb(0.83, 0.60, 0.18), // #d4992e — voice
+  weld:      rgb(0.74, 0.66, 0.27), // #bda845 — event
+  cochineal: rgb(0.60, 0.12, 0.24), // #991f3d — milestone
+  kermes:    rgb(0.72, 0.20, 0.16), // #b83329 — letter-room accent
+} as const;
+
+function dyeForType(kind: string, type?: string): ReturnType<typeof rgb> {
+  if (kind === 'letter') return DYES.indigo;
+  switch ((type ?? '').toLowerCase()) {
+    case 'voice':     return DYES.saffron;
+    case 'event':     return DYES.weld;
+    case 'milestone': return DYES.cochineal;
+    case 'letter':    return DYES.indigo;
+    default:          return DYES.madder; // memory + unknown
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Text utilities
@@ -292,51 +328,116 @@ async function buildEntryPages(doc: PDFDocument, entry: Entry): Promise<number> 
   return pagesAdded;
 }
 
-async function buildCoverPdf(title: string, familyName: string): Promise<Uint8Array> {
+/**
+ * The cover IS the cloth. We render the family's tapestry as a woven panel
+ * — one weft thread per entry, dyed by type — then set the title, year
+ * span, and family name beneath it. Full-bleed colour, ink ground, bone
+ * type, warm hairlines: an extraordinary, unmistakably-Heirloom object.
+ */
+async function buildCoverPdf(
+  title: string,
+  familyName: string,
+  yearsLabel: string,
+  weft: ReturnType<typeof rgb>[],
+): Promise<Uint8Array> {
   const doc = await PDFDocument.create();
-  const page = doc.addPage([W, H]);
+  // Brand print instructions ride in the PDF metadata so the printer (and
+  // any human checking the file) sees exactly how it must be produced.
+  doc.setTitle(`${title} — Heirloom cover`);
+  doc.setAuthor('Heirloom');
+  doc.setSubject(
+    'FULL-COLOUR print required. Case-wrap hardcover, 80# coated white, gloss. ' +
+    'Bone #f4ecd8 on ink #0e0e0c, warm #b07a4a hairlines, natural-dye weft. ' +
+    'No trim into the cloth panel; centre the title block.',
+  );
+  doc.setKeywords(['Heirloom', 'full-colour', 'case-wrap', 'FCPRE']);
+  doc.setCreator('Heirloom · heirloom.blue');
 
+  const page = doc.addPage([W, H]);
   const serifBold = await doc.embedFont(StandardFonts.TimesRomanBold);
   const mono      = await doc.embedFont(StandardFonts.Helvetica);
 
-  // Full ink background
+  // Full-bleed ink ground.
   page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: INK });
 
-  // Top warm rule
-  page.drawRectangle({ x: MARGIN_X, y: H - 52, width: CONTENT_W, height: 2, color: WARM });
+  // ── Brand eyebrow ──────────────────────────────────────────────────────
+  const eyebrow = 'HEIRLOOM';
+  const ebSize = 11;
+  const ebW = mono.widthOfTextAtSize(eyebrow, ebSize);
+  page.drawText(eyebrow, { x: (W - ebW) / 2, y: H - 64, size: ebSize, font: mono, color: WARM });
+  page.drawRectangle({ x: W / 2 - 18, y: H - 80, width: 36, height: 1, color: WARM });
 
-  // Title — large, centered, bone
-  const bone = rgb(0.957, 0.925, 0.847);
-  const titleSize = 42;
-  const titleLines = wrapWords(title, serifBold, titleSize, CONTENT_W);
-  let y = H / 2 + 60 + (titleLines.length * titleSize * 0.65) / 2;
-  for (const line of titleLines) {
-    const tw = serifBold.widthOfTextAtSize(line, titleSize);
-    page.drawText(line, { x: (W - tw) / 2, y, size: titleSize, font: serifBold, color: bone });
-    y -= titleSize * 1.3;
-  }
+  // ── The woven cloth panel ────────────────────────────────────────────────
+  // One weft thread per entry, dyed by type. The panel sits in the upper
+  // two-thirds; the title block reads beneath it on clean ink.
+  const panelX = MARGIN_X;
+  const panelW = CONTENT_W;
+  const panelTop = H - 104;
+  const panelBottom = 296;
+  const panelH = panelTop - panelBottom;
 
-  // Divider
-  page.drawRectangle({ x: W / 2 - 30, y: y - 14, width: 60, height: 1, color: WARM });
+  // Hairline frame.
+  page.drawRectangle({
+    x: panelX - 1, y: panelBottom - 1, width: panelW + 2, height: panelH + 2,
+    borderColor: WARM, borderWidth: 1, color: INK,
+  });
 
-  // Family name
-  if (familyName) {
-    const fnSize = 13;
-    const fnW = mono.widthOfTextAtSize(familyName.toUpperCase(), fnSize);
-    page.drawText(familyName.toUpperCase(), {
-      x: (W - fnW) / 2, y: y - 36,
-      size: fnSize, font: mono, color: rgb(0.6, 0.58, 0.55),
+  // Weft threads — fill the panel. If there are few entries, repeat the
+  // sequence so the cloth still reads as woven; cap density for legibility.
+  const threads = weft.length ? weft : [DYES.madder, DYES.indigo, DYES.saffron, DYES.weld];
+  const rows = Math.min(Math.max(threads.length, 18), 80);
+  const threadH = panelH / rows;
+  for (let i = 0; i < rows; i++) {
+    const color = threads[i % threads.length];
+    page.drawRectangle({
+      x: panelX,
+      y: panelBottom + panelH - (i + 1) * threadH,
+      width: panelW,
+      height: threadH + 0.6, // slight overlap kills hairline gaps
+      color,
     });
   }
 
-  // Bottom mark
-  const mark = '∞';
-  const markSize = 28;
-  const markW = serifBold.widthOfTextAtSize(mark, markSize);
-  page.drawText(mark, { x: (W - markW) / 2, y: 56, size: markSize, font: serifBold, color: WARM });
+  // Warp — faint vertical bone hairlines over the weft, so it reads as weave.
+  const warpGap = 11;
+  for (let x = panelX + warpGap; x < panelX + panelW; x += warpGap) {
+    page.drawRectangle({ x, y: panelBottom, width: 0.4, height: panelH, color: BONE, opacity: 0.10 });
+  }
 
-  // Bottom warm rule
-  page.drawRectangle({ x: MARGIN_X, y: 48, width: CONTENT_W, height: 2, color: WARM });
+  // ── Title block, beneath the cloth ────────────────────────────────────────
+  let y = panelBottom - 44;
+  const titleSize = 34;
+  const titleLines = wrapWords(title, serifBold, titleSize, CONTENT_W);
+  for (const line of titleLines) {
+    const tw = serifBold.widthOfTextAtSize(line, titleSize);
+    page.drawText(line, { x: (W - tw) / 2, y, size: titleSize, font: serifBold, color: BONE });
+    y -= titleSize * 1.22;
+  }
+
+  // Year span.
+  if (yearsLabel) {
+    const ySize = 12;
+    const yW = mono.widthOfTextAtSize(yearsLabel, ySize);
+    page.drawText(yearsLabel, { x: (W - yW) / 2, y: y - 6, size: ySize, font: mono, color: WARM });
+    y -= ySize + 14;
+  }
+
+  // Divider + family name.
+  page.drawRectangle({ x: W / 2 - 30, y: y - 8, width: 60, height: 1, color: WARM });
+  if (familyName) {
+    const fnSize = 12;
+    const fnW = mono.widthOfTextAtSize(familyName.toUpperCase(), fnSize);
+    page.drawText(familyName.toUpperCase(), {
+      x: (W - fnW) / 2, y: y - 30, size: fnSize, font: mono, color: rgb(0.6, 0.58, 0.55),
+    });
+  }
+
+  // ∞ mark + bottom warm rule.
+  const mark = '∞';
+  const markSize = 26;
+  const markW = serifBold.widthOfTextAtSize(mark, markSize);
+  page.drawText(mark, { x: (W - markW) / 2, y: 52, size: markSize, font: serifBold, color: WARM });
+  page.drawRectangle({ x: MARGIN_X, y: 44, width: CONTENT_W, height: 1, color: WARM });
 
   return doc.save();
 }
@@ -491,8 +592,20 @@ export async function renderBookPdf(
 
   const interiorBytes = await doc.save();
 
-  // 5. Build cover PDF
-  const coverBytes = await buildCoverPdf(bookTitle, familyName);
+  // 5. Build cover PDF — the woven cloth as it stands for this family today.
+  // One weft thread per entry (in date order), dyed by type; plus the span
+  // of years the thread covers.
+  const weft = entries.map((e) => dyeForType(e.kind, e.type));
+  const years = entries
+    .map((e) => Number((e.date || '').slice(0, 4)))
+    .filter((y) => y >= 1000 && y <= 9999);
+  let yearsLabel = '';
+  if (years.length) {
+    const min = Math.min(...years);
+    const max = Math.max(...years);
+    yearsLabel = min === max ? String(min) : `${min} – ${max}`;
+  }
+  const coverBytes = await buildCoverPdf(bookTitle, familyName, yearsLabel, weft);
 
   // 6. Upload to R2
   const interiorKey = `books/${bookOrderId}/interior.pdf`;

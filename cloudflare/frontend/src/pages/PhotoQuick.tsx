@@ -1,8 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { uploadMemoryImage, validateImage, type UploadedImage } from '../utils/uploadImage';
 
@@ -101,7 +102,7 @@ export function PhotoQuick() {
       queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
       queryClient.invalidateQueries({ queryKey: ['new-user-check-memories'] });
       setWoven(true);
-      setTimeout(() => navigate('/memories'), 4200);
+      setTimeout(() => navigate('/loom/index'), 4200);
     },
     onError: (err: any) => setError(err?.response?.data?.error ?? 'Could not save the photo.'),
   });
@@ -121,22 +122,11 @@ export function PhotoQuick() {
   const canSave = readyImages.length > 0 && uploadingCount === 0 && !save.isPending;
 
   const topbarLeft = (
-    <Link
-      to="/memories"
-      style={{
-        fontFamily: 'var(--mono)',
-        fontSize: 12,
-        letterSpacing: '0.08em',
-        color: 'rgba(244,236,216,0.5)',
-        textDecoration: 'none',
-      }}
-    >
-      ← memories
-    </Link>
+    <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'index', to: '/loom/index' }, { label: 'photograph' }]} />
   );
 
   return (
-    <ClothShell topbarLeft={topbarLeft} topbarCenter="photograph">
+    <ClothShell topbarLeft={topbarLeft}>
       <div style={{ maxWidth: 640, margin: '0 auto', padding: 'clamp(28px, 6vw, 56px) clamp(20px, 5vw, 40px) 100px' }}>
         <input
           ref={fileInputRef}

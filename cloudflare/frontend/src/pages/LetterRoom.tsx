@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeColor } from '../loom/dye';
@@ -51,19 +52,11 @@ export function LetterRoom() {
   }, [wantId, letters.length]);
 
   const topbarLeft = (
-    <Link
-      to="/loom/weft"
-      style={{
-        fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
-        textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
-      }}
-    >
-      ← cloth
-    </Link>
+    <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'letters' }]} />
   );
 
   return (
-    <ClothShell topbarLeft={topbarLeft} topbarCenter="letters">
+    <ClothShell topbarLeft={topbarLeft}>
       {/* Hairline loading bar */}
       <div
         aria-hidden

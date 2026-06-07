@@ -73,6 +73,8 @@
   --ink: #0e0e0c;
   --ink-card: #171714;
   --ink-deep: #0a0a08;
+  /* Translucent ink — themed scrim for floating bars over the living cloth. */
+  --ink-translucent: rgba(14, 14, 12, 0.75);
   --bone: #f4ecd8;
   --bone-dim: rgba(244, 236, 216, 0.72);
   --bone-faint: rgba(244, 236, 216, 0.44);
@@ -170,6 +172,7 @@
   --ink:          #f5ece0;
   --ink-card:     #ede2d0;
   --ink-deep:     #e8dac8;
+  --ink-translucent: rgba(245, 236, 224, 0.78);
   --bone:         #120e0a;
   --bone-dim:     rgba(18, 14, 10, 0.74);
   --bone-faint:   rgba(18, 14, 10, 0.48);

@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { useAuthStore } from '../stores/authStore';
 import { familyApi, threadsApi, memoriesApi } from '../services/api';
 
@@ -116,22 +117,7 @@ export function Constellation() {
 
   return (
     <ClothShell
-      topbarLeft={
-        <Link
-          to="/loom/weft"
-          style={{
-            fontFamily: 'var(--mono)',
-            fontSize: 10,
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
-            textDecoration: 'none',
-          }}
-        >
-          ← cloth
-        </Link>
-      }
-      topbarCenter="bloodline"
+      topbarLeft={<Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'bloodline' }]} />}
       backdropOpacity={0.3}
     >
       <div

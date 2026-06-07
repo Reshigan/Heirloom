@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { giftSubscriptionsApi } from '../services/api';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -80,7 +80,9 @@ export function GiftSubscriptions() {
         recipientEmail:  formData.recipientEmail,
         recipientName:   formData.recipientName,
         tier:            selectedTier!,
-        billingCycle:    billingPeriod === 'monthly' ? 'quarterly' : 'yearly',
+        billingCycle:    selectedTier === 'LEGACY'
+          ? 'lifetime'
+          : billingPeriod === 'monthly' ? 'monthly' : 'yearly',
         recipientMessage: formData.personalMessage,
       }),
     onSuccess: (response) => {
@@ -93,32 +95,37 @@ export function GiftSubscriptions() {
   // ── Derived ──────────────────────────────────────────────────────────────────
   const tiers = pricing?.tiers || [
     {
-      id: 'STARTER', name: 'Starter', description: 'Begin the family thread', storage: '1 GB',
-      quarterly: { amount: 4.74, display: '$4.74' },
-      yearly:    { amount: 44.99, display: '$44.99', savings: '2 months free' },
+      id: 'STARTER', name: 'Free', description: 'Anyone can begin a thread — no gift needed', storage: '1 GB', free: true,
+      monthly: { amount: 0, display: 'Free' },
     },
     {
-      id: 'FAMILY', name: 'Family', description: 'The full thread — for up to 12 authors', storage: '25 GB', popular: true,
-      quarterly: { amount: 9.49, display: '$9.49' },
-      yearly:    { amount: 89.99, display: '$89.99', savings: '2 months free' },
+      id: 'FAMILY', name: 'Family', description: 'The full thread — for the whole bloodline', storage: '25 GB', popular: true,
+      monthly: { amount: 8.99, display: '$8.99', listAmount: 9.99, listDisplay: '$9.99', giftDiscount: '10% off' },
+      yearly:  { amount: 89.1, display: '$89.10', listAmount: 99, listDisplay: '$99.00', giftDiscount: '10% off', savings: '2 months free' },
     },
     {
-      id: 'LEGACY', name: 'Legacy', description: 'Unlimited authors, textile export, succession vault', storage: '250 GB',
-      quarterly: { amount: 18.99, display: '$18.99' },
-      yearly:    { amount: 179.99, display: '$179.99', savings: '2 months free' },
+      id: 'LEGACY', name: 'Legacy', description: 'Lifetime, for every generation — paid once', storage: 'Unlimited',
+      lifetime: { amount: 216, display: '$216.00', listAmount: 240, listDisplay: '$240.00', giftDiscount: '10% off', note: 'once · lifetime' },
     },
   ];
 
-  // Get pricing info for selected period
-  const tierPeriodPrice = (tier: any) =>
-    billingPeriod === 'monthly' ? (tier.quarterly ?? tier.yearly) : (tier.yearly ?? tier.quarterly);
+  // Get pricing info for selected period. LEGACY is always lifetime (ignores
+  // the monthly/annual toggle); FAMILY follows the toggle; STARTER is the free
+  // $0 cycle. Some currencies (e.g. INR) have no monthly — fall back gracefully.
+  const tierPeriodPrice = (tier: any) => {
+    if (tier.id === 'LEGACY') return tier.lifetime;
+    if (tier.id === 'STARTER') return tier.monthly ?? tier.yearly;
+    return billingPeriod === 'monthly'
+      ? (tier.monthly ?? tier.yearly)
+      : (tier.yearly ?? tier.monthly);
+  };
 
   const handleNext = () => { if (step < 4) setStep(step + 1); };
   const handleBack = () => { if (step > 1) setStep(step - 1); };
 
   const canProceed = () => {
     switch (step) {
-      case 1: return !!selectedTier;
+      case 1: return selectedTier === 'FAMILY' || selectedTier === 'LEGACY';
       case 2: return !!(formData.recipientName && formData.recipientEmail);
       case 3: return !!(formData.purchaserName && formData.purchaserEmail);
       default: return true;
@@ -131,18 +138,7 @@ export function GiftSubscriptions() {
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
     <ClothShell
-      topbarLeft={
-        <Link
-          to="/loom"
-          style={{
-            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em',
-            textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
-          }}
-        >
-          ← heirloom
-        </Link>
-      }
-      topbarCenter="gift"
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'gift' }]} />}
     >
       <div style={{ padding: 'clamp(24px, 5vw, 48px)', paddingBottom: 80 }}>
 
@@ -242,23 +238,6 @@ export function GiftSubscriptions() {
                         position: 'absolute',
                         top: -10,
                         right: -2,
-                        background: 'var(--warm)',
-                        color: 'var(--ink)',
-                        fontFamily: 'var(--mono)',
-                        fontSize: 8,
-                        letterSpacing: '0.12em',
-                        padding: '1px 5px',
-                        textTransform: 'uppercase',
-                        borderRadius: 0,
-                      }}>
-                        10% off
-                      </span>
-                    )}
-                    {p === 'monthly' && (
-                      <span style={{
-                        position: 'absolute',
-                        top: -10,
-                        right: -2,
                         background: 'var(--rule)',
                         color: 'var(--bone-dim)',
                         fontFamily: 'var(--mono)',
@@ -268,7 +247,7 @@ export function GiftSubscriptions() {
                         textTransform: 'uppercase',
                         borderRadius: 0,
                       }}>
-                        5% off
+                        2 months free
                       </span>
                     )}
                   </button>
@@ -286,6 +265,7 @@ export function GiftSubscriptions() {
             >
               {tiers.map((tier: any, idx: number) => {
                 const isFamily  = tier.id === 'FAMILY';
+                const isFree    = tier.id === 'STARTER';
                 const isFirst   = idx === 0;
                 const selected  = selectedTier === tier.id;
                 const bullets   = TIER_BULLETS[tier.id] ?? [];
@@ -294,7 +274,7 @@ export function GiftSubscriptions() {
                 return (
                   <button
                     key={tier.id}
-                    onClick={() => setSelectedTier(tier.id)}
+                    onClick={() => { if (!isFree) setSelectedTier(tier.id); }}
                     style={{
                       display:         'flex',
                       flexDirection:   'column',
@@ -302,13 +282,14 @@ export function GiftSubscriptions() {
                       padding:         '36px 32px',
                       background:      isFamily ? 'rgba(244,236,216,0.04)' : 'transparent',
                       color:           isFamily ? 'var(--bone)' : 'var(--bone)',
-                      borderTop:       isFamily || selected
+                      opacity:         isFree ? 0.55 : 1,
+                      borderTop:       (isFamily || selected) && !isFree
                         ? '1px solid var(--warm)'
                         : '1px solid var(--rule)',
                       borderBottom:    '1px solid var(--rule)',
                       borderRight:     '1px solid var(--rule)',
                       borderLeft:      isFirst ? '1px solid var(--rule)' : 'none',
-                      cursor:          'pointer',
+                      cursor:          isFree ? 'default' : 'pointer',
                       outline:         'none',
                     }}
                   >
@@ -350,12 +331,44 @@ export function GiftSubscriptions() {
                         fontSize:    56,
                         fontWeight:  300,
                         lineHeight:  1,
-                        color:       isFamily ? 'var(--bone)' : 'var(--warm)',
+                        color:       isFamily ? 'var(--bone)' : isFree ? 'var(--bone-dim)' : 'var(--warm)',
                         marginBottom: 6,
+                        display:      'flex',
+                        alignItems:   'baseline',
+                        gap:          12,
                       }}
                     >
-                      {pp.display ?? `$${pp.amount}`}
+                      {pp?.display ?? `$${pp?.amount ?? 0}`}
+                      {!isFree && pp?.listDisplay && (
+                        <span
+                          className="hl-mono"
+                          style={{
+                            fontSize:       16,
+                            letterSpacing:  '0.02em',
+                            color:          'var(--bone-faint)',
+                            textDecoration: 'line-through',
+                          }}
+                        >
+                          {pp.listDisplay}
+                        </span>
+                      )}
                     </span>
+
+                    {/* Gift discount micro-line */}
+                    {!isFree && pp?.giftDiscount && (
+                      <span
+                        className="hl-mono"
+                        style={{
+                          fontSize:      9,
+                          letterSpacing: '0.18em',
+                          textTransform: 'uppercase',
+                          color:         'var(--warm)',
+                          marginBottom:  4,
+                        }}
+                      >
+                        10% gift discount
+                      </span>
+                    )}
 
                     {/* Sub label */}
                     <span
@@ -368,8 +381,30 @@ export function GiftSubscriptions() {
                         marginBottom:  28,
                       }}
                     >
-                      {billingPeriod === 'monthly' ? '3 months' : '12 months'}{pp.savings ? ` · ${pp.savings}` : ''}
+                      {isFree
+                        ? 'free, forever'
+                        : tier.id === 'LEGACY'
+                        ? 'once · lifetime'
+                        : billingPeriod === 'monthly'
+                        ? 'per month'
+                        : 'per year · 2 months free'}
                     </span>
+
+                    {/* Free note */}
+                    {isFree && (
+                      <span
+                        className="hl-serif"
+                        style={{
+                          fontStyle:   'italic',
+                          fontSize:    12,
+                          color:       'var(--bone-faint)',
+                          marginTop:   -20,
+                          marginBottom: 24,
+                        }}
+                      >
+                        anyone can begin free — no gift needed
+                      </span>
+                    )}
 
                     {/* Bullets */}
                     <ul
@@ -416,9 +451,9 @@ export function GiftSubscriptions() {
                         className="hl-btn"
                         style={{
                           display:       'inline-block',
-                          background:    selected ? 'var(--warm)' : isFamily ? 'var(--warm)' : 'transparent',
-                          color:         selected || isFamily ? 'var(--ink)' : 'var(--bone)',
-                          border:        selected || isFamily ? 'none' : '1px solid var(--rule)',
+                          background:    isFree ? 'transparent' : selected ? 'var(--warm)' : isFamily ? 'var(--warm)' : 'transparent',
+                          color:         isFree ? 'var(--bone-faint)' : selected || isFamily ? 'var(--ink)' : 'var(--bone)',
+                          border:        isFree ? '1px solid var(--rule)' : selected || isFamily ? 'none' : '1px solid var(--rule)',
                           padding:       '12px 20px',
                           fontFamily:    'var(--mono)',
                           fontSize:      10,
@@ -427,7 +462,7 @@ export function GiftSubscriptions() {
                           pointerEvents: 'none',
                         }}
                       >
-                        {selected ? 'selected' : 'select'}
+                        {isFree ? 'free' : selected ? 'selected' : 'select'}
                       </span>
                     </div>
                   </button>
@@ -741,7 +776,9 @@ export function GiftSubscriptions() {
                   className="hl-serif"
                   style={{ fontSize: 14, color: 'var(--bone-dim)', fontStyle: 'italic' }}
                 >
-                  {selectedTierData?.name} · {billingPeriod === 'monthly' ? '1 month' : '1 year'}
+                  {selectedTierData?.name} · {selectedTier === 'LEGACY'
+                    ? 'lifetime'
+                    : billingPeriod === 'monthly' ? '1 month' : '1 year'}
                 </span>
               </div>
 
@@ -764,14 +801,29 @@ export function GiftSubscriptions() {
                   total
                 </span>
                 <div style={{ textAlign: 'right' }}>
-                  <span
-                    className="hl-serif"
-                    style={{ fontSize: 20, color: 'var(--warm)' }}
-                  >
-                    {selectedPricing ? (selectedPricing.display ?? `$${selectedPricing.amount}`) : '—'}
+                  <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 8 }}>
+                    <span
+                      className="hl-serif"
+                      style={{ fontSize: 20, color: 'var(--warm)' }}
+                    >
+                      {selectedPricing ? (selectedPricing.display ?? `$${selectedPricing.amount}`) : '—'}
+                    </span>
+                    {selectedPricing?.listDisplay && (
+                      <span
+                        className="hl-mono"
+                        style={{ fontSize: 11, color: 'var(--bone-faint)', textDecoration: 'line-through' }}
+                      >
+                        {selectedPricing.listDisplay}
+                      </span>
+                    )}
                   </span>
-                  {selectedPricing?.savings && (
+                  {selectedPricing?.giftDiscount && (
                     <span className="hl-mono" style={{ fontSize: 9, color: 'var(--warm)', display: 'block', letterSpacing: '0.18em' }}>
+                      10% gift discount
+                    </span>
+                  )}
+                  {selectedPricing?.savings && (
+                    <span className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', display: 'block', letterSpacing: '0.18em' }}>
                       {selectedPricing.savings}
                     </span>
                   )}

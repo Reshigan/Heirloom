@@ -150,7 +150,7 @@ export function MemoryMap() {
             </p>
             <button
               type="button"
-              onClick={() => navigate('/memories')}
+              onClick={() => navigate('/loom/index')}
               className="hl-btn"
             >
               Add a memory

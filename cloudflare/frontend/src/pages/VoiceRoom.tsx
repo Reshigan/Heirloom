@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeColor } from '../loom/dye';
@@ -60,19 +61,11 @@ export function VoiceRoom() {
   }, [wantId, recordings.length]);
 
   const topbarLeft = (
-    <Link
-      to="/loom/weft"
-      style={{
-        fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
-        textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
-      }}
-    >
-      ← cloth
-    </Link>
+    <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'voice' }]} />
   );
 
   return (
-    <ClothShell topbarLeft={topbarLeft} topbarCenter="voice">
+    <ClothShell topbarLeft={topbarLeft}>
       {/* Hairline loading bar */}
       <div
         aria-hidden

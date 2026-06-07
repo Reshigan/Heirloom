@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { TapestryCanvas } from '../loom/components/TapestryCanvas';
 import { useListener } from '../hooks/useListener';
 import { useTapestryEntries } from '../hooks/useTapestryEntries';
@@ -104,15 +105,13 @@ export function Today() {
   const clothH = Math.round(Math.min(460, Math.max(220, vpH * 0.42)));
 
   const todayTopbar = (
-    <Link to="/loom/weft" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>
-      ← cloth
-    </Link>
+    <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'today' }]} />
   );
 
   // First-run: no entries yet — show focused sealed letter prompt
   if (entries.length === 0) {
     return (
-      <ClothShell topbarLeft={todayTopbar} topbarCenter="today">
+      <ClothShell topbarLeft={todayTopbar}>
         <div style={{
           padding: 'clamp(48px, 9vw, 80px) clamp(20px, 6vw, 56px)',
           maxWidth: 600,
@@ -176,7 +175,7 @@ export function Today() {
   }
 
   return (
-    <ClothShell topbarLeft={todayTopbar} topbarCenter="today">
+    <ClothShell topbarLeft={todayTopbar}>
       {/* ── Content: flex column filling full height ── */}
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* ── Content: top third of screen ── */}

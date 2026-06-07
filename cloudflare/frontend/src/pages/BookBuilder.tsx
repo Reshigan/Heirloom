@@ -20,6 +20,15 @@ interface BookConfig {
   dedicationText: string;
 }
 
+// Natural-dye palette (STITCH_BRIEF §2.7), true-hue — mirrors the worker's
+// cover renderer so the preview matches the printed cloth.
+const DYE_HEX = {
+  madder: '#b04538', // memory
+  indigo: '#2e3d61', // letter
+  saffron: '#d4992e', // voice
+  weld: '#bda845',
+} as const;
+
 const stepOrder: BookStep[] = ['select', 'customize', 'preview', 'order'];
 const stepLabels: Record<BookStep, string> = {
   select: 'Select',
@@ -147,6 +156,32 @@ export function BookBuilder() {
   const memoryList = Array.isArray(memories) ? memories : memories?.data || memories?.memories || [];
   const letterList = Array.isArray(letters) ? letters : letters?.data || letters?.letters || [];
   const voiceList = Array.isArray(voices) ? voices : voices?.data || voices?.recordings || [];
+
+  // Cover cloth — one weft thread per selected entry, dyed by type; plus the
+  // span of years the thread covers. Mirrors the worker's buildCoverPdf().
+  const yearOf = (it: { created_at?: string; date?: string; createdAt?: string }) => {
+    const d = it?.created_at || it?.date || it?.createdAt;
+    const y = d ? new Date(d).getFullYear() : NaN;
+    return Number.isFinite(y) ? y : NaN;
+  };
+  const selectedYears = [
+    ...memoryList.filter((m: { id: string }) => config.memoryIds.includes(m.id)),
+    ...letterList.filter((l: { id: string }) => config.letterIds.includes(l.id)),
+    ...voiceList.filter((v: { id: string }) => config.voiceIds.includes(v.id)),
+  ].map(yearOf).filter((y): y is number => Number.isFinite(y));
+  const yearsLabel = selectedYears.length
+    ? (Math.min(...selectedYears) === Math.max(...selectedYears)
+        ? String(Math.min(...selectedYears))
+        : `${Math.min(...selectedYears)} – ${Math.max(...selectedYears)}`)
+    : String(new Date().getFullYear());
+  const weftColors = [
+    ...config.memoryIds.map(() => DYE_HEX.madder),
+    ...config.letterIds.map(() => DYE_HEX.indigo),
+    ...config.voiceIds.map(() => DYE_HEX.saffron),
+  ];
+  const clothRows = weftColors.length
+    ? weftColors
+    : [DYE_HEX.madder, DYE_HEX.indigo, DYE_HEX.saffron, DYE_HEX.weld];
 
   return (
     <Frame left="book builder">
@@ -349,7 +384,7 @@ export function BookBuilder() {
                         {type}
                       </p>
                       <p className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', margin: 0 }}>
-                        {type === 'hardcover' ? 'Premium quality' : 'Lightweight & flexible'}
+                        {type === 'hardcover' ? 'Full-colour · case-wrap' : 'Full-colour · softcover'}
                       </p>
                     </button>
                   ))}
@@ -380,44 +415,78 @@ export function BookBuilder() {
           {/* ── Preview ── */}
           {step === 'preview' && (
             <div style={{ textAlign: 'center' }}>
-              {/* Stylized book cover */}
+              {/* The cover IS the cloth — woven weft (one thread per entry,
+                  dyed by type), then title · years · name. Mirrors the
+                  printed full-colour cover. */}
               <div
                 style={{
-                  width: 200,
-                  height: 260,
+                  width: 232,
+                  height: 320,
                   margin: '0 auto 32px',
+                  background: 'var(--ink, #0e0e0c)',
                   border: '1px solid var(--warm)',
                   display: 'flex',
                   flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: 28,
+                  padding: 16,
                   borderRadius: 0,
+                  boxShadow: '0 1px 0 var(--warm)',
                 }}
               >
-                <p style={{ fontFamily: 'var(--serif)', fontSize: 24, color: 'var(--warm)', marginBottom: 12 }}>∞</p>
+                {/* Brand eyebrow */}
+                <p
+                  className="hl-mono"
+                  style={{ fontSize: 8, letterSpacing: '0.32em', color: 'var(--warm)', textAlign: 'center', margin: '2px 0 10px' }}
+                >
+                  HEIRLOOM
+                </p>
+
+                {/* Woven cloth panel */}
+                <div
+                  style={{
+                    position: 'relative',
+                    flex: 1,
+                    border: '1px solid var(--warm)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {Array.from({ length: Math.min(Math.max(clothRows.length, 18), 64) }).map((_, i) => (
+                    <div
+                      key={i}
+                      style={{ flex: 1, background: clothRows[i % clothRows.length] }}
+                    />
+                  ))}
+                  {/* Warp hairlines */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      backgroundImage:
+                        'repeating-linear-gradient(90deg, rgba(244,236,216,0.10) 0 0.5px, transparent 0.5px 9px)',
+                      pointerEvents: 'none',
+                    }}
+                  />
+                </div>
+
+                {/* Title block */}
                 <h3
                   className="hl-serif"
-                  style={{ fontSize: 16, fontWeight: 300, color: 'var(--bone)', margin: '0 0 6px', textAlign: 'center', lineHeight: 1.3 }}
+                  style={{ fontSize: 15, fontWeight: 300, color: 'var(--bone)', margin: '12px 0 2px', textAlign: 'center', lineHeight: 1.2 }}
                 >
                   {config.title}
                 </h3>
-                {config.subtitle && (
-                  <p className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', margin: 0, textAlign: 'center' }}>
-                    {config.subtitle}
-                  </p>
-                )}
-                <div style={{ marginTop: 'auto' }}>
-                  <p className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.14em', margin: '0 0 2px' }}>
-                    {totalItems} items · ~{estimatedPages} pages
-                  </p>
-                  <p className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'capitalize' }}>
-                    {config.coverType}
-                  </p>
-                </div>
+                <p className="hl-mono" style={{ fontSize: 9, letterSpacing: '0.14em', color: 'var(--warm)', textAlign: 'center', margin: '0 0 4px' }}>
+                  {yearsLabel}
+                </p>
+                <p style={{ fontFamily: 'var(--serif)', fontSize: 13, color: 'var(--warm)', textAlign: 'center', margin: 0 }}>∞</p>
               </div>
+
+              <p className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.14em', margin: '0 0 16px', textTransform: 'capitalize' }}>
+                {totalItems} items · ~{estimatedPages} pages · full-colour {config.coverType}
+              </p>
               <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', margin: 0, maxWidth: 360, marginInline: 'auto', fontStyle: 'italic' }}>
-                Your book preview is ready. Review the details and place your order.
+                Every entry is one thread, dyed to its kind. This is your cloth as it stands today.
               </p>
             </div>
           )}
@@ -474,7 +543,7 @@ export function BookBuilder() {
                     Total
                   </span>
                   <span className="hl-mono" style={{ fontSize: 14, color: 'var(--warm)', letterSpacing: '0.08em' }}>
-                    {config.coverType === 'hardcover' ? '$49.99' : '$29.99'}
+                    {config.coverType === 'hardcover' ? '$159.99' : '$99.99'}
                   </span>
                 </div>
               </div>

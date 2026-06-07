@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { familyApi, engagementApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { copyToClipboard } from '../utils/clipboard';
 
 interface FamilyMember {
@@ -87,7 +88,7 @@ export function Family() {
   const [error, setError] = useState<string | null>(null);
   const [inviteSent, setInviteSent] = useState(false);
   const [lastInviteCode, setLastInviteCode] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [editTarget, setEditTarget] = useState<FamilyMember | null>(null);
   const [editName, setEditName] = useState('');
   const [editRelationship, setEditRelationship] = useState('');
@@ -210,12 +211,17 @@ export function Family() {
   const copyLink = (code?: string | null) => {
     const origin = window.location.origin;
     const url = code ? `${origin}/join?code=${code}` : `${origin}/signup`;
-    copyToClipboard(url).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }).catch(() => {
-      // nothing — button stays in default state
-    });
+    const key = code || '__signup__';
+    copyToClipboard(url)
+      .then(() => {
+        setCopiedKey(key);
+        setTimeout(() => setCopiedKey((k) => (k === key ? null : k)), 2000);
+      })
+      .catch(() => {
+        // Surface a failure rather than appearing to do nothing — fall back to
+        // a manual-copy prompt so the link is never silently lost.
+        setError(`Couldn't reach the clipboard. The link is: ${url}`);
+      });
   };
 
   const openForm = (m: Mode) => {
@@ -227,18 +233,7 @@ export function Family() {
 
   return (
     <ClothShell
-      topbarLeft={
-  <Link
-    to="/loom"
-    style={{
-      fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.12em',
-      textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
-    }}
-  >
-    ← heirloom
-  </Link>
-}
-      topbarCenter="family"
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'family' }]} />}
       topbarRight={!showForm ? (
         <button type="button" className="hl-btn" onClick={() => openForm('add')} style={{ fontSize: 12, padding: '6px 14px' }}>add →</button>
       ) : undefined}
@@ -375,11 +370,11 @@ export function Family() {
                     style={{
                       background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                       fontFamily: 'var(--mono)', fontSize: 13, letterSpacing: '0.18em',
-                      textTransform: 'uppercase', color: copied ? 'var(--warm)' : 'var(--bone-dim)',
+                      textTransform: 'uppercase', color: copiedKey === '__signup__' ? 'var(--warm)' : 'var(--bone-dim)',
                       transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                     }}
                   >
-                    {copied ? 'link copied' : 'or copy link'}
+                    {copiedKey === '__signup__' ? 'link copied' : 'or copy link'}
                   </button>
                 </div>
               </form>
@@ -408,11 +403,11 @@ export function Family() {
                     style={{
                       background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                       fontFamily: 'var(--mono)', fontSize: 13, letterSpacing: '0.18em',
-                      textTransform: 'uppercase', color: copied ? 'var(--warm)' : 'var(--bone-dim)',
+                      textTransform: 'uppercase', color: copiedKey === (lastInviteCode || '__signup__') ? 'var(--warm)' : 'var(--bone-dim)',
                       transition: 'color 180ms var(--ease)', touchAction: 'manipulation', alignSelf: 'center',
                     }}
                   >
-                    {copied ? 'link copied' : 'copy invite link'}
+                    {copiedKey === (lastInviteCode || '__signup__') ? 'link copied' : 'copy invite link'}
                   </button>
                 </div>
               </div>
@@ -500,11 +495,11 @@ export function Family() {
                     style={{
                       background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                       fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em',
-                      textTransform: 'uppercase', color: 'var(--bone-dim)',
+                      textTransform: 'uppercase', color: copiedKey === inv.invite_code ? 'var(--warm)' : 'var(--bone-dim)',
                       transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                     }}
                   >
-                    copy link
+                    {copiedKey === inv.invite_code ? 'link copied' : 'copy link'}
                   </button>
                   <button
                     type="button"

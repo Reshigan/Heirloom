@@ -72,15 +72,15 @@ settingsRoutes.get('/profile', async (c) => {
   const userId = c.get('userId');
   
   const user = await c.env.DB.prepare(`
-    SELECT id, email, first_name, last_name, avatar_url, preferred_currency, 
+    SELECT id, email, first_name, last_name, avatar_url, preferred_currency, birth_date, gender,
            two_factor_enabled, email_verified, created_at, updated_at
     FROM users WHERE id = ?
   `).bind(userId).first();
-  
+
   if (!user) {
     return c.json({ error: 'User not found' }, 404);
   }
-  
+
   return c.json({
     id: user.id,
     email: user.email,
@@ -88,6 +88,8 @@ settingsRoutes.get('/profile', async (c) => {
     lastName: user.last_name,
     avatarUrl: user.avatar_url,
     preferredCurrency: user.preferred_currency,
+    birthDate: user.birth_date,
+    gender: user.gender,
     twoFactorEnabled: !!user.two_factor_enabled,
     emailVerified: !!user.email_verified,
     createdAt: user.created_at,
@@ -100,33 +102,39 @@ settingsRoutes.patch('/profile', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   
-  const { firstName, lastName, avatarUrl, preferredCurrency } = body;
+  const { firstName, lastName, avatarUrl, preferredCurrency, birthDate, gender } = body;
   const now = new Date().toISOString();
-  
-  // Convert undefined to null for D1 compatibility
+
+  // Convert undefined to null for D1 compatibility. birth_date/gender use a
+  // sentinel-free COALESCE so an explicit empty string clears them, while
+  // undefined leaves the existing value untouched.
   await c.env.DB.prepare(`
-    UPDATE users 
+    UPDATE users
     SET first_name = COALESCE(?, first_name),
         last_name = COALESCE(?, last_name),
         avatar_url = COALESCE(?, avatar_url),
         preferred_currency = COALESCE(?, preferred_currency),
+        birth_date = COALESCE(?, birth_date),
+        gender = COALESCE(?, gender),
         updated_at = ?
     WHERE id = ?
   `).bind(
-    firstName ?? null, 
-    lastName ?? null, 
-    avatarUrl ?? null, 
-    preferredCurrency ?? null, 
-    now, 
+    firstName ?? null,
+    lastName ?? null,
+    avatarUrl ?? null,
+    preferredCurrency ?? null,
+    birthDate ?? null,
+    gender ?? null,
+    now,
     userId
   ).run();
-  
+
   const user = await c.env.DB.prepare(`
-    SELECT id, email, first_name, last_name, avatar_url, preferred_currency, 
+    SELECT id, email, first_name, last_name, avatar_url, preferred_currency, birth_date, gender,
            two_factor_enabled, email_verified, created_at, updated_at
     FROM users WHERE id = ?
   `).bind(userId).first();
-  
+
   return c.json({
     id: user?.id,
     email: user?.email,
@@ -134,6 +142,8 @@ settingsRoutes.patch('/profile', async (c) => {
     lastName: user?.last_name,
     avatarUrl: user?.avatar_url,
     preferredCurrency: user?.preferred_currency,
+    birthDate: user?.birth_date,
+    gender: user?.gender,
     twoFactorEnabled: !!user?.two_factor_enabled,
     emailVerified: !!user?.email_verified,
     updatedAt: user?.updated_at,

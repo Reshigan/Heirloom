@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { threadsApi, memoriesApi, type UpcomingUnlock, type ThreadLockType } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 
 /**
  * Inbox — Loom 3 native "What is waiting."
@@ -92,8 +93,7 @@ export function Inbox() {
 
   return (
     <ClothShell
-      topbarLeft={<Link to="/loom/today" style={{ fontSize: 12, color: 'rgba(244,236,216,0.5)', textDecoration: 'none', letterSpacing: '0.08em', fontFamily: 'var(--mono)' }}>← today</Link>}
-      topbarCenter="inbox"
+      topbarLeft={<Breadcrumbs trail={[{ label: 'today', to: '/loom/today' }, { label: 'inbox' }]} />}
     >
       {/* scrollable content column */}
       <div

@@ -52,57 +52,65 @@ describe('GET /api/gift-vouchers/pricing', () => {
     expect(body.tiers.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('every tier has quarterly and yearly prices that are valid numbers > 0', async () => {
+  it('mirrors the canonical plans: Starter free, Family monthly+yearly, Legacy lifetime', async () => {
     const res = await json('/api/gift-vouchers/pricing');
     const { tiers } = await res.json() as any;
 
-    for (const tier of tiers) {
-      const { quarterly, yearly } = tier;
-      expect(quarterly, `${tier.id}.quarterly is undefined`).toBeDefined();
-      expect(yearly, `${tier.id}.yearly is undefined`).toBeDefined();
+    const starter = tiers.find((t: any) => t.id === 'STARTER');
+    const family = tiers.find((t: any) => t.id === 'FAMILY');
+    const legacy = tiers.find((t: any) => t.id === 'LEGACY');
 
-      expect(typeof quarterly.amount, `${tier.id}.quarterly.amount is not a number`).toBe('number');
-      expect(typeof yearly.amount, `${tier.id}.yearly.amount is not a number`).toBe('number');
+    expect(starter?.free, 'Starter must be free').toBe(true);
 
-      expect(isNaN(quarterly.amount), `${tier.id}.quarterly.amount is NaN`).toBe(false);
-      expect(isNaN(yearly.amount), `${tier.id}.yearly.amount is NaN`).toBe(false);
-
-      expect(quarterly.amount, `${tier.id}.quarterly.amount <= 0`).toBeGreaterThan(0);
-      expect(yearly.amount, `${tier.id}.yearly.amount <= 0`).toBeGreaterThan(0);
+    for (const cycle of ['monthly', 'yearly'] as const) {
+      expect(family[cycle], `FAMILY.${cycle} undefined`).toBeDefined();
+      expect(typeof family[cycle].amount).toBe('number');
+      expect(isNaN(family[cycle].amount), `FAMILY.${cycle}.amount is NaN`).toBe(false);
+      expect(family[cycle].amount, `FAMILY.${cycle}.amount <= 0`).toBeGreaterThan(0);
     }
+
+    expect(legacy.lifetime, 'LEGACY.lifetime undefined').toBeDefined();
+    expect(legacy.lifetime.amount, 'LEGACY.lifetime.amount <= 0').toBeGreaterThan(0);
   });
 
-  it('yearly price is less than 12× quarterly (year-discount makes sense)', async () => {
+  it('Family yearly is less than 12× monthly (the year-discount makes sense)', async () => {
     const res = await json('/api/gift-vouchers/pricing');
     const { tiers } = await res.json() as any;
-    for (const tier of tiers) {
-      const annualized = tier.quarterly.amount * 4;
-      expect(
-        tier.yearly.amount,
-        `${tier.id}: yearly should be cheaper than 4× quarterly`,
-      ).toBeLessThan(annualized);
-    }
+    const family = tiers.find((t: any) => t.id === 'FAMILY');
+    expect(family.yearly.amount).toBeLessThan(family.monthly.amount * 12);
+  });
+
+  it('the giver pays a 10% discount off the list price', async () => {
+    const res = await json('/api/gift-vouchers/pricing?currency=USD');
+    const { tiers } = await res.json() as any;
+    const family = tiers.find((t: any) => t.id === 'FAMILY');
+    const legacy = tiers.find((t: any) => t.id === 'LEGACY');
+    // Family yearly: list $99.00 → giver pays $89.10
+    expect(family.yearly.listAmount).toBe(99);
+    expect(family.yearly.amount).toBe(89.1);
+    expect(family.yearly.giftDiscount).toBe('10% off');
+    // Legacy lifetime: list $240.00 → giver pays $216.00
+    expect(legacy.lifetime.listAmount).toBe(240);
+    expect(legacy.lifetime.amount).toBe(216);
   });
 
   it('display strings match amounts', async () => {
     const res = await json('/api/gift-vouchers/pricing');
     const { tiers, symbol } = await res.json() as any;
     for (const tier of tiers) {
-      for (const period of ['quarterly', 'yearly'] as const) {
-        const { amount, display } = tier[period];
-        const expected = `${symbol}${amount.toFixed(2)}`;
-        expect(display, `${tier.id}.${period}.display mismatch`).toBe(expected);
+      for (const cycle of ['monthly', 'yearly', 'lifetime'] as const) {
+        const m = tier[cycle];
+        if (!m || m.amount === 0) continue; // free tier carries display 'Free'
+        expect(m.display, `${tier.id}.${cycle}.display mismatch`).toBe(`${symbol}${m.amount.toFixed(2)}`);
       }
     }
   });
 
-  it('USD pricing matches known values for STARTER quarterly', async () => {
+  it('USD Family monthly matches the canonical $9.99 list price', async () => {
     const res = await json('/api/gift-vouchers/pricing?currency=USD');
     const { tiers } = await res.json() as any;
-    const starter = tiers.find((t: any) => t.id === 'STARTER');
-    expect(starter).toBeDefined();
-    // $14.99 / 100 cents = 14.99
-    expect(starter.quarterly.amount).toBe(14.99);
+    const family = tiers.find((t: any) => t.id === 'FAMILY');
+    expect(family.monthly.listAmount).toBe(9.99);
   });
 
   it('falls back to USD for unknown currency', async () => {
@@ -110,7 +118,9 @@ describe('GET /api/gift-vouchers/pricing', () => {
     const resUnknown = await json('/api/gift-vouchers/pricing?currency=XYZ');
     const usd = await resUsd.json() as any;
     const unknown = await resUnknown.json() as any;
-    expect(unknown.tiers[0].quarterly.amount).toBe(usd.tiers[0].quarterly.amount);
+    const usdFamily = usd.tiers.find((t: any) => t.id === 'FAMILY');
+    const unknownFamily = unknown.tiers.find((t: any) => t.id === 'FAMILY');
+    expect(unknownFamily.monthly.amount).toBe(usdFamily.monthly.amount);
   });
 });
 
@@ -139,7 +149,7 @@ describe('POST /api/gift-vouchers/checkout — validation', () => {
   it('400 when billingCycle is invalid', async () => {
     const res = await post('/api/gift-vouchers/checkout', {
       tier: 'FAMILY',
-      billingCycle: 'monthly',
+      billingCycle: 'weekly',
       purchaserEmail: 'buyer@example.com',
     });
     expect(res.status).toBe(400);
@@ -147,25 +157,50 @@ describe('POST /api/gift-vouchers/checkout — validation', () => {
     expect(body.error).toMatch(/invalid billing cycle/i);
   });
 
-  it('accepts LEGACY as a valid tier input', async () => {
-    // Should not return "Invalid tier" — it must reach the Stripe call
-    // which will fail without a real key, but we only care about tier validation.
+  it('400 when STARTER is gifted (it is free)', async () => {
+    const res = await post('/api/gift-vouchers/checkout', {
+      tier: 'STARTER',
+      billingCycle: 'monthly',
+      purchaserEmail: 'buyer@example.com',
+      currency: 'USD',
+    });
+    expect(res.status).toBe(400);
+    const body = await res.json() as any;
+    expect(body.error).toMatch(/free/i);
+  });
+
+  it('400 when Legacy is gifted on a non-lifetime cycle', async () => {
     const res = await post('/api/gift-vouchers/checkout', {
       tier: 'LEGACY',
       billingCycle: 'yearly',
       purchaserEmail: 'buyer@example.com',
       currency: 'USD',
     });
-    // With no STRIPE_SECRET_KEY in the test env the Stripe call fails, but
-    // the response must NOT be a 400 with "Invalid tier".
+    expect(res.status).toBe(400);
     const body = await res.json() as any;
-    expect(body.error).not.toMatch(/invalid tier/i);
+    expect(body.error).toMatch(/lifetime/i);
   });
 
-  it('accepts STARTER quarterly', async () => {
+  it('accepts LEGACY lifetime as a valid input', async () => {
+    // Should not 400 on validation — it reaches the Stripe call, which fails
+    // without a real key in the test env. We only assert validation passed.
     const res = await post('/api/gift-vouchers/checkout', {
-      tier: 'STARTER',
-      billingCycle: 'quarterly',
+      tier: 'LEGACY',
+      billingCycle: 'lifetime',
+      purchaserEmail: 'buyer@example.com',
+      currency: 'USD',
+    });
+    const body = await res.json() as any;
+    expect(body.error).not.toMatch(/invalid tier/i);
+    expect(body.error).not.toMatch(/invalid billing cycle/i);
+    expect(body.error).not.toMatch(/pricing unavailable/i);
+    expect(body.error).not.toMatch(/lifetime gift/i);
+  });
+
+  it('accepts FAMILY monthly', async () => {
+    const res = await post('/api/gift-vouchers/checkout', {
+      tier: 'FAMILY',
+      billingCycle: 'monthly',
       purchaserEmail: 'buyer@example.com',
       currency: 'USD',
     });

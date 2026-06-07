@@ -621,14 +621,13 @@ export function Compose() {
   const readyImages = images.filter((im) => im.fileKey && !im.error);
   const hasContent = body.trim().length > 0 || (!isLetter && readyImages.length > 0);
 
-  // Navigate after the "woven" celebration fades — letters land in the Letters room,
-  // memories in the gallery; both first show the cloth weave.
+  // Navigate after the "woven" celebration fades — both letters and memories
+  // land on the ∞ index, where the freshly-woven thread joins the whole cloth.
   useEffect(() => {
     if (!woven) return;
-    const dest = isLetter ? '/letters' : '/memories';
-    const t = setTimeout(() => navigate(dest), 4200);
+    const t = setTimeout(() => navigate('/loom/index'), 4200);
     return () => clearTimeout(t);
-  }, [woven, navigate, isLetter]);
+  }, [woven, navigate]);
 
   // Listener AI hint — uses recipient name as the "to" context
   const { suggestion, loading: listenerLoading, refresh: listenerRefresh } =
@@ -728,7 +727,7 @@ export function Compose() {
         JSON.stringify({ title, body, entryDate, recipientId, recipientName, deliveryTrigger, scheduledDate }),
       );
     }
-    navigate('/memories');
+    navigate('/loom/index');
   }, [body, title, entryDate, recipientId, recipientName, deliveryTrigger, scheduledDate, woven, navigate, draftKey]);
 
   const handleRecipientChange = useCallback((id: string | null, name: string) => {

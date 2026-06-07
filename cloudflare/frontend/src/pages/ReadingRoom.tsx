@@ -1,36 +1,23 @@
-import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ClothPage } from '../loom/components/ClothPage';
+import { ClothBackdrop } from '../loom/components/ClothBackdrop';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
-import { DYES, dyeVar, dyeFromMetadata, dyeForId, type Dye } from '../loom/dye';
-
-const ClothCanvas3D = lazy(() =>
-  import('../loom/components/ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
-);
+import { dyeVar, dyeFromMetadata, dyeForId, type Dye } from '../loom/dye';
 
 /**
  * Screen 07 — The Reading Room
  *
- * The author's own thread, read as artifacts. Three.js ClothCanvas3D backdrop,
- * selvedge nav, ClothPage artifact reader, and a full-screen BookView on
- * parchment. Reads REAL entries (memories, letters, voice) for the signed-in
- * user — no mock content. Falls back to the EmptyThread prompt when the cloth
- * has no picks yet.
+ * The author's own thread, read as artifacts. The same living-cloth backdrop
+ * every loom room shows (ClothBackdrop — shared 3D weave + theme-aware scrim,
+ * so the reader tracks light/dark like the letter and voice rooms), a selvedge
+ * nav, the ClothPage artifact reader, and a full-screen BookView on parchment.
+ * Reads REAL entries (memories, letters, voice) for the signed-in user — no
+ * mock content. Falls back to the EmptyThread prompt when the cloth has no
+ * picks yet.
  */
-
-// ── Deterministic hash (no Math.random) ───────────────────────────────────────
-function sineHash(n: number): number {
-  const x = Math.sin(n * 9301 + 49297) * 233280;
-  return x - Math.floor(x);
-}
-
-// ── CLOTH_BG_ENTRIES — 48 deterministic picks for the woven backdrop texture ───
-const CLOTH_BG_ENTRIES = Array.from({ length: 48 }, (_, i) => ({
-  date: new Date(1960 + Math.floor(sineHash(i * 17 + 1) * 66), 0, 1),
-  dye: DYES[i % DYES.length],
-  locked: i % 4 === 0,
-}));
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
@@ -317,12 +304,8 @@ export function ReadingRoom() {
   // book view
   if (view === 'book') {
     return (
-      <div className="loom" data-theme="dark" style={{ position: 'fixed', inset: 0, background: '#0e0e0c' }}>
-        <div aria-hidden style={{ position: 'absolute', inset: 0, opacity: 0.35, pointerEvents: 'none' }}>
-          <Suspense fallback={null}>
-            <ClothCanvas3D entries={CLOTH_BG_ENTRIES} />
-          </Suspense>
-        </div>
+      <div className="loom" style={{ position: 'fixed', inset: 0, background: 'var(--ink)' }}>
+        <ClothBackdrop opacity={0.35} />
         <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
           <BookView entries={entries} threadName={user?.firstName ? `${who}'s thread` : 'your thread'} />
         </div>
@@ -344,34 +327,22 @@ export function ReadingRoom() {
 
   // wall view
   return (
-    <div className="loom" data-theme="dark" style={{ position: 'fixed', inset: 0, background: '#0e0e0c' }}>
+    <div className="loom" style={{ position: 'fixed', inset: 0, background: 'var(--ink)' }}>
       {/* Hairline loading bar */}
       <div aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'var(--warm)', opacity: loading ? 0.6 : 0, transition: 'opacity 360ms', zIndex: 30, pointerEvents: 'none' }} />
 
-      {/* Layer 0: ClothCanvas3D backdrop */}
-      <div aria-hidden style={{ position: 'absolute', inset: 0, opacity: 0.45, pointerEvents: 'none', zIndex: 0 }}>
-        <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#0e0e0c' }} />}>
-          <ClothCanvas3D entries={CLOTH_BG_ENTRIES} />
-        </Suspense>
-      </div>
+      {/* Layer 0: the shared living cloth (theme-aware, same as every room) */}
+      <ClothBackdrop opacity={0.45} />
 
       {/* Layer 1: Topbar */}
       <div style={{
         position: 'absolute', top: 0, left: 0, right: 0, height: 56, zIndex: 20,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 24px',
-        background: 'rgba(14,14,12,0.75)',
-        borderBottom: '1px solid rgba(244,236,216,0.08)',
+        background: 'var(--ink-translucent, rgba(14,14,12,0.75))',
+        borderBottom: '1px solid var(--rule)',
       }}>
-        <Link
-          to="/loom/weft"
-          style={{
-            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
-            textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
-          }}
-        >
-          ← cloth
-        </Link>
+        <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'reading' }]} />
 
         <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontFamily: 'var(--serif)', fontWeight: 300, fontSize: 15 }}>∞</span>

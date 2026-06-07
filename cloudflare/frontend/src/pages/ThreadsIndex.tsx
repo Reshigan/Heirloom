@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { threadsApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { Link } from 'react-router-dom';
 
 export function ThreadsIndex() {
@@ -16,8 +17,7 @@ export function ThreadsIndex() {
 
   return (
     <ClothShell
-      topbarLeft={<Link to="/loom/today" style={{ fontSize: 12, color: 'rgba(244,236,216,0.5)', textDecoration: 'none', letterSpacing: '0.08em', fontFamily: 'var(--mono)' }}>← today</Link>}
-      topbarCenter="threads"
+      topbarLeft={<Breadcrumbs trail={[{ label: 'today', to: '/loom/today' }, { label: 'threads' }]} />}
     >
       {isLoading && (
         <progress style={{ display: 'block', width: '100%', height: 1, marginBottom: 24, appearance: 'none', accentColor: 'var(--warm)' }} />

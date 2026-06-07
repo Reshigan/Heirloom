@@ -28,45 +28,52 @@ function generateVoucherCode(): string {
   return code;
 }
 
-// Pricing by tier and duration (in cents for Stripe)
-// Durations: 3 months, 6 months, 12 months (yearly), 24 months
-const GIFT_PRICING: Record<string, Record<string, Record<string, number>>> = {
+// Gift pricing — mirrors the canonical product plans the Pricing page sells
+// (Starter is free, Family is a monthly/yearly subscription, Legacy is a
+// one-time lifetime purchase). Amounts are in cents for Stripe.
+//
+//   STARTER  — free; not a paid gift (anyone can begin a thread at no cost).
+//   FAMILY   — monthly OR yearly voucher (yearly = 2 months free).
+//   LEGACY   — a single one-time lifetime voucher.
+//
+// Cycle keys: 'monthly' | 'yearly' | 'lifetime'. A tier that lacks a cycle is
+// not purchasable on that cycle (e.g. FAMILY has no 'lifetime', LEGACY has no
+// 'monthly'/'yearly').
+const GIFT_PRICING: Record<string, Partial<Record<string, Partial<Record<string, number>>>>> = {
   USD: {
-    STARTER: { '3': 1499, '6': 2799, '12': 4999, '24': 8499 },
-    FAMILY: { '3': 2999, '6': 5499, '12': 9999, '24': 16999 },
-    LEGACY: { '3': 5999, '6': 10999, '12': 19999, '24': 33999 },
-    // Backward compatibility
-    FOREVER: { '3': 5999, '6': 10999, '12': 19999, '24': 33999 },
-  },
-  ZAR: {
-    STARTER: { '3': 14700, '6': 27400, '12': 49900, '24': 84900 },
-    FAMILY: { '3': 29700, '6': 54900, '12': 99900, '24': 169900 },
-    LEGACY: { '3': 50700, '6': 93400, '12': 169900, '24': 288900 },
-    FOREVER: { '3': 50700, '6': 93400, '12': 169900, '24': 288900 },
+    FAMILY: { monthly: 999, yearly: 9900 },
+    LEGACY: { lifetime: 24000 },
+    FOREVER: { lifetime: 24000 }, // legacy alias
   },
   GBP: {
-    STARTER: { '3': 1199, '6': 2199, '12': 3999, '24': 6799 },
-    FAMILY: { '3': 2399, '6': 4399, '12': 7999, '24': 13599 },
-    LEGACY: { '3': 4799, '6': 8799, '12': 15999, '24': 27199 },
-    FOREVER: { '3': 4799, '6': 8799, '12': 15999, '24': 27199 },
+    FAMILY: { monthly: 799, yearly: 7999 },
+    LEGACY: { lifetime: 19200 },
+    FOREVER: { lifetime: 19200 },
   },
   EUR: {
-    STARTER: { '3': 1199, '6': 2199, '12': 3999, '24': 6799 },
-    FAMILY: { '3': 2399, '6': 4399, '12': 7999, '24': 13599 },
-    LEGACY: { '3': 4499, '6': 8299, '12': 14999, '24': 25499 },
-    FOREVER: { '3': 4499, '6': 8299, '12': 14999, '24': 25499 },
+    FAMILY: { monthly: 799, yearly: 7999 },
+    LEGACY: { lifetime: 18000 },
+    FOREVER: { lifetime: 18000 },
+  },
+  ZAR: {
+    FAMILY: { monthly: 9900, yearly: 99900 },
+    LEGACY: { lifetime: 240000 },
+    FOREVER: { lifetime: 240000 },
   },
   INR: {
-    STARTER: { '12': 149900, '24': 254900 },
-    FAMILY: { '12': 299900, '24': 509900 },
-    LEGACY: { '12': 599900, '24': 1019900 },
-    FOREVER: { '12': 599900, '24': 1019900 },
+    FAMILY: { monthly: 29990, yearly: 299900 },
+    LEGACY: { lifetime: 599900 },
+    FOREVER: { lifetime: 599900 },
   },
 };
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
   USD: '$', ZAR: 'R', GBP: '£', EUR: '€', CAD: 'C$', AUD: 'A$', INR: '₹',
 };
+
+// A thank-you discount applied to what the GIVER pays (the recipient still
+// redeems a full-value voucher). 0.10 = 10% off.
+const GIFTER_DISCOUNT = 0.10;
 
 // Admin authentication middleware for gift voucher admin routes
 const adminAuth = async (c: any, next: any) => {
@@ -97,38 +104,52 @@ const adminAuth = async (c: any, next: any) => {
 // Get gift voucher pricing
 giftVoucherRoutes.get('/pricing', async (c) => {
   const currency = (c.req.query('currency') || 'USD').toUpperCase();
-  const prices = GIFT_PRICING[currency] || GIFT_PRICING.USD;
+  const prices = GIFT_PRICING[currency] || GIFT_PRICING.USD!;
   const symbol = CURRENCY_SYMBOLS[currency] || '$';
-  
-  // GIFT_PRICING uses numeric month-count keys: '3' (quarterly) and '12' (yearly)
+
+  // `amount`/`display` are what the GIVER pays (10% off); `listAmount`/`listDisplay`
+  // are the full plan price (what the recipient receives), shown struck-through.
+  const money = (cents?: number) => {
+    if (cents == null) return undefined;
+    const discounted = Math.round(cents * (1 - GIFTER_DISCOUNT));
+    return {
+      amount: discounted / 100,
+      display: `${symbol}${(discounted / 100).toFixed(2)}`,
+      listAmount: cents / 100,
+      listDisplay: `${symbol}${(cents / 100).toFixed(2)}`,
+      giftDiscount: '10% off',
+    };
+  };
+
+  // Mirrors the canonical Pricing plans: Starter is free (informational, not a
+  // paid gift), Family is monthly/yearly, Legacy is a one-time lifetime gift.
   return c.json({
     currency,
     symbol,
     tiers: [
       {
         id: 'STARTER',
-        name: 'Starter',
-        description: 'Begin the family thread',
+        name: 'Free',
+        description: 'Anyone can begin a thread — no gift needed',
         storage: '1 GB',
-        quarterly: { amount: prices.STARTER['3'] / 100, display: `${symbol}${(prices.STARTER['3'] / 100).toFixed(2)}` },
-        yearly: { amount: prices.STARTER['12'] / 100, display: `${symbol}${(prices.STARTER['12'] / 100).toFixed(2)}`, savings: '2 months free' },
+        free: true,
+        monthly: { amount: 0, display: 'Free' },
       },
       {
         id: 'FAMILY',
         name: 'Family',
-        description: 'The full thread — for up to 12 authors',
+        description: 'The full thread — for the whole bloodline',
         storage: '25 GB',
         popular: true,
-        quarterly: { amount: prices.FAMILY['3'] / 100, display: `${symbol}${(prices.FAMILY['3'] / 100).toFixed(2)}` },
-        yearly: { amount: prices.FAMILY['12'] / 100, display: `${symbol}${(prices.FAMILY['12'] / 100).toFixed(2)}`, savings: '2 months free' },
+        monthly: money(prices.FAMILY?.monthly),
+        yearly: money(prices.FAMILY?.yearly) && { ...money(prices.FAMILY?.yearly)!, savings: '2 months free' },
       },
       {
         id: 'LEGACY',
         name: 'Legacy',
-        description: 'Unlimited authors, textile export, succession vault',
-        storage: '250 GB',
-        quarterly: { amount: prices.LEGACY['3'] / 100, display: `${symbol}${(prices.LEGACY['3'] / 100).toFixed(2)}` },
-        yearly: { amount: prices.LEGACY['12'] / 100, display: `${symbol}${(prices.LEGACY['12'] / 100).toFixed(2)}`, savings: '2 months free' },
+        description: 'Lifetime, for every generation — paid once',
+        storage: 'Unlimited',
+        lifetime: money(prices.LEGACY?.lifetime) && { ...money(prices.LEGACY?.lifetime)!, note: 'once · lifetime' },
       },
     ],
   });
@@ -143,30 +164,51 @@ giftVoucherRoutes.post('/checkout', async (c) => {
     return c.json({ error: 'Missing required fields: tier, billingCycle, purchaserEmail' }, 400);
   }
   
-  const validTiers = ['STARTER', 'FAMILY', 'LEGACY', 'FOREVER'];
-  const validCycles = ['quarterly', 'yearly'];
+  const tierU = tier.toUpperCase();
+  const cycle = billingCycle.toLowerCase();
+  const validTiers = ['FAMILY', 'LEGACY', 'FOREVER'];
+  const validCycles = ['monthly', 'yearly', 'lifetime'];
 
-  if (!validTiers.includes(tier.toUpperCase())) {
+  // STARTER is free — it is never sold as a gift voucher.
+  if (tierU === 'STARTER') {
+    return c.json({ error: 'Starter is free — there is nothing to gift. Anyone can begin a thread at no cost.' }, 400);
+  }
+
+  if (!validTiers.includes(tierU)) {
     return c.json({ error: 'Invalid tier' }, 400);
   }
 
-  if (!validCycles.includes(billingCycle.toLowerCase())) {
+  if (!validCycles.includes(cycle)) {
     return c.json({ error: 'Invalid billing cycle' }, 400);
   }
 
-  const prices = GIFT_PRICING[currency.toUpperCase()] || GIFT_PRICING.USD;
-  // Map text cycle names to the numeric month keys used in GIFT_PRICING
-  const monthKey = billingCycle.toLowerCase() === 'yearly' ? '12' : '3';
-  const durationMonths = billingCycle.toLowerCase() === 'yearly' ? 12 : 3;
+  // Legacy is lifetime-only; Family is monthly/yearly-only.
+  const isLegacy = ['LEGACY', 'FOREVER'].includes(tierU);
+  if (isLegacy && cycle !== 'lifetime') {
+    return c.json({ error: 'Legacy is a one-time lifetime gift.' }, 400);
+  }
+  if (!isLegacy && cycle === 'lifetime') {
+    return c.json({ error: 'Only Legacy is sold as a lifetime gift.' }, 400);
+  }
+
+  const prices = GIFT_PRICING[currency.toUpperCase()] || GIFT_PRICING.USD!;
+  // A lifetime gift is recorded as 1200 months (≈ a century) — the longest
+  // duration the schema needs to express "for every generation".
+  const durationMonths = cycle === 'lifetime' ? 1200 : cycle === 'yearly' ? 12 : 1;
   // GIFT_PRICING keys: LEGACY and FOREVER are the same tier — both valid lookup keys
-  const pricingTier = ['LEGACY', 'FOREVER'].includes(tier.toUpperCase()) ? 'LEGACY' : tier.toUpperCase();
+  const pricingTier = isLegacy ? 'LEGACY' : tierU;
   // DB CHECK constraint only accepts STARTER/FAMILY/FOREVER — map LEGACY back to FOREVER for storage
-  const dbTier = tier.toUpperCase() === 'LEGACY' ? 'FOREVER' : tier.toUpperCase();
-  const amount = prices[pricingTier]?.[monthKey];
+  const dbTier = tierU === 'LEGACY' ? 'FOREVER' : tierU;
+  const amount = prices[pricingTier]?.[cycle];
 
   if (!amount) {
     return c.json({ error: 'Pricing unavailable for selected options' }, 400);
   }
+
+  // The giver gets a 10% thank-you discount on what they pay. The voucher the
+  // recipient redeems still grants the full plan — the discount only reduces
+  // the purchaser's charge.
+  const chargeAmount = Math.round(amount * (1 - GIFTER_DISCOUNT));
 
   // Generate voucher code
   const voucherCode = generateVoucherCode();
@@ -177,7 +219,12 @@ giftVoucherRoutes.post('/checkout', async (c) => {
   
   // Get user ID if logged in
   const userId = c.get('userId') || null;
-  
+
+  // Human label for the duration — "lifetime" reads better than "1200 months".
+  const durationLabel =
+    cycle === 'lifetime' ? 'lifetime' : `${durationMonths} month${durationMonths > 1 ? 's' : ''}`;
+  const tierLabel = dbTier === 'FOREVER' ? 'Legacy' : 'Family';
+
   try {
     // Create Stripe checkout session
     const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
@@ -192,9 +239,9 @@ giftVoucherRoutes.post('/checkout', async (c) => {
         'cancel_url': `${c.env.APP_URL}/gift/cancelled`,
         'customer_email': purchaserEmail,
         'line_items[0][price_data][currency]': currency.toLowerCase(),
-        'line_items[0][price_data][unit_amount]': amount.toString(),
-        'line_items[0][price_data][product_data][name]': `Heirloom ${dbTier} Gift Voucher (${durationMonths} month${durationMonths > 1 ? 's' : ''})`,
-        'line_items[0][price_data][product_data][description]': `Gift a ${dbTier} subscription to someone special`,
+        'line_items[0][price_data][unit_amount]': chargeAmount.toString(),
+        'line_items[0][price_data][product_data][name]': `Heirloom ${tierLabel} Gift — ${durationLabel} (10% gift discount)`,
+        'line_items[0][price_data][product_data][description]': `Gift a ${tierLabel} ${cycle === 'lifetime' ? 'lifetime membership' : 'subscription'} — includes a 10% thank-you discount for the giver.`,
         'line_items[0][quantity]': '1',
         'metadata[voucher_code]': voucherCode,
         'metadata[tier]': dbTier,

@@ -209,7 +209,7 @@ export function Record() {
       queryClient.invalidateQueries({ queryKey: ['weft-voice'] });
       queryClient.invalidateQueries({ queryKey: ['new-user-check-voice'] });
       setSealedCeremony(true);
-      setTimeout(() => navigate('/memories'), 4200);
+      setTimeout(() => navigate('/loom/index'), 4200);
     },
     onError: (err: unknown) => {
       const msg = err instanceof Error ? err.message : 'Could not save the recording.';
@@ -235,7 +235,7 @@ export function Record() {
       <div className="hl-topbar" style={{ position: 'relative', zIndex: 10 }}>
         {/* left: HLogo */}
         <Link
-          to="/memories"
+          to="/loom/index"
           style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
         >
           <HLogo size={18} wordmark />
@@ -255,7 +255,7 @@ export function Record() {
         </span>
 
         {/* right: cancel */}
-        <Link to="/memories" className="hl-link warm" style={{ fontSize: 14 }}>
+        <Link to="/loom/index" className="hl-link warm" style={{ fontSize: 14 }}>
           cancel →
         </Link>
       </div>

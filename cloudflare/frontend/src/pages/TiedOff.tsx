@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -74,22 +75,7 @@ export function TiedOff() {
 
   return (
     <ClothShell
-      topbarLeft={
-        <Link
-          to="/loom/weft"
-          style={{
-            fontFamily: 'var(--mono)',
-            fontSize: 10,
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
-            textDecoration: 'none',
-          }}
-        >
-          ← cloth
-        </Link>
-      }
-      topbarCenter="tied off"
+      topbarLeft={<Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'tied off' }]} />}
       backdropOpacity={0.35}
     >
       <div

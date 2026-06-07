@@ -120,7 +120,9 @@ bookOrderProtectedRoutes.post('/book-orders/checkout', async (c) => {
   }
 
   const coverType = body.cover_type === 'hardcover' ? 'hardcover' : 'softcover';
-  const unitAmount = coverType === 'hardcover' ? 4999 : 2999;
+  // Full-colour premium print. Retail = 2× landed cost (print + delivery):
+  // hardcover ~$80 landed → $159.99, softcover ~$50 landed → $99.99.
+  const unitAmount = coverType === 'hardcover' ? 15999 : 9999;
 
   if (!c.env.STRIPE_SECRET_KEY) {
     return c.json({ error: 'Payments not configured' }, 503);
@@ -133,7 +135,7 @@ bookOrderProtectedRoutes.post('/book-orders/checkout', async (c) => {
     'line_items[0][quantity]': '1',
     'line_items[0][price_data][currency]': 'usd',
     'line_items[0][price_data][unit_amount]': String(unitAmount),
-    'line_items[0][price_data][product_data][name]': `Heirloom Book — ${coverType}`,
+    'line_items[0][price_data][product_data][name]': `Heirloom Book — full-colour ${coverType}`,
     'metadata[type]': 'book_order',
     'metadata[user_id]': userId,
     'metadata[ship_to_json]': JSON.stringify(body.ship_to),

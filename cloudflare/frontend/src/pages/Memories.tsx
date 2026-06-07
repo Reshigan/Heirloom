@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { Link } from 'react-router-dom';
 import { useListener } from '../hooks/useListener';
 
@@ -414,8 +415,7 @@ export function Memories() {
 
   return (
     <ClothShell
-      topbarLeft={<Link to="/loom/today" className="hl-link" style={{ fontSize: 12, color: 'rgba(244,236,216,0.5)', letterSpacing: '0.08em' }}>← today</Link>}
-      topbarCenter="memories"
+      topbarLeft={<Breadcrumbs trail={[{ label: 'today', to: '/loom/today' }, { label: 'memories' }]} />}
       topbarRight={
         <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
           <span className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.1em' }}>

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { settingsApi, exportApi, deadmanApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 
 const RESPONSIVE_CSS = `
 .hl-setting-row {
@@ -44,7 +45,21 @@ export function Settings() {
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
+  const [birthDate, setBirthDate] = useState('');
+  const [gender, setGender] = useState('');
   const [savedFlash, setSavedFlash] = useState(false);
+
+  // Seed birth date + gender from the server profile (not held in authStore).
+  // These tailor the Listener's prompts to the author's life stage.
+  const { data: profileData } = useQuery({
+    queryKey: ['settings', 'profile'],
+    queryFn: () => settingsApi.getProfile().then((r) => r.data).catch(() => null),
+  });
+  useEffect(() => {
+    if (!profileData) return;
+    setBirthDate((profileData as any).birthDate ?? '');
+    setGender((profileData as any).gender ?? '');
+  }, [profileData]);
 
   const [deleteStage, setDeleteStage] = useState<'idle' | 'confirm' | 'quote' | 'password' | 'archived'>('idle');
 
@@ -148,7 +163,15 @@ export function Settings() {
   };
 
   const save = useMutation({
-    mutationFn: () => settingsApi.updateProfile({ firstName, lastName }).then((r) => r.data),
+    // Only include birthDate/gender once the profile query has seeded them —
+    // otherwise a name-only save fired before the query settles would post
+    // empty strings and silently clear an existing DOB/gender (worker COALESCE
+    // treats '' as a real value).
+    mutationFn: () => settingsApi.updateProfile({
+      firstName,
+      lastName,
+      ...(profileData ? { birthDate, gender } : {}),
+    }).then((r) => r.data),
     onSuccess: () => setSavedFlash(true),
   });
 
@@ -166,18 +189,7 @@ export function Settings() {
 
   return (
     <ClothShell
-      topbarLeft={
-        <Link
-          to="/loom"
-          style={{
-            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em',
-            textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
-          }}
-        >
-          ← heirloom
-        </Link>
-      }
-      topbarCenter="settings"
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'settings' }]} />}
     >
       <style>{RESPONSIVE_CSS}</style>
         <div style={{ maxWidth: 720, margin: '0 auto', padding: 'clamp(24px, 5vw, 40px) clamp(16px, 4vw, 40px) 80px' }}>
@@ -205,9 +217,31 @@ export function Settings() {
               style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
             />
           </div>
+          <div className="hl-setting-row">
+            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>date of birth</div>
+            <input
+              type="date"
+              value={birthDate}
+              max={new Date().toISOString().slice(0, 10)}
+              onChange={(e) => { setBirthDate(e.target.value); setSavedFlash(false); }}
+              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', colorScheme: 'dark', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+            />
+          </div>
+          <div className="hl-setting-row">
+            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>gender</div>
+            <input
+              value={gender}
+              placeholder="optional — e.g. woman, man, nonbinary"
+              onChange={(e) => { setGender(e.target.value); setSavedFlash(false); }}
+              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+            />
+          </div>
+          <p className="hl-serif" style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--bone-faint)', margin: '4px 0 0', lineHeight: 1.6 }}>
+            Used only to tailor the Listener's prompts to your life — never shown to anyone, never required.
+          </p>
           <div style={{ padding: '12px 0', borderTop: '1px solid var(--rule)', display: 'flex', alignItems: 'center', gap: 16, marginBottom: 8 }}>
             <button type="button" onClick={() => save.mutate()} disabled={save.isPending} className="hl-btn" style={{ fontSize: 11, padding: '9px 18px' }}>
-              {save.isPending ? 'saving…' : 'save name'}
+              {save.isPending ? 'saving…' : 'save'}
             </button>
             {savedFlash && (
               <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)' }}>∞ saved</span>

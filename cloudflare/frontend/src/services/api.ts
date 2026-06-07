@@ -201,7 +201,7 @@ export const engagementApi = {
 // Settings API
 export const settingsApi = {
   getProfile: () => api.get('/settings/profile'),
-  updateProfile: (data: { firstName?: string; lastName?: string; avatarUrl?: string }) =>
+  updateProfile: (data: { firstName?: string; lastName?: string; avatarUrl?: string; preferredCurrency?: string; birthDate?: string; gender?: string }) =>
     api.patch('/settings/profile', data),
   changePassword: (data: { currentPassword: string; newPassword: string }) =>
     api.post('/settings/change-password', data),
@@ -285,7 +285,8 @@ export const wrappedApi = {
 // AI API (new viral features)
 export const aiApi = {
   // Memory prompts
-  getPrompt: () => api.get('/ai/prompt'),
+  getPrompt: (type?: 'memory' | 'letter' | 'voice') =>
+    api.get('/ai/prompt', { params: type ? { type } : undefined }),
   getPrompts: (limit?: number) => api.get('/ai/prompts', { params: { limit } }),
   markPromptUsed: (id: string) => api.post(`/ai/prompt/${id}/used`),
   markPromptShared: (id: string) => api.post(`/ai/prompt/${id}/shared`),
@@ -497,7 +498,7 @@ export const giftSubscriptionsApi = {
     recipientEmail: string;
     recipientName: string;
     tier: string;
-    billingCycle: 'quarterly' | 'yearly';
+    billingCycle: 'monthly' | 'quarterly' | 'yearly' | 'lifetime';
     recipientMessage?: string;
   }) => api.post('/gift-vouchers/checkout', data),
   redeem: (giftCode: string) => api.post('/gift-vouchers/redeem', { giftCode }),

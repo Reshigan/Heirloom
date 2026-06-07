@@ -114,7 +114,7 @@ export function FutureLetter() {
         {/* back link */}
         <button
           type="button"
-          onClick={() => navigate('/memories')}
+          onClick={() => navigate('/loom/index')}
           className="hl-mono"
           style={{
             background: 'transparent',

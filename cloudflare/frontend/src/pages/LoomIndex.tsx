@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { InfinityMenu } from '../loom/components/InfinityMenu';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { LettersAwaitingMe } from '../loom/components/LettersAwaitingMe';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
@@ -148,19 +150,11 @@ export function LoomIndex() {
   }, [entries, groupBy]);
 
   const topbarLeft = (
-    <Link
-      to="/loom/weft"
-      style={{
-        fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
-        textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
-      }}
-    >
-      ← cloth
-    </Link>
+    <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'index' }]} />
   );
 
   return (
-    <ClothShell topbarLeft={topbarLeft} topbarCenter="∞">
+    <ClothShell topbarLeft={topbarLeft} topbarCenter={<InfinityMenu />}>
       {/* Hairline loading bar */}
       <div
         aria-hidden

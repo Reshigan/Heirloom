@@ -30,6 +30,33 @@ const PROMPT_CATEGORIES = [
 // Module-level rate limit map (in-memory fallback if KV unavailable)
 const aiRateMap = new Map<string, { count: number; resetAt: number }>();
 
+// Derive an age in whole years from an ISO birth_date (YYYY-MM-DD). Returns
+// null for missing/unparseable/implausible dates so personalisation degrades
+// gracefully to neutral phrasing.
+function ageFromBirthDate(birthDate: unknown): number | null {
+  // Require a full ISO date (YYYY-MM-DD); a bare year would mis-age to Jan 1.
+  if (typeof birthDate !== 'string' || !/^\d{4}-\d{2}-\d{2}/.test(birthDate)) return null;
+  const d = new Date(birthDate);
+  if (Number.isNaN(d.getTime())) return null;
+  const now = new Date();
+  let age = now.getFullYear() - d.getFullYear();
+  const m = now.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && now.getDate() < d.getDate())) age--;
+  if (age < 0 || age > 120) return null;
+  return age;
+}
+
+// A short life-stage label + the kinds of memory that tend to be richest at
+// that stage. Used to bias category selection and colour the system prompt —
+// never to exclude anything.
+function lifeStage(age: number): { label: string; lean: string } {
+  if (age < 25) return { label: 'a young adult', lean: 'first independence, formative friendships, early ambitions, the family you came from' };
+  if (age < 40) return { label: 'in early adulthood', lean: 'building a life, love and partnership, young children, career beginnings' };
+  if (age < 55) return { label: 'in midlife', lean: 'raising a family, turning points, what you have learned, who you have become' };
+  if (age < 70) return { label: 'in later midlife', lean: 'legacy, grown children, long marriages, reflection on the road travelled' };
+  return { label: 'an elder', lean: 'wisdom to pass on, grandchildren, the long view, what mattered most' };
+}
+
 aiRoutes.get('/prompt', async (c) => {
   const userId = c.get('userId');
 
@@ -59,24 +86,60 @@ aiRoutes.get('/prompt', async (c) => {
     }
   }
 
+  // The room the prompt is for shapes its voice: a memory to record, a sealed
+  // letter to someone, or a voice recording. Defaults to memory.
+  const typeParam = (c.req.query('type') || 'memory').toLowerCase();
+  const entryType: 'memory' | 'letter' | 'voice' =
+    typeParam === 'letter' ? 'letter' : typeParam === 'voice' ? 'voice' : 'memory';
+
   try {
-    // Get user's existing memories to understand what they've captured
-    const memories = await c.env.DB.prepare(`
-      SELECT title, description, description_enc, description_iv, type FROM memories WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 50
-    `).bind(userId).all();
-    
-    const voiceRecordings = await c.env.DB.prepare(`
-      SELECT title, prompt FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 20
-    `).bind(userId).all();
-    
+    // Get user's existing memories to understand what they've captured, plus
+    // their profile for life-stage + gender personalisation.
+    const [memories, voiceRecordings, profile] = await Promise.all([
+      c.env.DB.prepare(`
+        SELECT title, description, description_enc, description_iv, type FROM memories WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 50
+      `).bind(userId).all(),
+      c.env.DB.prepare(`
+        SELECT title, prompt FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 20
+      `).bind(userId).all(),
+      c.env.DB.prepare(`SELECT birth_date, gender FROM users WHERE id = ?`).bind(userId).first(),
+    ]);
+
     // Build context for AI
     const existingContent = [
       ...(await Promise.all(memories.results.map(async (m: any) => m.title || (await readDescription(c.env, m))))),
       ...voiceRecordings.results.map((v: any) => v.title || v.prompt)
     ].filter(Boolean).join(', ');
-    
-    const category = PROMPT_CATEGORIES[Math.floor(Math.random() * PROMPT_CATEGORIES.length)];
-    
+
+    // ── Personalisation ────────────────────────────────────────────────────
+    const age = ageFromBirthDate(profile?.birth_date);
+    const gender = typeof profile?.gender === 'string' ? profile.gender.trim() : '';
+    const stage = age !== null ? lifeStage(age) : null;
+
+    // Bias category selection toward the author's life stage when known, while
+    // still allowing the full set so prompts stay varied.
+    const STAGE_CATEGORIES: Record<string, string[]> = {
+      'a young adult': ['childhood', 'family_traditions', 'love_and_relationships', 'turning_points', 'gratitude'],
+      'in early adulthood': ['love_and_relationships', 'career_and_purpose', 'family_traditions', 'turning_points', 'sensory_memories'],
+      'in midlife': ['life_lessons', 'career_and_purpose', 'regrets_and_growth', 'turning_points', 'family_traditions'],
+      'in later midlife': ['life_lessons', 'legacy_wishes', 'love_and_relationships', 'regrets_and_growth', 'gratitude'],
+      'an elder': ['legacy_wishes', 'life_lessons', 'family_traditions', 'gratitude', 'love_and_relationships'],
+    };
+    const pool = stage ? (STAGE_CATEGORIES[stage.label] ?? PROMPT_CATEGORIES) : PROMPT_CATEGORIES;
+    const category = pool[Math.floor(Math.random() * pool.length)];
+
+    const typeVoice =
+      entryType === 'letter'
+        ? 'Frame it as a sealed letter they could write to someone they love — something to be read later, even after they are gone.'
+        : entryType === 'voice'
+          ? 'Frame it as something they could say aloud in their own voice, as if speaking directly to a loved one.'
+          : 'Frame it as a memory to capture in writing or with a photograph.';
+
+    const personaLines = [
+      stage ? `The author is ${stage.label} (around ${age}). Lean toward: ${stage.lean}.` : '',
+      gender ? `The author describes their gender as "${gender}" — let this gently inform tone without stereotyping; keep pronoun use light.` : '',
+    ].filter(Boolean).join('\n');
+
     // Generate prompt using Cloudflare AI
     const systemPrompt = `You are a thoughtful memory prompt generator for Heirloom, a digital legacy platform. Generate ONE specific, emotionally compelling prompt that helps someone capture a meaningful memory they haven't recorded yet.
 
@@ -86,7 +149,9 @@ Rules:
 - Focus on moments, not summaries
 - Keep the prompt under 20 words
 - No quotation marks in output
+- ${typeVoice}
 - Category: ${category.replace(/_/g, ' ')}
+${personaLines ? `\n${personaLines}` : ''}
 ${existingContent ? `\nThe user has already captured memories about: ${existingContent.slice(0, 500)}. Generate something DIFFERENT.` : ''}`;
 
     const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
@@ -110,7 +175,8 @@ ${existingContent ? `\nThe user has already captured memories about: ${existingC
     return c.json({
       id: promptId,
       prompt: promptText,
-      category
+      category,
+      type: entryType
     });
   } catch (error) {
     console.error('AI prompt generation error:', error);

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { billingApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { planLabel, isPaidTier, isFounderTier, isFreeTier, PLAN_LIMITS } from '../lib/plans';
 
 const BILLING_CSS = `
@@ -64,18 +65,7 @@ export function Billing() {
 
   return (
     <ClothShell
-      topbarLeft={
-        <Link
-          to="/loom"
-          style={{
-            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em',
-            textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
-          }}
-        >
-          ← heirloom
-        </Link>
-      }
-      topbarCenter="billing"
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'billing' }]} />}
     >
       <style>{BILLING_CSS}</style>
       <div style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(24px, 5vw, 40px) clamp(16px, 4vw, 40px) 80px' }}>

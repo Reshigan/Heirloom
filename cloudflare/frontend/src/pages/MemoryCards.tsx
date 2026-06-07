@@ -219,7 +219,7 @@ export function MemoryCards() {
           ))}
           <button
             type="button"
-            onClick={() => navigate('/memories')}
+            onClick={() => navigate('/loom/index')}
             style={{
               marginLeft: 'auto',
               background: 'transparent',

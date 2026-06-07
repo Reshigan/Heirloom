@@ -5,10 +5,13 @@
  * subset of entries from one). Per /THREAD.md §"Output products," the
  * book is a *view* on the Thread, not the product itself.
  *
- * Lulu Direct is pure pay-per-print: no monthly fee, ~$25-40 per
- * hardcover at 100-200 pages, white-label fulfillment to ~150 countries.
- * We charge a margin (e.g. $99 retail / $35 cost) — revenue-positive
- * from the first print.
+ * Lulu Direct is pure pay-per-print: no monthly fee, white-label
+ * fulfillment to ~150 countries. We print FULL-COLOUR premium hardcovers
+ * (every weft thread, photo, and dye renders in colour — B&W would lose
+ * the family's identity palette). Full-colour premium at 100-200 pages
+ * runs ~$50-60 print + ~$20-25 delivery (~$75-80 landed cost). Retail is
+ * set at 2× landed cost ($159.99 hardcover / $99.99 softcover) —
+ * revenue-positive from the first print.
  *
  * This module covers the book-order lifecycle:
  *
@@ -143,7 +146,11 @@ interface PrintJobInput {
   shippingLevel?: 'MAIL' | 'PRIORITY_MAIL' | 'GROUND' | 'EXPEDITED' | 'EXPRESS';
 }
 
-const DEFAULT_POD_PACKAGE_ID = '0850X1100BWSTDCW060UC444GXX'; // 8.5"x11" hardcover, B&W, cream
+// 8.5"x11" hardcover (case wrap), FULL-COLOUR premium, 80# coated white,
+// gloss. Colour is required — the cloth, photos, and per-member dyes must
+// print in their true hues. Lulu SKU format: trim+colour+quality+bind+
+// paper+ppi+finish (FC=full colour, PRE=premium, CW=case wrap/hardcover).
+const DEFAULT_POD_PACKAGE_ID = '0850X1100FCPRECW080CW444GXX';
 
 export async function submitPrintJob(
   env: AppEnv['Bindings'],
