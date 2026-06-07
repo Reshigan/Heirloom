@@ -6,6 +6,7 @@ import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { TapestryEdge } from '../loom/components/Frame';
+import { RecipientPicker } from '../loom/components/RecipientPicker';
 
 /**
  * Record — ComposerSpeak (Loom 3 · §6.3).
@@ -51,7 +52,6 @@ export function Record() {
   const [promptIdx, setPromptIdx] = useState(0);
   const [addresseeName, setAddresseeName] = useState('');
   const [recipientId, setRecipientId] = useState<string | null>(null);
-  const [toOpen, setToOpen] = useState(false);
   const [entryDate, setEntryDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [deliveryTrigger, setDeliveryTrigger] = useState<SpeakTrigger>('now');
   const [scheduledDate, setScheduledDate] = useState('');
@@ -429,73 +429,19 @@ export function Record() {
               padding: '0 24px',
             }}
           >
-            {/* To: field with family autosuggest */}
-            <div style={{ position: 'relative', marginBottom: 14 }}>
-              <div
-                style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase',
-                  color: 'var(--bone-faint)', marginBottom: 6,
+            {/* To: field — autocomplete over friends & family, add-new inline */}
+            <div style={{ marginBottom: 14 }}>
+              <RecipientPicker
+                label="to"
+                members={familyMembers}
+                name={addresseeName}
+                selectedId={recipientId}
+                onChange={(n, id) => {
+                  setAddresseeName(n);
+                  setRecipientId(id);
                 }}
-              >
-                to
-              </div>
-              <input
-                value={addresseeName}
-                onChange={e => {
-                  setAddresseeName(e.target.value);
-                  setRecipientId(null);
-                  setToOpen(true);
-                }}
-                onFocus={() => setToOpen(true)}
-                onBlur={() => setTimeout(() => setToOpen(false), 200)}
                 placeholder="a name (optional)"
-                style={{
-                  width: '100%', boxSizing: 'border-box',
-                  background: 'transparent',
-                  border: 0, borderBottom: '1px solid var(--rule)',
-                  color: 'var(--bone)', caretColor: 'var(--warm)',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 14, letterSpacing: '0.04em',
-                  padding: '6px 0 4px', outline: 'none',
-                }}
               />
-              {toOpen && familyMembers.length > 0 && (
-                <div style={{
-                  position: 'absolute', top: '100%', left: 0, right: 0,
-                  background: '#111', border: '1px solid var(--rule)',
-                  zIndex: 40, maxHeight: 160, overflowY: 'auto',
-                }}>
-                  {familyMembers
-                    .filter(m => !addresseeName || m.name.toLowerCase().includes(addresseeName.toLowerCase()))
-                    .map(m => (
-                      <button
-                        key={m.id}
-                        type="button"
-                        onMouseDown={() => {
-                          setAddresseeName(m.name);
-                          setRecipientId(m.id);
-                          setToOpen(false);
-                        }}
-                        style={{
-                          display: 'block', width: '100%', textAlign: 'left',
-                          background: 'transparent', border: 0,
-                          padding: '10px 12px', cursor: 'pointer',
-                          fontFamily: "'JetBrains Mono', monospace",
-                          fontSize: 13, color: 'var(--bone-dim)',
-                          borderBottom: '1px solid var(--rule)',
-                        }}
-                      >
-                        {m.name}
-                        {m.relationship && (
-                          <span style={{ marginLeft: 8, fontSize: 10, color: 'var(--bone-faint)', textTransform: 'uppercase', letterSpacing: '0.16em' }}>
-                            {m.relationship}
-                          </span>
-                        )}
-                      </button>
-                    ))}
-                </div>
-              )}
             </div>
 
             {/* Entry date */}

@@ -110,7 +110,12 @@
   --dye-woad:      #4898d8;
   --dye-indigo:    #3878e8;
   --dye-iron:      #4a4a46;
-  
+
+  /* Cloth legibility scrim — layered beneath the ambient dye sparks so prose
+     stays readable while the living colour shows through. Default = vault ink;
+     the light theme overrides it to parchment below. */
+  --cloth-scrim: radial-gradient(120% 90% at 50% 0%, rgba(14,14,12,0.30) 0%, rgba(14,14,12,0.55) 60%, rgba(14,14,12,0.74) 100%);
+
   /* Timing */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -178,6 +183,24 @@
   --warm-glow:    rgba(160, 92, 32, 0.18);
   --glass-bg:     rgba(18, 14, 10, 0.05);
   --glass-border: rgba(18, 14, 10, 0.12);
+
+  /* Parchment scrim — keeps light mode reading as paper, not ink-washed. */
+  --cloth-scrim: radial-gradient(120% 90% at 50% 0%, rgba(245,236,224,0.34) 0%, rgba(245,236,224,0.60) 60%, rgba(245,236,224,0.80) 100%);
+
+  /* Parchment-safe dye palette — the bright dyes (saffron/weld/kermes…) wash
+     out as text/swatches on the #f5ece0 surface; darken them so dye-as-signal
+     (member names, emotion chips, the suggest result) keeps contrast on paper.
+     The 3D cloth threads use their own JS constants, so vault chroma is intact. */
+  --dye-madder:    #c23a2c;
+  --dye-cochineal: #b02458;
+  --dye-kermes:    #c2415a;
+  --dye-saffron:   #b8881a;
+  --dye-weld:      #a87a18;
+  --dye-walnut:    #7c5430;
+  --dye-oakgall:   #5e4636;
+  --dye-woad:      #2f6fae;
+  --dye-indigo:    #2a58c8;
+  --dye-iron:      #3a3a36;
 }
 
 * {

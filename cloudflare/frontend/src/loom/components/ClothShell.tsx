@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react';
 import type { ClothEntry } from './ClothCanvas3D';
 import { CLOTH_BG_ENTRIES } from './ClothBackdrop';
+import { BOTTOM_NAV_CLEARANCE } from './BottomNav';
 
 // Re-exported for back-compat — the canonical source now lives in ClothBackdrop.
 export { CLOTH_BG_ENTRIES };
@@ -27,7 +28,6 @@ export function ClothShell({
   return (
     <div
       className="loom"
-      data-theme="dark"
       style={{ position: 'fixed', inset: 0, background: 'transparent', overflow: 'hidden' }}
     >
       {/* Topbar */}
@@ -41,14 +41,14 @@ export function ClothShell({
             display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
             padding: '0 24px',
             paddingTop: 'env(safe-area-inset-top, 0px)',
-            background: 'rgba(14,14,12,0.92)',
-            borderBottom: '1px solid rgba(244,236,216,0.07)',
+            background: 'var(--ink)',
+            borderBottom: '1px solid var(--rule)',
           }}
         >
           <div style={{ minWidth: 120 }}>
             {topbarLeft}
           </div>
-          <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'rgba(244,236,216,0.38)', textTransform: 'uppercase' }}>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textTransform: 'uppercase' }}>
             {topbarCenter}
           </div>
           <div style={{ minWidth: 120, display: 'flex', justifyContent: 'flex-end' }}>
@@ -65,6 +65,10 @@ export function ClothShell({
           top: noTopbar ? 0 : 'calc(56px + env(safe-area-inset-top, 0px))',
           zIndex: 10,
           overflowY: 'auto',
+          // Reserve space for the fixed BottomNav so scrolling content never
+          // ends underneath it. (Full-bleed absolute layouts like the Weft set
+          // their own bottom inset — see Weft.tsx.)
+          paddingBottom: BOTTOM_NAV_CLEARANCE,
         }}
       >
         {children}

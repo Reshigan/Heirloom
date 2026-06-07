@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ClothPage } from '../loom/components/ClothPage';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+import { DYES, dyeVar, dyeFromMetadata, dyeForId, type Dye } from '../loom/dye';
 
 const ClothCanvas3D = lazy(() =>
   import('../loom/components/ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
@@ -18,30 +19,16 @@ const ClothCanvas3D = lazy(() =>
  * has no picks yet.
  */
 
-// ── Dye palette ───────────────────────────────────────────────────────────────
-const DYE_HEX: Record<string, string> = {
-  madder:   '#c0614a', indigo:  '#3d5a8a', weld:    '#d4a843',
-  saffron:  '#e8a825', kermes:  '#9e3a5a', walnut:  '#7a5c3a',
-  oakgall:  '#5a4a3a', woad:    '#5b7fa6', cochineal:'#b84060', iron: '#4a4a4a',
-};
-
 // ── Deterministic hash (no Math.random) ───────────────────────────────────────
 function sineHash(n: number): number {
   const x = Math.sin(n * 9301 + 49297) * 233280;
   return x - Math.floor(x);
 }
 
-function hashStr(s: string): number {
-  return s.split('').reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0);
-}
-
 // ── CLOTH_BG_ENTRIES — 48 deterministic picks for the woven backdrop texture ───
-const DYE_KEYS = ['madder','cochineal','kermes','saffron','weld','walnut','oakgall','woad','indigo','iron'] as const;
-type DyeKey = typeof DYE_KEYS[number];
-
 const CLOTH_BG_ENTRIES = Array.from({ length: 48 }, (_, i) => ({
   date: new Date(1960 + Math.floor(sineHash(i * 17 + 1) * 66), 0, 1),
-  dye: DYE_KEYS[i % DYE_KEYS.length] as DyeKey,
+  dye: DYES[i % DYES.length],
   locked: i % 4 === 0,
 }));
 
@@ -56,7 +43,7 @@ type Thread = {
   ord: number;         // sort key (epoch ms)
   title: string;
   who: string;
-  dye: string;
+  dye: Dye;
   body: string;
   photoUrl?: string | null;
   duration?: string;
@@ -70,10 +57,10 @@ function fmtDate(iso: string): { date: string; year: string; ord: number } {
   return { date: ymd.replace(/-/g, '·'), year: ymd.slice(0, 4), ord };
 }
 
-function dyeFor(kind: Kind, metadataDye: unknown, seed: string): string {
-  if (typeof metadataDye === 'string' && metadataDye in DYE_HEX) return metadataDye;
-  // Stable per-entry dye so the selvedge reads as a varied weave, not one colour.
-  return DYE_KEYS[Math.abs(hashStr(seed || kind)) % DYE_KEYS.length];
+function dyeFor(kind: Kind, metadataDye: unknown, seed: string): Dye {
+  // Honour the composer's saved dye first; otherwise a stable per-entry dye so
+  // the selvedge reads as a varied weave, not one colour.
+  return dyeFromMetadata({ dye: metadataDye }) ?? dyeForId(seed || kind);
 }
 
 function paragraphs(body: string): string[] {
@@ -243,6 +230,8 @@ export function ReadingRoom() {
   const [entries, setEntries]     = useState<Thread[]>([]);
   const [loading, setLoading]     = useState(false);
   const { user, isAuthenticated } = useAuthStore();
+  const [searchParams]            = useSearchParams();
+  const wantEntry                 = searchParams.get('entry');
 
   const who = useMemo(
     () => (user?.firstName?.trim() || user?.lastName?.trim() || 'you'),
@@ -277,7 +266,7 @@ export function ReadingRoom() {
 
         const lets = Array.isArray((let_ as any)?.data) ? (let_ as any).data : [];
         for (const l of lets) {
-          const { date, year, ord } = fmtDate(l.createdAt || l.created_at);
+          const { date, year, ord } = fmtDate(l.metadata?.entryDate || l.createdAt || l.created_at);
           list.push({
             id: l.id, kind: 'letter', date, year, ord,
             title: l.title?.trim() || l.salutation?.trim() || 'A letter',
@@ -288,13 +277,13 @@ export function ReadingRoom() {
 
         const voxs = Array.isArray((vox as any)?.data) ? (vox as any).data : [];
         for (const v of voxs) {
-          const { date, year, ord } = fmtDate(v.createdAt || v.created_at);
+          const { date, year, ord } = fmtDate(v.metadata?.entryDate || v.createdAt || v.created_at);
           const secs = Number(v.duration) || 0;
           const duration = secs ? `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, '0')}` : undefined;
           list.push({
             id: v.id, kind: 'voice', date, year, ord,
             title: v.title?.trim() || 'A recording',
-            who, dye: dyeFor('voice', null, v.id),
+            who, dye: dyeFor('voice', v.metadata?.dye, v.id),
             body: v.transcript || '', duration,
           });
         }
@@ -307,8 +296,16 @@ export function ReadingRoom() {
     return () => { ignored = true; };
   }, [isAuthenticated, who]);
 
+  // A thread tapped on the cloth arrives as ?entry=<id> — open it directly
+  // once the thread list has loaded.
+  useEffect(() => {
+    if (!wantEntry || entries.length === 0) return;
+    const i = entries.findIndex((e) => e.id === wantEntry);
+    if (i >= 0) setActive(i);
+  }, [wantEntry, entries]);
+
   const t   = entries[active] ?? entries[0] ?? null;
-  const dye = t ? (DYE_HEX[t.dye] ?? '#b07a4a') : '#b07a4a';
+  const dye = t ? dyeVar(t.dye) : 'var(--warm)';
 
   const handleSelect = (i: number) => {
     if (i === active) return;
@@ -430,7 +427,7 @@ export function ReadingRoom() {
               style={{
                 flex: 1, cursor: 'pointer',
                 display: 'flex', alignItems: 'center', overflow: 'hidden',
-                borderLeft: `3px solid ${DYE_HEX[th.dye] ?? '#b07a4a'}`,
+                borderLeft: `3px solid ${dyeVar(th.dye)}`,
                 opacity: i === active ? 1 : 0.28,
                 transition: `opacity 180ms ${EASE}`,
               }}
@@ -464,17 +461,46 @@ export function ReadingRoom() {
           <div style={{
             position: 'absolute', inset: 0, display: 'flex',
             alignItems: 'center', justifyContent: 'center',
-            flexDirection: 'column', gap: 14,
+            padding: '48px 24px', overflowY: 'auto',
           }}>
-            <div style={{ fontFamily: 'var(--serif)', fontSize: 19, fontStyle: 'italic', color: 'var(--bone-faint)' }}>
-              the cloth is bare.
+            <div style={{ maxWidth: 540, width: '100%' }}>
+              <div style={{
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                textTransform: 'uppercase', color: 'var(--warm)', marginBottom: 22,
+              }}>
+                why heirloom exists
+              </div>
+              <p style={{
+                fontFamily: 'var(--serif)', fontSize: 'clamp(19px, 2.6vw, 24px)', fontWeight: 300,
+                fontStyle: 'italic', color: 'var(--bone)', lineHeight: 1.6, margin: '0 0 22px',
+              }}>
+                Every family loses its stories twice — first when they go unspoken,
+                then when the ones who remember are gone.
+              </p>
+              <p style={{
+                fontFamily: 'var(--serif)', fontSize: 16, fontWeight: 300,
+                color: 'var(--bone-dim)', lineHeight: 1.85, margin: '0 0 16px',
+              }}>
+                Heirloom is the thread that outlives that. Not a feed to scroll and forget,
+                but a single woven cloth your bloodline keeps adding to: a letter sealed for
+                a birthday decades away, a grandparent's voice, the ordinary days that turn
+                out to matter most.
+              </p>
+              <p style={{
+                fontFamily: 'var(--serif)', fontSize: 16, fontWeight: 300,
+                color: 'var(--bone-dim)', lineHeight: 1.85, margin: '0 0 30px',
+              }}>
+                Append-only. Encrypted. Owned by your family, never a platform. Begin one
+                thread today and it can still be read a thousand years from now.
+              </p>
+              <Link to="/compose" style={{
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none',
+                borderLeft: '3px solid var(--warm)', paddingLeft: 14, display: 'inline-block',
+              }}>
+                weave the first thread →
+              </Link>
             </div>
-            <Link to="/compose" style={{
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
-              textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none',
-            }}>
-              begin writing →
-            </Link>
           </div>
         )}
         {t && (

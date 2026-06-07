@@ -84,6 +84,7 @@ const Memories        = lazy(() => import('./pages/Memories').then(m => ({ defau
 
 const ThreadsIndex    = lazy(() => import('./pages/ThreadsIndex').then(m => ({ default: m.ThreadsIndex })));
 const PwaHome         = lazy(() => import('./pages/PwaHome').then(m => ({ default: m.PwaHome })));
+const LoomIndex       = lazy(() => import('./pages/LoomIndex').then(m => ({ default: m.LoomIndex })));
 const InheritanceCard = lazy(() => import('./pages/InheritanceCard').then(m => ({ default: m.InheritanceCard })));
 
 // Book + scenario pages
@@ -216,16 +217,9 @@ function LoomShellRoot({ children }: { children: React.ReactNode }) {
       {/* Global cloth substrate — the animated tapestry behind every screen,
           mounted once so there is a single WebGL context for the whole app. */}
       <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
+        {/* ClothBackdrop owns its own theme-aware legibility scrim (layered
+            below the ambient dye sparks) so the living colour stays visible. */}
         <ClothBackdrop opacity={0.42} threadOpacity={0.55} />
-        {/* legibility scrim — keeps prose readable over the busiest weave */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'radial-gradient(120% 90% at 50% 0%, rgba(14,14,12,0.35) 0%, rgba(14,14,12,0.62) 60%, rgba(14,14,12,0.8) 100%)',
-          }}
-        />
       </div>
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
         <Suspense
@@ -544,6 +538,7 @@ export default function App() {
           <Route path="/loom" element={<LoomThreshold />} />
           <Route path="/loom/today" element={<ProtectedRoute><Today /></ProtectedRoute>} />
           <Route path="/loom/pwa"   element={<PwaHome />} />
+          <Route path="/loom/index" element={<ProtectedRoute><LoomIndex /></ProtectedRoute>} />
           <Route path="/loom/weft" element={<ProtectedRoute><LoomWeft /></ProtectedRoute>} />
           <Route path="/loom/compose" element={<Navigate to="/compose" replace />} />
           <Route path="/loom/tied" element={<ProtectedRoute><LoomTiedOff /></ProtectedRoute>} />

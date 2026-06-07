@@ -31,12 +31,15 @@ export type LoomDye =
   | 'walnut' | 'oakgall' | 'woad' | 'indigo' | 'iron';
 
 export interface LoomEntry {
+  id?: string;           // entity id, so a tapped thread can open its room
   year: number;
   month?: number;        // 1–12
   lane: number;          // 0–4 typical
   kind: LoomKind;
   locked?: boolean;      // sealed / tied off — renders as a tethered ∞ peg
   title?: string;
+  date?: string;         // full ISO lived-date, for the highlight readout
+  recipient?: string;    // who it's addressed to (letters/voice), for the readout
   width?: number;        // px override for the pick
   dye?: LoomDye;         // explicit dye override; otherwise keyed off kind
 }
@@ -110,9 +113,14 @@ export function Loom({
   const yearToX = (y: number) => ((y - startYear) / span) * 100;
   const laneToY = (lane: number) => 12 + (lane * (height - 36)) / 5;
 
+  // Span-relative tick density: aim for ~8–12 labels whatever the window
+  // width, so a 6-year cloth shows yearly ticks and a 150-year archive thins
+  // to decades/quarter-centuries instead of cramming 30 labels together.
   const yearTicks: number[] = [];
-  for (let y = startYear; y <= endYear; y += 1) {
-    if (y % 5 === 0) yearTicks.push(y);
+  const tickStep = [1, 2, 5, 10, 25, 50, 100].find((s) => span / s <= 12) ?? 100;
+  const firstTick = Math.ceil(startYear / tickStep) * tickStep;
+  for (let y = firstTick; y <= endYear; y += tickStep) {
+    yearTicks.push(y);
   }
 
   // irregular hand-woven warp — a stack of vertical hairlines, each with

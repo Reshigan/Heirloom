@@ -61,6 +61,7 @@ export function Today() {
   }, [isAuthenticated]);
   const [revealed, setRevealed] = useState(false);
   const [vpW, setVpW] = useState(typeof window !== 'undefined' ? window.innerWidth : 1440);
+  const [vpH, setVpH] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
 
   useEffect(() => {
     const t = setTimeout(() => setRevealed(true), 120);
@@ -68,7 +69,7 @@ export function Today() {
   }, []);
 
   useEffect(() => {
-    const sync = () => setVpW(window.innerWidth);
+    const sync = () => { setVpW(window.innerWidth); setVpH(window.innerHeight); };
     window.addEventListener('resize', sync);
     return () => window.removeEventListener('resize', sync);
   }, []);
@@ -79,12 +80,28 @@ export function Today() {
   ).values()].slice(0, 3);
 
   const ease = 'cubic-bezier(0.16,1,0.3,1)';
-  const nowFrac = (() => {
+
+  // Fit the cloth window to the real entries (with a small pad and a sensible
+  // minimum span) so the panel reads as the same woven cloth as /loom/weft —
+  // threads sit where they happened rather than scattered across a fixed window.
+  const { tStart, tEnd } = (() => {
     const now = new Date();
-    const start = new Date(2019, 0, 1);
-    const end   = new Date(2028, 0, 1);
-    return Math.max(0, Math.min(1, (+now - +start) / (+end - +start)));
+    if (entries.length === 0) {
+      return { tStart: new Date(now.getFullYear() - 6, 0, 1), tEnd: new Date(now.getFullYear() + 1, 0, 1) };
+    }
+    const times = entries.map((e) => e.date.getTime());
+    const minY = new Date(Math.min(...times, now.getTime())).getFullYear();
+    const maxY = new Date(Math.max(...times, now.getTime())).getFullYear();
+    const pad = Math.max(1, Math.round((maxY - minY) * 0.1));
+    let s = minY - pad;
+    let e = maxY + pad;
+    if (e - s < 8) { const g = Math.ceil((8 - (e - s)) / 2); s -= g; e += g; }
+    return { tStart: new Date(s, 0, 1), tEnd: new Date(e + 1, 0, 1) };
   })();
+  const nowFrac = Math.max(0, Math.min(1, (Date.now() - +tStart) / (+tEnd - +tStart)));
+  // The cloth fills the lower portion of the screen and breathes in place
+  // (no panning) — matching the woven backdrop, not the old scrolling thread.
+  const clothH = Math.round(Math.min(460, Math.max(220, vpH * 0.42)));
 
   const todayTopbar = (
     <Link to="/loom/weft" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>
@@ -257,25 +274,27 @@ export function Today() {
         )}
       </div>
 
-      {/* ── Cloth: fills the bottom portion of the screen ── */}
-      {/* Outer container pinned bottom; cloth height = 200px so it breathes */}
+      {/* ── Cloth: the full woven panel fills the lower area and breathes in ── */}
+      {/* place (noPan) — the same cloth render as /loom/weft, not a scrolling thread. */}
       <div
         style={{
-          position: 'absolute', left: 0, right: 0, bottom: 8,
+          position: 'absolute', left: 0, right: 0, bottom: 0,
           opacity: revealed ? 1 : 0,
           transition: `opacity 1400ms ${ease}`,
           transitionDelay: '720ms',
+          pointerEvents: 'none',
         }}
       >
         <TapestryCanvas
           width={vpW}
-          height={200}
+          height={clothH}
           entries={entries}
           kind="full"
           animate
+          noPan
           opts={{
-            tStart: new Date(2019, 0, 1),
-            tEnd:   new Date(2028, 0, 1),
+            tStart,
+            tEnd,
             nowFrac,
             background: '#0e0e0c',
             warpEvery: 10,

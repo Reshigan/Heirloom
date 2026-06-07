@@ -1,21 +1,10 @@
-import { useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useRef, useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
-
-const DYE_HEX: Record<string, string> = {
-  madder: '#e84030', cochineal: '#d42868', kermes: '#f05268',
-  saffron: '#f5c832', weld: '#edae2e', walnut: '#a07040',
-  oakgall: '#7c5c4a', woad: '#4898d8', indigo: '#3878e8', iron: '#4a4a46',
-};
-const DYE_KEYS = Object.keys(DYE_HEX);
-
-function dyeFor(id: string): string {
-  const h = id.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
-  return DYE_HEX[DYE_KEYS[Math.abs(h) % DYE_KEYS.length]];
-}
+import { dyeColor } from '../loom/dye';
 
 function formatDuration(seconds: number | null): string {
   if (seconds === null || seconds === undefined) return '';
@@ -32,6 +21,7 @@ interface VoiceEntry {
   duration: number | null;
   transcript: string | null;
   createdAt: string;
+  metadata?: { dye?: string } | null;
 }
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
@@ -39,6 +29,8 @@ const WAVEFORM_HEIGHTS = [12, 20, 8, 24, 16, 10, 22, 14, 6, 18, 20, 10];
 
 export function VoiceRoom() {
   const { isAuthenticated } = useAuthStore();
+  const [searchParams] = useSearchParams();
+  const wantId = searchParams.get('id');
   const [playingId, setPlayingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -57,6 +49,15 @@ export function VoiceRoom() {
   });
 
   const recordings: VoiceEntry[] = (data as { data: VoiceEntry[] } | null)?.data ?? [];
+
+  // A recording tapped on the cloth arrives as ?id=<id> — open its player and
+  // bring it into view once the list has rendered.
+  useEffect(() => {
+    if (!wantId || recordings.length === 0) return;
+    setPlayingId(wantId);
+    const el = document.getElementById(`voice-${wantId}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [wantId, recordings.length]);
 
   const topbarLeft = (
     <Link
@@ -122,13 +123,14 @@ export function VoiceRoom() {
         {/* Voice list */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {recordings.map((entry) => {
-            const dye = dyeFor(entry.id);
+            const dye = dyeColor(entry.id, entry.metadata);
             const isPlaying = playingId === entry.id;
             const duration = formatDuration(entry.duration);
 
             return (
               <div
                 key={entry.id}
+                id={`voice-${entry.id}`}
                 style={{
                   borderLeft: `3px solid ${dye}`,
                   borderBottom: '1px solid rgba(244,236,216,0.06)',

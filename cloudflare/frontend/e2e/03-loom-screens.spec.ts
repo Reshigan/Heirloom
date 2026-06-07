@@ -128,28 +128,12 @@ test.describe('loom pwa home (/loom/pwa)', () => {
     await page.waitForLoadState('networkidle');
   });
 
-  test('bottom navigation renders all 5 items', async ({ page }) => {
-    // NAV = cloth · compose · ∞ · letters · listen
-    const bodyText = (await page.locator('body').textContent()) ?? '';
-    expect(bodyText).toMatch(/cloth/i);
-    expect(bodyText).toMatch(/compose/i);
-    expect(bodyText).toContain('∞');
-    expect(bodyText).toMatch(/letters/i);
-    expect(bodyText).toMatch(/listen/i);
-  });
-
-  test('bottom nav links point to correct loom routes', async ({ page }) => {
-    const clothLink  = page.locator('a[href="/loom/weft"]');
-    const composeLink = page.locator('a[href="/loom/compose"]');
-    const infinityLink = page.locator('a[href="/loom/pwa"]');
-    const lettersLink = page.locator('a[href="/loom/read"]');
-    const listenLink  = page.locator('a[href="/loom/echo"]');
-
-    await expect(clothLink.first()).toBeAttached();
-    await expect(composeLink.first()).toBeAttached();
-    await expect(infinityLink.first()).toBeAttached();
-    await expect(lettersLink.first()).toBeAttached();
-    await expect(listenLink.first()).toBeAttached();
+  test('persistent BottomNav does not leak to unauthenticated visitors', async ({ page }) => {
+    // BottomNav renders only for authenticated users on app surfaces. On an
+    // anonymous /loom/pwa it must be absent — never a "cloth · memory · ∞" bar
+    // over the logged-out preview. The authenticated nav contract (incl.
+    // ∞ → /loom/index) is asserted in verify-fixes.spec.ts.
+    await expect(page.locator('nav[aria-label="Loom navigation"]')).toHaveCount(0);
   });
 
   test('renders visitor / unauthenticated shell without crash', async ({ page }) => {

@@ -225,8 +225,6 @@ export function Family() {
     setInviteSent(false);
   };
 
-  const atLimit = members.length >= 5;
-
   return (
     <ClothShell
       topbarLeft={
@@ -241,7 +239,7 @@ export function Family() {
   </Link>
 }
       topbarCenter="family"
-      topbarRight={!atLimit && !showForm ? (
+      topbarRight={!showForm ? (
         <button type="button" className="hl-btn" onClick={() => openForm('add')} style={{ fontSize: 12, padding: '6px 14px' }}>add →</button>
       ) : undefined}
     >
@@ -263,9 +261,9 @@ export function Family() {
           >
             The people on this thread.
           </h1>
-          {!isLoading && (
+          {!isLoading && members.length > 0 && (
             <span className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase', flexShrink: 0, paddingTop: 6 }}>
-              {members.length} / 5
+              {members.length} {members.length === 1 ? 'voice' : 'voices'}
             </span>
           )}
         </div>
@@ -273,25 +271,17 @@ export function Family() {
         {/* primary CTA row */}
         {!showForm && (
           <div style={{ display: 'flex', gap: 16, marginBottom: 36, flexWrap: 'wrap' }}>
-            {atLimit ? (
-              <span className="hl-mono" style={{ fontSize: 13, color: 'var(--warm)', letterSpacing: '0.18em', textTransform: 'uppercase', alignSelf: 'center' }}>
-                five voices woven · the thread is sealed
-              </span>
-            ) : (
-              <>
-                <button type="button" className="hl-btn" onClick={() => openForm('add')}>
-                  add a name →
-                </button>
-                <button
-                  type="button"
-                  className="hl-btn ghost"
-                  onClick={() => openForm('invite')}
-                  style={{ color: 'var(--warm)', borderColor: 'rgba(176,122,74,0.4)' }}
-                >
-                  invite by email →
-                </button>
-              </>
-            )}
+            <button type="button" className="hl-btn" onClick={() => openForm('add')}>
+              add a name →
+            </button>
+            <button
+              type="button"
+              className="hl-btn ghost"
+              onClick={() => openForm('invite')}
+              style={{ color: 'var(--warm)', borderColor: 'rgba(176,122,74,0.4)' }}
+            >
+              invite by email →
+            </button>
           </div>
         )}
 
@@ -543,7 +533,7 @@ export function Family() {
         ) : members.length === 0 ? (
           <div style={{ paddingTop: 8 }}>
             <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, margin: 0, lineHeight: 1.7 }}>
-              The thread holds no voices yet. Weave someone in.
+              No one else is on this thread yet. Add the first name above.
             </p>
           </div>
         ) : (

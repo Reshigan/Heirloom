@@ -334,7 +334,7 @@ export function Settings() {
                     {checkIn.isPending ? 'checking in…' : 'check in now →'}
                   </button>
                 )}
-                <Link to="/inherit" style={{ color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
+                <Link to="/threads" style={{ color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
                   configure →
                 </Link>
               </div>

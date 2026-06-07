@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useAuthStore } from '../../stores/authStore';
 
 /**
  * BottomNav — the persistent 5-item typographic bar at the foot of the
@@ -8,19 +9,37 @@ import { Link, useLocation } from 'react-router-dom';
  * The ∞ center item is the only mark — no icons, per §2.6.
  * Anchored above the iPhone home indicator via env(safe-area-inset-bottom).
  * Active route: bone. Inactive: bone at 32% opacity.
- * Center ∞: warm when active, warm at 50% opacity when inactive.
+ * Center ∞: warm when active, warm-dim when inactive.
+ *
+ * Only renders for authenticated users on app surfaces — never on the
+ * marketing site, auth screens, onboarding, or admin (it used to leak a
+ * "cloth · memory · ∞" bar over the logged-out landing/login pages).
  */
 
 const NAV = [
   { label: 'cloth',  href: '/loom/weft' },
   { label: 'memory', href: '/compose' },
-  { label: '∞',      href: '/loom/pwa',    center: true },
+  { label: '∞',      href: '/loom/index',  center: true },
   { label: 'letter', href: '/loom/letter' },
-  { label: 'voice',  href: '/loom/voice' },
+  { label: 'voice',  href: '/record' },
 ] as const;
+
+// Public / chrome-free surfaces where the persistent nav must not appear.
+const HIDE_EXACT = new Set(['/']);
+const HIDE_PREFIXES = ['/login', '/signup', '/pricing', '/privacy', '/terms', '/admin', '/onboarding', '/loom/marketing'];
+
+/** The shell reserves this much bottom space so content clears the nav. */
+export const BOTTOM_NAV_CLEARANCE = 'calc(64px + env(safe-area-inset-bottom, 0px))';
 
 export function BottomNav() {
   const { pathname } = useLocation();
+  const { isAuthenticated } = useAuthStore();
+
+  const hidden =
+    !isAuthenticated ||
+    HIDE_EXACT.has(pathname) ||
+    HIDE_PREFIXES.some((p) => pathname === p || pathname.startsWith(p + '/'));
+  if (hidden) return null;
 
   return (
     <nav
@@ -32,9 +51,8 @@ export function BottomNav() {
         right: 0,
         height: 'calc(64px + env(safe-area-inset-bottom, 0px))',
         zIndex: 30,
-        background: 'rgba(14,14,12,0.72)',
-        backdropFilter: 'blur(0px)',
-        borderTop: '1px solid rgba(244,236,216,0.07)',
+        background: 'var(--ink)',
+        borderTop: '1px solid var(--rule)',
         display: 'flex',
         alignItems: 'stretch',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
@@ -58,8 +76,8 @@ export function BottomNav() {
               borderTop: isActive ? '2px solid var(--warm)' : '2px solid transparent',
               paddingTop: isActive ? 0 : 2,
               color: isCenter
-                ? isActive ? 'var(--warm)' : 'rgba(176,122,74,0.65)'
-                : isActive ? 'var(--bone)' : 'rgba(244,236,216,0.32)',
+                ? isActive ? 'var(--warm)' : 'var(--warm-dim)'
+                : isActive ? 'var(--bone)' : 'var(--bone-low)',
               fontFamily: isCenter ? 'var(--serif)' : 'var(--mono)',
               fontSize: isCenter ? 22 : 9,
               letterSpacing: isCenter ? undefined : '0.18em',

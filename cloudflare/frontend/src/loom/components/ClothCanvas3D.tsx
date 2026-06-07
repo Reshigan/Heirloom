@@ -48,6 +48,7 @@ const VERTEX_SHADER = `
 `;
 
 const FRAGMENT_SHADER = `
+  uniform float uTime;
   varying vec2 vUv;
 
   void main() {
@@ -65,7 +66,16 @@ const FRAGMENT_SHADER = `
     vec3 ink  = vec3(0.055, 0.055, 0.047);
     vec3 bone = vec3(0.957, 0.925, 0.847);
     vec3 warm = vec3(0.686, 0.478, 0.290);
-    vec3 col  = mix(ink, mix(bone, warm, overUnder * 0.18), thread * 0.22);
+    // Slow dye breathing — a gentle warmth that drifts diagonally across the
+    // weave so the cloth reads as alive without ever pulling focus. Two low
+    // frequencies beat against each other for a non-repeating shimmer.
+    float shimmer = 0.5 + 0.5 * sin(uTime * 0.22 + vUv.x * 4.0 + vUv.y * 2.6);
+    float bloom   = 0.5 + 0.5 * sin(uTime * 0.13 - vUv.y * 3.1 + vUv.x * 1.4);
+    float warmth  = overUnder * 0.18 + shimmer * 0.16;
+    vec3 glint = mix(bone, warm, clamp(warmth, 0.0, 1.0));
+    vec3 col   = mix(ink, glint, thread * 0.22);
+    // Faint whole-cloth value drift so even the ink base softly respires.
+    col += warm * 0.012 * bloom * (0.4 + thread);
     gl_FragColor = vec4(col, 1.0);
   }
 `;

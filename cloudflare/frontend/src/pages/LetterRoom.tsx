@@ -1,21 +1,10 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
-
-const DYE_HEX: Record<string, string> = {
-  madder: '#e84030', cochineal: '#d42868', kermes: '#f05268',
-  saffron: '#f5c832', weld: '#edae2e', walnut: '#a07040',
-  oakgall: '#7c5c4a', woad: '#4898d8', indigo: '#3878e8', iron: '#4a4a46',
-};
-const DYE_KEYS = Object.keys(DYE_HEX);
-
-function dyeFor(id: string): string {
-  const h = id.split('').reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 0);
-  return DYE_HEX[DYE_KEYS[Math.abs(h) % DYE_KEYS.length]];
-}
+import { dyeColor } from '../loom/dye';
 
 function statusLabel(letter: Letter): string {
   if (!letter.sealedAt) return 'draft';
@@ -33,13 +22,16 @@ interface Letter {
   sealedAt: string | null;
   recipients: Array<{ id: string; name: string; relationship: string }>;
   createdAt: string;
+  metadata?: { dye?: string } | null;
 }
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
 export function LetterRoom() {
   const { isAuthenticated } = useAuthStore();
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const wantId = searchParams.get('id');
+  const [expandedId, setExpandedId] = useState<string | null>(wantId);
 
   const { data, isLoading } = useQuery({
     queryKey: ['letters'],
@@ -48,6 +40,15 @@ export function LetterRoom() {
   });
 
   const letters: Letter[] = (data as { data: Letter[] } | null)?.data ?? [];
+
+  // A letter tapped on the cloth arrives as ?id=<id> — open it and bring it
+  // into view once the list has rendered.
+  useEffect(() => {
+    if (!wantId || letters.length === 0) return;
+    setExpandedId(wantId);
+    const el = document.getElementById(`letter-${wantId}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [wantId, letters.length]);
 
   const topbarLeft = (
     <Link
@@ -113,7 +114,7 @@ export function LetterRoom() {
         {/* Letter list */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           {letters.map((letter) => {
-            const dye = dyeFor(letter.id);
+            const dye = dyeColor(letter.id, letter.metadata);
             const recipientName = letter.recipients?.[0]?.name ?? null;
             const isExpanded = expandedId === letter.id;
             const status = statusLabel(letter);
@@ -121,6 +122,7 @@ export function LetterRoom() {
             return (
               <div
                 key={letter.id}
+                id={`letter-${letter.id}`}
                 style={{
                   borderLeft: `3px solid ${dye}`,
                   borderBottom: '1px solid rgba(244,236,216,0.06)',

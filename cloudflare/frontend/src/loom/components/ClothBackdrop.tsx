@@ -55,10 +55,21 @@ export function ClothBackdrop({
           zIndex: 0,
         }}
       >
-        <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#0e0e0c' }} />}>
+        <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: 'var(--ink)' }} />}>
           <ClothCanvas3D entries={entries ?? CLOTH_BG_ENTRIES} />
         </Suspense>
       </div>
+      {/* Legibility scrim — sits ABOVE the busy 3D weave but BELOW the ambient
+          dye sparks, so prose stays readable while the living colour still
+          shows through. Theme-aware via --cloth-scrim (ink in vault, parchment
+          in paper) so light mode is no longer washed toward black. */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0,
+          background: 'var(--cloth-scrim)',
+        }}
+      />
       <AmbientThreads opacity={threadOpacity} />
     </>
   );

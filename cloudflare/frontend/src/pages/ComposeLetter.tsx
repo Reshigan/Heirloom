@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { familyApi, lettersApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
 import { TapestryEdge } from '../loom/components/Frame';
+import { RecipientPicker } from '../loom/components/RecipientPicker';
 
 /**
  * ComposeLetter — loom3 standalone rewrite (§6.3 Composer · letter mode).
@@ -32,7 +33,8 @@ export function ComposeLetter() {
   const [salutation, setSalutation] = useState('');
   const [body, setBody] = useState('');
   const [signature, setSignature] = useState('');
-  const [recipientIdx, setRecipientIdx] = useState(0);
+  const [recipientName, setRecipientName] = useState('');
+  const [recipientId, setRecipientId] = useState<string | null>(null);
   const [scheduledDate, setScheduledDate] = useState('');
   const [deliveryTrigger, setDeliveryTrigger] = useState<'now' | 'date' | 'death' | 'milestone'>(
     'now',
@@ -48,7 +50,6 @@ export function ComposeLetter() {
         .catch(() => []),
   });
   const members: FamilyMember[] = Array.isArray(family) ? family : [];
-  const recipient = members[recipientIdx] ?? null;
 
   const { data: existingLetter } = useQuery({
     queryKey: ['letter', letterId],
@@ -68,11 +69,12 @@ export function ComposeLetter() {
     else if (trigger === 'MILESTONE') setDeliveryTrigger('milestone');
     else setDeliveryTrigger('now');
     // Select recipient by ID match
-    if (existingLetter.recipients?.[0]?.id && members.length > 0) {
-      const idx = members.findIndex((m: FamilyMember) => m.id === existingLetter.recipients[0].id);
-      if (idx !== -1) setRecipientIdx(idx);
+    const r = existingLetter.recipients?.[0];
+    if (r?.id) {
+      setRecipientId(r.id);
+      setRecipientName(r.name ?? '');
     }
-  }, [existingLetter, members]);
+  }, [existingLetter]);
 
   const sealedUntil = useMemo(() => {
     if (deliveryTrigger !== 'date' || !scheduledDate) return null;
@@ -101,7 +103,7 @@ export function ComposeLetter() {
       signature: signature.trim() || null,
       deliveryTrigger: trigger,
       scheduledDate: trigger === 'SCHEDULED' ? scheduledDate : null,
-      recipientIds: recipient ? [recipient.id] : [],
+      recipientIds: recipientId ? [recipientId] : [],
     };
     let data: any;
     if (letterId) {
@@ -397,70 +399,20 @@ export function ComposeLetter() {
             )}
           </div>
 
-          {/* recipient row */}
-          {members.length > 0 ? (
-            <div
-              style={{
-                marginTop: 16,
-                fontFamily: 'var(--mono)',
-                fontSize: 10,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
+          {/* recipient row — autocomplete over friends & family, add-new inline */}
+          <div style={{ marginTop: 16, maxWidth: 340 }}>
+            <RecipientPicker
+              label="for"
+              members={members}
+              name={recipientName}
+              selectedId={recipientId}
+              onChange={(n, id) => {
+                setRecipientName(n);
+                setRecipientId(id);
               }}
-            >
-              <span style={{ color: 'var(--bone-faint)' }}>for · </span>
-              <button
-                type="button"
-                onClick={() =>
-                  setRecipientIdx((i) => (i + 1) % members.length)
-                }
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontFamily: 'var(--serif)',
-                  fontStyle: 'italic',
-                  fontSize: 13,
-                  letterSpacing: 0,
-                  color: 'var(--bone-dim)',
-                  padding: 0,
-                }}
-              >
-                {recipient?.name}
-              </button>
-            </div>
-          ) : (
-            <div
-              style={{
-                marginTop: 16,
-                fontFamily: 'var(--mono)',
-                fontSize: 10,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
-              }}
-            >
-              <span>for · </span>
-              <button
-                type="button"
-                onClick={() => navigate('/family')}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontFamily: 'var(--mono)',
-                  fontSize: 10,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: 'var(--warm)',
-                  padding: 0,
-                }}
-              >
-                add a recipient →
-              </button>
-            </div>
-          )}
+              placeholder="a name (optional)"
+            />
+          </div>
 
           <hr className="hl-rule" style={{ marginTop: 28 }} />
 
