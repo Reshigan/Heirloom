@@ -93,7 +93,7 @@ export function Echo() {
                   display: 'inline-block',
                   opacity: revealed ? 1 : 0,
                   transform: revealed ? 'translateY(0)' : 'translateY(6px)',
-                  transition: `opacity 400ms cubic-bezier(0.16,1,0.3,1) ${80 + i * 65}ms, transform 400ms cubic-bezier(0.16,1,0.3,1) ${80 + i * 65}ms`,
+                  transition: `opacity 360ms cubic-bezier(0.16,1,0.3,1) ${80 + i * 65}ms, transform 360ms cubic-bezier(0.16,1,0.3,1) ${80 + i * 65}ms`,
                   marginRight: '0.28em',
                 }}
               >

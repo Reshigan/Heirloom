@@ -32,7 +32,7 @@ export async function currentStorageBytes(env: Env, userId: string): Promise<num
       `SELECT COALESCE(SUM(file_size), 0) AS total FROM memories WHERE user_id = ? AND deleted_at IS NULL`,
     ).bind(userId).first<{ total: number }>(),
     env.DB.prepare(
-      `SELECT COALESCE(SUM(file_size), 0) AS total FROM voice_recordings WHERE user_id = ?`,
+      `SELECT COALESCE(SUM(file_size), 0) AS total FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL`,
     ).bind(userId).first<{ total: number }>(),
   ]);
   return (mem?.total ?? 0) + (voice?.total ?? 0);

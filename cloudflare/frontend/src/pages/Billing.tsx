@@ -53,14 +53,14 @@ export function Billing() {
   const trialEndsAt = (subscription as any)?.trial_ends_at ?? null;
   const trialDaysRemaining = (subscription as any)?.trialDaysRemaining ?? 0;
   const isTrialing = status === 'TRIALING';
-  const priceLabel = isFounderTier(currentTier) ? 'lifetime' : isFreeTier(currentTier) ? 'free' : '$9.99';
+  const priceLabel = isFounderTier(currentTier) ? 'lifetime' : isFreeTier(currentTier) ? 'free' : '$6.99';
   const isFounder = isFounderTier(currentTier);
   const counterText = isFounder
     ? 'founder · once · lifetime'
     : isTrialing
     ? `trial · ${trialDaysRemaining}d left`
     : currentTier === 'FAMILY'
-    ? 'family · $9.99/mo'
+    ? 'family · $6.99/mo'
     : 'free plan';
 
   return (

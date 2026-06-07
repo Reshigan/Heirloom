@@ -44,6 +44,10 @@ class_name = "RateLimiter"
 tag = "v1"
 new_sqlite_classes = ["RateLimiter"]
 
+# Workers AI (used by routes/ai.ts for Llama 3 text generation)
+[ai]
+binding = "AI"
+
 # ============================================
 # CRON TRIGGERS (Dead Man's Switch)
 # ============================================

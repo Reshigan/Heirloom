@@ -82,7 +82,14 @@ adminRoutes.post('/login', async (c) => {
   const storedSalt = colonIndex >= 0 ? passwordHashStr.substring(colonIndex + 1) : null;
   
   if (storedHash === 'CHANGE_ME_ON_FIRST_LOGIN' || passwordHashStr === 'CHANGE_ME_ON_FIRST_LOGIN') {
-    // First login - set the password
+    // First login — require the ADMIN_SETUP_SECRET env var to match the request body.
+    // Without this gate, any caller who knows the admin email can self-assign a password.
+    const { setupToken } = body;
+    const expectedSecret = c.env.ADMIN_SETUP_SECRET;
+    if (!expectedSecret || !setupToken || setupToken !== expectedSecret) {
+      return c.json({ error: 'Invalid credentials' }, 401);
+    }
+    // Set the password
     const salt = crypto.getRandomValues(new Uint8Array(16));
     const keyMaterial = await crypto.subtle.importKey(
       'raw',

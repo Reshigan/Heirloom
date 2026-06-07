@@ -1203,16 +1203,24 @@ billingRoutes.post('/webhook', async (c) => {
           id: string;
           metadata?: { user_id?: string };
         };
-        
+
         // Try to get user_id from subscription metadata first, then lookup by subscription ID
         let userId = subscription.metadata?.user_id;
         if (!userId) {
-          const sub = await c.env.DB.prepare('SELECT user_id FROM subscriptions WHERE stripe_subscription_id = ?')
+          const sub = await c.env.DB.prepare('SELECT user_id, tier FROM subscriptions WHERE stripe_subscription_id = ?')
             .bind(subscription.id).first();
           userId = sub?.user_id as string | undefined;
+          // Never downgrade LEGACY/Founder lifetime buyers via a subscription.deleted event —
+          // they paid once, have no recurring subscription to cancel.
+          if (sub?.tier === 'LEGACY' || sub?.tier === 'FOREVER') break;
         }
-        
+
         if (userId) {
+          // Check current tier before overwriting — protect lifetime buyers
+          const current = await c.env.DB.prepare('SELECT tier FROM subscriptions WHERE user_id = ?')
+            .bind(userId).first();
+          if (current?.tier === 'LEGACY' || current?.tier === 'FOREVER') break;
+
           await c.env.DB.prepare(`
             UPDATE subscriptions SET status = 'CANCELLED', tier = 'STARTER', stripe_subscription_id = NULL, updated_at = ? WHERE user_id = ?
           `).bind(now, userId).run();

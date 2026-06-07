@@ -120,6 +120,9 @@ export interface Env {
   VAPID_PRIVATE_KEY?: string;
   VAPID_SUBJECT?: string;
 
+  // Admin first-login gate: must match body.setupToken when password_hash = CHANGE_ME_ON_FIRST_LOGIN
+  ADMIN_SETUP_SECRET?: string;
+
   // Feature flags
   CRON_ENABLED?: string;
   
