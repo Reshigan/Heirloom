@@ -1,12 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48">
   <!-- Background -->
   <rect width="48" height="48" fill="#0e0e0c"/>
-  <!-- Left warp -->
-  <line x1="14" y1="6" x2="14" y2="42" stroke="rgba(244,236,216,0.45)" stroke-width="2.5" stroke-linecap="round"/>
-  <!-- Right warp -->
-  <line x1="34" y1="6" x2="34" y2="42" stroke="rgba(244,236,216,0.45)" stroke-width="2.5" stroke-linecap="round"/>
-  <!-- Weft thread -->
-  <line x1="2" y1="24" x2="46" y2="24" stroke="#b07a4a" stroke-width="3.5" stroke-linecap="round"/>
-  <!-- Right warp overdraw (under effect) -->
-  <line x1="34" y1="19" x2="34" y2="29" stroke="rgba(244,236,216,0.45)" stroke-width="5" stroke-linecap="round"/>
+  <!-- Two bone warps — thick enough to survive downscaling to a 16px tab -->
+  <line x1="17" y1="7" x2="17" y2="41" stroke="#f4ecd8" stroke-width="5.5" stroke-linecap="round" opacity="0.72"/>
+  <line x1="31" y1="7" x2="31" y2="41" stroke="#f4ecd8" stroke-width="5.5" stroke-linecap="round" opacity="0.72"/>
+  <!-- The warm weft thread — the one emotional colour, bold so it reads small -->
+  <line x1="4" y1="24" x2="44" y2="24" stroke="#b07a4a" stroke-width="7" stroke-linecap="round"/>
+  <!-- Over-under weave: redraw the right warp on top of the weft -->
+  <line x1="31" y1="18" x2="31" y2="30" stroke="#f4ecd8" stroke-width="5.5" stroke-linecap="round" opacity="0.72"/>
 </svg>
