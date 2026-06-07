@@ -68,10 +68,12 @@ JSON only. No markdown fences. No explanation.`;
 }
 
 function stripFences(raw: string): string {
-  return raw
-    .replace(/^```(?:json|javascript|js)?\s*\n?/i, '')
-    .replace(/\n?```\s*$/i, '')
-    .trim();
+  const fenced = raw.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/i);
+  if (fenced) return fenced[1].trim();
+  const first = raw.indexOf('{');
+  const last = raw.lastIndexOf('}');
+  if (first !== -1 && last !== -1) return raw.slice(first, last + 1).trim();
+  return raw.trim();
 }
 
 export async function generateSourcePost(input: GenerateInput): Promise<SourcePost> {

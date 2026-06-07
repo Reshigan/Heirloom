@@ -74,10 +74,14 @@ interface VariantInput {
 }
 
 function stripFences(raw: string): string {
-  return raw
-    .replace(/^```(?:json|javascript|js)?\s*\n?/i, '')
-    .replace(/\n?```\s*$/i, '')
-    .trim();
+  // Try to extract content between ```json ... ``` fences first
+  const fenced = raw.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/i);
+  if (fenced) return fenced[1].trim();
+  // Fall back to extracting from first { to last }
+  const first = raw.indexOf('{');
+  const last = raw.lastIndexOf('}');
+  if (first !== -1 && last !== -1) return raw.slice(first, last + 1).trim();
+  return raw.trim();
 }
 
 export async function generateVariants({ source, platforms, seasonHashtags }: VariantInput): Promise<Variant[]> {
