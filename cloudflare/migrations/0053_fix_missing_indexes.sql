@@ -9,4 +9,4 @@ CREATE INDEX IF NOT EXISTS idx_letters_deleted ON letters(user_id, deleted_at);
 
 CREATE INDEX IF NOT EXISTS idx_voice_recordings_deleted ON voice_recordings(user_id, deleted_at);
 
-CREATE INDEX IF NOT EXISTS idx_family_members_deleted ON family_members(family_id, deleted_at);
+CREATE INDEX IF NOT EXISTS idx_family_members_deleted ON family_members(user_id, deleted_at);
