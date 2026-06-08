@@ -79,6 +79,72 @@ engagementV2Routes.get('/legacy-score', async (c) => {
   });
 });
 
+// GET /engagement/score — alias for /legacy-score so both paths resolve.
+engagementV2Routes.get('/score', async (c) => {
+  const userId = c.get('userId');
+  const now = new Date().toISOString();
+
+  const cached = await c.env.DB.prepare(`
+    SELECT * FROM legacy_scores WHERE user_id = ? AND computed_at > datetime('now', '-1 day')
+    ORDER BY computed_at DESC LIMIT 1
+  `).bind(userId).first();
+
+  if (cached) {
+    return c.json({
+      score: cached.score,
+      completed_items: JSON.parse((cached.completed_items as string) || '[]'),
+      computed_at: cached.computed_at,
+    });
+  }
+
+  const rules = [
+    { key: 'first_family', points: 10, query: `SELECT COUNT(*) as c FROM family_members WHERE user_id = ?` },
+    { key: 'first_voice', points: 15, query: `SELECT COUNT(*) as c FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL` },
+    { key: 'first_letter', points: 10, query: `SELECT COUNT(*) as c FROM letters WHERE user_id = ? AND deleted_at IS NULL` },
+    { key: 'first_memory', points: 10, query: `SELECT COUNT(*) as c FROM memories WHERE user_id = ? AND deleted_at IS NULL` },
+    { key: 'five_memories', points: 10, query: `SELECT CASE WHEN COUNT(*) >= 5 THEN 1 ELSE 0 END as c FROM memories WHERE user_id = ? AND deleted_at IS NULL` },
+    { key: 'legacy_contact', points: 15, query: `SELECT COUNT(*) as c FROM legacy_contacts WHERE user_id = ?` },
+    { key: 'dead_mans_switch', points: 10, query: `SELECT COUNT(*) as c FROM dead_mans_switches WHERE user_id = ? AND is_active = 1` },
+    { key: 'encryption_setup', points: 10, query: `SELECT COUNT(*) as c FROM encryption_keys WHERE user_id = ?` },
+    { key: 'profile_complete', points: 5, query: `SELECT CASE WHEN first_name IS NOT NULL AND last_name IS NOT NULL AND avatar_url IS NOT NULL THEN 1 ELSE 0 END as c FROM users WHERE id = ?` },
+    { key: 'ten_voices', points: 5, query: `SELECT CASE WHEN COUNT(*) >= 10 THEN 1 ELSE 0 END as c FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL` },
+  ];
+
+  let totalScore = 0;
+  const completedItems: string[] = [];
+
+  for (const rule of rules) {
+    try {
+      const result = await c.env.DB.prepare(rule.query).bind(userId).first();
+      const count = (result?.c as number) || 0;
+      if (count > 0) {
+        totalScore += rule.points;
+        completedItems.push(rule.key);
+      }
+    } catch {
+      // Table might not exist yet, skip
+    }
+  }
+
+  totalScore = Math.min(totalScore, 100);
+
+  const id = crypto.randomUUID();
+  try {
+    await c.env.DB.prepare(`
+      INSERT INTO legacy_scores (id, user_id, score, completed_items, computed_at)
+      VALUES (?, ?, ?, ?, ?)
+    `).bind(id, userId, totalScore, JSON.stringify(completedItems), now).run();
+  } catch {
+    // Table might not exist yet
+  }
+
+  return c.json({
+    score: totalScore,
+    completed_items: completedItems,
+    computed_at: now,
+  });
+});
+
 // Family Feed - activity from family members
 engagementV2Routes.get('/family-feed', async (c) => {
   const userId = c.get('userId');

@@ -180,6 +180,34 @@ threadsRoutes.get('/', async (c) => {
   return c.json({ threads: rows.results });
 });
 
+// GET /api/threads/my — alias for GET /api/threads.
+//
+// Without this explicit route, a request to GET /threads/my would be matched
+// by the parameterised GET /:id handler below (with id = 'my'). That handler
+// calls getMembership('my', userId) which returns null → 403. New users who
+// haven't joined any thread yet would always see a 403 instead of an empty
+// list. Registering /my as a literal route before /:id fixes the ambiguity.
+threadsRoutes.get('/my', async (c) => {
+  const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Authentication required' }, 401);
+
+  const rows = await c.env.DB.prepare(
+    `SELECT t.id, t.name, t.dedication, t.plan, t.status, t.default_visibility,
+            tm.role, tm.generation_offset,
+            (SELECT COUNT(*) FROM thread_entries WHERE thread_id = t.id AND visibility_revoked_at IS NULL) as entry_count,
+            (SELECT COUNT(*) FROM thread_members WHERE thread_id = t.id AND revoked_at IS NULL) as member_count,
+            t.created_at
+     FROM threads t
+     INNER JOIN thread_members tm ON tm.thread_id = t.id
+     WHERE tm.user_id = ? AND tm.revoked_at IS NULL AND t.status != 'ARCHIVED'
+     ORDER BY t.created_at DESC`,
+  )
+    .bind(userId)
+    .all();
+
+  return c.json({ threads: rows.results });
+});
+
 // NOTE [W3]: GET /:id is registered AFTER all literal sub-routes (inbox/upcoming,
 // inbox/recent, starter-prompts) at the bottom of this file. Hono matches
 // routes in registration order, so the literal routes must be registered first

@@ -47,6 +47,8 @@ import { capsulesRoutes } from './routes/capsules';
 import { giftsV2Routes, giftsV2ProtectedRoutes } from './routes/gifts-v2';
 import { threadsRoutes } from './routes/threads';
 import { engagementV2Routes } from './routes/engagement-v2';
+import { loomIndexRoutes } from './routes/loom-index';
+import { onThisDayRoutes } from './routes/on-this-day';
 import { socialRoutes } from './routes/social';
 import { processSocialQueue } from './crons/social-posting';
 import { resolveTimeLocks } from './crons/time-locks';
@@ -838,6 +840,8 @@ protectedApp.route('/export', exportRoutes);
 // Heirloom v2 Protected Routes
 protectedApp.route('/capsules', capsulesRoutes);
 protectedApp.route('/engagement', engagementV2Routes);
+protectedApp.route('/loom-index', loomIndexRoutes);
+protectedApp.route('/on-this-day', onThisDayRoutes);
 protectedApp.route('/gifts', giftsV2ProtectedRoutes);
 
 // The Family Thread — world-first multi-generational archive primitive.
