@@ -76,6 +76,7 @@ export function Signup() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<SignupErrors>({});
   const [showVaultSetup, setShowVaultSetup] = useState(false);
+  const [threadError, setThreadError] = useState<string | null>(null);
 
   const set = (patch: Partial<typeof form>) => setForm((f) => ({ ...f, ...patch }));
 
@@ -133,7 +134,7 @@ export function Signup() {
             : threads[0].id;
           if (threadId) updateUser({ defaultThreadId: threadId });
         } catch {
-          /* non-fatal */
+          setThreadError('Account created — thread setup will complete on first login.');
         }
       }
       setShowVaultSetup(true);
@@ -350,6 +351,11 @@ export function Signup() {
             </label>
 
             {errors.submit ? <FieldError>{errors.submit}</FieldError> : null}
+            {threadError && (
+              <p className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.16em', margin: '16px 0 0', textTransform: 'uppercase' }}>
+                {threadError}
+              </p>
+            )}
 
             <div style={{ marginTop: 36, display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
               <button type="submit" disabled={isLoading} className="hl-btn" style={{ opacity: isLoading ? 0.5 : 1 }}>

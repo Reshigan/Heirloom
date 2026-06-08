@@ -53,9 +53,10 @@ export function Settings() {
 
   // Seed birth date + gender from the server profile (not held in authStore).
   // These tailor the Listener's prompts to the author's life stage.
-  const { data: profileData } = useQuery({
+  const { data: profileData, isError: profileLoadError } = useQuery({
     queryKey: ['settings', 'profile'],
-    queryFn: () => settingsApi.getProfile().then((r) => r.data).catch(() => null),
+    queryFn: () => settingsApi.getProfile().then((r) => r.data),
+    retry: 1,
   });
   useEffect(() => {
     if (!profileData) return;
@@ -209,6 +210,12 @@ export function Settings() {
           <h1 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 300, margin: '0 0 28px', letterSpacing: '-0.016em' }}>
             Settings
           </h1>
+
+          {profileLoadError && !profileData && (
+            <p className="hl-mono" style={{ fontSize: 11, color: 'var(--warm-dim)', letterSpacing: '0.16em', margin: '0 0 20px', textTransform: 'uppercase' }}>
+              could not load settings — try refreshing
+            </p>
+          )}
 
           {/* ── Your name ─────────────────────────────────── */}
           <div className="hl-eyebrow" style={{ marginBottom: 14, color: 'var(--warm)' }}>you</div>

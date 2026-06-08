@@ -106,7 +106,7 @@ export function VoiceRoom() {
     }
   }
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['voice'],
     queryFn: () => voiceApi.getAll({ limit: 200 }).then((r) => r.data),
     enabled: isAuthenticated,
@@ -165,8 +165,15 @@ export function VoiceRoom() {
           <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--warm)' }}>→</span>
         </Link>
 
+        {/* Error state */}
+        {isError && (
+          <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 24 }}>
+            could not load recordings — try refreshing
+          </p>
+        )}
+
         {/* Empty state */}
-        {!isLoading && recordings.length === 0 && (
+        {!isLoading && !isError && recordings.length === 0 && (
           <div style={{ paddingTop: 40 }}>
             <p style={{
               fontFamily: 'var(--serif)', fontSize: 17, fontStyle: 'italic',

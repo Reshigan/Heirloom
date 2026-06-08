@@ -4,6 +4,7 @@ import { foundersApi, type FounderCount } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
+import { usePageMeta } from '../lib/usePageMeta';
 
 const BENEFITS: { heading: string; body: string }[] = [
   {
@@ -29,6 +30,7 @@ const BENEFITS: { heading: string; body: string }[] = [
 ];
 
 export function Founder() {
+  usePageMeta('Founder Access', 'Permanent access to Heirloom — one lifetime fee for the whole family thread.');
 
   const [count, setCount] = useState<FounderCount | null>(null);
 

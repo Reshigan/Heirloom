@@ -4,6 +4,7 @@ import { billingApi } from '../services/api';
 import { PLAN_FEATURES } from '../lib/plans';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
+import { usePageMeta } from '../lib/usePageMeta';
 
 interface PricingData {
   symbol: string;
@@ -23,6 +24,7 @@ function fmt(symbol: string, n: number): string {
 }
 
 export function Pricing() {
+  usePageMeta('Plans & Pricing', 'Choose the plan that fits your family. Start free, upgrade when you\'re ready.');
   const [annual, setAnnual] = useState(false);
   const [pricing, setPricing] = useState<PricingData>(FALLBACK);
 
