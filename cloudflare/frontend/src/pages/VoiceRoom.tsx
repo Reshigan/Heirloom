@@ -319,7 +319,7 @@ export function VoiceRoom() {
                         }}
                         style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.1em' }}
                       >
-                        {audioRef.current && !audioRef.current.paused ? '■ stop' : '▶ play'}
+                        {currentTime > 0 && audioDuration > 0 && currentTime < audioDuration ? '■ stop' : '▶ play'}
                       </button>
                       <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--bone-faint)', opacity: 0.6 }}>
                         {formatTime(currentTime)} / {formatTime(audioDuration)}

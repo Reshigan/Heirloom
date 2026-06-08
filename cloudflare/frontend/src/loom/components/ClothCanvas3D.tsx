@@ -219,6 +219,13 @@ export function ClothCanvas3D({
       renderer.dispose();
       clothGeo.dispose();
       clothMat.dispose();
+      // Dispose per-entry thread geometries and materials to prevent VRAM leaks.
+      threadGroup.children.forEach((child) => {
+        const mesh = child as THREE.Mesh;
+        mesh.geometry?.dispose();
+        (mesh.material as THREE.Material)?.dispose();
+      });
+      threadGroup.clear();
       if (el.contains(renderer.domElement)) el.removeChild(renderer.domElement);
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

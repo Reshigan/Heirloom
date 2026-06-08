@@ -14,7 +14,7 @@ import { RecipientPicker } from '../loom/components/RecipientPicker';
  * Full MediaRecorder flow: start → pause/resume → stop → save via signed URL + voiceApi.create.
  */
 
-const MAX_RECORDING_SECS = 300; // 5 min — used for hairline progress
+const MAX_RECORDING_SECS = 120; // 2 min — used for hairline progress and auto-stop
 
 const PROMPTS = [
   'What did your mother say about the war?',
@@ -102,6 +102,15 @@ export function Record() {
     };
   }, []);
 
+  // Auto-stop when the 2-minute limit is reached
+  useEffect(() => {
+    if (elapsed >= MAX_RECORDING_SECS && recordingState === 'recording') {
+      mediaRecorderRef.current?.stop();
+      setRecordingState('recorded');
+      stopTick();
+    }
+  }, [elapsed, recordingState]);
+
   const startTick = () => {
     tickRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
   };
@@ -124,7 +133,10 @@ export function Record() {
         'audio/ogg;codecs=opus',
       ].find((t) => MediaRecorder.isTypeSupported(t)) ?? '';
       mimeTypeRef.current = supportedType || 'audio/webm';
-      const recorder = new MediaRecorder(stream, supportedType ? { mimeType: supportedType } : undefined);
+      const recorder = new MediaRecorder(stream, {
+        ...(supportedType ? { mimeType: supportedType } : {}),
+        audioBitsPerSecond: 64_000,
+      });
       mediaRecorderRef.current = recorder;
       chunksRef.current = [];
       recorder.ondataavailable = (e) => {

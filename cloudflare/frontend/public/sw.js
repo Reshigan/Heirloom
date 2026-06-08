@@ -19,7 +19,7 @@
  * cache.addAll() reject on the redirected response and the whole install fails.
  * Precache `/offline` (the served URL) — never the redirecting alias.
  */
-const CACHE = 'heirloom-v65';
+const CACHE = 'heirloom-v66';
 const API_CACHE = 'heirloom-api-v1'; // preserved across shell bumps — offline read data
 const SHELL = '/index.html';
 const OFFLINE = '/offline';
@@ -157,7 +157,9 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const route = (event.notification.data && event.notification.data.route) || '/loom/pwa';
+  const rawRoute = (event.notification.data && event.notification.data.route) || '/loom/pwa';
+  // Only accept same-origin relative paths — reject javascript:, //, or absolute URLs.
+  const route = (typeof rawRoute === 'string' && rawRoute.startsWith('/') && !rawRoute.startsWith('//')) ? rawRoute : '/loom/pwa';
   const target = new URL(route, self.location.origin).href;
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {

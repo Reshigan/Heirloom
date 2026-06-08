@@ -263,11 +263,15 @@ export function ReadingRoom() {
       queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
       queryClient.invalidateQueries({ queryKey: ['weft-letters'] });
       queryClient.invalidateQueries({ queryKey: ['weft-voice'] });
-      setEntries((prev) => {
-        const next = prev.filter((e) => e.id !== thread.id);
-        return next;
+      const deletedIdx = entries.findIndex((e) => e.id === thread.id);
+      setEntries((prev) => prev.filter((e) => e.id !== thread.id));
+      setActive((a) => {
+        const newLen = entries.length - 1;
+        if (newLen <= 0) return 0;
+        if (deletedIdx < a) return a - 1;
+        if (deletedIdx === a) return Math.min(a, newLen - 1);
+        return a;
       });
-      setActive((a) => Math.max(0, a - 1));
       setDeleteConfirm(false);
     },
   });

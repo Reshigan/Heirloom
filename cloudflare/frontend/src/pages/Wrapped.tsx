@@ -25,14 +25,16 @@ function buildStats(entries: Entry[], year: number) {
   const monthlyCounts = Array.from({ length: 12 }, (_, i) =>
     thisYear.filter((e) => e.date.getMonth() === i).length,
   );
-  const peakMonthIdx = monthlyCounts.indexOf(Math.max(...monthlyCounts));
+  const maxMonthly = thisYear.length > 0 ? Math.max(...monthlyCounts) : 0;
+  const peakMonthIdx = maxMonthly > 0 ? monthlyCounts.indexOf(maxMonthly) : 0;
   const activeMonths = monthlyCounts.filter((c) => c > 0).length;
 
   // Weekday distribution
   const weekdayCounts = Array.from({ length: 7 }, (_, i) =>
     thisYear.filter((e) => e.date.getDay() === i).length,
   );
-  const peakWeekday = weekdayCounts.indexOf(Math.max(...weekdayCounts));
+  const maxWeekday = thisYear.length > 0 ? Math.max(...weekdayCounts) : 0;
+  const peakWeekday = maxWeekday > 0 ? weekdayCounts.indexOf(maxWeekday) : 0;
 
   // Kind breakdown
   const kindCounts = {
@@ -289,8 +291,17 @@ export default function Wrapped() {
   const chapterIdx = CHAPTERS.indexOf(chapter);
 
   const go = (dir: 1 | -1) => {
-    const next = CHAPTERS[Math.max(0, Math.min(CHAPTERS.length - 1, chapterIdx + dir))];
-    if (next) setChapter(next);
+    let idx = chapterIdx + dir;
+    while (idx >= 0 && idx < CHAPTERS.length) {
+      const candidate = CHAPTERS[idx];
+      // Skip data-dependent chapters when there are no entries for this year
+      if (stats.thisYear.length === 0 && (candidate === 'kinds' || candidate === 'rhythm')) {
+        idx += dir;
+        continue;
+      }
+      setChapter(candidate);
+      return;
+    }
   };
 
   const handleShare = async () => {

@@ -521,7 +521,7 @@ export function Compose() {
     } else if (urlId && urlName) {
       // Recipient not in loaded family list yet — accept id + name from URL
       setRecipientId(urlId);
-      setRecipientName(decodeURIComponent(urlName));
+      try { setRecipientName(decodeURIComponent(urlName)); } catch { setRecipientName(urlName); }
     }
   }, [searchParams, members, recipientId]);
 
@@ -1143,7 +1143,7 @@ export function Compose() {
                             height: 2,
                             width: `${im.progress}%`,
                             background: 'var(--warm)',
-                            transition: 'width 180ms linear',
+                            transition: 'width 180ms cubic-bezier(0.16,1,0.3,1)',
                           }}
                         />
                       )}
