@@ -5,6 +5,7 @@ import { useAuthStore } from './stores/authStore';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { isNativePlatform } from './services/pushNotificationService';
 import { clearChunkReloadFlag } from './lib/chunkReload';
+import { PENDING_INVITE_KEY } from './lib/constants';
 import { PwaNudge } from './components/PwaNudge';
 import { BottomNav } from './loom/components/BottomNav';
 import { ClothBackdrop } from './loom/components/ClothBackdrop';
@@ -52,6 +53,7 @@ const Challenges = lazy(() => import('./pages/Challenges').then(m => ({ default:
 const Referrals = lazy(() => import('./pages/Referrals').then(m => ({ default: m.Referrals })));
 const GiftSubscriptions = lazy(() => import('./pages/GiftSubscriptions').then(m => ({ default: m.GiftSubscriptions })));
 const Memorials = lazy(() => import('./pages/Memorials').then(m => ({ default: m.Memorials })));
+const MemorialPublic = lazy(() => import('./pages/MemorialPublic').then(m => ({ default: m.MemorialPublic })));
 const Milestones = lazy(() => import('./pages/Milestones').then(m => ({ default: m.Milestones })));
 const CardView = lazy(() => import('./pages/CardView').then(m => ({ default: m.CardView })));
 const MemoryCards = lazy(() => import('./pages/MemoryCards').then(m => ({ default: m.MemoryCards })));
@@ -144,8 +146,6 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   }
   return <>{children}</>;
 }
-
-const PENDING_INVITE_KEY = 'hl-pending-invite';
 
 function PendingInviteAcceptor() {
   const { user, isAuthenticated } = useAuthStore();
@@ -277,6 +277,7 @@ export default function App() {
                                                             <Route path="/gift/success" element={<GiftSuccess />} />
                                                             <Route path="/gold/redeem" element={<GoldLegacyRedeem />} />
                                                             <Route path="/card/:id" element={<CardView />} />
+                                                            <Route path="/m/:token" element={<MemorialPublic />} />
           <Route path="/gift-memory/:token" element={<GiftReceive />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/showcase" element={<Showcase />} />

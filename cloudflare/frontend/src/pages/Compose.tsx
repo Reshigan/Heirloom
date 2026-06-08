@@ -74,7 +74,7 @@ function ToField({
     <div style={{ marginBottom: 28 }}>
       <div
         style={{
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: 'var(--mono)',
           fontSize: 11,
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
@@ -109,7 +109,7 @@ function ToField({
               background: 'transparent',
               color: 'var(--bone)',
               caretColor: 'var(--warm)',
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: 'var(--mono)',
               fontSize: 14,
               letterSpacing: '0.06em',
               padding: '6px 0 4px',
@@ -121,7 +121,7 @@ function ToField({
           {selectedMember?.relationship && (
             <span
               style={{
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: 'var(--mono)',
                 fontSize: 10,
                 color: 'var(--bone-faint)',
                 letterSpacing: '0.12em',
@@ -141,7 +141,7 @@ function ToField({
                 border: 'none',
                 cursor: 'pointer',
                 color: 'var(--bone-faint)',
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: 'var(--mono)',
                 fontSize: 14,
                 padding: '4px 2px',
                 lineHeight: 1,
@@ -194,7 +194,7 @@ function ToField({
               >
                 <span
                   style={{
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: 'var(--mono)',
                     fontSize: 13,
                     color: 'var(--bone)',
                     letterSpacing: '0.04em',
@@ -205,7 +205,7 @@ function ToField({
                 {m.relationship && (
                   <span
                     style={{
-                      fontFamily: "'JetBrains Mono', monospace",
+                      fontFamily: 'var(--mono)',
                       fontSize: 10,
                       color: 'var(--bone-faint)',
                       letterSpacing: '0.12em',
@@ -223,7 +223,7 @@ function ToField({
       <div
         style={{
           marginTop: 6,
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: 'var(--mono)',
           fontSize: 11,
           color: 'var(--bone-faint)',
           letterSpacing: '0.04em',
@@ -268,7 +268,7 @@ function DeliveryField({
     <div style={{ marginBottom: 32 }}>
       <div
         style={{
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: 'var(--mono)',
           fontSize: 11,
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
@@ -305,7 +305,7 @@ function DeliveryField({
               <span
                 style={{
                   display: 'block',
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: 'var(--mono)',
                   fontSize: 14,
                   letterSpacing: '0.10em',
                   color: active ? 'var(--bone)' : 'var(--bone-faint)',
@@ -322,7 +322,7 @@ function DeliveryField({
                   style={{
                     display: 'block',
                     marginTop: 3,
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: 'var(--mono)',
                     fontSize: 10,
                     letterSpacing: '0.08em',
                     color: 'var(--bone-faint)',
@@ -344,11 +344,12 @@ function DeliveryField({
                     type="date"
                     value={scheduledDate}
                     onChange={(e) => onDateChange(e.target.value)}
+                    aria-label="Scheduled date"
                     style={{
                       background: 'transparent',
                       border: '1px solid var(--rule)',
                       color: 'var(--bone)',
-                      fontFamily: "'JetBrains Mono', monospace",
+                      fontFamily: 'var(--mono)',
                       fontSize: 13,
                       letterSpacing: '0.06em',
                       padding: '8px 10px',
@@ -394,7 +395,7 @@ function EntryDateField({
     <div style={{ marginBottom: 32 }}>
       <div
         style={{
-          fontFamily: "'JetBrains Mono', monospace",
+          fontFamily: 'var(--mono)',
           fontSize: 11,
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
@@ -407,7 +408,7 @@ function EntryDateField({
       <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 8, borderBottom: '1px solid var(--rule)', paddingBottom: 2 }}>
         <span
           style={{
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: 'var(--mono)',
             fontSize: 13,
             letterSpacing: '0.06em',
             color: 'var(--bone-dim)',
@@ -415,7 +416,7 @@ function EntryDateField({
         >
           {formatted}
         </span>
-        <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}>↗</span>
+        <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}>↗</span>
         <input
           type="date"
           value={value}
@@ -904,7 +905,7 @@ export function Compose() {
           {/* eyebrow */}
           <p
             style={{
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: 'var(--mono)',
               fontSize: 10,
               letterSpacing: '0.28em',
               textTransform: 'uppercase',
@@ -922,7 +923,7 @@ export function Compose() {
             {familyError && (
               <p
                 style={{
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: 'var(--mono)',
                   fontSize: 11,
                   color: 'var(--bone-faint)',
                   fontStyle: 'italic',
@@ -976,12 +977,13 @@ export function Compose() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder={isLetter ? 'Subject — or leave it' : 'A title — or leave it'}
+              aria-label="Title"
               style={{
                 border: 0,
                 background: 'transparent',
                 color: title ? 'var(--bone)' : 'var(--bone-faint)',
                 caretColor: 'var(--warm)',
-                fontFamily: "'Source Serif 4', serif",
+                fontFamily: 'var(--serif)',
                 fontVariationSettings: "'opsz' 32",
                 fontStyle: 'italic',
                 fontSize: 'clamp(22px, 4vw, 28px)',
@@ -1001,6 +1003,7 @@ export function Compose() {
               onChange={handleBodyChange}
               onFocus={() => setWritingFocused(true)}
               onBlur={() => setWritingFocused(false)}
+              aria-label="Memory content"
               placeholder={
                 isLetter
                   ? recipientName.trim()
@@ -1013,7 +1016,7 @@ export function Compose() {
                 border: 0,
                 background: 'transparent',
                 caretColor: 'var(--warm)',
-                fontFamily: "'Source Serif 4', serif",
+                fontFamily: 'var(--serif)',
                 fontVariationSettings: "'opsz' 14",
                 fontFeatureSettings: '"onum" 1, "liga" 1',
                 fontSize: 'clamp(18px, 4vw, 21px)',
@@ -1031,7 +1034,7 @@ export function Compose() {
             <div
               style={{
                 marginTop: 12,
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: 'var(--mono)',
                 fontSize: 10,
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
@@ -1150,6 +1153,7 @@ export function Compose() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
+                aria-label="Upload photos"
                 style={{
                   background: 'transparent',
                   border: '1px solid var(--rule)',
@@ -1160,7 +1164,7 @@ export function Compose() {
                   textTransform: 'uppercase',
                   padding: '9px 16px',
                   cursor: 'pointer',
-                  minHeight: 40,
+                  minHeight: 44,
                   transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
                 }}
                 onMouseEnter={(e) => {
@@ -1194,7 +1198,7 @@ export function Compose() {
                 fontStyle: 'italic',
                 color: 'var(--danger)',
                 fontSize: 14,
-                fontFamily: "'Source Serif 4', serif",
+                fontFamily: 'var(--serif)',
               }}
             >
               {error}
@@ -1239,7 +1243,7 @@ export function Compose() {
                 textTransform: 'uppercase',
                 padding: '10px 20px',
                 cursor: 'pointer',
-                minHeight: 40,
+                minHeight: 44,
                 transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
               }}
               onMouseEnter={(e) => {
