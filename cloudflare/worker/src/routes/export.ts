@@ -1279,11 +1279,17 @@ exportRoutes.post('/book/preview', async (c) => {
   const now = new Date().toISOString();
   const jobId = crypto.randomUUID();
 
-  // Create a PENDING export job so the client can poll status
-  await c.env.DB.prepare(`
-    INSERT INTO export_jobs (id, user_id, type, status, config, created_at, updated_at)
-    VALUES (?, ?, 'BOOK_PREVIEW', 'PENDING', ?, ?, ?)
-  `).bind(jobId, userId, JSON.stringify(body), now, now).run();
+  try {
+    // Create a PENDING export job so the client can poll status
+    // type must be 'FAMILY_BOOK' — the DB CHECK only allows MEMORIES_PDF, LETTERS_PDF, FAMILY_BOOK
+    await c.env.DB.prepare(`
+      INSERT INTO export_jobs (id, user_id, type, status, config, created_at, updated_at)
+      VALUES (?, ?, 'FAMILY_BOOK', 'PENDING', ?, ?, ?)
+    `).bind(jobId, userId, JSON.stringify({ ...body, subtype: 'BOOK_PREVIEW' }), now, now).run();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return c.json({ error: 'Failed to queue preview job', detail: msg }, 500);
+  }
 
   // Rough page estimate: 1 cover + ~1 page per 3 memories/letters
   const estimatedItems = (body.memoryCount ?? 0) + (body.letterCount ?? 0);
@@ -1309,10 +1315,16 @@ exportRoutes.post('/book/order', async (c) => {
   const now = new Date().toISOString();
   const jobId = crypto.randomUUID();
 
-  await c.env.DB.prepare(`
-    INSERT INTO export_jobs (id, user_id, type, status, config, created_at, updated_at)
-    VALUES (?, ?, 'BOOK_ORDER', 'PENDING', ?, ?, ?)
-  `).bind(jobId, userId, JSON.stringify(body), now, now).run();
+  try {
+    // type must be 'FAMILY_BOOK' — the DB CHECK only allows MEMORIES_PDF, LETTERS_PDF, FAMILY_BOOK
+    await c.env.DB.prepare(`
+      INSERT INTO export_jobs (id, user_id, type, status, config, created_at, updated_at)
+      VALUES (?, ?, 'FAMILY_BOOK', 'PENDING', ?, ?, ?)
+    `).bind(jobId, userId, JSON.stringify({ ...body, subtype: 'BOOK_ORDER' }), now, now).run();
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return c.json({ error: 'Failed to queue order job', detail: msg }, 500);
+  }
 
   return c.json({
     job_id: jobId,
