@@ -1277,3 +1277,20 @@ billingRoutes.post('/webhook', async (c) => {
     return c.json({ error: 'Webhook processing failed' }, 500);
   }
 });
+
+// Update preferred currency for the authenticated user
+billingRoutes.patch('/currency', async (c) => {
+  const userId = c.get('userId');
+  const body = await c.req.json().catch(() => ({})) as { currency?: string };
+  const { currency } = body;
+
+  if (!currency || typeof currency !== 'string' || currency.length !== 3) {
+    return c.json({ error: 'Invalid currency code' }, 400);
+  }
+
+  await c.env.DB.prepare(`
+    UPDATE users SET preferred_currency = ?, updated_at = ? WHERE id = ?
+  `).bind(currency.toUpperCase(), new Date().toISOString(), userId).run();
+
+  return c.json({ success: true });
+});
