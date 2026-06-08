@@ -56,6 +56,9 @@ self.addEventListener('activate', (event) => {
       // Preserve API_CACHE across shell-version bumps so offline reads survive deploys
       .then((keys) => Promise.all(keys.filter((k) => k !== CACHE && k !== API_CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim())
+      // Tell every open window/PWA tab to reload so they adopt the new shell at once.
+      .then(() => self.clients.matchAll({ type: 'window', includeUncontrolled: true }))
+      .then((clients) => clients.forEach((c) => c.postMessage({ type: 'SW_UPDATED', version: CACHE })))
   );
 });
 

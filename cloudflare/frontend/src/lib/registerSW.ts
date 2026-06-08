@@ -38,11 +38,22 @@ export function registerServiceWorker(): void {
       })
       .catch((err) => console.warn('[sw] registration failed:', err));
 
-    // When the controlling worker changes, reload once to adopt the new shell.
+    // Path 1 — controllerchange: fires when the active SW switches.
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (sessionStorage.getItem(RELOAD_FLAG) === '1') return;
-      sessionStorage.setItem(RELOAD_FLAG, '1');
-      window.location.reload();
+      reloadOnce();
+    });
+
+    // Path 2 — SW_UPDATED message: the new SW broadcasts this to every open
+    // window/PWA tab after clients.claim(), catching background tabs and
+    // standalone PWA windows that may have missed the controllerchange event.
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data?.type === 'SW_UPDATED') reloadOnce();
     });
   });
+}
+
+function reloadOnce(): void {
+  if (sessionStorage.getItem(RELOAD_FLAG) === '1') return;
+  sessionStorage.setItem(RELOAD_FLAG, '1');
+  window.location.reload();
 }
