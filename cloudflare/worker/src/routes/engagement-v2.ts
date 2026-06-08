@@ -179,6 +179,8 @@ engagementV2Routes.get('/family-feed', async (c) => {
   `).bind(...familyUserIds).all();
   for (const m of memories.results as any[]) {
     m.description = await readDescription(c.env, m);
+    delete m.description_enc;
+    delete m.description_iv;
   }
 
   const voices = await c.env.DB.prepare(`
