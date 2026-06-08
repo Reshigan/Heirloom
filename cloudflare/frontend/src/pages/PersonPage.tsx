@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api, { familyApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
@@ -67,12 +68,49 @@ function DyeSwatch({ dye }: { dye?: string }) {
 
 export function PersonPage() {
   const { id } = useParams<{ id: string }>();
+  const queryClient = useQueryClient();
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editRelationship, setEditRelationship] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editNotes, setEditNotes] = useState('');
+  const [editError, setEditError] = useState<string | null>(null);
 
   const { data: member, isLoading } = useQuery<FamilyMember>({
     queryKey: ['family', id],
     queryFn: () => familyApi.getOne(id!).then(r => r.data),
     enabled: !!id,
   });
+
+  const updateMember = useMutation({
+    mutationFn: () =>
+      familyApi.update(id!, {
+        name: editName.trim(),
+        relationship: editRelationship.trim(),
+        email: editEmail.trim() || undefined,
+        notes: editNotes.trim() || undefined,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['family', id] });
+      queryClient.invalidateQueries({ queryKey: ['family'] });
+      setIsEditing(false);
+      setEditError(null);
+    },
+    onError: (err: any) => {
+      setEditError(err?.response?.data?.error ?? 'Could not save changes.');
+    },
+  });
+
+  const openEdit = () => {
+    if (!member) return;
+    setEditName(member.name ?? '');
+    setEditRelationship(member.relationship ?? '');
+    setEditEmail(member.email ?? '');
+    setEditNotes(member.notes ?? '');
+    setEditError(null);
+    setIsEditing(true);
+  };
 
   const { data: prompts } = useQuery<{ prompts: PersonPrompt[] }>({
     queryKey: ['person-prompts', id],
@@ -206,47 +244,148 @@ export function PersonPage() {
             </Link>
 
             {/* Name */}
-            <h1
-              className="hl-serif"
-              style={{
-                fontSize: 38,
-                fontWeight: 300,
-                margin: 0,
-                color: 'var(--bone)',
-                lineHeight: 1.1,
-              }}
-            >
-              {member.name}
-            </h1>
+            {isEditing ? (
+              <div style={{ marginBottom: 4 }}>
+                <input
+                  value={editName}
+                  onChange={(e) => { setEditName(e.target.value); setEditError(null); }}
+                  placeholder="name"
+                  autoFocus
+                  style={{
+                    display: 'block', width: '100%', background: 'transparent',
+                    border: 0, borderBottom: '1px solid var(--rule)', outline: 'none',
+                    fontFamily: 'var(--serif)', fontSize: 32, color: 'var(--bone)',
+                    fontWeight: 300, padding: '4px 0 8px', boxSizing: 'border-box',
+                    lineHeight: 1.15,
+                  }}
+                />
+                <input
+                  value={editRelationship}
+                  onChange={(e) => { setEditRelationship(e.target.value); setEditError(null); }}
+                  placeholder="relationship"
+                  style={{
+                    display: 'block', width: '100%', background: 'transparent',
+                    border: 0, borderBottom: '1px solid var(--rule)', outline: 'none',
+                    fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--bone-faint)',
+                    letterSpacing: '0.12em', textTransform: 'uppercase',
+                    padding: '10px 0 8px', boxSizing: 'border-box', marginTop: 12,
+                  }}
+                />
+                <input
+                  type="email"
+                  value={editEmail}
+                  onChange={(e) => { setEditEmail(e.target.value); setEditError(null); }}
+                  placeholder="email — optional"
+                  style={{
+                    display: 'block', width: '100%', background: 'transparent',
+                    border: 0, borderBottom: '1px solid var(--rule)', outline: 'none',
+                    fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)',
+                    padding: '10px 0 8px', boxSizing: 'border-box', marginTop: 12,
+                  }}
+                />
+                <textarea
+                  value={editNotes}
+                  onChange={(e) => { setEditNotes(e.target.value); setEditError(null); }}
+                  placeholder="notes — optional"
+                  rows={3}
+                  style={{
+                    display: 'block', width: '100%', background: 'transparent',
+                    border: 0, borderBottom: '1px solid var(--rule)', outline: 'none',
+                    fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone-dim)',
+                    padding: '10px 0 8px', boxSizing: 'border-box', marginTop: 12,
+                    resize: 'none', lineHeight: 1.6,
+                  }}
+                />
+                {editError && (
+                  <p className="hl-mono" style={{ fontSize: 11, color: 'var(--danger)', letterSpacing: '0.14em', margin: '8px 0 0' }}>
+                    {editError}
+                  </p>
+                )}
+                <div style={{ display: 'flex', gap: 16, marginTop: 20, alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    className="hl-btn"
+                    onClick={() => updateMember.mutate()}
+                    disabled={!editName.trim() || !editRelationship.trim() || updateMember.isPending}
+                    style={{ fontSize: 12, padding: '8px 16px', opacity: (!editName.trim() || !editRelationship.trim() || updateMember.isPending) ? 0.5 : 1 }}
+                  >
+                    {updateMember.isPending ? 'saving…' : 'hold changes →'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setIsEditing(false); setEditError(null); }}
+                    style={{
+                      background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                      fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--bone-faint)',
+                      letterSpacing: '0.18em', textTransform: 'uppercase',
+                    }}
+                  >
+                    cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <h1
+                  className="hl-serif"
+                  style={{
+                    fontSize: 38,
+                    fontWeight: 300,
+                    margin: 0,
+                    color: 'var(--bone)',
+                    lineHeight: 1.1,
+                  }}
+                >
+                  {member.name}
+                </h1>
 
-            {/* Relationship */}
-            <p
-              className="hl-mono"
-              style={{
-                fontSize: 10.5,
-                color: 'var(--bone-faint)',
-                marginTop: 6,
-                marginBottom: 0,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-              }}
-            >
-              {member.relationship}
-            </p>
+                {/* Relationship */}
+                <p
+                  className="hl-mono"
+                  style={{
+                    fontSize: 10.5,
+                    color: 'var(--bone-faint)',
+                    marginTop: 6,
+                    marginBottom: 0,
+                    letterSpacing: '0.12em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {member.relationship}
+                </p>
 
-            {/* Bio / notes */}
-            {member.notes && (
-              <p
-                className="hl-prose"
-                style={{
-                  fontSize: 16,
-                  marginTop: 20,
-                  marginBottom: 0,
-                  color: 'var(--bone-dim)',
-                }}
-              >
-                {member.notes}
-              </p>
+                {/* Bio / notes */}
+                {member.notes && (
+                  <p
+                    className="hl-prose"
+                    style={{
+                      fontSize: 16,
+                      marginTop: 20,
+                      marginBottom: 0,
+                      color: 'var(--bone-dim)',
+                    }}
+                  >
+                    {member.notes}
+                  </p>
+                )}
+
+                {/* Edit link */}
+                <button
+                  type="button"
+                  onClick={openEdit}
+                  style={{
+                    background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                    fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--bone-faint)',
+                    letterSpacing: '0.18em', textTransform: 'uppercase',
+                    marginTop: 20, display: 'block',
+                    fontWeight: 500,
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+                >
+                  edit profile →
+                </button>
+              </>
             )}
 
             {/* Dye signature */}

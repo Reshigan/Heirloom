@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ClothPage } from '../loom/components/ClothPage';
 import { ClothBackdrop } from '../loom/components/ClothBackdrop';
@@ -245,9 +246,31 @@ export function ReadingRoom() {
   const [selvedgeOpen, setSelvedgeOpen] = useState(false);
   const [entries, setEntries]       = useState<Thread[]>([]);
   const [loading, setLoading]     = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
   const { user, isAuthenticated } = useAuthStore();
   const [searchParams]            = useSearchParams();
   const wantEntry                 = searchParams.get('entry');
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const deleteEntry = useMutation({
+    mutationFn: async (thread: Thread) => {
+      if (thread.kind === 'memory' || thread.kind === 'photo') return memoriesApi.delete(thread.id);
+      if (thread.kind === 'letter') return lettersApi.delete(thread.id);
+      if (thread.kind === 'voice') return voiceApi.delete(thread.id);
+    },
+    onSuccess: (_data, thread) => {
+      queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
+      queryClient.invalidateQueries({ queryKey: ['weft-letters'] });
+      queryClient.invalidateQueries({ queryKey: ['weft-voice'] });
+      setEntries((prev) => {
+        const next = prev.filter((e) => e.id !== thread.id);
+        return next;
+      });
+      setActive((a) => Math.max(0, a - 1));
+      setDeleteConfirm(false);
+    },
+  });
 
   const who = useMemo(
     () => (user?.firstName?.trim() || user?.lastName?.trim() || 'you'),
@@ -393,20 +416,88 @@ export function ReadingRoom() {
           )}
         </span>
 
-        <button
-          type="button"
-          onClick={() => setView('book')}
-          disabled={entries.length === 0}
-          style={{
-            background: 'transparent', border: '1px solid rgba(244,236,216,0.15)', padding: '3px 12px',
-            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            color: entries.length === 0 ? 'rgba(244,236,216,0.2)' : 'var(--bone-faint)',
-            cursor: entries.length === 0 ? 'default' : 'pointer',
-          }}
-        >
-          book view
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {t && !deleteConfirm && (
+            <>
+              {/* edit — navigate to composer pre-filled */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (t.kind === 'voice') navigate(`/record?id=${t.id}`);
+                  else if (t.kind === 'letter') navigate(`/compose?id=${t.id}`);
+                  else navigate(`/compose?entry=${t.id}`);
+                }}
+                style={{
+                  background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                  textTransform: 'uppercase', color: 'var(--bone-faint)',
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+              >
+                edit →
+              </button>
+              {/* delete — confirm step */}
+              <button
+                type="button"
+                onClick={() => setDeleteConfirm(true)}
+                style={{
+                  background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                  textTransform: 'uppercase', color: 'rgba(244,236,216,0.25)',
+                }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(244,236,216,0.25)'; }}
+              >
+                delete
+              </button>
+            </>
+          )}
+          {t && deleteConfirm && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em', color: 'var(--bone-faint)' }}>
+                remove this thread?
+              </span>
+              <button
+                type="button"
+                onClick={() => deleteEntry.mutate(t)}
+                disabled={deleteEntry.isPending}
+                style={{
+                  background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                  textTransform: 'uppercase', color: 'var(--danger)',
+                }}
+              >
+                {deleteEntry.isPending ? 'removing…' : 'yes, remove →'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setDeleteConfirm(false)}
+                style={{
+                  background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                  textTransform: 'uppercase', color: 'var(--bone-faint)',
+                }}
+              >
+                cancel
+              </button>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => setView('book')}
+            disabled={entries.length === 0}
+            style={{
+              background: 'transparent', border: '1px solid rgba(244,236,216,0.15)', padding: '3px 12px',
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: entries.length === 0 ? 'rgba(244,236,216,0.2)' : 'var(--bone-faint)',
+              cursor: entries.length === 0 ? 'default' : 'pointer',
+            }}
+          >
+            book view
+          </button>
+        </div>
       </div>
 
       {/* Layer 2: Selvedge nav — mobile toggle */}

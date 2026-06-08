@@ -57,6 +57,7 @@ interface LoomProps {
   endYear: number;
   highlight?: number | null;
   onHover?: (i: number | null) => void;
+  onClick?: (i: number) => void;
   height?: number;
   showLigatures?: boolean;
   showYears?: boolean;
@@ -102,6 +103,7 @@ export function Loom({
   endYear,
   highlight,
   onHover,
+  onClick,
   height = 240,
   showLigatures = true,
   showYears = true,
@@ -178,6 +180,7 @@ export function Loom({
               key={i}
               onMouseEnter={() => onHover?.(i)}
               onMouseLeave={() => onHover?.(null)}
+              onClick={() => onClick?.(i)}
               title={e.title}
               style={{
                 position: 'absolute',
@@ -187,7 +190,7 @@ export function Loom({
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                cursor: 'pointer',
+                cursor: onClick ? 'pointer' : 'default',
                 zIndex: 2,
               }}
             >
@@ -224,6 +227,7 @@ export function Loom({
             className="loom-weft__pick"
             onMouseEnter={() => onHover?.(i)}
             onMouseLeave={() => onHover?.(null)}
+            onClick={() => onClick?.(i)}
             style={{
               left: `${x}%`,
               top: `${y}px`,
@@ -231,6 +235,7 @@ export function Loom({
               background: colorFor(e),
               opacity: lit ? 1 : e.kind === 'memory' ? 0.6 : 0.85,
               height: lit ? 4 : 2,
+              cursor: onClick ? 'pointer' : 'default',
             }}
             title={e.title}
           />

@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
@@ -51,6 +51,18 @@ export function VoiceRoom() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(0);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const deleteVoice = useMutation({
+    mutationFn: (id: string) => voiceApi.delete(id),
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: ['voice'] });
+      queryClient.invalidateQueries({ queryKey: ['weft-voice'] });
+      if (playingId === id) { audioRef.current?.pause(); setPlayingId(null); }
+      setConfirmDeleteId(null);
+    },
+  });
 
   function handlePlay(entryId: string) {
     if (playingId === entryId) {
@@ -189,6 +201,47 @@ export function VoiceRoom() {
                     >
                       edit
                     </Link>
+                    {confirmDeleteId === entry.id ? (
+                      <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                        <button
+                          type="button"
+                          onClick={() => deleteVoice.mutate(entry.id)}
+                          disabled={deleteVoice.isPending}
+                          style={{
+                            background: 'transparent', border: 0, padding: '12px 4px', minHeight: 44,
+                            cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9,
+                            letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--danger)',
+                          }}
+                        >
+                          {deleteVoice.isPending ? '…' : 'yes →'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setConfirmDeleteId(null)}
+                          style={{
+                            background: 'transparent', border: 0, padding: '12px 4px', minHeight: 44,
+                            cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9,
+                            letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)',
+                          }}
+                        >
+                          no
+                        </button>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDeleteId(entry.id)}
+                        style={{
+                          background: 'transparent', border: 0, padding: '12px 4px', minHeight: 44,
+                          cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9,
+                          letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(244,236,216,0.2)',
+                        }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(244,236,216,0.2)'; }}
+                      >
+                        delete
+                      </button>
+                    )}
                     <button
                       type="button"
                       aria-label={isPlaying ? 'Stop voice recording' : 'Play voice recording'}

@@ -528,11 +528,19 @@ export function Compose() {
   // Load an existing draft letter from ?id= (editing an unsealed draft from the
   // Letters room). Prefill composer state so the draft's content is restored.
   const editId = searchParams.get('id');
+  // Load an existing memory from ?entry= (edit from ReadingRoom).
+  const editEntryId = searchParams.get('entry');
   const prefilledRef = useRef(false);
   const { data: draftLetter } = useQuery({
     queryKey: ['letter', editId],
     queryFn: () => lettersApi.getOne(editId as string).then((r) => r.data),
     enabled: isAuthenticated && !!editId,
+    staleTime: 60 * 1000,
+  });
+  const { data: editMemory } = useQuery({
+    queryKey: ['memory', editEntryId],
+    queryFn: () => memoriesApi.getOne(editEntryId as string).then((r) => r.data),
+    enabled: isAuthenticated && !!editEntryId,
     staleTime: 60 * 1000,
   });
   useEffect(() => {
@@ -557,6 +565,15 @@ export function Compose() {
     }
     if (draftLetter.scheduledDate) setScheduledDate(draftLetter.scheduledDate);
   }, [draftLetter]);
+  useEffect(() => {
+    const m = (editMemory as any)?.data ?? editMemory;
+    if (!m || prefilledRef.current) return;
+    prefilledRef.current = true;
+    setTitle(m.title ?? '');
+    setBody(m.description ?? '');
+    if (m.metadata?.entryDate) setEntryDate(m.metadata.entryDate);
+    if (m.metadata?.dye) setDye(m.metadata.dye);
+  }, [editMemory]);
 
   // isLetter: true when any recipient name is set
   const isLetter = !!(recipientId || recipientName.trim());
@@ -701,6 +718,20 @@ export function Compose() {
                 ? 'MILESTONE'
                 : 'IMMEDIATE';
 
+        if (editId) {
+          // Updating an existing letter
+          const { data } = await lettersApi.update(editId, {
+            title: title.trim() || (recipientName ? `A letter to ${recipientName}` : 'A letter'),
+            salutation: recipientName ? `To ${recipientName},` : null,
+            body: body.trim(),
+            signature: null,
+            deliveryTrigger: trigger,
+            scheduledDate: trigger === 'SCHEDULED' ? scheduledDate : null,
+            recipientIds: recipientId ? [recipientId] : [],
+          });
+          return data;
+        }
+
         const { data } = await lettersApi.create({
           title: title.trim() || (recipientName ? `A letter to ${recipientName}` : 'A letter'),
           salutation: recipientName ? `To ${recipientName},` : null,
@@ -718,6 +749,22 @@ export function Compose() {
       } else {
         const photos = images.filter((im) => im.fileKey && !im.error);
         const primary = photos[0];
+        if (editEntryId) {
+          // Updating an existing memory
+          return memoriesApi
+            .update(editEntryId, {
+              title: title.trim() || deriveTitle(body),
+              description: body.trim(),
+              metadata: {
+                visibility,
+                dye,
+                dyeMotif: dye,
+                entryDate,
+                images: photos.map((p) => ({ fileKey: p.fileKey, fileUrl: p.fileUrl, mimeType: p.mimeType })),
+              },
+            })
+            .then((r) => r.data);
+        }
         return memoriesApi
           .create({
             type: primary ? 'PHOTO' : 'TEXT',

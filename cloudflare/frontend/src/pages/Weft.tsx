@@ -78,7 +78,7 @@ function toEntries(
 }
 
 export function Weft() {
-  const [mode, setMode] = useState<WeftMode>('pull');
+  const [mode, setMode] = useState<WeftMode>('century');
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -139,12 +139,19 @@ export function Weft() {
     </span>
   );
 
+  const handleSelectEntry = (entry: { id?: string; kind: string }) => {
+    if (!entry.id) return;
+    if (entry.kind === 'voice') navigate(`/loom/voice?id=${entry.id}`);
+    else if (entry.kind === 'letter') navigate(`/loom/letter?id=${entry.id}`);
+    else navigate(`/loom/read?entry=${entry.id}`);
+  };
+
   const toggle = (
     <ViewToggle<WeftMode>
       value={mode}
       onChange={setMode}
       options={[
-        { value: 'pull', label: 'pull' },
+        { value: 'pull', label: 'threads' },
         { value: 'century', label: 'century' },
         { value: 'empty', label: 'empty' },
       ]}
@@ -178,6 +185,10 @@ export function Weft() {
     you: m.user_id === user?.id || m.id === user?.id,
   }));
 
+  // Derive user birth year from kin (the member flagged `you: true`).
+  const youKin = kinForCentury.find((k) => k.you);
+  const userBornYear = youKin?.born;
+
   if (mode === 'century') {
     return (
       <ClothShell
@@ -186,12 +197,17 @@ export function Weft() {
         topbarRight={rightSlot}
         backdropOpacity={0.3}
       >
-        <WeftCentury entries={allEntries} kin={kinForCentury} />
+        <WeftCentury
+          entries={allEntries}
+          kin={kinForCentury}
+          userBornYear={userBornYear}
+          onSelectEntry={handleSelectEntry}
+        />
       </ClothShell>
     );
   }
 
-  // Default: pull mode
+  // Threads mode (formerly pull)
   return (
     <ClothShell
       topbarLeft={<HLogo size="sm" wordmark />}
@@ -205,7 +221,7 @@ export function Weft() {
       }
       backdropOpacity={0.3}
     >
-      <WeftPull entries={allEntries} />
+      <WeftPull entries={allEntries} onSelectEntry={handleSelectEntry} />
     </ClothShell>
   );
 }

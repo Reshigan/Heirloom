@@ -3,26 +3,29 @@ import { Loom, type LoomEntry } from './Loom';
 import { useAuthStore } from '../../stores/authStore';
 
 /**
- * WeftPull — the "pull" view-mode of the tapestry home.
+ * WeftPull (Threads) — one thread at a time, vertical paging.
  *
- * A vertical paging hybrid onto one thread at a time. The full cloth
- * dims to wallpaper behind a flat ink veil; a single entry stands
- * large and centred. The only paging affordance is a thin dot rail on
- * the right edge — one mark per thread, the current one warm and tall.
- *
- * Reads from the entries prop (real data from Weft.tsx). Open (unlocked)
- * entries page; the visible body is derived from each entry's kind so
- * the mode shows real content rather than hardcoded prose.
+ * The full cloth dims to wallpaper. A single entry stands large and
+ * centred. Hover any background thread to preview it; click the thread
+ * or the "open →" link to navigate to the full entry.
  */
 
-const bodyText = (e: LoomEntry): string => {
-  if (e.kind === 'letter') return 'a letter sealed in this thread, waiting to be read.';
-  if (e.kind === 'voice') return 'a voice memo — play to hear.';
-  if (e.kind === 'milestone') return 'a milestone woven into the cloth.';
-  return 'a memory in this thread.';
-};
+function fmtDate(iso: string | undefined): string {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString(undefined, {
+      day: 'numeric', month: 'long', year: 'numeric',
+    });
+  } catch { return ''; }
+}
 
-export function WeftPull({ entries }: { entries: LoomEntry[] }) {
+export function WeftPull({
+  entries,
+  onSelectEntry,
+}: {
+  entries: LoomEntry[];
+  onSelectEntry?: (entry: LoomEntry) => void;
+}) {
   const { user } = useAuthStore();
   const displayName = user ? `${user.firstName} ${user.lastName}`.trim() : 'you';
 
@@ -30,6 +33,14 @@ export function WeftPull({ entries }: { entries: LoomEntry[] }) {
   const WOVEN_COUNT = OPEN_ENTRIES.length;
 
   const [pos, setPos] = useState(0);
+  // hoveredIdx tracks which thread in the background cloth is hovered
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
+  // If hovering a thread, show that entry's preview; otherwise show pos
+  const displayIdx = hoveredIdx != null
+    ? OPEN_ENTRIES.indexOf(entries[hoveredIdx] ?? OPEN_ENTRIES[0])
+    : pos;
+  const displayPos = displayIdx >= 0 ? displayIdx : pos;
 
   const go = (delta: number) => {
     setPos((p) => Math.min(OPEN_ENTRIES.length - 1, Math.max(0, p + delta)));
@@ -61,9 +72,29 @@ export function WeftPull({ entries }: { entries: LoomEntry[] }) {
     );
   }
 
-  const e = OPEN_ENTRIES[pos];
+  const e = OPEN_ENTRIES[displayPos] ?? OPEN_ENTRIES[pos];
   // idx is the position in the full entries array for highlight
   const idx = entries.indexOf(e);
+  const dyeColor = e.dye
+    ? `var(--dye-${e.dye})`
+    : e.kind === 'letter' ? 'var(--dye-walnut)'
+    : e.kind === 'voice' ? 'var(--dye-woad)'
+    : 'var(--dye-indigo)';
+
+  const handleLoomHover = (i: number | null) => {
+    setHoveredIdx(i);
+  };
+
+  const handleLoomClick = (i: number) => {
+    const clicked = entries[i];
+    if (!clicked) return;
+    const openIdx = OPEN_ENTRIES.indexOf(clicked);
+    if (openIdx >= 0) {
+      setPos(openIdx);
+      setHoveredIdx(null);
+    }
+    if (clicked.id && onSelectEntry) onSelectEntry(clicked);
+  };
 
   return (
     <div
@@ -72,10 +103,6 @@ export function WeftPull({ entries }: { entries: LoomEntry[] }) {
         if (Math.abs(ev.deltaY) > 24) go(ev.deltaY > 0 ? 1 : -1);
       }}
     >
-      {/* eased thread-to-thread transition (720ms, the one curve). The
-          keyed content remounts on paging, so a mount animation carries
-          the easing rather than a CSS transition (which can't fire on a
-          fresh node). */}
       <style>{`
         .weftpull-thread {
           animation: weftpull-in var(--loom-dur-veil) var(--loom-ease);
@@ -88,7 +115,8 @@ export function WeftPull({ entries }: { entries: LoomEntry[] }) {
           .weftpull-thread { animation: none; }
         }
       `}</style>
-      {/* dim cloth as wallpaper */}
+
+      {/* dim cloth as wallpaper — hover threads to preview, click to open */}
       <div style={{ position: 'absolute', inset: 0, opacity: 0.3 }}>
         <Loom
           entries={entries}
@@ -99,12 +127,14 @@ export function WeftPull({ entries }: { entries: LoomEntry[] }) {
           showYears={false}
           ambientShuttle={false}
           highlight={idx >= 0 ? idx : undefined}
-          nowYear={2026}
+          nowYear={new Date().getFullYear()}
           appendCount={WOVEN_COUNT}
+          onHover={handleLoomHover}
+          onClick={handleLoomClick}
         />
       </div>
-      {/* flat ink wash so the single thread reads above the cloth — a
-          solid ink veil at reduced opacity, NOT a radial gradient (§2.6) */}
+
+      {/* flat ink wash */}
       <div
         style={{
           position: 'absolute',
@@ -128,7 +158,7 @@ export function WeftPull({ entries }: { entries: LoomEntry[] }) {
           textTransform: 'uppercase',
         }}
       >
-        today's thread · {pos + 1} of {OPEN_ENTRIES.length}
+        {hoveredIdx != null ? 'hovering thread' : 'today\'s thread'} · {displayPos + 1} of {OPEN_ENTRIES.length}
       </div>
 
       {/* the single thread, centred */}
@@ -143,7 +173,7 @@ export function WeftPull({ entries }: { entries: LoomEntry[] }) {
         }}
       >
         <div
-          key={pos}
+          key={displayPos}
           className="weftpull-thread"
           style={{ width: 720, maxWidth: '60ch' }}
         >
@@ -153,7 +183,7 @@ export function WeftPull({ entries }: { entries: LoomEntry[] }) {
                 display: 'inline-block',
                 width: 28,
                 height: 3,
-                background: e.kind === 'milestone' ? 'var(--warm)' : 'var(--bone-dim)',
+                background: dyeColor,
               }}
             />
             <span
@@ -168,6 +198,7 @@ export function WeftPull({ entries }: { entries: LoomEntry[] }) {
               {e.kind} · {e.year}·{String(e.month ?? 1).padStart(2, '0')}
             </span>
           </div>
+
           <h2
             className="loom-h2"
             style={{
@@ -179,6 +210,13 @@ export function WeftPull({ entries }: { entries: LoomEntry[] }) {
           >
             {e.title ?? '—'}
           </h2>
+
+          {e.date && (
+            <p className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 10, letterSpacing: '0.12em' }}>
+              {fmtDate(e.date)}
+            </p>
+          )}
+
           <div
             className="loom-mono"
             style={{
@@ -200,24 +238,35 @@ export function WeftPull({ entries }: { entries: LoomEntry[] }) {
             >
               {displayName}
             </span>
-            &nbsp;·&nbsp; thread n°{pos + 1} of {entries.length}
+            &nbsp;·&nbsp; thread n°{displayPos + 1} of {entries.length}
           </div>
-          <p
-            className="loom-body"
-            style={{
-              fontSize: 18,
-              marginTop: 28,
-              color: 'var(--bone-dim)',
-              fontStyle: 'italic',
-              maxWidth: '60ch',
-            }}
-          >
-            {bodyText(e)}
-          </p>
+
+          {/* open link */}
+          {e.id && onSelectEntry && (
+            <button
+              type="button"
+              onClick={() => onSelectEntry(e)}
+              className="loom-mono"
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: 0,
+                cursor: 'pointer',
+                fontSize: 11,
+                color: 'var(--warm)',
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                marginTop: 28,
+                display: 'block',
+              }}
+            >
+              open this thread →
+            </button>
+          )}
         </div>
       </div>
 
-      {/* dot pager on the right edge — one mark per open thread */}
+      {/* dot pager on the right edge */}
       <div
         style={{
           position: 'absolute',
@@ -235,14 +284,14 @@ export function WeftPull({ entries }: { entries: LoomEntry[] }) {
             key={i}
             type="button"
             aria-label={`thread ${i + 1}`}
-            aria-current={i === pos}
-            onClick={() => setPos(i)}
+            aria-current={i === displayPos}
+            onClick={() => { setPos(i); setHoveredIdx(null); }}
             style={{
               width: 1.5,
-              height: i === pos ? 18 : 6,
+              height: i === displayPos ? 18 : 6,
               padding: 0,
               border: 0,
-              background: i === pos ? 'var(--warm)' : 'var(--bone-ghost)',
+              background: i === displayPos ? 'var(--warm)' : 'var(--bone-ghost)',
               cursor: 'pointer',
               transition: 'height 180ms cubic-bezier(0.16,1,0.3,1)',
             }}
@@ -277,9 +326,8 @@ export function WeftPull({ entries }: { entries: LoomEntry[] }) {
             textTransform: 'uppercase',
           }}
         >
-          pull for the next
+          next thread
         </button>
-        {/* hairline drop-cue — a short warm thread, not an arrow glyph */}
         <span
           aria-hidden
           style={{ width: 1, height: 14, background: 'var(--warm)', opacity: 0.7 }}

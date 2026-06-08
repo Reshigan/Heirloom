@@ -873,7 +873,7 @@ html {
 
 .hl-btn {
   display: inline-flex; align-items: center; justify-content: center;
-  font-family: var(--mono); font-size: 11px; font-weight: 400;
+  font-family: var(--mono); font-size: 11px; font-weight: 500;
   letter-spacing: 0.16em; text-transform: uppercase;
   padding: 12px 24px; border-radius: 0; border: 1px solid var(--warm); cursor: pointer;
   background: transparent; color: var(--warm); text-decoration: none;
@@ -901,7 +901,7 @@ html {
 @media (hover: hover) and (pointer: fine) {
   .hl-btn.ghost:hover { opacity: 1; }
 }
-.hl-btn.text { background: transparent; border: 0; color: var(--warm); padding: 0; border-radius: 0; font-weight: 400; }
+.hl-btn.text { background: transparent; border: 0; color: var(--warm); padding: 0; border-radius: 0; font-weight: 500; }
 
 .hl-prose { font-family: var(--serif); font-size: 17px; line-height: 1.85; max-width: 60ch; font-weight: 400; font-variation-settings: "opsz" 14; font-feature-settings: "onum" 1, "liga" 1; }
 .hl-prose.dark { color: var(--parchment-ink); }
@@ -920,7 +920,8 @@ html {
   outline: none;
   transition: border-color var(--dur-fast) var(--ease);
 }
-.hl-input:focus { border-color: var(--warm); }
+/* warm border only when the field actually has content */
+.hl-input:focus:not(:placeholder-shown) { border-color: var(--warm); }
 .hl-input:focus-visible { outline: none; }
 .hl-input::placeholder { color: var(--parchment-faint); }
 .hl-input:disabled { opacity: 0.45; cursor: not-allowed; }
@@ -931,7 +932,7 @@ html {
   border-bottom-color: var(--rule);
 }
 .hl-screen:not(.parchment) .hl-input::placeholder { color: var(--bone-faint); }
-.hl-screen:not(.parchment) .hl-input:focus { border-bottom-color: var(--warm); }
+.hl-screen:not(.parchment) .hl-input:focus:not(:placeholder-shown) { border-bottom-color: var(--warm); }
 
 /* ── Menu items — consistent hover in all dropdowns ──────────────────── */
 .hl-menu-item {
