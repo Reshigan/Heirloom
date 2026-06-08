@@ -166,6 +166,7 @@ async function sendViaResend(
   const { from, to, subject, html, replyTo } = payload;
 
   if (!env.RESEND_API_KEY) {
+    console.error('[email] RESEND_API_KEY not configured — email dropped:', { to, subject });
     return { success: false, error: 'RESEND_API_KEY not configured', provider: 'resend' };
   }
 
@@ -195,6 +196,7 @@ async function sendViaResend(
 
     if (!response.ok) {
       const errorMessage = responseData.message || responseText || `HTTP ${response.status}`;
+      console.error('[email] Resend API error:', response.status, errorMessage);
       return { success: false, error: errorMessage, provider: 'resend' };
     }
 
