@@ -2,8 +2,10 @@ import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
+import { usePageMeta } from '../lib/usePageMeta';
 
 export function Contact() {
+  usePageMeta('Contact', 'Get in touch with the Heirloom team.');
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);

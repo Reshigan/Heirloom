@@ -6,6 +6,14 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
 
+interface RecentEntry {
+  id: string;
+  content?: string;
+  title?: string;
+  createdAt: string;
+  metadata?: Record<string, unknown>;
+}
+
 interface FamilyMember {
   id: string;
   name: string;
@@ -18,9 +26,9 @@ interface FamilyMember {
   dye?: string;
   role?: string;
   status?: string;
-  recentMemories: any[];
-  recentLetters: any[];
-  recentVoiceRecordings: any[];
+  recentMemories: RecentEntry[];
+  recentLetters: RecentEntry[];
+  recentVoiceRecordings: RecentEntry[];
 }
 
 interface PersonPrompt {
@@ -120,25 +128,25 @@ export function PersonPage() {
 
   // Combine all entries into a unified flat list for the right column
   const allEntries: Array<{ id: string; title: string; date: string; dye?: string; kind: string }> = [
-    ...(member?.recentLetters ?? []).map((l: any) => ({
+    ...(member?.recentLetters ?? []).map((l) => ({
       id: l.id,
-      title: l.title || 'Untitled letter',
-      date: l.created_at,
-      dye: l.metadata?.dye ?? member?.dye ?? undefined,
+      title: (l.title as string | undefined) || 'Untitled letter',
+      date: l.createdAt,
+      dye: (l.metadata?.dye as string | undefined) ?? member?.dye ?? undefined,
       kind: 'letter',
     })),
-    ...(member?.recentMemories ?? []).map((m: any) => ({
+    ...(member?.recentMemories ?? []).map((m) => ({
       id: m.id,
-      title: m.title || 'Memory',
-      date: m.created_at,
-      dye: m.metadata?.dye ?? member?.dye ?? undefined,
+      title: (m.title as string | undefined) || 'Memory',
+      date: m.createdAt,
+      dye: (m.metadata?.dye as string | undefined) ?? member?.dye ?? undefined,
       kind: 'memory',
     })),
-    ...(member?.recentVoiceRecordings ?? []).map((v: any) => ({
+    ...(member?.recentVoiceRecordings ?? []).map((v) => ({
       id: v.id,
-      title: v.title || 'Voice recording',
-      date: v.created_at,
-      dye: v.metadata?.dye ?? member?.dye ?? undefined,
+      title: (v.title as string | undefined) || 'Voice recording',
+      date: v.createdAt,
+      dye: (v.metadata?.dye as string | undefined) ?? member?.dye ?? undefined,
       kind: 'voice',
     })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -250,6 +258,7 @@ export function PersonPage() {
                   value={editName}
                   onChange={(e) => { setEditName(e.target.value); setEditError(null); }}
                   placeholder="name"
+                  aria-label="Name"
                   autoFocus
                   style={{
                     display: 'block', width: '100%', background: 'transparent',
@@ -263,6 +272,7 @@ export function PersonPage() {
                   value={editRelationship}
                   onChange={(e) => { setEditRelationship(e.target.value); setEditError(null); }}
                   placeholder="relationship"
+                  aria-label="Relationship"
                   style={{
                     display: 'block', width: '100%', background: 'transparent',
                     border: 0, borderBottom: '1px solid var(--rule)', outline: 'none',
@@ -276,6 +286,7 @@ export function PersonPage() {
                   value={editEmail}
                   onChange={(e) => { setEditEmail(e.target.value); setEditError(null); }}
                   placeholder="email — optional"
+                  aria-label="Email (optional)"
                   style={{
                     display: 'block', width: '100%', background: 'transparent',
                     border: 0, borderBottom: '1px solid var(--rule)', outline: 'none',
@@ -287,6 +298,7 @@ export function PersonPage() {
                   value={editNotes}
                   onChange={(e) => { setEditNotes(e.target.value); setEditError(null); }}
                   placeholder="notes — optional"
+                  aria-label="Notes (optional)"
                   rows={3}
                   style={{
                     display: 'block', width: '100%', background: 'transparent',

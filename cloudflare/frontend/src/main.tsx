@@ -3,14 +3,16 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import { installChunkReloadHandlers } from './lib/chunkReload';
 import { registerServiceWorker } from './lib/registerSW';
+import { initSentry } from './lib/sentry';
 import './styles/globals.css';
 
-// Catch stale-chunk errors after a redeploy and reload once. See
-// src/lib/chunkReload.ts for the rationale and the matched messages.
+// Error tracking — no-op when VITE_SENTRY_DSN is absent.
+initSentry();
+
+// Catch stale-chunk errors after a redeploy and reload once.
 installChunkReloadHandlers();
 
-// Register the PWA service worker (production builds only). See
-// src/lib/registerSW.ts — enables install + offline; never caches /api.
+// Register the PWA service worker (production builds only).
 registerServiceWorker();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(

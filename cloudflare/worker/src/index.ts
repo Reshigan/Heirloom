@@ -8,7 +8,7 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { jwt } from 'hono/jwt';
-import { logger } from 'hono/logger';
+import { requestLogger } from './utils/logger';
 import { secureHeaders } from 'hono/secure-headers';
 
 // Routes - import from individual files (not routes/index.ts which has stubs)
@@ -167,8 +167,8 @@ const app = new Hono<AppEnv>();
 // MIDDLEWARE
 // ============================================
 
-// Logging
-app.use('*', logger());
+// Logging — structured JSON for Cloudflare log aggregation
+app.use('*', requestLogger());
 
 // Security headers
 // Disable CORP globally so we can set it per-route (file serving routes need 'cross-origin' for embedding)

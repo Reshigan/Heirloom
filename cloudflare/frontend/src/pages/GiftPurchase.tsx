@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
+import { usePageMeta } from '../lib/usePageMeta';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -24,6 +25,7 @@ interface PricingData {
 // ── GiftPurchase ──────────────────────────────────────────────────────────────
 
 export function GiftPurchase() {
+  usePageMeta('Give Heirloom', 'Give someone the gift of a family thread.');
   const [pricing, setPricing] = useState<PricingData | null>(null);
   const [selectedTier, setSelectedTier] = useState<string>('FAMILY');
   const [billingCycle, setBillingCycle] = useState<'quarterly' | 'yearly'>('yearly');

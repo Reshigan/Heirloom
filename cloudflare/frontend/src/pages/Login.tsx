@@ -1,6 +1,7 @@
 import { useState, lazy, Suspense } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
+import { usePageMeta } from '../lib/usePageMeta';
 import { VaultModal } from '../components/VaultModal';
 import { encryptionService } from '../services/encryptionService';
 import { HLogo } from '../loom/components/HLogo';
@@ -12,6 +13,7 @@ const ClothCanvas3D = lazy(() =>
 
 // Login — animated cloth weaving hero on the right, form on the left.
 export function Login() {
+  usePageMeta('Sign in', 'Sign in to your Heirloom family thread.');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login } = useAuthStore();

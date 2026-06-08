@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { memoriesApi, lettersApi, familyApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+import { usePageMeta } from '../lib/usePageMeta';
 import { HLogo } from '../loom/components/HLogo';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { uploadMemoryImage, validateImage } from '../utils/uploadImage';
@@ -471,6 +472,7 @@ function readDraft(key: string): DraftData {
 
 /* ─── Main Compose page ──────────────────────────────────────────────── */
 export function Compose() {
+  usePageMeta('Compose');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();

@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { voiceApi, familyApi, getAuthHeaders } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+import { usePageMeta } from '../lib/usePageMeta';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { ClothShell } from '../loom/components/ClothShell';
 import { RecipientPicker } from '../loom/components/RecipientPicker';
@@ -36,6 +37,7 @@ const SPEAK_TRIGGERS: { value: SpeakTrigger; label: string; hint: string }[] = [
 ];
 
 export function Record() {
+  usePageMeta('Record a voice');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();

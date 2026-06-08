@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { familyApi, engagementApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { usePageMeta } from '../lib/usePageMeta';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -79,6 +80,7 @@ function daysUntilExpiry(deletedAt: string): number {
 type Mode = 'add' | 'invite';
 
 export function Family() {
+  usePageMeta('Your thread');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);

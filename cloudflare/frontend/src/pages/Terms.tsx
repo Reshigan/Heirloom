@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
+import { usePageMeta } from '../lib/usePageMeta';
 
 const SECTIONS = [
   {
@@ -41,6 +42,7 @@ const SECTIONS = [
 ];
 
 export function Terms() {
+  usePageMeta('Terms', 'Terms of use for Heirloom.');
   return (
     <ClothShell
       topbarLeft={<HLogo />}

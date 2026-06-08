@@ -1,6 +1,7 @@
 import { useState, lazy, Suspense } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
+import { usePageMeta } from '../lib/usePageMeta';
 import { VaultModal } from '../components/VaultModal';
 import { threadsApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
@@ -51,6 +52,7 @@ const TIERS: {
 ];
 
 export function Signup() {
+  usePageMeta('Start your thread', "Begin your family's thousand-year thread. Free to start.");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { register, updateUser } = useAuthStore();

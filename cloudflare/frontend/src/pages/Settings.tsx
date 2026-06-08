@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { settingsApi, exportApi, deadmanApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { usePageMeta } from '../lib/usePageMeta';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 
 const RESPONSIVE_CSS = `
@@ -41,6 +42,7 @@ function Row({ label, children, hint }: { label: string; children: React.ReactNo
 }
 
 export function Settings() {
+  usePageMeta('Settings');
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState(user?.firstName ?? '');

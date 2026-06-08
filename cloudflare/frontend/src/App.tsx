@@ -1,5 +1,6 @@
 import { useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -249,6 +250,7 @@ export default function App() {
   }, []);
 
   return (
+    <HelmetProvider>
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
@@ -571,5 +573,6 @@ export default function App() {
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>
+    </HelmetProvider>
   );
 }

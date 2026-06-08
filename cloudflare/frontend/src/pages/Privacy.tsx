@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
+import { usePageMeta } from '../lib/usePageMeta';
 
 const SECTIONS = [
   {
@@ -36,6 +37,7 @@ const SECTIONS = [
 ];
 
 export function Privacy() {
+  usePageMeta('Privacy', "How Heirloom protects your family's stories.");
   return (
     <ClothShell
       topbarLeft={<HLogo />}
