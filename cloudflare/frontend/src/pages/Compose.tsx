@@ -472,7 +472,8 @@ export function Compose() {
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { user, isAuthenticated } = useAuthStore();
-  const draftKey = `${DRAFT_PREFIX}${user?.id ?? 'anon'}`;
+  const isLetterDraft = !!(searchParams.get('id'));
+  const draftKey = `${DRAFT_PREFIX}${isLetterDraft ? 'letter' : 'memory'}:${user?.id ?? 'anon'}`;
 
   const draft0 = useMemo(() => readDraft(draftKey), [draftKey]);
 
@@ -486,6 +487,7 @@ export function Compose() {
   const [visibility, setVisibility] = useState<Visibility>('family');
   const [dye, setDye] = useState('walnut');
   const [error, setError] = useState<string | null>(null);
+  const [bodyError, setBodyError] = useState<string | null>(null);
   const [woven, setWoven] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [writingFocused, setWritingFocused] = useState(false);
@@ -631,6 +633,7 @@ export function Compose() {
 
   const handleBodyChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setBody(e.target.value);
+    setBodyError(null);
   }, []);
 
   const addImages = useCallback((files: FileList | null) => {
@@ -1089,6 +1092,12 @@ export function Compose() {
             >
               {wordCount} {wordCount === 1 ? 'word' : 'words'}
             </div>
+
+            {bodyError && (
+              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.1em', marginTop: 6 }}>
+                {bodyError}
+              </p>
+            )}
           </div>
 
           {/* ── Photos (memory mode only) ─────────────────────────────── */}
@@ -1308,6 +1317,10 @@ export function Compose() {
                 setError(null);
                 if (uploadingCount > 0) {
                   setError('Wait for photos to finish uploading.');
+                  return;
+                }
+                if (!body.trim()) {
+                  setBodyError('write something first');
                   return;
                 }
                 if (!hasContent) {

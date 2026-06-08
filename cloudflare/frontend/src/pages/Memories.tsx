@@ -428,9 +428,11 @@ export function Memories() {
       {!isLoading && memories.length === 0 && allMemories.length > 0 && (
         <div style={{ padding: '0 clamp(24px, 5vw, 48px) 24px' }}>
           <p className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-            {filters.emotion
-              ? `No memories found for "${filters.emotion}" — try a different feeling or clear the filter.`
-              : 'No entries match these filters.'}
+            {filters.query
+              ? `no memories match "${filters.query}"`
+              : filters.emotion
+                ? 'no memories with this emotion yet'
+                : 'no memories found for this filter'}
           </p>
         </div>
       )}

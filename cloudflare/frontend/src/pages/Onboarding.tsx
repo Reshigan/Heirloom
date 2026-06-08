@@ -133,6 +133,7 @@ export function Onboarding() {
 
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [inviteSent, setInviteSent] = useState(false);
 
   const progress = (stepIndex + 1) / STEPS.length;
 
@@ -194,13 +195,19 @@ export function Onboarding() {
     setError(null);
     try {
       await familyReferralsApi.createInvite({ email: inviteEmail.trim() });
+      setInviteSent(true);
     } catch {
       // Non-fatal — still navigate forward
     } finally {
       setBusy(false);
-      finish();
     }
   }
+
+  useEffect(() => {
+    if (!inviteSent) return;
+    const t = setTimeout(finish, 1500);
+    return () => clearTimeout(t);
+  }, [inviteSent]);
 
   function finish() {
     navigate('/loom/pwa', { replace: true });
@@ -260,6 +267,8 @@ export function Onboarding() {
   // ── CTA label ────────────────────────────────────────────────────────
   const ctaLabel = busy
     ? step === 'entry' ? 'sealing…' : 'inviting…'
+    : inviteSent
+    ? 'sent ✓'
     : step === 'entry' ? 'seal it →' : 'invite →';
 
   // The product tour leads onboarding; it manages its own progress + actions.

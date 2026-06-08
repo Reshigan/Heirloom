@@ -187,6 +187,13 @@ export function VoiceRoom() {
             }}>
               Your family will hear it long after you're gone.
             </p>
+            <Link
+              to="/record"
+              className="hl-btn"
+              style={{ textDecoration: 'none', display: 'inline-block', marginTop: 20 }}
+            >
+              record →
+            </Link>
           </div>
         )}
 

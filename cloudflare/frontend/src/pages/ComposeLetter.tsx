@@ -554,6 +554,30 @@ export function ComposeLetter() {
             </p>
           ) : null}
 
+          {/* delivery summary */}
+          {body.trim() && (
+            <div
+              className="hl-mono"
+              style={{
+                fontSize: 9.5,
+                letterSpacing: '0.1em',
+                color: 'var(--bone-faint)',
+                textTransform: 'uppercase',
+                marginBottom: 12,
+              }}
+            >
+              {deliveryTrigger === 'date' && scheduledDate
+                ? `opens ${new Date(`${scheduledDate}T00:00:00`).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`
+                : deliveryTrigger === 'milestone' && milestoneLabel
+                ? `opens on: ${milestoneLabel}`
+                : deliveryTrigger === 'death'
+                ? 'opens after death'
+                : deliveryTrigger === 'now'
+                ? 'opens immediately'
+                : null}
+            </div>
+          )}
+
           {/* primary CTA */}
           <button
             type="button"
