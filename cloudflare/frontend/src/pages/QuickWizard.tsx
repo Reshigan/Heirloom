@@ -150,7 +150,7 @@ function LoadingBar({ label }: { label?: string }) {
       {label && (
         <p
           className="hl-mono"
-          style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 10, letterSpacing: '0.1em' }}
+          style={{ fontSize: 10, color: 'var(--bone-dim)', marginTop: 10, letterSpacing: '0.1em' }}
         >
           {label}
         </p>
@@ -206,7 +206,7 @@ function SelectRow({
             className="hl-mono"
             style={{
               fontSize: 10,
-              color: 'var(--bone-faint)',
+              color: 'var(--bone-dim)',
               letterSpacing: '0.06em',
               display: 'block',
               marginTop: 3,
@@ -235,7 +235,7 @@ function SummaryRow({ label, value }: { label: string; value: React.ReactNode })
       <div style={{ display: 'flex', gap: 24, alignItems: 'baseline', padding: '12px 0' }}>
         <span
           className="hl-mono"
-          style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase', minWidth: 72 }}
+          style={{ fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.22em', textTransform: 'uppercase', minWidth: 72 }}
         >
           {label}
         </span>
@@ -400,7 +400,7 @@ export function QuickWizard() {
             className="hl-mono"
             style={{
               fontSize: 10,
-              color: 'var(--bone-faint)',
+              color: 'var(--bone-dim)',
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
               marginBottom: 18,

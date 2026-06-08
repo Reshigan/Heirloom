@@ -87,7 +87,7 @@ const inputStyle: React.CSSProperties = {
   padding: '10px 14px',
   color: 'var(--bone)',
   fontFamily: 'var(--serif)',
-  fontSize: 15,
+  fontSize: 16,
   lineHeight: 1.7,
   outline: 'none',
   boxSizing: 'border-box',
@@ -484,7 +484,7 @@ export function StoryArtifact() {
                 type="text"
                 value={shareUrl}
                 readOnly
-                style={{ ...inputStyle, flex: 1, fontFamily: 'var(--mono)', fontSize: 12 }}
+                style={{ ...inputStyle, flex: 1, fontFamily: 'var(--mono)', fontSize: 16 }}
               />
               <button
                 type="button"

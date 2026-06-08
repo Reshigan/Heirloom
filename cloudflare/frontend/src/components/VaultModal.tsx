@@ -130,7 +130,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
     fontSize: 10,
     letterSpacing: '0.22em',
     textTransform: 'uppercase',
-    color: 'var(--bone-faint)',
+    color: 'var(--bone-dim)',
   };
 
   const inputStyle: React.CSSProperties = {
@@ -141,7 +141,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
     color: 'var(--bone)',
     padding: '11px 14px',
     fontFamily: "'Inter', sans-serif",
-    fontSize: 15,
+    fontSize: 16,
     outline: 'none',
     boxSizing: 'border-box',
   };
@@ -280,7 +280,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                   fontSize: 9.5,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
-                  color: 'var(--bone-faint)',
+                  color: 'var(--bone-dim)',
                 }}
               >
                 {showPassphrase ? 'hide' : 'show'}
@@ -289,7 +289,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
             {mode === 'unlock' ? (
               <p
                 className="loom-body"
-                style={{ margin: '12px 0 0', fontSize: 13, fontStyle: 'italic', color: 'var(--bone-faint)' }}
+                style={{ margin: '12px 0 0', fontSize: 13, fontStyle: 'italic', color: 'var(--bone-dim)' }}
               >
                 The three or four words you chose when you sealed the thread.
               </p>
@@ -301,7 +301,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
             <>
               <p
                 className="loom-body"
-                style={{ margin: 0, fontSize: 13, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.6 }}
+                style={{ margin: 0, fontSize: 13, fontStyle: 'italic', color: 'var(--bone-dim)', lineHeight: 1.6 }}
               >
                 Use three or four words you choose — easier to remember, harder to crack.
               </p>
@@ -316,13 +316,13 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                     <span
                       aria-hidden
                       style={{
-                        color: valid ? 'var(--warm)' : 'var(--bone-faint)',
+                        color: valid ? 'var(--warm)' : 'var(--bone-dim)',
                         transition: 'color var(--loom-dur-fast) var(--loom-ease)',
                       }}
                     >
                       {valid ? '∞' : '·'}
                     </span>
-                    <span style={{ color: valid ? 'var(--bone-dim)' : 'var(--bone-faint)' }}>
+                    <span style={{ color: valid ? 'var(--bone-dim)' : 'var(--bone-dim)' }}>
                       {label}
                     </span>
                   </div>
@@ -412,7 +412,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                 fontSize: 10,
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
+                color: 'var(--bone-dim)',
               }}
             >
               seal it later

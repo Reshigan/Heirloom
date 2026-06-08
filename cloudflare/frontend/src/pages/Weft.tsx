@@ -134,7 +134,7 @@ export function Weft() {
 
   const memberCount = Array.isArray(threadMembersData) ? threadMembersData.length : null;
   const entryCount = (
-    <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textTransform: 'uppercase' }}>
+    <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-dim)', textTransform: 'uppercase' }}>
       {allEntries.length} entries{memberCount != null ? ` · ${memberCount} members` : ''}
     </span>
   );

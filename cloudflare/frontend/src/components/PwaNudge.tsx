@@ -227,7 +227,7 @@ export function PwaNudge() {
                 cursor: 'pointer',
                 fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
                 fontSize: 14,
-                color: 'var(--bone-faint, rgba(244,236,216,0.44))',
+                color: 'var(--bone-dim, rgba(244,236,216,0.55))',
                 lineHeight: 1,
                 flexShrink: 0,
               }}
@@ -311,7 +311,7 @@ export function PwaNudge() {
                 fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
                 fontSize: 11,
                 letterSpacing: '0.06em',
-                color: 'var(--bone-faint, rgba(244,236,216,0.44))',
+                color: 'var(--bone-dim, rgba(244,236,216,0.55))',
               }}
             >
               {mode === 'ios' ? 'maybe later' : 'not now'}
@@ -328,7 +328,7 @@ export function PwaNudge() {
               fontSize: 9,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: 'var(--bone-faint, rgba(244,236,216,0.44))',
+              color: 'var(--bone-dim, rgba(244,236,216,0.55))',
               margin: '14px 0 0',
             }}>
               offline · daily prompt · no notifications until you ask
