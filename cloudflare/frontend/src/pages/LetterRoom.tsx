@@ -7,24 +7,11 @@ import { UserMenu } from '../loom/components/Frame';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeColor } from '../loom/dye';
+import { type Letter } from '../types';
 
 function statusLabel(letter: Letter): string {
   if (!letter.sealedAt) return 'draft';
   return 'sealed';
-}
-
-interface Letter {
-  id: string;
-  title: string;
-  salutation: string | null;
-  bodyPreview: string;
-  signature: string | null;
-  deliveryTrigger: string;
-  scheduledDate: string | null;
-  sealedAt: string | null;
-  recipients: Array<{ id: string; name: string; relationship: string }>;
-  createdAt: string;
-  metadata?: { dye?: string } | null;
 }
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';

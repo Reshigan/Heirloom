@@ -5,7 +5,7 @@ import { familyApi } from '../../services/api';
 export interface RecipientMember {
   id: string;
   name: string;
-  relationship?: string;
+  relationship?: string | null;
 }
 
 interface RecipientPickerProps {

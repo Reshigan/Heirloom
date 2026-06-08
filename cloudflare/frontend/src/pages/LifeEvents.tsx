@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { type FamilyMember } from '../types';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
@@ -44,13 +45,6 @@ const QUICK_TEMPLATES = [
     suggestedTitle: 'When You Need Me Most',
   },
 ];
-
-interface FamilyMember {
-  id: string;
-  name: string;
-  relationship: string;
-  email: string;
-}
 
 interface LifeEventTrigger {
   id: string;

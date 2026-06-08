@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { familyApi, legacyContactsApi, lettersApi } from '../services/api';
+import { type FamilyMember } from '../types';
 import { HLogo } from '../loom/components/HLogo';
 import { UserMenu } from '../loom/components/Frame';
 import { ClothShell } from '../loom/components/ClothShell';
@@ -17,13 +18,6 @@ import { useAuthStore } from '../stores/authStore';
  *
  * No AppFrame. hl-screen dark ink standalone. TapestryEdge anchors bottom.
  */
-
-interface FamilyMember {
-  id: string;
-  name: string;
-  relationship?: string;
-  email?: string | null;
-}
 
 interface LegacyContact {
   id: string;

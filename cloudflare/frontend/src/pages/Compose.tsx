@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { memoriesApi, lettersApi, familyApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
+import { type FamilyMember } from '../types';
 import { HLogo } from '../loom/components/HLogo';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { uploadMemoryImage, validateImage } from '../utils/uploadImage';
@@ -25,12 +26,6 @@ import {
  *
  * Emotional order: to whom → when available → what → how it's kept.
  */
-
-interface FamilyMember {
-  id: string;
-  name: string;
-  relationship?: string;
-}
 
 interface ComposeImage {
   id: string;

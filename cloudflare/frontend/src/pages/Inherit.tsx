@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
+import { type Letter, type Memory, type VoiceRecording } from '../types';
+import { formatDate, formatDuration } from '../utils/date';
 
 // @ts-ignore - Vite env types
 const API_URL = import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue/api';
@@ -13,37 +15,6 @@ interface ReactionOption {
   description: string;
 }
 
-interface Letter {
-  id: string;
-  title: string;
-  salutation: string;
-  body: string;
-  signature: string;
-  emotion?: string;
-  sealedAt: string;
-  createdAt: string;
-}
-
-interface Memory {
-  id: string;
-  title: string;
-  description?: string;
-  fileUrl: string;
-  fileType: string;
-  emotion?: string;
-  createdAt: string;
-}
-
-interface VoiceRecording {
-  id: string;
-  title: string;
-  description?: string;
-  fileUrl: string;
-  duration: number;
-  emotion?: string;
-  transcript?: string;
-  createdAt: string;
-}
 
 interface InheritContent {
   letters: Letter[];
@@ -251,7 +222,7 @@ export function Inherit() {
       if (audioRef.current) {
         audioRef.current.pause();
       }
-      const audio = new Audio(recording.fileUrl);
+      const audio = new Audio(recording.fileUrl ?? undefined);
       audio.onended = () => setPlayingVoiceId(null);
       audio.onerror = () => setPlayingVoiceId(null);
       audio.play().catch(() => setPlayingVoiceId(null));
@@ -260,18 +231,6 @@ export function Inherit() {
     }
   };
 
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  const formatDate = (dateString: string) =>
-    new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -855,7 +814,7 @@ export function Inherit() {
                       className="hl-prose dark"
                       style={{ fontSize: 17, color: 'var(--parchment-ink)', margin: 0 }}
                     >
-                      {firstLetter.body.substring(0, 220)}{firstLetter.body.length > 220 ? '…' : ''}
+                      {(firstLetter.body ?? '').substring(0, 220)}{(firstLetter.body ?? '').length > 220 ? '…' : ''}
                     </p>
                   </div>
                 )}
@@ -921,8 +880,8 @@ export function Inherit() {
                     style={{ position: 'relative', aspectRatio: '1', overflow: 'hidden' }}
                   >
                     <img
-                      src={memory.fileUrl}
-                      alt={memory.title}
+                      src={memory.fileUrl ?? undefined}
+                      alt={memory.title ?? undefined}
                       style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                     />
                     <div
@@ -1018,7 +977,7 @@ export function Inherit() {
                         className="hl-mono"
                         style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.04em', margin: 0 }}
                       >
-                        {formatDuration(recording.duration)} · {formatDate(recording.createdAt)}
+                        {formatDuration(recording.duration ?? 0)} · {formatDate(recording.createdAt)}
                       </p>
                       {recording.transcript ? (
                         <p

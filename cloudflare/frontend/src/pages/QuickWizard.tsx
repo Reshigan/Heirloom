@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { type FamilyMember } from '../types';
 import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
 import { familyApi } from '../services/api';
@@ -35,14 +36,6 @@ const TEMPLATES = [
   },
 ];
 
-
-interface FamilyMember {
-  id: string;
-  name: string;
-  relationship: string;
-  email?: string;
-  avatarUrl?: string;
-}
 
 interface PersonPrompt {
   id: string;
@@ -464,7 +457,7 @@ export function QuickWizard() {
                       <SelectRow
                         key={person.id}
                         label={person.name}
-                        sub={person.relationship}
+                        sub={person.relationship ?? undefined}
                         onClick={() => handlePersonSelect(person)}
                       />
                     ))}

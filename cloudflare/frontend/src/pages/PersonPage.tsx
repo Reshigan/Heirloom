@@ -5,6 +5,7 @@ import api, { familyApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
+import { type FamilyMember } from '../types';
 
 interface RecentEntry {
   id: string;
@@ -14,18 +15,7 @@ interface RecentEntry {
   metadata?: Record<string, unknown>;
 }
 
-interface FamilyMember {
-  id: string;
-  name: string;
-  relationship: string;
-  email?: string;
-  phone?: string;
-  avatarUrl?: string;
-  birthDate?: string;
-  notes?: string;
-  dye?: string;
-  role?: string;
-  status?: string;
+interface PersonMember extends FamilyMember {
   recentMemories: RecentEntry[];
   recentLetters: RecentEntry[];
   recentVoiceRecordings: RecentEntry[];
@@ -85,7 +75,7 @@ export function PersonPage() {
   const [editNotes, setEditNotes] = useState('');
   const [editError, setEditError] = useState<string | null>(null);
 
-  const { data: member, isLoading } = useQuery<FamilyMember>({
+  const { data: member, isLoading } = useQuery<PersonMember>({
     queryKey: ['family', id],
     queryFn: () => familyApi.getOne(id!).then(r => r.data),
     enabled: !!id,

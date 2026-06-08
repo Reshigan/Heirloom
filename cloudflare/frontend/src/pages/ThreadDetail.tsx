@@ -5,6 +5,7 @@ import { TapestryEdge } from '../loom/components/Frame';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { threadsApi, type ThreadRole, type ThreadEntry } from '../services/api';
+import { formatDate } from '../utils/date';
 
 /**
  * The 10-stop natural-dye palette is permitted ONLY inside woven thread
@@ -742,10 +743,3 @@ function FieldInput({
   );
 }
 
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
-  } catch {
-    return iso;
-  }
-}

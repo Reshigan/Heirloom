@@ -6,6 +6,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { Link } from 'react-router-dom';
 import { useListener } from '../hooks/useListener';
+import { type Memory } from '../types';
 
 const DYE_COLORS: Record<string, string> = {
   memory:    'var(--dye-madder)',
@@ -15,19 +16,6 @@ const DYE_COLORS: Record<string, string> = {
   milestone: 'var(--dye-cochineal)',
 };
 
-interface Memory {
-  id: string;
-  title?: string | null;
-  description?: string | null;
-  type?: string;
-  emotion?: string | null;
-  fileUrl?: string | null;
-  fileKey?: string | null;
-  mimeType?: string | null;
-  metadata?: { to?: string; recipientName?: string; entryDate?: string; images?: { fileUrl?: string }[] } | null;
-  createdAt?: string;
-  created_at?: string;
-}
 
 /** The lived date the author assigned (entryDate) wins over the row's createdAt. */
 function entryDateOf(m: Memory): string {

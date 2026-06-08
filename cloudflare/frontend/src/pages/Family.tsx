@@ -6,23 +6,8 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { usePageMeta } from '../lib/usePageMeta';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { copyToClipboard } from '../utils/clipboard';
-
-interface FamilyMember {
-  id: string;
-  name: string;
-  relationship: string;
-  email?: string | null;
-  phone?: string | null;
-  birthDate?: string | null;
-  notes?: string | null;
-  avatarUrl?: string | null;
-  createdAt?: string;
-  role?: string | null;
-  lastEntry?: string | null;
-  dye?: string | null;
-  deletedAt?: string | null;
-  pendingDeletion?: boolean;
-}
+import { type FamilyMember } from '../types';
+import { formatDate } from '../utils/date';
 
 interface PendingInvite {
   id: string;
@@ -61,16 +46,6 @@ const DYE_TEXT: Record<string, string> = {
   iron:      '#7a7a78',
 };
 
-function formatDate(iso: string | null | undefined): string {
-  if (!iso) return '—';
-  try {
-    return new Date(iso).toLocaleDateString(undefined, {
-      day: 'numeric', month: 'short', year: 'numeric',
-    });
-  } catch {
-    return '—';
-  }
-}
 
 function daysUntilExpiry(deletedAt: string): number {
   const expires = new Date(deletedAt).getTime() + 7 * 24 * 60 * 60 * 1000;

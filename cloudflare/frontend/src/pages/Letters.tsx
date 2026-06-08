@@ -4,19 +4,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { lettersApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-
-interface Letter {
-  id: string;
-  title?: string | null;
-  salutation?: string | null;
-  bodyPreview?: string | null;
-  deliveryTrigger?: string;
-  scheduledDate?: string | null;
-  sealedAt?: string | null;
-  milestoneLabel?: string | null;
-  deliveredAt?: string | null;
-  createdAt: string;
-}
+import { type Letter } from '../types';
+import { formatDate } from '../utils/date';
 
 // Natural-dye swatch — deterministic per letter id
 const DYE_VARS = [
@@ -38,17 +27,6 @@ function dyeFor(id: string): string {
   return `var(${DYE_VARS[h % DYE_VARS.length]})`;
 }
 
-function formatDate(iso: string): string {
-  try {
-    return new Date(iso).toLocaleDateString(undefined, {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
-  } catch {
-    return iso;
-  }
-}
 
 /**
  * Letters — Loom 3 rewrite (§6.x).

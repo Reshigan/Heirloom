@@ -5,6 +5,7 @@ import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import api, { memoriesApi, voiceApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
+import { type Memory, type VoiceRecording } from '../types';
 
 // Quick Create wizard templates
 const STORY_TEMPLATES = [
@@ -30,22 +31,6 @@ const DYE_SWATCHES: DyeSwatches = {
   modern:  'var(--dye-woad)',
   default: 'var(--dye-iron)',
 };
-
-interface Memory {
-  id: string;
-  title: string;
-  description: string;
-  fileUrl: string;
-  type: string;
-}
-
-interface VoiceRecording {
-  id: string;
-  title: string;
-  description: string;
-  fileUrl: string;
-  duration: number;
-}
 
 interface StoryArtifactItem {
   id: string;
@@ -747,8 +732,8 @@ export function StoryArtifact() {
                       }}
                     >
                       <img
-                        src={memory.fileUrl}
-                        alt={memory.title}
+                        src={memory.fileUrl ?? undefined}
+                        alt={memory.title ?? undefined}
                         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                       />
                       {selectedMemories.includes(memory.id) && (
