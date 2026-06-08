@@ -268,9 +268,8 @@ deadmanRoutes.post('/verify/:token', async (c) => {
       triggerAction: dms.trigger_action,
       triggeredAt: dms.updated_at,
     });
-  } catch (err) {
-    console.error('deadman/verify error:', err);
-    return c.json({ error: 'Internal server error' }, 500);
+  } catch {
+    return c.json({ error: 'Token not found or already used' }, 404);
   }
 });
 
