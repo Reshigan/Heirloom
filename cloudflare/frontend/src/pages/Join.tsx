@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
@@ -15,13 +15,21 @@ export function Join() {
   const [accepting, setAccepting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+  const navigateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Clear navigate timer on unmount
+  useEffect(() => {
+    return () => {
+      if (navigateTimer.current) clearTimeout(navigateTimer.current);
+    };
+  }, []);
 
   // If already logged in, accept immediately
   useEffect(() => {
     if (!user || !code || done) return;
     setAccepting(true);
     engagementApi.acceptFamilyInvite(code)
-      .then(() => { setDone(true); setTimeout(() => navigate('/loom'), 1400); })
+      .then(() => { setDone(true); navigateTimer.current = setTimeout(() => navigate('/loom'), 1400); })
       .catch((err) => {
         const msg = err?.response?.data?.error ?? 'Could not accept invite.';
         // Already a member or already accepted — still send them home

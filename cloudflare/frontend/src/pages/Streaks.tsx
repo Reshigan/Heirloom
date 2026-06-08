@@ -88,7 +88,7 @@ export function Streaks() {
 
   const backLink = (
     <Link
-      to="/loom"
+      to="/loom/index"
       style={{
         fontFamily: 'var(--mono)',
         fontSize: 10,

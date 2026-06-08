@@ -84,7 +84,7 @@ export function InheritanceCard() {
               <p className="hl-serif" style={{ fontSize: 18, color: 'var(--bone)', lineHeight: 1.7 }}>
                 The thread is open. Create your account to read and contribute.
               </p>
-              <Link to="/signup" className="hl-btn" style={{ display: 'inline-block', marginTop: 24 }}>
+              <Link to={`/signup?inheritToken=${data?.sessionToken}&source=inheritance`} className="hl-btn" style={{ display: 'inline-block', marginTop: 24 }}>
                 Join the thread →
               </Link>
             </div>

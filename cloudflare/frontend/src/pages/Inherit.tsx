@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
 
 // @ts-ignore - Vite env types
-const API_URL = import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue';
+const API_URL = import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue/api';
 
 type ReactionType = 'THANK_YOU' | 'REMEMBER_THIS' | 'LOVE_THIS' | 'CUSTOM';
 
@@ -191,7 +191,7 @@ export function Inherit() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/inherit/${token}`, { signal });
+      const response = await fetch(`${API_URL}/inherit/${token}`, { signal });
       if (signal?.aborted) return;
       const data = await response.json();
 
@@ -216,7 +216,7 @@ export function Inherit() {
     if (!sessionToken) return;
 
     try {
-      const response = await fetch(`${API_URL}/api/inherit/content/all`, {
+      const response = await fetch(`${API_URL}/inherit/content/all`, {
         headers: {
           'Authorization': `Bearer ${sessionToken}`,
         },
@@ -282,7 +282,7 @@ export function Inherit() {
     setActiveTab('search');
 
     try {
-      const response = await fetch(`${API_URL}/api/inherit/search`, {
+      const response = await fetch(`${API_URL}/inherit/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -320,7 +320,7 @@ export function Inherit() {
     setSendingReaction(true);
 
     try {
-      const response = await fetch(`${API_URL}/api/inherit/reply`, {
+      const response = await fetch(`${API_URL}/inherit/reply`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

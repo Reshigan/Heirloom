@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '../services/api';
@@ -47,6 +47,7 @@ export function AdminDashboard() {
   const [selectedUser, setSelectedUser] = useState<any>(null);
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
   const status = useInlineStatus();
+  const resendInProgress = useRef<Record<string, boolean>>({});
 
   // Queries
   const { data: overview } = useQuery({
@@ -668,7 +669,17 @@ export function AdminDashboard() {
                       <td style={{ ...tdStyle, textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
                           {voucher.status === 'PAID' && voucher.recipient_email && (
-                            <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={async () => { const token = localStorage.getItem('adminToken'); await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/${voucher.id}/resend`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } }); status.ok('voucher resent'); }}>Resend</button>
+                            <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={async () => {
+                              if (resendInProgress.current[voucher.id]) return;
+                              resendInProgress.current[voucher.id] = true;
+                              try {
+                                const token = localStorage.getItem('adminToken');
+                                await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/${voucher.id}/resend`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } });
+                                status.ok('voucher resent');
+                              } finally {
+                                resendInProgress.current[voucher.id] = false;
+                              }
+                            }}>Resend</button>
                           )}
                           <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/gift/redeem?code=${voucher.code}`); status.ok('redeem link copied'); }}>Link</button>
                         </div>
@@ -1596,7 +1607,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
         <div style={{ paddingTop: 16, borderTop: '1px solid var(--rule)' }}>
           <div className="loom-eyebrow" style={{ color: 'var(--danger)', marginBottom: 8 }}>Danger Zone</div>
           <button
-            style={{ width: '100%', background: 'transparent', border: '1px solid var(--danger)', color: 'var(--danger)', padding: '8px 16px', cursor: 'pointer', fontFamily: "'Inter', sans-serif", fontSize: 12, letterSpacing: '0.08em', opacity: cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE' ? 0.4 : 1 }}
+            style={{ width: '100%', background: 'transparent', border: '1px solid var(--danger)', color: 'var(--danger)', padding: '8px 16px', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 12, letterSpacing: '0.08em', opacity: cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE' ? 0.4 : 1 }}
             onClick={() => setConfirmingCancel(true)}
             disabled={cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE'}
           >
@@ -1750,7 +1761,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Type your reply…" style={{ width: '100%', height: 80, background: 'var(--ink)', border: '1px solid var(--rule)', color: 'var(--bone)', padding: '8px 12px', fontFamily: "'Inter', sans-serif", fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+        <textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Type your reply…" style={{ width: '100%', height: 80, background: 'var(--ink)', border: '1px solid var(--rule)', color: 'var(--bone)', padding: '8px 12px', fontFamily: 'var(--sans)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="loom-btn" onClick={() => replyMutation.mutate()} disabled={!reply || replyMutation.isPending}>Send Reply</button>
           {ticket?.status !== 'RESOLVED' && !showResolveForm && (
@@ -1762,7 +1773,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
       {showResolveForm && ticket?.status !== 'RESOLVED' && (
         <div style={{ marginTop: 16, padding: 16, background: 'var(--ink)', border: '1px solid var(--rule)', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <p className="loom-eyebrow" style={{ color: 'var(--warm)' }}>Resolve Ticket</p>
-          <textarea value={resolutionNote} onChange={(e) => setResolutionNote(e.target.value)} placeholder="Optional: resolution note for the user…" style={{ width: '100%', height: 64, background: 'var(--ink-card)', border: '1px solid var(--rule)', color: 'var(--bone)', padding: '8px 12px', fontFamily: "'Inter', sans-serif", fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+          <textarea value={resolutionNote} onChange={(e) => setResolutionNote(e.target.value)} placeholder="Optional: resolution note for the user…" style={{ width: '100%', height: 64, background: 'var(--ink-card)', border: '1px solid var(--rule)', color: 'var(--bone)', padding: '8px 12px', fontFamily: 'var(--sans)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="loom-btn" onClick={() => updateStatusMutation.mutate({ status: 'RESOLVED', resolutionNote: resolutionNote || undefined })} disabled={updateStatusMutation.isPending}>{updateStatusMutation.isPending ? 'Resolving…' : 'Confirm Resolution'}</button>
             <button className="loom-btn-ghost" onClick={() => { setShowResolveForm(false); setResolutionNote(''); }}>Cancel</button>
@@ -1915,7 +1926,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
             </>
           )}
           <LoomField label="Admin Notes (optional)">
-            <textarea value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} rows={2} placeholder="Promotional campaign, influencer gift…" style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--rule)', borderRadius: 2, color: 'var(--bone)', padding: '6px 10px', fontFamily: "'Inter', sans-serif", fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+            <textarea value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} rows={2} placeholder="Promotional campaign, influencer gift…" style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--rule)', borderRadius: 2, color: 'var(--bone)', padding: '6px 10px', fontFamily: 'var(--sans)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
           </LoomField>
           <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
             <button className="loom-btn-ghost" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
@@ -2011,7 +2022,7 @@ The Heirloom Team`;
             <LoomInput type="text" value={formData.memberNumber} onChange={e => setFormData({ ...formData, memberNumber: e.target.value })} placeholder="G-000001 (auto-generated if empty)" />
           </LoomField>
           <LoomField label="Personal Message">
-            <textarea value={formData.personalMessage} onChange={e => setFormData({ ...formData, personalMessage: e.target.value })} rows={6} placeholder={DEFAULT_MESSAGE} style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--rule)', borderRadius: 2, color: 'var(--bone)', padding: '6px 10px', fontFamily: "'Inter', sans-serif", fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+            <textarea value={formData.personalMessage} onChange={e => setFormData({ ...formData, personalMessage: e.target.value })} rows={6} placeholder={DEFAULT_MESSAGE} style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--rule)', borderRadius: 2, color: 'var(--bone)', padding: '6px 10px', fontFamily: 'var(--sans)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
             <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 4 }}>Leave empty to use the default message</div>
           </LoomField>
           {formData.recipientEmail && (
@@ -2062,7 +2073,7 @@ const loomInputStyle: React.CSSProperties = {
   borderRadius: 2,
   color: 'var(--bone)',
   padding: '6px 10px',
-  fontFamily: "'Inter', sans-serif",
+  fontFamily: 'var(--sans)',
   fontSize: 13,
   outline: 'none',
   boxSizing: 'border-box',

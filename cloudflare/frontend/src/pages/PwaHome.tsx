@@ -79,7 +79,6 @@ function PwaMenu() {
           border: '1px solid var(--rule)',
           padding: 12,
           zIndex: 60,
-          boxShadow: '0 16px 48px rgba(10,10,8,0.45)',
           opacity: open ? 1 : 0,
           transform: open ? 'scale(1)' : 'scale(0.97) translateY(-4px)',
           pointerEvents: open ? 'auto' : 'none',

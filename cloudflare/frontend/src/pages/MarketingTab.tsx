@@ -32,7 +32,7 @@ function InlineStatus({ status }: { status: InlineStatusApi }) {
         marginBottom: 20, padding: '8px 14px',
         background: 'var(--ink)',
         border: `1px solid ${warm ? 'var(--rule-warm)' : 'rgba(194,90,90,0.35)'}`,
-        fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.04em',
+        fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.04em',
         color: warm ? 'var(--warm)' : 'var(--danger)',
       }}
     >
@@ -107,7 +107,7 @@ const inputStyle: React.CSSProperties = {
   background: 'transparent',
   border: '1px solid var(--rule)',
   color: 'var(--bone)',
-  fontFamily: "'JetBrains Mono', monospace",
+  fontFamily: 'var(--mono)',
   fontSize: 12,
   letterSpacing: '0.04em',
   padding: '8px 12px',
@@ -119,7 +119,7 @@ const inputStyle: React.CSSProperties = {
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
-  fontFamily: "'JetBrains Mono', monospace",
+  fontFamily: 'var(--mono)',
   fontSize: 10,
   letterSpacing: '0.18em',
   textTransform: 'uppercase' as const,
@@ -225,7 +225,7 @@ export function MarketingTab() {
               borderBottom: activeSubTab === id ? '1px solid var(--warm)' : '1px solid transparent',
               marginBottom: -1,
               padding: '8px 16px',
-              fontFamily: "'JetBrains Mono', monospace",
+              fontFamily: 'var(--mono)',
               fontSize: 10,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
@@ -269,7 +269,7 @@ export function MarketingTab() {
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--rule)' }}>
                   {['Name', 'Email', 'Platform', 'Segment', 'Status', 'Last Contact'].map(h => (
-                    <th key={h} style={{ textAlign: 'left', padding: '8px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', fontWeight: 400 }}>{h}</th>
+                    <th key={h} style={{ textAlign: 'left', padding: '8px 16px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', fontWeight: 400 }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -277,7 +277,7 @@ export function MarketingTab() {
                 {loadingInfluencers ? (
                   <tr><td colSpan={6} style={{ padding: '32px 16px' }}><ProgressHair label="Loading…" /></td></tr>
                 ) : influencers?.influencers?.length === 0 ? (
-                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No threads yet. Import or add some.</td></tr>
+                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 12 }}>No threads yet. Import or add some.</td></tr>
                 ) : (
                   influencers?.influencers?.map((inf: any) => (
                     <tr key={inf.id} style={{ borderBottom: '1px solid var(--rule)' }}>
@@ -320,13 +320,13 @@ export function MarketingTab() {
             <thead>
               <tr style={{ borderBottom: '1px solid var(--rule)' }}>
                 {['Campaign', 'Type', 'Status', 'Sent', 'Opens', 'Created'].map(h => (
-                  <th key={h} style={{ textAlign: 'left', padding: '8px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', fontWeight: 400 }}>{h}</th>
+                  <th key={h} style={{ textAlign: 'left', padding: '8px 16px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', fontWeight: 400 }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {campaigns?.campaigns?.length === 0 ? (
-                <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No campaigns yet.</td></tr>
+                <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 12 }}>No campaigns yet.</td></tr>
               ) : (
                 campaigns?.campaigns?.map((c: any) => (
                   <tr key={c.id} style={{ borderBottom: '1px solid var(--rule)' }}>
@@ -372,13 +372,13 @@ export function MarketingTab() {
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--rule)' }}>
                   {['Name', 'Email', 'Platform', 'Why Interested', 'Status', ''].map(h => (
-                    <th key={h} style={{ textAlign: h === '' ? 'right' : 'left', padding: '8px 16px', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', fontWeight: 400 }}>{h}</th>
+                    <th key={h} style={{ textAlign: h === '' ? 'right' : 'left', padding: '8px 16px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', fontWeight: 400 }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {creatorSignups?.signups?.length === 0 ? (
-                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No signups yet.</td></tr>
+                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 12 }}>No signups yet.</td></tr>
                 ) : (
                   creatorSignups?.signups?.map((s: any) => (
                     <tr key={s.id} style={{ borderBottom: '1px solid var(--rule)' }}>
@@ -418,7 +418,7 @@ export function MarketingTab() {
           </p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 1 }}>
             {content?.content?.length === 0 ? (
-              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: "'JetBrains Mono', monospace", fontSize: 12 }}>No content yet.</div>
+              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 12 }}>No content yet.</div>
             ) : (
               content?.content?.map((c: any) => (
                 <div key={c.id} style={{ border: '1px solid var(--rule)', padding: '20px' }}>
@@ -547,7 +547,7 @@ function ImportInfluencersModal({ onClose, onImport, isLoading }: {
             value={csvData}
             onChange={(e) => setCsvData(e.target.value)}
             placeholder={"name,email,platform,handle,segment,followers,profile_url,notes\nYour Name,contact@example.com,INSTAGRAM,yourusername,GENEALOGY,50000,https://instagram.com/yourusername,Family history enthusiast"}
-            style={{ ...inputStyle, height: 160, resize: 'vertical', fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}
+            style={{ ...inputStyle, height: 160, resize: 'vertical', fontFamily: 'var(--mono)', fontSize: 11 }}
           />
         </div>
 
@@ -749,7 +749,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
               value={formData.bodyHtml}
               onChange={(e) => setFormData(prev => ({ ...prev, bodyHtml: e.target.value }))}
               placeholder="<p>Hi [Name],</p><p>Your email content here…</p>"
-              style={{ ...inputStyle, height: 240, resize: 'vertical', fontFamily: "'JetBrains Mono', monospace", fontSize: 11 }}
+              style={{ ...inputStyle, height: 240, resize: 'vertical', fontFamily: 'var(--mono)', fontSize: 11 }}
             />
             <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', display: 'block', marginTop: 4 }}>Unsubscribe link added automatically.</span>
           </div>

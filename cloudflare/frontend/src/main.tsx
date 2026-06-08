@@ -1,4 +1,4 @@
-import React from 'react';
+import { StrictMode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { installChunkReloadHandlers } from './lib/chunkReload';
@@ -14,9 +14,9 @@ installChunkReloadHandlers();
 registerServiceWorker();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+  <StrictMode>
     <App />
-  </React.StrictMode>
+  </StrictMode>
 );
 
 // Tear down the pre-hydration cold-boot splash (#hl-splash in index.html) now

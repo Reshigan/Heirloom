@@ -110,7 +110,7 @@ const fieldStyle: React.CSSProperties = {
   borderRadius: 2,
   color: 'var(--bone)',
   caretColor: 'var(--warm)',
-  fontFamily: "'Source Serif 4', serif",
+  fontFamily: 'var(--serif)',
   fontSize: 15,
   lineHeight: 1.7,
   padding: '12px 14px',
@@ -121,7 +121,7 @@ const fieldStyle: React.CSSProperties = {
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
-  fontFamily: "'JetBrains Mono', monospace",
+  fontFamily: 'var(--mono)',
   fontSize: 10,
   fontWeight: 500,
   letterSpacing: '0.22em',
@@ -441,7 +441,7 @@ export function LifeEvents() {
                               borderRadius: 0,
                               padding: '6px 14px',
                               cursor: 'pointer',
-                              fontFamily: "'JetBrains Mono', monospace",
+                              fontFamily: 'var(--mono)',
                               fontSize: 10,
                               letterSpacing: '0.06em',
                               color: 'var(--bone-faint)',
@@ -461,7 +461,7 @@ export function LifeEvents() {
                           border: 0,
                           padding: '6px 4px',
                           cursor: 'pointer',
-                          fontFamily: "'JetBrains Mono', monospace",
+                          fontFamily: 'var(--mono)',
                           fontSize: 10,
                           letterSpacing: '0.06em',
                           color: 'var(--bone-faint)',
@@ -520,7 +520,7 @@ export function LifeEvents() {
                     onClick={() => setWizardStep(wizardStep - 1)}
                     style={{
                       background: 'none', border: 0, padding: 0, cursor: 'pointer',
-                      fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: 'var(--bone-faint)',
+                      fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bone-faint)',
                     }}
                     aria-label="Back"
                   >
@@ -542,7 +542,7 @@ export function LifeEvents() {
                 onClick={() => resetForm()}
                 style={{
                   background: 'none', border: 0, padding: 0, cursor: 'pointer',
-                  fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em',
+                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
                   textTransform: 'uppercase', color: 'var(--bone-faint)',
                 }}
                 aria-label="Close"
@@ -578,7 +578,7 @@ export function LifeEvents() {
                       <p className="hl-serif" style={{ margin: '0 0 3px', fontSize: 16, fontWeight: 300, color: 'var(--bone)' }}>
                         {template.title}
                       </p>
-                      <p style={{ margin: 0, fontSize: 13, color: 'var(--bone-faint)', fontFamily: "'Source Serif 4', serif" }}>
+                      <p style={{ margin: 0, fontSize: 13, color: 'var(--bone-faint)', fontFamily: 'var(--serif)' }}>
                         {template.description}
                       </p>
                     </div>
@@ -590,7 +590,7 @@ export function LifeEvents() {
                     onClick={() => { setWizardStep(2); setSelectedTemplate(null); }}
                     style={{
                       background: 'none', border: 0, padding: '8px 0', cursor: 'pointer', width: '100%',
-                      fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.12em',
+                      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em',
                       textTransform: 'uppercase', color: 'var(--bone-faint)', textAlign: 'center',
                     }}
                   >
@@ -733,7 +733,7 @@ export function LifeEvents() {
                             aria-label="Remove"
                             style={{
                               background: 'none', border: 0, padding: 0, cursor: 'pointer',
-                              fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
+                              fontFamily: 'var(--mono)', fontSize: 10,
                               letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)',
                             }}
                           >
@@ -746,7 +746,7 @@ export function LifeEvents() {
                       onClick={() => setShowContentPicker(true)}
                       style={{
                         background: 'none', border: 0, padding: '8px 0 0', cursor: 'pointer',
-                        fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.1em',
+                        fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em',
                         textTransform: 'uppercase', color: 'var(--warm)',
                       }}
                     >
@@ -765,7 +765,7 @@ export function LifeEvents() {
                       padding: '14px',
                       cursor: 'pointer',
                       width: '100%',
-                      fontFamily: "'JetBrains Mono', monospace",
+                      fontFamily: 'var(--mono)',
                       fontSize: 10,
                       letterSpacing: '0.14em',
                       textTransform: 'uppercase',
@@ -843,7 +843,7 @@ export function LifeEvents() {
                         disabled={selectedContent.some(c => c.id === m.id)}
                         style={{
                           background: 'none', border: 0, padding: '6px 0', cursor: 'pointer', width: '100%',
-                          textAlign: 'left', fontFamily: "'Source Serif 4', serif", fontSize: 14,
+                          textAlign: 'left', fontFamily: 'var(--serif)', fontSize: 14,
                           color: 'var(--bone-dim)', opacity: selectedContent.some(c => c.id === m.id) ? 0.4 : 1,
                         }}
                       >
@@ -868,7 +868,7 @@ export function LifeEvents() {
                         disabled={selectedContent.some(c => c.id === l.id)}
                         style={{
                           background: 'none', border: 0, padding: '6px 0', cursor: 'pointer', width: '100%',
-                          textAlign: 'left', fontFamily: "'Source Serif 4', serif", fontSize: 14,
+                          textAlign: 'left', fontFamily: 'var(--serif)', fontSize: 14,
                           color: 'var(--bone-dim)', opacity: selectedContent.some(c => c.id === l.id) ? 0.4 : 1,
                         }}
                       >
@@ -893,7 +893,7 @@ export function LifeEvents() {
                         disabled={selectedContent.some(c => c.id === v.id)}
                         style={{
                           background: 'none', border: 0, padding: '6px 0', cursor: 'pointer', width: '100%',
-                          textAlign: 'left', fontFamily: "'Source Serif 4', serif", fontSize: 14,
+                          textAlign: 'left', fontFamily: 'var(--serif)', fontSize: 14,
                           color: 'var(--bone-dim)', opacity: selectedContent.some(c => c.id === v.id) ? 0.4 : 1,
                         }}
                       >
@@ -924,7 +924,7 @@ export function LifeEvents() {
                         padding: '12px 14px',
                         border: '1px solid var(--rule)',
                         textDecoration: 'none',
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: 'var(--mono)',
                         fontSize: 10,
                         letterSpacing: '0.12em',
                         textTransform: 'uppercase',

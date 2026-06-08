@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
@@ -14,6 +14,13 @@ export function ResetPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const navigateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (navigateTimer.current) clearTimeout(navigateTimer.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (!token) {
@@ -40,7 +47,7 @@ export function ResetPassword() {
     try {
       await authApi.resetPassword({ token: token!, password });
       setSuccess(true);
-      setTimeout(() => navigate('/login'), 3000);
+      navigateTimer.current = setTimeout(() => navigate('/login'), 3000);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to reset password. Please try again.');
     } finally {

@@ -300,8 +300,7 @@ export function QuickWizard() {
     try {
       const response = await api.get(`/ai/person-prompts/${selectedPerson.id}`);
       setPrompts(response.data.prompts || []);
-    } catch (err) {
-      console.error('Failed to fetch prompts:', err);
+    } catch {
       setPromptError('Could not load suggested beginnings. You can still write your own.');
     }
     setLoadingPrompts(false);

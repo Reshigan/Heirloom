@@ -244,8 +244,7 @@ export function StoryArtifact() {
         await memoriesApi.create({ title: file.name.replace(/\.[^/.]+$/, ''), type: 'PHOTO', fileUrl: uploadData.fileUrl, fileSize: file.size });
       }
       queryClient.invalidateQueries({ queryKey: ['memories-for-artifact'] });
-    } catch (error) {
-      console.error('Upload failed:', error);
+    } catch {
       setUploadError('Upload failed. Please try again.');
     } finally {
       setIsUploading(false);

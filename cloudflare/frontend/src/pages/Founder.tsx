@@ -375,17 +375,20 @@ export function Founder() {
                   </button>
                 </form>
 
-                <p
+                <Link
+                  to="/gift"
                   className="hl-mono"
                   style={{
+                    display:       'block',
                     marginTop:     12,
                     fontSize:       11,
                     color:         'var(--bone-faint)',
                     letterSpacing: '0.08em',
+                    textDecoration: 'none',
                   }}
                 >
                   or gift one →
-                </p>
+                </Link>
               </>
             )}
           </div>

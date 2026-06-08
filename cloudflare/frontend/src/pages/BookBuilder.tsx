@@ -432,7 +432,7 @@ export function BookBuilder() {
                   flexDirection: 'column',
                   padding: 16,
                   borderRadius: 0,
-                  boxShadow: '0 1px 0 var(--warm)',
+                  borderBottom: '1px solid var(--warm)',
                 }}
               >
                 {/* Brand eyebrow */}

@@ -31,6 +31,7 @@ export function PhotoQuick() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [images, setImages] = useState<QuickImage[]>([]);
   const [caption, setCaption] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -42,6 +43,13 @@ export function PhotoQuick() {
       images.forEach(img => { if (img.url?.startsWith('blob:')) URL.revokeObjectURL(img.url); });
     };
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Clear navigate timer on unmount
+  useEffect(() => {
+    return () => {
+      if (navigateTimer.current) clearTimeout(navigateTimer.current);
+    };
+  }, []);
 
   const addImages = useCallback((files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -109,7 +117,7 @@ export function PhotoQuick() {
       queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
       queryClient.invalidateQueries({ queryKey: ['new-user-check-memories'] });
       setWoven(true);
-      setTimeout(() => navigate('/loom/index'), 4200);
+      navigateTimer.current = setTimeout(() => navigate('/loom/index'), 4200);
     },
     onError: (err: any) => setError(err?.response?.data?.error ?? 'Could not save the photo.'),
   });

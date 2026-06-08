@@ -78,6 +78,7 @@ export function Record() {
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const mimeTypeRef = useRef<string>('audio/webm');
   const streamRef = useRef<MediaStream | null>(null);
+  const navigateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     return () => {
@@ -91,6 +92,13 @@ export function Record() {
     return () => {
       streamRef.current?.getTracks().forEach((t) => t.stop());
       if (mediaRecorderRef.current?.state !== 'inactive') mediaRecorderRef.current?.stop();
+    };
+  }, []);
+
+  // Clear navigate timer on unmount to avoid state updates after unmount
+  useEffect(() => {
+    return () => {
+      if (navigateTimer.current) clearTimeout(navigateTimer.current);
     };
   }, []);
 
@@ -209,7 +217,7 @@ export function Record() {
       queryClient.invalidateQueries({ queryKey: ['weft-voice'] });
       queryClient.invalidateQueries({ queryKey: ['new-user-check-voice'] });
       setSealedCeremony(true);
-      setTimeout(() => navigate('/loom/index'), 4200);
+      navigateTimer.current = setTimeout(() => navigate('/loom/index'), 4200);
     },
     onError: (err: unknown) => {
       const msg = err instanceof Error ? err.message : 'Could not save the recording.';

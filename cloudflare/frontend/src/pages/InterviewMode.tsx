@@ -35,6 +35,8 @@ export function InterviewMode() {
   const [audioLevel, setAudioLevel] = useState(0);
   const [silenceTimer, setSilenceTimer] = useState(0);
   const [textAnswer, setTextAnswer] = useState('');
+  const [recordingError, setRecordingError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -80,6 +82,7 @@ export function InterviewMode() {
   }, []);
 
   const startRecording = async () => {
+    setRecordingError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
@@ -114,6 +117,7 @@ export function InterviewMode() {
       ]);
     } catch (err) {
       console.error('Failed to start recording:', err);
+      setRecordingError('Microphone access denied. Please allow microphone access and try again.');
     }
   };
 
@@ -208,6 +212,7 @@ export function InterviewMode() {
       navigate('/record');
     } catch (err) {
       console.error('Failed to save interview:', err);
+      setSaveError('Failed to save interview. Please try again.');
     }
     setIsSaving(false);
   };
@@ -231,6 +236,7 @@ export function InterviewMode() {
       navigate('/record');
     } catch (err) {
       console.error('Failed to save written interview:', err);
+      setSaveError('Failed to save interview. Please try again.');
     }
     setIsSaving(false);
   };
@@ -250,7 +256,7 @@ export function InterviewMode() {
 
   const backLink = (
     <Link
-      to="/loom"
+      to="/loom/index"
       style={{
         fontFamily: 'var(--mono)',
         fontSize: 10,
@@ -476,6 +482,10 @@ export function InterviewMode() {
               )}
             </div>
 
+            {recordingError && (
+              <p style={{ color: 'var(--danger)', fontSize: 13, marginTop: 8, fontFamily: 'var(--mono)' }}>{recordingError}</p>
+            )}
+
             {/* Waveform — 1px hairline bars while recording */}
             {isRecording && (
               <div
@@ -521,6 +531,10 @@ export function InterviewMode() {
                   {isSaving ? 'saving…' : 'save written answers'}
                 </button>
               </div>
+            )}
+
+            {saveError && (
+              <p style={{ color: 'var(--danger)', fontSize: 13, marginTop: 8, fontFamily: 'var(--mono)' }}>{saveError}</p>
             )}
 
             {/* Silence hint */}
