@@ -1540,7 +1540,7 @@ async function sendDailyAdminSummary(env: Env) {
       SELECT 
         (SELECT COUNT(*) FROM memories) as memories,
         (SELECT COUNT(*) FROM letters) as letters,
-        (SELECT COALESCE(SUM(duration_seconds), 0) / 60 FROM voice_recordings) as voice_minutes
+        (SELECT COALESCE(SUM(duration), 0) / 60 FROM voice_recordings) as voice_minutes
     `).first();
     
     // Get support ticket stats

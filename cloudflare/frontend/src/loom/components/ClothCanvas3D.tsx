@@ -195,10 +195,17 @@ export function ClothCanvas3D({
     // ── Animate ───────────────────────────────────────────────────
     let raf: number;
     let tick = 0;
+    let visible = true;
     const startZ = 32, targetZ = 24;
+
+    const io = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; });
+    io.observe(el);
+    const onVisibility = () => { visible = !document.hidden; };
+    document.addEventListener('visibilitychange', onVisibility);
 
     const animate = () => {
       raf = requestAnimationFrame(animate);
+      if (!visible) return;
       tick += 0.008;
       clothMat.uniforms.uTime.value = tick;
       // Slow drift back over ~8 seconds
@@ -213,6 +220,8 @@ export function ClothCanvas3D({
 
     return () => {
       cancelAnimationFrame(raf);
+      io.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('touchmove', onTouch);
       window.removeEventListener('resize', onResize);

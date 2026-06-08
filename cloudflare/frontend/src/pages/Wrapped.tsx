@@ -259,20 +259,26 @@ export default function Wrapped() {
   const [chapter, setChapter] = useState<Chapter>('overview');
   const [copied, setCopied] = useState(false);
 
+  // Wrapped stats are historical — stale for 24h to avoid redundant API fetches on revisit.
+  const WRAPPED_STALE = 1000 * 60 * 60 * 24;
+
   const { data: memoriesData } = useQuery({
     queryKey: ['wrapped-memories'],
     queryFn: () => memoriesApi.getAll({ limit: 500 }).then((r) => (r.data as any)?.data ?? []),
     enabled: isAuthenticated,
+    staleTime: WRAPPED_STALE,
   });
   const { data: lettersData } = useQuery({
     queryKey: ['wrapped-letters'],
     queryFn: () => lettersApi.getAll({ limit: 500 }).then((r) => (r.data as any)?.data ?? []),
     enabled: isAuthenticated,
+    staleTime: WRAPPED_STALE,
   });
   const { data: voiceData } = useQuery({
     queryKey: ['wrapped-voice'],
     queryFn: () => voiceApi.getAll({ limit: 500 }).then((r) => (r.data as any)?.data ?? []),
     enabled: isAuthenticated,
+    staleTime: WRAPPED_STALE,
   });
 
   const allEntries: Entry[] = useMemo(() => {
