@@ -328,13 +328,20 @@ function LetterRow({ letter }: { letter: Letter }) {
         </div>
       )}
 
-      {/* Delete control — drafts only (sealed letters are permanent) */}
+      {/* Edit + delete controls — drafts only (sealed letters are permanent) */}
       {!sealed && !confirmDelete && (
-        <div style={{ paddingBottom: 14, paddingLeft: 96, display: 'flex', gap: 20 }}>
+        <div style={{ paddingBottom: 14, paddingLeft: 96, display: 'flex', gap: 20, alignItems: 'center' }}>
+          <Link
+            to={`/compose?id=${letter.id}`}
+            className="hl-mono"
+            style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}
+          >
+            edit draft →
+          </Link>
           <button type="button" onClick={() => setConfirmDelete(true)}
             className="hl-mono"
             style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--danger)', opacity: 0.7 }}>
-            delete draft
+            delete
           </button>
         </div>
       )}

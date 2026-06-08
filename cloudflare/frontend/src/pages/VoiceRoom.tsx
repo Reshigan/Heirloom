@@ -8,6 +8,13 @@ import { voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeColor } from '../loom/dye';
 
+const FIELD_STYLE: React.CSSProperties = {
+  display: 'block', width: '100%', background: 'transparent',
+  border: 0, borderBottom: '1px solid var(--rule)', outline: 'none',
+  color: 'var(--bone)', padding: '6px 0 4px', boxSizing: 'border-box',
+  fontFamily: 'var(--serif)', fontSize: 14, lineHeight: 1.5,
+};
+
 function formatDuration(seconds: number | null): string {
   if (seconds === null || seconds === undefined) return '';
   const m = Math.floor(seconds / 60);
@@ -52,6 +59,10 @@ export function VoiceRoom() {
   const [currentTime, setCurrentTime] = useState(0);
   const [audioDuration, setAudioDuration] = useState(0);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editDesc, setEditDesc] = useState('');
+  const [editError, setEditError] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const deleteVoice = useMutation({
@@ -62,6 +73,17 @@ export function VoiceRoom() {
       if (playingId === id) { audioRef.current?.pause(); setPlayingId(null); }
       setConfirmDeleteId(null);
     },
+  });
+
+  const updateVoice = useMutation({
+    mutationFn: ({ id, title, description }: { id: string; title: string; description: string }) =>
+      voiceApi.update(id, { title: title.trim() || null, description: description.trim() || null }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['voice'] });
+      setEditingId(null);
+      setEditError(null);
+    },
+    onError: (err: any) => setEditError(err?.response?.data?.error ?? 'could not save'),
   });
 
   function handlePlay(entryId: string) {
@@ -189,18 +211,27 @@ export function VoiceRoom() {
                     {duration ? `voice · ${duration}` : 'voice'}
                   </span>
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                    <Link
-                      to={`/record?id=${entry.id}`}
-                      style={{
-                        fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em',
-                        textTransform: 'uppercase', color: 'rgba(176,122,74,0.7)',
-                        textDecoration: 'none', borderBottom: '1px solid rgba(176,122,74,0.25)',
-                        padding: '12px 6px', minHeight: 44,
-                        display: 'inline-flex', alignItems: 'center',
-                      }}
-                    >
-                      edit
-                    </Link>
+                    {editingId !== entry.id && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingId(entry.id);
+                          setEditTitle(entry.title ?? '');
+                          setEditDesc(entry.description ?? '');
+                          setEditError(null);
+                        }}
+                        style={{
+                          background: 'transparent', border: 0,
+                          fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em',
+                          textTransform: 'uppercase', color: 'rgba(176,122,74,0.7)',
+                          borderBottom: '1px solid rgba(176,122,74,0.25)',
+                          padding: '12px 6px', minHeight: 44,
+                          display: 'inline-flex', alignItems: 'center', cursor: 'pointer',
+                        }}
+                      >
+                        edit
+                      </button>
+                    )}
                     {confirmDeleteId === entry.id ? (
                       <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
                         <button
@@ -263,14 +294,68 @@ export function VoiceRoom() {
                   </div>
                 </div>
 
-                {/* Title */}
-                {entry.title && (
-                  <p style={{
-                    fontFamily: 'var(--serif)', fontSize: 13, fontStyle: 'italic',
-                    fontWeight: 300, color: 'rgba(244,236,216,0.55)', lineHeight: 1.5, margin: '4px 0 0',
-                  }}>
-                    {entry.title}
-                  </p>
+                {/* Inline edit form */}
+                {editingId === entry.id ? (
+                  <div style={{ marginTop: 8 }}>
+                    <input
+                      value={editTitle}
+                      onChange={(e) => { setEditTitle(e.target.value); setEditError(null); }}
+                      placeholder="title — optional"
+                      aria-label="Title"
+                      autoFocus
+                      style={{ ...FIELD_STYLE, marginBottom: 8 }}
+                    />
+                    <textarea
+                      value={editDesc}
+                      onChange={(e) => { setEditDesc(e.target.value); setEditError(null); }}
+                      placeholder="description — optional"
+                      aria-label="Description"
+                      rows={2}
+                      style={{ ...FIELD_STYLE, resize: 'none' }}
+                    />
+                    {editError && (
+                      <p style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--danger)', margin: '4px 0 0', letterSpacing: '0.1em' }}>
+                        {editError}
+                      </p>
+                    )}
+                    <div style={{ display: 'flex', gap: 14, marginTop: 10, alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => updateVoice.mutate({ id: entry.id, title: editTitle, description: editDesc })}
+                        disabled={updateVoice.isPending}
+                        style={{
+                          background: 'transparent', border: '1px solid var(--warm)', padding: '5px 12px',
+                          cursor: updateVoice.isPending ? 'wait' : 'pointer',
+                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em',
+                          textTransform: 'uppercase', color: 'var(--warm)',
+                          opacity: updateVoice.isPending ? 0.6 : 1,
+                        }}
+                      >
+                        {updateVoice.isPending ? 'saving…' : 'save →'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setEditingId(null); setEditError(null); }}
+                        style={{
+                          background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em',
+                          textTransform: 'uppercase', color: 'var(--bone-faint)',
+                        }}
+                      >
+                        cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Title */
+                  entry.title && (
+                    <p style={{
+                      fontFamily: 'var(--serif)', fontSize: 13, fontStyle: 'italic',
+                      fontWeight: 300, color: 'rgba(244,236,216,0.55)', lineHeight: 1.5, margin: '4px 0 0',
+                    }}>
+                      {entry.title}
+                    </p>
+                  )
                 )}
 
                 {/* Abstract waveform */}
