@@ -215,7 +215,7 @@ describe('POST /api/gift-vouchers/checkout — validation', () => {
 
 describe('GET /api/gift-vouchers/validate/:code', () => {
   beforeEach(async () => {
-    await applyMigrations(env.DB);
+    await applyMigrations(env.DB!);
   });
 
   it('404 for a code that does not exist', async () => {
@@ -231,7 +231,7 @@ describe('GET /api/gift-vouchers/validate/:code', () => {
 
 describe('POST /api/gift-vouchers/redeem', () => {
   beforeEach(async () => {
-    await applyMigrations(env.DB);
+    await applyMigrations(env.DB!);
   });
 
   it('401 without auth token', async () => {
@@ -253,14 +253,14 @@ describe('POST /api/gift-vouchers/redeem', () => {
 
 describe('Gift voucher lifecycle (DB-backed)', () => {
   beforeEach(async () => {
-    await applyMigrations(env.DB);
+    await applyMigrations(env.DB!);
   });
 
   it('PAID voucher passes /validate', async () => {
     const code = 'HRLM-TEST-PAID-0001';
     const expires = new Date(Date.now() + 86400 * 365 * 1000).toISOString();
 
-    await env.DB.prepare(`
+    await env.DB!.prepare(`
       INSERT INTO gift_vouchers
         (id, code, purchaser_email, tier, billing_cycle, duration_months, amount, currency, status, expires_at)
       VALUES
@@ -278,7 +278,7 @@ describe('Gift voucher lifecycle (DB-backed)', () => {
     const code = 'HRLM-TEST-PEND-0001';
     const expires = new Date(Date.now() + 86400 * 365 * 1000).toISOString();
 
-    await env.DB.prepare(`
+    await env.DB!.prepare(`
       INSERT INTO gift_vouchers
         (id, code, purchaser_email, tier, billing_cycle, duration_months, amount, currency, status, expires_at)
       VALUES
@@ -296,7 +296,7 @@ describe('Gift voucher lifecycle (DB-backed)', () => {
     const code = 'HRLM-TEST-REEM-0001';
     const expires = new Date(Date.now() + 86400 * 365 * 1000).toISOString();
 
-    await env.DB.prepare(`
+    await env.DB!.prepare(`
       INSERT INTO gift_vouchers
         (id, code, purchaser_email, tier, billing_cycle, duration_months, amount, currency, status, expires_at)
       VALUES
@@ -314,7 +314,7 @@ describe('Gift voucher lifecycle (DB-backed)', () => {
     const code = 'HRLM-TEST-EXPD-0001';
     const expired = new Date(Date.now() - 86400 * 1000).toISOString();
 
-    await env.DB.prepare(`
+    await env.DB!.prepare(`
       INSERT INTO gift_vouchers
         (id, code, purchaser_email, tier, billing_cycle, duration_months, amount, currency, status, expires_at)
       VALUES
@@ -334,7 +334,7 @@ describe('Gift voucher lifecycle (DB-backed)', () => {
     // We test this by trying to insert LEGACY and confirming the CHECK fires,
     // then confirming FOREVER does not.
     await expect(
-      env.DB.prepare(`
+      env.DB!.prepare(`
         INSERT INTO gift_vouchers
           (id, code, purchaser_email, tier, billing_cycle, duration_months, amount, currency, status, expires_at)
         VALUES
@@ -343,7 +343,7 @@ describe('Gift voucher lifecycle (DB-backed)', () => {
     ).rejects.toThrow(); // CHECK constraint: tier must be STARTER/FAMILY/FOREVER
 
     await expect(
-      env.DB.prepare(`
+      env.DB!.prepare(`
         INSERT INTO gift_vouchers
           (id, code, purchaser_email, tier, billing_cycle, duration_months, amount, currency, status, expires_at)
         VALUES

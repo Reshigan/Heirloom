@@ -29,7 +29,7 @@ function get(path: string, headers: Record<string, string> = {}) {
 
 describe('POST /api/auth/login', () => {
   beforeEach(async () => {
-    await applyMigrations(env.DB);
+    await applyMigrations(env.DB!);
   });
 
   it('400 when body is empty', async () => {
@@ -61,7 +61,7 @@ describe('POST /api/auth/login', () => {
 // The register endpoint is /api/auth/register (not /signup)
 describe('POST /api/auth/register', () => {
   beforeEach(async () => {
-    await applyMigrations(env.DB);
+    await applyMigrations(env.DB!);
   });
 
   it('400 when required fields are missing', async () => {

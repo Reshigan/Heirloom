@@ -10,13 +10,17 @@
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
 
-export async function setup(project: any): Promise<void> {
+interface TestProject {
+  provide(key: string, value: unknown): void;
+}
+
+export async function setup(project: TestProject): Promise<void> {
   const migrationsDir = join(__dirname, '../../../../migrations');
   const files = readdirSync(migrationsDir)
-    .filter((f) => f.endsWith('.sql'))
+    .filter((f: string) => f.endsWith('.sql'))
     .sort();
 
-  const migrationSql: string[] = files.map((f) =>
+  const migrationSql: string[] = files.map((f: string) =>
     readFileSync(join(migrationsDir, f), 'utf-8'),
   );
 
