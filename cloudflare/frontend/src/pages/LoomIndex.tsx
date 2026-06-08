@@ -158,13 +158,20 @@ export function LoomIndex() {
     <ClothShell topbarLeft={topbarLeft} topbarCenter={<InfinityMenu />} topbarRight={<UserMenu />}>
       {/* Hairline loading bar */}
       <div
-        aria-hidden
+        role="status"
+        aria-live="polite"
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, height: 1,
           background: 'var(--warm)', opacity: isLoading ? 0.6 : 0,
           transition: `opacity 360ms ${EASE}`, zIndex: 30, pointerEvents: 'none',
         }}
-      />
+      >
+        {isLoading && (
+          <span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap' }}>
+            Loading your cloth…
+          </span>
+        )}
+      </div>
 
       {/* Recipient milestone nudge — a quiet line when a letter has been released to you. */}
       <LettersAwaitingMe />

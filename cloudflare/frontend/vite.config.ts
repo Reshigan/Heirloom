@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  esbuild: { drop: ['console', 'debugger'] },
   server: {
     // 5173 is Vite's default and the canonical port used by Playwright tests
     // (playwright.config.ts webServer). When running npm run dev manually,

@@ -156,7 +156,7 @@ export function LegacyPlan() {
     color: 'var(--bone)',
     fontFamily: 'var(--serif)',
     fontVariationSettings: "'opsz' 14",
-    fontSize: 15,
+    fontSize: 16,
     padding: '8px 0',
     outline: 'none',
     caretColor: 'var(--warm)',
@@ -484,7 +484,7 @@ export function LegacyPlan() {
                           value={newItemDescription}
                           onChange={(e) => setNewItemDescription(e.target.value)}
                           placeholder="Description (optional)"
-                          style={{ ...inputStyle, color: 'var(--bone-dim)', fontSize: 13 }}
+                          style={{ ...inputStyle, color: 'var(--bone-dim)', fontSize: 16 }}
                           onFocus={e => (e.currentTarget.style.borderBottomColor = 'var(--warm)')}
                           onBlur={e => (e.currentTarget.style.borderBottomColor = 'var(--rule)')}
                         />

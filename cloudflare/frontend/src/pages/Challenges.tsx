@@ -89,7 +89,7 @@ export function Challenges() {
     color: 'var(--bone)',
     caretColor: 'var(--warm)',
     fontFamily: 'var(--serif)',
-    fontSize: 15,
+    fontSize: 16,
     lineHeight: 1.7,
     padding: '12px 14px',
     outline: 'none',

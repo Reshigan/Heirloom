@@ -379,7 +379,7 @@ export function ThreadCompose() {
                         min={today}
                         value={lockDate}
                         onChange={(e) => setLockDate(e.target.value)}
-                        style={{ ...inputStyle, maxWidth: 200, fontFamily: "var(--mono, 'JetBrains Mono', monospace)", fontSize: 12 }}
+                        style={{ ...inputStyle, maxWidth: 200, fontFamily: "var(--mono, 'JetBrains Mono', monospace)", fontSize: 16 }}
                       />
                     </div>
                   ) : null}
