@@ -16,7 +16,13 @@ function parseDate(entry: any): Date {
   return new Date(iso);
 }
 
-interface Entry { kind: 'memory' | 'letter' | 'voice'; date: Date }
+interface Entry { kind: 'memory' | 'letter' | 'voice'; date: Date; emotion?: string | null }
+
+const EMOTION_COPY: Record<string, string> = {
+  joy: 'joy', love: 'love', nostalgia: 'nostalgia', gratitude: 'gratitude',
+  pride: 'pride', hope: 'hope', peace: 'peace', excitement: 'excitement',
+  sadness: 'tenderness', reflection: 'reflection',
+};
 
 function buildStats(entries: Entry[], year: number) {
   const thisYear = entries.filter((e) => e.date.getFullYear() === year);
@@ -59,7 +65,27 @@ function buildStats(entries: Entry[], year: number) {
     }
   }
 
-  return { thisYear, monthlyCounts, peakMonthIdx, activeMonths, weekdayCounts, peakWeekday, kindCounts, dominantKind, maxStreak };
+  // Emotion distribution (memories only)
+  const emotionMap: Record<string, number> = {};
+  for (const e of thisYear) {
+    if (e.emotion) emotionMap[e.emotion] = (emotionMap[e.emotion] ?? 0) + 1;
+  }
+  const emotionEntries = Object.entries(emotionMap).sort((a, b) => b[1] - a[1]);
+  const topEmotions = emotionEntries.slice(0, 5);
+  const dominantEmotion = topEmotions[0]?.[0] ?? null;
+
+  // Highlights
+  const sorted = [...thisYear].sort((a, b) => a.date.getTime() - b.date.getTime());
+  const firstEntry = sorted[0] ?? null;
+  // Day with most entries
+  const dayCounts: Record<string, number> = {};
+  for (const e of thisYear) {
+    const key = e.date.toISOString().slice(0, 10);
+    dayCounts[key] = (dayCounts[key] ?? 0) + 1;
+  }
+  const busiestDay = Object.entries(dayCounts).sort((a, b) => b[1] - a[1])[0] ?? null;
+
+  return { thisYear, monthlyCounts, peakMonthIdx, activeMonths, weekdayCounts, peakWeekday, kindCounts, dominantKind, maxStreak, topEmotions, dominantEmotion, firstEntry, busiestDay };
 }
 
 // ── Chapter components ────────────────────────────────────────────────────────
@@ -160,6 +186,108 @@ function ChapterKinds({ kindCounts, dominantKind }: { kindCounts: { memory: numb
   );
 }
 
+function ChapterEmotions({ topEmotions, dominantEmotion }: { topEmotions: [string, number][]; dominantEmotion: string | null }) {
+  const max = topEmotions[0]?.[1] ?? 1;
+  if (!dominantEmotion || topEmotions.length === 0) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%', padding: '0 clamp(32px,8vw,120px)' }}>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--warm)', marginBottom: 24 }}>
+          the feeling
+        </div>
+        <h2 style={{ fontFamily: 'var(--display)', fontSize: 'clamp(32px,5vw,58px)', fontWeight: 300, fontStyle: 'italic', color: 'var(--bone)', margin: 0, lineHeight: 1.1 }}>
+          No emotion data yet.
+        </h2>
+      </div>
+    );
+  }
+  const label = EMOTION_COPY[dominantEmotion] ?? dominantEmotion;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%', padding: '0 clamp(32px,8vw,120px)' }}>
+      <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--warm)', marginBottom: 24 }}>
+        the feeling
+      </div>
+      <h2 style={{ fontFamily: 'var(--display)', fontSize: 'clamp(32px,5vw,58px)', fontWeight: 300, fontStyle: 'italic', color: 'var(--bone)', margin: '0 0 48px', lineHeight: 1.1 }}>
+        Your year was carried<br />by {label}.
+      </h2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18, maxWidth: 380 }}>
+        {topEmotions.map(([em, count]) => {
+          const pct = (count / max) * 100;
+          const active = em === dominantEmotion;
+          const copy = EMOTION_COPY[em] ?? em;
+          return (
+            <div key={em}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+                <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: active ? 'var(--warm)' : 'var(--bone-faint)' }}>
+                  {copy}
+                </span>
+                <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em', color: active ? 'var(--warm)' : 'var(--bone-faint)' }}>
+                  {count}
+                </span>
+              </div>
+              <div style={{ height: 1, background: 'var(--rule)', position: 'relative' }}>
+                <div style={{
+                  position: 'absolute', left: 0, top: 0, height: 1,
+                  width: `${pct}%`,
+                  background: active ? 'var(--warm)' : 'rgba(244,236,216,0.35)',
+                  transition: `width 720ms ${EASE}`,
+                }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ChapterHighlights({ firstEntry, busiestDay, total }: {
+  firstEntry: Entry | null;
+  busiestDay: [string, number] | null;
+  total: number;
+}) {
+  const firstDate = firstEntry
+    ? firstEntry.date.toLocaleDateString(undefined, { month: 'long', day: 'numeric' })
+    : null;
+  const busiestDate = busiestDay
+    ? new Date(`${busiestDay[0]}T12:00:00`).toLocaleDateString(undefined, { month: 'long', day: 'numeric' })
+    : null;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%', padding: '0 clamp(32px,8vw,120px)' }}>
+      <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--warm)', marginBottom: 24 }}>
+        highlights
+      </div>
+      <h2 style={{ fontFamily: 'var(--display)', fontSize: 'clamp(32px,5vw,58px)', fontWeight: 300, fontStyle: 'italic', color: 'var(--bone)', margin: '0 0 48px', lineHeight: 1.1 }}>
+        {total === 0 ? <>No entries yet<br />this year.</> : <>{total} moments<br />kept forever.</>}
+      </h2>
+      {(firstDate || busiestDate) && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+          {firstDate && (
+            <div>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 6 }}>
+                first entry
+              </div>
+              <div style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 300, color: 'var(--bone)', fontStyle: 'italic' }}>
+                {firstDate}
+              </div>
+            </div>
+          )}
+          {busiestDate && busiestDay && busiestDay[1] > 1 && (
+            <div>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 6 }}>
+                most active day
+              </div>
+              <div style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 300, color: 'var(--bone)', fontStyle: 'italic' }}>
+                {busiestDate} — {busiestDay[1]} entries
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ChapterRhythm({ weekdayCounts, peakWeekday, activeMonths }: { weekdayCounts: number[]; peakWeekday: number; activeMonths: number }) {
   const max = Math.max(...weekdayCounts, 1);
   return (
@@ -249,7 +377,7 @@ function ChapterShare({ year, total, activeMonths, onShare, copied }: { year: nu
 
 // ── Main ──────────────────────────────────────────────────────────────────────
 
-const CHAPTERS = ['overview','months','kinds','rhythm','streak','share'] as const;
+const CHAPTERS = ['overview','highlights','months','emotions','kinds','rhythm','streak','share'] as const;
 type Chapter = typeof CHAPTERS[number];
 
 export default function Wrapped() {
@@ -286,9 +414,9 @@ export default function Wrapped() {
     const lets = Array.isArray(lettersData) ? lettersData : [];
     const vox  = Array.isArray(voiceData)   ? voiceData   : [];
     return [
-      ...mems.map((m: any) => ({ kind: 'memory' as const, date: parseDate(m) })),
-      ...lets.map((l: any) => ({ kind: 'letter' as const, date: parseDate(l) })),
-      ...vox.map((v: any)  => ({ kind: 'voice'  as const, date: parseDate(v) })),
+      ...mems.map((m: any) => ({ kind: 'memory' as const, date: parseDate(m), emotion: m.emotion ?? null })),
+      ...lets.map((l: any) => ({ kind: 'letter' as const, date: parseDate(l), emotion: null })),
+      ...vox.map((v: any)  => ({ kind: 'voice'  as const, date: parseDate(v), emotion: null })),
     ].filter((e) => !isNaN(e.date.getTime()));
   }, [memoriesData, lettersData, voiceData]);
 
@@ -301,7 +429,10 @@ export default function Wrapped() {
     while (idx >= 0 && idx < CHAPTERS.length) {
       const candidate = CHAPTERS[idx];
       // Skip data-dependent chapters when there are no entries for this year
-      if (stats.thisYear.length === 0 && (candidate === 'kinds' || candidate === 'rhythm')) {
+      if (
+        (stats.thisYear.length === 0 && (candidate === 'kinds' || candidate === 'rhythm' || candidate === 'highlights')) ||
+        (stats.topEmotions.length === 0 && candidate === 'emotions')
+      ) {
         idx += dir;
         continue;
       }
@@ -324,12 +455,14 @@ export default function Wrapped() {
 
   const content = (() => {
     switch (chapter) {
-      case 'overview': return <ChapterOverview total={stats.thisYear.length} year={YEAR} name={firstName} />;
-      case 'months':   return <ChapterMonths monthlyCounts={stats.monthlyCounts} peakMonthIdx={stats.peakMonthIdx} />;
-      case 'kinds':    return stats.thisYear.length > 0 ? <ChapterKinds kindCounts={stats.kindCounts} dominantKind={stats.dominantKind} /> : null;
-      case 'rhythm':   return stats.thisYear.length > 0 ? <ChapterRhythm weekdayCounts={stats.weekdayCounts} peakWeekday={stats.peakWeekday} activeMonths={stats.activeMonths} /> : null;
-      case 'streak':   return <ChapterStreak maxStreak={stats.maxStreak} total={stats.thisYear.length} year={YEAR} />;
-      case 'share':    return <ChapterShare year={YEAR} total={stats.thisYear.length} activeMonths={stats.activeMonths} onShare={handleShare} copied={copied} />;
+      case 'overview':   return <ChapterOverview total={stats.thisYear.length} year={YEAR} name={firstName} />;
+      case 'highlights': return <ChapterHighlights firstEntry={stats.firstEntry} busiestDay={stats.busiestDay} total={stats.thisYear.length} />;
+      case 'months':     return <ChapterMonths monthlyCounts={stats.monthlyCounts} peakMonthIdx={stats.peakMonthIdx} />;
+      case 'emotions':   return stats.topEmotions.length > 0 ? <ChapterEmotions topEmotions={stats.topEmotions} dominantEmotion={stats.dominantEmotion} /> : null;
+      case 'kinds':      return stats.thisYear.length > 0 ? <ChapterKinds kindCounts={stats.kindCounts} dominantKind={stats.dominantKind} /> : null;
+      case 'rhythm':     return stats.thisYear.length > 0 ? <ChapterRhythm weekdayCounts={stats.weekdayCounts} peakWeekday={stats.peakWeekday} activeMonths={stats.activeMonths} /> : null;
+      case 'streak':     return <ChapterStreak maxStreak={stats.maxStreak} total={stats.thisYear.length} year={YEAR} />;
+      case 'share':      return <ChapterShare year={YEAR} total={stats.thisYear.length} activeMonths={stats.activeMonths} onShare={handleShare} copied={copied} />;
       default: return null;
     }
   })();
