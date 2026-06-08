@@ -5,6 +5,10 @@ import { defineConfig, devices } from '@playwright/test';
 // requests from both projects without needing a second origin.
 const BASE_URL = process.env.BASE_URL || 'http://localhost:5173';
 
+// Skip the local Vite dev server when BASE_URL points at an external host
+// (e.g. BASE_URL=https://heirloom.blue for staging runs).
+const isExternal = BASE_URL.startsWith('https://') || BASE_URL.startsWith('http://') && !BASE_URL.includes('localhost');
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
@@ -20,13 +24,16 @@ export default defineConfig({
     headless: true,
   },
   // Start the Vite dev server automatically so both projects hit the same port.
+  // Skipped entirely when BASE_URL points at staging / production.
   // Reuse an already-running server when developing locally (reuseExistingServer).
-  webServer: {
-    command: 'npm run dev -- --port 5173',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
-    timeout: 60000,
-  },
+  ...(!isExternal ? {
+    webServer: {
+      command: 'npm run dev -- --port 5173',
+      url: 'http://localhost:5173',
+      reuseExistingServer: !process.env.CI,
+      timeout: 60000,
+    },
+  } : {}),
   projects: [
     {
       name: 'chromium',
