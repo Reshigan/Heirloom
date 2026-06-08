@@ -1287,8 +1287,8 @@ exportRoutes.post('/book/preview', async (c) => {
       VALUES (?, ?, 'FAMILY_BOOK', 'PENDING', ?, ?, ?)
     `).bind(jobId, userId, JSON.stringify({ ...body, subtype: 'BOOK_PREVIEW' }), now, now).run();
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return c.json({ error: 'Failed to queue preview job', detail: msg }, 500);
+    console.error('Failed to queue preview job:', err);
+    return c.json({ error: 'Failed to queue preview job' }, 500);
   }
 
   // Rough page estimate: 1 cover + ~1 page per 3 memories/letters
@@ -1322,8 +1322,8 @@ exportRoutes.post('/book/order', async (c) => {
       VALUES (?, ?, 'FAMILY_BOOK', 'PENDING', ?, ?, ?)
     `).bind(jobId, userId, JSON.stringify({ ...body, subtype: 'BOOK_ORDER' }), now, now).run();
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return c.json({ error: 'Failed to queue order job', detail: msg }, 500);
+    console.error('Failed to queue order job:', err);
+    return c.json({ error: 'Failed to queue order job' }, 500);
   }
 
   return c.json({
