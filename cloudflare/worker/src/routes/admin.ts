@@ -1216,7 +1216,8 @@ adminRoutes.post('/emails/:id/resend', adminAuth, async (c) => {
       return c.json({ error: `Failed to resend: ${result.error}` }, 500);
     }
   } catch (err: any) {
-    return c.json({ error: `Failed to resend email: ${err.message}` }, 500);
+    console.error('Failed to resend email:', err);
+    return c.json({ error: 'Failed to resend email' }, 500);
   }
 });
 
@@ -1477,7 +1478,8 @@ adminRoutes.post('/billing/errors/:id/notify', adminAuth, async (c) => {
     
     return c.json({ success: true, message: 'Notification sent to user' });
   } catch (err: any) {
-    return c.json({ error: 'Failed to send notification', details: err.message }, 500);
+    console.error('Failed to send billing error notification:', err);
+    return c.json({ error: 'Failed to send notification' }, 500);
   }
 });
 
@@ -2095,28 +2097,33 @@ adminRoutes.get('/analytics/marketing', adminAuth, async (c) => {
 
   // Voucher/gift card performance
   const voucherStats = await c.env.DB.prepare(`
-    SELECT 
+    SELECT
       voucher_type,
-      plan_type,
+      tier,
       COUNT(*) as total_created,
       SUM(CASE WHEN status = 'REDEEMED' THEN 1 ELSE 0 END) as redeemed,
       SUM(CASE WHEN status = 'PENDING' THEN 1 ELSE 0 END) as pending,
       SUM(CASE WHEN status = 'EXPIRED' THEN 1 ELSE 0 END) as expired
     FROM gift_vouchers
     WHERE created_at > datetime('now', '-30 days')
-    GROUP BY voucher_type, plan_type
+    GROUP BY voucher_type, tier
   `).all();
 
   // Influencer outreach performance
-  const influencerStats = await c.env.DB.prepare(`
-    SELECT 
-      outreach_type,
-      COUNT(*) as total_sent,
-      COUNT(DISTINCT influencer_id) as unique_influencers
-    FROM influencer_outreach
-    WHERE sent_at > datetime('now', '-30 days')
-    GROUP BY outreach_type
-  `).all();
+  let influencerStats: { results: any[] } = { results: [] };
+  try {
+    influencerStats = await c.env.DB.prepare(`
+      SELECT
+        outreach_type,
+        COUNT(*) as total_sent,
+        COUNT(DISTINCT influencer_id) as unique_influencers
+      FROM influencer_outreach
+      WHERE sent_at > datetime('now', '-30 days')
+      GROUP BY outreach_type
+    `).all();
+  } catch {
+    // table not yet created
+  }
 
   // Drip campaign performance
   const dripStats = await c.env.DB.prepare(`
@@ -2188,7 +2195,7 @@ adminRoutes.get('/analytics/marketing', adminAuth, async (c) => {
         ELSE 'manual'
       END as source,
       COUNT(*) as total_sent,
-      COUNT(DISTINCT recipient_email) as unique_recipients
+      COUNT(DISTINCT to_email) as unique_recipients
     FROM email_logs
     WHERE sent_at > datetime('now', '-30 days')
     GROUP BY source
@@ -2213,7 +2220,7 @@ adminRoutes.get('/analytics/marketing', adminAuth, async (c) => {
     })),
     voucherPerformance: voucherStats.results.map((r: any) => ({
       type: r.voucher_type,
-      plan: r.plan_type,
+      plan: r.tier,
       created: r.total_created,
       redeemed: r.redeemed || 0,
       pending: r.pending || 0,
@@ -2374,7 +2381,7 @@ adminRoutes.post('/run-adoption-jobs', adminAuth, async (c) => {
     });
   } catch (error: any) {
     console.error('Error running adoption jobs:', error);
-    return c.json({ error: 'Failed to run adoption jobs', details: error.message }, 500);
+    return c.json({ error: 'Failed to run adoption jobs' }, 500);
   }
 });
 
@@ -2691,13 +2698,18 @@ adminRoutes.post('/marketing/bounce-detection', adminAuth, async (c) => {
 
 // Get list of bounced emails
 adminRoutes.get('/marketing/bounced-emails', adminAuth, async (c) => {
-  const bounced = await c.env.DB.prepare(`
-    SELECT email, name, status, notes, updated_at
-    FROM influencer_prospects 
-    WHERE status = 'BOUNCED'
-    ORDER BY updated_at DESC
-  `).all();
-  
+  let bounced: { results: any[] } = { results: [] };
+  try {
+    bounced = await c.env.DB.prepare(`
+      SELECT email, name, status, notes, updated_at
+      FROM influencer_prospects
+      WHERE status = 'BOUNCED'
+      ORDER BY updated_at DESC
+    `).all();
+  } catch {
+    // table not yet created
+  }
+
   return c.json({
     count: bounced.results.length,
     emails: bounced.results,

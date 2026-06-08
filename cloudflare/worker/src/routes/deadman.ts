@@ -164,7 +164,7 @@ deadmanRoutes.post('/cancel', async (c) => {
   }
   
   await c.env.DB.prepare(`
-    UPDATE dead_man_switches SET status = 'DISABLED', updated_at = ? WHERE user_id = ?
+    UPDATE dead_man_switches SET status = 'CANCELLED', updated_at = ? WHERE user_id = ?
   `).bind(now, userId).run();
   
   return c.json({
@@ -230,7 +230,7 @@ deadmanRoutes.post('/disable', async (c) => {
   }
 
   await c.env.DB.prepare(`
-    UPDATE dead_man_switches SET status = 'DISABLED', updated_at = ? WHERE user_id = ?
+    UPDATE dead_man_switches SET status = 'CANCELLED', updated_at = ? WHERE user_id = ?
   `).bind(now, userId).run();
 
   return c.json({ success: true });

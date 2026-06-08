@@ -146,7 +146,7 @@ voiceRoutes.put('/upload/*', async (c) => {
     return c.json({ success: true, key, fileUrl }, 201);
   } catch (err: any) {
     console.error('Error uploading voice to R2:', err);
-    return c.json({ error: 'Failed to upload file', details: err.message }, 500);
+    return c.json({ error: 'Failed to upload file' }, 500);
   }
 });
 
@@ -186,7 +186,7 @@ voiceRoutes.post('/upload/*', async (c) => {
     return c.json({ success: true, key, fileUrl }, 201);
   } catch (err: any) {
     console.error('Error uploading voice to R2:', err);
-    return c.json({ error: 'Failed to upload file', details: err.message }, 500);
+    return c.json({ error: 'Failed to upload file' }, 500);
   }
 });
 
@@ -589,7 +589,7 @@ voiceRoutes.post('/:id/transcribe', async (c) => {
     });
   } catch (error: any) {
     console.error('Transcription error:', error);
-    return c.json({ error: 'Failed to transcribe audio', details: error.message }, 500);
+    return c.json({ error: 'Failed to transcribe audio' }, 500);
   }
 });
 

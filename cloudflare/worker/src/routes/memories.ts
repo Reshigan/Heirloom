@@ -235,7 +235,7 @@ memoriesRoutes.put('/upload/*', async (c) => {
     return c.json({ success: true, key, fileUrl }, 201);
   } catch (err: any) {
     console.error('Error uploading memory to R2:', err);
-    return c.json({ error: 'Failed to upload file', details: err.message }, 500);
+    return c.json({ error: 'Failed to upload file' }, 500);
   }
 });
 
@@ -280,7 +280,7 @@ memoriesRoutes.post('/upload/*', async (c) => {
     return c.json({ success: true, key, fileUrl }, 201);
   } catch (err: any) {
     console.error('Error uploading memory to R2:', err);
-    return c.json({ error: 'Failed to upload file', details: err.message }, 500);
+    return c.json({ error: 'Failed to upload file' }, 500);
   }
 });
 
@@ -492,6 +492,11 @@ memoriesRoutes.post('/', async (c) => {
   
     if (!type || !title) {
       return c.json({ error: 'Type and title are required' }, 400);
+    }
+
+    const VALID_TYPES = ['TEXT', 'PHOTO', 'VIDEO', 'AUDIO', 'VOICE', 'LINK', 'DOCUMENT'];
+    if (type && !VALID_TYPES.includes(type)) {
+      return c.json({ error: 'Invalid memory type' }, 400);
     }
 
     // Enforce the plan's storage cap before persisting a file-backed entry.
