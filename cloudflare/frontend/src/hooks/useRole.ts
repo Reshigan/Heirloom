@@ -1,15 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
-import { billingApi } from '../services/api';
+import { billingApi, threadsApi } from '../services/api';
 
-// Only the four values this function can actually return are in the type.
-// TODO: 'author' | 'reader' | 'successor' | 'future_member' | 'legacy' | 'admin'
-// require backend changes before they can be surfaced here.
 export type UserRole =
   | 'visitor'
   | 'trial'
   | 'family'
-  | 'founder';
+  | 'founder'
+  | 'reader'
+  | 'successor';
 
 export function useRole(): UserRole {
   const { user, isAuthenticated } = useAuthStore();
@@ -19,12 +18,31 @@ export function useRole(): UserRole {
     enabled: isAuthenticated,
     staleTime: 60_000,
   });
+  const { data: threadsData } = useQuery({
+    queryKey: ['threads'],
+    queryFn: () => threadsApi.list().then((r) => r.data),
+    enabled: isAuthenticated,
+    staleTime: 60_000,
+  });
 
   if (!isAuthenticated || !user) return 'visitor';
 
   const tier = (subscription as any)?.tier ?? 'STARTER';
   const status = (subscription as any)?.status ?? null;
   const isTrialing = status === 'TRIALING';
+
+  // If the user has no write-capable thread but has a read-only thread membership,
+  // their operative role is reader/successor regardless of billing tier.
+  const threads: Array<{ role: string }> = (threadsData as any)?.threads ?? [];
+  const hasWriteThread = threads.some(
+    (t) => t.role === 'FOUNDER' || t.role === 'AUTHOR'
+  );
+  const readOnlyThread = !hasWriteThread
+    ? threads.find((t) => t.role === 'READER' || t.role === 'SUCCESSOR')
+    : null;
+  if (readOnlyThread) {
+    return readOnlyThread.role === 'SUCCESSOR' ? 'successor' : 'reader';
+  }
 
   if (tier === 'FOUNDER') return 'founder';
   if (tier === 'FAMILY' && !isTrialing) return 'family';

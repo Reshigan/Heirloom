@@ -189,9 +189,24 @@ function AuthHome({
     );
   }
 
+  // First-run for read-only thread members: show thread-viewer empty state
+  if (count === 0 && (role === 'reader' || role === 'successor')) {
+    return (
+      <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 480, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+        <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 18, color: 'var(--warm)' }}>
+          {role === 'successor' ? 'heir' : 'reader'}
+        </span>
+        <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 300, lineHeight: 1.15, margin: '0 0 18px', color: 'var(--bone)' }}>
+          You have been given access to this thread.
+        </h2>
+        <p style={{ fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone-dim)', lineHeight: 1.75, margin: 0 }}>
+          New entries will appear here as they are woven in.
+        </p>
+      </div>
+    );
+  }
+
   // First-run: no entries yet — show sealed letter prompt
-  // (role !== 'reader' && role !== 'successor' conditions removed — those
-  // values are not yet returned by useRole(); see hooks/useRole.ts TODO)
   if (count === 0) {
     return (
       <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 560, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
@@ -253,9 +268,10 @@ function AuthHome({
     );
   }
 
-  // Primary CTA depends on role
-  // TODO: add 'reader' and 'successor' branches when backend returns those roles
-  const primaryCta = { label: 'write →', to: '/compose' };
+  const isReadOnly = role === 'reader' || role === 'successor';
+  const primaryCta = isReadOnly
+    ? { label: 'thread →', to: '/loom' }
+    : { label: 'write →', to: '/compose' };
 
   return (
     <>
@@ -382,10 +398,11 @@ function AuthHome({
           <Link to={primaryCta.to} className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>
             {primaryCta.label}
           </Link>
-          {/* TODO: hide 'speak →' for 'reader' and 'successor' roles once backend returns them */}
-          <Link to="/record" className="hl-btn text" style={{ fontSize: 13 }}>
-            speak →
-          </Link>
+          {!isReadOnly && (
+            <Link to="/record" className="hl-btn text" style={{ fontSize: 13 }}>
+              speak →
+            </Link>
+          )}
           {role === 'trial' && (
             <Link to="/billing" className="hl-btn text" style={{ fontSize: 12 }}>
               upgrade →
