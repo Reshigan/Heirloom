@@ -152,6 +152,12 @@ interface PrintJobInput {
 // paper+ppi+finish (FC=full colour, PRE=premium, CW=case wrap/hardcover).
 const DEFAULT_POD_PACKAGE_ID = '0850X1100FCPRECW080CW444GXX';
 
+// Same trim/colour/quality/paper/finish as the hardcover SKU, with the
+// binding segment swapped from case-wrap (CW) to perfect-bound (PB) —
+// Lulu's softcover. Verify against Lulu's package list before go-live;
+// not every trim/paper/binding combination is a sellable SKU.
+const SOFTCOVER_POD_PACKAGE_ID = '0850X1100FCPREPB080CW444GXX';
+
 export async function submitPrintJob(
   env: AppEnv['Bindings'],
   input: PrintJobInput,
@@ -244,8 +250,13 @@ export async function attachPdfsAndSubmit(
     id: string;
     ship_to_name: string;
     ship_to_address_json: string;
+    cover_type: string;
   }>();
   if (!order) throw new Error('book order not found');
+
+  const podPackageId = order.cover_type === 'softcover'
+    ? SOFTCOVER_POD_PACKAGE_ID
+    : DEFAULT_POD_PACKAGE_ID;
 
   // The PDFs are stored in R2. We make them temporarily accessible via
   // signed URLs that Lulu can fetch.
@@ -259,6 +270,7 @@ export async function attachPdfsAndSubmit(
     bookOrderId: order.id,
     interiorPdfUrl,
     coverPdfUrl,
+    podPackageId,
     pageCount,
     shipping: { ...shipping, name: order.ship_to_name },
   });

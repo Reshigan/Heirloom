@@ -66,6 +66,7 @@ const DYES = {
 
 function dyeForType(kind: string, type?: string): ReturnType<typeof rgb> {
   if (kind === 'letter') return DYES.indigo;
+  if (kind === 'voice') return DYES.saffron;
   switch ((type ?? '').toLowerCase()) {
     case 'voice':     return DYES.saffron;
     case 'event':     return DYES.weld;
@@ -210,7 +211,7 @@ async function buildDedicationPage(doc: PDFDocument, dedication: string): Promis
 }
 
 interface Entry {
-  kind: 'memory' | 'letter';
+  kind: 'memory' | 'letter' | 'voice';
   id: string;
   date: string;
   title: string | null;
@@ -244,6 +245,8 @@ async function buildEntryPages(doc: PDFDocument, entry: Entry): Promise<number> 
     eyebrow = `SEALED LETTER · ${eyebrow}`;
   } else if (entry.kind === 'letter') {
     eyebrow = `LETTER · ${eyebrow}`;
+  } else if (entry.kind === 'voice') {
+    eyebrow = `VOICE RECORDING · ${eyebrow}`;
   } else {
     const t = (entry.type ?? 'MEMORY').toUpperCase();
     eyebrow = `${t} · ${eyebrow}`;
@@ -253,7 +256,11 @@ async function buildEntryPages(doc: PDFDocument, entry: Entry): Promise<number> 
     ? [entry.salutation, entry.body, entry.signature].filter(Boolean).join('\n\n')
     : (entry.body ?? '');
 
-  const titleText = entry.title ?? (entry.kind === 'letter' ? 'Untitled Letter' : 'Untitled Memory');
+  const titleText = entry.title ?? (
+    entry.kind === 'letter' ? 'Untitled Letter' :
+    entry.kind === 'voice' ? 'Untitled Recording' :
+    'Untitled Memory'
+  );
 
   let pagesAdded = 0;
   let remaining = body;
@@ -452,6 +459,10 @@ interface BookOrder {
   ship_to_name: string;
   thread_id: string | null;
   entry_filter_json: string | null;
+  cover_type: string;
+  title: string | null;
+  subtitle: string | null;
+  dedication: string | null;
 }
 
 interface MemoryRow {
@@ -478,6 +489,15 @@ interface LetterRow {
   recipient_name: string | null;
 }
 
+interface VoiceRow {
+  id: string;
+  title: string | null;
+  transcript: string | null;
+  created_at: string;
+  first_name: string | null;
+  last_name: string | null;
+}
+
 // ---------------------------------------------------------------------------
 // Main export
 // ---------------------------------------------------------------------------
@@ -488,7 +508,8 @@ export async function renderBookPdf(
 ): Promise<void> {
   // 1. Load the order
   const order = await env.DB.prepare(
-    `SELECT id, purchaser_user_id, ship_to_name, thread_id, entry_filter_json
+    `SELECT id, purchaser_user_id, ship_to_name, thread_id, entry_filter_json,
+            cover_type, title, subtitle, dedication
      FROM book_orders WHERE id = ?`,
   ).bind(bookOrderId).first<BookOrder>();
 
@@ -499,21 +520,30 @@ export async function renderBookPdf(
     return;
   }
 
-  let filter: { from?: string; to?: string; member_ids?: string[] } = {};
+  let filter: {
+    from?: string; to?: string; member_ids?: string[];
+    memory_ids?: string[]; letter_ids?: string[]; voice_ids?: string[];
+  } = {};
   try {
     if (order.entry_filter_json) filter = JSON.parse(order.entry_filter_json);
   } catch { /* ignore */ }
 
-  // 2. Query entries
+  // 2. Query entries — when the purchaser hand-picked entries in the Book
+  // Builder wizard, render exactly those (and only those); otherwise fall
+  // back to everything they own (optionally narrowed by date range).
   const userId = order.purchaser_user_id;
 
-  // Memories — join author name, filter by date if provided
+  // Memories — join author name, filter by selection or date range
   let memSql = `SELECT m.id, m.title, m.description, m.type, m.created_at,
                        u.first_name, u.last_name
                 FROM memories m
                 JOIN users u ON u.id = m.user_id
                 WHERE m.user_id = ? AND m.deleted_at IS NULL`;
   const memParams: unknown[] = [userId];
+  if (filter.memory_ids?.length) {
+    memSql += ` AND m.id IN (${filter.memory_ids.map(() => '?').join(',')})`;
+    memParams.push(...filter.memory_ids);
+  }
   if (filter.from) { memSql += ' AND m.created_at >= ?'; memParams.push(filter.from); }
   if (filter.to)   { memSql += ' AND m.created_at <= ?'; memParams.push(filter.to); }
   memSql += ' ORDER BY m.created_at ASC LIMIT 500';
@@ -532,11 +562,32 @@ export async function renderBookPdf(
                 WHERE l.user_id = ? AND l.deleted_at IS NULL
                   AND l.delivery_trigger != 'POSTHUMOUS'`;
   const letParams: unknown[] = [userId];
+  if (filter.letter_ids?.length) {
+    letSql += ` AND l.id IN (${filter.letter_ids.map(() => '?').join(',')})`;
+    letParams.push(...filter.letter_ids);
+  }
   if (filter.from) { letSql += ' AND l.created_at >= ?'; letParams.push(filter.from); }
   if (filter.to)   { letSql += ' AND l.created_at <= ?'; letParams.push(filter.to); }
   letSql += ' ORDER BY l.created_at ASC LIMIT 200';
 
   const letResult = await env.DB.prepare(letSql).bind(...letParams).all<LetterRow>();
+
+  // Voice recordings — transcript stands in for the entry body
+  let voiceSql = `SELECT v.id, v.title, v.transcript, v.created_at,
+                         u.first_name, u.last_name
+                  FROM voice_recordings v
+                  JOIN users u ON u.id = v.user_id
+                  WHERE v.user_id = ? AND v.deleted_at IS NULL`;
+  const voiceParams: unknown[] = [userId];
+  if (filter.voice_ids?.length) {
+    voiceSql += ` AND v.id IN (${filter.voice_ids.map(() => '?').join(',')})`;
+    voiceParams.push(...filter.voice_ids);
+  }
+  if (filter.from) { voiceSql += ' AND v.created_at >= ?'; voiceParams.push(filter.from); }
+  if (filter.to)   { voiceSql += ' AND v.created_at <= ?'; voiceParams.push(filter.to); }
+  voiceSql += ' ORDER BY v.created_at ASC LIMIT 200';
+
+  const voiceResult = await env.DB.prepare(voiceSql).bind(...voiceParams).all<VoiceRow>();
 
   // 3. Merge and sort by date
   const entries: Entry[] = [
@@ -561,25 +612,31 @@ export async function renderBookPdf(
       recipientName: l.recipient_name,
       authorName: [l.first_name, l.last_name].filter(Boolean).join(' ') || undefined,
     })),
+    ...(voiceResult.results ?? []).map((v): Entry => ({
+      kind: 'voice',
+      id: v.id,
+      date: v.created_at,
+      title: v.title,
+      body: v.transcript,
+      authorName: [v.first_name, v.last_name].filter(Boolean).join(' ') || undefined,
+    })),
   ].sort((a, b) => a.date.localeCompare(b.date));
 
-  // 4. Build interior PDF
+  // 4. Build interior PDF — title/subtitle/dedication come from the
+  // purchaser's Book Builder choices, falling back to family-derived defaults.
+  const familyName = order.ship_to_name.replace(/^The /, '').replace(/ Thread$/, '') || order.ship_to_name;
+  const bookTitle = order.title?.trim() || `The ${familyName} Thread`;
+  const subtitle = order.subtitle?.trim() || 'A permanent family record';
+  const dedication = order.dedication?.trim() ||
+    `This book belongs to the ${familyName} family.\nEvery entry is permanent. Nothing has been deleted.\nWeave yours into the cloth.`;
+
   const doc = await PDFDocument.create();
-  doc.setTitle(order.ship_to_name);
+  doc.setTitle(bookTitle);
   doc.setAuthor('Heirloom');
   doc.setCreator('Heirloom · heirloom.blue');
 
-  // Title is derived from the family name embedded in ship_to_name
-  const familyName = order.ship_to_name.replace(/^The /, '').replace(/ Thread$/, '') || order.ship_to_name;
-  const bookTitle = `The ${familyName} Thread`;
-
-  await buildTitlePage(doc, bookTitle, familyName, 'A permanent family record');
-
-  // Dedication page (placeholder for first version — content comes from entry_filter or config)
-  await buildDedicationPage(
-    doc,
-    `This book belongs to the ${familyName} family.\nEvery entry is permanent. Nothing has been deleted.\nWeave yours into the cloth.`,
-  );
+  await buildTitlePage(doc, bookTitle, familyName, subtitle);
+  await buildDedicationPage(doc, dedication);
 
   if (entries.length === 0) {
     // Blank interior page so Lulu doesn't reject a 2-page book

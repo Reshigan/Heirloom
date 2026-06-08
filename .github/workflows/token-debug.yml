@@ -1,0 +1,43 @@
+name: Token debug (one-shot)
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Meta token permissions
+        env:
+          TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          IG_USER: ${{ vars.META_IG_USER_ID }}
+          PAGE_ID: ${{ vars.META_PAGE_ID }}
+        run: |
+          echo "=== Token scopes ==="
+          curl -s "https://graph.facebook.com/v21.0/me/permissions?access_token=${TOKEN}" \
+            | python3 -m json.tool || true
+
+          echo ""
+          echo "=== IG user ==="
+          curl -s "https://graph.facebook.com/v21.0/${IG_USER}?fields=id,name,biography,account_type&access_token=${TOKEN}" \
+            | python3 -m json.tool || true
+
+          echo ""
+          echo "=== Page token type ==="
+          curl -s "https://graph.facebook.com/v21.0/me?fields=id,name,category&access_token=${TOKEN}" \
+            | python3 -m json.tool || true
+
+      - name: Pinterest token check
+        env:
+          TOKEN: ${{ secrets.PINTEREST_ACCESS_TOKEN }}
+        run: |
+          echo "=== Pinterest user account ==="
+          curl -s -H "Authorization: Bearer ${TOKEN}" \
+            "https://api.pinterest.com/v5/user_account" \
+            | python3 -m json.tool || true
+
+          echo ""
+          echo "=== Pinterest token scopes ==="
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${TOKEN}" \
+            "https://api.pinterest.com/v5/user_account")
+          echo "HTTP status: ${STATUS}"

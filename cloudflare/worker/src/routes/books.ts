@@ -85,10 +85,15 @@ bookOrderProtectedRoutes.post('/threads/:id/book', async (c) => {
 });
 
 // POST /api/book-orders/checkout — create a Stripe Checkout Session for a
-// paid Living Book print order. The book_orders row is NOT created here;
-// it is created on checkout.session.completed (see billing webhook), so we
-// only ever render+print for paid orders. Ship-to + cover choice ride along
-// in the session metadata.
+// paid Living Book print order.
+//
+// The book_orders row IS created here (status PENDING) so the purchaser's
+// full wizard config — ship-to, cover, title/subtitle/dedication, and the
+// hand-picked entries — survives the round trip to Stripe without being
+// squeezed through the 500-char metadata value limit. Only the order id
+// rides in the session metadata; checkout.session.completed (see billing
+// webhook) verifies it, flips it to COMPILING, and kicks off rendering —
+// so we still only ever render+print once payment is confirmed.
 bookOrderProtectedRoutes.post('/book-orders/checkout', async (c) => {
   const userId = c.get('userId');
   if (!userId) return c.json({ error: 'Authentication required' }, 401);
@@ -97,6 +102,12 @@ bookOrderProtectedRoutes.post('/book-orders/checkout', async (c) => {
     ship_to: ShippingAddress;
     cover_type: 'hardcover' | 'softcover';
     thread_id?: string;
+    title?: string;
+    subtitle?: string;
+    dedication?: string;
+    memory_ids?: string[];
+    letter_ids?: string[];
+    voice_ids?: string[];
   }>();
 
   if (
@@ -128,6 +139,32 @@ bookOrderProtectedRoutes.post('/book-orders/checkout', async (c) => {
     return c.json({ error: 'Payments not configured' }, 503);
   }
 
+  const entryFilter: { memory_ids?: string[]; letter_ids?: string[]; voice_ids?: string[] } = {};
+  if (body.memory_ids?.length) entryFilter.memory_ids = body.memory_ids;
+  if (body.letter_ids?.length) entryFilter.letter_ids = body.letter_ids;
+  if (body.voice_ids?.length) entryFilter.voice_ids = body.voice_ids;
+  const hasEntryFilter = Object.keys(entryFilter).length > 0;
+
+  const bookOrderId = crypto.randomUUID();
+  await c.env.DB.prepare(
+    `INSERT INTO book_orders (
+       id, prompt_subscription_id, purchaser_user_id, ship_to_name,
+       ship_to_address_json, thread_id, entry_filter_json, currency, status,
+       cover_type, title, subtitle, dedication
+     ) VALUES (?, NULL, ?, ?, ?, ?, ?, 'USD', 'PENDING', ?, ?, ?, ?)`,
+  ).bind(
+    bookOrderId,
+    userId,
+    body.ship_to.name,
+    JSON.stringify(body.ship_to),
+    body.thread_id || null,
+    hasEntryFilter ? JSON.stringify(entryFilter) : null,
+    coverType,
+    body.title?.trim() || null,
+    body.subtitle?.trim() || null,
+    body.dedication?.trim() || null,
+  ).run();
+
   const params: Record<string, string> = {
     'mode': 'payment',
     'success_url': `${c.env.APP_URL}/book-builder/success?session={CHECKOUT_SESSION_ID}`,
@@ -138,8 +175,7 @@ bookOrderProtectedRoutes.post('/book-orders/checkout', async (c) => {
     'line_items[0][price_data][product_data][name]': `Heirloom Book — full-colour ${coverType}`,
     'metadata[type]': 'book_order',
     'metadata[user_id]': userId,
-    'metadata[ship_to_json]': JSON.stringify(body.ship_to),
-    'metadata[thread_id]': body.thread_id || '',
+    'metadata[book_order_id]': bookOrderId,
   };
 
   const res = await fetch('https://api.stripe.com/v1/checkout/sessions', {
@@ -154,6 +190,9 @@ bookOrderProtectedRoutes.post('/book-orders/checkout', async (c) => {
   if (!res.ok) {
     const errorData = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
     console.error('Stripe book checkout error:', errorData);
+    // Session creation failed — the order will never be paid, so don't
+    // leave a dangling PENDING row behind.
+    await c.env.DB.prepare(`DELETE FROM book_orders WHERE id = ?`).bind(bookOrderId).run();
     return c.json({ error: errorData.error?.message || 'Failed to create checkout session' }, 500);
   }
 

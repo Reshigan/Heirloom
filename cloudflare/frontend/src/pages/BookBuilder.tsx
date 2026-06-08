@@ -124,6 +124,12 @@ export function BookBuilder() {
         },
         cover_type: config.coverType,
         thread_id: defaultThreadId,
+        title: config.title.trim() || undefined,
+        subtitle: config.subtitle.trim() || undefined,
+        dedication: config.dedicationText.trim() || undefined,
+        memory_ids: config.memoryIds,
+        letter_ids: config.letterIds,
+        voice_ids: config.voiceIds,
       }),
     onSuccess: (data) => {
       if (data.data?.url) window.location.href = data.data.url;
