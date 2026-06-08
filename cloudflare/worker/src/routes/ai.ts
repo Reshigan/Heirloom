@@ -823,6 +823,129 @@ aiRoutes.post('/suggest-dye', async (c) => {
 });
 
 // ============================================
+// INTERVIEW FOLLOW-UP — generate next interview question from context
+// ============================================
+
+aiRoutes.post('/interview-followup', async (c) => {
+  const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Unauthorized' }, 401);
+
+  let currentQuestion = '';
+  let transcriptSoFar = '';
+  try {
+    const body = await c.req.json();
+    currentQuestion = (body.currentQuestion || '').slice(0, 500);
+    transcriptSoFar = (body.transcriptSoFar || '').slice(0, 2000);
+  } catch {
+    return c.json({ error: 'Invalid body' }, 400);
+  }
+
+  // Rate limit: 10 AI calls per user per minute
+  const rateLimitKey = `ai:${userId}:${Math.floor(Date.now() / 60000)}`;
+  try {
+    const count = parseInt(await c.env.KV.get(rateLimitKey) ?? '0', 10);
+    if (count >= 10) {
+      return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+    }
+    await c.env.KV.put(rateLimitKey, String(count + 1), { expirationTtl: 60 });
+  } catch {
+    const now = Date.now();
+    const entry = aiRateMap.get(rateLimitKey);
+    if (entry && entry.resetAt > now) {
+      if (entry.count >= 10) {
+        return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+      }
+      entry.count++;
+    } else {
+      aiRateMap.set(rateLimitKey, { count: 1, resetAt: now + 60000 });
+    }
+  }
+
+  const FOLLOWUP_FALLBACKS = [
+    'Can you tell me more about how that made you feel?',
+    'What happened next?',
+    'Who else was there with you?',
+    'How did that experience shape who you are today?',
+    'Is there a particular detail from that moment you still remember vividly?',
+  ];
+
+  try {
+    const systemPrompt = `You are a compassionate oral history interviewer helping someone record their life story for Heirloom, a family legacy platform. Given the current interview question and the transcript so far, generate ONE natural follow-up question that deepens the conversation.
+
+Rules:
+- Ask one focused question (under 20 words)
+- Build naturally on what was said — don't repeat covered ground
+- Evoke memory, emotion, or sensory detail
+- No quotation marks in output`;
+
+    const userContent = [
+      currentQuestion ? `Current question: ${currentQuestion}` : '',
+      transcriptSoFar ? `Transcript so far: ${transcriptSoFar}` : '',
+      'Generate one follow-up question.',
+    ].filter(Boolean).join('\n');
+
+    const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userContent },
+      ],
+      max_tokens: 60,
+      temperature: 0.7,
+    });
+
+    const followup = ((response as any).response || '').trim().replace(/^["']|["']$/g, '');
+    return c.json({
+      followup: followup || FOLLOWUP_FALLBACKS[Math.floor(Math.random() * FOLLOWUP_FALLBACKS.length)],
+    });
+  } catch {
+    return c.json({
+      followup: FOLLOWUP_FALLBACKS[Math.floor(Math.random() * FOLLOWUP_FALLBACKS.length)],
+    });
+  }
+});
+
+// ============================================
+// TRANSCRIBE — transcribe audio from a URL via Whisper
+// ============================================
+
+aiRoutes.post('/transcribe', async (c) => {
+  const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Unauthorized' }, 401);
+
+  let audioUrl = '';
+  try {
+    const body = await c.req.json();
+    audioUrl = (body.audioUrl || '').trim();
+  } catch {
+    return c.json({ error: 'Invalid body' }, 400);
+  }
+
+  if (!audioUrl) {
+    return c.json({ transcript: '' });
+  }
+
+  try {
+    // Fetch the audio from the provided URL
+    const resp = await fetch(audioUrl);
+    if (!resp.ok) {
+      return c.json({ error: 'Failed to fetch audio', transcript: '' }, 400);
+    }
+    const audioBuffer = await resp.arrayBuffer();
+
+    const result = await c.env.AI.run('@cf/openai/whisper', {
+      audio: [...new Uint8Array(audioBuffer)],
+    });
+
+    const transcript = (result as any).text || '';
+    return c.json({ transcript });
+  } catch (err: any) {
+    console.error('AI transcribe error:', err);
+    // Return empty transcript as graceful fallback
+    return c.json({ transcript: '' });
+  }
+});
+
+// ============================================
 // ON-THIS-DAY NARRATION — ambient one-line thread commentary
 // ============================================
 

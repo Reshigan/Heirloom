@@ -1269,6 +1269,60 @@ exportRoutes.post('/family-book', async (c) => {
 });
 
 // ============================================
+// BOOK PREVIEW — estimate page count and queue a preview job
+// ============================================
+
+exportRoutes.post('/book/preview', async (c) => {
+  const userId = c.get('userId');
+  const body = await c.req.json().catch(() => ({}));
+
+  const now = new Date().toISOString();
+  const jobId = crypto.randomUUID();
+
+  // Create a PENDING export job so the client can poll status
+  await c.env.DB.prepare(`
+    INSERT INTO export_jobs (id, user_id, type, status, config, created_at, updated_at)
+    VALUES (?, ?, 'BOOK_PREVIEW', 'PENDING', ?, ?, ?)
+  `).bind(jobId, userId, JSON.stringify(body), now, now).run();
+
+  // Rough page estimate: 1 cover + ~1 page per 3 memories/letters
+  const estimatedItems = (body.memoryCount ?? 0) + (body.letterCount ?? 0);
+  const estimatedPages = Math.max(10, 1 + Math.ceil(estimatedItems / 3));
+
+  return c.json({
+    job_id: jobId,
+    preview_url: null,
+    estimated_pages: estimatedPages,
+    message: 'Preview generation queued',
+    status: 'queued',
+  });
+});
+
+// ============================================
+// BOOK ORDER — create a print-on-demand order job
+// ============================================
+
+exportRoutes.post('/book/order', async (c) => {
+  const userId = c.get('userId');
+  const body = await c.req.json().catch(() => ({}));
+
+  const now = new Date().toISOString();
+  const jobId = crypto.randomUUID();
+
+  await c.env.DB.prepare(`
+    INSERT INTO export_jobs (id, user_id, type, status, config, created_at, updated_at)
+    VALUES (?, ?, 'BOOK_ORDER', 'PENDING', ?, ?, ?)
+  `).bind(jobId, userId, JSON.stringify(body), now, now).run();
+
+  return c.json({
+    job_id: jobId,
+    status: 'queued',
+    message: 'Book order received and queued for processing',
+    created_at: now,
+  });
+});
+
+// ============================================
 // GET EXPORT STATUS
 // ============================================
 

@@ -288,6 +288,23 @@ voiceRoutes.get('/file/*', async (c) => {
   }
 });
 
+// ============================================
+// VOICE PROMPTS LIST — hardcoded starter prompts for the recording wizard
+// ============================================
+
+const VOICE_PROMPTS = [
+  { id: 'vp-1', prompt_text: 'Tell me about the house you grew up in — the smells, the sounds, the feeling of it.', category: 'childhood' },
+  { id: 'vp-2', prompt_text: 'Describe the moment you knew you had fallen in love.', category: 'love_and_relationships' },
+  { id: 'vp-3', prompt_text: 'What is a piece of advice you would give to your grandchildren?', category: 'life_lessons' },
+  { id: 'vp-4', prompt_text: 'Tell me about a tradition your family had and why it mattered.', category: 'family_traditions' },
+  { id: 'vp-5', prompt_text: 'Describe the proudest moment of your life in your own voice.', category: 'legacy_wishes' },
+  { id: 'vp-6', prompt_text: 'What sound, smell, or taste instantly takes you back to childhood?', category: 'sensory_memories' },
+];
+
+voiceRoutes.get('/prompts/list', async (c) => {
+  return c.json({ prompts: VOICE_PROMPTS });
+});
+
 // Get a specific voice recording
 voiceRoutes.get('/:id', async (c) => {
   const userId = c.get('userId');

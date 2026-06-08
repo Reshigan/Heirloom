@@ -216,6 +216,59 @@ deadmanRoutes.get('/history', async (c) => {
   });
 });
 
+// Disable dead man's switch (sets is_active = 0 / status = DISABLED)
+deadmanRoutes.post('/disable', async (c) => {
+  const userId = c.get('userId');
+  const now = new Date().toISOString();
+
+  const dms = await c.env.DB.prepare(`
+    SELECT id FROM dead_man_switches WHERE user_id = ?
+  `).bind(userId).first();
+
+  if (!dms) {
+    return c.json({ error: 'Dead Man\'s Switch not configured' }, 404);
+  }
+
+  await c.env.DB.prepare(`
+    UPDATE dead_man_switches SET status = 'DISABLED', updated_at = ? WHERE user_id = ?
+  `).bind(now, userId).run();
+
+  return c.json({ success: true });
+});
+
+// Verify a passing token received by a successor
+deadmanRoutes.post('/verify/:token', async (c) => {
+  const token = c.req.param('token');
+
+  if (!token) {
+    return c.json({ error: 'Token is required' }, 400);
+  }
+
+  const dms = await c.env.DB.prepare(`
+    SELECT * FROM dead_man_switches WHERE passing_token = ?
+  `).bind(token).first();
+
+  if (!dms) {
+    return c.json({ error: 'Invalid or expired token' }, 404);
+  }
+
+  // Mark token as used if not already triggered
+  if (dms.status !== 'TRIGGERED') {
+    const now = new Date().toISOString();
+    await c.env.DB.prepare(`
+      UPDATE dead_man_switches SET status = 'TRIGGERED', updated_at = ? WHERE id = ?
+    `).bind(now, dms.id).run();
+  }
+
+  return c.json({
+    success: true,
+    switchId: dms.id,
+    status: dms.status,
+    triggerAction: dms.trigger_action,
+    triggeredAt: dms.updated_at,
+  });
+});
+
 // Test trigger (for testing purposes)
 deadmanRoutes.post('/test-trigger', async (c) => {
   const userId = c.get('userId');
