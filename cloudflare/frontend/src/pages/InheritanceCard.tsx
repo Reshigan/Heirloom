@@ -4,6 +4,7 @@ import { useState } from 'react';
 import api from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
+import { ProgressHair } from '../loom/components/ProgressHair';
 
 async function fetchInheritance(token: string) {
   // Validate the token and get recipient/owner info from the worker inherit route.
@@ -33,7 +34,7 @@ export function InheritanceCard() {
     return (
       <ClothShell topbarLeft={topbar} topbarCenter="inheritance">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-          <progress style={{ width: 120, height: 1, appearance: 'none', accentColor: 'var(--warm)' }} />
+          <ProgressHair width={120} />
         </div>
       </ClothShell>
     );
@@ -78,8 +79,8 @@ export function InheritanceCard() {
               ∞ open the thread
             </button>
           ) : (
-            <div style={{ animation: 'fadeIn var(--dur-slow) var(--ease) forwards' }}>
-              <style>{`@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }`}</style>
+            <div style={{ animation: 'hl-fadeIn var(--dur-slow) var(--ease) forwards' }}>
+              <style>{`@keyframes hl-fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }`}</style>
               <p className="hl-serif" style={{ fontSize: 18, color: 'var(--bone)', lineHeight: 1.7 }}>
                 The thread is open. Create your account to read and contribute.
               </p>

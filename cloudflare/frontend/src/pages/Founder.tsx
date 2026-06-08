@@ -73,7 +73,7 @@ export function Founder() {
     }
   };
 
-  const pledged  = count ? count.cap - count.remaining : null;
+  const pledged  = count ? count.pledged : null;
   const cap      = count ? count.cap                   : 100;
   const remaining = count ? count.remaining            : null;
 
@@ -81,7 +81,7 @@ export function Founder() {
   const inputBase: React.CSSProperties = {
     width:        '100%',
     background:   'transparent',
-    border:       '1px solid var(--rule-strong)',
+    border:       '1px solid var(--rule)',
     borderRadius:  2,
     color:         'var(--bone)',
     caretColor:    'var(--warm)',
@@ -136,7 +136,7 @@ export function Founder() {
             className="hl-eyebrow"
             style={{ marginBottom: 22 }}
           >
-            founder · $240 · once · lifetime
+            founder · $249 · once · lifetime
           </p>
 
           {/* headline */}
@@ -354,7 +354,7 @@ export function Founder() {
                         fontFamily:  'var(--serif)',
                         fontStyle:   'italic',
                         fontSize:     14,
-                        color:       'var(--warm)',
+                        color:       'var(--danger)',
                         margin:       0,
                       }}
                     >
@@ -371,7 +371,7 @@ export function Founder() {
                       alignSelf: 'flex-start',
                     }}
                   >
-                    {submitting ? 'submitting…' : 'Become a founder · $240 once'}
+                    {submitting ? 'submitting…' : 'Become a founder · $249 once'}
                   </button>
                 </form>
 

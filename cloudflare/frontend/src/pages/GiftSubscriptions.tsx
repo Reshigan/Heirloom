@@ -93,6 +93,7 @@ export function GiftSubscriptions() {
           : billingPeriod === 'monthly' ? 'monthly' : 'yearly',
         recipientMessage: formData.personalMessage,
         currency,
+        style:           selectedStyle,
       }),
     onSuccess: (response) => {
       setGiftResult(response.data);
@@ -135,8 +136,8 @@ export function GiftSubscriptions() {
   const canProceed = () => {
     switch (step) {
       case 1: return selectedTier === 'FAMILY' || selectedTier === 'LEGACY';
-      case 2: return !!(formData.recipientName && formData.recipientEmail);
-      case 3: return !!(formData.purchaserName && formData.purchaserEmail);
+      case 2: return !!(formData.recipientName && formData.recipientEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.recipientEmail));
+      case 3: return !!(formData.purchaserName && formData.purchaserEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.purchaserEmail));
       default: return true;
     }
   };
@@ -226,6 +227,7 @@ export function GiftSubscriptions() {
                 {(['monthly', 'annual'] as const).map((p, i) => (
                   <button
                     key={p}
+                    type="button"
                     onClick={() => setBillingPeriod(p)}
                     className="hl-mono"
                     style={{
@@ -268,7 +270,8 @@ export function GiftSubscriptions() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1fr',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: 16,
                 marginBottom: 48,
               }}
             >
@@ -496,6 +499,7 @@ export function GiftSubscriptions() {
               {OCCASION_STYLES.map((style) => (
                 <button
                   key={style.id}
+                  type="button"
                   onClick={() => setSelectedStyle(style.id)}
                   className="hl-mono"
                   style={{
@@ -899,6 +903,7 @@ export function GiftSubscriptions() {
             )}
 
             <button
+              type="button"
               onClick={() => purchaseMutation.mutate()}
               disabled={purchaseMutation.isPending}
               className="hl-btn"
@@ -921,6 +926,7 @@ export function GiftSubscriptions() {
           }}
         >
           <button
+            type="button"
             onClick={handleBack}
             disabled={step === 1}
             className="hl-btn ghost"
@@ -935,6 +941,7 @@ export function GiftSubscriptions() {
           </button>
           {step < 4 && (
             <button
+              type="button"
               onClick={handleNext}
               disabled={!canProceed()}
               className="hl-btn"
@@ -1124,6 +1131,7 @@ export function GiftSubscriptions() {
               </div>
             )}
             <button
+              type="button"
               onClick={() => {
                 setShowSuccess(false);
                 setStep(1);

@@ -43,7 +43,7 @@ const DYE_VARS: Record<string, string> = {
 
 function entryTo(kind: string, id: string): string {
   if (kind === 'voice') return `/loom/voice?id=${id}`;
-  if (kind === 'letter') return '/loom/letter-room';
+  if (kind === 'letter') return `/loom/letter?id=${id}`;
   return `/loom/read?entry=${id}`;
 }
 
@@ -173,15 +173,15 @@ export function PersonPage() {
         style={{
           paddingTop: 80,
           paddingBottom: 36,
-          paddingLeft: 56,
-          paddingRight: 56,
+          paddingLeft: 'clamp(20px, 5vw, 56px)',
+          paddingRight: 'clamp(20px, 5vw, 56px)',
         }}
       >
         {/* Two-column grid */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1.4fr',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
             gap: 56,
             alignItems: 'start',
           }}
@@ -406,7 +406,7 @@ export function PersonPage() {
                       >
                         "{prompt.prompt}"
                         <Link
-                          to="/compose"
+                          to={`/compose?prompt=${encodeURIComponent(prompt.prompt)}&recipientId=${id}`}
                           style={{
                             fontFamily: 'var(--mono)',
                             fontSize: 9,

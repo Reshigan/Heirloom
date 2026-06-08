@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ProgressHair } from '../loom/components/ProgressHair';
@@ -26,6 +26,13 @@ interface StoryData {
 export function StoryView() {
   const { token } = useParams<{ token: string }>();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const { data, isLoading, error } = useQuery<StoryData>({
     queryKey: ['story-view', token],
@@ -81,11 +88,13 @@ export function StoryView() {
       <div
         style={{
           position: 'absolute',
-          top: 56,
-          bottom: 56,
+          top: 'calc(56px + env(safe-area-inset-top, 0px))',
+          bottom: 'calc(56px + env(safe-area-inset-bottom, 0px))',
           left: 0,
           right: 0,
           display: 'flex',
+          flexDirection: isMobile ? 'column' : 'row',
+          overflowY: isMobile ? 'auto' : undefined,
         }}
       >
         {/* Left page — title + meta */}

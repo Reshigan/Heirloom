@@ -7,6 +7,7 @@ import { HLogo } from '../loom/components/HLogo';
 import { type LoomEntry, type LoomDye } from '../loom/components/Loom';
 import { ViewToggle } from '../loom/components/ViewToggle';
 import { EmptyThread } from '../loom/components/EmptyThread';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { WeftPull } from '../loom/components/WeftPull';
 import { WeftCentury } from '../loom/components/WeftCentury';
 import { memoriesApi, lettersApi, voiceApi, threadsApi } from '../services/api';
@@ -81,26 +82,28 @@ export function Weft() {
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
-  const { data: memoriesData } = useQuery({
+  const { data: memoriesData, isLoading: memoriesLoading } = useQuery({
     queryKey: ['weft-memories'],
     queryFn: () => memoriesApi.getAll({ limit: 500 }).then((r) => r.data),
     enabled: isAuthenticated,
   });
-  const { data: lettersData } = useQuery({
+  const { data: lettersData, isLoading: lettersLoading } = useQuery({
     queryKey: ['weft-letters'],
     queryFn: () => lettersApi.getAll({ limit: 500 }).then((r) => r.data),
     enabled: isAuthenticated,
   });
-  const { data: voiceData } = useQuery({
+  const { data: voiceData, isLoading: voiceLoading } = useQuery({
     queryKey: ['weft-voice'],
     queryFn: () => voiceApi.getAll({ limit: 500 }).then((r) => r.data),
     enabled: isAuthenticated,
   });
-  const { data: receivedData } = useQuery({
+  const { data: receivedData, isLoading: receivedLoading } = useQuery({
     queryKey: ['letters-received'],
     queryFn: () => lettersApi.received().then((r) => r.data).catch(() => null),
     enabled: isAuthenticated,
   });
+
+  const isLoading = memoriesLoading || lettersLoading || voiceLoading || receivedLoading;
 
   const { data: threadMembersData } = useQuery({
     queryKey: ['weft-thread-members', user?.defaultThreadId],
@@ -155,7 +158,7 @@ export function Weft() {
     </div>
   );
 
-  if (mode === 'empty' || entries.length === 0) {
+  if (mode === 'empty' || (!isLoading && entries.length === 0)) {
     return (
       <ClothShell
         topbarLeft={<HLogo size="sm" wordmark />}
@@ -163,7 +166,7 @@ export function Weft() {
         topbarRight={rightSlot}
         backdropOpacity={0.3}
       >
-        <EmptyThread onWeave={() => navigate('/compose')} onRecord={() => navigate('/record')} />
+        {isLoading ? <ProgressHair /> : <EmptyThread onWeave={() => navigate('/compose')} onRecord={() => navigate('/record')} />}
       </ClothShell>
     );
   }

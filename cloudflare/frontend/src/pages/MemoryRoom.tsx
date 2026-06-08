@@ -27,6 +27,7 @@ interface RoomData {
 export function MemoryRoom() {
   const { token } = useParams<{ token: string }>();
   const [showContribute, setShowContribute] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [contributorName, setContributorName] = useState('');
   const [contributorEmail, setContributorEmail] = useState('');
   const [contributorRelationship, setContributorRelationship] = useState('');
@@ -60,6 +61,7 @@ export function MemoryRoom() {
       setContent('');
       refetch();
     },
+    onError: (e: any) => setSubmitError(e?.response?.data?.error ?? 'could not share your memory'),
   });
 
   const handleSubmit = () => {
@@ -78,7 +80,7 @@ export function MemoryRoom() {
     width: '100%',
     background: 'transparent',
     border: '1px solid var(--parchment-rule)',
-    borderRadius: 2,
+    borderRadius: 0,
     padding: '10px 14px',
     color: 'var(--parchment-ink)',
     fontFamily: 'var(--serif)',
@@ -159,8 +161,8 @@ export function MemoryRoom() {
         </button>
       }
     >
-      {/* Content area — sits below topbar (56px) */}
-      <div style={{ paddingTop: 56 }}>
+      {/* Content area — ClothShell already offsets topbar height */}
+      <div>
 
         {/* H1 */}
         <h1
@@ -462,7 +464,7 @@ export function MemoryRoom() {
                         borderRadius: 0,
                         cursor: 'pointer',
                         background: contentType === 'TEXT' ? 'var(--warm)' : 'transparent',
-                        color: contentType === 'TEXT' ? '#fff' : 'var(--parchment-ink)',
+                        color: contentType === 'TEXT' ? 'var(--bone)' : 'var(--parchment-ink)',
                         transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     >
@@ -555,6 +557,21 @@ export function MemoryRoom() {
                   style={{ ...inputStyle, resize: 'none' }}
                 />
               </div>
+
+              {submitError && (
+                <p
+                  role="alert"
+                  style={{
+                    margin: 0,
+                    fontFamily: 'var(--mono)',
+                    fontSize: 11,
+                    color: 'var(--danger)',
+                    letterSpacing: '0.06em',
+                  }}
+                >
+                  {submitError}
+                </p>
+              )}
 
               <button
                 type="button"

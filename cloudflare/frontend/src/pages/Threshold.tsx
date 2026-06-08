@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { Loom } from '../loom/components/Loom';
+import { useAuthStore } from '../stores/authStore';
 
 /**
  * Screen 01 — The Threshold
@@ -13,6 +14,7 @@ import { Loom } from '../loom/components/Loom';
  * brand statement holds the page until the user is ready.
  */
 export function Threshold() {
+  const { isAuthenticated } = useAuthStore();
   const [revealed, setRevealed] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setRevealed(true), 240);
@@ -129,7 +131,7 @@ export function Threshold() {
             className="loom-eyebrow"
             style={{ marginTop: 60, opacity: 0.7, display: 'flex', justifyContent: 'center', gap: 24 }}
           >
-            <Link to="/loom/weft" className="loom-btn" style={{ textDecoration: 'none' }}>
+            <Link to={isAuthenticated ? '/loom/weft' : '/login?redirect=/loom/weft'} className="loom-btn" style={{ textDecoration: 'none' }}>
               walk the loom
             </Link>
             <Link to="/loom/marketing" className="loom-btn-ghost" style={{ textDecoration: 'none' }}>

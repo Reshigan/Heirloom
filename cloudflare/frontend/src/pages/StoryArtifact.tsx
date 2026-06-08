@@ -100,6 +100,8 @@ export function StoryArtifact() {
   const [showCreate, setShowCreate] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [mutationError, setMutationError] = useState<string | null>(null);
 
   const [wizardStep, setWizardStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<typeof STORY_TEMPLATES[0] | null>(null);
@@ -150,11 +152,13 @@ export function StoryArtifact() {
       queryClient.invalidateQueries({ queryKey: ['story-artifacts'] });
       resetForm();
     },
+    onError: (err: any) => setMutationError(err?.response?.data?.error ?? 'something went wrong'),
   });
 
   const generateMutation = useMutation({
     mutationFn: (artifactId: string) => api.post(`/story-artifacts/${artifactId}/generate`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['story-artifacts'] }),
+    onError: (err: any) => setMutationError(err?.response?.data?.error ?? 'something went wrong'),
   });
 
   const shareMutation = useMutation({
@@ -163,11 +167,13 @@ export function StoryArtifact() {
       const baseUrl = window.location.origin;
       setShareUrl(`${baseUrl}/story/${response.data.shareToken}`);
     },
+    onError: (err: any) => setMutationError(err?.response?.data?.error ?? 'something went wrong'),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (artifactId: string) => api.delete(`/story-artifacts/${artifactId}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['story-artifacts'] }),
+    onError: (err: any) => setMutationError(err?.response?.data?.error ?? 'something went wrong'),
   });
 
   const resetForm = () => {
@@ -240,6 +246,7 @@ export function StoryArtifact() {
       queryClient.invalidateQueries({ queryKey: ['memories-for-artifact'] });
     } catch (error) {
       console.error('Upload failed:', error);
+      setUploadError('Upload failed. Please try again.');
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -258,7 +265,7 @@ export function StoryArtifact() {
       {/* Content container */}
       <div
         style={{
-          background: '#0a0a08',
+          background: 'var(--ink)',
           padding: '40px 48px',
           maxWidth: 640,
           margin: '0 auto',
@@ -330,7 +337,7 @@ export function StoryArtifact() {
                           {artifact.status.toLowerCase()}
                         </span>
                         <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}>
-                          {JSON.parse(artifact.selected_memories || '[]').length} photos · {artifact.view_count} views
+                          {(() => { let mems = []; try { mems = JSON.parse(artifact.selected_memories || '[]'); } catch { mems = []; } return mems.length; })()} photos · {artifact.view_count} views
                         </span>
                       </div>
                       <h3
@@ -699,6 +706,21 @@ export function StoryArtifact() {
                   {selectedMemories.length}/10 photos selected
                 </p>
 
+                {uploadError && (
+                  <p
+                    role="alert"
+                    style={{
+                      margin: 0,
+                      fontFamily: 'var(--mono)',
+                      fontSize: 11,
+                      color: 'var(--danger)',
+                      letterSpacing: '0.06em',
+                    }}
+                  >
+                    {uploadError}
+                  </p>
+                )}
+
                 {/* Photo grid */}
                 <div
                   style={{
@@ -844,6 +866,21 @@ export function StoryArtifact() {
                       ))}
                     </div>
                   </div>
+                )}
+
+                {mutationError && (
+                  <p
+                    role="alert"
+                    style={{
+                      margin: 0,
+                      fontFamily: 'var(--mono)',
+                      fontSize: 11,
+                      color: 'var(--danger)',
+                      letterSpacing: '0.06em',
+                    }}
+                  >
+                    {mutationError}
+                  </p>
                 )}
 
                 <button

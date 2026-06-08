@@ -22,7 +22,7 @@ const fieldStyle: React.CSSProperties = {
   borderRadius: 2,
   color: 'var(--bone)',
   caretColor: 'var(--warm)',
-  fontFamily: "'Source Serif 4', serif",
+  fontFamily: 'var(--serif)',
   fontSize: 15,
   lineHeight: 1.7,
   padding: '12px 14px',
@@ -33,7 +33,7 @@ const fieldStyle: React.CSSProperties = {
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
-  fontFamily: "'JetBrains Mono', monospace",
+  fontFamily: 'var(--mono)',
   fontSize: 10,
   fontWeight: 500,
   letterSpacing: '0.32em',
@@ -72,17 +72,19 @@ export function Memorials() {
       setFormError(null);
       setFormData({ name: '', description: '', style: 'classic', isPublic: true, birthDate: '', deathDate: '', location: '', epitaph: '' });
     },
+    onError: (e: any) => setFormError(e?.response?.data?.error ?? 'creation failed'),
   });
 
   const downloadQR = (memorial: any) => {
+    const memorialUrl = `${window.location.origin}/m/${memorial.qr_code}`;
     const link = document.createElement('a');
-    link.href = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=https://hlm.blue/m/${memorial.qr_code}`;
+    link.href = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(memorialUrl)}`;
     link.download = `memorial-${memorial.memorial_name}-qr.png`;
     link.click();
   };
 
   const shareMemorial = (memorial: any) => {
-    const url = `https://hlm.blue/m/${memorial.qr_code}`;
+    const url = `${window.location.origin}/m/${memorial.qr_code}`;
     if (navigator.share) {
       navigator.share({
         title: `${memorial.memorial_name}'s Memorial`,
@@ -116,6 +118,7 @@ export function Memorials() {
             In memory of.
           </h1>
           <button
+            type="button"
             onClick={() => setShowCreateModal(true)}
             className="hl-btn"
             style={{ flexShrink: 0, marginTop: 6 }}
@@ -217,13 +220,14 @@ export function Memorials() {
                   {/* Actions */}
                   <div style={{ display: 'flex', gap: 20, marginTop: 16 }}>
                     <button
-                      onClick={() => setSelectedMemorial(memorial)}
+                      type="button"
+                                            onClick={() => setSelectedMemorial(memorial)}
                       style={{
                         background: 'none',
                         border: 0,
                         padding: 0,
                         cursor: 'pointer',
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: 'var(--mono)',
                         fontSize: 10,
                         letterSpacing: '0.12em',
                         textTransform: 'uppercase',
@@ -233,13 +237,14 @@ export function Memorials() {
                       view →
                     </button>
                     <button
-                      onClick={() => downloadQR(memorial)}
+                      type="button"
+                                            onClick={() => downloadQR(memorial)}
                       style={{
                         background: 'none',
                         border: 0,
                         padding: 0,
                         cursor: 'pointer',
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: 'var(--mono)',
                         fontSize: 10,
                         letterSpacing: '0.12em',
                         textTransform: 'uppercase',
@@ -249,13 +254,14 @@ export function Memorials() {
                       download QR
                     </button>
                     <button
-                      onClick={() => shareMemorial(memorial)}
+                      type="button"
+                                            onClick={() => shareMemorial(memorial)}
                       style={{
                         background: 'none',
                         border: 0,
                         padding: 0,
                         cursor: 'pointer',
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: 'var(--mono)',
                         fontSize: 10,
                         letterSpacing: '0.12em',
                         textTransform: 'uppercase',
@@ -410,14 +416,15 @@ export function Memorials() {
                 <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                   {designStyles.map((style) => (
                     <button
-                      key={style.id}
+                      type="button"
+                                            key={style.id}
                       onClick={() => setFormData({ ...formData, style: style.id })}
                       style={{
                         background: 'transparent',
                         border: `1px solid ${formData.style === style.id ? 'var(--warm)' : 'var(--rule)'}`,
                         borderRadius: 0,
                         color: formData.style === style.id ? 'var(--warm)' : 'var(--bone-faint)',
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: 'var(--mono)',
                         fontSize: 10,
                         fontWeight: 500,
                         letterSpacing: '0.14em',
@@ -453,7 +460,7 @@ export function Memorials() {
               {formError && (
                 <p
                   className="hl-mono"
-                  style={{ fontSize: 11, color: 'var(--danger, #c0392b)', margin: 0, letterSpacing: '0.06em' }}
+                  style={{ fontSize: 11, color: 'var(--danger)', margin: 0, letterSpacing: '0.06em' }}
                 >
                   {formError}
                 </p>
@@ -461,14 +468,15 @@ export function Memorials() {
 
               <div style={{ display: 'flex', gap: 10, paddingTop: 8 }}>
                 <button
-                  onClick={() => { setShowCreateModal(false); setFormError(null); }}
+                  type="button"
+                                    onClick={() => { setShowCreateModal(false); setFormError(null); }}
                   style={{
                     flex: 1,
                     background: 'transparent',
                     border: '1px solid var(--rule)',
                     borderRadius: 0,
                     color: 'var(--bone-dim)',
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: 'var(--mono)',
                     fontSize: 11,
                     letterSpacing: '0.12em',
                     textTransform: 'uppercase',
@@ -480,7 +488,8 @@ export function Memorials() {
                   cancel
                 </button>
                 <button
-                  onClick={() => {
+                  type="button"
+                                    onClick={() => {
                     if (formData.birthDate && formData.deathDate && new Date(formData.deathDate) < new Date(formData.birthDate)) {
                       setFormError('Death date cannot be before birth date.');
                       return;
@@ -524,7 +533,7 @@ export function Memorials() {
             {/* QR */}
             <div style={{ background: '#fff', padding: 10, display: 'inline-block', marginBottom: 24 }}>
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://hlm.blue/m/${selectedMemorial.qr_code}`}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/m/${selectedMemorial.qr_code}`)}`}
                 alt="QR Code"
                 style={{ display: 'block', width: 128, height: 128 }}
               />
@@ -619,14 +628,15 @@ export function Memorials() {
             {/* Actions */}
             <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
               <button
-                onClick={() => downloadQR(selectedMemorial)}
+                type="button"
+                                onClick={() => downloadQR(selectedMemorial)}
                 style={{
                   flex: 1,
                   background: 'transparent',
                   border: '1px solid var(--rule)',
                   borderRadius: 0,
                   color: 'var(--bone-dim)',
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: 'var(--mono)',
                   fontSize: 11,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
@@ -638,7 +648,8 @@ export function Memorials() {
                 download QR
               </button>
               <button
-                onClick={() => shareMemorial(selectedMemorial)}
+                type="button"
+                                onClick={() => shareMemorial(selectedMemorial)}
                 className="hl-btn"
                 style={{ flex: 1 }}
               >
@@ -648,7 +659,7 @@ export function Memorials() {
 
             <div style={{ marginTop: 16 }}>
               <a
-                href={`https://hlm.blue/m/${selectedMemorial.qr_code}`}
+                href={`${window.location.origin}/m/${selectedMemorial.qr_code}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hl-link warm"

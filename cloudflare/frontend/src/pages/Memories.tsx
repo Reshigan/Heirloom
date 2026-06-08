@@ -130,7 +130,7 @@ function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; act
               </button>
               <button type="button" onClick={() => setConfirmDelete(true)}
                 className="hl-mono"
-                style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--dye-madder)', opacity: 0.7 }}>
+                style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--danger)', opacity: 0.7 }}>
                 delete
               </button>
             </>
@@ -162,7 +162,7 @@ function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; act
             width: '100%',
             height: 'auto',
             marginBottom: 10,
-            background: 'var(--ink-raise, rgba(255,255,255,0.03))',
+            background: 'rgba(255,255,255,0.03)',
           }}
         />
       )}
@@ -194,7 +194,7 @@ function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; act
             </button>
           </div>
           {updateMut.isError && (
-            <p className="hl-mono" style={{ fontSize: 10, color: 'var(--dye-madder)', marginTop: 8, letterSpacing: '0.08em' }}>Could not save — try again.</p>
+            <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', marginTop: 8, letterSpacing: '0.08em' }}>Could not save — try again.</p>
           )}
         </div>
       ) : (
@@ -207,7 +207,7 @@ function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; act
         <div style={{ marginTop: 12, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
           <span className="hl-mono" style={{ fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>Delete this memory?</span>
           <button type="button" onClick={() => deleteMut.mutate()} disabled={deleteMut.isPending}
-            style={{ background: 'transparent', border: '1px solid var(--dye-madder)', borderRadius: 0, padding: '6px 14px', cursor: deleteMut.isPending ? 'wait' : 'pointer', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--dye-madder)', opacity: deleteMut.isPending ? 0.6 : 1, touchAction: 'manipulation', minHeight: 44 }}>
+            style={{ background: 'transparent', border: '1px solid var(--danger)', borderRadius: 0, padding: '6px 14px', cursor: deleteMut.isPending ? 'wait' : 'pointer', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--danger)', opacity: deleteMut.isPending ? 0.6 : 1, touchAction: 'manipulation', minHeight: 44 }}>
             {deleteMut.isPending ? 'deleting…' : 'confirm'}
           </button>
           <button type="button" onClick={() => { setConfirmDelete(false); setMutError(null); }}
@@ -217,7 +217,7 @@ function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; act
         </div>
       )}
       {mutError && (
-        <p className="hl-mono" role="alert" style={{ fontSize: 12, color: 'var(--dye-madder)', letterSpacing: '0.1em', marginTop: 8 }}>{mutError}</p>
+        <p className="hl-mono" role="alert" style={{ fontSize: 12, color: 'var(--danger)', letterSpacing: '0.1em', marginTop: 8 }}>{mutError}</p>
       )}
 
       <div className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.1em', marginTop: 10 }}>

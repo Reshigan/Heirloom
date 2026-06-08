@@ -5,6 +5,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
 import { familyApi } from '../services/api';
+import api from '../services/api';
 
 // ── Template options ────────────────────────────────────────────────────────
 const TEMPLATES = [
@@ -34,8 +35,6 @@ const TEMPLATES = [
   },
 ];
 
-// @ts-ignore - Vite env types
-const API_URL = import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue';
 
 interface FamilyMember {
   id: string;
@@ -174,6 +173,7 @@ function SelectRow({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       style={{
         display: 'flex',
@@ -261,6 +261,7 @@ export function QuickWizard() {
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
   const [prompts, setPrompts] = useState<PersonPrompt[]>([]);
   const [loadingPrompts, setLoadingPrompts] = useState(false);
+  const [promptError, setPromptError] = useState<string | null>(null);
   const [customPrompt, setCustomPrompt] = useState('');
 
   const preselectedPersonId = searchParams.get('for');
@@ -295,15 +296,13 @@ export function QuickWizard() {
   const fetchPrompts = async () => {
     if (!selectedPerson) return;
     setLoadingPrompts(true);
+    setPromptError(null);
     try {
-      const token = localStorage.getItem('accessToken');
-      const response = await fetch(`${API_URL}/api/ai/person-prompts/${selectedPerson.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await response.json();
-      setPrompts(data.prompts || []);
+      const response = await api.get(`/ai/person-prompts/${selectedPerson.id}`);
+      setPrompts(response.data.prompts || []);
     } catch (err) {
       console.error('Failed to fetch prompts:', err);
+      setPromptError('Could not load suggested beginnings. You can still write your own.');
     }
     setLoadingPrompts(false);
   };
@@ -456,7 +455,7 @@ export function QuickWizard() {
                     >
                       No bloodline members yet.
                     </p>
-                    <button onClick={() => navigate('/family')} className="hl-btn">
+                    <button type="button" onClick={() => navigate('/family')} className="hl-btn">
                       add family member
                     </button>
                   </div>
@@ -514,6 +513,22 @@ export function QuickWizard() {
                   <LoadingBar label="the Listener is thinking…" />
                 ) : (
                   <>
+                    {/* Prompt fetch error */}
+                    {promptError && (
+                      <p
+                        className="hl-mono"
+                        style={{
+                          fontSize: 10,
+                          color: 'var(--danger)',
+                          letterSpacing: '0.1em',
+                          marginBottom: 16,
+                          fontStyle: 'italic',
+                        }}
+                      >
+                        {promptError}
+                      </p>
+                    )}
+
                     {/* Voice rings if voice type */}
                     {contentType === 'voice' && (
                       <div style={{ marginBottom: 24 }}>
@@ -561,6 +576,7 @@ export function QuickWizard() {
                         {prompts.map((prompt) => (
                           <button
                             key={prompt.id}
+                            type="button"
                             onClick={() => handlePromptSelect(prompt.prompt)}
                             style={{
                               display: 'block',
@@ -596,6 +612,7 @@ export function QuickWizard() {
                         ))}
 
                         <button
+                          type="button"
                           onClick={() => handlePromptSelect('')}
                           style={{
                             display: 'block',
@@ -620,6 +637,7 @@ export function QuickWizard() {
                     {/* Next button for custom prompt (letter) */}
                     {contentType === 'letter' && customPrompt.trim() && (
                       <button
+                        type="button"
                         onClick={() => handlePromptSelect(customPrompt.trim())}
                         className="hl-btn"
                         style={{ marginTop: 22 }}
@@ -631,6 +649,7 @@ export function QuickWizard() {
                     {/* Voice: proceed without custom text */}
                     {contentType === 'voice' && (
                       <button
+                        type="button"
                         onClick={() => handlePromptSelect('')}
                         className="hl-btn"
                         style={{ marginTop: 22 }}
@@ -687,12 +706,13 @@ export function QuickWizard() {
                   />
                 )}
 
-                <button onClick={handleCreate} className="hl-btn" style={{ marginTop: 22 }}>
+                <button type="button" onClick={handleCreate} className="hl-btn" style={{ marginTop: 22 }}>
                   {contentType === 'voice' ? 'start recording →' : 'start writing →'}
                 </button>
 
                 <div style={{ marginTop: 14 }}>
                   <button
+                    type="button"
                     onClick={() => navigate('/life-events')}
                     className="hl-mono"
                     style={{
@@ -715,11 +735,9 @@ export function QuickWizard() {
 
           {/* ── Back link ────────────────────────────────────────────────── */}
           {canGoBack && (
-            <div
-              role="button"
-              tabIndex={0}
+            <button
+              type="button"
               onClick={goBack}
-              onKeyDown={(e) => e.key === 'Enter' && goBack()}
               className="hl-mono"
               style={{
                 marginTop: 14,
@@ -728,11 +746,16 @@ export function QuickWizard() {
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
                 cursor: 'pointer',
-                userSelect: 'none',
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                minHeight: 44,
+                display: 'inline-flex',
+                alignItems: 'center',
               }}
             >
               ← back
-            </div>
+            </button>
           )}
         </div>
       </div>

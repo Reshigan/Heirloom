@@ -85,13 +85,13 @@ describe('GET /api/gift-vouchers/pricing', () => {
     const { tiers } = await res.json() as any;
     const family = tiers.find((t: any) => t.id === 'FAMILY');
     const legacy = tiers.find((t: any) => t.id === 'LEGACY');
-    // Family yearly: list $99.00 → giver pays $89.10
-    expect(family.yearly.listAmount).toBe(99);
-    expect(family.yearly.amount).toBe(89.1);
+    // Family yearly: list $69.00 → giver pays $62.10
+    expect(family.yearly.listAmount).toBe(69);
+    expect(family.yearly.amount).toBe(62.1);
     expect(family.yearly.giftDiscount).toBe('10% off');
-    // Legacy lifetime: list $240.00 → giver pays $216.00
-    expect(legacy.lifetime.listAmount).toBe(240);
-    expect(legacy.lifetime.amount).toBe(216);
+    // Legacy lifetime: list $249.00 → giver pays $224.10
+    expect(legacy.lifetime.listAmount).toBe(249);
+    expect(legacy.lifetime.amount).toBe(224.1);
   });
 
   it('display strings match amounts', async () => {
@@ -106,11 +106,11 @@ describe('GET /api/gift-vouchers/pricing', () => {
     }
   });
 
-  it('USD Family monthly matches the canonical $9.99 list price', async () => {
+  it('USD Family monthly matches the canonical $6.99 list price', async () => {
     const res = await json('/api/gift-vouchers/pricing?currency=USD');
     const { tiers } = await res.json() as any;
     const family = tiers.find((t: any) => t.id === 'FAMILY');
-    expect(family.monthly.listAmount).toBe(9.99);
+    expect(family.monthly.listAmount).toBe(6.99);
   });
 
   it('falls back to USD for unknown currency', async () => {

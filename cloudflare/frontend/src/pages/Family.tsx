@@ -33,7 +33,7 @@ interface PendingInvite {
 }
 
 const DYE_VARS: Record<string, string> = {
-  madder:    'var(--dye-madder)',
+  madder:    'var(--danger)',
   cochineal: 'var(--dye-cochineal)',
   kermes:    'var(--dye-kermes)',
   saffron:   'var(--dye-saffron)',
@@ -94,6 +94,7 @@ export function Family() {
   const [editRelationship, setEditRelationship] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editError, setEditError] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['family'],
@@ -151,9 +152,11 @@ export function Family() {
     mutationFn: (id: string) => familyApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['family'] });
+      setDeleteError(null);
     },
-    onError: () => {
+    onError: (err: any) => {
       queryClient.invalidateQueries({ queryKey: ['family'] });
+      setDeleteError(err?.response?.data?.error ?? 'Could not remove member.');
     },
   });
 
@@ -301,6 +304,7 @@ export function Family() {
                     color: mode === m ? 'var(--warm)' : 'var(--bone-dim)',
                     transition: 'color 180ms var(--ease)',
                     touchAction: 'manipulation',
+                    minHeight: 44,
                   }}
                 >
                   {m === 'add' ? 'add by name' : 'send invite'}
@@ -321,6 +325,7 @@ export function Family() {
                   textTransform: 'uppercase',
                   color: 'var(--bone-dim)',
                   touchAction: 'manipulation',
+                  minHeight: 44,
                 }}
               >
                 cancel
@@ -336,7 +341,7 @@ export function Family() {
                 <InputField label="relationship" value={addForm.relationship} onChange={(v) => setAddForm({ ...addForm, relationship: v })} placeholder="grandmother · sister · son" />
                 <InputField label="email — optional" value={addForm.email} onChange={(v) => setAddForm({ ...addForm, email: v })} type="email" placeholder="name@example.com" />
                 {error && (
-                  <p role="alert" className="hl-serif" style={{ gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--dye-madder)', fontSize: 14, margin: 0 }}>
+                  <p role="alert" className="hl-serif" style={{ gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--danger)', fontSize: 14, margin: 0 }}>
                     {error}
                   </p>
                 )}
@@ -356,7 +361,7 @@ export function Family() {
                 <InputField label="their name — optional" value={inviteForm.name} onChange={(v) => setInviteForm({ ...inviteForm, name: v })} placeholder="first name" />
                 <InputField label="email" value={inviteForm.email} onChange={(v) => setInviteForm({ ...inviteForm, email: v })} type="email" placeholder="name@example.com" />
                 {error && (
-                  <p role="alert" className="hl-serif" style={{ gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--dye-madder)', fontSize: 14, margin: 0 }}>
+                  <p role="alert" className="hl-serif" style={{ gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--danger)', fontSize: 14, margin: 0 }}>
                     {error}
                   </p>
                 )}
@@ -419,7 +424,7 @@ export function Family() {
         {pendingDeletion.length > 0 && (
           <div style={{ marginBottom: 40 }}>
             <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 20, marginBottom: 16 }}>
-              <span className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--dye-madder)' }}>
+              <span className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--danger)' }}>
                 pending removal
               </span>
             </div>
@@ -441,7 +446,7 @@ export function Family() {
                   <div className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', textDecoration: 'line-through', lineHeight: 1.3 }}>
                     {m.name}
                   </div>
-                  <div className="hl-mono" style={{ fontSize: 12, color: 'var(--dye-madder)', marginTop: 3 }}>
+                  <div className="hl-mono" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 3 }}>
                     {daysUntilExpiry(m.deletedAt!)} day{daysUntilExpiry(m.deletedAt!) !== 1 ? 's' : ''} left to undo
                   </div>
                 </div>
@@ -511,7 +516,7 @@ export function Family() {
                       textTransform: 'uppercase', color: 'var(--bone-faint)',
                       transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--dye-madder)'; }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
                   >
                     cancel
@@ -520,6 +525,12 @@ export function Family() {
               </div>
             ))}
           </div>
+        )}
+
+        {deleteError && (
+          <p role="alert" className="hl-mono" style={{ fontSize: 12, color: 'var(--danger)', letterSpacing: '0.14em', margin: '0 0 16px' }}>
+            {deleteError}
+          </p>
         )}
 
         {/* member list */}
@@ -567,14 +578,12 @@ export function Family() {
                       }}
                     />
                     <div>
-                      <div
-                        role="button"
-                        tabIndex={0}
+                      <button
+                        type="button"
                         onClick={() => navigate(`/person/${m.id}`)}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') navigate(`/person/${m.id}`); }}
-                        style={{ cursor: 'pointer', outline: 'none', display: 'inline-block' }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '0.75'; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.opacity = '1'; }}
+                        style={{ cursor: 'pointer', outline: 'none', display: 'inline-block', background: 'transparent', border: 0, padding: 0, textAlign: 'left' }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = '0.75'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = '1'; }}
                       >
                         <div className="hl-serif" style={{ fontSize: 17, fontWeight: 400, color: dyeText ?? 'var(--bone)', lineHeight: 1.25, transition: 'opacity 180ms var(--ease)' }}>
                           {m.name}
@@ -584,7 +593,7 @@ export function Family() {
                             {[m.relationship, m.role].filter(Boolean).join(' · ')}
                           </div>
                         )}
-                      </div>
+                      </button>
                       <button
                         type="button"
                         onClick={() => {
@@ -689,7 +698,7 @@ export function Family() {
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
                       />
                       {editError && (
-                        <p className="hl-mono" style={{ fontSize: 12, color: 'var(--dye-madder)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{editError}</p>
+                        <p className="hl-mono" style={{ fontSize: 12, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{editError}</p>
                       )}
                       <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginTop: 4 }}>
                         <button

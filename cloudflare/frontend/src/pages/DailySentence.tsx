@@ -4,6 +4,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { useAuthStore } from '../stores/authStore';
 
 /**
  * DailySentence — "the daily sentence · syndication" (§Pass-3, moment 03).
@@ -147,6 +148,7 @@ const VARIANTS: { label: string }[] = [
 ];
 
 export function DailySentence() {
+  const { isAuthenticated } = useAuthStore();
   const [question, setQuestion] = useState<string>(FALLBACK_QUESTION);
   const [families, setFamilies] = useState<number | null>(null);
 
@@ -196,31 +198,23 @@ export function DailySentence() {
 
   return (
     <ClothShell
-      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'daily' }]} />}
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/' }, { label: 'daily' }]} />}
       topbarCenter="daily"
-      topbarRight={<UserMenu />}
+      topbarRight={isAuthenticated ? <UserMenu /> : undefined}
     >
       {/* ── scrollable body ──────────────────────────────────────────── */}
       <div
         style={{
-          position: 'absolute',
-          top: 56,
-          bottom: 8,
-          left: 0,
-          right: 0,
           overflowY: 'auto',
           overflowX: 'hidden',
+          padding: '48px 56px 80px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: 48,
         }}
       >
         {/* headline + lede */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 78,
-            left: 56,
-            right: 56,
-          }}
-        >
+        <div>
           <h2
             className="hl-serif"
             style={{
@@ -281,13 +275,10 @@ export function DailySentence() {
         {/* tile previews */}
         <div
           style={{
-            position: 'absolute',
-            top: 380,
-            left: 56,
-            right: 56,
             display: 'flex',
             gap: 40,
             alignItems: 'flex-start',
+            flexWrap: 'wrap',
           }}
         >
           {VARIANTS.map((v) => (
@@ -301,14 +292,7 @@ export function DailySentence() {
         </div>
 
         {/* notes */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 380 + 360 + 56,
-            left: 56,
-            right: 56,
-          }}
-        >
+        <div>
           <p
             className="hl-serif"
             style={{

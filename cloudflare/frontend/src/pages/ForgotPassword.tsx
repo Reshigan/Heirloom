@@ -32,8 +32,11 @@ export function ForgotPassword() {
       await authApi.forgotPassword(email);
       setResendFlash(true);
       setTimeout(() => setResendFlash(false), 2500);
-    } catch {
-      // silent — already sent once
+    } catch (err: any) {
+      const msg: string = err?.response?.data?.error ?? '';
+      if (!msg.toLowerCase().includes('already')) {
+        setError(msg || 'Could not resend. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -43,7 +46,7 @@ export function ForgotPassword() {
     <ClothShell
       topbarLeft={<HLogo />}
       topbarCenter="forgot password"
-      topbarRight={<Link to="/login">sign in →</Link>}
+      topbarRight={<Link to="/login" className="hl-mono" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>sign in →</Link>}
     >
       <div style={{ maxWidth: 480, margin: '0 auto', padding: 'clamp(24px,5vw,48px)' }}>
         {success ? (

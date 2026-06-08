@@ -136,22 +136,28 @@ export function Unlock() {
       topbarCenter="sealed"
       topbarRight={
         <span
-          className="loom-mono loom-faint"
-          style={{ display: 'flex', gap: 14, alignItems: 'center' }}
+          className="hl-mono"
+          style={{ display: 'flex', gap: 14, alignItems: 'center', color: 'var(--bone-faint)' }}
         >
           <span aria-hidden style={{ width: 5, height: 5, background: 'var(--warm)' }} />
           a thread unties · today
-          <span
+          <button
+            type="button"
             onClick={() => setPaused((p) => !p)}
             style={{
               cursor: 'pointer',
-              borderLeft: '1px solid var(--rule)',
               paddingLeft: 14,
               color: 'var(--bone-dim)',
+              background: 'transparent',
+              border: 0,
+              borderLeft: '1px solid var(--rule)',
+              fontFamily: 'var(--mono)',
+              fontSize: 'inherit',
+              letterSpacing: 'inherit',
             }}
           >
             {paused ? 'play' : 'pause'}
-          </span>
+          </button>
         </span>
       }
       backdropOpacity={0.5}
@@ -162,16 +168,16 @@ export function Unlock() {
             inset: 0,
             display: 'grid',
             gridTemplateRows: 'auto 1fr auto',
-            padding: '44px 80px',
+            padding: 'clamp(24px, 6vw, 44px) clamp(20px, 6vw, 80px)',
           }}
         >
           {/* meta header — present for the ceremony, gone for the artifact */}
           <div style={{ opacity: phase < 3 ? 1 : 0, transition: VEIL }}>
-            <div className="loom-eyebrow" style={{ color: 'var(--warm)' }}>
+            <div className="hl-eyebrow" style={{ color: 'var(--warm)' }}>
               ∞ &nbsp; the loom · unlock
             </div>
             <div
-              className="loom-mono"
+              className="hl-mono"
               style={{ fontSize: 11, color: 'var(--bone-faint)', marginTop: 8 }}
             >
               tied off {letter.sealedDate} &nbsp;·&nbsp; untied {letter.openedDate} &nbsp;·&nbsp; for {letter.recipient}
@@ -180,7 +186,7 @@ export function Unlock() {
 
           {/* center stage — the 720ms typographic dissolve */}
           <div style={{ display: 'grid', placeItems: 'center', position: 'relative' }}>
-            <div style={{ position: 'relative', width: 640, minHeight: 420 }}>
+            <div style={{ position: 'relative', maxWidth: 640, width: '100%', minHeight: 420 }}>
               {/* THE SEAL — ∞ + sealed date, dissolving out */}
               <div
                 style={{
@@ -291,6 +297,7 @@ export function Unlock() {
                   {continueVisible && !continueClicked && (
                     <div style={{ marginTop: 28, textAlign: 'right' }}>
                       <button
+                        type="button"
                         onClick={() => setContinueClicked(true)}
                         style={{
                           fontFamily: 'var(--mono)',
@@ -544,6 +551,8 @@ function ShareCard({ letter }: { letter: UnlockLetter }) {
           </span>
         </div>
         <button
+          type="button"
+          aria-label="Share this moment"
           onClick={async () => {
             const text = `${letter.years} years from when it was written. A letter from ${letter.sealedDate} opened on ${letter.openedDate}.`;
             if (navigator.share) {

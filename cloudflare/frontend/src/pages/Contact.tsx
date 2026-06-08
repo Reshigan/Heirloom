@@ -18,6 +18,11 @@ export function Contact() {
       return;
     }
 
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      setError('please enter a valid email address');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/contact`, {

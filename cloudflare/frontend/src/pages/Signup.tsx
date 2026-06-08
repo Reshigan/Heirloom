@@ -35,6 +35,7 @@ interface SignupIntent {
   threadName: string;
   birthYear: string;
   tier: Tier;
+  cycle: 'monthly' | 'annual';
 }
 
 const TIERS: {
@@ -105,6 +106,7 @@ export function Signup() {
         threadName: form.threadName.trim(),
         birthYear: form.birthYear.trim(),
         tier,
+        cycle,
       };
       try {
         sessionStorage.setItem(SIGNUP_INTENT_KEY, JSON.stringify(intent));
@@ -374,19 +376,19 @@ export function Signup() {
         <aside
           aria-hidden
           style={{
-            background: '#0e0e0c',
+            background: 'var(--ink)',
             position: 'relative',
             overflow: 'hidden',
             minHeight: 'min(360px, 40vh)',
           }}
         >
-          <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#0e0e0c' }} />}>
+          <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: 'var(--ink)' }} />}>
             <ClothCanvas3D entries={REGISTER_3D_ENTRIES} />
           </Suspense>
           <div className="hl-mono" style={{
             position: 'absolute', left: 24, bottom: 24,
             fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
-            color: 'rgba(244,236,216,0.22)',
+            color: 'var(--bone-faint)',
             pointerEvents: 'none',
           }}>
             specimen · 70 years · 4,318 entries

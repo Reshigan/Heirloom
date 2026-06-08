@@ -482,13 +482,13 @@ function Shuttle() {
 function sourceHref(source: SourceEntry): string {
   switch (source.type) {
     case 'memory':
-      return `/memory/${source.id}`;
+      return `/loom/read?entry=${source.id}`;
     case 'voice':
-      return `/record?id=${source.id}`;
+      return `/loom/voice?id=${source.id}`;
     case 'letter':
-      return `/letters/${source.id}`;
+      return `/loom/letter`;
     default:
-      return `/memory/${source.id}`;
+      return `/loom/read?entry=${source.id}`;
   }
 }
 

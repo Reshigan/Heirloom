@@ -212,24 +212,28 @@ export function Challenges() {
 
                     <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                       <button
+                        type="button"
                         onClick={() => setShowSubmitModal(true)}
                         className="hl-btn"
                       >
                         add to thread
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleShare('twitter')}
                         className="hl-btn ghost"
                       >
                         share · X
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleShare('instagram')}
                         className="hl-btn ghost"
                       >
-                        {copiedPlatform === 'instagram' ? 'copied ✓' : 'share · Instagram'}
+                        {copiedPlatform === 'instagram' ? 'copied' : 'share · Instagram'}
                       </button>
                       <button
+                        type="button"
                         onClick={() => handleShare('facebook')}
                         className="hl-btn ghost"
                       >
@@ -411,7 +415,7 @@ export function Challenges() {
         >
           <div
             style={{
-              background: '#131310',
+              background: 'var(--ink)',
               border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 520,
@@ -465,10 +469,11 @@ export function Challenges() {
             )}
 
             <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-              <button onClick={() => setShowSubmitModal(false)} className="hl-btn ghost">
+              <button type="button" onClick={() => setShowSubmitModal(false)} className="hl-btn ghost">
                 cancel
               </button>
               <button
+                type="button"
                 onClick={() => submitMutation.mutate({ challengeId: currentChallenge.id, content: submissionContent })}
                 disabled={!submissionContent.trim() || submitMutation.isPending}
                 className="hl-btn"
@@ -493,7 +498,7 @@ export function Challenges() {
         >
           <div
             style={{
-              background: '#131310',
+              background: 'var(--ink)',
               border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 480,
@@ -532,11 +537,17 @@ export function Challenges() {
 
             <div style={{ display: 'flex', gap: 20 }}>
               <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{selectedChallenge.hashtag}</span>
-              <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>7 days</span>
+              <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>
+                {selectedChallenge.duration_days
+                  ? `${selectedChallenge.duration_days} days`
+                  : selectedChallenge.start_date && selectedChallenge.end_date
+                  ? `${Math.max(1, Math.round((new Date(selectedChallenge.end_date).getTime() - new Date(selectedChallenge.start_date).getTime()) / (1000 * 60 * 60 * 24)))} days`
+                  : '7 days'}
+              </span>
             </div>
 
             <div style={{ marginTop: 24, textAlign: 'right' }}>
-              <button onClick={() => setSelectedChallenge(null)} className="hl-btn ghost">close</button>
+              <button type="button" onClick={() => setSelectedChallenge(null)} className="hl-btn ghost">close</button>
             </div>
           </div>
         </div>

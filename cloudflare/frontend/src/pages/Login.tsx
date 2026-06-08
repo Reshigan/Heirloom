@@ -135,7 +135,7 @@ export function Login() {
               </div>
 
               {error ? (
-                <p role="alert" className="hl-italic" style={{ color: 'var(--dye-madder)', fontSize: 14, margin: 0 }}>
+                <p role="alert" className="hl-italic" style={{ color: 'var(--danger)', fontSize: 14, margin: 0 }}>
                   {error}
                 </p>
               ) : null}
@@ -170,19 +170,19 @@ export function Login() {
         <aside
           aria-hidden
           style={{
-            background: '#0e0e0c',
+            background: 'var(--ink)',
             position: 'relative',
             overflow: 'hidden',
             minHeight: 'min(360px, 40vh)',
           }}
         >
-          <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: '#0e0e0c' }} />}>
+          <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: 'var(--ink)' }} />}>
             <ClothCanvas3D entries={LOGIN_3D_ENTRIES} />
           </Suspense>
           <div className="hl-mono" style={{
             position: 'absolute', left: 24, bottom: 24,
             fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
-            color: 'rgba(244,236,216,0.22)',
+            color: 'var(--bone-faint)',
             pointerEvents: 'none',
           }}>
             specimen · 70 years · 4,318 entries

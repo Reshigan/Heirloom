@@ -120,7 +120,34 @@ export function ThreadCompose() {
     },
   });
 
-  const today = new Date().toISOString().slice(0, 10);
+  const handleSave = () => {
+    setError(null);
+    if (!body.trim()) {
+      setError('Write something — even a sentence.');
+      return;
+    }
+    if (enableLock) {
+      if (lockType === 'DATE' && !lockDate) {
+        setError('Pick the date the entry should open, or turn the lock off.');
+        return;
+      }
+      if (lockType === 'AGE' && (!lockTargetMemberId || !lockAgeYears)) {
+        setError('Pick a member and an age for the age-gate lock.');
+        return;
+      }
+      if (lockType === 'RECIPIENT_EVENT' && (!lockTargetMemberId || !lockEventLabel.trim())) {
+        setError('Pick a member and describe the event the lock waits for.');
+        return;
+      }
+      if (lockType === 'GENERATION' && !lockGeneration) {
+        setError('Pick the generation the entry should wait for.');
+        return;
+      }
+    }
+    create.mutate();
+  };
+
+    const today = new Date().toISOString().slice(0, 10);
   const thread = detail?.thread;
 
   const topbarLeftContent = (
@@ -148,32 +175,7 @@ export function ThreadCompose() {
   const topbarRightContent = (
     <button
       type="button"
-      onClick={() => {
-        setError(null);
-        if (!body.trim()) {
-          setError('Write something — even a sentence.');
-          return;
-        }
-        if (enableLock) {
-          if (lockType === 'DATE' && !lockDate) {
-            setError('Pick the date the entry should open, or turn the lock off.');
-            return;
-          }
-          if (lockType === 'AGE' && (!lockTargetMemberId || !lockAgeYears)) {
-            setError('Pick a member and an age for the age-gate lock.');
-            return;
-          }
-          if (lockType === 'RECIPIENT_EVENT' && (!lockTargetMemberId || !lockEventLabel.trim())) {
-            setError('Pick a member and describe the event the lock waits for.');
-            return;
-          }
-          if (lockType === 'GENERATION' && !lockGeneration) {
-            setError('Pick the generation the entry should wait for.');
-            return;
-          }
-        }
-        create.mutate();
-      }}
+      onClick={handleSave}
       disabled={create.isPending || !body.trim()}
       style={{
         background: 'transparent',
@@ -215,18 +217,17 @@ export function ThreadCompose() {
           style={{
             maxWidth: 720,
             margin: '0 auto',
-            padding: '40px 56px',
+            padding: 'clamp(24px, 5vw, 56px)',
           }}
         >
           <form
-            onSubmit={(e) => {
-              e.preventDefault();
-            }}
+            onSubmit={(e) => { e.preventDefault(); handleSave(); }}
             style={{ display: 'grid', gap: 28 }}
           >
             {/* Title input */}
             <input
               id="t-title"
+              aria-label="Thread title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="The summer Nan taught me to bake"
@@ -254,6 +255,7 @@ export function ThreadCompose() {
             {/* Body textarea */}
             <textarea
               id="t-body"
+              aria-label="Thread body"
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="Write to your descendants. Tell them something. They will read this."
@@ -581,35 +583,7 @@ export function ThreadCompose() {
                 type="submit"
                 disabled={create.isPending || !body.trim()}
                 className="hl-btn"
-                onClick={() => {
-                  setError(null);
-                  if (!body.trim()) {
-                    setError('Write something — even a sentence.');
-                    return;
-                  }
-                  if (enableLock) {
-                    if (lockType === 'DATE' && !lockDate) {
-                      setError('Pick the date the entry should open, or turn the lock off.');
-                      return;
-                    }
-                    if (lockType === 'AGE' && (!lockTargetMemberId || !lockAgeYears)) {
-                      setError('Pick a member and an age for the age-gate lock.');
-                      return;
-                    }
-                    if (
-                      lockType === 'RECIPIENT_EVENT' &&
-                      (!lockTargetMemberId || !lockEventLabel.trim())
-                    ) {
-                      setError('Pick a member and describe the event the lock waits for.');
-                      return;
-                    }
-                    if (lockType === 'GENERATION' && !lockGeneration) {
-                      setError('Pick the generation the entry should wait for.');
-                      return;
-                    }
-                  }
-                  create.mutate();
-                }}
+                onClick={handleSave}
                 style={{
                   opacity: create.isPending || !body.trim() ? 0.4 : 1,
                   transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { memoriesApi } from '../services/api';
@@ -35,6 +35,13 @@ export function PhotoQuick() {
   const [caption, setCaption] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [woven, setWoven] = useState(false);
+
+  // Revoke all blob URLs on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      images.forEach(img => { if (img.url?.startsWith('blob:')) URL.revokeObjectURL(img.url); });
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addImages = useCallback((files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -143,6 +150,7 @@ export function PhotoQuick() {
         {images.length === 0 ? (
           <button
             type="button"
+            aria-label="Choose a photograph"
             onClick={() => fileInputRef.current?.click()}
             style={{
               width: '100%',
@@ -242,10 +250,10 @@ export function PhotoQuick() {
                     aria-label="Remove photo"
                     style={{
                       position: 'absolute',
-                      top: 6,
-                      right: 6,
-                      width: 28,
-                      height: 28,
+                      top: 0,
+                      right: 0,
+                      minWidth: 44,
+                      minHeight: 44,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
@@ -267,6 +275,7 @@ export function PhotoQuick() {
             <input
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
+              aria-label="Caption for photograph"
               placeholder="A line about this photograph — or leave it"
               style={{
                 width: '100%',

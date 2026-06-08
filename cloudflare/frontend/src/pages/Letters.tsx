@@ -59,10 +59,10 @@ function formatDate(iso: string): string {
  * hl-mono 9px uppercase draft tag.
  */
 export function Letters() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['letters'],
     queryFn: () =>
-      lettersApi.getAll({ limit: 200 }).then((r) => r.data).catch(() => null),
+      lettersApi.getAll({ limit: 200 }).then((r) => r.data),
   });
 
   const letters: Letter[] = Array.isArray((data as any)?.data)
@@ -117,6 +117,10 @@ export function Letters() {
 
             {isLoading ? (
               <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.4, marginBottom: 24 }} />
+            ) : isError ? (
+              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                could not load letters — try refreshing
+              </p>
             ) : letters.length === 0 ? (
               <div>
                 <p
@@ -199,10 +203,12 @@ function LetterRow({ letter }: { letter: Letter }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const [confirmRelease, setConfirmRelease] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const deleteMut = useMutation({
     mutationFn: () => lettersApi.delete(letter.id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['letters'] }),
+    onError: (err: any) => setDeleteError(err?.response?.data?.error ?? 'could not delete draft'),
   });
 
   const releaseMut = useMutation({
@@ -335,7 +341,7 @@ function LetterRow({ letter }: { letter: Letter }) {
                     not yet
                   </button>
                   {releaseMut.isError && (
-                    <span className="hl-mono" style={{ fontSize: 9.5, color: 'var(--dye-madder)', letterSpacing: '0.1em' }}>could not release — try again</span>
+                    <span className="hl-mono" style={{ fontSize: 9.5, color: 'var(--danger)', letterSpacing: '0.1em' }}>could not release — try again</span>
                   )}
                 </div>
               )}
@@ -349,22 +355,25 @@ function LetterRow({ letter }: { letter: Letter }) {
         <div style={{ paddingBottom: 14, paddingLeft: 96, display: 'flex', gap: 20 }}>
           <button type="button" onClick={() => setConfirmDelete(true)}
             className="hl-mono"
-            style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--dye-madder)', opacity: 0.7 }}>
+            style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--danger)', opacity: 0.7 }}>
             delete draft
           </button>
         </div>
       )}
       {confirmDelete && (
-        <div style={{ paddingBottom: 14, paddingLeft: 96, display: 'flex', gap: 16, alignItems: 'center' }}>
+        <div style={{ paddingBottom: 14, paddingLeft: 96, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
           <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>Delete this draft?</span>
-          <button type="button" onClick={() => deleteMut.mutate()} disabled={deleteMut.isPending}
-            style={{ background: 'transparent', border: '1px solid var(--dye-madder)', borderRadius: 0, padding: '5px 12px', cursor: deleteMut.isPending ? 'wait' : 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--dye-madder)', opacity: deleteMut.isPending ? 0.6 : 1 }}>
+          <button type="button" onClick={() => { setDeleteError(null); deleteMut.mutate(); }} disabled={deleteMut.isPending}
+            style={{ background: 'transparent', border: '1px solid var(--danger)', borderRadius: 0, padding: '5px 12px', cursor: deleteMut.isPending ? 'wait' : 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--danger)', opacity: deleteMut.isPending ? 0.6 : 1 }}>
             {deleteMut.isPending ? 'deleting…' : 'confirm'}
           </button>
-          <button type="button" onClick={() => setConfirmDelete(false)}
+          <button type="button" onClick={() => { setConfirmDelete(false); setDeleteError(null); }}
             style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
             cancel
           </button>
+          {deleteError && (
+            <span className="hl-mono" style={{ fontSize: 9.5, color: 'var(--danger)', letterSpacing: '0.1em' }}>{deleteError}</span>
+          )}
         </div>
       )}
     </li>

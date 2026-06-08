@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { UserMenu } from '../loom/components/Frame';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeColor } from '../loom/dye';
@@ -33,6 +34,7 @@ export function LetterRoom() {
   const [searchParams] = useSearchParams();
   const wantId = searchParams.get('id');
   const [expandedId, setExpandedId] = useState<string | null>(wantId);
+  const [fullBodies, setFullBodies] = useState<Record<string, string>>({});
 
   const { data, isLoading } = useQuery({
     queryKey: ['letters'],
@@ -51,12 +53,26 @@ export function LetterRoom() {
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [wantId, letters.length]);
 
+  // Fetch full body when a letter is expanded
+  useEffect(() => {
+    if (!expandedId) return;
+    if (fullBodies[expandedId]) return; // already fetched
+    lettersApi.getOne(expandedId)
+      .then((r) => {
+        const body = r.data?.body ?? '';
+        if (body) setFullBodies((prev) => ({ ...prev, [expandedId]: body }));
+      })
+      .catch(() => {
+        // silently fall back to bodyPreview
+      });
+  }, [expandedId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const topbarLeft = (
     <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'letters' }]} />
   );
 
   return (
-    <ClothShell topbarLeft={topbarLeft}>
+    <ClothShell topbarLeft={topbarLeft} topbarRight={<UserMenu />}>
       {/* Hairline loading bar */}
       <div
         aria-hidden
@@ -111,6 +127,7 @@ export function LetterRoom() {
             const recipientName = letter.recipients?.[0]?.name ?? null;
             const isExpanded = expandedId === letter.id;
             const status = statusLabel(letter);
+            const isSealed = !!letter.sealedAt;
 
             return (
               <div
@@ -118,7 +135,7 @@ export function LetterRoom() {
                 id={`letter-${letter.id}`}
                 style={{
                   borderLeft: `3px solid ${dye}`,
-                  borderBottom: '1px solid rgba(244,236,216,0.06)',
+                  borderBottom: '1px solid var(--rule)',
                   padding: '10px 14px',
                   transition: `background 180ms ${EASE}`,
                 }}
@@ -127,7 +144,7 @@ export function LetterRoom() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{
                     fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.18em',
-                    textTransform: 'uppercase', color: 'rgba(244,236,216,0.35)',
+                    textTransform: 'uppercase', color: 'var(--bone-faint)',
                   }}>
                     {recipientName ? `to: ${recipientName}` : 'no recipient'} · {status}
                   </span>
@@ -142,31 +159,33 @@ export function LetterRoom() {
                         display: 'inline-flex', alignItems: 'center',
                         cursor: 'pointer',
                         fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em',
-                        textTransform: 'uppercase', color: 'rgba(244,236,216,0.4)',
-                        borderBottom: '1px solid rgba(244,236,216,0.15)',
+                        textTransform: 'uppercase', color: 'var(--bone-faint)',
+                        borderBottom: '1px solid var(--bone-faint)',
                       }}
                     >
                       {isExpanded ? 'close' : 'read'}
                     </button>
-                    <Link
-                      to={`/loom/compose-letter?id=${letter.id}`}
-                      style={{
-                        fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em',
-                        textTransform: 'uppercase', color: 'rgba(176,122,74,0.7)',
-                        textDecoration: 'none', borderBottom: '1px solid rgba(176,122,74,0.25)',
-                        padding: '12px 6px', minHeight: 44,
-                        display: 'inline-flex', alignItems: 'center',
-                      }}
-                    >
-                      edit
-                    </Link>
+                    {!isSealed && (
+                      <Link
+                        to={`/loom/compose-letter?id=${letter.id}`}
+                        style={{
+                          fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em',
+                          textTransform: 'uppercase', color: 'rgba(176,122,74,0.7)',
+                          textDecoration: 'none', borderBottom: '1px solid rgba(176,122,74,0.25)',
+                          padding: '12px 6px', minHeight: 44,
+                          display: 'inline-flex', alignItems: 'center',
+                        }}
+                      >
+                        edit
+                      </Link>
+                    )}
                   </div>
                 </div>
 
                 {/* Title */}
                 <p style={{
                   fontFamily: 'var(--serif)', fontSize: 13, fontStyle: 'italic',
-                  fontWeight: 300, color: 'rgba(244,236,216,0.55)', lineHeight: 1.5, margin: '4px 0 0',
+                  fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.5, margin: '4px 0 0',
                 }}>
                   {letter.salutation || letter.title}
                 </p>
@@ -175,7 +194,7 @@ export function LetterRoom() {
                 {letter.scheduledDate && (
                   <span style={{
                     fontFamily: 'var(--mono)', fontSize: 8, letterSpacing: '0.14em',
-                    textTransform: 'uppercase', color: 'rgba(244,236,216,0.2)',
+                    textTransform: 'uppercase', color: 'var(--bone-faint)',
                     display: 'block', marginTop: 3,
                   }}>
                     delivery: {new Date(letter.scheduledDate).toLocaleDateString()}
@@ -187,7 +206,7 @@ export function LetterRoom() {
                   <div
                     style={{
                       marginTop: 12, paddingTop: 12,
-                      borderTop: '1px solid rgba(244,236,216,0.08)',
+                      borderTop: '1px solid var(--rule)',
                       animation: `hl-fade 360ms ${EASE}`,
                     }}
                   >
@@ -195,7 +214,7 @@ export function LetterRoom() {
                       fontFamily: 'var(--serif)', fontSize: 15, fontWeight: 300,
                       color: 'var(--bone-dim)', lineHeight: 1.75, margin: 0, whiteSpace: 'pre-wrap',
                     }}>
-                      {letter.bodyPreview}
+                      {fullBodies[letter.id] || letter.bodyPreview}
                     </p>
                   </div>
                 )}

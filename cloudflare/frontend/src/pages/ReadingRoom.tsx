@@ -190,13 +190,19 @@ function ReadingContent({
                 onClick={() => onJump(i)}
                 aria-label={`Go to entry ${i + 1}`}
                 style={{
+                  background: 'transparent',
+                  border: 'none', padding: '21px 8px', cursor: 'pointer',
+                  flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >
+                <span style={{
+                  display: 'block',
                   width: i === activeIndex ? 20 : 6, height: 2,
                   background: i === activeIndex ? dye : 'rgba(244,236,216,0.18)',
                   transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
-                  border: 'none', padding: 0, cursor: 'pointer',
                   flexShrink: 0,
-                }}
-              />
+                }} />
+              </button>
             ))}
           </div>
 
@@ -333,13 +339,16 @@ export function ReadingRoom() {
           <BookView entries={entries} threadName={user?.firstName ? `${who}'s thread` : 'your thread'} />
         </div>
         <button
+          type="button"
           onClick={() => setView('wall')}
+          aria-label="Back to wall view"
           style={{
             position: 'fixed', top: 20, left: 28, zIndex: 20,
             background: 'transparent', border: 0,
             fontFamily: 'var(--mono)', fontSize: 10,
             letterSpacing: '0.22em', textTransform: 'uppercase',
             color: 'var(--bone-faint)', cursor: 'pointer',
+            minHeight: 44, display: 'flex', alignItems: 'center',
           }}
         >
           ← wall
@@ -432,15 +441,17 @@ export function ReadingRoom() {
       >
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           {entries.map((th, i) => (
-            <div
+            <button
               key={th.id}
+              type="button"
               onClick={() => handleSelect(i)}
               style={{
-                flex: 1, cursor: 'pointer',
+                flex: 1, cursor: 'pointer', background: 'transparent', border: 0,
                 display: 'flex', alignItems: 'center', overflow: 'hidden',
                 borderLeft: `3px solid ${dyeVar(th.dye)}`,
                 opacity: i === active ? 1 : 0.28,
                 transition: `opacity 180ms ${EASE}`,
+                textAlign: 'left', width: '100%', padding: 0,
               }}
             >
               <div style={{
@@ -461,7 +472,7 @@ export function ReadingRoom() {
                   {th.kind} · {th.who} · {th.year}
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>

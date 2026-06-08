@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { emailVerificationApi } from '../services/api';
+import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
 
 export function VerifyEmail() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
+  const { isAuthenticated } = useAuthStore();
 
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'no-token'>('loading');
   const [message, setMessage] = useState('');
@@ -20,9 +22,12 @@ export function VerifyEmail() {
       return;
     }
 
+    const controller = new AbortController();
+
     const verifyEmail = async () => {
       try {
         const response = await emailVerificationApi.verifyEmail(token);
+        if (controller.signal.aborted) return;
         if (response.data.success) {
           setStatus('success');
           setMessage('Your email has been verified successfully!');
@@ -31,15 +36,21 @@ export function VerifyEmail() {
           setMessage(response.data.error || 'Verification failed.');
         }
       } catch (error: any) {
+        if (controller.signal.aborted) return;
         setStatus('error');
         setMessage(error.response?.data?.error || 'Verification failed. The link may have expired.');
       }
     };
 
     verifyEmail();
+    return () => controller.abort();
   }, [token]);
 
   const handleResendVerification = async () => {
+    if (!isAuthenticated) {
+      setResendStatus('error');
+      return;
+    }
     setIsResending(true);
     setResendStatus('idle');
     try {

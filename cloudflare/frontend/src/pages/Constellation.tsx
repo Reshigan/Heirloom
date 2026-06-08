@@ -30,6 +30,7 @@ export function Constellation() {
   const [kin, setKin] = useState<KinEntry[]>([]);
   const [hovered, setHovered] = useState<number | null>(null);
   const [resonances, setResonances] = useState<{ year: number; memberIds: string[] }[]>([]);
+  const [error, setError] = useState(false);
   const minYear = 1890;
 
   useEffect(() => {
@@ -103,7 +104,7 @@ export function Constellation() {
         picks: res.filter(r => r.memberIds.includes(m.id)).map(r => r.year),
       }));
       setKin(mapped);
-    }).catch(() => {});
+    }).catch(() => { setError(true); });
   }, [isAuthenticated, user?.id, user?.defaultThreadId]);
   const maxYear = 2070;
   const today = new Date().getFullYear();
@@ -224,7 +225,7 @@ export function Constellation() {
               />
             ))}
 
-            {kin.length === 0 ? (
+            {!error && kin.length === 0 ? (
               <div style={{
                 position: 'absolute', inset: 0, display: 'flex',
                 alignItems: 'center', justifyContent: 'center',
@@ -247,6 +248,9 @@ export function Constellation() {
                 return (
                   <Fragment key={i}>
                     <div
+                      tabIndex={0}
+                      role="img"
+                      aria-label={`${k.name}, born ${k.born}${k.died ? `, died ${k.died}` : ', living'}`}
                       onMouseEnter={() => setHovered(i)}
                       onMouseLeave={() => setHovered(null)}
                       style={{
@@ -260,7 +264,6 @@ export function Constellation() {
                           : isLit
                             ? 'var(--bone)'
                             : 'var(--bone-dim)',
-                        boxShadow: k.you ? '0 0 8px rgba(207,147,90,0.4)' : 'none',
                         cursor: 'pointer',
                         transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
                       }}
@@ -301,7 +304,7 @@ export function Constellation() {
                         left: `${xOf(k.born)}%`,
                         top: top - 26,
                         transform: 'translateX(-2px)',
-                        fontFamily: "'Source Serif 4', serif",
+                        fontFamily: 'var(--serif)',
                         fontVariationSettings: "'opsz' 28",
                         fontSize: 15,
                         fontWeight: 400,
@@ -321,7 +324,7 @@ export function Constellation() {
                         position: 'absolute',
                         left: `${xOf(k.born)}%`,
                         top: top + 8,
-                        fontFamily: "'JetBrains Mono', monospace",
+                        fontFamily: 'var(--mono)',
                         fontSize: 9,
                         letterSpacing: '0.04em',
                         color: 'var(--bone-faint)',
@@ -334,6 +337,12 @@ export function Constellation() {
               })
             )}
           </div>
+
+          {error && (
+            <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 12, margin: '8px 0 0' }}>
+              could not load constellation
+            </p>
+          )}
 
           <div
             style={{

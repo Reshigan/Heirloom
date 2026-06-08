@@ -31,13 +31,17 @@ export function TiedOff() {
   const { isAuthenticated } = useAuthStore();
   const [locked, setLocked] = useState<TiedEntry[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) return;
     setLoading(true);
+    setError(null);
+    const controller = new AbortController();
     lettersApi
       .getAll({ limit: 100 })
       .then((r) => {
+        if (controller.signal.aborted) return;
         const raw: any[] = Array.isArray(r.data?.data)
           ? r.data.data
           : Array.isArray(r.data)
@@ -73,8 +77,9 @@ export function TiedOff() {
 
         setLocked(future);
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch((err) => { if (err.name !== 'AbortError') setError('could not load sealed threads'); })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
   }, [isAuthenticated]);
 
   return (
@@ -86,13 +91,16 @@ export function TiedOff() {
         style={{
           position: 'absolute',
           inset: 0,
-          padding: '44px 80px 0',
+          padding: `44px clamp(24px, 6vw, 80px) 0`,
           display: 'grid',
           gridTemplateRows: 'auto auto 1fr',
           gap: 32,
         }}
       >
         <div>
+          {error && (
+            <p className="loom-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>{error}</p>
+          )}
           <div className="loom-eyebrow">
             tied off ·{' '}
             {loading
@@ -180,7 +188,7 @@ export function TiedOff() {
               <div
                 style={{
                   color: 'var(--warm)',
-                  fontFamily: "'Source Serif 4', serif",
+                  fontFamily: 'var(--serif)',
                   fontSize: 18,
                   lineHeight: 1,
                 }}
@@ -276,7 +284,7 @@ function TiedCard({ date, recip, years, kind }: Omit<TiedEntry, 'weft' | 'id' | 
           background: 'var(--ink)',
           padding: '0 8px',
           color: 'var(--warm)',
-          fontFamily: "'Source Serif 4', serif",
+          fontFamily: 'var(--serif)',
           fontSize: 18,
           lineHeight: 1,
         }}

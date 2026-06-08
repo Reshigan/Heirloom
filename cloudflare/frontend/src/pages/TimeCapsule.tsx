@@ -221,6 +221,7 @@ export function TimeCapsule() {
   const queryClient = useQueryClient();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedCapsule, setSelectedCapsule] = useState<string | null>(null);
+  const [createError, setCreateError] = useState<string | null>(null);
   const [newCapsule, setNewCapsule] = useState({
     title: '',
     description: '',
@@ -238,6 +239,7 @@ export function TimeCapsule() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['capsules'] });
       setShowCreateModal(false);
+      setCreateError(null);
       setNewCapsule({
         title: '',
         description: '',
@@ -245,6 +247,7 @@ export function TimeCapsule() {
         cover_style: 'classic',
       });
     },
+    onError: (e: any) => setCreateError(e?.response?.data?.error ?? 'could not create capsule'),
   });
 
   const backLink = (
@@ -378,7 +381,7 @@ export function TimeCapsule() {
                         </p>
                       )}
                       <Link
-                        to="/compose"
+                        to={`/compose?capsuleId=${capsule.id}`}
                         style={{
                           fontFamily: 'var(--mono)',
                           fontSize: 9,
@@ -589,6 +592,11 @@ export function TimeCapsule() {
               </div>
             </div>
 
+            {createError && (
+              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '16px 0 0' }}>
+                {createError}
+              </p>
+            )}
             <div
               style={{
                 display: 'flex',

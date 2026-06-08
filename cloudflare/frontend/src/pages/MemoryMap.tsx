@@ -36,7 +36,7 @@ export function MemoryMap() {
   const [filter, setFilter] = useState<Filter>('all');
   const [selectedMemory, setSelectedMemory] = useState<MapMemory | null>(null);
 
-  const { data: mapData, isLoading } = useQuery({
+  const { data: mapData, isLoading, isError } = useQuery({
     queryKey: ['memory-map', filter],
     queryFn: () =>
       memoriesApi
@@ -107,7 +107,7 @@ export function MemoryMap() {
                 borderRadius: 0,
                 padding: '6px 14px',
                 cursor: 'pointer',
-                fontFamily: "'JetBrains Mono', monospace",
+                fontFamily: 'var(--mono)',
                 fontSize: 10,
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
@@ -120,6 +120,12 @@ export function MemoryMap() {
             </button>
           ))}
         </div>
+
+        {isError && (
+          <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 12, margin: '0 0 24px' }}>
+            could not load places
+          </p>
+        )}
 
         {isLoading ? (
           <div style={{ padding: '64px 0', display: 'flex', justifyContent: 'center' }}>
@@ -190,27 +196,31 @@ export function MemoryMap() {
 
             {/* Location list */}
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {locations.map(({ name, count }) => (
-                <li key={name}>
-                  <Link
-                    to={`/loom/read?location=${encodeURIComponent(name)}`}
-                    style={{ textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderBottom: '1px solid var(--rule)', paddingTop: 14, paddingBottom: 14 }}
-                  >
-                    <span
-                      className="hl-serif"
-                      style={{ fontSize: 15, fontWeight: 300, color: 'var(--bone)' }}
+              {locations.map(({ name, count }) => {
+                const firstMatch = memories.find((m) => (m.location_name || 'Unknown') === name) ?? null;
+                return (
+                  <li key={name}>
+                    <Link
+                      to={`/loom/read?location=${encodeURIComponent(name)}`}
+                      onClick={(e) => { if (firstMatch) { e.preventDefault(); setSelectedMemory(firstMatch); } }}
+                      style={{ textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderBottom: '1px solid var(--rule)', paddingTop: 14, paddingBottom: 14 }}
                     >
-                      {name}
-                    </span>
-                    <span
-                      className="hl-mono"
-                      style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em' }}
-                    >
-                      {count}
-                    </span>
-                  </Link>
-                </li>
-              ))}
+                      <span
+                        className="hl-serif"
+                        style={{ fontSize: 15, fontWeight: 300, color: 'var(--bone)' }}
+                      >
+                        {name}
+                      </span>
+                      <span
+                        className="hl-mono"
+                        style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em' }}
+                      >
+                        {count}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
 
             {/* Footer note */}
@@ -280,9 +290,11 @@ export function MemoryMap() {
                     marginTop: 16,
                     background: 'transparent',
                     border: 0,
-                    padding: 0,
+                    padding: '12px 0',
+                    minWidth: 44,
+                    minHeight: 44,
                     cursor: 'pointer',
-                    fontFamily: "'JetBrains Mono', monospace",
+                    fontFamily: 'var(--mono)',
                     fontSize: 10,
                     letterSpacing: '0.14em',
                     color: 'var(--bone-faint)',

@@ -25,6 +25,9 @@ export function ThreadDetail() {
   const queryClient = useQueryClient();
 
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [confirmRevokeId, setConfirmRevokeId] = useState<string | null>(null);
+  const [revokeError, setRevokeError] = useState<string | null>(null);
+  const [designateError, setDesignateError] = useState<string | null>(null);
   const [inviteName, setInviteName] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRelation, setInviteRelation] = useState('');
@@ -89,17 +92,22 @@ export function ThreadDetail() {
   const revoke = useMutation({
     mutationFn: (memberId: string) => threadsApi.revokeMember(threadId, memberId),
     onSuccess: () => {
+      setConfirmRevokeId(null);
+      setRevokeError(null);
       queryClient.invalidateQueries({ queryKey: ['thread', threadId, 'members'] });
       queryClient.invalidateQueries({ queryKey: ['thread', threadId, 'successors'] });
     },
+    onError: (err: any) => setRevokeError(err?.response?.data?.error ?? 'could not revoke membership'),
   });
 
   const designate = useMutation({
     mutationFn: (memberIdAndRank: { successor_member_id: string; rank: number }) =>
       threadsApi.designateSuccessor(threadId, memberIdAndRank),
     onSuccess: () => {
+      setDesignateError(null);
       queryClient.invalidateQueries({ queryKey: ['thread', threadId, 'successors'] });
     },
+    onError: (err: any) => setDesignateError(err?.response?.data?.error ?? 'could not designate successor'),
   });
 
   const threadName = detail?.thread.name;
@@ -534,21 +542,43 @@ export function ThreadDetail() {
                               </p>
                             ) : null}
                             {canGovern && m.role !== 'FOUNDER' ? (
-                              <div style={{ display: 'flex', gap: 16, marginTop: 8 }}>
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    if (confirm(`Revoke ${m.display_name}'s membership? Their past entries stay attributed to them; they lose future access.`)) {
-                                      revoke.mutate(m.id);
-                                    }
-                                  }}
-                                  disabled={revoke.isPending}
-                                  style={ghostActionStyle}
-                                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; }}
-                                  onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
-                                >
-                                  revoke
-                                </button>
+                              <div style={{ display: 'flex', gap: 16, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                                {confirmRevokeId === m.id ? (
+                                  <>
+                                    <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                                      revoke access?
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => revoke.mutate(m.id)}
+                                      disabled={revoke.isPending}
+                                      style={{ ...ghostActionStyle, color: 'var(--danger)' }}
+                                    >
+                                      {revoke.isPending ? 'revoking…' : 'confirm'}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => { setConfirmRevokeId(null); setRevokeError(null); }}
+                                      style={ghostActionStyle}
+                                    >
+                                      cancel
+                                    </button>
+                                    {revokeError && (
+                                      <span className="hl-mono" style={{ fontSize: 9.5, color: 'var(--danger)', letterSpacing: '0.1em' }}>{revokeError}</span>
+                                    )}
+                                  </>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => { setConfirmRevokeId(m.id); setRevokeError(null); }}
+                                    disabled={revoke.isPending}
+                                    style={ghostActionStyle}
+                                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; }}
+                                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+                                  >
+                                    revoke
+                                  </button>
+                                )}
                                 {m.role !== 'SUCCESSOR' && m.role !== 'PLACEHOLDER' ? (
                                   <button
                                     type="button"
@@ -563,6 +593,9 @@ export function ThreadDetail() {
                                     make successor
                                   </button>
                                 ) : null}
+                                {designateError && (
+                                  <span className="hl-mono" style={{ fontSize: 9.5, color: 'var(--danger)', letterSpacing: '0.1em' }}>{designateError}</span>
+                                )}
                               </div>
                             ) : null}
                           </div>

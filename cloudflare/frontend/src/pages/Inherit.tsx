@@ -143,6 +143,7 @@ export function Inherit() {
   const [reactionMessage, setReactionMessage] = useState('');
   const [sendingReaction, setSendingReaction] = useState(false);
   const [reactionSent, setReactionSent] = useState(false);
+  const [reactionError, setReactionError] = useState<string | null>(null);
 
   const reactionOptions: ReactionOption[] = [
     { type: 'THANK_YOU', label: 'Thank you', description: 'Let them know this meant something to you' },
@@ -163,16 +164,26 @@ export function Inherit() {
   }, []);
 
   useEffect(() => {
-    validateToken();
+    const controller = new AbortController();
+    validateToken(controller.signal);
+    return () => controller.abort();
   }, [token]);
 
   useEffect(() => {
     if (sessionToken) {
-      fetchContent();
+      const controller = new AbortController();
+      fetchContent(controller.signal);
+      return () => controller.abort();
     }
   }, [sessionToken]);
 
-  const validateToken = async () => {
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+    };
+  }, []);
+
+  const validateToken = async (signal?: AbortSignal) => {
     if (!token) {
       setError('No access token provided');
       setLoading(false);
@@ -180,7 +191,8 @@ export function Inherit() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/inherit/${token}`);
+      const response = await fetch(`${API_URL}/api/inherit/${token}`, { signal });
+      if (signal?.aborted) return;
       const data = await response.json();
 
       if (!response.ok) {
@@ -193,13 +205,14 @@ export function Inherit() {
       setOwnerName(data.owner.name);
       setRecipientName(data.recipient.name);
       setRelationship(data.recipient.relationship);
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.name === 'AbortError') return;
       setError('Failed to validate access link');
       setLoading(false);
     }
   };
 
-  const fetchContent = async () => {
+  const fetchContent = async (signal?: AbortSignal) => {
     if (!sessionToken) return;
 
     try {
@@ -207,7 +220,9 @@ export function Inherit() {
         headers: {
           'Authorization': `Bearer ${sessionToken}`,
         },
+        signal,
       });
+      if (signal?.aborted) return;
       const data = await response.json();
 
       if (!response.ok) {
@@ -218,7 +233,8 @@ export function Inherit() {
 
       setContent(data);
       setLoading(false);
-    } catch (err) {
+    } catch (err: any) {
+      if (err?.name === 'AbortError') return;
       setError('Failed to load content');
       setLoading(false);
     }
@@ -330,6 +346,7 @@ export function Inherit() {
       }, 2000);
     } catch (err) {
       console.error('Failed to send reaction:', err);
+      setReactionError('could not send note — please try again');
     } finally {
       setSendingReaction(false);
     }
@@ -1297,9 +1314,17 @@ export function Inherit() {
                   </div>
                 ) : null}
 
+                {reactionError && (
+                  <p
+                    className="hl-mono"
+                    style={{ fontSize: 11, color: 'var(--danger)', margin: '0 0 12px', letterSpacing: '0.12em' }}
+                  >
+                    {reactionError}
+                  </p>
+                )}
                 <button
                   type="button"
-                  onClick={sendReaction}
+                  onClick={() => { setReactionError(null); sendReaction(); }}
                   disabled={sendingReaction || (!selectedReaction && !reactionMessage.trim())}
                   className="hl-btn"
                   style={{

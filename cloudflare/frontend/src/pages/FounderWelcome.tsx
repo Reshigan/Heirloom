@@ -18,7 +18,13 @@ export function FounderWelcome() {
   useEffect(() => { const t = setTimeout(() => setVisible(true), 60); return () => clearTimeout(t); }, []);
 
   const rawNumber = params.get('pledgeNumber');
-  const name = params.get('name') ?? 'Founder';
+  const name = (() => {
+    try {
+      return decodeURIComponent(params.get('name') ?? 'Founder');
+    } catch {
+      return 'Founder';
+    }
+  })();
 
   // Pad to 4 digits: "0001", "0042", etc.
   const pledgeDisplay = rawNumber

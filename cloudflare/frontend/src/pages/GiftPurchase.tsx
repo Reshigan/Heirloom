@@ -52,6 +52,10 @@ export function GiftPurchase() {
       setFormError('your email address is required.');
       return;
     }
+    if (!formData.recipientEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.recipientEmail)) {
+      setFormError('valid recipient email required');
+      return;
+    }
     setFormError(null);
     setIsLoading(true);
     try {
@@ -93,6 +97,7 @@ export function GiftPurchase() {
     >
       {/* Content */}
       <div style={{ padding: '64px 56px' }}>
+        <form onSubmit={(e) => { e.preventDefault(); handlePurchase(); }}>
         <div style={{ maxWidth: 680, margin: '0 auto' }}>
 
           {/* H1 */}
@@ -101,7 +106,7 @@ export function GiftPurchase() {
             style={{
               fontSize: 48,
               fontWeight: 300,
-              color: 'var(--parchment-ink)',
+              color: 'var(--bone)',
               margin: '0 0 32px',
               letterSpacing: '-0.022em',
               lineHeight: 1.08,
@@ -116,7 +121,7 @@ export function GiftPurchase() {
               display: 'flex',
               gap: 0,
               marginBottom: 28,
-              borderBottom: '1px solid var(--parchment-rule)',
+              borderBottom: '1px solid var(--rule)',
             }}
           >
             {(['quarterly', 'yearly'] as const).map((cycle) => (
@@ -138,8 +143,8 @@ export function GiftPurchase() {
                   textTransform: 'uppercase',
                   color:
                     billingCycle === cycle
-                      ? 'var(--parchment-ink)'
-                      : 'var(--parchment-faint)',
+                      ? 'var(--bone)'
+                      : 'var(--bone-faint)',
                   cursor: 'pointer',
                   transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
                 }}
@@ -193,9 +198,9 @@ export function GiftPurchase() {
                     padding: '16px 18px',
                     cursor: 'pointer',
                     background: isSelected ? 'var(--ink)' : 'transparent',
-                    color: isSelected ? 'var(--bone)' : 'var(--parchment-ink)',
-                    border: '1px solid var(--parchment-rule)',
-                    borderLeft: isFirst ? '1px solid var(--parchment-rule)' : 'none',
+                    color: isSelected ? 'var(--bone)' : 'var(--bone)',
+                    border: '1px solid var(--rule)',
+                    borderLeft: isFirst ? '1px solid var(--rule)' : 'none',
                     outline: 'none',
                     transition:
                       'background 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
@@ -207,7 +212,7 @@ export function GiftPurchase() {
                       fontSize: 10,
                       letterSpacing: '0.28em',
                       textTransform: 'uppercase',
-                      color: isSelected ? 'var(--bone-dim)' : 'var(--parchment-dim)',
+                      color: isSelected ? 'var(--bone-dim)' : 'var(--bone-dim)',
                       marginBottom: 8,
                     }}
                   >
@@ -229,7 +234,7 @@ export function GiftPurchase() {
                     style={{
                       fontStyle: 'italic',
                       fontSize: 14,
-                      color: isSelected ? 'var(--bone-dim)' : 'var(--parchment-dim)',
+                      color: isSelected ? 'var(--bone-dim)' : 'var(--bone-dim)',
                       marginBottom: 10,
                     }}
                   >
@@ -241,7 +246,7 @@ export function GiftPurchase() {
                       fontSize: 28,
                       fontWeight: 300,
                       lineHeight: 1,
-                      color: isSelected ? 'var(--bone)' : 'var(--parchment-ink)',
+                      color: isSelected ? 'var(--bone)' : 'var(--bone)',
                     }}
                   >
                     {tier[billingCycle].display}
@@ -252,7 +257,7 @@ export function GiftPurchase() {
                       fontSize: 9,
                       letterSpacing: '0.2em',
                       textTransform: 'uppercase',
-                      color: isSelected ? 'var(--bone-faint)' : 'var(--parchment-faint)',
+                      color: isSelected ? 'var(--bone-faint)' : 'var(--bone-faint)',
                       marginTop: 4,
                     }}
                   >
@@ -270,7 +275,7 @@ export function GiftPurchase() {
             style={{
               height: 1,
               border: 0,
-              background: 'var(--parchment-rule)',
+              background: 'var(--rule)',
               margin: '0 0 28px',
             }}
           />
@@ -284,7 +289,7 @@ export function GiftPurchase() {
                 fontSize: 10,
                 letterSpacing: '0.24em',
                 textTransform: 'uppercase',
-                color: 'var(--parchment-dim)',
+                color: 'var(--bone-dim)',
                 marginBottom: 8,
               }}
             >
@@ -301,11 +306,11 @@ export function GiftPurchase() {
                 width: '100%',
                 background: 'transparent',
                 border: 0,
-                borderBottom: '1px solid var(--parchment-rule)',
+                borderBottom: '1px solid var(--rule)',
                 padding: '10px 0',
                 fontFamily: 'var(--serif)',
                 fontSize: 17,
-                color: 'var(--parchment-ink)',
+                color: 'var(--bone)',
                 outline: 'none',
                 boxSizing: 'border-box',
               }}
@@ -321,7 +326,7 @@ export function GiftPurchase() {
                 fontSize: 10,
                 letterSpacing: '0.24em',
                 textTransform: 'uppercase',
-                color: 'var(--parchment-dim)',
+                color: 'var(--bone-dim)',
                 marginBottom: 8,
               }}
             >
@@ -338,11 +343,11 @@ export function GiftPurchase() {
                 width: '100%',
                 background: 'transparent',
                 border: 0,
-                borderBottom: '1px solid var(--parchment-rule)',
+                borderBottom: '1px solid var(--rule)',
                 padding: '10px 0',
                 fontFamily: 'var(--serif)',
                 fontSize: 17,
-                color: 'var(--parchment-ink)',
+                color: 'var(--bone)',
                 outline: 'none',
                 boxSizing: 'border-box',
               }}
@@ -358,7 +363,7 @@ export function GiftPurchase() {
                 fontSize: 10,
                 letterSpacing: '0.24em',
                 textTransform: 'uppercase',
-                color: 'var(--parchment-dim)',
+                color: 'var(--bone-dim)',
                 marginBottom: 8,
               }}
             >
@@ -374,11 +379,11 @@ export function GiftPurchase() {
                 width: '100%',
                 background: 'transparent',
                 border: 0,
-                borderBottom: '1px solid var(--parchment-rule)',
+                borderBottom: '1px solid var(--rule)',
                 padding: '10px 0',
                 fontFamily: 'var(--serif)',
                 fontSize: 17,
-                color: 'var(--parchment-ink)',
+                color: 'var(--bone)',
                 outline: 'none',
                 resize: 'none',
                 minHeight: 100,
@@ -392,7 +397,7 @@ export function GiftPurchase() {
             style={{
               height: 1,
               border: 0,
-              background: 'var(--parchment-rule)',
+              background: 'var(--rule)',
               margin: '10px 0 28px',
             }}
           />
@@ -405,7 +410,7 @@ export function GiftPurchase() {
                 fontSize: 10,
                 letterSpacing: '0.24em',
                 textTransform: 'uppercase',
-                color: 'var(--parchment-dim)',
+                color: 'var(--bone-dim)',
                 marginBottom: 8,
               }}
             >
@@ -423,11 +428,11 @@ export function GiftPurchase() {
                 width: '100%',
                 background: 'transparent',
                 border: 0,
-                borderBottom: '1px solid var(--parchment-rule)',
+                borderBottom: '1px solid var(--rule)',
                 padding: '10px 0',
                 fontFamily: 'var(--serif)',
                 fontSize: 17,
-                color: 'var(--parchment-ink)',
+                color: 'var(--bone)',
                 outline: 'none',
                 boxSizing: 'border-box',
               }}
@@ -442,7 +447,7 @@ export function GiftPurchase() {
                 fontSize: 10,
                 letterSpacing: '0.24em',
                 textTransform: 'uppercase',
-                color: 'var(--parchment-dim)',
+                color: 'var(--bone-dim)',
                 marginBottom: 8,
               }}
             >
@@ -459,11 +464,11 @@ export function GiftPurchase() {
                 width: '100%',
                 background: 'transparent',
                 border: 0,
-                borderBottom: '1px solid var(--parchment-rule)',
+                borderBottom: '1px solid var(--rule)',
                 padding: '10px 0',
                 fontFamily: 'var(--serif)',
                 fontSize: 17,
-                color: 'var(--parchment-ink)',
+                color: 'var(--bone)',
                 outline: 'none',
                 boxSizing: 'border-box',
               }}
@@ -477,7 +482,7 @@ export function GiftPurchase() {
               justifyContent: 'space-between',
               alignItems: 'baseline',
               paddingTop: 20,
-              borderTop: '1px solid var(--parchment-rule)',
+              borderTop: '1px solid var(--rule)',
               marginTop: 8,
             }}
           >
@@ -487,7 +492,7 @@ export function GiftPurchase() {
                 fontSize: 10,
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
-                color: 'var(--parchment-dim)',
+                color: 'var(--bone-dim)',
               }}
             >
               {selectedPricing?.name ?? '—'} &middot;{' '}
@@ -509,7 +514,7 @@ export function GiftPurchase() {
               style={{
                 fontSize: 10,
                 letterSpacing: '0.12em',
-                color: 'var(--warm)',
+                color: 'var(--danger)',
                 marginTop: 12,
                 marginBottom: 0,
               }}
@@ -520,7 +525,7 @@ export function GiftPurchase() {
 
           {/* CTA */}
           <button
-            onClick={handlePurchase}
+            type="submit"
             disabled={isLoading || !formData.purchaserEmail}
             className="hl-btn"
             style={{
@@ -538,7 +543,7 @@ export function GiftPurchase() {
               textAlign: 'center',
               fontSize: 9,
               letterSpacing: '0.18em',
-              color: 'var(--parchment-faint)',
+              color: 'var(--bone-faint)',
               marginTop: 16,
             }}
           >
@@ -546,6 +551,7 @@ export function GiftPurchase() {
           </p>
 
         </div>
+        </form>
       </div>
     </ClothShell>
   );

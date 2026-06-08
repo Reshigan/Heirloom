@@ -121,7 +121,7 @@ export function GiftRedeem() {
                   fontSize: 48,
                   fontWeight: 300,
                   fontStyle: 'italic',
-                  color: 'var(--parchment-ink)',
+                  color: 'var(--bone)',
                   margin: '0 0 20px',
                   lineHeight: 1.06,
                 }}
@@ -132,7 +132,7 @@ export function GiftRedeem() {
                 style={{
                   fontFamily: 'var(--serif)',
                   fontSize: 15,
-                  color: 'var(--parchment-dim)',
+                  color: 'var(--bone-dim)',
                   margin: '0 0 40px',
                   lineHeight: 1.7,
                   fontWeight: 300,
@@ -159,7 +159,7 @@ export function GiftRedeem() {
                 style={{
                   fontSize: 48,
                   fontWeight: 300,
-                  color: 'var(--parchment-ink)',
+                  color: 'var(--bone)',
                   margin: '0 0 28px',
                   lineHeight: 1.06,
                 }}
@@ -186,11 +186,11 @@ export function GiftRedeem() {
                   width: '100%',
                   background: 'transparent',
                   border: 'none',
-                  borderBottom: '1px solid var(--parchment-rule)',
+                  borderBottom: '1px solid var(--rule)',
                   outline: 'none',
                   padding: '8px 0',
                   marginBottom: 24,
-                  color: 'var(--parchment-ink)',
+                  color: 'var(--bone)',
                   fontFamily: 'var(--mono)',
                 }}
                 autoComplete="off"
@@ -205,7 +205,7 @@ export function GiftRedeem() {
                   style={{
                     fontSize: 10,
                     letterSpacing: '0.08em',
-                    color: 'var(--warm)',
+                    color: 'var(--danger)',
                     margin: '0 0 20px',
                     textAlign: 'center',
                   }}
@@ -219,7 +219,7 @@ export function GiftRedeem() {
                 <div
                   style={{
                     textAlign: 'left',
-                    borderTop: '1px solid var(--parchment-rule)',
+                    borderTop: '1px solid var(--rule)',
                     paddingTop: 28,
                     marginBottom: 28,
                   }}
@@ -236,13 +236,13 @@ export function GiftRedeem() {
                       style={{
                         fontFamily: 'var(--serif)',
                         fontSize: 15,
-                        color: 'var(--parchment-dim)',
+                        color: 'var(--bone-dim)',
                         marginBottom: 16,
                         fontWeight: 300,
                       }}
                     >
                       from{' '}
-                      <span style={{ color: 'var(--parchment-ink)' }}>
+                      <span style={{ color: 'var(--bone)' }}>
                         {voucherInfo.fromName}
                       </span>
                     </p>
@@ -260,7 +260,7 @@ export function GiftRedeem() {
                         style={{
                           fontFamily: 'var(--serif)',
                           fontStyle: 'italic',
-                          color: 'var(--parchment-dim)',
+                          color: 'var(--bone-dim)',
                           fontSize: 14,
                           lineHeight: 1.7,
                           margin: 0,
@@ -284,7 +284,7 @@ export function GiftRedeem() {
                           display: 'flex',
                           justifyContent: 'space-between',
                           padding: '10px 0',
-                          borderBottom: '1px solid var(--parchment-rule)',
+                          borderBottom: '1px solid var(--rule)',
                         }}
                       >
                         <span
@@ -293,7 +293,7 @@ export function GiftRedeem() {
                             fontSize: 10,
                             letterSpacing: '0.14em',
                             textTransform: 'uppercase',
-                            color: 'var(--parchment-faint)',
+                            color: 'var(--bone-faint)',
                           }}
                         >
                           {label}
@@ -302,7 +302,7 @@ export function GiftRedeem() {
                           style={{
                             fontFamily: 'var(--serif)',
                             fontSize: 14,
-                            color: 'var(--parchment-dim)',
+                            color: 'var(--bone-dim)',
                             fontWeight: 300,
                           }}
                         >
@@ -333,7 +333,7 @@ export function GiftRedeem() {
                           fontFamily: 'var(--mono)',
                           fontSize: 10,
                           letterSpacing: '0.08em',
-                          color: 'var(--parchment-faint)',
+                          color: 'var(--bone-faint)',
                           marginBottom: 16,
                         }}
                       >
@@ -347,7 +347,7 @@ export function GiftRedeem() {
                             flex: 1,
                             textAlign: 'center',
                             textDecoration: 'none',
-                            color: 'var(--parchment-ink)',
+                            color: 'var(--bone)',
                           }}
                         >
                           sign in

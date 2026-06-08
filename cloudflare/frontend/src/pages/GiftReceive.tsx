@@ -64,7 +64,7 @@ export function GiftReceive() {
     if (!token) return;
     if (!isAuthenticated) {
       localStorage.setItem('PENDING_GIFT_TOKEN', token);
-      navigate(`/signup?redirect=/gift-memory/${token}`);
+      navigate(`/signup?redirect=${encodeURIComponent(`/gift/receive?token=${token}`)}`);
       return;
     }
     setClaiming(true);
@@ -112,7 +112,7 @@ export function GiftReceive() {
               style={{
                 fontSize: 48,
                 fontWeight: 300,
-                color: 'var(--parchment-ink)',
+                color: 'var(--bone)',
                 margin: '0 0 20px',
               }}
             >
@@ -122,7 +122,7 @@ export function GiftReceive() {
               className="hl-prose dark"
               style={{
                 fontSize: 17,
-                color: 'var(--parchment-dim)',
+                color: 'var(--bone-dim)',
                 margin: '0 0 36px',
               }}
             >
@@ -174,7 +174,7 @@ export function GiftReceive() {
               style={{
                 fontSize: 48,
                 fontWeight: 300,
-                color: 'var(--parchment-ink)',
+                color: 'var(--bone)',
                 margin: '0 0 20px',
               }}
             >
@@ -184,7 +184,7 @@ export function GiftReceive() {
               className="hl-prose dark"
               style={{
                 fontSize: 17,
-                color: 'var(--parchment-dim)',
+                color: 'var(--bone-dim)',
                 margin: '0 0 36px',
                 lineHeight: 1.85,
               }}
@@ -218,7 +218,7 @@ export function GiftReceive() {
             style={{
               fontSize: 48,
               fontWeight: 300,
-              color: 'var(--parchment-ink)',
+              color: 'var(--bone)',
               margin: '0 0 20px',
             }}
           >
@@ -244,7 +244,7 @@ export function GiftReceive() {
                   style={{
                     fontSize: 16,
                     fontStyle: 'italic',
-                    color: 'var(--parchment-dim)',
+                    color: 'var(--bone-dim)',
                     margin: '0 0 12px',
                   }}
                 >
@@ -258,7 +258,7 @@ export function GiftReceive() {
                 className="hl-prose dark"
                 style={{
                   fontSize: 17,
-                  color: 'var(--parchment-dim)',
+                  color: 'var(--bone-dim)',
                   margin: 0,
                   lineHeight: 1.85,
                 }}
@@ -288,7 +288,7 @@ export function GiftReceive() {
                   style={{
                     fontSize: 18,
                     fontStyle: 'italic',
-                    color: 'var(--parchment-ink)',
+                    color: 'var(--bone)',
                     margin: '0 0 6px',
                   }}
                 >
@@ -299,7 +299,7 @@ export function GiftReceive() {
                     className="hl-mono"
                     style={{
                       fontSize: 12,
-                      color: 'var(--parchment-dim)',
+                      color: 'var(--bone-dim)',
                       margin: 0,
                       letterSpacing: '0.04em',
                     }}
@@ -319,7 +319,7 @@ export function GiftReceive() {
               className="hl-mono"
               style={{
                 fontSize: 11,
-                color: 'var(--dye-madder)',
+                color: 'var(--danger)',
                 letterSpacing: '0.04em',
                 marginBottom: 16,
               }}

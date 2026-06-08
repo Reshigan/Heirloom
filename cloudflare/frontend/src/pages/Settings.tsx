@@ -63,6 +63,10 @@ export function Settings() {
     if ((profileData as any).guardianEmail) setGuardianEmail((profileData as any).guardianEmail);
   }, [profileData]);
 
+  const [checkInError, setCheckInError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [notifError, setNotifError] = useState<string | null>(null);
+  const [guardianEmailError, setGuardianEmailError] = useState<string | null>(null);
   const [deleteStage, setDeleteStage] = useState<'idle' | 'confirm' | 'quote' | 'password' | 'archived'>('idle');
 
   // Letter guardian
@@ -129,7 +133,8 @@ export function Settings() {
   });
   const checkIn = useMutation({
     mutationFn: () => deadmanApi.checkIn(),
-    onSuccess: () => deadmanStatus.refetch(),
+    onSuccess: () => { setCheckInError(null); deadmanStatus.refetch(); },
+    onError: (err: any) => setCheckInError(err?.response?.data?.error ?? 'check-in failed'),
   });
   const dmStatus = (deadmanStatus.data ?? {}) as any;
 
@@ -174,7 +179,8 @@ export function Settings() {
       lastName,
       ...(profileData ? { birthDate, gender } : {}),
     }).then((r) => r.data),
-    onSuccess: () => { setSavedFlash(true); setTimeout(() => setSavedFlash(false), 2500); },
+    onSuccess: () => { setSaveError(null); setSavedFlash(true); setTimeout(() => setSavedFlash(false), 2500); },
+    onError: (err: any) => setSaveError(err?.response?.data?.error ?? 'save failed'),
   });
 
   const { data: notifData, refetch: refetchNotifs } = useQuery({
@@ -184,7 +190,8 @@ export function Settings() {
 
   const updateNotif = useMutation({
     mutationFn: (patch: Record<string, boolean>) => settingsApi.updateNotifications(patch),
-    onSuccess: () => refetchNotifs(),
+    onSuccess: () => { setNotifError(null); refetchNotifs(); },
+    onError: (err: any) => setNotifError(err?.response?.data?.error ?? 'could not update notification preference'),
   });
 
   const prefs = ((notifData as any)?.preferences ?? {}) as Record<string, boolean>;
@@ -241,12 +248,15 @@ export function Settings() {
           <p className="hl-serif" style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--bone-faint)', margin: '4px 0 0', lineHeight: 1.6 }}>
             Used only to tailor the Listener's prompts to your life — never shown to anyone, never required.
           </p>
-          <div style={{ padding: '12px 0', borderTop: '1px solid var(--rule)', display: 'flex', alignItems: 'center', gap: 16, marginBottom: 8 }}>
+          <div style={{ padding: '12px 0', borderTop: '1px solid var(--rule)', display: 'flex', alignItems: 'center', gap: 16, marginBottom: 8, flexWrap: 'wrap' }}>
             <button type="button" onClick={() => save.mutate()} disabled={save.isPending} className="hl-btn" style={{ fontSize: 11, padding: '9px 18px' }}>
               {save.isPending ? 'saving…' : 'save'}
             </button>
             {savedFlash && (
               <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)' }}>∞ saved</span>
+            )}
+            {saveError && (
+              <span className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.12em' }}>{saveError}</span>
             )}
           </div>
 
@@ -281,7 +291,7 @@ export function Settings() {
                     style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
                   />
                 ))}
-                {emailError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--dye-madder)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{emailError}</p>}
+                {emailError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{emailError}</p>}
                 <div style={{ display: 'flex', gap: 14, marginTop: 4 }}>
                   <button type="button" onClick={handleChangeEmail} disabled={!newEmail || !emailPassword || changeEmail.isPending}
                     className="hl-btn" style={{ fontSize: 11, padding: '9px 18px', opacity: (!newEmail || !emailPassword || changeEmail.isPending) ? 0.5 : 1 }}>
@@ -324,7 +334,7 @@ export function Settings() {
                     style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
                   />
                 ))}
-                {pwError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--dye-madder)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{pwError}</p>}
+                {pwError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{pwError}</p>}
                 <div style={{ display: 'flex', gap: 14, marginTop: 4 }}>
                   <button type="button" onClick={handleChangePw} disabled={!pwCurrent || !pwNew || !pwConfirm || changePw.isPending}
                     className="hl-btn" style={{ fontSize: 11, padding: '9px 18px', opacity: (!pwCurrent || !pwNew || !pwConfirm || changePw.isPending) ? 0.5 : 1 }}>
@@ -359,7 +369,7 @@ export function Settings() {
                 {dmStatus.status === 'active' ? (
                   <>armed · next check-in due <span style={{ color: 'var(--warm)' }}>{dmStatus.nextCheckInDue ? new Date(dmStatus.nextCheckInDue).toLocaleDateString() : '—'}</span></>
                 ) : dmStatus.status === 'warning' ? (
-                  <span style={{ color: 'var(--dye-madder)' }}>overdue — check in now</span>
+                  <span style={{ color: 'var(--danger)' }}>overdue — check in now</span>
                 ) : deadmanStatus.isLoading ? (
                   <span style={{ color: 'var(--bone-faint)' }}>loading…</span>
                 ) : (
@@ -376,6 +386,9 @@ export function Settings() {
                 <Link to="/threads" style={{ color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
                   configure →
                 </Link>
+                {checkInError && (
+                  <span className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.12em' }}>{checkInError}</span>
+                )}
               </div>
               <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-faint)', fontWeight: 400, marginTop: 3 }}>
                 warns at 7 days · triggers at 14 days · thread passes to steward
@@ -393,7 +406,7 @@ export function Settings() {
                 {exportLoading ? 'preparing…' : 'download archive →'}
               </button>
               {exportError && (
-                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--dye-madder)', letterSpacing: '0.12em' }}>{exportError}</span>
+                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.12em' }}>{exportError}</span>
               )}
             </div>
           </Row>
@@ -407,11 +420,11 @@ export function Settings() {
           <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--warm)' }}>the listener</div>
 
           {([
-            { key: 'weeklyDigest',       label: 'weekly digest',   hint: 'family entries since last week' },
-            { key: 'reminderEmails',     label: 'quarterly',       hint: 'gentle prompt to add a thread' },
-            { key: 'pushNotifications',  label: 'locks opening',   hint: 'when sealed entries unlock' },
-            { key: 'emailNotifications', label: 'receipts',        hint: 'transactional only' },
-            { key: 'marketingEmails',    label: 'product updates', hint: 'occasional · unsubscribe any time' },
+            { key: 'weeklyDigest',       label: 'weekly digest',   hint: 'family entries since last week',      ariaLabel: 'Enable weekly digest emails' },
+            { key: 'reminderEmails',     label: 'quarterly',       hint: 'gentle prompt to add a thread',       ariaLabel: 'Enable quarterly reminder emails' },
+            { key: 'pushNotifications',  label: 'locks opening',   hint: 'when sealed entries unlock',          ariaLabel: 'Enable push notifications for sealed entry unlocks' },
+            { key: 'emailNotifications', label: 'receipts',        hint: 'transactional only',                  ariaLabel: 'Enable transactional email notifications' },
+            { key: 'marketingEmails',    label: 'product updates', hint: 'occasional · unsubscribe any time',   ariaLabel: 'Enable product update emails' },
           ] as const).map((item) => (
             <div key={item.key} className="hl-notif-row">
               <div>
@@ -420,12 +433,16 @@ export function Settings() {
               </div>
               <input
                 type="checkbox"
+                aria-label={item.ariaLabel}
                 checked={!!prefs[item.key]}
                 onChange={(e) => updateNotif.mutate({ [item.key]: e.target.checked })}
                 style={{ accentColor: 'var(--warm)', width: 16, height: 16, cursor: 'pointer', flexShrink: 0 }}
               />
             </div>
           ))}
+          {notifError && (
+            <span className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.12em', display: 'block', paddingTop: 6 }}>{notifError}</span>
+          )}
 
           {/* ── Support ──────────────────────────────────── */}
           <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--warm)' }}>support</div>
@@ -463,9 +480,19 @@ export function Settings() {
               </div>
             </div>
             <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
+              {guardianEmailError && (
+                <span className="hl-mono" style={{ width: '100%', fontSize: 10, color: 'var(--danger)', letterSpacing: '0.12em' }}>{guardianEmailError}</span>
+              )}
               <button
                 type="button"
-                onClick={() => saveGuardian.mutate()}
+                onClick={() => {
+                  if (guardianEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guardianEmail)) {
+                    setGuardianEmailError('enter a valid email address');
+                    return;
+                  }
+                  setGuardianEmailError(null);
+                  saveGuardian.mutate();
+                }}
                 disabled={!guardianEmail || saveGuardian.isPending}
                 style={{ background: 'transparent', border: 0, padding: 0, cursor: guardianEmail ? 'pointer' : 'default', fontFamily: 'var(--mono)', fontSize: 10.5, color: guardianEmail ? 'var(--warm)' : 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', opacity: saveGuardian.isPending ? 0.5 : 1 }}
               >
@@ -492,14 +519,14 @@ export function Settings() {
           </Row>
 
           {/* ── Danger ───────────────────────────────────── */}
-          <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--dye-madder)' }}>danger</div>
+          <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--danger)' }}>danger</div>
           <div style={{ padding: '14px 0', borderTop: '1px solid var(--rule)' }}>
             {deleteStage === 'idle' && (
               <>
                 <button
                   type="button"
                   onClick={() => setDeleteStage('confirm')}
-                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--dye-madder)' }}
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--danger)' }}
                 >
                   close account →
                 </button>
@@ -511,13 +538,13 @@ export function Settings() {
 
             {deleteStage === 'confirm' && (
               <div style={{ border: '1px solid rgba(194,90,90,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
-                <div className="hl-eyebrow" style={{ color: 'var(--dye-madder)', marginBottom: 14 }}>close account</div>
+                <div className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 14 }}>close account</div>
                 <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
                   Your thread will be archived for 90 days. During that window you can download a full export of everything you have ever written. After 90 days it is permanently erased.
                 </p>
                 <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
                   <button type="button" onClick={() => setDeleteStage('quote')}
-                    style={{ background: 'transparent', border: '1px solid var(--dye-madder)', color: 'var(--dye-madder)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer' }}>
+                    style={{ background: 'transparent', border: '1px solid var(--danger)', color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer' }}>
                     continue →
                   </button>
                   <button type="button" onClick={() => setDeleteStage('idle')}
@@ -530,7 +557,7 @@ export function Settings() {
 
             {deleteStage === 'quote' && (
               <div style={{ border: '1px solid rgba(194,90,90,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
-                <div className="hl-eyebrow" style={{ color: 'var(--dye-madder)', marginBottom: 14 }}>export fee</div>
+                <div className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 14 }}>export fee</div>
                 {exitQuoteQ.isLoading ? (
                   <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.5, margin: '24px 0' }} />
                 ) : (
@@ -551,7 +578,7 @@ export function Settings() {
                 )}
                 <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
                   <button type="button" onClick={() => setDeleteStage('password')}
-                    style={{ background: 'transparent', border: '1px solid var(--dye-madder)', color: 'var(--dye-madder)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer' }}>
+                    style={{ background: 'transparent', border: '1px solid var(--danger)', color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer' }}>
                     archive my account →
                   </button>
                   <button type="button" onClick={() => setDeleteStage('idle')}
@@ -564,7 +591,7 @@ export function Settings() {
 
             {deleteStage === 'password' && (
               <div style={{ border: '1px solid rgba(194,90,90,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
-                <div className="hl-eyebrow" style={{ color: 'var(--dye-madder)', marginBottom: 14 }}>confirm password</div>
+                <div className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 14 }}>confirm password</div>
                 <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 18px', lineHeight: 1.6 }}>
                   Enter your password to archive your account. A download link will be emailed to you.
                 </p>
@@ -578,11 +605,11 @@ export function Settings() {
                   style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8 }}
                 />
                 {deleteError && (
-                  <p className="hl-mono" style={{ fontSize: 10, color: 'var(--dye-madder)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 14px' }}>{deleteError}</p>
+                  <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 14px' }}>{deleteError}</p>
                 )}
                 <div style={{ display: 'flex', gap: 14, marginTop: 20, flexWrap: 'wrap' }}>
                   <button type="button" onClick={() => archiveMutation.mutate()} disabled={!deletePassword || archiveMutation.isPending}
-                    style={{ background: 'var(--dye-madder)', border: 0, color: 'var(--bone)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer', opacity: (!deletePassword || archiveMutation.isPending) ? 0.5 : 1 }}>
+                    style={{ background: 'var(--danger)', border: 0, color: 'var(--bone)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer', opacity: (!deletePassword || archiveMutation.isPending) ? 0.5 : 1 }}>
                     {archiveMutation.isPending ? 'archiving…' : 'archive account'}
                   </button>
                   <button type="button" onClick={() => { setDeleteStage('idle'); setDeletePassword(''); setDeleteError(null); }}

@@ -52,7 +52,7 @@ export function ResetPassword() {
     <ClothShell
       topbarLeft={<HLogo />}
       topbarCenter="reset password"
-      topbarRight={<Link to="/login">sign in →</Link>}
+      topbarRight={<Link to="/login" className="hl-mono" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>sign in →</Link>}
     >
       <div style={{ maxWidth: 480, margin: '0 auto', padding: 'clamp(24px,5vw,48px)' }}>
 
@@ -214,7 +214,7 @@ export function ResetPassword() {
                 <p
                   role="alert"
                   className="hl-mono"
-                  style={{ fontSize: 10, color: 'var(--warm)', margin: '0 0 16px', letterSpacing: '0.06em' }}
+                  style={{ fontSize: 10, color: 'var(--danger)', margin: '0 0 16px', letterSpacing: '0.06em' }}
                 >
                   {error}
                 </p>

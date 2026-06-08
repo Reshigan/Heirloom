@@ -39,7 +39,7 @@ interface OnThisDayMemory {
 
 function memoryTo(memory: OnThisDayMemory): string {
   if (memory.type === 'voice') return `/loom/voice?id=${memory.id}`;
-  if (memory.type === 'letter') return '/loom/letter-room';
+  if (memory.type === 'letter') return `/loom/letter?id=${memory.id}`;
   return `/loom/read?entry=${memory.id}`;
 }
 

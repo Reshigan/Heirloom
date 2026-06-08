@@ -12,19 +12,24 @@ const useAdminAuth = () => {
   const token = localStorage.getItem('adminToken');
   const adminUser = localStorage.getItem('adminUser');
 
+  let parsed: any = null;
+  let parseError = false;
+  if (adminUser) {
+    try {
+      parsed = JSON.parse(adminUser);
+    } catch {
+      parseError = true;
+    }
+  }
+
   useEffect(() => {
-    if (!token || !adminUser) {
+    if (!token || !adminUser || parseError) {
       navigate('/admin/login');
     }
-  }, [token, adminUser, navigate]);
+  }, [token, adminUser, parseError, navigate]);
 
-  if (!adminUser) return null;
-  try {
-    return JSON.parse(adminUser);
-  } catch {
-    navigate('/admin/login');
-    return null;
-  }
+  if (!adminUser || parseError) return null;
+  return parsed;
 };
 
 
@@ -142,6 +147,7 @@ export function AdminDashboard() {
         const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/all`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        if (!res.ok) throw new Error(res.statusText);
         return res.json();
       },
       enabled: activeTab === 'legacy' && legacySub === 'vouchers',
@@ -154,6 +160,7 @@ export function AdminDashboard() {
         const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/stats`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        if (!res.ok) throw new Error(res.statusText);
         return res.json();
       },
       enabled: activeTab === 'legacy' && legacySub === 'vouchers',
@@ -166,6 +173,7 @@ export function AdminDashboard() {
         const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/admin/gold-legacy/all`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+        if (!res.ok) throw new Error(res.statusText);
         return res.json();
       },
       enabled: activeTab === 'legacy' && legacySub === 'gold-legacy',
@@ -242,7 +250,7 @@ export function AdminDashboard() {
               background: 'transparent', border: 0, borderBottom: '1px solid',
               borderColor: activeTab === id ? 'var(--warm)' : 'transparent',
               padding: '0 16px 12px', marginBottom: -1, cursor: 'pointer',
-              fontFamily: "'JetBrains Mono', monospace", fontSize: 10, fontWeight: 400,
+              fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 400,
               letterSpacing: '0.18em', textTransform: 'lowercase',
               color: activeTab === id ? 'var(--warm)' : 'var(--bone-faint)',
               whiteSpace: 'nowrap',
@@ -684,7 +692,7 @@ export function AdminDashboard() {
               <button className="loom-btn" onClick={() => setShowGoldLegacyModal(true)}>Create Gold Legacy Voucher</button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--rule-warm)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid rgba(176,122,74,0.2)' }}>
               {[
                 { v: goldLegacyVouchers?.total || 0, l: 'Total Gold Legacy' },
                 { v: goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'REDEEMED').length || 0, l: 'Redeemed' },
@@ -796,7 +804,7 @@ export function AdminDashboard() {
                 style={{
                   background: 'var(--ink-card)', border: '1px solid var(--rule)',
                   borderRadius: 2, padding: '6px 12px', color: 'var(--bone)',
-                  fontFamily: "'JetBrains Mono', monospace", fontSize: 12, width: 220,
+                  fontFamily: 'var(--mono)', fontSize: 12, width: 220,
                   outline: 'none',
                 }}
               />
@@ -1113,7 +1121,7 @@ function AdminBar({ section, email, role, onLogout }: { section: string; email: 
       style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16,
         borderBottom: '1px solid var(--rule)', paddingBottom: 16, marginBottom: 28,
-        fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
+        fontFamily: 'var(--mono)', fontSize: 11,
       }}
     >
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 14, letterSpacing: '0.12em', color: 'var(--bone)' }}>
@@ -1130,7 +1138,7 @@ function AdminBar({ section, email, role, onLogout }: { section: string; email: 
           onClick={onLogout}
           style={{
             background: 'transparent', border: 0, cursor: 'pointer',
-            fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
+            fontFamily: 'var(--mono)', fontSize: 10,
             letterSpacing: '0.18em', textTransform: 'lowercase',
             color: 'var(--bone-faint)', padding: 0,
           }}
@@ -1163,7 +1171,7 @@ function LedgerBand({ overview, revenue }: { overview: any; revenue: any }) {
       style={{
         marginTop: 48, borderTop: '1px solid var(--rule)', paddingTop: 14,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12,
-        fontFamily: "'JetBrains Mono', monospace", fontSize: 10, color: 'var(--bone-faint)',
+        fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)',
         letterSpacing: '0.18em', textTransform: 'uppercase',
       }}
     >
@@ -1203,8 +1211,8 @@ function InlineStatus({ status }: { status: InlineStatus }) {
       style={{
         marginBottom: 20, padding: '8px 14px',
         background: 'var(--ink-card)',
-        border: `1px solid ${warm ? 'var(--rule-warm)' : 'rgba(194,90,90,0.35)'}`,
-        fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '0.04em',
+        border: `1px solid ${warm ? 'rgba(176,122,74,0.2)' : 'rgba(194,90,90,0.35)'}`,
+        fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.04em',
         color: warm ? 'var(--warm)' : 'var(--danger)',
       }}
     >
@@ -1301,11 +1309,14 @@ function CouponRow({ coupon }: { coupon: any }) {
   const queryClient = useQueryClient();
   const [confirming, setConfirming] = useState(false);
 
+  const [couponRowError, setCouponRowError] = useState<string | null>(null);
+
   const deleteMutation = useMutation({
     mutationFn: () => adminApi.deleteCoupon(coupon.id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
     },
+    onError: (err: any) => setCouponRowError(err?.response?.data?.error ?? 'delete failed'),
   });
 
   const toggleMutation = useMutation({
@@ -1313,6 +1324,7 @@ function CouponRow({ coupon }: { coupon: any }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-coupons'] });
     },
+    onError: (err: any) => setCouponRowError(err?.response?.data?.error ?? 'update failed'),
   });
 
   return (
@@ -1341,6 +1353,9 @@ function CouponRow({ coupon }: { coupon: any }) {
             onConfirm={() => deleteMutation.mutate()}
             onClose={() => setConfirming(false)}
           />
+        )}
+        {couponRowError && (
+          <span className="loom-mono" style={{ fontSize: 10, color: 'var(--danger)', marginLeft: 8 }}>{couponRowError}</span>
         )}
       </td>
     </tr>
@@ -1685,6 +1700,8 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
     queryFn: () => adminApi.getTicket(ticketId).then(r => r.data),
   });
 
+  const [ticketError, setTicketError] = useState<string | null>(null);
+
   const replyMutation = useMutation({
     mutationFn: () => adminApi.replyToTicket(ticketId, reply),
     onSuccess: () => {
@@ -1692,6 +1709,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
       queryClient.invalidateQueries({ queryKey: ['admin-tickets'] });
       setReply('');
     },
+    onError: (err: any) => setTicketError(err?.response?.data?.error ?? 'could not send reply'),
   });
 
   const updateStatusMutation = useMutation({
@@ -1703,6 +1721,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
       setShowResolveForm(false);
       setResolutionNote('');
     },
+    onError: (err: any) => setTicketError(err?.response?.data?.error ?? 'could not update status'),
   });
 
   return (
@@ -1719,12 +1738,16 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
         {ticket?.messages?.map((msg: any) => (
-          <div key={msg.id} style={{ padding: '12px 16px', border: '1px solid var(--rule)', marginLeft: msg.senderType === 'ADMIN' ? 32 : 0, marginRight: msg.senderType === 'USER' ? 32 : 0, background: msg.senderType === 'USER' ? 'var(--ink)' : 'transparent', borderColor: msg.senderType === 'ADMIN' ? 'var(--rule-warm)' : 'var(--rule)' }}>
+          <div key={msg.id} style={{ padding: '12px 16px', border: '1px solid var(--rule)', marginLeft: msg.senderType === 'ADMIN' ? 32 : 0, marginRight: msg.senderType === 'USER' ? 32 : 0, background: msg.senderType === 'USER' ? 'var(--ink)' : 'transparent', borderColor: msg.senderType === 'ADMIN' ? 'rgba(176,122,74,0.2)' : 'var(--rule)' }}>
             <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginBottom: 6 }}>{msg.senderType === 'ADMIN' ? 'Admin' : 'User'} · {new Date(msg.createdAt).toLocaleString()}</div>
             <div style={{ fontSize: 13, color: 'var(--bone)' }}>{msg.content}</div>
           </div>
         ))}
       </div>
+
+      {ticketError && (
+        <p className="loom-mono" style={{ fontSize: 11, color: 'var(--danger)', margin: '0 0 8px', letterSpacing: '0.04em' }}>{ticketError}</p>
+      )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Type your reply…" style={{ width: '100%', height: 80, background: 'var(--ink)', border: '1px solid var(--rule)', color: 'var(--bone)', padding: '8px 12px', fontFamily: "'Inter', sans-serif", fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
@@ -1963,7 +1986,7 @@ The Heirloom Team`;
           <div className="loom-serif" style={{ fontSize: 40, color: 'var(--warm)', marginBottom: 12 }}>∞</div>
           <p className="loom-h2" style={{ fontStyle: 'italic', fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>Gold Legacy Voucher Created</p>
           <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', marginBottom: 16 }}>Member #{createdVoucher.memberNumber}</p>
-          <div style={{ padding: 16, border: '1px solid var(--rule-warm)', marginBottom: 16 }}>
+          <div style={{ padding: 16, border: '1px solid rgba(176,122,74,0.2)', marginBottom: 16 }}>
             <p className="loom-mono" style={{ fontSize: 16, color: 'var(--warm)', letterSpacing: '0.12em' }}>{createdVoucher.code}</p>
           </div>
           {createdVoucher.emailSent && <p className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)', marginBottom: 16 }}>Invitation email sent to {createdVoucher.recipientEmail}</p>}
@@ -1975,7 +1998,7 @@ The Heirloom Team`;
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ padding: '10px 14px', background: 'var(--ink)', border: '1px solid var(--rule-warm)' }}>
+          <div style={{ padding: '10px 14px', background: 'var(--ink)', border: '1px solid rgba(176,122,74,0.2)' }}>
             <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>Gold Legacy vouchers grant lifetime access. Reserved for special individuals only.</p>
           </div>
           <LoomField label="Recipient Name">

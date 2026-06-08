@@ -62,7 +62,7 @@ export function BookSuccess() {
           }}
         >
           <Link
-            to="/loom"
+            to="/loom/weft"
             className="hl-mono"
             style={{
               fontSize: 10,

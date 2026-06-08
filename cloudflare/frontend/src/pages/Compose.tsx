@@ -163,7 +163,7 @@ function ToField({
               top: 'calc(100% + 2px)',
               left: 0,
               right: 0,
-              background: '#111110',
+              background: 'var(--ink)',
               border: '1px solid var(--rule)',
               zIndex: 20,
               maxHeight: 220,
@@ -508,14 +508,19 @@ export function Compose() {
     [familyData],
   );
 
-  // Pre-select recipient from ?recipientId URL param (family profile shortcut)
+  // Pre-select recipient from ?recipientId or ?for URL param (family profile / QuickWizard shortcut)
   useEffect(() => {
-    const urlId = searchParams.get('recipientId');
+    const urlId = searchParams.get('recipientId') ?? searchParams.get('for');
+    const urlName = searchParams.get('forName');
     if (!urlId || recipientId) return;
     const found = members.find((m) => m.id === urlId);
     if (found) {
       setRecipientId(found.id);
       setRecipientName(found.name);
+    } else if (urlId && urlName) {
+      // Recipient not in loaded family list yet — accept id + name from URL
+      setRecipientId(urlId);
+      setRecipientName(decodeURIComponent(urlName));
     }
   }, [searchParams, members, recipientId]);
 
@@ -714,7 +719,7 @@ export function Compose() {
         const primary = photos[0];
         return memoriesApi
           .create({
-            type: primary ? 'PHOTO' : 'LETTER',
+            type: primary ? 'PHOTO' : 'TEXT',
             title: title.trim() || deriveTitle(body),
             description: body.trim(),
             fileKey: primary?.fileKey,
@@ -871,7 +876,7 @@ export function Compose() {
             letterSpacing: '0.08em',
             color: 'var(--warm)',
             padding: '8px 0',
-            minHeight: 36,
+            minHeight: 44,
           }}
         >
           back →
@@ -888,7 +893,7 @@ export function Compose() {
           left: 0,
           right: 0,
           overflowY: 'auto',
-          padding: '48px clamp(20px, 5vw, 48px) 100px',
+          padding: '48px clamp(20px, 5vw, 48px) calc(100px + env(safe-area-inset-bottom, 0px))',
           zIndex: 10,
           opacity: revealed ? 1 : 0,
           transform: revealed ? 'translateY(0)' : 'translateY(12px)',
@@ -1277,7 +1282,7 @@ export function Compose() {
                 textTransform: 'uppercase',
                 padding: '10px 24px',
                 cursor: submitDisabled ? 'default' : 'pointer',
-                minHeight: 40,
+                minHeight: 44,
                 opacity: submitDisabled ? 0.45 : 1,
                 transition: 'opacity 180ms var(--ease), transform 180ms var(--ease)',
               }}

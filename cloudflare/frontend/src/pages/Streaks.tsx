@@ -27,6 +27,7 @@ interface ActivityDay {
 export function Streaks() {
   const queryClient = useQueryClient();
   const [showFreezeModal, setShowFreezeModal] = useState(false);
+  const [freezeError, setFreezeError] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<{ date: string; x: number; y: number } | null>(null);
 
   const { data: streak, isLoading: streakLoading } = useQuery({
@@ -49,7 +50,9 @@ export function Streaks() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['streak'] });
       setShowFreezeModal(false);
+      setFreezeError(null);
     },
+    onError: () => setFreezeError('could not freeze streak'),
   });
 
   // Continuity marks — plain labels, no trophy/badge language
@@ -269,6 +272,7 @@ export function Streaks() {
                     </p>
                   </div>
                   <button
+                    type="button"
                     onClick={() => setShowFreezeModal(true)}
                     style={{
                       background: 'transparent',
@@ -320,22 +324,27 @@ export function Streaks() {
                   }}
                 >
                   {activityDays.map(day => (
-                    <div
+                    <button
                       key={day.date}
+                      type="button"
                       onMouseEnter={e => {
                         const r = e.currentTarget.getBoundingClientRect();
                         setTooltip({ date: day.date, x: r.left + r.width / 2, y: r.top - 8 });
                       }}
                       onMouseLeave={() => setTooltip(null)}
+                      aria-label={day.date}
                       style={{
                         width: 28,
                         height: 28,
                         borderRadius: 0,
                         background: day.hasEntry
                           ? `var(--dye-${dyeForDate(day.date)})`
-                          : '#1a1916',
+                          : 'var(--ink)',
                         cursor: 'default',
                         transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                        border: 0,
+                        padding: 0,
+                        display: 'block',
                       }}
                       onMouseOver={e => { e.currentTarget.style.opacity = '0.8'; }}
                       onMouseOut={e => { e.currentTarget.style.opacity = '1'; }}
@@ -351,7 +360,7 @@ export function Streaks() {
                       left: tooltip.x,
                       top: tooltip.y,
                       transform: 'translate(-50%, -100%)',
-                      background: '#131310',
+                      background: 'var(--ink)',
                       border: '1px solid var(--rule)',
                       padding: '4px 8px',
                       pointerEvents: 'none',
@@ -564,7 +573,7 @@ export function Streaks() {
         >
           <div
             style={{
-              background: '#131310',
+              background: 'var(--ink)',
               border: '1px solid var(--rule)',
               padding: '40px 36px',
               maxWidth: 400,
@@ -594,7 +603,8 @@ export function Streaks() {
             </p>
             <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
               <button
-                onClick={() => setShowFreezeModal(false)}
+                type="button"
+                onClick={() => { setShowFreezeModal(false); setFreezeError(null); }}
                 style={{
                   background: 'transparent',
                   border: '1px solid var(--rule)',
@@ -611,6 +621,7 @@ export function Streaks() {
                 cancel
               </button>
               <button
+                type="button"
                 onClick={() => freezeMutation.mutate()}
                 disabled={freezeMutation.isPending}
                 className="hl-btn"
@@ -627,6 +638,14 @@ export function Streaks() {
                 {freezeMutation.isPending ? 'holding…' : 'hold thread'}
               </button>
             </div>
+            {freezeError && (
+              <p
+                className="hl-mono"
+                style={{ fontSize: 11, color: 'var(--danger)', marginTop: 12, letterSpacing: '0.04em' }}
+              >
+                {freezeError}
+              </p>
+            )}
           </div>
         </div>
       )}

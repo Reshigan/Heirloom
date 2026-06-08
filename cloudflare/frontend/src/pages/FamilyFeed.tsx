@@ -38,7 +38,7 @@ function itemDye(item: FeedItem): string {
 
 function itemTo(item: FeedItem): string {
   if (item.type === 'voice') return `/loom/voice?id=${item.id}`;
-  if (item.type === 'letter') return '/loom/letter-room';
+  if (item.type === 'letter') return `/loom/letter?id=${item.id}`;
   return `/loom/read?entry=${item.id}`;
 }
 
@@ -51,7 +51,7 @@ function fmtDate(iso: string): string {
 }
 
 export function FamilyFeed() {
-  const { data: feedData, isLoading } = useQuery({
+  const { data: feedData, isLoading, isError } = useQuery({
     queryKey: ['family-feed'],
     queryFn: () => engagementApi.getFamilyFeed().then((r) => r.data),
   });
@@ -89,7 +89,9 @@ export function FamilyFeed() {
         />
 
         {/* list */}
-        {isLoading ? (
+        {isError ? (
+          <p style={{ color: 'var(--danger)' }}>could not load feed</p>
+        ) : isLoading ? (
           <div className="hl-progress" style={{ margin: '28px 0' }} />
         ) : !items.length ? (
           <p

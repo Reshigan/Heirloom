@@ -518,6 +518,7 @@ export const giftSubscriptionsApi = {
     billingCycle: 'monthly' | 'quarterly' | 'yearly' | 'lifetime';
     recipientMessage?: string;
     currency?: string;
+    style?: string;
   }) => api.post('/gift-vouchers/checkout', data),
   redeem: (giftCode: string) => api.post('/gift-vouchers/redeem', { giftCode }),
   getPurchased: () => api.get('/gift-vouchers/purchased'),

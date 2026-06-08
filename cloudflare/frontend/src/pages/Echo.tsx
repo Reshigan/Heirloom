@@ -46,7 +46,10 @@ export function Echo() {
     return () => clearTimeout(t);
   }, [prompt]);
 
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   function handlePromptInteract() {
+    setRevealKey(k => k + 1);
     if (promptId) {
       aiApi.markPromptUsed(promptId).catch(() => {});
     }
@@ -64,7 +67,7 @@ export function Echo() {
         paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))',
         paddingLeft: 24,
         paddingRight: 24,
-        animation: 'hl-echo-breath 6s ease-in-out infinite',
+        animation: prefersReduced ? undefined : 'hl-echo-breath 6s ease-in-out infinite',
       }}>
         <div
           style={{ textAlign: 'center', maxWidth: '52ch', width: '100%', cursor: promptId ? 'pointer' : 'default' }}
@@ -84,7 +87,6 @@ export function Echo() {
               margin: 0,
               fontVariationSettings: '"opsz" 18',
             }}
-            onClick={() => setRevealKey(k => k + 1)}
           >
             {prompt.split(' ').map((word, i) => (
               <span

@@ -80,7 +80,7 @@ export function GoldLegacyRedeem() {
 
   const handleRedeem = async () => {
     if (!isAuthenticated) {
-      navigate(`/login?redirect=/gold/redeem?code=${code}`);
+      navigate(`/login?redirect=${encodeURIComponent(`/gold/redeem?code=${code}`)}`);
       return;
     }
     setIsRedeeming(true);
@@ -286,7 +286,7 @@ export function GoldLegacyRedeem() {
                 <p
                   role="alert"
                   className="hl-mono"
-                  style={{ fontSize: 10, color: 'var(--warm)', margin: '0 0 16px', letterSpacing: '0.04em' }}
+                  style={{ fontSize: 10, color: 'var(--danger)', margin: '0 0 16px', letterSpacing: '0.04em' }}
                 >
                   {error}
                 </p>
@@ -416,7 +416,7 @@ export function GoldLegacyRedeem() {
                         </p>
                         <div style={{ display: 'flex', gap: 12 }}>
                           <Link
-                            to={`/login?redirect=/gold/redeem?code=${code}`}
+                            to={`/login?redirect=${encodeURIComponent(`/gold/redeem?code=${code}`)}`}
                             style={{
                               flex: 1,
                               textAlign: 'center',
@@ -433,7 +433,7 @@ export function GoldLegacyRedeem() {
                             sign in
                           </Link>
                           <Link
-                            to={`/signup?redirect=/gold/redeem?code=${code}`}
+                            to={`/signup?redirect=${encodeURIComponent(`/gold/redeem?code=${code}`)}`}
                             className="hl-btn"
                             style={{ flex: 1, textAlign: 'center', textDecoration: 'none', display: 'block' }}
                           >

@@ -8,7 +8,6 @@ import { useAuthStore } from '../stores/authStore';
 import { memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
-import { BottomNav } from '../loom/components/BottomNav';
 import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
 import type { UserRole } from '../hooks/useRole';
 import type { CanvasEntry } from '../loom/components/TapestryCanvas';
@@ -582,7 +581,6 @@ export function PwaHome() {
         </div>
       )}
 
-      <BottomNav />
     </ClothShell>
   );
 }

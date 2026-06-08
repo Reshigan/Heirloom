@@ -88,7 +88,7 @@ export function LoomIndex() {
         list.push({
           id: m.id, kind, ord, iso, year,
           title: m.title?.trim() || (photoUrl ? 'A photograph' : 'A memory'),
-          recipient: firstRecipient(m), dye, mood: moodForDye(dye), href: ROOM_HREF[kind],
+          recipient: firstRecipient(m), dye, mood: moodForDye(dye), href: `${ROOM_HREF[kind]}?entry=${m.id}`,
         });
       }
 
@@ -99,7 +99,7 @@ export function LoomIndex() {
         list.push({
           id: l.id, kind: 'letter', ord, iso, year,
           title: l.title?.trim() || l.salutation?.trim() || 'A letter',
-          recipient: firstRecipient(l), dye, mood: moodForDye(dye), href: ROOM_HREF.letter,
+          recipient: firstRecipient(l), dye, mood: moodForDye(dye), href: `${ROOM_HREF.letter}?id=${l.id}`,
         });
       }
 
@@ -110,7 +110,7 @@ export function LoomIndex() {
         list.push({
           id: v.id, kind: 'voice', ord, iso, year,
           title: v.title?.trim() || 'A recording',
-          recipient: firstRecipient(v), dye, mood: moodForDye(dye), href: ROOM_HREF.voice,
+          recipient: firstRecipient(v), dye, mood: moodForDye(dye), href: `${ROOM_HREF.voice}?id=${v.id}`,
         });
       }
 
@@ -123,7 +123,7 @@ export function LoomIndex() {
         list.push({
           id: r.id, kind: 'letter', ord, iso, year,
           title: r.title?.trim() || r.salutation?.trim() || `A letter from ${r.from}`,
-          recipient: r.from || null, dye, mood: moodForDye(dye), href: ROOM_HREF.letter,
+          recipient: r.from || null, dye, mood: moodForDye(dye), href: `${ROOM_HREF.letter}?id=${r.id}`,
         });
       }
 
@@ -232,7 +232,7 @@ export function LoomIndex() {
               margin: '0 0 10px', display: 'flex', justifyContent: 'space-between',
             }}>
               <span>{sec.key}</span>
-              <span style={{ color: 'rgba(244,236,216,0.25)' }}>{sec.items.length}</span>
+              <span style={{ color: 'var(--bone-faint)' }}>{sec.items.length}</span>
             </h2>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {sec.items.map((e) => (
@@ -241,7 +241,7 @@ export function LoomIndex() {
                   to={e.href}
                   style={{
                     borderLeft: `3px solid ${dyeVar(e.dye)}`,
-                    borderBottom: '1px solid rgba(244,236,216,0.06)',
+                    borderBottom: '1px solid var(--rule)',
                     padding: '10px 14px', textDecoration: 'none',
                     display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12,
                   }}

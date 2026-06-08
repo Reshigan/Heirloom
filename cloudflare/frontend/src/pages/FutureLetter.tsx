@@ -76,8 +76,10 @@ export function FutureLetter() {
     },
   });
 
+  const [shareError, setShareError] = useState<string | null>(null);
   const shareMutation = useMutation({
     mutationFn: (id: string) => aiApi.markFutureLetterShared(id),
+    onError: (err: any) => setShareError(err?.response?.data?.error ?? 'could not record share'),
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -87,16 +89,7 @@ export function FutureLetter() {
 
   const handleShare = async () => {
     if (!generatedLetter) return;
-    try {
-      await navigator.clipboard.writeText(generatedLetter.shareText);
-    } catch {
-      const textArea = document.createElement('textarea');
-      textArea.value = generatedLetter.shareText;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-    }
+    navigator.clipboard.writeText(generatedLetter.shareText).catch(() => {});
     setCopied(true);
     shareMutation.mutate(generatedLetter.id);
     setTimeout(() => setCopied(false), 2000);
@@ -162,7 +155,7 @@ export function FutureLetter() {
 
         <hr className="hl-rule" style={{ marginBottom: 48 }} />
 
-        <div style={{ display: 'grid', gap: 64, gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)' }}>
+        <div style={{ display: 'grid', gap: 64, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
           {/* left: input form */}
           <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 24, alignContent: 'start' }}>
             <h2
@@ -266,10 +259,10 @@ export function FutureLetter() {
           {/* right: letter display + previous letters */}
           <div style={{ display: 'grid', gap: 32, alignContent: 'start' }}>
             {generatedLetter ? (
-              /* parchment-deep inner letter card */
+              /* inner letter card */
               <div
                 style={{
-                  background: 'var(--parchment-deep)',
+                  background: 'rgba(14,14,12,0.8)',
                   padding: '40px 48px',
                   maxWidth: 640,
                 }}
@@ -284,7 +277,7 @@ export function FutureLetter() {
                 >
                   <h2
                     className="hl-serif"
-                    style={{ fontSize: 18, fontWeight: 300, margin: 0, color: 'var(--parchment-ink)' }}
+                    style={{ fontSize: 18, fontWeight: 300, margin: 0, color: 'var(--bone)' }}
                   >
                     Your letter
                   </h2>
@@ -299,13 +292,16 @@ export function FutureLetter() {
                       fontSize: 10,
                       letterSpacing: '0.18em',
                       textTransform: 'uppercase',
-                      color: copied ? 'var(--warm)' : 'var(--parchment-faint)',
+                      color: copied ? 'var(--warm)' : 'var(--bone-faint)',
                       padding: 0,
                     }}
                   >
                     {copied ? 'copied' : 'copy'}
                   </button>
                 </div>
+                {shareError && (
+                  <p className="hl-mono" style={{ fontSize: 9, color: 'var(--danger)', letterSpacing: '0.1em', margin: '0 0 8px' }}>{shareError}</p>
+                )}
 
                 {/* salutation */}
                 <p
@@ -313,7 +309,7 @@ export function FutureLetter() {
                   style={{
                     fontSize: 16,
                     fontStyle: 'italic',
-                    color: 'var(--parchment-dim)',
+                    color: 'var(--bone-dim)',
                     margin: '0 0 18px',
                   }}
                 >
@@ -326,7 +322,7 @@ export function FutureLetter() {
                   style={{
                     whiteSpace: 'pre-wrap',
                     fontSize: 17,
-                    color: 'var(--parchment-ink)',
+                    color: 'var(--bone)',
                     lineHeight: 1.85,
                     maxWidth: 'none',
                   }}
@@ -340,7 +336,7 @@ export function FutureLetter() {
                   style={{
                     fontSize: 16,
                     fontStyle: 'italic',
-                    color: 'var(--parchment-dim)',
+                    color: 'var(--bone-dim)',
                     marginTop: 20,
                     marginBottom: 0,
                   }}

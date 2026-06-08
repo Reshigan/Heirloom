@@ -40,7 +40,7 @@ function HairlineLoader() {
       <div
         style={{
           height: 1,
-          background: 'var(--parchment-rule)',
+          background: 'var(--rule)',
           position: 'relative',
           overflow: 'hidden',
           maxWidth: 180,
@@ -71,6 +71,7 @@ export function LegacyPlan() {
   const [newItemTitle, setNewItemTitle] = useState('');
   const [newItemDescription, setNewItemDescription] = useState('');
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [copyError, setCopyError] = useState<string | null>(null);
 
   const { isOpen: isOnboardingOpen, completeOnboarding, dismissOnboarding, openOnboarding } = useFeatureOnboarding('legacy-plan');
 
@@ -151,8 +152,8 @@ export function LegacyPlan() {
     width: '100%',
     background: 'none',
     border: 'none',
-    borderBottom: '1px solid var(--parchment-rule)',
-    color: 'var(--parchment-ink)',
+    borderBottom: '1px solid var(--rule)',
+    color: 'var(--bone)',
     fontFamily: 'var(--serif)',
     fontVariationSettings: "'opsz' 14",
     fontSize: 15,
@@ -178,7 +179,7 @@ export function LegacyPlan() {
             fontSize: 52,
             fontWeight: 300,
             margin: '0 0 40px',
-            color: 'var(--parchment-ink)',
+            color: 'var(--bone)',
             letterSpacing: '-0.02em',
           }}
         >
@@ -188,7 +189,7 @@ export function LegacyPlan() {
         {/* ── Section: Succession ─────────────────────────────────────────── */}
         <section
           style={{
-            borderTop: '1px solid var(--parchment-rule)',
+            borderTop: '1px solid var(--rule)',
             paddingTop: 28,
             marginTop: 28,
           }}
@@ -200,7 +201,7 @@ export function LegacyPlan() {
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr auto',
-              borderBottom: '1px solid var(--parchment-rule)',
+              borderBottom: '1px solid var(--rule)',
               padding: '14px 0',
               alignItems: 'center',
             }}
@@ -208,7 +209,7 @@ export function LegacyPlan() {
             <div>
               <p
                 className="hl-serif"
-                style={{ fontSize: 16, color: 'var(--parchment-ink)', margin: '0 0 4px' }}
+                style={{ fontSize: 16, color: 'var(--bone)', margin: '0 0 4px' }}
               >
                 Thread progress
               </p>
@@ -217,7 +218,7 @@ export function LegacyPlan() {
                   style={{
                     width: 120,
                     height: 1,
-                    background: 'var(--parchment-rule)',
+                    background: 'var(--rule)',
                     position: 'relative',
                   }}
                 >
@@ -235,7 +236,7 @@ export function LegacyPlan() {
                 </div>
                 <span
                   className="hl-mono"
-                  style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.06em' }}
+                  style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}
                 >
                   {plan?.completedItems || 0} / {plan?.totalItems || 0} woven
                 </span>
@@ -259,13 +260,13 @@ export function LegacyPlan() {
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr auto',
-              borderBottom: '1px solid var(--parchment-rule)',
+              borderBottom: '1px solid var(--rule)',
               padding: '14px 0',
               alignItems: 'center',
             }}
           >
             <div>
-              <p className="hl-serif" style={{ fontSize: 16, color: 'var(--parchment-ink)', margin: '0 0 2px' }}>
+              <p className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', margin: '0 0 2px' }}>
                 Share progress
               </p>
               {shareUrl && (
@@ -274,7 +275,7 @@ export function LegacyPlan() {
                     className="hl-mono"
                     style={{
                       fontSize: 10,
-                      color: 'var(--parchment-faint)',
+                      color: 'var(--bone-faint)',
                       letterSpacing: '0.04em',
                       maxWidth: 320,
                       overflow: 'hidden',
@@ -285,7 +286,7 @@ export function LegacyPlan() {
                     {shareUrl}
                   </span>
                   <button
-                    onClick={() => copyToClipboard(shareUrl).catch(() => {})}
+                    onClick={() => { setCopyError(null); copyToClipboard(shareUrl).catch(() => { setCopyError('copy failed — paste manually'); }); }}
                     className="hl-mono"
                     style={{
                       background: 'none',
@@ -300,6 +301,9 @@ export function LegacyPlan() {
                   >
                     copy
                   </button>
+                  {copyError && (
+                    <span className="hl-mono" style={{ fontSize: 9, color: 'var(--danger)', letterSpacing: '0.1em' }}>{copyError}</span>
+                  )}
                 </div>
               )}
             </div>
@@ -336,18 +340,18 @@ export function LegacyPlan() {
                     padding: '14px 0',
                     background: 'none',
                     border: 'none',
-                    borderBottom: '1px solid var(--parchment-rule)',
+                    borderBottom: '1px solid var(--rule)',
                     cursor: 'pointer',
                     gap: 16,
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 20 }}>
-                    <span className="hl-serif" style={{ fontSize: 16, color: 'var(--parchment-ink)' }}>
+                    <span className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)' }}>
                       {label}
                     </span>
                     <span
                       className="hl-mono"
-                      style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.06em' }}
+                      style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}
                     >
                       {completedCount}/{items.length}
                     </span>
@@ -357,7 +361,7 @@ export function LegacyPlan() {
                       style={{
                         width: 64,
                         height: 1,
-                        background: 'var(--parchment-rule)',
+                        background: 'var(--rule)',
                         position: 'relative',
                       }}
                     >
@@ -375,7 +379,7 @@ export function LegacyPlan() {
                     </div>
                     <span
                       className="hl-mono"
-                      style={{ fontSize: 11, color: 'var(--parchment-faint)' }}
+                      style={{ fontSize: 11, color: 'var(--bone-faint)' }}
                       aria-hidden
                     >
                       {isExpanded ? '−' : '+'}
@@ -384,7 +388,7 @@ export function LegacyPlan() {
                 </button>
 
                 {isExpanded && (
-                  <div style={{ paddingBottom: 8, borderBottom: '1px solid var(--parchment-rule)' }}>
+                  <div style={{ paddingBottom: 8, borderBottom: '1px solid var(--rule)' }}>
                     {items.map((item) => (
                       <div
                         key={item.id}
@@ -394,7 +398,7 @@ export function LegacyPlan() {
                           alignItems: 'baseline',
                           gap: 16,
                           padding: '10px 0',
-                          borderBottom: '1px solid var(--parchment-rule)',
+                          borderBottom: '1px solid var(--rule)',
                         }}
                       >
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
@@ -406,7 +410,7 @@ export function LegacyPlan() {
                               background: 'none',
                               border: 'none',
                               cursor: 'pointer',
-                              color: item.completed === 1 ? 'var(--warm)' : 'var(--parchment-faint)',
+                              color: item.completed === 1 ? 'var(--warm)' : 'var(--bone-faint)',
                               fontSize: 10,
                               letterSpacing: '0.16em',
                               textTransform: 'uppercase',
@@ -422,7 +426,7 @@ export function LegacyPlan() {
                               className="hl-serif"
                               style={{
                                 fontSize: 15,
-                                color: item.completed === 1 ? 'var(--parchment-faint)' : 'var(--parchment-ink)',
+                                color: item.completed === 1 ? 'var(--bone-faint)' : 'var(--bone)',
                                 margin: 0,
                                 textDecoration: item.completed === 1 ? 'line-through' : 'none',
                               }}
@@ -432,7 +436,7 @@ export function LegacyPlan() {
                             {item.description && (
                               <p
                                 className="hl-mono"
-                                style={{ fontSize: 10, color: 'var(--parchment-faint)', marginTop: 3, letterSpacing: '0.04em' }}
+                                style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 3, letterSpacing: '0.04em' }}
                               >
                                 {item.description}
                               </p>
@@ -447,7 +451,7 @@ export function LegacyPlan() {
                             background: 'none',
                             border: 'none',
                             cursor: 'pointer',
-                            color: 'var(--parchment-faint)',
+                            color: 'var(--bone-faint)',
                             fontSize: 9,
                             letterSpacing: '0.14em',
                             textTransform: 'uppercase',
@@ -456,7 +460,7 @@ export function LegacyPlan() {
                             transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
                           }}
                           onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
-                          onMouseLeave={e => (e.currentTarget.style.color = 'var(--parchment-faint)')}
+                          onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
                         >
                           remove
                         </button>
@@ -473,16 +477,16 @@ export function LegacyPlan() {
                           autoFocus
                           style={inputStyle}
                           onFocus={e => (e.currentTarget.style.borderBottomColor = 'var(--warm)')}
-                          onBlur={e => (e.currentTarget.style.borderBottomColor = 'var(--parchment-rule)')}
+                          onBlur={e => (e.currentTarget.style.borderBottomColor = 'var(--rule)')}
                         />
                         <input
                           type="text"
                           value={newItemDescription}
                           onChange={(e) => setNewItemDescription(e.target.value)}
                           placeholder="Description (optional)"
-                          style={{ ...inputStyle, color: 'var(--parchment-dim)', fontSize: 13 }}
+                          style={{ ...inputStyle, color: 'var(--bone-dim)', fontSize: 13 }}
                           onFocus={e => (e.currentTarget.style.borderBottomColor = 'var(--warm)')}
-                          onBlur={e => (e.currentTarget.style.borderBottomColor = 'var(--parchment-rule)')}
+                          onBlur={e => (e.currentTarget.style.borderBottomColor = 'var(--rule)')}
                         />
                         <div style={{ display: 'flex', gap: 12, paddingTop: 4 }}>
                           <button
@@ -514,14 +518,14 @@ export function LegacyPlan() {
                           border: 'none',
                           cursor: 'pointer',
                           textAlign: 'left',
-                          color: 'var(--parchment-faint)',
+                          color: 'var(--bone-faint)',
                           fontSize: 10,
                           letterSpacing: '0.2em',
                           textTransform: 'uppercase',
                           transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
                         }}
-                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--parchment-dim)')}
-                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--parchment-faint)')}
+                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone-dim)')}
+                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
                       >
                         + add thread
                       </button>
@@ -536,7 +540,7 @@ export function LegacyPlan() {
         {/* ── Section: Dead-man's switch ───────────────────────────────────── */}
         <section
           style={{
-            borderTop: '1px solid var(--parchment-rule)',
+            borderTop: '1px solid var(--rule)',
             paddingTop: 28,
             marginTop: 28,
           }}
@@ -547,20 +551,20 @@ export function LegacyPlan() {
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr auto',
-              borderBottom: '1px solid var(--parchment-rule)',
+              borderBottom: '1px solid var(--rule)',
               padding: '14px 0',
               alignItems: 'center',
             }}
           >
-            <p className="hl-serif" style={{ fontSize: 16, color: 'var(--parchment-ink)', margin: 0 }}>
+            <p className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', margin: 0 }}>
               Check-in interval
             </p>
-            <span className="hl-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+            <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
               not armed
             </span>
           </div>
 
-          <p className="hl-serif" style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--parchment-faint)', margin: '12px 0 0', lineHeight: 1.6 }}>
+          <p className="hl-serif" style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--bone-faint)', margin: '12px 0 0', lineHeight: 1.6 }}>
             Configure your dead-man's switch in <Link to="/settings" style={{ color: 'var(--warm)', textDecoration: 'none', borderBottom: '1px solid rgba(176,122,74,0.3)' }}>Settings →</Link>
           </p>
 
@@ -568,16 +572,16 @@ export function LegacyPlan() {
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr auto',
-              borderBottom: '1px solid var(--parchment-rule)',
+              borderBottom: '1px solid var(--rule)',
               padding: '14px 0',
               alignItems: 'center',
             }}
           >
             <div>
-              <p className="hl-serif" style={{ fontSize: 16, color: 'var(--parchment-ink)', margin: '0 0 4px' }}>
+              <p className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', margin: '0 0 4px' }}>
                 Designate successor
               </p>
-              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', margin: 0, letterSpacing: '0.04em' }}>
+              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', margin: 0, letterSpacing: '0.04em' }}>
                 Administrative authority passes on trigger
               </p>
             </div>
@@ -590,16 +594,16 @@ export function LegacyPlan() {
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr auto',
-              borderBottom: '1px solid var(--parchment-rule)',
+              borderBottom: '1px solid var(--rule)',
               padding: '14px 0',
               alignItems: 'center',
             }}
           >
             <div>
-              <p className="hl-serif" style={{ fontSize: 16, color: 'var(--parchment-ink)', margin: '0 0 4px' }}>
+              <p className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', margin: '0 0 4px' }}>
                 Time-locked entries
               </p>
-              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', margin: 0, letterSpacing: '0.04em' }}>
+              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', margin: 0, letterSpacing: '0.04em' }}>
                 Release on death conditions
               </p>
             </div>
@@ -612,7 +616,7 @@ export function LegacyPlan() {
         {/* ── Section: Export ──────────────────────────────────────────────── */}
         <section
           style={{
-            borderTop: '1px solid var(--parchment-rule)',
+            borderTop: '1px solid var(--rule)',
             paddingTop: 28,
             marginTop: 28,
           }}
@@ -623,16 +627,16 @@ export function LegacyPlan() {
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr auto',
-              borderBottom: '1px solid var(--parchment-rule)',
+              borderBottom: '1px solid var(--rule)',
               padding: '14px 0',
               alignItems: 'center',
             }}
           >
             <div>
-              <p className="hl-serif" style={{ fontSize: 16, color: 'var(--parchment-ink)', margin: '0 0 4px' }}>
+              <p className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', margin: '0 0 4px' }}>
                 Full archive export
               </p>
-              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', margin: 0, letterSpacing: '0.04em' }}>
+              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', margin: 0, letterSpacing: '0.04em' }}>
                 Every entry, photograph, and voice recording
               </p>
             </div>
@@ -645,16 +649,16 @@ export function LegacyPlan() {
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr auto',
-              borderBottom: '1px solid var(--parchment-rule)',
+              borderBottom: '1px solid var(--rule)',
               padding: '14px 0',
               alignItems: 'center',
             }}
           >
             <div>
-              <p className="hl-serif" style={{ fontSize: 16, color: 'var(--parchment-ink)', margin: '0 0 4px' }}>
+              <p className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', margin: '0 0 4px' }}>
                 Print-ready book
               </p>
-              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', margin: 0, letterSpacing: '0.04em' }}>
+              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', margin: 0, letterSpacing: '0.04em' }}>
                 Letterpress-fidelity PDF of the thread
               </p>
             </div>
@@ -667,16 +671,16 @@ export function LegacyPlan() {
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr auto',
-              borderBottom: '1px solid var(--parchment-rule)',
+              borderBottom: '1px solid var(--rule)',
               padding: '14px 0',
               alignItems: 'center',
             }}
           >
             <div>
-              <p className="hl-serif" style={{ fontSize: 16, color: 'var(--parchment-ink)', margin: '0 0 4px' }}>
+              <p className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', margin: '0 0 4px' }}>
                 Textile pattern
               </p>
-              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', margin: 0, letterSpacing: '0.04em' }}>
+              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', margin: 0, letterSpacing: '0.04em' }}>
                 Your entries encoded as a woven cloth pattern
               </p>
             </div>
@@ -687,7 +691,7 @@ export function LegacyPlan() {
         </section>
 
         {/* Weave-now quick links */}
-        <div style={{ marginTop: 56, borderTop: '1px solid var(--parchment-rule)', paddingTop: 32 }}>
+        <div style={{ marginTop: 56, borderTop: '1px solid var(--rule)', paddingTop: 32 }}>
           <p className="hl-eyebrow dark" style={{ marginBottom: 20 }}>weave now</p>
           <div
             style={{
@@ -709,16 +713,16 @@ export function LegacyPlan() {
                 style={{
                   display: 'block',
                   padding: '14px 0',
-                  borderRight: '1px solid var(--parchment-rule)',
-                  color: 'var(--parchment-faint)',
+                  borderRight: '1px solid var(--rule)',
+                  color: 'var(--bone-faint)',
                   fontSize: 10,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
                   textDecoration: 'none',
                   transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'var(--parchment-ink)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'var(--parchment-faint)')}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
               >
                 {label}
               </Link>

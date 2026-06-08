@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
@@ -79,6 +80,13 @@ export function VoiceRoom() {
 
   const recordings: VoiceEntry[] = (data as { data: VoiceEntry[] } | null)?.data ?? [];
 
+  // Pause audio on unmount
+  useEffect(() => {
+    return () => {
+      audioRef.current?.pause();
+    };
+  }, []);
+
   // A recording tapped on the cloth arrives as ?id=<id> — open its player and
   // bring it into view once the list has rendered.
   useEffect(() => {
@@ -93,7 +101,7 @@ export function VoiceRoom() {
   );
 
   return (
-    <ClothShell topbarLeft={topbarLeft}>
+    <ClothShell topbarLeft={topbarLeft} topbarRight={<UserMenu />}>
       {/* Hairline loading bar */}
       <div
         aria-hidden
@@ -264,7 +272,7 @@ export function VoiceRoom() {
                         {formatTime(currentTime)} / {formatTime(audioDuration)}
                       </span>
                       <div style={{ flex: 1, height: 1, background: 'var(--rule)', position: 'relative' }}>
-                        <div style={{ position: 'absolute', left: 0, top: 0, height: 1, background: 'var(--warm)', width: `${audioDuration ? (currentTime / audioDuration) * 100 : 0}%`, transition: 'width 0.5s linear' }} />
+                        <div style={{ position: 'absolute', left: 0, top: 0, height: 1, background: 'var(--warm)', width: `${audioDuration ? (currentTime / audioDuration) * 100 : 0}%`, transition: 'width 360ms cubic-bezier(0.16,1,0.3,1)' }} />
                       </div>
                     </div>
                     <audio

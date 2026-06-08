@@ -134,6 +134,7 @@ export function LifeEvents() {
   const queryClient = useQueryClient();
   const [showCreate, setShowCreate] = useState(false);
   const [showContentPicker, setShowContentPicker] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [wizardStep, setWizardStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<typeof QUICK_TEMPLATES[0] | null>(null);
@@ -206,21 +207,25 @@ export function LifeEvents() {
       queryClient.invalidateQueries({ queryKey: ['life-events'] });
       resetForm();
     },
+    onError: (err: any) => setError(err?.response?.data?.error ?? 'something went wrong'),
   });
 
   const triggerMutation = useMutation({
     mutationFn: (triggerId: string) => api.post(`/life-events/${triggerId}/trigger`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['life-events'] }),
+    onError: (err: any) => setError(err?.response?.data?.error ?? 'something went wrong'),
   });
 
   const cancelMutation = useMutation({
     mutationFn: (triggerId: string) => api.post(`/life-events/${triggerId}/cancel`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['life-events'] }),
+    onError: (err: any) => setError(err?.response?.data?.error ?? 'something went wrong'),
   });
 
   const deleteMutation = useMutation({
     mutationFn: (triggerId: string) => api.delete(`/life-events/${triggerId}`),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['life-events'] }),
+    onError: (err: any) => setError(err?.response?.data?.error ?? 'something went wrong'),
   });
 
   const resetForm = () => {
@@ -413,7 +418,7 @@ export function LifeEvents() {
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
                     <span
                       className="hl-mono"
-                      style={{ fontSize: 9.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-low)' }}
+                      style={{ fontSize: 9.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
                     >
                       {statusConfig.label}
                     </span>
@@ -498,7 +503,7 @@ export function LifeEvents() {
         >
           <div
             style={{
-              background: '#0e0e0c',
+              background: 'var(--ink)',
               border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 560,
@@ -537,11 +542,12 @@ export function LifeEvents() {
                 onClick={() => resetForm()}
                 style={{
                   background: 'none', border: 0, padding: 0, cursor: 'pointer',
-                  fontFamily: "'JetBrains Mono', monospace", fontSize: 14, color: 'var(--bone-faint)',
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.18em',
+                  textTransform: 'uppercase', color: 'var(--bone-faint)',
                 }}
                 aria-label="Close"
               >
-                ✕
+                close
               </button>
             </div>
 
@@ -727,10 +733,11 @@ export function LifeEvents() {
                             aria-label="Remove"
                             style={{
                               background: 'none', border: 0, padding: 0, cursor: 'pointer',
-                              fontFamily: "'JetBrains Mono', monospace", fontSize: 12, color: 'var(--bone-faint)',
+                              fontFamily: "'JetBrains Mono', monospace", fontSize: 10,
+                              letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)',
                             }}
                           >
-                            ✕
+                            close
                           </button>
                         </li>
                       ))}
@@ -769,6 +776,21 @@ export function LifeEvents() {
                   </button>
                 )}
 
+                {error && (
+                  <p
+                    role="alert"
+                    style={{
+                      margin: 0,
+                      fontFamily: 'var(--mono)',
+                      fontSize: 11,
+                      color: 'var(--danger)',
+                      letterSpacing: '0.06em',
+                    }}
+                  >
+                    {error}
+                  </p>
+                )}
+
                 <button
                   onClick={handleQuickCreate}
                   disabled={!eventName.trim() || createMutation.isPending}
@@ -796,7 +818,7 @@ export function LifeEvents() {
         >
           <div
             style={{
-              background: '#0e0e0c',
+              background: 'var(--ink)',
               border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 440,
@@ -894,11 +916,9 @@ export function LifeEvents() {
                     { href: '/compose', label: 'Write a letter' },
                     { href: '/record', label: 'Record a voice message' },
                   ].map(({ href, label }) => (
-                    <a
+                    <Link
                       key={href}
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      to={href}
                       style={{
                         display: 'block',
                         padding: '12px 14px',
@@ -912,7 +932,7 @@ export function LifeEvents() {
                       }}
                     >
                       {label} →
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>

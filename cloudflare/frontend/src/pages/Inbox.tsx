@@ -65,16 +65,14 @@ export function Inbox() {
     queryFn: () =>
       threadsApi
         .upcomingUnlocks(365)
-        .then((r) => r.data.upcoming)
-        .catch(() => [] as UpcomingUnlock[]),
+        .then((r) => r.data.upcoming),
   });
   const recentQ = useQuery({
     queryKey: ['inbox', 'recent'],
     queryFn: () =>
       threadsApi
         .recentUnlocks(180)
-        .then((r) => (r.data.recent as RecentUnlock[]) ?? [])
-        .catch(() => [] as RecentUnlock[]),
+        .then((r) => (r.data.recent as RecentUnlock[]) ?? []),
   });
 
   const receivedQ = useQuery({
@@ -82,14 +80,14 @@ export function Inbox() {
     queryFn: () =>
       memoriesApi
         .received()
-        .then((r) => (r.data as any).received ?? [])
-        .catch(() => []),
+        .then((r) => (r.data as any).received ?? []),
   });
 
   const sealed = upcomingQ.data ?? [];
   const opened = recentQ.data ?? [];
   const received: { id: string; title: string; type: string; createdAt: string; from: string; metadata: any }[] = receivedQ.data ?? [];
   const loading = upcomingQ.isLoading || recentQ.isLoading;
+  const hasError = upcomingQ.isError || recentQ.isError || receivedQ.isError;
 
   return (
     <ClothShell
@@ -162,8 +160,14 @@ export function Inbox() {
           </section>
         )}
 
+        {hasError && (
+          <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 12, margin: '0 0 24px', letterSpacing: '0.12em' }}>
+            could not load inbox
+          </p>
+        )}
+
         {loading ? (
-          <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.4, marginTop: 40 }} />
+          <div role="status" aria-label="Loading" style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.4, marginTop: 40 }} />
         ) : sealed.length === 0 && opened.length === 0 ? (
           <EmptyState />
         ) : (

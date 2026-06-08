@@ -29,22 +29,30 @@ const BILLING_CSS = `
 
 export function Billing() {
   const [busy, setBusy] = useState<string | null>(null);
+  const [billingError, setBillingError] = useState<string | null>(null);
 
-  const { data: subscription } = useQuery({
+  const { data: subscription, isError: subscriptionError } = useQuery({
     queryKey: ['subscription'],
-    queryFn: () => billingApi.getSubscription().then((r) => r.data).catch(() => null),
+    queryFn: () => billingApi.getSubscription().then((r) => r.data),
   });
 
   const checkout = useMutation({
     mutationFn: (cycle: 'monthly' | 'yearly') =>
       billingApi.checkout({ tier: 'FAMILY', billingCycle: cycle }).then((r) => r.data),
-    onSuccess: (data: any) => { if (data?.url) window.location.href = data.url; setBusy(null); },
-    onError: () => setBusy(null),
+    onSuccess: (data: any) => {
+      if (data?.url) window.location.href = data.url;
+      setBusy(null);
+    },
+    onError: (err: any) => {
+      setBusy(null);
+      setBillingError(err?.response?.data?.error ?? 'could not start checkout');
+    },
   });
 
   const portal = useMutation({
     mutationFn: () => billingApi.portal().then((r) => r.data),
     onSuccess: (data: any) => { if (data?.url) window.location.href = data.url; },
+    onError: (err: any) => setBillingError(err?.response?.data?.error ?? 'could not open billing portal'),
   });
 
   const currentTier = (subscription?.tier ?? 'STARTER') as string;
@@ -69,6 +77,17 @@ export function Billing() {
     >
       <style>{BILLING_CSS}</style>
       <div style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(24px, 5vw, 40px) clamp(16px, 4vw, 40px) 80px' }}>
+
+          {subscriptionError && (
+            <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 16 }}>
+              could not load subscription — try refreshing
+            </p>
+          )}
+          {billingError && (
+            <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 16 }}>
+              {billingError}
+            </p>
+          )}
 
           <h1 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 300, margin: '0 0 6px', letterSpacing: '-0.016em' }}>
             Billing

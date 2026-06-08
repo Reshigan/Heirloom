@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
-import axios from 'axios';
+import api from '../services/api';
 
 interface CardData {
   id: string;
@@ -30,18 +30,19 @@ export function CardView() {
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     const fetchCard = async () => {
       try {
-        const API_URL = import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api';
-        const response = await axios.get(`${API_URL}/memory-cards/${id}`);
-        setCard(response.data);
+        const response = await api.get(`/memory-cards/${id}`);
+        if (!cancelled) setCard(response.data);
       } catch (err: any) {
-        setError(err.response?.data?.error || 'Card not found');
+        if (!cancelled) setError(err.response?.data?.error || 'Card not found');
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     if (id) fetchCard();
+    return () => { cancelled = true; };
   }, [id]);
 
   const handleShare = async () => {

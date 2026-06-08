@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 
 export function ThreadsIndex() {
   const { isAuthenticated } = useAuthStore();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['threads-index'],
     queryFn: () => threadsApi.list().then((r) => (r.data as any)?.threads ?? r.data ?? []),
     enabled: isAuthenticated,
@@ -23,32 +23,40 @@ export function ThreadsIndex() {
         <progress style={{ display: 'block', width: '100%', height: 1, marginBottom: 24, appearance: 'none', accentColor: 'var(--warm)' }} />
       )}
 
-      <div style={{ paddingTop: 40 }}>
-        {threads.length === 0 && !isLoading && (
-          <p className="hl-serif" style={{ color: 'var(--bone-dim)', fontStyle: 'italic' }}>No threads yet.</p>
-        )}
+      <div style={{ maxWidth: 800, margin: '0 auto' }}>
+        <div style={{ paddingTop: 40 }}>
+          {isError && (
+            <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 12, margin: '0 0 24px', letterSpacing: '0.12em' }}>
+              could not load threads
+            </p>
+          )}
 
-        {threads.map((thread: any, i: number) => (
-          <Link
-            key={thread.id ?? i}
-            to={`/threads/${thread.id}`}
-            style={{ display: 'block', textDecoration: 'none', borderBottom: '1px solid var(--rule)', padding: '20px 0' }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 24 }}>
-              <span className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)' }}>
-                {thread.name ?? 'Unnamed Thread'}
-              </span>
-              <span style={{ display: 'flex', gap: 24, flexShrink: 0 }}>
-                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
-                  {thread.memberCount ?? 1} {thread.memberCount === 1 ? 'member' : 'members'}
+          {threads.length === 0 && !isLoading && !isError && (
+            <p className="hl-serif" style={{ color: 'var(--bone-dim)', fontStyle: 'italic' }}>No threads yet.</p>
+          )}
+
+          {threads.map((thread: any, i: number) => (
+            <Link
+              key={thread.id ?? i}
+              to={`/threads/${thread.id}`}
+              style={{ display: 'block', textDecoration: 'none', borderBottom: '1px solid var(--rule)', padding: '20px 0' }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 24 }}>
+                <span className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)' }}>
+                  {thread.name ?? 'Unnamed Thread'}
                 </span>
-                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
-                  {thread.lastEntryAt ? new Date(thread.lastEntryAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : '—'}
+                <span style={{ display: 'flex', gap: 24, flexShrink: 0 }}>
+                  <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                    {thread.memberCount ?? 1} {thread.memberCount === 1 ? 'member' : 'members'}
+                  </span>
+                  <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                    {thread.lastEntryAt ? new Date(thread.lastEntryAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : '—'}
+                  </span>
                 </span>
-              </span>
-            </div>
-          </Link>
-        ))}
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
     </ClothShell>
   );

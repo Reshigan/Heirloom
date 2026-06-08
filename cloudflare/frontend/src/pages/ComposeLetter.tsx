@@ -273,7 +273,8 @@ export function ComposeLetter() {
               fontSize: 11,
               letterSpacing: '0.08em',
               color: 'var(--warm)',
-              padding: 0,
+              padding: '0 4px',
+              minHeight: 44,
               opacity: busy ? 0.5 : 1,
               transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
             }}
@@ -288,7 +289,7 @@ export function ComposeLetter() {
         style={{
           maxWidth: 720,
           margin: '0 auto',
-          padding: 'clamp(24px,5vw,48px) 56px 96px',
+          padding: 'clamp(24px,5vw,48px) clamp(20px, 5vw, 56px) 96px',
         }}
       >
           {/* eyebrow */}
@@ -387,6 +388,9 @@ export function ComposeLetter() {
                   border: 'none',
                   cursor: 'pointer',
                   padding: 0,
+                  minHeight: 44,
+                  paddingTop: 12,
+                  paddingBottom: 12,
                   fontFamily: 'var(--mono)',
                   fontSize: 10,
                   letterSpacing: '0.32em',
@@ -534,7 +538,7 @@ export function ComposeLetter() {
                 fontSize: 10,
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
-                color: 'var(--dye-madder)',
+                color: 'var(--danger)',
               }}
             >
               {error}
