@@ -127,7 +127,7 @@ engagementV2Routes.get('/family-feed', async (c) => {
   `).bind(...familyUserIds).all();
 
   const letters = await c.env.DB.prepare(`
-    SELECT l.id, l.subject as title, l.body as description, l.created_at, l.user_id,
+    SELECT l.id, l.title, l.body as description, l.created_at, l.user_id,
            u.first_name, u.last_name, u.avatar_url,
            'letter' as type
     FROM letters l
