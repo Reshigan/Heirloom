@@ -18,11 +18,13 @@ import { useAuthStore } from '../stores/authStore';
  */
 
 interface TiedEntry {
+  id: string;
   date: string;
   recip: string;
   years: string;
   kind: string;
   weft: number;
+  deliverYear: number;
 }
 
 export function TiedOff() {
@@ -46,9 +48,9 @@ export function TiedOff() {
         const futureHorizon = today + 50;
 
         const future: TiedEntry[] = raw
-          .filter((l: any) => l.sealedAt && l.scheduledDeliveryDate)
+          .filter((l: any) => l.sealedAt && (l.scheduledDeliveryDate || l.scheduledDate))
           .map((l: any): TiedEntry => {
-            const deliverDate = new Date(l.scheduledDeliveryDate);
+            const deliverDate = new Date(l.scheduledDeliveryDate ?? l.scheduledDate);
             const yearsUntil = deliverDate.getFullYear() - today;
             const weft = Math.min(
               0.9,
@@ -59,11 +61,13 @@ export function TiedOff() {
                 ? l.recipientNames[0]
                 : (l.salutation?.replace(/^dear\s+/i, '') ?? 'someone');
             return {
+              id: l.id ?? '',
               date: deliverDate.toISOString().slice(0, 10).replace(/-/g, '·'),
               recip: recipient,
               years: yearsUntil <= 0 ? 'due' : yearsUntil === 1 ? '+1 yr' : `+${yearsUntil} yrs`,
               kind: 'letter',
               weft,
+              deliverYear: deliverDate.getFullYear(),
             };
           });
 
@@ -111,6 +115,12 @@ export function TiedOff() {
         </div>
 
         {/* horizon ribbon */}
+        {(() => {
+          const years = locked.map((l) => l.deliverYear);
+          const minYear = Math.min(...(years.length ? years : [new Date().getFullYear()]), new Date().getFullYear());
+          const maxYear = Math.max(...(years.length ? years : [new Date().getFullYear() + 1]), new Date().getFullYear() + 1);
+          const todayPct = maxYear === minYear ? 26 : ((new Date().getFullYear() - minYear) / (maxYear - minYear)) * 100;
+          return (
         <div
           style={{
             position: 'relative',
@@ -125,7 +135,7 @@ export function TiedOff() {
               left: 0,
               top: 0,
               height: '100%',
-              width: '26%',
+              width: `${todayPct}%`,
               background:
                 'linear-gradient(to right, rgba(244,236,216,0.06), rgba(244,236,216,0.02))',
             }}
@@ -133,7 +143,7 @@ export function TiedOff() {
           <div
             style={{
               position: 'absolute',
-              left: '26%',
+              left: `${todayPct}%`,
               top: 0,
               bottom: 0,
               width: 1,
@@ -145,7 +155,7 @@ export function TiedOff() {
             className="loom-mono"
             style={{
               position: 'absolute',
-              left: '26%',
+              left: `${todayPct}%`,
               top: -16,
               transform: 'translateX(-50%)',
               fontSize: 10,
@@ -159,7 +169,7 @@ export function TiedOff() {
               key={i}
               style={{
                 position: 'absolute',
-                left: `calc(26% + ${it.weft * 70}%)`,
+                left: `calc(${todayPct}% + ${it.weft * (100 - todayPct)}%)`,
                 top: '50%',
                 transform: 'translate(-50%, -50%)',
                 display: 'grid',
@@ -195,12 +205,14 @@ export function TiedOff() {
             +50 yrs
           </div>
         </div>
+          );
+        })()}
 
         {/* card grid */}
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
             gap: 24,
             alignContent: 'start',
             overflowY: 'auto',
@@ -228,7 +240,15 @@ export function TiedOff() {
               </Link>
             </div>
           ) : (
-            locked.map((it, i) => <TiedCard key={i} {...it} />)
+            locked.map((it, i) => (
+              <Link
+                key={i}
+                to={`/loom/letter?id=${it.id}`}
+                style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+              >
+                <TiedCard {...it} />
+              </Link>
+            ))
           )}
         </div>
       </div>
@@ -236,7 +256,7 @@ export function TiedOff() {
   );
 }
 
-function TiedCard({ date, recip, years, kind }: Omit<TiedEntry, 'weft'>) {
+function TiedCard({ date, recip, years, kind }: Omit<TiedEntry, 'weft' | 'id' | 'deliverYear'>) {
   return (
     <div
       style={{

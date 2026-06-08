@@ -1,21 +1,6 @@
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
-
-function MktBar() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 56px', borderBottom: '1px solid var(--parchment-rule)' }}>
-      <Link to="/" style={{ textDecoration: 'none' }}>
-        <HLogo size={20} wordmark mono color="var(--parchment-ink)" wordColor="#1a1916" />
-      </Link>
-      <span style={{ display: 'flex', gap: 32, fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}>
-        <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>see the cloth</Link>
-        <Link to="/founder" style={{ color: 'inherit', textDecoration: 'none' }}>founder</Link>
-        <Link to="/pricing" style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
-        <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
-      </span>
-    </div>
-  );
-}
+import { ClothShell } from '../loom/components/ClothShell';
 
 const SECTIONS = [
   {
@@ -57,36 +42,39 @@ const SECTIONS = [
 
 export function Terms() {
   return (
-    <div className="hl-screen parchment" style={{ overflow: 'auto' }}>
-      <MktBar />
-      <div style={{ padding: '64px 88px 80px', maxWidth: 920, margin: '0 auto' }}>
+    <ClothShell
+      topbarLeft={<HLogo />}
+      topbarCenter="terms"
+      topbarRight={<Link to="/privacy">privacy →</Link>}
+    >
+      <div style={{ maxWidth: 700, margin: '0 auto', padding: 'clamp(24px,5vw,48px)' }}>
         <div className="hl-eyebrow dark" style={{ marginBottom: 18 }}>terms · plain words version</div>
-        <h1 className="hl-serif hl-tight" style={{ fontSize: 52, lineHeight: 1.06, fontWeight: 300, margin: 0, letterSpacing: '-0.022em', color: 'var(--parchment-ink)' }}>
+        <h1 className="hl-serif hl-tight" style={{ fontSize: 52, lineHeight: 1.06, fontWeight: 300, margin: 0, letterSpacing: '-0.022em', color: 'var(--bone)' }}>
           What we owe each other.
         </h1>
 
         {SECTIONS.map((s) => (
-          <div key={s.n} style={{ marginTop: 48, display: 'grid', gridTemplateColumns: 'min(80px, 20%) 1fr', gap: 'clamp(16px, 3vw, 32px)', borderTop: '1px solid var(--parchment-rule)', paddingTop: 24 }}>
-            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', letterSpacing: '0.32em', textTransform: 'uppercase' }}>{s.n}</div>
+          <div key={s.n} style={{ marginTop: 48, display: 'grid', gridTemplateColumns: 'min(80px, 20%) 1fr', gap: 'clamp(16px, 3vw, 32px)', borderTop: '1px solid var(--rule)', paddingTop: 24 }}>
+            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.32em', textTransform: 'uppercase' }}>{s.n}</div>
             <div>
-              <h2 className="hl-serif hl-tight" style={{ fontSize: 24, fontWeight: 400, margin: 0, letterSpacing: '-0.012em', color: 'var(--parchment-ink)' }}>{s.h}</h2>
-              <p className="hl-prose dark" style={{ fontSize: 16, lineHeight: 1.75, marginTop: 10, color: 'var(--parchment-ink)' }}>{s.b}</p>
+              <h2 className="hl-serif hl-tight" style={{ fontSize: 24, fontWeight: 400, margin: 0, letterSpacing: '-0.012em', color: 'var(--bone)' }}>{s.h}</h2>
+              <p className="hl-prose" style={{ fontSize: 16, lineHeight: 1.75, marginTop: 10, color: 'var(--bone)' }}>{s.b}</p>
             </div>
           </div>
         ))}
 
-        <div style={{ marginTop: 56, paddingTop: 28, borderTop: '1px solid var(--parchment-rule)', display: 'flex', gap: 28, alignItems: 'center' }}>
+        <div style={{ marginTop: 56, paddingTop: 28, borderTop: '1px solid var(--rule)', display: 'flex', gap: 28, alignItems: 'center' }}>
           <Link to="/" style={{ textDecoration: 'none' }}>
-            <HLogo size={14} wordmark mono color="var(--parchment-faint)" wordColor="var(--parchment-faint)" />
+            <HLogo size={14} wordmark mono />
           </Link>
-          <Link to="/privacy" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--parchment-faint)', textDecoration: 'none' }}>
+          <Link to="/privacy" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>
             Privacy
           </Link>
-          <a href="mailto:support@heirloom.blue" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--parchment-faint)', textDecoration: 'none' }}>
+          <a href="mailto:support@heirloom.blue" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>
             Contact
           </a>
         </div>
       </div>
-    </div>
+    </ClothShell>
   );
 }

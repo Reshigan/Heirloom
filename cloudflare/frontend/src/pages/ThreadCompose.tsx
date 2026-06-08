@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { TapestryEdge } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { threadsApi, type ThreadVisibility, type ThreadLockType } from '../services/api';
 
@@ -122,97 +123,82 @@ export function ThreadCompose() {
   const today = new Date().toISOString().slice(0, 10);
   const thread = detail?.thread;
 
-  return (
-    /* hl-screen: position:absolute inset:0 — standalone dark ink surface */
-    <div
-      className="hl-screen"
-      style={{ background: 'var(--ink)', color: 'var(--bone)', overflow: 'hidden' }}
-    >
-      {/* ── Topbar ── */}
-      <div className="hl-topbar">
-        {/* left: logo + thread name context */}
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
-          <Link
-            to="/loom"
-            style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+  const topbarLeftContent = (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
+      <Link
+        to="/loom"
+        style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+      >
+        <HLogo size={18} wordmark />
+      </Link>
+      {thread?.name && (
+        <>
+          <span style={{ color: 'var(--bone-low)' }}>·</span>
+          <span
+            className="hl-eyebrow"
+            style={{ color: 'var(--bone-dim)', textTransform: 'none', letterSpacing: 0, fontSize: 13 }}
           >
-            <HLogo size={18} wordmark />
-          </Link>
-          {thread?.name && (
-            <>
-              <span style={{ color: 'var(--bone-low)' }}>·</span>
-              <span
-                className="hl-eyebrow"
-                style={{ color: 'var(--bone-dim)', textTransform: 'none', letterSpacing: 0, fontSize: 13 }}
-              >
-                {thread.name}
-              </span>
-            </>
-          )}
-        </span>
+            {thread.name}
+          </span>
+        </>
+      )}
+    </span>
+  );
 
-        {/* center: counter label */}
-        <span
-          className="hl-counter hl-eyebrow"
-          style={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            whiteSpace: 'nowrap',
-            color: 'var(--bone-faint)',
-          }}
-        >
-          adding to the thread
-        </span>
+  const topbarRightContent = (
+    <button
+      type="button"
+      onClick={() => {
+        setError(null);
+        if (!body.trim()) {
+          setError('Write something — even a sentence.');
+          return;
+        }
+        if (enableLock) {
+          if (lockType === 'DATE' && !lockDate) {
+            setError('Pick the date the entry should open, or turn the lock off.');
+            return;
+          }
+          if (lockType === 'AGE' && (!lockTargetMemberId || !lockAgeYears)) {
+            setError('Pick a member and an age for the age-gate lock.');
+            return;
+          }
+          if (lockType === 'RECIPIENT_EVENT' && (!lockTargetMemberId || !lockEventLabel.trim())) {
+            setError('Pick a member and describe the event the lock waits for.');
+            return;
+          }
+          if (lockType === 'GENERATION' && !lockGeneration) {
+            setError('Pick the generation the entry should wait for.');
+            return;
+          }
+        }
+        create.mutate();
+      }}
+      disabled={create.isPending || !body.trim()}
+      style={{
+        background: 'transparent',
+        border: 0,
+        padding: 0,
+        cursor: create.isPending || !body.trim() ? 'default' : 'pointer',
+        fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+        fontSize: 11,
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        color: 'var(--warm)',
+        opacity: create.isPending || !body.trim() ? 0.4 : 1,
+        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+      }}
+    >
+      {create.isPending ? 'saving…' : 'save →'}
+    </button>
+  );
 
-        {/* right: save action */}
-        <button
-          type="button"
-          onClick={() => {
-            setError(null);
-            if (!body.trim()) {
-              setError('Write something — even a sentence.');
-              return;
-            }
-            if (enableLock) {
-              if (lockType === 'DATE' && !lockDate) {
-                setError('Pick the date the entry should open, or turn the lock off.');
-                return;
-              }
-              if (lockType === 'AGE' && (!lockTargetMemberId || !lockAgeYears)) {
-                setError('Pick a member and an age for the age-gate lock.');
-                return;
-              }
-              if (lockType === 'RECIPIENT_EVENT' && (!lockTargetMemberId || !lockEventLabel.trim())) {
-                setError('Pick a member and describe the event the lock waits for.');
-                return;
-              }
-              if (lockType === 'GENERATION' && !lockGeneration) {
-                setError('Pick the generation the entry should wait for.');
-                return;
-              }
-            }
-            create.mutate();
-          }}
-          disabled={create.isPending || !body.trim()}
-          style={{
-            background: 'transparent',
-            border: 0,
-            padding: 0,
-            cursor: create.isPending || !body.trim() ? 'default' : 'pointer',
-            fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
-            fontSize: 11,
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            color: 'var(--warm)',
-            opacity: create.isPending || !body.trim() ? 0.4 : 1,
-            transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
-          }}
-        >
-          {create.isPending ? 'saving…' : 'save →'}
-        </button>
-      </div>
-
+  return (
+    <ClothShell
+      topbarLeft={topbarLeftContent}
+      topbarCenter="adding to the thread"
+      topbarRight={topbarRightContent}
+    >
       {/* ── Scrollable content area ── */}
       <div
         style={{
@@ -638,6 +624,6 @@ export function ThreadCompose() {
 
       {/* TapestryEdge at the bottom */}
       <TapestryEdge />
-    </div>
+    </ClothShell>
   );
 }

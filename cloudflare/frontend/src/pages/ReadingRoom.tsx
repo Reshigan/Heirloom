@@ -59,16 +59,18 @@ function paragraphs(body: string): string[] {
 
 // ── ReadingContent ────────────────────────────────────────────────────────────
 function ReadingContent({
-  t, dye, onPrev, onNext, activeIndex, total,
+  t, dye, onPrev, onNext, onJump, activeIndex, total,
 }: {
   t: Thread;
   dye: string;
   onPrev?: () => void;
   onNext?: () => void;
+  onJump: (i: number) => void;
   activeIndex: number;
   total: number;
 }) {
   const paras = paragraphs(t.body);
+  const isLastEntry = activeIndex === total - 1;
   return (
     <div style={{
       position: 'absolute', inset: 0,
@@ -182,11 +184,19 @@ function ReadingContent({
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             {Array.from({ length: total }, (_, i) => (
-              <div key={i} style={{
-                width: i === activeIndex ? 20 : 6, height: 2,
-                background: i === activeIndex ? dye : 'rgba(244,236,216,0.18)',
-                transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
-              }} />
+              <button
+                key={i}
+                type="button"
+                onClick={() => onJump(i)}
+                aria-label={`Go to entry ${i + 1}`}
+                style={{
+                  width: i === activeIndex ? 20 : 6, height: 2,
+                  background: i === activeIndex ? dye : 'rgba(244,236,216,0.18)',
+                  transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
+                  border: 'none', padding: 0, cursor: 'pointer',
+                  flexShrink: 0,
+                }}
+              />
             ))}
           </div>
 
@@ -203,6 +213,18 @@ function ReadingContent({
             later →
           </button>
         </div>
+
+        {isLastEntry && (
+          <div style={{ marginTop: 48, paddingTop: 24, borderTop: '1px solid var(--rule)', textAlign: 'center' }}>
+            <Link to="/compose" style={{
+              fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em',
+              textTransform: 'uppercase', color: 'var(--bone-faint)',
+              textDecoration: 'none', borderBottom: '1px solid var(--rule)', paddingBottom: 2,
+            }}>
+              add to the cloth →
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -210,11 +232,12 @@ function ReadingContent({
 
 // ── ReadingRoom ───────────────────────────────────────────────────────────────
 export function ReadingRoom() {
-  const [active, setActive]       = useState(0);
-  const [clothOpen, setClothOpen] = useState(true);
-  const [view, setView]           = useState<'wall' | 'book'>('wall');
-  const [navOpen, setNavOpen]     = useState(false);
-  const [entries, setEntries]     = useState<Thread[]>([]);
+  const [active, setActive]         = useState(0);
+  const [clothOpen, setClothOpen]   = useState(true);
+  const [view, setView]             = useState<'wall' | 'book'>('wall');
+  const [navOpen, setNavOpen]       = useState(false);
+  const [selvedgeOpen, setSelvedgeOpen] = useState(false);
+  const [entries, setEntries]       = useState<Thread[]>([]);
   const [loading, setLoading]     = useState(false);
   const { user, isAuthenticated } = useAuthStore();
   const [searchParams]            = useSearchParams();
@@ -377,15 +400,32 @@ export function ReadingRoom() {
         </button>
       </div>
 
+      {/* Layer 2: Selvedge nav — mobile toggle */}
+      <button
+        type="button"
+        onClick={() => setSelvedgeOpen(o => !o)}
+        className="selvedge-toggle"
+        style={{
+          position: 'fixed', left: 0, top: '50%', transform: 'translateY(-50%)',
+          background: 'var(--rule)', border: 'none', color: 'var(--bone-faint)',
+          fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.15em',
+          padding: '8px 4px', cursor: 'pointer', writingMode: 'vertical-rl',
+          textTransform: 'uppercase', zIndex: 16, display: 'none',
+        }}
+      >
+        entries
+      </button>
+      <style>{`.selvedge-toggle { display: none !important; } @media (max-width: 640px) { .selvedge-toggle { display: block !important; } }`}</style>
+
       {/* Layer 2: Selvedge nav */}
       <div
         onMouseEnter={() => setNavOpen(true)}
         onMouseLeave={() => setNavOpen(false)}
         style={{
           position: 'absolute', top: 56, bottom: 0, left: 0, zIndex: 15,
-          width: navOpen ? 260 : 6,
-          background: navOpen ? 'rgba(14,14,12,0.94)' : 'transparent',
-          borderRight: navOpen ? '1px solid rgba(244,236,216,0.08)' : '1px solid transparent',
+          width: (navOpen || selvedgeOpen) ? 260 : 6,
+          background: (navOpen || selvedgeOpen) ? 'rgba(14,14,12,0.94)' : 'transparent',
+          borderRight: (navOpen || selvedgeOpen) ? '1px solid rgba(244,236,216,0.08)' : '1px solid transparent',
           transition: `width 360ms ${EASE}, background 360ms ${EASE}, border-color 360ms ${EASE}`,
           overflow: 'hidden', display: 'flex', flexDirection: 'column',
         }}
@@ -404,7 +444,7 @@ export function ReadingRoom() {
               }}
             >
               <div style={{
-                paddingLeft: 14, opacity: navOpen ? 1 : 0,
+                paddingLeft: 14, opacity: (navOpen || selvedgeOpen) ? 1 : 0,
                 transition: `opacity 220ms ${EASE}`, whiteSpace: 'nowrap', minWidth: 0,
               }}>
                 <div style={{
@@ -483,6 +523,7 @@ export function ReadingRoom() {
                 dye={dye}
                 onPrev={active > 0 ? () => handleSelect(active - 1) : undefined}
                 onNext={active < entries.length - 1 ? () => handleSelect(active + 1) : undefined}
+                onJump={handleSelect}
                 activeIndex={active}
                 total={entries.length}
               />

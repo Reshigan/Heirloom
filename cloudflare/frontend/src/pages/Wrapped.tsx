@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { memoriesApi } from '../services/api';
-import { AppFrame } from '../loom/components/AppFrame';
+import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { UserMenu } from '../loom/components/Frame';
 
 const YEAR = new Date().getFullYear();
 
@@ -19,9 +21,14 @@ export default function Wrapped() {
   const thisYear = memories.filter((m: any) => new Date(m.createdAt ?? m.created_at).getFullYear() === YEAR);
   const activeMonths = new Set(thisYear.map((m: any) => new Date(m.createdAt ?? m.created_at).getMonth())).size;
 
+  // Derive account start year from the oldest memory in the thread
+  const accountStartYear = memories.length > 0
+    ? Math.min(...memories.map((m: any) => new Date(m.createdAt ?? m.created_at).getFullYear()))
+    : YEAR;
+
   const handleShare = async () => {
     const url = `${window.location.origin}/wrapped/${YEAR}`;
-    const text = `${thisYear.length} entries. ${activeMonths} months active. Our family thread — ${YEAR}.`;
+    const text = `In ${YEAR}, our family wove ${thisYear.length} entries across ${activeMonths} months.`;
     if (navigator.share) {
       await navigator.share({ title: `${YEAR} — Heirloom Wrapped`, text, url }).catch(() => null);
     } else {
@@ -32,7 +39,11 @@ export default function Wrapped() {
   };
 
   return (
-    <AppFrame left="wrapped">
+    <ClothShell
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'wrapped' }]} />}
+      topbarCenter="wrapped"
+      topbarRight={<UserMenu />}
+    >
       <div style={{ maxWidth: 600, padding: '64px 0' }}>
         <div className="hl-eyebrow" style={{ marginBottom: 16 }}>{YEAR} · Heirloom Wrapped</div>
         <h1 className="hl-serif hl-tight" style={{ fontSize: 52, fontWeight: 300, color: 'var(--bone)', margin: '0 0 64px', lineHeight: 1.04 }}>
@@ -44,7 +55,7 @@ export default function Wrapped() {
             ['entries this year', String(thisYear.length)],
             ['months active', String(activeMonths)],
             ['total in thread', String(memories.length)],
-            ['years running', String(YEAR - 2019)],
+            ['years running', String(YEAR - accountStartYear || 1)],
           ] as [string, string][]).map(([label, value]) => (
             <div key={label} style={{ padding: '32px 32px 32px 0', borderBottom: '1px solid var(--rule)', borderRight: '1px solid var(--rule)' }}>
               <div className="hl-eyebrow" style={{ marginBottom: 8 }}>{label}</div>
@@ -63,6 +74,6 @@ export default function Wrapped() {
           </span>
         </button>
       </div>
-    </AppFrame>
+    </ClothShell>
   );
 }

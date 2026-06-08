@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { foundersApi, type FounderCount } from '../services/api';
+import { ClothShell } from '../loom/components/ClothShell';
+import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
 
 const BENEFITS: { heading: string; body: string }[] = [
@@ -102,75 +104,11 @@ export function Founder() {
   };
 
   return (
-    <div
-      className="hl-screen"
-      style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
+    <ClothShell
+      topbarLeft={<HLogo size="sm" wordmark />}
+      topbarCenter="founders"
+      topbarRight={<UserMenu />}
     >
-      {/* ── topbar ────────────────────────────────────────────────────────── */}
-      <header
-        style={{
-          display:         'flex',
-          alignItems:      'center',
-          justifyContent:  'space-between',
-          padding:         '24px 56px',
-          fontFamily:      'var(--mono)',
-          fontSize:         10.5,
-          textTransform:   'uppercase',
-          letterSpacing:   '0.22em',
-          color:           'var(--bone-dim)',
-          position:        'absolute',
-          top:              0,
-          left:             0,
-          right:            0,
-          zIndex:           10,
-          flexShrink:       0,
-        }}
-      >
-        {/* left: logo + wordmark */}
-        <HLogo size={20} wordmark mono color="var(--bone-dim)" wordColor="var(--bone-dim)" />
-
-        {/* right: nav */}
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 32 }}>
-          <Link
-            to="/loom"
-            style={{
-              fontFamily:     'var(--mono)',
-              fontSize:        10.5,
-              letterSpacing:  '0.22em',
-              textTransform:  'uppercase',
-              color:          'var(--bone-dim)',
-              textDecoration: 'none',
-            }}
-          >
-            see the cloth
-          </Link>
-          <span
-            style={{
-              fontFamily:    'var(--mono)',
-              fontSize:       10.5,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color:         'var(--warm)',
-            }}
-          >
-            founder
-          </span>
-          <Link
-            to="/login"
-            style={{
-              fontFamily:     'var(--mono)',
-              fontSize:        10.5,
-              letterSpacing:  '0.22em',
-              textTransform:  'uppercase',
-              color:          'var(--bone-dim)',
-              textDecoration: 'none',
-            }}
-          >
-            sign in
-          </Link>
-        </nav>
-      </header>
-
       {/* ── two-column body ──────────────────────────────────────────────── */}
       <div
         style={{
@@ -540,6 +478,6 @@ export function Founder() {
           </div>
         </div>
       </div>
-    </div>
+    </ClothShell>
   );
 }

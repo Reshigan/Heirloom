@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { aiApi } from '../services/api';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { UserMenu } from '../loom/components/Frame';
 
 /**
  * FutureLetter — Loom 3 rewrite (§6 Listener surface).
@@ -103,7 +105,7 @@ export function FutureLetter() {
   const set = (patch: Partial<typeof formData>) => setFormData({ ...formData, ...patch });
 
   return (
-    <Frame left="future letter">
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'future letter' }]} />} topbarCenter="future letter" topbarRight={<UserMenu />}>
       <div
         style={{
           maxWidth: 980,
@@ -451,6 +453,6 @@ export function FutureLetter() {
           </div>
         </div>
       </div>
-    </Frame>
+    </ClothShell>
   );
 }

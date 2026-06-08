@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ProgressHair } from '../components/ui/ProgressHair';
-import { HLogo } from '../loom/components/HLogo';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { TapestryEdge } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import api from '../services/api';
 
 interface StoryData {
@@ -36,35 +36,33 @@ export function StoryView() {
   // ── Loading ──────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div
-        className="hl-screen parchment"
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      >
-        <ProgressHair label="loading…" width={200} />
-      </div>
+      <ClothShell topbarCenter="story">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+          <ProgressHair label="loading…" width={200} />
+        </div>
+      </ClothShell>
     );
   }
 
   // ── Error ────────────────────────────────────────────────────────────────
   if (error || !data) {
     return (
-      <div
-        className="hl-screen parchment"
-        style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 40px' }}
-      >
-        <h1
-          className="hl-serif hl-tight"
-          style={{ fontSize: 36, fontWeight: 300, fontStyle: 'italic', color: 'var(--parchment-ink)', margin: '0 0 16px' }}
-        >
-          Story not found.
-        </h1>
-        <p
-          className="hl-prose dark"
-          style={{ fontSize: 15 }}
-        >
-          This story may have expired or the link may be invalid.
-        </p>
-      </div>
+      <ClothShell topbarCenter="story">
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '0 40px', height: '100%' }}>
+          <h1
+            className="hl-serif hl-tight"
+            style={{ fontSize: 36, fontWeight: 300, fontStyle: 'italic', color: 'var(--parchment-ink)', margin: '0 0 16px' }}
+          >
+            Story not found.
+          </h1>
+          <p
+            className="hl-prose dark"
+            style={{ fontSize: 15 }}
+          >
+            This story may have expired or the link may be invalid.
+          </p>
+        </div>
+      </ClothShell>
     );
   }
 
@@ -78,58 +76,12 @@ export function StoryView() {
 
   // ── Main render ──────────────────────────────────────────────────────────
   return (
-    <div
-      className="hl-screen parchment"
-      style={{ background: 'var(--parchment)' }}
-    >
-
-      {/* Topbar — parchment above the spread */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 64,
-          background: 'var(--parchment)',
-          borderBottom: '1px solid var(--parchment-rule)',
-          padding: '20px 56px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          zIndex: 10,
-        }}
-      >
-        <HLogo mono color="var(--parchment-ink)" size={18} />
-        <span
-          className="hl-mono"
-          style={{
-            fontSize: 10.5,
-            letterSpacing: '0.28em',
-            textTransform: 'uppercase',
-            color: 'var(--parchment-faint)',
-          }}
-        >
-          family story
-        </span>
-        <span
-          className="hl-mono"
-          style={{
-            fontSize: 10.5,
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            color: 'var(--parchment-faint)',
-          }}
-        >
-          heirloom.blue
-        </span>
-      </div>
-
+    <ClothShell topbarCenter="story">
       {/* Two-page spread */}
       <div
         style={{
           position: 'absolute',
-          top: 64,
+          top: 56,
           bottom: 56,
           left: 0,
           right: 0,
@@ -403,7 +355,7 @@ export function StoryView() {
 
       {/* TapestryEdge woven border at absolute bottom */}
       <TapestryEdge nowFrac={memories.length > 0 ? (currentIndex + 1) / memories.length : 0.5} />
-    </div>
+    </ClothShell>
   );
 }
 

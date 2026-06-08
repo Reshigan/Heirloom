@@ -106,7 +106,7 @@ export function Constellation() {
     }).catch(() => {});
   }, [isAuthenticated, user?.id, user?.defaultThreadId]);
   const maxYear = 2070;
-  const today = 2026;
+  const today = new Date().getFullYear();
   const xOf = (y: number) => ((y - minYear) / (maxYear - minYear)) * 100;
 
   const familyName = kin.length > 0 && !kin.some(k => k.you)

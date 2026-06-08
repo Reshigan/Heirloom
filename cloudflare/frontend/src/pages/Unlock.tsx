@@ -52,6 +52,8 @@ export function Unlock() {
   const [loading, setLoading] = useState(true);
   const [phase, setPhase] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [continueVisible, setContinueVisible] = useState(false);
+  const [continueClicked, setContinueClicked] = useState(false);
 
   const authorName = useMemo(
     () => [user?.firstName, user?.lastName].filter(Boolean).join(' ').trim(),
@@ -105,16 +107,20 @@ export function Unlock() {
   useEffect(() => {
     if (!letter || paused) return;
     const timers: ReturnType<typeof setTimeout>[] = [];
-    const cycle = () => {
-      setPhase(0);
-      timers.push(setTimeout(() => setPhase(1), 2200)); // the dissolve begins
-      timers.push(setTimeout(() => setPhase(2), 2920)); // 720ms later: letter settled
-      timers.push(setTimeout(() => setPhase(3), 8000)); // the artifact
-      timers.push(setTimeout(() => cycle(), 13500));
-    };
-    cycle();
+    setPhase(0);
+    setContinueVisible(false);
+    setContinueClicked(false);
+    timers.push(setTimeout(() => setPhase(1), 2200)); // the dissolve begins
+    timers.push(setTimeout(() => setPhase(2), 2920)); // 720ms later: letter settled
+    // Show "continue →" button after letter has been visible for 2s
+    timers.push(setTimeout(() => setContinueVisible(true), 4920));
     return () => timers.forEach(clearTimeout);
   }, [letter, paused]);
+
+  // Advance to artifact when user clicks continue
+  useEffect(() => {
+    if (continueClicked) setPhase(3);
+  }, [continueClicked]);
 
   // ── No matured letter (or not signed in / still loading) → honest empty state ──
   if (!letter) {
@@ -280,6 +286,29 @@ export function Unlock() {
                       }}
                     >
                       — {letter.signature}
+                    </div>
+                  )}
+                  {continueVisible && !continueClicked && (
+                    <div style={{ marginTop: 28, textAlign: 'right' }}>
+                      <button
+                        onClick={() => setContinueClicked(true)}
+                        style={{
+                          fontFamily: 'var(--mono)',
+                          fontSize: 10,
+                          letterSpacing: '0.18em',
+                          textTransform: 'uppercase',
+                          color: 'var(--warm)',
+                          background: 'none',
+                          border: 'none',
+                          borderBottom: '1px solid var(--rule)',
+                          cursor: 'pointer',
+                          paddingBottom: 2,
+                          opacity: 1,
+                          transition: `opacity 360ms var(--loom-ease)`,
+                        }}
+                      >
+                        continue →
+                      </button>
                     </div>
                   )}
                 </div>
@@ -493,24 +522,40 @@ function ShareCard({ letter }: { letter: UnlockLetter }) {
       <div
         style={{
           display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
+          flexDirection: 'column',
+          alignItems: 'center',
           paddingTop: 16,
           borderTop: '1px solid var(--rule)',
+          gap: 12,
         }}
       >
-        <span
-          className="loom-mono"
-          style={{ fontSize: 8, color: 'var(--bone-faint)', letterSpacing: '0.12em' }}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', width: '100%' }}>
+          <span
+            className="loom-mono"
+            style={{ fontSize: 8, color: 'var(--bone-faint)', letterSpacing: '0.12em' }}
+          >
+            heirloom.blue
+          </span>
+          <span
+            className="loom-mono"
+            style={{ fontSize: 8, color: 'var(--warm)', letterSpacing: '0.12em' }}
+          >
+            ∞
+          </span>
+        </div>
+        <button
+          onClick={async () => {
+            const text = `${letter.years} years from when it was written. A letter from ${letter.sealedDate} opened on ${letter.openedDate}.`;
+            if (navigator.share) {
+              await navigator.share({ text, title: 'Heirloom' }).catch(() => {});
+            } else {
+              await navigator.clipboard.writeText(text).catch(() => {});
+            }
+          }}
+          style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', background: 'none', border: 'none', borderBottom: '1px solid var(--rule)', cursor: 'pointer', marginTop: 24, paddingBottom: 2 }}
         >
-          heirloom.blue
-        </span>
-        <span
-          className="loom-mono"
-          style={{ fontSize: 8, color: 'var(--warm)', letterSpacing: '0.12em' }}
-        >
-          ∞
-        </span>
+          share this moment →
+        </button>
       </div>
     </div>
   );

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { billingApi } from '../services/api';
 import { PLAN_FEATURES } from '../lib/plans';
+import { ClothShell } from '../loom/components/ClothShell';
+import { HLogo } from '../loom/components/HLogo';
 
 interface PricingData {
   symbol: string;
@@ -77,10 +79,10 @@ export function Pricing() {
   ];
 
   return (
-    <div className="hl-screen parchment" style={{ overflowY: 'auto', minHeight: '100vh' }}>
-      <div style={{ padding: 'clamp(48px, 6vh, 80px) clamp(20px, 5vw, 56px) clamp(64px, 10vh, 120px)', maxWidth: 1080, margin: '0 auto' }}>
+    <ClothShell topbarLeft={<HLogo />} topbarCenter="pricing">
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(24px,5vw,48px)' }}>
         <div className="hl-eyebrow dark" style={{ marginBottom: 24 }}>Pricing</div>
-        <h1 className="hl-serif hl-tight" style={{ fontSize: 48, fontWeight: 300, margin: '0 0 40px', color: 'var(--parchment-ink)' }}>
+        <h1 className="hl-serif hl-tight" style={{ fontSize: 48, fontWeight: 300, margin: '0 0 40px', color: 'var(--bone)' }}>
           One price for the whole family.
         </h1>
 
@@ -92,8 +94,8 @@ export function Pricing() {
             style={{
               background: 'transparent', border: 0, cursor: 'pointer', padding: '6px 0',
               fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
-              color: !annual ? 'var(--parchment-ink)' : 'var(--parchment-faint)',
-              borderBottom: !annual ? '1px solid var(--parchment-ink)' : '1px solid transparent',
+              color: !annual ? 'var(--bone)' : 'var(--bone-faint)',
+              borderBottom: !annual ? '1px solid var(--bone)' : '1px solid transparent',
             }}
           >
             monthly
@@ -104,7 +106,7 @@ export function Pricing() {
             style={{
               background: 'transparent', border: 0, cursor: 'pointer', padding: '6px 0',
               fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
-              color: annual ? 'var(--parchment-ink)' : 'var(--parchment-faint)',
+              color: annual ? 'var(--bone)' : 'var(--bone-faint)',
               borderBottom: annual ? '1px solid var(--warm)' : '1px solid transparent',
             }}
           >
@@ -112,32 +114,32 @@ export function Pricing() {
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 0, borderTop: '1px solid var(--parchment-rule)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 0, borderTop: '1px solid var(--rule)' }}>
           {tiers.map((tier) => (
             <div
               key={tier.id}
               style={{
                 padding: '40px 32px',
-                borderRight: '1px solid var(--parchment-rule)',
-                borderBottom: '1px solid var(--parchment-rule)',
+                borderRight: '1px solid var(--rule)',
+                borderBottom: '1px solid var(--rule)',
               }}
             >
               <h2 className="hl-eyebrow dark" style={{ marginBottom: 16, margin: 0, padding: 0, font: 'inherit' }}>{tier.name}</h2>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 8 }}>
-                <span className="hl-serif" style={{ fontSize: 40, fontWeight: 300, color: 'var(--parchment-ink)' }}>
+                <span className="hl-serif" style={{ fontSize: 40, fontWeight: 300, color: 'var(--bone)' }}>
                   {showAnnual && tier.priceBilledAnnually ? tier.priceBilledAnnually : tier.price}
                 </span>
-                <span className="hl-mono" style={{ fontSize: 11, color: 'var(--parchment-dim)', letterSpacing: '0.08em' }}>
+                <span className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.08em' }}>
                   {showAnnual && tier.subAnnual ? tier.subAnnual : tier.sub}
                 </span>
               </div>
 
-              <hr className="hl-rule parchment" style={{ margin: '24px 0' }} />
+              <hr className="hl-rule" style={{ margin: '24px 0' }} />
 
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                 {tier.features.map((f) => (
-                  <li key={f} style={{ fontFamily: 'var(--serif)', fontSize: 14, lineHeight: 1.7, color: 'var(--parchment-dim)', paddingLeft: 16, position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: 0, color: 'var(--parchment-faint)' }}>·</span>
+                  <li key={f} style={{ fontFamily: 'var(--serif)', fontSize: 14, lineHeight: 1.7, color: 'var(--bone-dim)', paddingLeft: 16, position: 'relative' }}>
+                    <span style={{ position: 'absolute', left: 0, color: 'var(--bone-faint)' }}>·</span>
                     {f}
                   </li>
                 ))}
@@ -147,7 +149,7 @@ export function Pricing() {
                 <Link
                   to={showAnnual && tier.id === 'FAMILY' ? '/signup?tier=FAMILY&cycle=annual' : tier.to}
                   className={tier.warm ? 'hl-btn' : 'hl-btn ghost'}
-                  style={!tier.warm ? { color: 'var(--parchment-ink)', borderColor: 'var(--parchment-rule)' } : {}}
+                  style={!tier.warm ? { color: 'var(--bone)', borderColor: 'var(--rule)' } : {}}
                 >
                   {tier.cta}
                 </Link>
@@ -156,10 +158,10 @@ export function Pricing() {
           ))}
         </div>
 
-        <p className="hl-mono" style={{ fontSize: 10, color: 'var(--parchment-faint)', marginTop: 40, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 40, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
           All plans include IPFS pinning + family export. No lock-in.
         </p>
       </div>
-    </div>
+    </ClothShell>
   );
 }

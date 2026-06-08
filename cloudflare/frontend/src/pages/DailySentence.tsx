@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { aiApi, engagementApi } from '../services/api';
+import { ClothShell } from '../loom/components/ClothShell';
+import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
-import { TapestryEdge } from '../loom/components/Frame';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 
 /**
  * DailySentence — "the daily sentence · syndication" (§Pass-3, moment 03).
@@ -194,40 +195,11 @@ export function DailySentence() {
     : null;
 
   return (
-    <div className="hl-screen" style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-
-      {/* ── topbar ───────────────────────────────────────────────────── */}
-      <div className="hl-topbar">
-        {/* left: logo + surface label */}
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
-          <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-            <HLogo size={18} wordmark />
-          </Link>
-          <span style={{ color: 'var(--bone-low)' }}>·</span>
-          <span className="hl-mono" style={{ fontSize: 10.5, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
-            the daily sentence
-          </span>
-        </span>
-
-        {/* center: counter slot */}
-        <span
-          className="hl-counter hl-mono"
-          style={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            whiteSpace: 'nowrap',
-            fontSize: 10,
-            color: 'var(--bone-faint)',
-            letterSpacing: '0.14em',
-            textTransform: 'uppercase',
-          }}
-        >
-          one question per day · anonymized
-        </span>
-
-      </div>
-
+    <ClothShell
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'daily' }]} />}
+      topbarCenter="daily"
+      topbarRight={<UserMenu />}
+    >
       {/* ── scrollable body ──────────────────────────────────────────── */}
       <div
         style={{
@@ -355,7 +327,6 @@ export function DailySentence() {
         </div>
       </div>
 
-      <TapestryEdge />
-    </div>
+    </ClothShell>
   );
 }

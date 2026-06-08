@@ -1,22 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
-
-function MktBar() {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '24px 56px', borderBottom: '1px solid var(--parchment-rule)' }}>
-      <Link to="/" style={{ textDecoration: 'none' }}>
-        <HLogo size={20} wordmark mono color="var(--parchment-ink)" wordColor="#1a1916" />
-      </Link>
-      <span style={{ display: 'flex', gap: 32, fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}>
-        <Link to="/" style={{ color: 'inherit', textDecoration: 'none' }}>see the cloth</Link>
-        <Link to="/founder" style={{ color: 'inherit', textDecoration: 'none' }}>founder</Link>
-        <Link to="/pricing" style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
-        <Link to="/login" style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
-      </span>
-    </div>
-  );
-}
 
 export function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
@@ -57,9 +42,9 @@ export function Contact() {
     width: '100%',
     background: 'transparent',
     border: 'none',
-    borderBottom: '1px solid var(--parchment-rule)',
+    borderBottom: '1px solid var(--rule)',
     borderRadius: 0,
-    color: 'var(--parchment-ink)',
+    color: 'var(--bone)',
     caretColor: 'var(--warm)',
     fontFamily: 'var(--serif)',
     fontSize: 16,
@@ -70,10 +55,8 @@ export function Contact() {
   };
 
   return (
-    <div className="hl-screen parchment" style={{ overflow: 'auto' }}>
-      <MktBar />
-
-      <div style={{ padding: '64px 56px', maxWidth: 640, margin: '0 auto' }}>
+    <ClothShell topbarLeft={<HLogo />} topbarCenter="contact">
+      <div style={{ maxWidth: 700, margin: '0 auto', padding: 'clamp(24px,5vw,48px)' }}>
         {isSubmitted ? (
           <div role="status" style={{ paddingTop: 40 }}>
             <p
@@ -85,13 +68,13 @@ export function Contact() {
             </p>
             <h1
               className="hl-serif hl-tight"
-              style={{ fontSize: 52, fontWeight: 300, margin: '0 0 20px', color: 'var(--parchment-ink)' }}
+              style={{ fontSize: 52, fontWeight: 300, margin: '0 0 20px', color: 'var(--bone)' }}
             >
               Message sent.
             </h1>
             <p
               className="hl-prose"
-              style={{ fontSize: 17, color: 'var(--parchment-dim)', margin: '0 0 40px', lineHeight: 1.7 }}
+              style={{ fontSize: 17, color: 'var(--bone-dim)', margin: '0 0 40px', lineHeight: 1.7 }}
             >
               Thank you for reaching out. We'll get back to you within two business days.
             </p>
@@ -103,13 +86,13 @@ export function Contact() {
           <>
             <h1
               className="hl-serif hl-tight"
-              style={{ fontSize: 52, fontWeight: 300, margin: '0 0 20px', color: 'var(--parchment-ink)' }}
+              style={{ fontSize: 52, fontWeight: 300, margin: '0 0 20px', color: 'var(--bone)' }}
             >
               Write to us.
             </h1>
             <p
               className="hl-prose"
-              style={{ fontSize: 17, color: 'var(--parchment-dim)', margin: '0 0 40px', lineHeight: 1.6 }}
+              style={{ fontSize: 17, color: 'var(--bone-dim)', margin: '0 0 40px', lineHeight: 1.6 }}
             >
               We respond within two business days.
             </p>
@@ -184,7 +167,7 @@ export function Contact() {
               style={{
                 fontFamily: 'var(--mono)',
                 fontSize: 10,
-                color: 'var(--parchment-dim)',
+                color: 'var(--bone-dim)',
                 marginTop: 48,
                 letterSpacing: '0.08em',
               }}
@@ -194,7 +177,7 @@ export function Contact() {
           </>
         )}
       </div>
-    </div>
+    </ClothShell>
   );
 }
 

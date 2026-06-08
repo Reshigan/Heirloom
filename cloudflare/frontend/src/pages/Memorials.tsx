@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
+import { UserMenu } from '../loom/components/Frame';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { memorialsApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -60,11 +62,14 @@ export function Memorials() {
     queryFn: () => memorialsApi.getAll().then(r => r.data),
   });
 
+  const [formError, setFormError] = useState<string | null>(null);
+
   const createMutation = useMutation({
     mutationFn: () => memorialsApi.create(formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memorials'] });
       setShowCreateModal(false);
+      setFormError(null);
       setFormData({ name: '', description: '', style: 'classic', isPublic: true, birthDate: '', deathDate: '', location: '', epitaph: '' });
     },
   });
@@ -92,7 +97,7 @@ export function Memorials() {
   const memorialList: any[] = memorials || [];
 
   return (
-    <Frame left="memorials">
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'memorials' }]} />} topbarCenter="memorials" topbarRight={<UserMenu />}>
       <div style={{ maxWidth: 680, margin: '0 auto', padding: 'clamp(16px, 4vw, 32px)', paddingBottom: 80 }}>
 
         {/* Page header */}
@@ -445,9 +450,18 @@ export function Memorials() {
                 </label>
               </div>
 
+              {formError && (
+                <p
+                  className="hl-mono"
+                  style={{ fontSize: 11, color: 'var(--danger, #c0392b)', margin: 0, letterSpacing: '0.06em' }}
+                >
+                  {formError}
+                </p>
+              )}
+
               <div style={{ display: 'flex', gap: 10, paddingTop: 8 }}>
                 <button
-                  onClick={() => setShowCreateModal(false)}
+                  onClick={() => { setShowCreateModal(false); setFormError(null); }}
                   style={{
                     flex: 1,
                     background: 'transparent',
@@ -466,7 +480,14 @@ export function Memorials() {
                   cancel
                 </button>
                 <button
-                  onClick={() => createMutation.mutate()}
+                  onClick={() => {
+                    if (formData.birthDate && formData.deathDate && new Date(formData.deathDate) < new Date(formData.birthDate)) {
+                      setFormError('Death date cannot be before birth date.');
+                      return;
+                    }
+                    setFormError(null);
+                    createMutation.mutate();
+                  }}
                   disabled={!formData.name.trim() || createMutation.isPending}
                   className="hl-btn"
                   style={{ flex: 1 }}
@@ -639,6 +660,6 @@ export function Memorials() {
           </div>
         </div>
       )}
-    </Frame>
+    </ClothShell>
   );
 }

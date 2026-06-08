@@ -1,45 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { HLogo } from '../loom/components/HLogo';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { ClothShell } from '../loom/components/ClothShell';
+import { UserMenu } from '../loom/components/Frame';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import api from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
-
-// ── MktBar ────────────────────────────────────────────────────────────────────
-function MktBar() {
-  return (
-    <header
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '24px 56px',
-        borderBottom: '1px solid var(--parchment-rule)',
-      }}
-    >
-      <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-        <HLogo size={20} wordmark mono color="var(--parchment-ink)" wordColor="var(--parchment-ink)" />
-      </Link>
-      <nav
-        style={{
-          display: 'flex',
-          gap: 32,
-          fontFamily: 'var(--mono)',
-          fontSize: 10.5,
-          letterSpacing: '0.32em',
-          textTransform: 'uppercase',
-          color: 'var(--parchment-dim)',
-        }}
-      >
-        <Link to="/"        style={{ color: 'inherit', textDecoration: 'none' }}>see the cloth</Link>
-        <Link to="/founder" style={{ color: 'inherit', textDecoration: 'none' }}>founder</Link>
-        <Link to="/pricing" style={{ color: 'inherit', textDecoration: 'none' }}>pricing</Link>
-        <Link to="/login"   style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
-      </nav>
-    </header>
-  );
-}
 
 // ── Types (all preserved) ─────────────────────────────────────────────────────
 interface PlanItem {
@@ -98,6 +65,7 @@ function HairlineLoader() {
 // ── LegacyPlan ────────────────────────────────────────────────────────────────
 export function LegacyPlan() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['PEOPLE', 'STORIES']));
   const [showAddItem, setShowAddItem] = useState<string | null>(null);
   const [newItemTitle, setNewItemTitle] = useState('');
@@ -166,12 +134,15 @@ export function LegacyPlan() {
   // ── Loading ──────────────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="hl-screen parchment" style={{ overflow: 'auto' }}>
-        <MktBar />
+      <ClothShell
+        topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'legacy plan' }]} />}
+        topbarCenter="legacy plan"
+        topbarRight={<UserMenu />}
+      >
         <div style={{ padding: '64px 56px' }}>
           <HairlineLoader />
         </div>
-      </div>
+      </ClothShell>
     );
   }
 
@@ -193,9 +164,11 @@ export function LegacyPlan() {
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
-    <div className="hl-screen parchment" style={{ overflow: 'auto' }}>
-      <MktBar />
-
+    <ClothShell
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'legacy plan' }]} />}
+      topbarCenter="legacy plan"
+      topbarRight={<UserMenu />}
+    >
       <div style={{ padding: '64px 56px', maxWidth: 860, margin: '0 auto' }}>
 
         {/* H1 */}
@@ -587,6 +560,10 @@ export function LegacyPlan() {
             </span>
           </div>
 
+          <p className="hl-serif" style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--parchment-faint)', margin: '12px 0 0', lineHeight: 1.6 }}>
+            Configure your dead-man's switch in <Link to="/settings" style={{ color: 'var(--warm)', textDecoration: 'none', borderBottom: '1px solid rgba(176,122,74,0.3)' }}>Settings →</Link>
+          </p>
+
           <div
             style={{
               display: 'grid',
@@ -604,7 +581,7 @@ export function LegacyPlan() {
                 Administrative authority passes on trigger
               </p>
             </div>
-            <button className="hl-btn" style={{ fontSize: 10 }}>
+            <button className="hl-btn" style={{ fontSize: 10 }} onClick={() => navigate('/threads')}>
               set successor
             </button>
           </div>
@@ -626,7 +603,7 @@ export function LegacyPlan() {
                 Release on death conditions
               </p>
             </div>
-            <button className="hl-btn" style={{ fontSize: 10 }}>
+            <button className="hl-btn" style={{ fontSize: 10 }} onClick={() => navigate('/loom/tied')}>
               configure
             </button>
           </div>
@@ -659,7 +636,7 @@ export function LegacyPlan() {
                 Every entry, photograph, and voice recording
               </p>
             </div>
-            <button className="hl-btn" style={{ fontSize: 10 }}>
+            <button className="hl-btn" style={{ fontSize: 10 }} onClick={() => navigate('/settings')}>
               request export
             </button>
           </div>
@@ -681,7 +658,7 @@ export function LegacyPlan() {
                 Letterpress-fidelity PDF of the thread
               </p>
             </div>
-            <button className="hl-btn" style={{ fontSize: 10 }}>
+            <button className="hl-btn" disabled title="Coming soon" style={{ fontSize: 10, opacity: 0.4, cursor: 'not-allowed' }}>
               generate PDF
             </button>
           </div>
@@ -703,7 +680,7 @@ export function LegacyPlan() {
                 Your entries encoded as a woven cloth pattern
               </p>
             </div>
-            <button className="hl-btn" style={{ fontSize: 10 }}>
+            <button className="hl-btn" disabled title="Coming soon" style={{ fontSize: 10, opacity: 0.4, cursor: 'not-allowed' }}>
               generate
             </button>
           </div>
@@ -760,7 +737,7 @@ export function LegacyPlan() {
         onComplete={completeOnboarding}
         onDismiss={dismissOnboarding}
       />
-    </div>
+    </ClothShell>
   );
 }
 

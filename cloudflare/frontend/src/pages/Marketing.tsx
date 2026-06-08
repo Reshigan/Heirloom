@@ -1,6 +1,5 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { TapestryCanvas } from '../loom/components/TapestryCanvas';
 import { HLogo } from '../loom/components/HLogo';
 import { SecurityDot } from '../loom/components/Frame';
 import {
@@ -533,35 +532,8 @@ export function Marketing() {
 }
 
 // ── CSS fallback — no WebGL or while 3D loads ─────────────────────────
-function FallbackCloth({ entries, vpW, vpH }: { entries: typeof DEMO_ENTRIES; vpW: number; vpH: number }) {
+function FallbackCloth(_props: { entries: typeof DEMO_ENTRIES; vpW: number; vpH: number }) {
   return (
-    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-      <div
-        className="hl-cloth-breathe-el"
-        style={{
-          animation: 'hl-cloth-breathe 18s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite',
-          transformOrigin: 'center 72%',
-          position: 'absolute', inset: 0,
-        }}
-      >
-        <TapestryCanvas
-          width={vpW}
-          height={vpH}
-          entries={entries}
-          kind="specimen"
-          animate
-          opts={{
-            tStart: new Date(1952, 0, 1),
-            tEnd:   new Date(2026, 0, 1),
-            nowFrac: 0.80,
-            background: '#0e0e0c',
-            warpEvery: 8,
-            showFraySelvedge: true,
-            showWarpHair: false,
-            ghostTargetCount: 200,
-          }}
-        />
-      </div>
-    </div>
+    <div style={{ position: 'absolute', inset: 0, background: 'var(--ink)' }} />
   );
 }

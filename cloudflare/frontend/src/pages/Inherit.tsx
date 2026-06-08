@@ -118,6 +118,7 @@ function ParchmentEdge() {
 
 export function Inherit() {
   const { token } = useParams<{ token: string }>();
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sessionToken, setSessionToken] = useState<string | null>(null);
@@ -154,6 +155,12 @@ export function Inherit() {
   const threadName = ownerName
     ? ownerName.split(' ').slice(-1)[0].toLowerCase()
     : 'family';
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
 
   useEffect(() => {
     validateToken();
@@ -390,7 +397,7 @@ export function Inherit() {
             color: 'var(--parchment-faint)',
           }}
         >
-          <span>inherit · token {token ? `${token.slice(0, 8)}…` : '—'}</span>
+          <span>inherit</span>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
             <HLogo size={14} mono color="var(--parchment-faint)" />
             <span>the {threadName} thread</span>
@@ -504,7 +511,7 @@ export function Inherit() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '20px 56px',
+          padding: isMobile ? '16px 20px' : '20px 56px',
           fontFamily: 'var(--mono)',
           fontSize: 10.5,
           letterSpacing: '0.22em',
@@ -533,7 +540,7 @@ export function Inherit() {
       </div>
 
       {/* ── Hero area ────────────────────────────────────────────────── */}
-      <div style={{ position: 'absolute', top: 84, left: 56, right: 56 }}>
+      <div style={{ position: 'absolute', top: 84, left: isMobile ? 20 : 56, right: isMobile ? 20 : 56 }}>
         <p
           className="hl-eyebrow dark"
           style={{ color: 'var(--parchment-faint)', marginBottom: 18 }}
@@ -568,15 +575,17 @@ export function Inherit() {
       {/* ── Two-column main layout ───────────────────────────────────── */}
       <div
         style={{
-          position: 'absolute',
-          top: 248,
-          bottom: 90,
-          left: 56,
-          right: 56,
+          position: isMobile ? 'relative' : 'absolute',
+          top: isMobile ? undefined : 248,
+          bottom: isMobile ? undefined : 90,
+          left: isMobile ? undefined : 56,
+          right: isMobile ? undefined : 56,
+          marginTop: isMobile ? 248 : undefined,
+          padding: isMobile ? '0 20px 80px' : undefined,
           display: 'grid',
-          gridTemplateColumns: '320px 1fr',
-          gap: 64,
-          overflowY: 'auto',
+          gridTemplateColumns: isMobile ? '1fr' : '320px 1fr',
+          gap: isMobile ? 40 : 64,
+          overflowY: isMobile ? undefined : 'auto',
         }}
       >
         {/* ── Left column ───────────────────────────────────────────── */}

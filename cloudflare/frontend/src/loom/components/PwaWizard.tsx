@@ -1,23 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { TapestryCanvas } from './TapestryCanvas';
-import type { CanvasEntry } from './TapestryCanvas';
-
 const WIZARD_KEY = 'hl-pwa-onboarded-v1';
-
-// Sample cloth entries to animate in the cloth step
-const DEMO_ENTRIES: CanvasEntry[] = [
-  { date: new Date(2021, 3, 12), n: 1,  dye: 'madder',    tier: 'family' },
-  { date: new Date(2021, 7, 5),  n: 2,  dye: 'woad',      tier: 'family' },
-  { date: new Date(2022, 0, 18), n: 3,  dye: 'saffron',   tier: 'family' },
-  { date: new Date(2022, 5, 3),  n: 4,  dye: 'indigo',    tier: 'family' },
-  { date: new Date(2022, 10, 25),n: 5,  dye: 'cochineal', tier: 'family' },
-  { date: new Date(2023, 2, 8),  n: 6,  dye: 'weld',      tier: 'family' },
-  { date: new Date(2023, 8, 14), n: 7,  dye: 'kermes',    tier: 'family' },
-  { date: new Date(2024, 1, 22), n: 8,  dye: 'madder',    tier: 'family' },
-  { date: new Date(2024, 6, 9),  n: 9,  dye: 'walnut',    tier: 'descendants' },
-  { date: new Date(2025, 4, 30), n: 10, dye: 'indigo',    tier: 'family' },
-];
 
 interface Step {
   eyebrow: string;
@@ -52,21 +35,8 @@ const STEPS: Step[] = [
 ];
 
 function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | 'trigger' | undefined }) {
-  const w = typeof window !== 'undefined' ? Math.min(window.innerWidth - 32, 420) : 360;
-
   if (kind === 'cloth') {
-    return (
-      <div style={{ margin: '24px 0', borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', overflow: 'hidden' }}>
-        <TapestryCanvas
-          width={w}
-          height={120}
-          entries={DEMO_ENTRIES}
-          kind="specimen"
-          animate
-          opts={{ background: 'var(--ink, #0e0e0c)', warpEvery: 7 }}
-        />
-      </div>
-    );
+    return null;
   }
 
   if (kind === 'seal') {

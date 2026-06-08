@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { foundersApi, type FounderCount } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
+import { ClothShell } from '../loom/components/ClothShell';
 
 /**
  * FoundersWall — §Pass-3 moment 04 — Loom 3 rewrite.
@@ -45,54 +46,6 @@ function cap(s: string): string {
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
-// ── MktBar — standalone parchment marketing header ──────────────────────────
-function MktBar() {
-  return (
-    <header
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '24px 56px',
-        borderBottom: '1px solid var(--parchment-rule)',
-      }}
-    >
-      <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-        <HLogo
-          size={20}
-          wordmark
-          mono
-          color="var(--parchment-ink)"
-          wordColor="var(--parchment-ink)"
-        />
-      </Link>
-
-      <nav style={{ display: 'flex', gap: 32, alignItems: 'center' }}>
-        {[
-          { to: '/',          label: 'home'    },
-          { to: '/founder',  label: 'pledge'  },
-          { to: '/record',    label: 'archive' },
-        ].map(({ to, label }) => (
-          <Link
-            key={to}
-            to={to}
-            className="hl-mono"
-            style={{
-              fontSize: 10.5,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: 'var(--parchment-dim)',
-              textDecoration: 'none',
-            }}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
-    </header>
-  );
-}
-
 // ── FoundersWall ─────────────────────────────────────────────────────────────
 export function FoundersWall() {
   const [count, setCount] = useState<FounderCount | null>(null);
@@ -117,21 +70,16 @@ export function FoundersWall() {
         : `${cap(numberToWords(engraved))} ${engraved === 1 ? 'name' : 'names'}, so far.`;
 
   return (
-    <div
-      className="hl-screen parchment"
-      style={{
-        background: 'var(--parchment)',
-        overflow: 'auto',
-        minHeight: '100vh',
-      }}
+    <ClothShell
+      topbarLeft={<HLogo />}
+      topbarCenter="founders wall"
+      topbarRight={<Link to="/founder">pledge →</Link>}
     >
-      <MktBar />
-
-      {/* ── hero ──────────────────────────────────────────────────────────── */}
-      <div style={{ padding: '64px 56px 28px' }}>
+      <div style={{ maxWidth: 700, margin: '0 auto', padding: 'clamp(24px,5vw,48px)' }}>
+        {/* ── hero ──────────────────────────────────────────────────────────── */}
         <div
           className="hl-eyebrow dark"
-          style={{ marginBottom: 18, color: 'var(--parchment-faint)' }}
+          style={{ marginBottom: 18, color: 'var(--bone-faint)' }}
         >
           the continuity record · public
         </div>
@@ -142,7 +90,7 @@ export function FoundersWall() {
             fontSize: 56,
             fontWeight: 300,
             margin: 0,
-            color: 'var(--parchment-ink)',
+            color: 'var(--bone)',
             letterSpacing: '-0.022em',
             maxWidth: '22ch',
           }}
@@ -154,7 +102,7 @@ export function FoundersWall() {
           className="hl-prose"
           style={{
             fontSize: 17,
-            color: 'var(--parchment-dim)',
+            color: 'var(--bone-dim)',
             marginTop: 20,
             maxWidth: '60ch',
             lineHeight: 1.65,
@@ -173,7 +121,7 @@ export function FoundersWall() {
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))',
             justifyContent: 'start',
             marginTop: 40,
-            border: '1px solid var(--parchment-rule)',
+            border: '1px solid var(--rule)',
           }}
         >
           {[
@@ -197,14 +145,14 @@ export function FoundersWall() {
               key={s.label}
               style={{
                 padding: '20px 28px',
-                borderRight: i < 2 ? '1px solid var(--parchment-rule)' : undefined,
+                borderRight: i < 2 ? '1px solid var(--rule)' : undefined,
               }}
             >
               <div
                 className="hl-mono"
                 style={{
                   fontSize: 9.5,
-                  color: 'var(--parchment-faint)',
+                  color: 'var(--bone-faint)',
                   letterSpacing: '0.22em',
                   textTransform: 'uppercase',
                 }}
@@ -216,7 +164,7 @@ export function FoundersWall() {
                 style={{
                   fontSize: 40,
                   fontWeight: 300,
-                  color: 'var(--parchment-ink)',
+                  color: 'var(--bone)',
                   letterSpacing: '-0.022em',
                   marginTop: 10,
                   lineHeight: 1,
@@ -228,7 +176,7 @@ export function FoundersWall() {
                 className="hl-mono"
                 style={{
                   fontSize: 10,
-                  color: 'var(--parchment-dim)',
+                  color: 'var(--bone-dim)',
                   marginTop: 8,
                   letterSpacing: '0.06em',
                 }}
@@ -238,191 +186,191 @@ export function FoundersWall() {
             </div>
           ))}
         </div>
-      </div>
 
-      {/* ── table ─────────────────────────────────────────────────────────── */}
-      <div style={{ padding: '0 56px 56px' }}>
+        {/* ── table ─────────────────────────────────────────────────────────── */}
+        <div style={{ marginTop: 28 }}>
 
-        {/* column headers */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'baseline',
-            borderTop: '1px solid var(--parchment-rule)',
-            borderBottom: '1px solid var(--parchment-rule)',
-            padding: '14px 0',
-          }}
-        >
-          <span
-            className="hl-mono"
+          {/* column headers */}
+          <div
             style={{
-              width: 80,
-              fontSize: 10,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: 'var(--parchment-faint)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'baseline',
+              borderTop: '1px solid var(--rule)',
+              borderBottom: '1px solid var(--rule)',
+              padding: '14px 0',
             }}
           >
-            pledge
-          </span>
-          <span
-            className="hl-mono"
-            style={{
-              flex: 1,
-              paddingLeft: 24,
-              fontSize: 10,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: 'var(--parchment-faint)',
-            }}
-          >
-            name
-          </span>
-          <span
-            className="hl-mono"
-            style={{
-              width: 130,
-              fontSize: 10,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: 'var(--parchment-faint)',
-            }}
-          >
-            engraved
-          </span>
-          <span
-            className="hl-mono"
-            style={{
-              width: 200,
-              fontSize: 10,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: 'var(--parchment-faint)',
-              textAlign: 'right',
-            }}
-          >
-            origin
-          </span>
-        </div>
+            <span
+              className="hl-mono"
+              style={{
+                width: 80,
+                fontSize: 10,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+              }}
+            >
+              pledge
+            </span>
+            <span
+              className="hl-mono"
+              style={{
+                flex: 1,
+                paddingLeft: 24,
+                fontSize: 10,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+              }}
+            >
+              name
+            </span>
+            <span
+              className="hl-mono"
+              style={{
+                width: 130,
+                fontSize: 10,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+              }}
+            >
+              engraved
+            </span>
+            <span
+              className="hl-mono"
+              style={{
+                width: 200,
+                fontSize: 10,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+                textAlign: 'right',
+              }}
+            >
+              origin
+            </span>
+          </div>
 
-        {/* rows — waiting for confirmed pledges */}
-        <div style={{ padding: '48px 0 32px', textAlign: 'center' }}>
-          <p
-            className="hl-serif"
-            style={{
-              fontSize: 17,
-              fontStyle: 'italic',
-              color: 'var(--parchment-dim)',
-              margin: 0,
-              lineHeight: 1.7,
-            }}
-          >
-            The first hundred families to begin their thread. Their names will
-            appear here when they do.
-          </p>
-          <p
-            className="hl-mono"
-            style={{
-              fontSize: 10,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: 'var(--parchment-faint)',
-              marginTop: 14,
-            }}
-          >
-            The count above is live · the record opens when pledges are confirmed
-          </p>
-        </div>
-
-        {/* roster note + CTA */}
-        <div
-          style={{
-            marginTop: 40,
-            display: 'grid',
-            gridTemplateColumns: 'minmax(0, 1fr) auto',
-            gap: 56,
-            alignItems: 'flex-end',
-            borderTop: '1px solid var(--parchment-rule)',
-            paddingTop: 28,
-          }}
-        >
-          <p
-            className="hl-serif"
-            style={{
-              fontSize: 14,
-              lineHeight: 1.7,
-              fontStyle: 'italic',
-              color: 'var(--parchment-dim)',
-              maxWidth: '64ch',
-              margin: 0,
-              fontWeight: 400,
-            }}
-          >
-            The full roster is published only once the successor non-profit is incorporated, and
-            only with each family's consent — a name in a thousand-year record is not given
-            lightly. Until then, the count above is live and exact. There are{' '}
-            {remaining === null ? 'a limited number of' : remaining}{' '}
-            {remaining === 1 ? 'seat' : 'seats'} left.
-          </p>
-          <Link
-            to="/founder"
-            className="hl-btn"
-            style={{
-              background: 'var(--warm)',
-              color: 'var(--parchment)',
-              textDecoration: 'none',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            put your name in the record
-          </Link>
-        </div>
-
-        {/* footer */}
-        <div
-          style={{
-            borderTop: '1px solid var(--parchment-rule)',
-            marginTop: 56,
-            paddingTop: 24,
-            display: 'flex',
-            gap: 24,
-            alignItems: 'center',
-          }}
-        >
-          <span
-            className="hl-mono"
-            style={{
-              fontSize: 10,
-              color: 'var(--parchment-faint)',
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              marginRight: 'auto',
-            }}
-          >
-            heirloom.blue · the family thread
-          </span>
-          {[
-            { to: '/',         label: 'home'   },
-            { to: '/founder', label: 'pledge' },
-          ].map(({ to, label }) => (
-            <Link
-              key={to}
-              to={to}
+          {/* rows — waiting for confirmed pledges */}
+          <div style={{ padding: '48px 0 32px', textAlign: 'center' }}>
+            <p
+              className="hl-serif"
+              style={{
+                fontSize: 17,
+                fontStyle: 'italic',
+                color: 'var(--bone-dim)',
+                margin: 0,
+                lineHeight: 1.7,
+              }}
+            >
+              The first hundred families to begin their thread. Their names will
+              appear here when they do.
+            </p>
+            <p
               className="hl-mono"
               style={{
                 fontSize: 10,
-                color: 'var(--parchment-faint)',
-                letterSpacing: '0.18em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
-                textDecoration: 'none',
+                color: 'var(--bone-faint)',
+                marginTop: 14,
               }}
             >
-              {label}
+              The count above is live · the record opens when pledges are confirmed
+            </p>
+          </div>
+
+          {/* roster note + CTA */}
+          <div
+            style={{
+              marginTop: 40,
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, 1fr) auto',
+              gap: 56,
+              alignItems: 'flex-end',
+              borderTop: '1px solid var(--rule)',
+              paddingTop: 28,
+            }}
+          >
+            <p
+              className="hl-serif"
+              style={{
+                fontSize: 14,
+                lineHeight: 1.7,
+                fontStyle: 'italic',
+                color: 'var(--bone-dim)',
+                maxWidth: '64ch',
+                margin: 0,
+                fontWeight: 400,
+              }}
+            >
+              The full roster is published only once the successor non-profit is incorporated, and
+              only with each family's consent — a name in a thousand-year record is not given
+              lightly. Until then, the count above is live and exact. There are{' '}
+              {remaining === null ? 'a limited number of' : remaining}{' '}
+              {remaining === 1 ? 'seat' : 'seats'} left.
+            </p>
+            <Link
+              to="/founder"
+              className="hl-btn"
+              style={{
+                background: 'var(--warm)',
+                color: 'var(--bone)',
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              put your name in the record
             </Link>
-          ))}
+          </div>
+
+          {/* footer */}
+          <div
+            style={{
+              borderTop: '1px solid var(--rule)',
+              marginTop: 56,
+              paddingTop: 24,
+              display: 'flex',
+              gap: 24,
+              alignItems: 'center',
+            }}
+          >
+            <span
+              className="hl-mono"
+              style={{
+                fontSize: 10,
+                color: 'var(--bone-faint)',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                marginRight: 'auto',
+              }}
+            >
+              heirloom.blue · the family thread
+            </span>
+            {[
+              { to: '/',         label: 'home'   },
+              { to: '/founder', label: 'pledge' },
+            ].map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className="hl-mono"
+                style={{
+                  fontSize: 10,
+                  color: 'var(--bone-faint)',
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  textDecoration: 'none',
+                }}
+              >
+                {label}
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </ClothShell>
   );
 }

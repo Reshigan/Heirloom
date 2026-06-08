@@ -1,7 +1,9 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api, { familyApi } from '../services/api';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { UserMenu } from '../loom/components/Frame';
 
 interface FamilyMember {
   id: string;
@@ -38,6 +40,12 @@ const DYE_VARS: Record<string, string> = {
   indigo:    'var(--dye-indigo)',
   iron:      'var(--dye-iron)',
 };
+
+function entryTo(kind: string, id: string): string {
+  if (kind === 'voice') return `/loom/voice?id=${id}`;
+  if (kind === 'letter') return '/loom/letter-room';
+  return `/loom/read?entry=${id}`;
+}
 
 /** 12×2 dye swatch used in the entries list */
 function DyeSwatch({ dye }: { dye?: string }) {
@@ -99,7 +107,7 @@ export function PersonPage() {
 
   if (isLoading) {
     return (
-      <Frame left="person">
+      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: 'person' }]} />} topbarCenter="person" topbarRight={<UserMenu />}>
         <div
           style={{
             paddingTop: 80,
@@ -115,13 +123,13 @@ export function PersonPage() {
             loading…
           </p>
         </div>
-      </Frame>
+      </ClothShell>
     );
   }
 
   if (!member) {
     return (
-      <Frame left="person">
+      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: 'person' }]} />} topbarCenter="person" topbarRight={<UserMenu />}>
         <div
           style={{
             paddingTop: 80,
@@ -152,7 +160,7 @@ export function PersonPage() {
             person not found.
           </p>
         </div>
-      </Frame>
+      </ClothShell>
     );
   }
 
@@ -160,7 +168,7 @@ export function PersonPage() {
   const roleLabel = member.role ?? member.status ?? null;
 
   return (
-    <Frame left="person">
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: member.name }]} />} topbarCenter="person" topbarRight={<UserMenu />}>
       <div
         style={{
           paddingTop: 80,
@@ -305,15 +313,18 @@ export function PersonPage() {
                     key={`${entry.kind}-${entry.id}`}
                     style={{
                       borderBottom: '1px solid var(--rule)',
-                      paddingTop: 14,
-                      paddingBottom: 14,
                     }}
                   >
-                    <div
+                    <Link
+                      to={entryTo(entry.kind, entry.id)}
                       style={{
+                        textDecoration: 'none',
+                        color: 'inherit',
                         display: 'flex',
                         alignItems: 'center',
                         gap: 12,
+                        paddingTop: 14,
+                        paddingBottom: 14,
                       }}
                     >
                       <DyeSwatch dye={entry.dye} />
@@ -350,7 +361,7 @@ export function PersonPage() {
                             : '—'}
                         </p>
                       </div>
-                    </div>
+                    </Link>
                   </li>
                 ))}
               </ul>
@@ -394,6 +405,22 @@ export function PersonPage() {
                         }}
                       >
                         "{prompt.prompt}"
+                        <Link
+                          to="/compose"
+                          style={{
+                            fontFamily: 'var(--mono)',
+                            fontSize: 9,
+                            letterSpacing: '0.15em',
+                            textTransform: 'uppercase',
+                            color: 'var(--bone-faint)',
+                            textDecoration: 'none',
+                            borderBottom: '1px solid var(--rule)',
+                            paddingBottom: 1,
+                            marginLeft: 8,
+                          }}
+                        >
+                          write this →
+                        </Link>
                       </p>
                     </li>
                   ))}
@@ -403,6 +430,6 @@ export function PersonPage() {
           </div>
         </div>
       </div>
-    </Frame>
+    </ClothShell>
   );
 }

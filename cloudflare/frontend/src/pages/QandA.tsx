@@ -102,8 +102,7 @@ export function QandA() {
     >
       <style>{`
         @media (max-width: 767px) {
-          .qanda-grid { grid-template-columns: 1fr !important; }
-          .qanda-aside { display: none !important; }
+          .qanda-grid { grid-template-columns: 1fr !important; flex-direction: column; }
         }
       `}</style>
       <div
@@ -485,7 +484,7 @@ function sourceHref(source: SourceEntry): string {
     case 'memory':
       return `/memory/${source.id}`;
     case 'voice':
-      return `/record?recording=${source.id}`;
+      return `/record?id=${source.id}`;
     case 'letter':
       return `/letters/${source.id}`;
     default:

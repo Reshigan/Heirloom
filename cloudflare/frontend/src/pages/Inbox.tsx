@@ -137,7 +137,8 @@ export function Inbox() {
                 <div
                   style={{
                     borderBottom: '1px solid var(--rule)',
-                    padding: '14px 0',
+                    borderLeft: '3px solid var(--warm)',
+                    padding: '14px 0 14px 12px',
                     display: 'grid',
                     gridTemplateColumns: '1fr auto',
                     gap: 12,
@@ -223,7 +224,7 @@ function OpenedRow({ item }: { item: RecentUnlock }) {
 
       {/* col 2: entry title link (warm serif 15px) */}
       <Link
-        to={`/threads/${item.thread_id}`}
+        to={`/loom/read?entry=${item.entry_id}`}
         className="hl-serif hl-link warm"
         style={{
           fontSize: 15,

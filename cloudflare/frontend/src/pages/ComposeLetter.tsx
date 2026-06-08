@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { familyApi, legacyContactsApi, lettersApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
-import { TapestryEdge, UserMenu } from '../loom/components/Frame';
+import { UserMenu } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import { RecipientPicker } from '../loom/components/RecipientPicker';
 import { useAuthStore } from '../stores/authStore';
 
@@ -214,36 +215,8 @@ export function ComposeLetter() {
   ];
 
   return (
-    <div
-      className="hl-screen"
-      style={{
-        position: 'absolute',
-        inset: 0,
-        overflow: 'hidden',
-        background: 'var(--ink)',
-        color: 'var(--bone)',
-      }}
-    >
-      {/* woven-cloth ground — the letter is written on the same cloth as the loom */}
-      <div className="hl-cloth-weave" aria-hidden style={{ opacity: 0.5 }} />
-
-      {/* hl-topbar */}
-      <div
-        className="hl-topbar"
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 56,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '0 32px',
-          borderBottom: '1px solid var(--rule)',
-        }}
-      >
-        {/* left: logo · letter */}
+    <ClothShell
+      topbarLeft={
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
           <HLogo
             size={18}
@@ -264,14 +237,10 @@ export function ComposeLetter() {
             {' '}·{' '}letter
           </span>
         </span>
-
-        {/* center: sealed counter */}
+      }
+      topbarCenter={
         <span
-          className="hl-counter"
           style={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
             fontFamily: 'var(--mono)',
             fontSize: 11,
             letterSpacing: '0.14em',
@@ -282,8 +251,8 @@ export function ComposeLetter() {
         >
           sealed · for the future
         </span>
-
-        {/* right: save draft + profile menu */}
+      }
+      topbarRight={
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
           <button
             type="button"
@@ -313,26 +282,15 @@ export function ComposeLetter() {
           </button>
           <UserMenu />
         </span>
-      </div>
-
-      {/* scrollable content */}
+      }
+    >
       <div
         style={{
-          position: 'absolute',
-          top: 56,
-          bottom: 28,
-          left: 0,
-          right: 0,
-          overflowY: 'auto',
+          maxWidth: 720,
+          margin: '0 auto',
+          padding: 'clamp(24px,5vw,48px) 56px 96px',
         }}
       >
-        <div
-          style={{
-            maxWidth: 720,
-            margin: '0 auto',
-            padding: '40px 56px 96px',
-          }}
-        >
           {/* eyebrow */}
           <p
             className="hl-eyebrow"
@@ -632,10 +590,7 @@ export function ComposeLetter() {
                 ? `seal until ${sealedUntil}`
                 : 'seal and save →'}
           </button>
-        </div>
       </div>
-
-      <TapestryEdge />
-    </div>
+    </ClothShell>
   );
 }

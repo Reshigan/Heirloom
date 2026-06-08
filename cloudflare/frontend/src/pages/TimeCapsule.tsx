@@ -105,7 +105,7 @@ function CapsuleRow({
     : 'open';
 
   return (
-    <li>
+    <>
       <button
         type="button"
         onClick={onClick}
@@ -191,7 +191,7 @@ function CapsuleRow({
             : `unlocks ${formatUnlockDate(capsule.unlock_date)}`}
         </span>
       </button>
-    </li>
+    </>
   );
 }
 
@@ -275,7 +275,7 @@ export function TimeCapsule() {
         <ThreadComposeBanner />
 
         {/* Header */}
-        <header style={{ marginBottom: 48 }}>
+        <header style={{ marginBottom: 48, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <h1
             className="hl-serif"
             style={{
@@ -288,6 +288,25 @@ export function TimeCapsule() {
           >
             Entries sealed for the future.
           </h1>
+          <button
+            onClick={() => setShowCreateModal(true)}
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 9,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              background: 'none',
+              border: 'none',
+              borderBottom: '1px solid var(--rule)',
+              cursor: 'pointer',
+              paddingBottom: 2,
+              flexShrink: 0,
+              alignSelf: 'flex-start',
+            }}
+          >
+            create capsule →
+          </button>
         </header>
 
         {/* Capsule list */}
@@ -329,12 +348,51 @@ export function TimeCapsule() {
           <>
             <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px' }}>
               {capsules.map((capsule: Capsule) => (
-                <CapsuleRow
-                  key={capsule.id}
-                  capsule={capsule}
-                  isSelected={selectedCapsule === capsule.id}
-                  onClick={() => setSelectedCapsule(capsule.id)}
-                />
+                <li key={capsule.id}>
+                  <CapsuleRow
+                    capsule={capsule}
+                    isSelected={selectedCapsule === capsule.id}
+                    onClick={() =>
+                      setSelectedCapsule(selectedCapsule === capsule.id ? null : capsule.id)
+                    }
+                  />
+                  {selectedCapsule === capsule.id && (
+                    <div
+                      style={{
+                        padding: '14px 0 20px 76px',
+                        borderBottom: '1px solid var(--rule)',
+                        marginTop: -1,
+                      }}
+                    >
+                      {capsule.description && (
+                        <p
+                          className="hl-serif hl-italic"
+                          style={{
+                            fontSize: 14,
+                            color: 'var(--bone-dim)',
+                            margin: '0 0 12px',
+                            lineHeight: 1.6,
+                          }}
+                        >
+                          {capsule.description}
+                        </p>
+                      )}
+                      <Link
+                        to="/compose"
+                        style={{
+                          fontFamily: 'var(--mono)',
+                          fontSize: 9,
+                          letterSpacing: '0.22em',
+                          textTransform: 'uppercase',
+                          color: 'var(--warm)',
+                          textDecoration: 'none',
+                        }}
+                      >
+                        seal a note →
+                      </Link>
+                    </div>
+                  )}
+                </li>
               ))}
             </ul>
             <Link to="/compose" className="hl-btn">

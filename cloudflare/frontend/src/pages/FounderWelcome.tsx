@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+import { ClothShell } from '../loom/components/ClothShell';
+import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
-import { TapestryEdge } from '../loom/components/Frame';
 
 /**
  * /founder/welcome — Loom 3 rewrite.
@@ -25,66 +26,11 @@ export function FounderWelcome() {
     : '0001';
 
   return (
-    <div
-      className="hl-screen"
-      style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
+    <ClothShell
+      topbarLeft={<HLogo size="sm" wordmark />}
+      topbarCenter="welcome"
+      topbarRight={<UserMenu />}
     >
-      {/* ── Topbar ────────────────────────────────────────────────── */}
-      <div
-        style={{
-          position: 'absolute',
-          left: 0,
-          right: 0,
-          top: 0,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '24px 56px',
-          fontFamily: 'var(--mono)',
-          fontSize: '10.5px',
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          color: 'var(--bone-faint)',
-          zIndex: 5,
-        }}
-      >
-        {/* Left: logo + wordmark */}
-        <Link
-          to="/loom"
-          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
-        >
-          <HLogo size={20} wordmark />
-        </Link>
-
-        {/* Center: page label */}
-        <span
-          style={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            whiteSpace: 'nowrap',
-            color: 'var(--bone-faint)',
-          }}
-        >
-          welcome · founder
-        </span>
-
-        {/* Right: CTA */}
-        <Link
-          to="/loom"
-          style={{
-            fontFamily: 'var(--mono)',
-            fontSize: '10.5px',
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            color: 'var(--warm)',
-            textDecoration: 'none',
-          }}
-        >
-          begin your thread →
-        </Link>
-      </div>
-
       {/* ── Centered content ──────────────────────────────────────── */}
       <div
         style={{
@@ -207,9 +153,6 @@ export function FounderWelcome() {
           pointerEvents: 'none',
         }}
       />
-
-      {/* ── TapestryEdge ──────────────────────────────────────────── */}
-      <TapestryEdge nowFrac={0.04} />
-    </div>
+    </ClothShell>
   );
 }

@@ -179,6 +179,12 @@ export function Streaks() {
                     style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}
                   >
                     Add an entry today to continue the thread.
+                    <Link
+                      to="/compose"
+                      style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none', marginLeft: 8 }}
+                    >
+                      write now →
+                    </Link>
                   </span>
                 ) : (
                   <span
@@ -186,6 +192,12 @@ export function Streaks() {
                     style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}
                   >
                     Begin a new thread today.
+                    <Link
+                      to="/compose"
+                      style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none', marginLeft: 8 }}
+                    >
+                      write now →
+                    </Link>
                   </span>
                 )}
                 {streak?.streakFrozenUntil && (
@@ -400,7 +412,7 @@ export function Streaks() {
                       <div
                         style={{
                           height: 1,
-                          background: 'var(--rule)',
+                          background: reached ? 'var(--warm)' : 'var(--rule)',
                           position: 'relative',
                           overflow: 'hidden',
                         }}

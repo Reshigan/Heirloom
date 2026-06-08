@@ -37,6 +37,12 @@ interface OnThisDayMemory {
   yearsAgo: number;
 }
 
+function memoryTo(memory: OnThisDayMemory): string {
+  if (memory.type === 'voice') return `/loom/voice?id=${memory.id}`;
+  if (memory.type === 'letter') return '/loom/letter-room';
+  return `/loom/read?entry=${memory.id}`;
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 export function OnThisDay() {
   const { data, isLoading } = useQuery({
@@ -173,71 +179,80 @@ export function OnThisDay() {
                 key={memory.id}
                 style={{
                   borderTop: '1px solid var(--rule)',
-                  paddingTop: 22,
-                  marginBottom: 22,
                 }}
               >
-                {/* year label */}
-                <p
-                  className="hl-mono"
+                <Link
+                  to={memoryTo(memory)}
                   style={{
-                    fontSize: 10,
-                    color: 'var(--warm)',
-                    margin: '0 0 6px',
-                    letterSpacing: '0.14em',
-                    textTransform: 'uppercase',
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    display: 'block',
+                    paddingTop: 22,
+                    marginBottom: 22,
                   }}
                 >
-                  {new Date(memory.date).getFullYear()}
-                  {memory.yearsAgo > 0
-                    ? ` · ${memory.yearsAgo === 1 ? '1 year ago' : `${memory.yearsAgo} years ago`}`
-                    : ''}
-                </p>
-
-                {/* title */}
-                <h2
-                  className="hl-serif"
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 300,
-                    color: 'var(--bone)',
-                    margin: 0,
-                    lineHeight: 1.25,
-                  }}
-                >
-                  {memory.title}
-                </h2>
-
-                {/* excerpt */}
-                {memory.description && (
+                  {/* year label */}
                   <p
-                    className="hl-prose"
+                    className="hl-mono"
                     style={{
-                      fontSize: 15,
-                      color: 'var(--bone-dim)',
-                      margin: '8px 0 0',
-                      lineHeight: 1.7,
-                      maxWidth: '60ch',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 3,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
+                      fontSize: 10,
+                      color: 'var(--warm)',
+                      margin: '0 0 6px',
+                      letterSpacing: '0.14em',
+                      textTransform: 'uppercase',
                     }}
                   >
-                    {memory.description}
+                    {new Date(memory.date).getFullYear()}
+                    {memory.yearsAgo > 0
+                      ? ` · ${memory.yearsAgo === 1 ? '1 year ago' : `${memory.yearsAgo} years ago`}`
+                      : ''}
                   </p>
-                )}
 
-                {/* dye swatch 12×2 */}
-                <div
-                  aria-hidden
-                  style={{
-                    marginTop: 10,
-                    width: 12,
-                    height: 2,
-                    background: dyeForType(memory.type),
-                  }}
-                />
+                  {/* title */}
+                  <h2
+                    className="hl-serif"
+                    style={{
+                      fontSize: 18,
+                      fontWeight: 300,
+                      color: 'var(--bone)',
+                      margin: 0,
+                      lineHeight: 1.25,
+                    }}
+                  >
+                    {memory.title}
+                  </h2>
+
+                  {/* excerpt */}
+                  {memory.description && (
+                    <p
+                      className="hl-prose"
+                      style={{
+                        fontSize: 15,
+                        color: 'var(--bone-dim)',
+                        margin: '8px 0 0',
+                        lineHeight: 1.7,
+                        maxWidth: '60ch',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                      }}
+                    >
+                      {memory.description}
+                    </p>
+                  )}
+
+                  {/* dye swatch 12×2 */}
+                  <div
+                    aria-hidden
+                    style={{
+                      marginTop: 10,
+                      width: 12,
+                      height: 2,
+                      background: dyeForType(memory.type),
+                    }}
+                  />
+                </Link>
               </li>
             ))}
           </ul>

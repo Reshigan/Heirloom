@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { lettersApi } from '../services/api';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 
 interface Letter {
   id: string;
@@ -71,9 +72,10 @@ export function Letters() {
     : [];
 
   return (
-    <Frame
-      left="letters"
-      right={<Link to="/letters/new" className="hl-link warm">seal a letter →</Link>}
+    <ClothShell
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'letters' }]} />}
+      topbarCenter="letters"
+      topbarRight={<Link to="/letters/new" className="hl-link warm">seal a letter →</Link>}
     >
       <div
         style={{
@@ -185,7 +187,7 @@ export function Letters() {
           </div>
         </div>
       </div>
-    </Frame>
+    </ClothShell>
   );
 }
 

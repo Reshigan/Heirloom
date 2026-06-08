@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { ClothShell } from '../loom/components/ClothShell';
+import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
-import { TapestryEdge } from '../loom/components/Frame';
 import { familyApi } from '../services/api';
 
 // ── Template options ────────────────────────────────────────────────────────
@@ -377,49 +378,11 @@ export function QuickWizard() {
   const canGoBack = step !== 'person';
 
   return (
-    <div
-      className="hl-screen"
-      style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}
+    <ClothShell
+      topbarLeft={<HLogo size="sm" wordmark />}
+      topbarCenter="quick start"
+      topbarRight={<UserMenu />}
     >
-      {/* ── Topbar ──────────────────────────────────────────────────────── */}
-      <div className="hl-topbar">
-        {/* left: logo + label */}
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 14 }}>
-          <Link to="/loom" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-            <HLogo size={18} wordmark />
-          </Link>
-          <span style={{ color: 'var(--bone-low)' }}>·</span>
-          <span style={{ color: 'var(--bone-dim)' }}>quick start</span>
-        </span>
-
-        {/* center: counter */}
-        <span
-          className="hl-counter"
-          style={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            whiteSpace: 'nowrap',
-            fontFamily: 'var(--mono)',
-            fontSize: 10,
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
-          }}
-        >
-          begin in 60 seconds
-        </span>
-
-        {/* right: skip */}
-        <Link
-          to="/loom"
-          className="hl-link warm"
-          style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase' }}
-        >
-          skip →
-        </Link>
-      </div>
-
       {/* ── Centered content area ───────────────────────────────────────── */}
       <div
         style={{
@@ -774,8 +737,6 @@ export function QuickWizard() {
         </div>
       </div>
 
-      {/* ── Tapestry edge ────────────────────────────────────────────────── */}
-      <TapestryEdge nowFrac={0.1} />
-    </div>
+    </ClothShell>
   );
 }

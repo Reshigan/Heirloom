@@ -1,23 +1,21 @@
 import { useSearchParams, Link } from 'react-router-dom';
+import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { UserMenu } from '../loom/components/Frame';
 
 export function GiftSuccess() {
   const [searchParams] = useSearchParams();
   const code = searchParams.get('code') || '';
 
   return (
-    <div
-      className="hl-screen"
-      data-gift-code={code}
-      style={{ background: 'var(--parchment)', color: 'var(--ink)' }}
+    <ClothShell
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'gift sent' }]} />}
+      topbarCenter="gift"
+      topbarRight={<UserMenu />}
     >
-      {/* Topbar */}
-      <div className="hl-topbar">
-        <HLogo size={18} />
-      </div>
-
-      {/* Centered content */}
       <div
+        data-gift-code={code}
         style={{
           position: 'absolute',
           inset: 0,
@@ -28,9 +26,8 @@ export function GiftSuccess() {
       >
         <div style={{ textAlign: 'center', maxWidth: 440, padding: '0 24px' }}>
           <HLogo
-            size={40}
-            glow
-            style={{ marginBottom: 24, justifyContent: 'center' }}
+            size="md"
+            wordmark
           />
 
           <h1
@@ -38,7 +35,7 @@ export function GiftSuccess() {
             style={{
               fontSize: 40,
               fontWeight: 300,
-              margin: '0 0 18px',
+              margin: '24px 0 18px',
             }}
           >
             The gift is on its way.
@@ -56,7 +53,7 @@ export function GiftSuccess() {
           </p>
 
           <Link
-            to="/"
+            to="/loom"
             className="hl-link warm hl-mono"
             style={{
               fontSize: 10.5,
@@ -69,7 +66,7 @@ export function GiftSuccess() {
           </Link>
         </div>
       </div>
-    </div>
+    </ClothShell>
   );
 }
 

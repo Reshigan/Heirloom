@@ -1,6 +1,8 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
+import { UserMenu } from '../loom/components/Frame';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import api, { memoriesApi, voiceApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -247,7 +249,7 @@ export function StoryArtifact() {
   const artifactList = artifacts?.artifacts ?? [];
 
   return (
-    <Frame left="story artifact">
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'story artifacts' }]} />} topbarCenter="story artifacts" topbarRight={<UserMenu />}>
       {/* Loading bar */}
       {isLoading && (
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'var(--warm)', opacity: 0.6 }} />
@@ -858,7 +860,7 @@ export function StoryArtifact() {
           </div>
         </div>
       )}
-    </Frame>
+    </ClothShell>
   );
 }
 

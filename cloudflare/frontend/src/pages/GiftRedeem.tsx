@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
+import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import api from '../services/api';
 
@@ -15,50 +16,6 @@ interface VoucherInfo {
   recipientMessage?: string;
   fromName?: string;
   expiresAt: string;
-}
-
-// ── MktBar ────────────────────────────────────────────────────────────────────
-function MktBar() {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '24px 56px',
-        borderBottom: '1px solid var(--parchment-rule)',
-      }}
-    >
-      <Link to="/" style={{ textDecoration: 'none' }}>
-        <HLogo size={20} wordmark mono color="var(--parchment-ink)" wordColor="#1a1916" />
-      </Link>
-      <nav
-        style={{
-          display: 'flex',
-          gap: 32,
-          fontFamily: 'var(--mono)',
-          fontSize: 10.5,
-          letterSpacing: '0.32em',
-          textTransform: 'uppercase',
-          color: 'var(--parchment-dim)',
-        }}
-      >
-        {[
-          { to: '/',      label: 'home'    },
-          { to: '/gift',  label: 'gift'    },
-          { to: '/login', label: 'sign in' },
-        ].map(({ to, label }) => (
-          <Link
-            key={to}
-            to={to}
-            style={{ color: 'inherit', textDecoration: 'none' }}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
-    </div>
-  );
 }
 
 // ── GiftRedeem ────────────────────────────────────────────────────────────────
@@ -107,7 +64,8 @@ export function GiftRedeem() {
 
   const handleRedeem = async () => {
     if (!isAuthenticated) {
-      navigate(`/login?redirect=/gift/redeem?code=${code}`);
+      const redirectPath = encodeURIComponent(`/gift/redeem?code=${code}`);
+      navigate(`/login?redirect=${redirectPath}`);
       return;
     }
     setIsRedeeming(true);
@@ -135,9 +93,7 @@ export function GiftRedeem() {
     tier.charAt(0).toUpperCase() + tier.slice(1).toLowerCase();
 
   return (
-    <div className="hl-screen parchment" style={{ position: 'absolute', inset: 0, overflowY: 'auto' }}>
-      <MktBar />
-
+    <ClothShell topbarLeft={<HLogo />} topbarCenter="redeem">
       {/* centered content area */}
       <div
         style={{
@@ -385,7 +341,7 @@ export function GiftRedeem() {
                       </p>
                       <div style={{ display: 'flex', gap: 12 }}>
                         <Link
-                          to={`/login?redirect=/gift/redeem?code=${code}`}
+                          to={`/login?redirect=${encodeURIComponent(`/gift/redeem?code=${code}`)}`}
                           className="hl-btn ghost"
                           style={{
                             flex: 1,
@@ -397,7 +353,7 @@ export function GiftRedeem() {
                           sign in
                         </Link>
                         <Link
-                          to={`/signup?redirect=/gift/redeem?code=${code}`}
+                          to={`/signup?redirect=${encodeURIComponent(`/gift/redeem?code=${code}`)}`}
                           className="hl-btn"
                           style={{ flex: 1, textAlign: 'center', textDecoration: 'none' }}
                         >
@@ -427,7 +383,7 @@ export function GiftRedeem() {
           )}
         </div>
       </div>
-    </div>
+    </ClothShell>
   );
 }
 

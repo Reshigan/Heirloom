@@ -4,7 +4,7 @@ import { useListener } from '../hooks/useListener';
 import { useAuthStore } from '../stores/authStore';
 import { aiApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
-import { HLogo } from '../loom/components/HLogo';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 
 /**
  * Screen 06 — The Listener (Echo)
@@ -54,7 +54,7 @@ export function Echo() {
 
   return (
     <ClothShell
-      topbarLeft={<HLogo size="sm" wordmark />}
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'the listener' }]} />}
       topbarCenter="the listener"
       backdropOpacity={0.5}
     >

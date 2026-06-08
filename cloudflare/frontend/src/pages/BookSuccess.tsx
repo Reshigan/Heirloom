@@ -1,12 +1,14 @@
 import { Link, useSearchParams } from 'react-router-dom';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { UserMenu } from '../loom/components/Frame';
 
 export function BookSuccess() {
   const [params] = useSearchParams();
   const sessionId = params.get('session');
 
   return (
-    <Frame left="book ordered">
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'the book', to: '/book-builder' }, { label: 'ordered' }]} />} topbarCenter="book ordered" topbarRight={<UserMenu />}>
       <div
         style={{
           maxWidth: 560,
@@ -102,7 +104,7 @@ export function BookSuccess() {
           </p>
         )}
       </div>
-    </Frame>
+    </ClothShell>
   );
 }
 

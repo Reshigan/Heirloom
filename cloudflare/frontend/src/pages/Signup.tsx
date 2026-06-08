@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/authStore';
 import { VaultModal } from '../components/VaultModal';
 import { threadsApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
+import { ClothShell } from '../loom/components/ClothShell';
 
 const ClothCanvas3D = lazy(() =>
   import('../loom/components/ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
@@ -44,8 +45,8 @@ const TIERS: {
   body: string;
 }[] = [
   { id: 'free', name: 'Free', price: 'free', sub: 'forever', body: '1 thread · 30 entries / yr · read everything' },
-  { id: 'family', name: 'Family', price: '$9.99', sub: '/ month', body: 'unlimited · all members · voice · sealed notes' },
-  { id: 'founder', name: 'Founder', price: '$240', sub: 'once · lifetime', body: 'family forever · name in continuity record' },
+  { id: 'family', name: 'Family', price: '$6.99', sub: '/ month', body: 'unlimited · all members · voice · sealed notes' },
+  { id: 'founder', name: 'Founder', price: '$249', sub: 'once · lifetime', body: 'family forever · name in continuity record' },
 ];
 
 export function Signup() {
@@ -140,27 +141,21 @@ export function Signup() {
   };
 
   return (
-    <div className="hl-screen parchment" style={{ minHeight: '100vh', position: 'relative' }}>
-      {/* Loom 3 MktBar */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: 'calc(clamp(16px, 2.5vh, 24px) + env(safe-area-inset-top, 0px)) clamp(16px, 5vw, 56px) clamp(16px, 2.5vh, 24px)',
-        borderBottom: '1px solid var(--parchment-rule)',
-      }}>
-        <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-          <HLogo size={18} wordmark mono color="var(--parchment-ink)" wordColor="var(--parchment-ink)" />
-        </Link>
-        <Link to="/login" style={{ fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--parchment-dim)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+    <ClothShell
+      topbarLeft={<HLogo />}
+      topbarCenter="begin a thread"
+      topbarRight={
+        <Link to="/login" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>
           sign in →
         </Link>
-      </div>
-
+      }
+    >
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))',
-        minHeight: 'calc(100vh - 73px)',
+        minHeight: '100%',
       }}>
-      <main style={{ padding: 'clamp(28px, 4vh, 52px) clamp(16px, 6vw, 88px) clamp(56px, 8vh, 100px)', overflow: 'auto' }}>
+      <main style={{ padding: 'clamp(24px,5vw,48px)', overflow: 'auto' }}>
         <div style={{ maxWidth: 980, margin: '0 auto' }}>
           <div className="hl-eyebrow dark" style={{ marginBottom: 18 }}>
             begin · this takes about 90 seconds
@@ -169,7 +164,7 @@ export function Signup() {
             fontSize: 'clamp(40px, 5.5vw, 60px)',
             fontWeight: 300, lineHeight: 1.06, letterSpacing: '-0.022em',
             margin: 0, maxWidth: '16ch',
-            color: 'var(--parchment-ink)',
+            color: 'var(--bone)',
             fontVariationSettings: '"opsz" 40',
           }}>
             Name your thread.{' '}
@@ -249,8 +244,8 @@ export function Signup() {
                   style={{
                     background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
                     fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
-                    color: cycle !== 'annual' ? 'var(--parchment-ink)' : 'var(--parchment-faint)',
-                    borderBottom: cycle !== 'annual' ? '1px solid var(--parchment-ink)' : '1px solid transparent',
+                    color: cycle !== 'annual' ? 'var(--bone)' : 'var(--bone-faint)',
+                    borderBottom: cycle !== 'annual' ? '1px solid var(--bone)' : '1px solid transparent',
                   }}
                 >
                   monthly
@@ -261,7 +256,7 @@ export function Signup() {
                   style={{
                     background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
                     fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
-                    color: cycle === 'annual' ? 'var(--parchment-ink)' : 'var(--parchment-faint)',
+                    color: cycle === 'annual' ? 'var(--bone)' : 'var(--bone-faint)',
                     borderBottom: cycle === 'annual' ? '1px solid var(--warm)' : '1px solid transparent',
                   }}
                 >
@@ -271,8 +266,8 @@ export function Signup() {
               <div style={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
-                borderTop: '1px solid var(--parchment-rule)',
-                borderBottom: '1px solid var(--parchment-rule)',
+                borderTop: '1px solid var(--rule)',
+                borderBottom: '1px solid var(--rule)',
               }}>
                 {TIERS.map((t, i) => {
                   const selected = tier === t.id;
@@ -284,16 +279,16 @@ export function Signup() {
                       style={{
                         textAlign: 'left', cursor: 'pointer',
                         padding: '24px 24px 22px',
-                        borderRight: i < TIERS.length - 1 ? '1px solid var(--parchment-rule)' : 0,
+                        borderRight: i < TIERS.length - 1 ? '1px solid var(--rule)' : 0,
                         borderTop: 0, borderBottom: 0, borderLeft: 0,
                         background: selected ? 'var(--ink)' : 'transparent',
-                        color: selected ? 'var(--bone)' : 'var(--parchment-ink)',
+                        color: selected ? 'var(--bone)' : 'var(--bone)',
                         transition: 'background 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     >
                       <div className="hl-mono" style={{
                         fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
-                        color: selected ? 'var(--bone-faint)' : 'var(--parchment-faint)',
+                        color: selected ? 'var(--bone-faint)' : 'var(--bone-faint)',
                       }}>
                         {t.name}
                         {selected && <span style={{ color: 'var(--warm)' }}> · chosen</span>}
@@ -306,13 +301,13 @@ export function Signup() {
                       </div>
                       <div className="hl-mono" style={{
                         fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
-                        color: selected ? 'var(--bone-faint)' : 'var(--parchment-faint)', marginTop: 6,
+                        color: selected ? 'var(--bone-faint)' : 'var(--bone-faint)', marginTop: 6,
                       }}>
                         {t.id === 'family' && cycle === 'annual' ? '/ year · 2 months free' : t.sub}
                       </div>
                       <div className="hl-serif" style={{
                         fontSize: 13.5, lineHeight: 1.55,
-                        color: selected ? 'var(--bone-dim)' : 'var(--parchment-dim)',
+                        color: selected ? 'var(--bone-dim)' : 'var(--bone-dim)',
                         marginTop: 12, fontWeight: 400,
                       }}>
                         {t.body}
@@ -330,7 +325,7 @@ export function Signup() {
                 onChange={(e) => set({ acceptedTerms: e.target.checked })}
                 style={{ accentColor: 'var(--warm)', marginTop: 4 }}
               />
-              <span className="hl-serif" style={{ fontSize: 14, color: 'var(--parchment-dim)', lineHeight: 1.6, fontWeight: 400 }}>
+              <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', lineHeight: 1.6, fontWeight: 400 }}>
                 I accept the{' '}
                 <Link to="/terms" style={{ color: 'var(--warm)', textDecoration: 'none', borderBottom: '1px solid currentColor' }}>terms</Link>
                 {' '}and the{' '}
@@ -345,7 +340,7 @@ export function Signup() {
                 onChange={(e) => set({ marketingConsent: e.target.checked })}
                 style={{ accentColor: 'var(--warm)', marginTop: 4 }}
               />
-              <span className="hl-serif" style={{ fontSize: 13, color: 'var(--parchment-dim)', lineHeight: 1.6, fontWeight: 400 }}>
+              <span className="hl-serif" style={{ fontSize: 13, color: 'var(--bone-dim)', lineHeight: 1.6, fontWeight: 400 }}>
                 I'm happy to receive occasional updates and prompts from Heirloom (optional).
               </span>
             </label>
@@ -360,7 +355,7 @@ export function Signup() {
                     ? 'Begin · 30-day trial of Family'
                     : 'begin your thread →'}
               </button>
-              <span className="hl-italic" style={{ fontSize: 14, color: 'var(--parchment-dim)', fontWeight: 400 }}>
+              <span className="hl-italic" style={{ fontSize: 14, color: 'var(--bone-dim)', fontWeight: 400 }}>
                 no card on file · switches to free if not upgraded
               </span>
             </div>
@@ -368,7 +363,7 @@ export function Signup() {
 
           <div className="hl-mono" style={{
             marginTop: 48, fontSize: 10, letterSpacing: '0.2em',
-            textTransform: 'uppercase', color: 'var(--parchment-faint)',
+            textTransform: 'uppercase', color: 'var(--bone-faint)',
           }}>
             ∞ &nbsp; encrypted in browser · key escrow · 2 of 3 contacts
           </div>
@@ -415,7 +410,7 @@ export function Signup() {
           }}
         />
       ) : null}
-    </div>
+    </ClothShell>
   );
 }
 
@@ -423,7 +418,7 @@ function StepEyebrow({ children }: { children: React.ReactNode }) {
   return (
     <div className="hl-mono" style={{
       fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
-      color: 'var(--parchment-faint)', marginBottom: 22,
+      color: 'var(--bone-faint)', marginBottom: 22,
     }}>
       {children}
     </div>
@@ -435,7 +430,7 @@ function FieldLabel({ htmlFor, children }: { htmlFor: string; children: React.Re
     <label htmlFor={htmlFor} className="hl-mono" style={{
       display: 'block', fontSize: 10,
       letterSpacing: '0.22em', textTransform: 'uppercase',
-      color: 'var(--parchment-faint)', marginBottom: 8,
+      color: 'var(--bone-faint)', marginBottom: 8,
     }}>
       {children}
     </label>
@@ -445,7 +440,7 @@ function FieldLabel({ htmlFor, children }: { htmlFor: string; children: React.Re
 function Helper({ children }: { children: React.ReactNode }) {
   return (
     <p className="hl-italic" style={{
-      fontSize: 13.5, color: 'var(--parchment-faint)', marginTop: 12,
+      fontSize: 13.5, color: 'var(--bone-faint)', marginTop: 12,
       lineHeight: 1.55, fontWeight: 400, maxWidth: '46ch',
     }}>
       {children}

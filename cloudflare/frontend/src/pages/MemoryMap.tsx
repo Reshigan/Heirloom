@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ProgressHair } from '../components/ui/ProgressHair';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { ClothShell } from '../loom/components/ClothShell';
 import { memoriesApi } from '../services/api';
 
@@ -71,7 +71,7 @@ export function MemoryMap() {
   );
 
   return (
-    <ClothShell topbarLeft={backLink} topbarCenter="memory map">
+    <ClothShell topbarLeft={backLink} topbarCenter="places">
       {/* content wrapper */}
       <div
         style={{
@@ -191,32 +191,40 @@ export function MemoryMap() {
             {/* Location list */}
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {locations.map(({ name, count }) => (
-                <li
-                  key={name}
-                  style={{
-                    borderBottom: '1px solid var(--rule)',
-                    paddingTop: 14,
-                    paddingBottom: 14,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'baseline',
-                  }}
-                >
-                  <span
-                    className="hl-serif"
-                    style={{ fontSize: 15, fontWeight: 300, color: 'var(--bone)' }}
+                <li key={name}>
+                  <Link
+                    to={`/loom/read?location=${encodeURIComponent(name)}`}
+                    style={{ textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderBottom: '1px solid var(--rule)', paddingTop: 14, paddingBottom: 14 }}
                   >
-                    {name}
-                  </span>
-                  <span
-                    className="hl-mono"
-                    style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em' }}
-                  >
-                    {count}
-                  </span>
+                    <span
+                      className="hl-serif"
+                      style={{ fontSize: 15, fontWeight: 300, color: 'var(--bone)' }}
+                    >
+                      {name}
+                    </span>
+                    <span
+                      className="hl-mono"
+                      style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em' }}
+                    >
+                      {count}
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>
+
+            {/* Footer note */}
+            <p
+              className="hl-mono"
+              style={{
+                fontSize: 10,
+                color: 'var(--bone-faint)',
+                letterSpacing: '0.12em',
+                marginTop: 20,
+              }}
+            >
+              the cloth · {memories.length} {memories.length === 1 ? 'entry' : 'entries'} across {locations.length} {locations.length === 1 ? 'place' : 'places'}
+            </p>
 
             {/* Detail sidebar (selected memory) — preserved from v1 */}
             {selectedMemory && (

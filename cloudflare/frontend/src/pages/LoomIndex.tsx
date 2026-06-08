@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { UserMenu } from '../loom/components/Frame';
 import { InfinityMenu } from '../loom/components/InfinityMenu';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { LettersAwaitingMe } from '../loom/components/LettersAwaitingMe';
@@ -154,7 +155,7 @@ export function LoomIndex() {
   );
 
   return (
-    <ClothShell topbarLeft={topbarLeft} topbarCenter={<InfinityMenu />}>
+    <ClothShell topbarLeft={topbarLeft} topbarCenter={<InfinityMenu />} topbarRight={<UserMenu />}>
       {/* Hairline loading bar */}
       <div
         aria-hidden
@@ -169,6 +170,29 @@ export function LoomIndex() {
       <LettersAwaitingMe />
 
       <div style={{ padding: 'clamp(24px, 5vw, 48px)', paddingBottom: 120, maxWidth: 680 }}>
+        {/* Quick links — feature destinations */}
+        <div style={{ display: 'flex', gap: 16, marginBottom: 28, flexWrap: 'wrap' }}>
+          {([
+            { label: 'wrapped', to: '/wrapped' },
+            { label: 'book', to: '/book-builder' },
+            { label: 'challenges', to: '/challenges' },
+            { label: 'milestones', to: '/milestones' },
+          ] as const).map(({ label, to }) => (
+            <Link
+              key={to}
+              to={to}
+              style={{
+                fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em',
+                textTransform: 'uppercase', color: 'var(--bone-faint)',
+                textDecoration: 'none', borderBottom: '1px solid var(--rule)',
+                paddingBottom: 2,
+              }}
+            >
+              {label} →
+            </Link>
+          ))}
+        </div>
+
         {/* Count + axis selector */}
         <div style={{ marginBottom: 28 }}>
           <p style={{

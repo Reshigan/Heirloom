@@ -72,13 +72,13 @@ export function Milestones() {
   });
 
   const [autoDetectMsg, setAutoDetectMsg] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const autoDetectMutation = useMutation({
     mutationFn: () => milestonesApi.autoDetect(),
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ['milestones'] });
       queryClient.invalidateQueries({ queryKey: ['upcomingMilestones'] });
       setAutoDetectMsg(`${response.data.created} new milestones detected`);
-      setTimeout(() => setAutoDetectMsg(null), 4000);
     },
   });
 
@@ -154,7 +154,7 @@ export function Milestones() {
               {autoDetectMutation.isPending ? 'detecting…' : 'auto-detect'}
             </button>
             <button
-              onClick={() => setShowCreateModal(true)}
+              onClick={() => { setShowCreateModal(true); setAutoDetectMsg(null); }}
               className="hl-btn"
               style={{
                 background: 'var(--warm)',
@@ -213,7 +213,7 @@ export function Milestones() {
                         key={milestone.id}
                         style={{
                           display: 'grid',
-                          gridTemplateColumns: '80px 1fr auto',
+                          gridTemplateColumns: '80px 1fr auto auto',
                           gap: 24,
                           alignItems: 'baseline',
                           padding: '18px 0',
@@ -252,7 +252,7 @@ export function Milestones() {
                             </p>
                           )}
                         </div>
-                        {/* status col */}
+                        {/* days col */}
                         <p
                           className="hl-mono"
                           style={{
@@ -267,6 +267,23 @@ export function Milestones() {
                         >
                           {daysUntil === 0 ? 'today' : daysUntil === 1 ? 'tomorrow' : `${daysUntil} days`}
                         </p>
+                        {/* write CTA col */}
+                        <Link
+                          to="/compose"
+                          onClick={() => setAutoDetectMsg(null)}
+                          style={{
+                            fontFamily: 'var(--mono)',
+                            fontSize: 9,
+                            letterSpacing: '0.15em',
+                            textTransform: 'uppercase',
+                            color: 'var(--bone-faint)',
+                            textDecoration: 'none',
+                            borderBottom: '1px solid var(--rule)',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          write →
+                        </Link>
                       </li>
                     );
                   })}
@@ -348,26 +365,69 @@ export function Milestones() {
                         >
                           {milestone.recurring ? 'yearly' : 'once'}
                           {' · '}
-                          <button
-                            onClick={() => deleteMutation.mutate(milestone.id)}
-                            style={{
-                              background: 'none',
-                              border: 0,
-                              padding: 0,
-                              cursor: 'pointer',
-                              fontFamily: 'var(--mono)',
-                              fontSize: 9.5,
-                              letterSpacing: '0.22em',
-                              textTransform: 'uppercase',
-                              color: 'var(--bone-faint)',
-                              transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-                            }}
-                            onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm)')}
-                            onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
-                            aria-label="Remove date"
-                          >
-                            remove
-                          </button>
+                          {confirmDeleteId === milestone.id ? (
+                            <>
+                              <button
+                                onClick={() => { deleteMutation.mutate(milestone.id); setConfirmDeleteId(null); }}
+                                style={{
+                                  background: 'none',
+                                  border: 0,
+                                  padding: 0,
+                                  cursor: 'pointer',
+                                  fontFamily: 'var(--mono)',
+                                  fontSize: 9.5,
+                                  letterSpacing: '0.22em',
+                                  textTransform: 'uppercase',
+                                  color: 'var(--warm)',
+                                }}
+                                aria-label="Confirm remove date"
+                              >
+                                confirm
+                              </button>
+                              {' · '}
+                              <button
+                                onClick={() => setConfirmDeleteId(null)}
+                                style={{
+                                  background: 'none',
+                                  border: 0,
+                                  padding: 0,
+                                  cursor: 'pointer',
+                                  fontFamily: 'var(--mono)',
+                                  fontSize: 9.5,
+                                  letterSpacing: '0.22em',
+                                  textTransform: 'uppercase',
+                                  color: 'var(--bone-faint)',
+                                  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                                }}
+                                onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone)')}
+                                onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
+                                aria-label="Cancel remove"
+                              >
+                                cancel
+                              </button>
+                            </>
+                          ) : (
+                            <button
+                              onClick={() => { setConfirmDeleteId(milestone.id); setAutoDetectMsg(null); }}
+                              style={{
+                                background: 'none',
+                                border: 0,
+                                padding: 0,
+                                cursor: 'pointer',
+                                fontFamily: 'var(--mono)',
+                                fontSize: 9.5,
+                                letterSpacing: '0.22em',
+                                textTransform: 'uppercase',
+                                color: 'var(--bone-faint)',
+                                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                              }}
+                              onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm)')}
+                              onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
+                              aria-label="Remove date"
+                            >
+                              remove
+                            </button>
+                          )}
                         </p>
                       </li>
                     );

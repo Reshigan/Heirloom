@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { giftsApi } from '../services/api';
-import { HLogo } from '../loom/components/HLogo';
 import { useAuthStore } from '../stores/authStore';
+import { ClothShell } from '../loom/components/ClothShell';
 
 interface GiftData {
   id: string;
@@ -77,87 +77,19 @@ export function GiftReceive() {
     setClaiming(false);
   };
 
-  // ── Parchment topbar — custom, not Frame (no auth shell) ─────────────────
-  const Topbar = () => (
-    <div
-      className="hl-topbar"
-      style={{ color: 'var(--parchment-dim)' }}
-    >
-      {/* left: "a gift" */}
-      <Link to="/" style={{ textDecoration: 'none' }}>
-        <HLogo size={18} mono color="var(--parchment-ink)" />
-      </Link>
-
-      {/* center: "a gift" label */}
-      <span
-        className="hl-mono"
-        style={{
-          position: 'absolute',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          fontSize: 10,
-          letterSpacing: '0.32em',
-          textTransform: 'uppercase',
-          color: 'var(--parchment-dim)',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        a gift
-        {gift?.sender_name && (
-          <>
-            {' '}·{' '}
-            <span style={{ color: 'var(--warm)' }}>
-              from {gift.sender_name}
-            </span>
-          </>
-        )}
-      </span>
-
-      {/* right: "accept →" warm */}
-      {!claimed && !loading && !error && (
-        <button
-          type="button"
-          onClick={handleClaim}
-          disabled={claiming}
-          className="hl-mono"
-          style={{
-            background: 'transparent',
-            border: 0,
-            cursor: claiming ? 'default' : 'pointer',
-            fontSize: 10,
-            letterSpacing: '0.32em',
-            textTransform: 'uppercase',
-            color: claiming ? 'var(--parchment-faint)' : 'var(--warm)',
-            padding: 0,
-          }}
-        >
-          {claiming ? 'accepting…' : 'accept →'}
-        </button>
-      )}
-    </div>
-  );
-
   // ── Loading state ─────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div
-        className="hl-screen parchment"
-        style={{ position: 'absolute', inset: 0 }}
-      >
-        <Topbar />
+      <ClothShell topbarCenter="a gift">
         <LoadingHair />
-      </div>
+      </ClothShell>
     );
   }
 
   // ── Error state ───────────────────────────────────────────────────────────
   if (error && !gift) {
     return (
-      <div
-        className="hl-screen parchment"
-        style={{ position: 'absolute', inset: 0 }}
-      >
-        <Topbar />
+      <ClothShell topbarCenter="a gift">
         <div
           style={{
             position: 'absolute',
@@ -204,18 +136,14 @@ export function GiftReceive() {
             </button>
           </div>
         </div>
-      </div>
+      </ClothShell>
     );
   }
 
   // ── Claimed success state ─────────────────────────────────────────────────
   if (claimed) {
     return (
-      <div
-        className="hl-screen parchment"
-        style={{ position: 'absolute', inset: 0 }}
-      >
-        <Topbar />
+      <ClothShell topbarCenter="a gift">
         <div
           style={{
             position: 'absolute',
@@ -272,17 +200,13 @@ export function GiftReceive() {
             </button>
           </div>
         </div>
-      </div>
+      </ClothShell>
     );
   }
 
   // ── Main gift receive screen ──────────────────────────────────────────────
   return (
-    <div
-      className="hl-screen parchment"
-      style={{ position: 'absolute', inset: 0, overflowY: 'auto' }}
-    >
-      <Topbar />
+    <ClothShell topbarCenter="a gift">
 
       {/* Content area — below topbar */}
       <div style={{ padding: '84px 56px', minHeight: '100%' }}>
@@ -437,7 +361,7 @@ export function GiftReceive() {
 
         </div>
       </div>
-    </div>
+    </ClothShell>
   );
 }
 

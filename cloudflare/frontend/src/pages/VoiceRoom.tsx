@@ -14,6 +14,21 @@ function formatDuration(seconds: number | null): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
+function formatTime(s: number): string {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2, '0')}`;
+}
+
+function getWaveformHeights(seed: string): number[] {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0;
+  return Array.from({ length: 12 }, (_, i) => {
+    h = (Math.imul(31, h) + i) | 0;
+    return 6 + Math.abs(h % 18);
+  });
+}
+
 interface VoiceEntry {
   id: string;
   title: string | null;
@@ -26,7 +41,6 @@ interface VoiceEntry {
 }
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
-const WAVEFORM_HEIGHTS = [12, 20, 8, 24, 16, 10, 22, 14, 6, 18, 20, 10];
 
 export function VoiceRoom() {
   const { isAuthenticated } = useAuthStore();
@@ -34,13 +48,27 @@ export function VoiceRoom() {
   const wantId = searchParams.get('id');
   const [playingId, setPlayingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [audioDuration, setAudioDuration] = useState(0);
 
   function handlePlay(entryId: string) {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
+    if (playingId === entryId) {
+      // stop
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+      setPlayingId(null);
+      setCurrentTime(0);
+      setAudioDuration(0);
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      setCurrentTime(0);
+      setAudioDuration(0);
+      setPlayingId(entryId);
     }
-    setPlayingId((prev) => (prev === entryId ? null : entryId));
   }
 
   const { data, isLoading } = useQuery({
@@ -119,6 +147,7 @@ export function VoiceRoom() {
             const dye = dyeColor(entry.id, entry.metadata);
             const isPlaying = playingId === entry.id;
             const duration = formatDuration(entry.duration);
+            const waveformHeights = getWaveformHeights(entry.id);
 
             return (
               <div
@@ -191,7 +220,7 @@ export function VoiceRoom() {
                     marginTop: 8, height: 28,
                   }}
                 >
-                  {WAVEFORM_HEIGHTS.map((h, i) => (
+                  {waveformHeights.map((h, i) => (
                     <div
                       key={i}
                       style={{
@@ -212,14 +241,50 @@ export function VoiceRoom() {
                       animation: `hl-fade 360ms ${EASE}`,
                     }}
                   >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+                      <button
+                        onClick={() => {
+                          if (audioRef.current) {
+                            if (audioRef.current.paused) {
+                              audioRef.current.play();
+                            } else {
+                              audioRef.current.pause();
+                              audioRef.current.currentTime = 0;
+                              setPlayingId(null);
+                              setCurrentTime(0);
+                              setAudioDuration(0);
+                            }
+                          }
+                        }}
+                        style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.1em' }}
+                      >
+                        {audioRef.current && !audioRef.current.paused ? '■ stop' : '▶ play'}
+                      </button>
+                      <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--bone-faint)', opacity: 0.6 }}>
+                        {formatTime(currentTime)} / {formatTime(audioDuration)}
+                      </span>
+                      <div style={{ flex: 1, height: 1, background: 'var(--rule)', position: 'relative' }}>
+                        <div style={{ position: 'absolute', left: 0, top: 0, height: 1, background: 'var(--warm)', width: `${audioDuration ? (currentTime / audioDuration) * 100 : 0}%`, transition: 'width 0.5s linear' }} />
+                      </div>
+                    </div>
                     <audio
                       ref={(el) => { audioRef.current = el; }}
                       src={entry.fileUrl}
                       autoPlay
-                      controls
-                      onEnded={() => setPlayingId(null)}
-                      style={{ width: '100%', marginTop: 8, height: 32 }}
+                      style={{ display: 'none' }}
+                      onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                      onLoadedMetadata={(e) => setAudioDuration(e.currentTarget.duration)}
+                      onEnded={() => {
+                        setPlayingId(null);
+                        setCurrentTime(0);
+                        setAudioDuration(0);
+                      }}
                     />
+                    {entry.transcript && (
+                      <p style={{ fontFamily: 'var(--serif)', fontSize: 13, color: 'var(--bone-faint)', fontStyle: 'italic', marginTop: 12, lineHeight: 1.6 }}>
+                        {entry.transcript}
+                      </p>
+                    )}
                   </div>
                 )}
               </div>

@@ -1,7 +1,4 @@
-import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
-import { TapestryCanvas } from './TapestryCanvas';
-import type { CanvasEntry } from './TapestryCanvas';
 
 /**
  * WeaveCeremony — the single "a new point activates in the cloth" celebration.
@@ -11,9 +8,9 @@ import type { CanvasEntry } from './TapestryCanvas';
  * keeps invariant (A) — the Tapestry is the interface — true at the moment of authorship.
  */
 export function WeaveCeremony({
-  dye,
-  entryDate,
-  seed,
+  dye: _dye,
+  entryDate: _entryDate,
+  seed: _seed,
   eyebrow,
   headline,
   footer,
@@ -27,21 +24,6 @@ export function WeaveCeremony({
   headline: string;
   footer?: ReactNode;
 }) {
-  const wovenAtRef = useRef<number>(performance.now());
-  const date = entryDate instanceof Date ? entryDate : new Date(entryDate);
-  const safeDate = isNaN(date.getTime()) ? new Date() : date;
-
-  // Set the weave-in flash timestamp once, on mount.
-  useEffect(() => {
-    wovenAtRef.current = performance.now();
-  }, []);
-
-  const entry: CanvasEntry = {
-    date: safeDate,
-    n: Math.abs(seed.split('').reduce((a, c) => a + c.charCodeAt(0), 0)) || 42,
-    dye,
-    tier: 'family',
-  };
 
   return (
     <div
@@ -58,25 +40,6 @@ export function WeaveCeremony({
         animation: 'hl-fade 360ms var(--ease) both',
       }}
     >
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-        <TapestryCanvas
-          height={72}
-          entries={[entry]}
-          kind="specimen"
-          animate
-          newEntryAt={wovenAtRef.current}
-          opts={{
-            tStart: new Date(+safeDate - 86400000 * 180),
-            tEnd: new Date(+safeDate + 86400000 * 180),
-            background: '#0e0e0c',
-            warpEvery: 9,
-            showDecadeMarks: false,
-            showFraySelvedge: false,
-            showWarpHair: false,
-          }}
-        />
-      </div>
-
       <p
         style={{
           fontFamily: 'var(--mono)',

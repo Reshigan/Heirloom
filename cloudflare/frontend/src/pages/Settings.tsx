@@ -59,6 +59,8 @@ export function Settings() {
     if (!profileData) return;
     setBirthDate((profileData as any).birthDate ?? '');
     setGender((profileData as any).gender ?? '');
+    if ((profileData as any).guardianName) setGuardianName((profileData as any).guardianName);
+    if ((profileData as any).guardianEmail) setGuardianEmail((profileData as any).guardianEmail);
   }, [profileData]);
 
   const [deleteStage, setDeleteStage] = useState<'idle' | 'confirm' | 'quote' | 'password' | 'archived'>('idle');
@@ -172,7 +174,7 @@ export function Settings() {
       lastName,
       ...(profileData ? { birthDate, gender } : {}),
     }).then((r) => r.data),
-    onSuccess: () => setSavedFlash(true),
+    onSuccess: () => { setSavedFlash(true); setTimeout(() => setSavedFlash(false), 2500); },
   });
 
   const { data: notifData, refetch: refetchNotifs } = useQuery({
@@ -338,7 +340,10 @@ export function Settings() {
           </div>
 
           {/* ── The thread ────────────────────────────────── */}
-          <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--warm)' }}>the thread</div>
+          <div className="hl-eyebrow" style={{ margin: '28px 0 6px', color: 'var(--warm)' }}>the thread</div>
+          <div style={{ marginBottom: 14 }}>
+            <Link to="/billing" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none', borderBottom: '1px solid var(--rule)' }}>manage billing →</Link>
+          </div>
 
           <Row label="successors" hint="ordered · cascade on triggered switch">
             <Link to="/threads" style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>

@@ -39,7 +39,7 @@ export function Join() {
     navigate(to);
   };
 
-  const isValid = /^INV-[0-9A-F]{8}$/.test(code);
+  const isValid = /^INV-[0-9A-F]{8}$/.test(code.toUpperCase());
 
   return (
     <div

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { HLogo } from '../loom/components/HLogo';
+import { ClothShell } from '../loom/components/ClothShell';
 import api from '../services/api';
 
 interface RoomData {
@@ -91,47 +91,45 @@ export function MemoryRoom() {
 
   if (isLoading) {
     return (
-      <div
-        className="hl-screen parchment"
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-      >
-        <p
-          className="hl-mono"
-          style={{ fontSize: 11, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}
-        >
-          loading the room…
-        </p>
-      </div>
+      <ClothShell topbarCenter="memory room">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+          <p
+            className="hl-mono"
+            style={{ fontSize: 11, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}
+          >
+            loading the room…
+          </p>
+        </div>
+      </ClothShell>
     );
   }
 
   if (error || !data) {
     return (
-      <div
-        className="hl-screen parchment"
-        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
-      >
-        <div style={{ textAlign: 'center', maxWidth: 480 }}>
-          <p
-            className="hl-serif"
-            style={{ fontSize: 28, color: 'var(--warm)', marginBottom: 16 }}
-          >
-            ∞
-          </p>
-          <h1
-            className="hl-serif hl-tight"
-            style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px', color: 'var(--parchment-ink)' }}
-          >
-            Room not found.
-          </h1>
-          <p
-            className="hl-prose dark"
-            style={{ fontSize: 15, color: 'var(--parchment-dim)', margin: 0 }}
-          >
-            This memory room may not be active or the link may be invalid.
-          </p>
+      <ClothShell topbarCenter="memory room">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, height: '100%' }}>
+          <div style={{ textAlign: 'center', maxWidth: 480 }}>
+            <p
+              className="hl-serif"
+              style={{ fontSize: 28, color: 'var(--warm)', marginBottom: 16 }}
+            >
+              ∞
+            </p>
+            <h1
+              className="hl-serif hl-tight"
+              style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px', color: 'var(--parchment-ink)' }}
+            >
+              Room not found.
+            </h1>
+            <p
+              className="hl-prose dark"
+              style={{ fontSize: 15, color: 'var(--parchment-dim)', margin: 0 }}
+            >
+              This memory room may not be active or the link may be invalid.
+            </p>
+          </div>
         </div>
-      </div>
+      </ClothShell>
     );
   }
 
@@ -139,36 +137,9 @@ export function MemoryRoom() {
   const contentTypeLabel = (t: string) => t === 'PHOTO' ? 'Photo' : t === 'VOICE' ? 'Voice' : 'Story';
 
   return (
-    <div className="hl-screen parchment" style={{ overflowY: 'auto' }}>
-
-      {/* Custom parchment topbar */}
-      <div
-        className="hl-topbar"
-        style={{ borderBottom: '1px solid var(--parchment-rule)' }}
-      >
-        {/* left: logo */}
-        <span style={{ display: 'inline-flex', alignItems: 'center' }}>
-          <HLogo size={18} wordmark mono color="var(--parchment-ink)" wordColor="var(--parchment-ink)" />
-        </span>
-
-        {/* center: room label */}
-        <span
-          className="hl-counter hl-mono"
-          style={{
-            position: 'absolute',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            whiteSpace: 'nowrap',
-            fontSize: 10,
-            letterSpacing: '0.32em',
-            textTransform: 'uppercase',
-            color: 'var(--parchment-faint)',
-          }}
-        >
-          memory room
-        </span>
-
-        {/* right: contribute action */}
+    <ClothShell
+      topbarCenter="memory room"
+      topbarRight={
         <button
           type="button"
           onClick={() => setShowContribute(true)}
@@ -186,8 +157,8 @@ export function MemoryRoom() {
         >
           share a memory →
         </button>
-      </div>
-
+      }
+    >
       {/* Content area — sits below topbar (56px) */}
       <div style={{ paddingTop: 56 }}>
 
@@ -604,7 +575,7 @@ export function MemoryRoom() {
           </div>
         </div>
       )}
-    </div>
+    </ClothShell>
   );
 }
 

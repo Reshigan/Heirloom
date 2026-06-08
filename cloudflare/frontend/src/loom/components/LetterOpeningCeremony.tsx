@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import { TapestryCanvas, type CanvasEntry } from './TapestryCanvas';
+import { useEffect, useState } from 'react';
 
 /**
  * LetterOpeningCeremony — the Unlock, for a letter received from another hand.
@@ -30,7 +29,7 @@ interface OpenedLetter {
 export function LetterOpeningCeremony({
   letter,
   from,
-  dye,
+  dye: _dye,
   entryDate,
   onClose,
 }: {
@@ -41,7 +40,6 @@ export function LetterOpeningCeremony({
   onClose: () => void;
 }) {
   const [phase, setPhase] = useState<'seal' | 'reveal'>('seal');
-  const wovenAtRef = useRef<number>(performance.now());
 
   const date = entryDate ? new Date(entryDate) : new Date();
   const safeDate = isNaN(date.getTime()) ? new Date() : date;
@@ -49,20 +47,12 @@ export function LetterOpeningCeremony({
   // Beat 1 → 3: hold the seal for 1400ms, then part it and weave the thread.
   useEffect(() => {
     const t = window.setTimeout(() => {
-      wovenAtRef.current = performance.now();
       setPhase('reveal');
     }, 1400);
     return () => window.clearTimeout(t);
   }, []);
 
   const dateStr = safeDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
-
-  const threadEntry: CanvasEntry = {
-    date: safeDate,
-    n: Math.abs((letter.id || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0)) || 42,
-    dye: dye as CanvasEntry['dye'],
-    tier: 'family',
-  };
 
   return (
     <div
@@ -162,25 +152,6 @@ export function LetterOpeningCeremony({
       ) : (
         /* ── Beat 3 · the thread woven, the words risen ── */
         <div style={{ maxWidth: 600, margin: '0 auto', padding: 'clamp(32px, 6vw, 72px) clamp(24px, 5vw, 48px) 96px' }}>
-          <div style={{ marginBottom: 36 }}>
-            <TapestryCanvas
-              height={64}
-              entries={[threadEntry]}
-              kind="specimen"
-              animate
-              newEntryAt={wovenAtRef.current}
-              opts={{
-                tStart: new Date(+safeDate - 86400000 * 180),
-                tEnd: new Date(+safeDate + 86400000 * 180),
-                background: '#0e0e0c',
-                warpEvery: 9,
-                showDecadeMarks: false,
-                showFraySelvedge: false,
-                showWarpHair: false,
-              }}
-            />
-          </div>
-
           <p
             className="hl-mono"
             style={{

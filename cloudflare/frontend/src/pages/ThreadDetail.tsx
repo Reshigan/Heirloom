@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Frame, TapestryEdge } from '../loom/components/Frame';
+import { TapestryEdge } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { threadsApi, type ThreadRole, type ThreadEntry } from '../services/api';
 
 /**
@@ -104,22 +106,24 @@ export function ThreadDetail() {
 
   if (isLoading) {
     return (
-      <Frame
-        left="the wall · …"
-        right={<Link to="/threads" className="hl-link warm">threads →</Link>}
+      <ClothShell
+        topbarLeft={<Breadcrumbs trail={[{ label: 'threads', to: '/threads' }, { label: 'thread' }]} />}
+        topbarCenter="the wall"
+        topbarRight={<Link to="/threads" className="hl-link warm">threads →</Link>}
       >
         <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-dim)', padding: '56px 56px' }}>
           Loading…
         </p>
-      </Frame>
+      </ClothShell>
     );
   }
 
   if (error || !detail) {
     return (
-      <Frame
-        left="the wall"
-        right={<Link to="/threads" className="hl-link warm">threads →</Link>}
+      <ClothShell
+        topbarLeft={<Breadcrumbs trail={[{ label: 'threads', to: '/threads' }, { label: 'thread' }]} />}
+        topbarCenter="the wall"
+        topbarRight={<Link to="/threads" className="hl-link warm">threads →</Link>}
       >
         <div style={{ padding: '56px 56px' }}>
           <h1 className="hl-serif" style={{ fontSize: 28, fontWeight: 400, fontStyle: 'italic', marginBottom: 12 }}>
@@ -129,7 +133,7 @@ export function ThreadDetail() {
             You may not be a member of this thread, or it may have been archived.
           </p>
         </div>
-      </Frame>
+      </ClothShell>
     );
   }
 
@@ -148,10 +152,10 @@ export function ThreadDetail() {
       : null;
 
   return (
-    <Frame
-      left={`the wall · ${threadName ?? 'thread'}`}
-      right={<Link to="/threads" className="hl-link warm">threads →</Link>}
-      showEdge={false}
+    <ClothShell
+      topbarLeft={<Breadcrumbs trail={[{ label: 'threads', to: '/threads' }, { label: threadName ?? 'thread' }]} />}
+      topbarCenter={`the wall · ${threadName ?? 'thread'}`}
+      topbarRight={<Link to="/threads" className="hl-link warm">threads →</Link>}
     >
       {/* ── Full-screen Wall layout ── */}
       <div
@@ -634,7 +638,7 @@ export function ThreadDetail() {
       </div>
 
       <TapestryEdge />
-    </Frame>
+    </ClothShell>
   );
 }
 

@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { socialApi } from '../services/api';
-import { ProgressHair } from '../components/ui/ProgressHair';
+import { ProgressHair } from '../loom/components/ProgressHair';
 
 interface SocialPost {
   id: string;

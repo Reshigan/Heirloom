@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ProgressHair } from '../components/ui/ProgressHair';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { HLogo } from '../loom/components/HLogo';
+import { ClothShell } from '../loom/components/ClothShell';
 import axios from 'axios';
 
 interface CardData {
@@ -19,26 +20,6 @@ interface CardData {
   memoryDate: string | null;
   memoryTitle: string;
   shareUrl: string;
-}
-
-// ── Parchment topbar — logo left, label right ────────────────────────────
-function CardTopbar() {
-  return (
-    <div
-      className="hl-topbar"
-      style={{ color: 'var(--parchment-dim)', borderBottom: '1px solid var(--parchment-rule)' }}
-    >
-      <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-        <HLogo size={18} wordmark mono color="var(--parchment-ink)" wordColor="var(--parchment-ink)" />
-      </Link>
-      <span
-        className="hl-eyebrow dark"
-        style={{ color: 'var(--parchment-dim)' }}
-      >
-        a card from the cloth
-      </span>
-    </div>
-  );
 }
 
 export function CardView() {
@@ -93,11 +74,7 @@ export function CardView() {
 
   if (loading) {
     return (
-      <div
-        className="hl-screen parchment"
-        style={{ position: 'absolute', inset: 0 }}
-      >
-        <CardTopbar />
+      <ClothShell topbarCenter="card">
         <div
           style={{
             position: 'absolute',
@@ -109,17 +86,13 @@ export function CardView() {
         >
           <ProgressHair label="loading…" width={200} />
         </div>
-      </div>
+      </ClothShell>
     );
   }
 
   if (error || !card) {
     return (
-      <div
-        className="hl-screen parchment"
-        style={{ position: 'absolute', inset: 0 }}
-      >
-        <CardTopbar />
+      <ClothShell topbarCenter="card">
         <div
           style={{
             position: 'absolute',
@@ -154,7 +127,7 @@ export function CardView() {
             Discover Heirloom
           </Link>
         </div>
-      </div>
+      </ClothShell>
     );
   }
 
@@ -162,12 +135,7 @@ export function CardView() {
   const dyeColor = card.styleConfig.accentColor || card.styleConfig.bgColor || null;
 
   return (
-    <div
-      className="hl-screen parchment"
-      style={{ position: 'absolute', inset: 0 }}
-    >
-      <CardTopbar />
-
+    <ClothShell topbarCenter="card">
       {/* content — centered in the remaining viewport */}
       <div
         style={{
@@ -305,7 +273,7 @@ export function CardView() {
           </div>
         </div>
       </div>
-    </div>
+    </ClothShell>
   );
 }
 

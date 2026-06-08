@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
 import { TapestryEdge } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
 import api from '../services/api';
 
 interface GoldLegacyVoucherInfo {
@@ -108,26 +109,7 @@ export function GoldLegacyRedeem() {
   };
 
   return (
-    <div
-      className="hl-screen"
-      style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'var(--ink)',
-        color: 'var(--bone)',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Topbar */}
-      <div className="hl-topbar">
-        <Link
-          to="/"
-          style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
-        >
-          <HLogo size={18} wordmark />
-        </Link>
-      </div>
-
+    <ClothShell topbarLeft={<HLogo />} topbarCenter="gold thread">
       {/* Content */}
       <div
         style={{
@@ -531,7 +513,7 @@ export function GoldLegacyRedeem() {
       </div>
 
       <TapestryEdge />
-    </div>
+    </ClothShell>
   );
 }
 

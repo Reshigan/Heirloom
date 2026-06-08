@@ -11,6 +11,7 @@ export function Challenges() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [submissionContent, setSubmissionContent] = useState('');
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null);
 
   const { data: currentChallenge, isLoading } = useQuery({
     queryKey: ['currentChallenge'],
@@ -51,10 +52,16 @@ export function Challenges() {
     let shareUrl = '';
     switch (platform) {
       case 'instagram':
-        copyToClipboard(`${text}\n\n${url}`).catch(() => {});
+        copyToClipboard(`${text}\n\n${url}`).then(() => {
+          setCopiedPlatform('instagram');
+          setTimeout(() => setCopiedPlatform(null), 2000);
+        }).catch(() => {});
         break;
       case 'tiktok':
-        copyToClipboard(`${text}\n\n${url}`).catch(() => {});
+        copyToClipboard(`${text}\n\n${url}`).then(() => {
+          setCopiedPlatform('tiktok');
+          setTimeout(() => setCopiedPlatform(null), 2000);
+        }).catch(() => {});
         break;
       case 'facebook':
         shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
@@ -220,7 +227,7 @@ export function Challenges() {
                         onClick={() => handleShare('instagram')}
                         className="hl-btn ghost"
                       >
-                        share · Instagram
+                        {copiedPlatform === 'instagram' ? 'copied ✓' : 'share · Instagram'}
                       </button>
                       <button
                         onClick={() => handleShare('facebook')}
@@ -310,12 +317,15 @@ export function Challenges() {
                     .map((challenge: any) => (
                       <li
                         key={challenge.id}
+                        role="button"
+                        tabIndex={0}
                         style={{
                           borderTop: '1px solid var(--rule)',
                           padding: '20px 0',
                           cursor: 'pointer',
                         }}
                         onClick={() => setSelectedChallenge(challenge)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedChallenge(challenge); } }}
                       >
                         <article className="challenges-upcoming" style={{ display: 'grid', gap: 32, alignItems: 'baseline' }}>
                           <p

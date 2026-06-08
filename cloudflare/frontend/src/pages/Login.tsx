@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/authStore';
 import { VaultModal } from '../components/VaultModal';
 import { encryptionService } from '../services/encryptionService';
 import { HLogo } from '../loom/components/HLogo';
+import { ClothShell } from '../loom/components/ClothShell';
 
 const ClothCanvas3D = lazy(() =>
   import('../loom/components/ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
@@ -43,28 +44,22 @@ export function Login() {
   };
 
   return (
-    <div className="hl-screen parchment" style={{ minHeight: '100vh', position: 'relative' }}>
-      {/* Top bar */}
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: 'calc(clamp(16px, 2.5vh, 24px) + env(safe-area-inset-top, 0px)) clamp(16px, 5vw, 56px) clamp(16px, 2.5vh, 24px)',
-        borderBottom: '1px solid var(--parchment-rule)',
-      }}>
-        <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-          <HLogo size={18} wordmark mono color="var(--parchment-ink)" wordColor="var(--parchment-ink)" />
-        </Link>
-        <Link to="/signup" style={{ fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--parchment-dim)', textDecoration: 'none', whiteSpace: 'nowrap' }}>
+    <ClothShell
+      topbarLeft={<HLogo />}
+      topbarCenter="sign in"
+      topbarRight={
+        <Link to="/signup" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>
           begin a thread →
         </Link>
-      </div>
-
+      }
+    >
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))',
-        minHeight: 'calc(100vh - 73px)',
+        minHeight: '100%',
       }}>
         {/* Left: form */}
-        <main style={{ display: 'grid', placeItems: 'center', padding: 'clamp(28px, 5vh, 56px) clamp(16px, 6vw, 88px)', minWidth: 0 }}>
+        <div style={{ display: 'grid', placeItems: 'center', padding: 'clamp(24px,5vw,48px)', minWidth: 0 }}>
           <div style={{ width: '100%', maxWidth: 380 }}>
             {/* ∞ — 3D floating mark, the product's only symbol */}
             <div style={{ marginBottom: 32, lineHeight: 1 }}>
@@ -82,7 +77,7 @@ export function Login() {
               fontWeight: 300, lineHeight: 1.06,
               letterSpacing: '-0.022em',
               margin: '0 0 40px', maxWidth: '13ch',
-              color: 'var(--parchment-ink)',
+              color: 'var(--bone)',
               fontVariationSettings: '"opsz" 40',
             }}>
               Enter{' '}
@@ -106,7 +101,7 @@ export function Login() {
                 <label htmlFor="l-email" className="hl-mono" style={{
                   display: 'block', marginBottom: 6,
                   fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
-                  color: 'var(--parchment-faint)',
+                  color: 'var(--bone-faint)',
                 }}>
                   email
                 </label>
@@ -121,7 +116,7 @@ export function Login() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
                   <label htmlFor="l-pw" className="hl-mono" style={{
                     fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
-                    color: 'var(--parchment-faint)',
+                    color: 'var(--bone-faint)',
                   }}>
                     passphrase
                   </label>
@@ -159,9 +154,9 @@ export function Login() {
 
             <div className="hl-mono" style={{
               marginTop: 48, paddingTop: 22,
-              borderTop: '1px solid var(--parchment-rule)',
+              borderTop: '1px solid var(--rule)',
               fontSize: 10, letterSpacing: '0.20em', textTransform: 'uppercase',
-              color: 'var(--parchment-faint)',
+              color: 'var(--bone-faint)',
             }}>
               new here?{' '}
               <Link to="/signup" style={{ color: 'var(--warm)', textDecoration: 'none' }}>
@@ -169,7 +164,7 @@ export function Login() {
               </Link>
             </div>
           </div>
-        </main>
+        </div>
 
         {/* Right: 3D cloth canvas on ink */}
         <aside
@@ -205,7 +200,7 @@ export function Login() {
           }}
         />
       ) : null}
-    </div>
+    </ClothShell>
   );
 }
 

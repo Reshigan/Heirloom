@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
+import { UserMenu } from '../loom/components/Frame';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 
 // Quick Create wizard templates
@@ -306,7 +308,7 @@ export function LifeEvents() {
 
   if (isLoading) {
     return (
-      <Frame left="life events">
+      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />} topbarCenter="life events" topbarRight={<UserMenu />}>
         <div style={{ padding: 'clamp(16px, 4vw, 48px)' }}>
           <div
             style={{
@@ -317,12 +319,12 @@ export function LifeEvents() {
             }}
           />
         </div>
-      </Frame>
+      </ClothShell>
     );
   }
 
   return (
-    <Frame left="life events">
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />} topbarCenter="life events" topbarRight={<UserMenu />}>
       <div style={{ padding: 'clamp(16px, 4vw, 48px)', paddingBottom: 80, maxWidth: 860, margin: '0 auto' }}>
 
         {/* Page header */}
@@ -922,7 +924,7 @@ export function LifeEvents() {
           </div>
         </div>
       )}
-    </Frame>
+    </ClothShell>
   );
 }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
+import { ClothShell } from '../loom/components/ClothShell';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -18,52 +19,6 @@ interface PricingData {
   currency: string;
   symbol: string;
   tiers: PricingTier[];
-}
-
-// ── MktBar ────────────────────────────────────────────────────────────────────
-
-function MktBar() {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '24px 56px',
-        borderBottom: '1px solid var(--parchment-rule)',
-      }}
-    >
-      <Link to="/" style={{ textDecoration: 'none' }}>
-        <HLogo size={20} wordmark mono color="var(--parchment-ink)" wordColor="#1a1916" />
-      </Link>
-      <nav
-        style={{
-          display: 'flex',
-          gap: 32,
-          fontFamily: 'var(--mono)',
-          fontSize: 10.5,
-          letterSpacing: '0.32em',
-          textTransform: 'uppercase',
-          color: 'var(--parchment-dim)',
-        }}
-      >
-        {[
-          { to: '/',         label: 'home'    },
-          { to: '/founders', label: 'pledge'  },
-          { to: '/gift',     label: 'gift'    },
-          { to: '/login',    label: 'sign in' },
-        ].map(({ to, label }) => (
-          <Link
-            key={to}
-            to={to}
-            style={{ color: 'inherit', textDecoration: 'none' }}
-          >
-            {label}
-          </Link>
-        ))}
-      </nav>
-    </div>
-  );
 }
 
 // ── GiftPurchase ──────────────────────────────────────────────────────────────
@@ -131,12 +86,11 @@ export function GiftPurchase() {
   const price = selectedPricing?.[billingCycle];
 
   return (
-    <div
-      className="hl-screen parchment"
-      style={{ overflowY: 'auto' }}
+    <ClothShell
+      topbarLeft={<HLogo />}
+      topbarCenter="gift a thread"
+      topbarRight={<Link to="/login">sign in →</Link>}
     >
-      <MktBar />
-
       {/* Content */}
       <div style={{ padding: '64px 56px' }}>
         <div style={{ maxWidth: 680, margin: '0 auto' }}>
@@ -593,7 +547,7 @@ export function GiftPurchase() {
 
         </div>
       </div>
-    </div>
+    </ClothShell>
   );
 }
 

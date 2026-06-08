@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
-import { Frame } from '../loom/components/Frame';
+import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { UserMenu } from '../loom/components/Frame';
 
 export function BookPage() {
   return (
-    <Frame left="the book">
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'the book' }]} />} topbarCenter="the book" topbarRight={<UserMenu />}>
       <div style={{
         padding: 'clamp(48px, 9vw, 88px) clamp(20px, 6vw, 60px)',
         maxWidth: 720,
@@ -134,6 +136,6 @@ export function BookPage() {
         </div>
 
       </div>
-    </Frame>
+    </ClothShell>
   );
 }

@@ -2,7 +2,10 @@
 // §A Tapestry-is-the-interface: hairline list of family thread additions.
 // No avatars, no reactions, no social chrome.
 import { useQuery } from '@tanstack/react-query';
-import { Frame } from '../loom/components/Frame';
+import { Link } from 'react-router-dom';
+import { ClothShell } from '../loom/components/ClothShell';
+import { UserMenu } from '../loom/components/Frame';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { engagementApi } from '../services/api';
 
 interface FeedItem {
@@ -33,6 +36,12 @@ function itemDye(item: FeedItem): string {
   return dyeByType[item.type] ?? 'oakgall';
 }
 
+function itemTo(item: FeedItem): string {
+  if (item.type === 'voice') return `/loom/voice?id=${item.id}`;
+  if (item.type === 'letter') return '/loom/letter-room';
+  return `/loom/read?entry=${item.id}`;
+}
+
 function fmtDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'short',
@@ -50,7 +59,7 @@ export function FamilyFeed() {
   const items: FeedItem[] = feedData?.items || [];
 
   return (
-    <Frame left="family · this week">
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'family feed' }]} />} topbarCenter="family feed" topbarRight={<UserMenu />}>
       <div
         style={{
           padding: '56px 48px 80px',
@@ -96,62 +105,70 @@ export function FamilyFeed() {
                 key={item.id}
                 style={{
                   borderBottom: '1px solid var(--rule)',
-                  paddingTop: 14,
-                  paddingBottom: 14,
-                  display: 'grid',
-                  gridTemplateColumns: '14px 1fr auto',
-                  alignItems: 'center',
-                  gap: 14,
                 }}
               >
-                {/* dye swatch */}
-                <span
-                  aria-hidden
+                <Link
+                  to={itemTo(item)}
                   style={{
-                    width: 14,
-                    height: 2,
-                    background: `var(--dye-${itemDye(item)})`,
-                    display: 'block',
-                    flexShrink: 0,
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    display: 'grid',
+                    gridTemplateColumns: '14px 1fr auto',
+                    alignItems: 'center',
+                    gap: 14,
+                    paddingTop: 14,
+                    paddingBottom: 14,
                   }}
-                />
-
-                {/* main text */}
-                <p
-                  className="hl-serif"
-                  style={{ margin: 0, fontSize: 15.5, lineHeight: 1.35 }}
                 >
+                  {/* dye swatch */}
                   <span
-                    style={{ fontStyle: 'italic', color: 'var(--bone-dim)' }}
-                  >
-                    {item.author_name}
-                  </span>
-                  {' '}
-                  <span style={{ fontStyle: 'normal', color: 'var(--bone)' }}>
-                    {typeVerb[item.type] ?? 'added an entry'}
-                    {item.title ? ` · ${item.title}` : ''}
-                  </span>
-                </p>
+                    aria-hidden
+                    style={{
+                      width: 14,
+                      height: 2,
+                      background: `var(--dye-${itemDye(item)})`,
+                      display: 'block',
+                      flexShrink: 0,
+                    }}
+                  />
 
-                {/* date */}
-                <time
-                  className="hl-mono"
-                  dateTime={item.created_at}
-                  style={{
-                    fontSize: 10.5,
-                    color: 'var(--bone-faint)',
-                    letterSpacing: '0.04em',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {fmtDate(item.created_at)}
-                </time>
+                  {/* main text */}
+                  <p
+                    className="hl-serif"
+                    style={{ margin: 0, fontSize: 15.5, lineHeight: 1.35 }}
+                  >
+                    <span
+                      style={{ fontStyle: 'italic', color: 'var(--bone-dim)' }}
+                    >
+                      {item.author_name}
+                    </span>
+                    {' '}
+                    <span style={{ fontStyle: 'normal', color: 'var(--bone)' }}>
+                      {typeVerb[item.type] ?? 'added an entry'}
+                      {item.title ? ` · ${item.title}` : ''}
+                    </span>
+                  </p>
+
+                  {/* date */}
+                  <time
+                    className="hl-mono"
+                    dateTime={item.created_at}
+                    style={{
+                      fontSize: 10.5,
+                      color: 'var(--bone-faint)',
+                      letterSpacing: '0.04em',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {fmtDate(item.created_at)}
+                  </time>
+                </Link>
               </li>
             ))}
           </ul>
         )}
       </div>
-    </Frame>
+    </ClothShell>
   );
 }
 

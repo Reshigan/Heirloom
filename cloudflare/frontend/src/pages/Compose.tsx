@@ -821,7 +821,6 @@ export function Compose() {
 
   return (
     <div
-      className="hl-screen"
       style={{
         position: 'absolute',
         inset: 0,
