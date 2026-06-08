@@ -183,6 +183,7 @@ export function PwaNudge() {
               <img
                 src="/icon.svg"
                 alt="Heirloom"
+                loading="lazy"
                 width={36}
                 height={36}
                 style={{ display: 'block', borderRadius: 0, flexShrink: 0 }}

@@ -733,7 +733,8 @@ export function StoryArtifact() {
                     >
                       <img
                         src={memory.fileUrl ?? undefined}
-                        alt={memory.title ?? undefined}
+                        alt={memory.title ?? 'memory photo'}
+                        loading="lazy"
                         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                       />
                       {selectedMemories.includes(memory.id) && (

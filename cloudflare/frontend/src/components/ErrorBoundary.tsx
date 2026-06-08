@@ -35,47 +35,31 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="min-h-screen bg-void flex items-center justify-center p-4">
-          <div className="max-w-md w-full bg-void-elevated border border-gold/20 rounded-lg p-8 text-center">
-            <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-red-500/20 flex items-center justify-center">
-              <svg
-                className="w-8 h-8 text-red-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-            </div>
-            <h2 className="text-xl font-serif text-paper mb-2">Something went wrong</h2>
-            <p className="text-paper/70 mb-6">
-              We encountered an unexpected error. Please try again or refresh the page.
+        <div style={{ minHeight: '100dvh', background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
+          <div style={{ maxWidth: 480, width: '100%' }}>
+            <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm)', display: 'block', marginBottom: 20 }}>
+              something went wrong
+            </span>
+            <h1 className="hl-serif" style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 300, color: 'var(--bone)', marginBottom: 16, lineHeight: 1.2 }}>
+              An unexpected error occurred.
+            </h1>
+            <p className="hl-prose" style={{ fontSize: 15, color: 'var(--bone-dim)', marginBottom: 32, lineHeight: 1.7 }}>
+              The error has been logged. Try reloading — if it persists, your data is safe.
             </p>
-            <div className="flex gap-3 justify-center">
-              <button
-                onClick={this.handleRetry}
-                className="px-4 py-2 bg-gold/20 hover:bg-gold/30 text-gold border border-gold/30 rounded-lg transition-colors"
-              >
-                Try Again
+            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+              <button onClick={() => window.location.reload()} className="hl-btn" style={{ cursor: 'pointer' }}>
+                reload →
               </button>
-              <button
-                onClick={() => window.location.reload()}
-                className="px-4 py-2 bg-void hover:bg-void-elevated text-paper/70 border border-paper/20 rounded-lg transition-colors"
-              >
-                Refresh Page
-              </button>
+              <a href="/" className="hl-btn text" style={{ textDecoration: 'none' }}>
+                go home
+              </a>
             </div>
             {this.state.error && (
-              <details className="mt-6 text-left">
-                <summary className="text-paper/70 text-sm cursor-pointer hover:text-paper/70">
-                  Technical details
+              <details style={{ marginTop: 32, borderTop: '1px solid var(--rule)', paddingTop: 16 }}>
+                <summary className="hl-mono" style={{ fontSize: 9.5, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)', cursor: 'pointer' }}>
+                  error detail
                 </summary>
-                <pre className="mt-2 p-3 bg-void rounded text-xs text-red-400 overflow-auto max-h-32">
+                <pre className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 12, whiteSpace: 'pre-wrap', wordBreak: 'break-all', lineHeight: 1.6 }}>
                   {this.state.error.message}
                 </pre>
               </details>

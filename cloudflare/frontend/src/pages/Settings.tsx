@@ -219,7 +219,7 @@ export function Settings() {
               aria-label="First name"
               value={firstName}
               onChange={(e) => { setFirstName(e.target.value); setSavedFlash(false); }}
-              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
             />
           </div>
           <div className="hl-setting-row">
@@ -228,7 +228,7 @@ export function Settings() {
               aria-label="Last name"
               value={lastName}
               onChange={(e) => { setLastName(e.target.value); setSavedFlash(false); }}
-              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
             />
           </div>
           <div className="hl-setting-row">
@@ -239,7 +239,7 @@ export function Settings() {
               value={birthDate}
               max={new Date().toISOString().slice(0, 10)}
               onChange={(e) => { setBirthDate(e.target.value); setSavedFlash(false); }}
-              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', colorScheme: 'dark', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', colorScheme: 'dark', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
             />
           </div>
           <div className="hl-setting-row">
@@ -249,7 +249,7 @@ export function Settings() {
               value={gender}
               placeholder="optional — e.g. woman, man, nonbinary"
               onChange={(e) => { setGender(e.target.value); setSavedFlash(false); }}
-              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
             />
           </div>
           <p className="hl-serif" style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--bone-faint)', margin: '4px 0 0', lineHeight: 1.6 }}>

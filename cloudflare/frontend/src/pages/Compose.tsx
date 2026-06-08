@@ -106,7 +106,7 @@ function ToField({
               color: 'var(--bone)',
               caretColor: 'var(--warm)',
               fontFamily: 'var(--mono)',
-              fontSize: 14,
+              fontSize: 16,
               letterSpacing: '0.06em',
               padding: '6px 0 4px',
               outline: 'none',
@@ -1119,7 +1119,8 @@ export function Compose() {
                     <div key={im.id} style={{ position: 'relative', aspectRatio: '1 / 1', overflow: 'hidden' }}>
                       <img
                         src={im.url}
-                        alt=""
+                        alt="attached photo"
+                        loading="lazy"
                         style={{
                           width: '100%',
                           height: '100%',

@@ -882,6 +882,7 @@ export function Inherit() {
                     <img
                       src={memory.fileUrl ?? undefined}
                       alt={memory.title ?? undefined}
+                      loading="lazy"
                       style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                     />
                     <div

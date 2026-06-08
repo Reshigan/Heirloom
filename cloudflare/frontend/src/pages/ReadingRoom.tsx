@@ -551,7 +551,7 @@ export function ReadingRoom() {
             >
               <div style={{
                 paddingLeft: 14, opacity: (navOpen || selvedgeOpen) ? 1 : 0,
-                transition: `opacity 220ms ${EASE}`, whiteSpace: 'nowrap', minWidth: 0,
+                transition: `opacity 180ms ${EASE}`, whiteSpace: 'nowrap', minWidth: 0,
               }}>
                 <div style={{
                   fontFamily: 'var(--serif)', fontSize: 13, fontStyle: 'italic',

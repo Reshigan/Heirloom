@@ -535,6 +535,7 @@ export function Memorials() {
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/m/${selectedMemorial.qr_code}`)}`}
                 alt="QR Code"
+                loading="lazy"
                 style={{ display: 'block', width: 128, height: 128 }}
               />
             </div>

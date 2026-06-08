@@ -188,6 +188,7 @@ export function CardView() {
               <img
                 src={card.photoUrl}
                 alt="Memory"
+                loading="lazy"
                 style={{ width: '100%', height: 200, objectFit: 'cover', display: 'block' }}
               />
             </div>

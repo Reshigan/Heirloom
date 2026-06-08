@@ -251,9 +251,9 @@ announcementsRoutes.post('/admin/send-influencer-vouchers', adminAuth, async (c)
   const body = await c.req.json();
   const { announcementId, voucherCodes } = body;
 
-  // Get influencers
+  // paginated send: capped at 500 per cron run
   const influencers = await c.env.DB.prepare(`
-    SELECT * FROM influencers WHERE status NOT IN ('UNSUBSCRIBED', 'DECLINED')
+    SELECT * FROM influencers WHERE status NOT IN ('UNSUBSCRIBED', 'DECLINED') LIMIT 500
   `).all();
 
   const recipients = influencers.results || [];

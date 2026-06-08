@@ -278,7 +278,7 @@ export function Record() {
             height: 1,
             width: `${progress * 100}%`,
             background: 'var(--warm)',
-            transition: 'width 1000ms linear',
+            transition: 'width 720ms cubic-bezier(0.16,1,0.3,1)',
             zIndex: 30,
           }}
         />

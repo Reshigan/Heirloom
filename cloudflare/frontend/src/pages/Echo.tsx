@@ -67,7 +67,7 @@ export function Echo() {
         paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))',
         paddingLeft: 24,
         paddingRight: 24,
-        animation: prefersReduced ? undefined : 'hl-echo-breath 6s ease-in-out infinite',
+        animation: prefersReduced ? undefined : 'hl-echo-breath 1400ms cubic-bezier(0.16,1,0.3,1) infinite alternate',
       }}>
         <div
           style={{ textAlign: 'center', maxWidth: '52ch', width: '100%', cursor: promptId ? 'pointer' : 'default' }}

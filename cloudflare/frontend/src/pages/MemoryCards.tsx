@@ -459,6 +459,7 @@ export function MemoryCards() {
                         <img
                           src={generatedCard.photoUrl}
                           alt="Memory"
+                          loading="lazy"
                           style={{ width: '100%', height: 192, objectFit: 'cover', display: 'block' }}
                         />
                       </div>
@@ -753,6 +754,7 @@ export function MemoryCards() {
                               <img
                                 src={memory.photoUrl}
                                 alt={memory.title}
+                                loading="lazy"
                                 style={{ width: '100%', height: 140, objectFit: 'cover', display: 'block' }}
                               />
                             </div>

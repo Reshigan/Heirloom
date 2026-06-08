@@ -189,6 +189,7 @@ export function StoryView() {
                   key={currentIndex}
                   src={currentMemory?.fileUrl}
                   alt={currentMemory?.title || 'Memory'}
+                  loading="lazy"
                   style={{
                     width: '100%',
                     height: '100%',

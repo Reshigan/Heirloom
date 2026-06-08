@@ -261,7 +261,7 @@ recipientExperienceRoutes.get('/memory-room/contributions', async (c) => {
   }
 
   const contributions = await c.env.DB.prepare(
-    'SELECT * FROM family_room_contributions WHERE room_id = ? ORDER BY created_at DESC'
+    'SELECT * FROM family_room_contributions WHERE room_id = ? ORDER BY created_at DESC LIMIT 200'
   ).bind(room.id).all();
 
   return c.json({ contributions: contributions.results || [] });
