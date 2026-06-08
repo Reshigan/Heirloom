@@ -69,8 +69,10 @@ export function Milestones() {
       setShowCreateModal(false);
       setFormData({ type: 'birthday', name: '', date: '', recurring: true, reminderDays: 7, promptSuggestion: '' });
     },
+    onError: (err) => { setError(err instanceof Error ? err.message : 'Failed to add milestone'); },
   });
 
+  const [error, setError] = useState<string | null>(null);
   const [autoDetectMsg, setAutoDetectMsg] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const autoDetectMutation = useMutation({
@@ -80,6 +82,7 @@ export function Milestones() {
       queryClient.invalidateQueries({ queryKey: ['upcomingMilestones'] });
       setAutoDetectMsg(`${response.data.created} new milestones detected`);
     },
+    onError: (err) => { setError(err instanceof Error ? err.message : 'Auto-detect failed'); },
   });
 
   const deleteMutation = useMutation({
@@ -88,6 +91,7 @@ export function Milestones() {
       queryClient.invalidateQueries({ queryKey: ['milestones'] });
       queryClient.invalidateQueries({ queryKey: ['upcomingMilestones'] });
     },
+    onError: (err) => { setError(err instanceof Error ? err.message : 'Failed to remove milestone'); },
   });
 
   const getDaysUntil = (dateStr: string, recurring: boolean) => {
@@ -177,6 +181,12 @@ export function Milestones() {
         {autoDetectMsg && (
           <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
             {autoDetectMsg}
+          </p>
+        )}
+
+        {error && (
+          <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+            {error}
           </p>
         )}
 

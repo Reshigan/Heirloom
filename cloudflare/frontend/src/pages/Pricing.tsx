@@ -27,10 +27,13 @@ export function Pricing() {
   const [pricing, setPricing] = useState<PricingData>(FALLBACK);
 
   useEffect(() => {
+    const controller = new AbortController();
     billingApi.getPricing().then((r: any) => {
+      if (controller.signal.aborted) return;
       const d = r.data ?? r;
       if (d?.FAMILY && d?.FOUNDER) setPricing(d);
     }).catch(() => {});
+    return () => controller.abort();
   }, []);
 
   const s = pricing.symbol;

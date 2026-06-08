@@ -76,6 +76,7 @@ export function Settings() {
   const saveGuardian = useMutation({
     mutationFn: () => settingsApi.updateProfile({ firstName, lastName, ...(guardianEmail ? { guardianEmail, guardianName } : {}) } as any),
     onSuccess: () => { setGuardianSaved(true); setTimeout(() => setGuardianSaved(false), 3000); },
+    onError: (err) => { setGuardianEmailError(err instanceof Error ? err.message : 'Failed to save guardian'); },
   });
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -213,36 +214,40 @@ export function Settings() {
           <div className="hl-setting-row">
             <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>first name</div>
             <input
+              aria-label="First name"
               value={firstName}
               onChange={(e) => { setFirstName(e.target.value); setSavedFlash(false); }}
-              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
             />
           </div>
           <div className="hl-setting-row">
             <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>last name</div>
             <input
+              aria-label="Last name"
               value={lastName}
               onChange={(e) => { setLastName(e.target.value); setSavedFlash(false); }}
-              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
             />
           </div>
           <div className="hl-setting-row">
             <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>date of birth</div>
             <input
               type="date"
+              aria-label="Date of birth"
               value={birthDate}
               max={new Date().toISOString().slice(0, 10)}
               onChange={(e) => { setBirthDate(e.target.value); setSavedFlash(false); }}
-              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', colorScheme: 'dark', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', colorScheme: 'dark', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
             />
           </div>
           <div className="hl-setting-row">
             <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>gender</div>
             <input
+              aria-label="Gender"
               value={gender}
               placeholder="optional — e.g. woman, man, nonbinary"
               onChange={(e) => { setGender(e.target.value); setSavedFlash(false); }}
-              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
             />
           </div>
           <p className="hl-serif" style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--bone-faint)', margin: '4px 0 0', lineHeight: 1.6 }}>
@@ -278,17 +283,18 @@ export function Settings() {
               <div style={{ maxWidth: 360 }}>
                 <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10 }}>change email</div>
                 {([
-                  { label: 'new email',         val: newEmail,       set: setNewEmail,       type: 'email',    placeholder: 'new email address' },
-                  { label: 'current password',  val: emailPassword,  set: setEmailPassword,  type: 'password', placeholder: 'confirm your identity' },
+                  { label: 'new email',         val: newEmail,       set: setNewEmail,       type: 'email',    placeholder: 'new email address',       ariaLabel: 'New email address' },
+                  { label: 'current password',  val: emailPassword,  set: setEmailPassword,  type: 'password', placeholder: 'confirm your identity',    ariaLabel: 'Current password' },
                 ] as const).map((f) => (
                   <input
                     key={f.label}
                     type={f.type}
+                    aria-label={f.ariaLabel}
                     value={f.val}
                     onChange={(e) => { f.set(e.target.value); setEmailError(null); }}
                     onKeyDown={(e) => e.key === 'Enter' && newEmail && emailPassword && handleChangeEmail()}
                     placeholder={f.placeholder}
-                    style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
+                    style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
                   />
                 ))}
                 {emailError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{emailError}</p>}
@@ -320,18 +326,19 @@ export function Settings() {
               <div style={{ maxWidth: 360 }}>
                 <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10 }}>change password</div>
                 {([
-                  { label: 'current', val: pwCurrent, set: setPwCurrent, type: 'password', placeholder: 'current password' },
-                  { label: 'new',     val: pwNew,     set: setPwNew,     type: 'password', placeholder: 'new password (min 8)' },
-                  { label: 'confirm', val: pwConfirm, set: setPwConfirm, type: 'password', placeholder: 'confirm new password' },
+                  { label: 'current', val: pwCurrent, set: setPwCurrent, type: 'password', placeholder: 'current password',      ariaLabel: 'Current password' },
+                  { label: 'new',     val: pwNew,     set: setPwNew,     type: 'password', placeholder: 'new password (min 8)',   ariaLabel: 'New password' },
+                  { label: 'confirm', val: pwConfirm, set: setPwConfirm, type: 'password', placeholder: 'confirm new password',  ariaLabel: 'Confirm new password' },
                 ] as const).map((f) => (
                   <input
                     key={f.label}
                     type={f.type}
+                    aria-label={f.ariaLabel}
                     value={f.val}
                     onChange={(e) => { f.set(e.target.value); setPwError(null); }}
                     onKeyDown={(e) => e.key === 'Enter' && pwCurrent && pwNew && pwConfirm && handleChangePw()}
                     placeholder={f.placeholder}
-                    style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
+                    style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
                   />
                 ))}
                 {pwError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{pwError}</p>}
@@ -462,20 +469,22 @@ export function Settings() {
               <div>
                 <div className="hl-mono" style={{ fontSize: 9.5, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 6 }}>guardian name</div>
                 <input
+                  aria-label="Guardian name"
                   value={guardianName}
                   onChange={e => { setGuardianName(e.target.value); setGuardianSaved(false); }}
                   placeholder="their name"
-                  style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+                  style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
                 />
               </div>
               <div>
                 <div className="hl-mono" style={{ fontSize: 9.5, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 6 }}>guardian email</div>
                 <input
                   type="email"
+                  aria-label="Guardian email"
                   value={guardianEmail}
                   onChange={e => { setGuardianEmail(e.target.value); setGuardianSaved(false); }}
                   placeholder="name@example.com"
-                  style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+                  style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
                 />
               </div>
             </div>
@@ -597,12 +606,13 @@ export function Settings() {
                 </p>
                 <input
                   type="password"
+                  aria-label="Password to confirm deletion"
                   value={deletePassword}
                   onChange={(e) => { setDeletePassword(e.target.value); setDeleteError(null); }}
                   onKeyDown={(e) => e.key === 'Enter' && deletePassword && archiveMutation.mutate()}
                   placeholder="your password"
                   autoFocus
-                  style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', outline: 'none', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8 }}
+                  style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8 }}
                 />
                 {deleteError && (
                   <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 14px' }}>{deleteError}</p>

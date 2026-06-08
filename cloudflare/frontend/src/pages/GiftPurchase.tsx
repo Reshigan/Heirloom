@@ -39,12 +39,15 @@ export function GiftPurchase() {
   });
 
   useEffect(() => {
+    const controller = new AbortController();
     fetch(
       `${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/pricing`,
+      { signal: controller.signal },
     )
       .then((res) => res.json())
-      .then((data) => setPricing(data))
-      .catch(console.error);
+      .then((data) => { if (!controller.signal.aborted) setPricing(data); })
+      .catch((err) => { if (err.name !== 'AbortError') console.error(err); });
+    return () => controller.abort();
   }, []);
 
   const handlePurchase = async () => {

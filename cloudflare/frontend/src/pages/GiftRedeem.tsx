@@ -34,31 +34,37 @@ export function GiftRedeem() {
 
   useEffect(() => {
     const codeFromUrl = searchParams.get('code');
-    if (codeFromUrl) {
-      setCode(codeFromUrl);
-      validateCode(codeFromUrl);
-    }
+    if (!codeFromUrl) return;
+    const controller = new AbortController();
+    setCode(codeFromUrl);
+    validateCode(codeFromUrl, controller.signal);
+    return () => controller.abort();
   }, [searchParams]);
 
-  const validateCode = async (voucherCode: string) => {
+  const validateCode = async (voucherCode: string, signal?: AbortSignal) => {
     if (!voucherCode || voucherCode.length < 10) return;
     setIsValidating(true);
     setError(null);
     setVoucherInfo(null);
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/validate/${voucherCode.toUpperCase()}`
+        `${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/gift-vouchers/validate/${voucherCode.toUpperCase()}`,
+        { signal },
       );
       const data = await res.json();
-      if (data.valid) {
-        setVoucherInfo(data.voucher);
-      } else {
-        setError(data.error || 'Invalid voucher code.');
+      if (!signal?.aborted) {
+        if (data.valid) {
+          setVoucherInfo(data.voucher);
+        } else {
+          setError(data.error || 'Invalid voucher code.');
+        }
       }
-    } catch {
-      setError('Failed to validate voucher code.');
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        setError('Failed to validate voucher code.');
+      }
     } finally {
-      setIsValidating(false);
+      if (!signal?.aborted) setIsValidating(false);
     }
   };
 

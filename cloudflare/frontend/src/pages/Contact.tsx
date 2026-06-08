@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
@@ -8,9 +8,11 @@ export function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState('');
+  const submitInProgress = useRef(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitInProgress.current) return;
     setError('');
 
     if (!form.name || !form.email || !form.subject || !form.message) {
@@ -23,6 +25,7 @@ export function Contact() {
       return;
     }
 
+    submitInProgress.current = true;
     setIsSubmitting(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/contact`, {
@@ -39,6 +42,7 @@ export function Contact() {
     } catch {
       setError('Could not send. Please try again.');
     } finally {
+      submitInProgress.current = false;
       setIsSubmitting(false);
     }
   };
