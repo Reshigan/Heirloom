@@ -22,7 +22,7 @@ const sourcePostSchema = z.object({
   body: z.string().min(40).max(800),
   cta: z.string().min(5).max(200),
   saying: z.string().min(8).max(120),
-  imagePrompt: z.string().min(20).max(400),
+  imagePrompt: z.string().min(20).max(600),
   hashtags: z.array(z.string()).max(12),
 });
 
