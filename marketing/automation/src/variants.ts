@@ -103,6 +103,7 @@ On the hashtag platforms only (${HASHTAG_PLATFORMS.filter((p) => platforms.inclu
 Hook: ${source.hook}
 Body: ${source.body}
 CTA: ${source.cta}
+Saying (image text overlay): ${source.saying}
 Hashtag candidates: ${source.hashtags.join(", ")}${seasonBlock}
 
 Platforms to produce variants for:

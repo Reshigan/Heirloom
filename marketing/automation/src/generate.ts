@@ -21,8 +21,9 @@ const sourcePostSchema = z.object({
   hook: z.string().min(5).max(200),
   body: z.string().min(40).max(800),
   cta: z.string().min(5).max(200),
+  saying: z.string().min(8).max(120),
   imagePrompt: z.string().min(20).max(400),
-  hashtags: z.array(z.string()).max(8),
+  hashtags: z.array(z.string()).max(12),
 });
 
 export type SourcePost = z.infer<typeof sourcePostSchema>;
@@ -60,8 +61,9 @@ Produce ONE source post we'll adapt across platforms. Output strict JSON, no pro
   "hook": "First 1-2 sentences. Must stop the scroll. Specific, present-tense, no abstract 'memories' / 'legacy' language. 80-200 chars.",
   "body": "The middle. 80-500 chars. One concrete observation, one small example, one human moment. No generic motivational content.",
   "cta": "A small, specific action. 'Ask one question this Sunday.' Not 'start your legacy.' Not a URL — leave linking to the variant layer.",
-  "imagePrompt": "A 40-80 word visual brief for an image generator. The Heirloom visual language: film photography (not digital), natural materials (linen, worn paper, aged wood, wool), single-subject composition, soft directional light (never harsh flash or ring light), grain and texture over polish. NOT: stock-photo multigenerational hands, sepia-filtered nostalgia, candles, vases, motivational typography overlays, digital flatlay perfection. Good examples: 'Close-up of a handwritten letter on cream-colored stationery, natural window light from the side, film grain, 35mm' or 'An old leather wallet on a worn oak table, single object, raking light revealing the texture of the leather' or 'A cassette tape on top of a manila envelope, soft morning light through gauze curtains, unposed.' Always one specific object or scene, shot like a still from a quiet film.",
-  "hashtags": ["6-8 lowercase tag candidates without the # symbol. Target these audience groupings: (1) intent tags — 'questionstoaskmom', 'questionstoaskdad', 'questionstoaskyourgrandparents', 'thingstodowithagingparents'; (2) community tags — 'familyhistory', 'genealogy', 'ancestors', 'heritage', 'familytree'; (3) emotion/occasion tags — 'memoriesforever', 'neverforget', 'generationalgift', 'familylove'; (4) discovery tags — 'digitallegacy', 'legacyplanning', 'familyarchive'. Pick the 6-8 that best fit the specific theme — don't use all four groups every time."]
+  "saying": "A single short line (12-18 words max) distilled from the post's central truth — the one sentence a reader would screenshot and share. No hashtags, no product name, no emoji. Must work as text on a cloth image. Example shapes: 'The recipe with no card. The voice on the 1997 tape. The photo nobody can name.' or 'Ask before the seat at the table changes.' or 'Your grandchildren can Google anything. They can't Google her voice.'",
+  "imagePrompt": "A 40-80 word visual brief for the Heirloom cloth image — always a close-up of woven linen or natural-fiber textile. The cloth is the Heirloom identity: woven threads, natural cream-to-bone color, visible weave structure, soft directional light from one side, film grain. Leave the lower third clear for the saying text overlay. NOT: photography of people, hands, letters, objects, or scenery — only the woven cloth itself. Vary the weave tightness, thread texture, and light angle across posts so each feels distinct. Example: 'Close-up of cream linen weave, thread detail visible, raking afternoon light from the left, film grain, no objects, lower third in shadow for text overlay.'",
+  "hashtags": ["10-12 lowercase tag candidates without the # symbol. Use all four groups below, picking the most relevant 2-4 from each: (1) intent tags — 'questionstoaskmom', 'questionstoaskdad', 'questionstoaskyourgrandparents', 'thingstodowithagingparents', 'questionstodowithparents', 'eldercare', 'agingparents'; (2) community tags — 'familyhistory', 'genealogy', 'ancestors', 'heritage', 'familytree', 'familystories', 'oralhistory', 'rootsandculture'; (3) emotion/occasion tags — 'memoriesforever', 'neverforget', 'generationalgift', 'familylove', 'familymemories', 'keepingitmemorable', 'rememberingthem'; (4) discovery tags — 'digitallegacy', 'legacyplanning', 'familyarchive', 'timecapsule', 'familykeepsake', 'preservefamilystories'. Vary per theme — don't repeat the same 10 every day."]
 }
 
 JSON only. No markdown fences. No explanation.`;
