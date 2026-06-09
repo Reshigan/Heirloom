@@ -24,6 +24,7 @@ familyRoutes.get('/', async (c) => {
     FROM family_members fm
     WHERE fm.user_id = ? AND fm.deleted_at IS NULL
     ORDER BY fm.created_at ASC
+    LIMIT 500
   `).bind(userId).all();
 
   // Include soft-deleted members still within grace window so the UI can offer restore

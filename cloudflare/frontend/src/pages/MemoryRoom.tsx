@@ -475,6 +475,7 @@ export function MemoryRoom() {
                     <button
                       type="button"
                       disabled
+                      title="Coming soon"
                       style={{
                         flex: 1,
                         fontSize: 11,
@@ -498,6 +499,7 @@ export function MemoryRoom() {
                     <button
                       type="button"
                       disabled
+                      title="Coming soon"
                       style={{
                         flex: 1,
                         fontSize: 11,

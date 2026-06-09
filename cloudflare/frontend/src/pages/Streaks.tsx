@@ -337,12 +337,10 @@ export function Streaks() {
                         width: 28,
                         height: 28,
                         borderRadius: 0,
-                        background: day.hasEntry
-                          ? `var(--dye-${dyeForDate(day.date)})`
-                          : 'var(--ink)',
+                        background: day.hasEntry ? 'rgba(244,236,216,0.08)' : 'var(--ink)',
+                        borderLeft: day.hasEntry ? `3px solid var(--dye-${dyeForDate(day.date)})` : '3px solid transparent',
                         cursor: 'default',
                         transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
-                        border: 0,
                         padding: 0,
                         display: 'block',
                       }}

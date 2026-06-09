@@ -272,7 +272,7 @@ export function PwaNudge() {
                   textTransform: 'uppercase',
                   cursor: busy ? 'wait' : 'pointer',
                   opacity: busy ? 0.6 : 1,
-                  transition: 'opacity 180ms ease',
+                  transition: 'opacity 180ms var(--ease)',
                 }}
               >
                 {busy ? 'installing…' : 'install now →'}
@@ -295,7 +295,7 @@ export function PwaNudge() {
                   textTransform: 'uppercase',
                   cursor: busy ? 'wait' : 'pointer',
                   opacity: busy ? 0.6 : 1,
-                  transition: 'opacity 180ms ease',
+                  transition: 'opacity 180ms var(--ease)',
                 }}
               >
                 {busy ? 'enabling…' : 'enable →'}

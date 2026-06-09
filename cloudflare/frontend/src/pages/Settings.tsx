@@ -303,7 +303,7 @@ export function Settings() {
                     onChange={(e) => { f.set(e.target.value); setEmailError(null); }}
                     onKeyDown={(e) => e.key === 'Enter' && newEmail && emailPassword && handleChangeEmail()}
                     placeholder={f.placeholder}
-                    style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
+                    style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
                   />
                 ))}
                 {emailError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{emailError}</p>}
@@ -347,7 +347,7 @@ export function Settings() {
                     onChange={(e) => { f.set(e.target.value); setPwError(null); }}
                     onKeyDown={(e) => e.key === 'Enter' && pwCurrent && pwNew && pwConfirm && handleChangePw()}
                     placeholder={f.placeholder}
-                    style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
+                    style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
                   />
                 ))}
                 {pwError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{pwError}</p>}

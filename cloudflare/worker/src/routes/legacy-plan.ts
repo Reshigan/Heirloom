@@ -28,13 +28,14 @@ legacyPlanRoutes.get('/', async (c) => {
         'SELECT * FROM legacy_plan_templates WHERE active = 1 ORDER BY category, sort_order'
       ).all();
 
-      for (const template of templates.results || []) {
+      const insertStmts = (templates.results || []).map((template: Record<string, unknown>) => {
         const itemId = crypto.randomUUID();
-        await c.env.DB.prepare(`
+        return c.env.DB.prepare(`
           INSERT INTO legacy_plan_items (id, user_id, category, title, description, sort_order, created_at, updated_at)
           VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
-        `).bind(itemId, userId, template.category, template.title, template.description, template.sort_order).run();
-      }
+        `).bind(itemId, userId, template.category, template.title, template.description, template.sort_order);
+      });
+      if (insertStmts.length) await c.env.DB.batch(insertStmts);
 
       plan = await c.env.DB.prepare(
         'SELECT * FROM legacy_plans WHERE user_id = ?'

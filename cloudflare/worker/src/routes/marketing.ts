@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
+import { requireAuth } from '../lib/auth';
 
 // Local JWT verification — same algorithm as lib/auth.ts verifyJWT.
 // Required because marketing.ts must not accept unsigned JWT payloads.
@@ -703,15 +704,16 @@ marketingRoutes.post('/testimonials', adminAuth, async (c) => {
 // SHARE TRACKING
 // ============================================
 
-marketingRoutes.post('/share/track', async (c) => {
+marketingRoutes.post('/share/track', requireAuth, async (c) => {
+  const userId = c.get('userId');
   const body = await c.req.json();
   const id = crypto.randomUUID().replace(/-/g, '');
-  
+
   await c.env.DB.prepare(`
     INSERT INTO share_actions (id, user_id, share_type, platform, content_id, share_url)
     VALUES (?, ?, ?, ?, ?, ?)
-  `).bind(id, body.userId, body.shareType, body.platform, body.contentId, body.shareUrl).run();
-  
+  `).bind(id, userId, body.shareType, body.platform, body.contentId, body.shareUrl).run();
+
   return c.json({ success: true, id });
 });
 

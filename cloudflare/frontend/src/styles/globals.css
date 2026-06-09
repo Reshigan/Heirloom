@@ -121,7 +121,6 @@
 
   /* Timing */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --duration-fast: 180ms;
   --duration-normal: 360ms;
   --duration-slow: 720ms;
@@ -481,7 +480,7 @@ em {
 .skeleton {
   background: linear-gradient(90deg, var(--paper-08) 25%, var(--paper-15) 50%, var(--paper-08) 75%);
   background-size: 200% 100%;
-  animation: skeleton-shimmer 1.5s cubic-bezier(0.65,0,0.35,1) infinite;
+  animation: skeleton-shimmer 1.5s linear infinite;
   border-radius: 0;
 }
 
@@ -1925,7 +1924,7 @@ html {
   font-family: var(--serif);
   font-variation-settings: 'opsz' 72, 'wght' 200;
   color: var(--warm);
-  animation: hl-infinity-float 10s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  animation: hl-infinity-float 10s linear infinite;
   filter:
     drop-shadow(0 0 40px rgba(176, 122, 74, 0.18))
     drop-shadow(0 2px 8px rgba(176, 122, 74, 0.13));

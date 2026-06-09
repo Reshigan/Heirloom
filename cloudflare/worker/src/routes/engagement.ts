@@ -16,7 +16,7 @@ export const engagementRoutes = new Hono<AppEnv>();
 // ============================================
 
 // Get user's streak and badges
-engagementRoutes.get('/streaks', async (c) => {
+engagementRoutes.get('/streaks', requireAuth, async (c) => {
   const userId = c.get('userId');
   
   // Get or create streak record

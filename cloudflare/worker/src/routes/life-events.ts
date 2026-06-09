@@ -44,27 +44,36 @@ lifeEventsRoutes.get('/:triggerId', async (c) => {
       return c.json({ error: 'Trigger not found' }, 404);
     }
 
-    // Parse content items and get details
-    const contentItems = JSON.parse((trigger.content_items as string) || '[]');
+    // Parse content items and get details — one query per type, not per item
+    const contentItems: { id: string; type: string }[] = JSON.parse((trigger.content_items as string) || '[]');
     const contentDetails: unknown[] = [];
 
-    for (const item of contentItems) {
-      if (item.type === 'MEMORY') {
-        const memory = await c.env.DB.prepare(
-          'SELECT id, title, type, file_url FROM memories WHERE id = ? AND user_id = ? AND deleted_at IS NULL'
-        ).bind(item.id, userId).first();
-        if (memory) contentDetails.push({ ...memory, contentType: 'MEMORY' });
-      } else if (item.type === 'LETTER') {
-        const letter = await c.env.DB.prepare(
-          'SELECT id, title FROM letters WHERE id = ? AND user_id = ? AND deleted_at IS NULL'
-        ).bind(item.id, userId).first();
-        if (letter) contentDetails.push({ ...letter, contentType: 'LETTER' });
-      } else if (item.type === 'VOICE') {
-        const voice = await c.env.DB.prepare(
-          'SELECT id, title, duration FROM voice_recordings WHERE id = ? AND user_id = ? AND deleted_at IS NULL'
-        ).bind(item.id, userId).first();
-        if (voice) contentDetails.push({ ...voice, contentType: 'VOICE' });
-      }
+    const byType = (type: string) => contentItems.filter(i => i.type === type).map(i => i.id);
+
+    const memoryIds = byType('MEMORY');
+    const letterIds = byType('LETTER');
+    const voiceIds = byType('VOICE');
+
+    if (memoryIds.length) {
+      const placeholders = memoryIds.map(() => '?').join(',');
+      const rows = await c.env.DB.prepare(
+        `SELECT id, title, type, file_url FROM memories WHERE id IN (${placeholders}) AND user_id = ? AND deleted_at IS NULL`
+      ).bind(...memoryIds, userId).all();
+      rows.results?.forEach((r: Record<string, unknown>) => contentDetails.push({ ...r, contentType: 'MEMORY' }));
+    }
+    if (letterIds.length) {
+      const placeholders = letterIds.map(() => '?').join(',');
+      const rows = await c.env.DB.prepare(
+        `SELECT id, title FROM letters WHERE id IN (${placeholders}) AND user_id = ? AND deleted_at IS NULL`
+      ).bind(...letterIds, userId).all();
+      rows.results?.forEach((r: Record<string, unknown>) => contentDetails.push({ ...r, contentType: 'LETTER' }));
+    }
+    if (voiceIds.length) {
+      const placeholders = voiceIds.map(() => '?').join(',');
+      const rows = await c.env.DB.prepare(
+        `SELECT id, title, duration FROM voice_recordings WHERE id IN (${placeholders}) AND user_id = ? AND deleted_at IS NULL`
+      ).bind(...voiceIds, userId).all();
+      rows.results?.forEach((r: Record<string, unknown>) => contentDetails.push({ ...r, contentType: 'VOICE' }));
     }
 
   return c.json({ 

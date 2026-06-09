@@ -106,7 +106,7 @@ function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; act
         <div className="memory-card-actions" style={{
           display: 'flex', gap: 12,
           opacity: (hovered || editing || confirmDelete) ? 1 : 0,
-          transition: 'opacity 180ms ease',
+          transition: 'opacity 180ms var(--ease)',
           pointerEvents: (hovered || editing || confirmDelete) ? 'auto' : 'none',
         }}>
           {!editing && !confirmDelete && (
