@@ -89,9 +89,12 @@ export async function generateVariants({ source, platforms, seasonHashtags }: Va
     .map((p) => `### ${p}\n${PLATFORM_GUIDELINES[p]}`)
     .join("\n\n");
 
-  // Hashtag-driven discovery surfaces only. Tags do nothing on x/bluesky/
-  // facebook/linkedin-prose, so don't waste the in-season tags there.
-  const HASHTAG_PLATFORMS: PlatformKey[] = ["instagram", "reels", "tiktok", "threads", "youtubeshorts"];
+  // Every platform now carries hashtags, so seasonal discovery tags are
+  // eligible everywhere; per-platform counts (below) keep them proportionate.
+  const HASHTAG_PLATFORMS: PlatformKey[] = [
+    "instagram", "reels", "tiktok", "threads", "youtubeshorts",
+    "pinterest", "facebook", "linkedin", "x", "bluesky",
+  ];
   const seasonBlock =
     seasonHashtags && seasonHashtags.length
       ? `\n\nACTIVE SEASON — high-intent discovery tags: ${seasonHashtags.join(", ")}.
@@ -110,12 +113,13 @@ Platforms to produce variants for:
 
 ${platformBlock}
 
-HASHTAG RULES — follow exactly:
-- VISUAL PLATFORMS (instagram, reels, tiktok, threads, youtubeshorts): hashtags array MUST be non-empty. Use 5-12 tags chosen from the candidates above. Do NOT write hashtags inside the caption text — they go in the hashtags array ONLY and will be appended automatically.
-- DISCOVERY PLATFORMS (pinterest): hashtags array must be empty []. Pinterest is a search engine — hashtags go in description keywords, not the array.
-- TEXT PLATFORMS (facebook, linkedin, x, bluesky): hashtags array must be empty [] per their guidelines above.
+HASHTAG RULES — follow exactly. EVERY platform's hashtags array MUST be non-empty; pick tags from the candidates above (and the active-season tags when present) that fit each platform's audience:
+- VISUAL PLATFORMS (instagram, reels, tiktok, youtubeshorts): 5-12 tags.
+- threads, pinterest: 3-5 tags.
+- facebook, linkedin, bluesky: 2-3 tags.
+- x: 1-2 tags (they count against the 260-char caption budget — keep the caption short enough that caption + tags fit).
 
-The caption field must NEVER contain any # symbols — hashtags belong only in the hashtags array.
+Do NOT write hashtags inside the caption text — they go in the hashtags array ONLY and are appended automatically. The caption field must NEVER contain any # symbols.
 
 Produce strict JSON. No prose. No markdown fences:
 
