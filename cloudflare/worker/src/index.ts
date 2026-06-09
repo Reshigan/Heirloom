@@ -300,6 +300,28 @@ app.route('/api/gift-vouchers', giftVoucherRoutes);
 app.route('/api/referral', referralRoutes);
 app.route('/api/influencer', influencerRoutes);
 app.route('/api/partner', partnerRoutes);
+// PUBLIC R2 serving for generated marketing images. The autopost engine renders
+// a distinct woven-cloth + saying PNG per post and uploads it under
+// social-assets/; social platforms (Meta/Pinterest/Bluesky) fetch it by URL, so
+// this must be unauthenticated. Scoped strictly to the social-assets/ prefix —
+// no path traversal, no arbitrary R2 access.
+app.get('/api/social-assets/*', async (c) => {
+  const url = new URL(c.req.url);
+  const rest = decodeURIComponent(url.pathname.replace(/^\/api\/social-assets\//, ''));
+  if (!rest || rest.includes('..') || rest.startsWith('/')) {
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+  const key = `social-assets/${rest}`;
+  const object = await c.env.STORAGE.get(key);
+  if (!object) {
+    return c.json({ error: 'Not found' }, 404);
+  }
+  const headers = new Headers();
+  headers.set('Content-Type', object.httpMetadata?.contentType || 'image/png');
+  headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+  headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  return new Response(object.body, { headers });
+});
 // PUBLIC R2 serving for Living Book PDFs — Lulu fetches interior/cover
 // PDFs from here. No auth: access is gated by checking the requested key
 // against book_orders.interior_pdf_key / cover_pdf_key (so only PDFs that

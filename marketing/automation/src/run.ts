@@ -19,6 +19,8 @@ import { generateVariants } from "./variants.js";
 import { post } from "./post.js";
 import { pullMetrics, topHooks } from "./metrics.js";
 import { PlatformKey } from "./voice.js";
+import { renderWeave, uploadWeave } from "./image.js";
+import type { Variant } from "./variants.js";
 
 const DEFAULT_PLATFORMS: PlatformKey[] = [
   "instagram",
@@ -88,6 +90,40 @@ function imageForPlatform(platform: string): string {
   return IMAGES[platform.toLowerCase()] ?? DEFAULT_IMAGE;
 }
 
+// Render a distinct woven-cloth + saying image for one variant, write it to the
+// run's output dir for inspection, upload it to R2, and return its public URL.
+// Falls back to the static platform image if rendering or upload fails (e.g. no
+// admin token in a dry-run) so a post never goes out image-less.
+async function imageForVariant(
+  v: Variant,
+  saying: string,
+  dateKey: string,
+): Promise<string> {
+  try {
+    const png = renderWeave({
+      saying,
+      width: v.imageSpec.width,
+      height: v.imageSpec.height,
+      seed: `${dateKey}-${v.platform}`,
+    });
+    const filename = `weave-${dateKey}-${v.platform}.png`;
+    // Persist locally so preview/CI runs leave the images on disk for review.
+    const localPath = path.resolve(process.cwd(), `output/${dateKey}/images/${filename}`);
+    await fs.mkdir(path.dirname(localPath), { recursive: true });
+    await fs.writeFile(localPath, png);
+
+    const url = await uploadWeave(png, filename);
+    if (url) {
+      console.log(`[image] ${v.platform} → ${url}`);
+      return url;
+    }
+    console.log(`[image] ${v.platform} → rendered (not uploaded), using static fallback URL`);
+  } catch (err) {
+    console.error(`[image] ${v.platform} render failed — static fallback`, err);
+  }
+  return imageForPlatform(v.platform);
+}
+
 async function postAll(source?: SourcePost): Promise<void> {
   const today = source ?? (await readJson<{ source: SourcePost }>("output/source.json"))?.source;
   if (!today) {
@@ -110,12 +146,20 @@ async function postAll(source?: SourcePost): Promise<void> {
     ? [today.body.slice(0, 280), today.cta.slice(0, 200)]
     : undefined;
 
+  // Render + upload one distinct cloth image per variant, keyed to today's
+  // saying. Done before posting so each platform gets its own woven image rather
+  // than the same static picture every day.
+  console.log(`[image] rendering ${variants.length} cloth images for saying: "${today.saying}"`);
+  const imageUrls = await Promise.all(
+    variants.map((v) => imageForVariant(v, today.saying, dateKey)),
+  );
+
   console.log(`[post] dispatching ${variants.length} posts…`);
   const results = await Promise.all(
-    variants.map((v) =>
+    variants.map((v, i) =>
       post({
         variant: v,
-        imageUrl: imageForPlatform(v.platform),
+        imageUrl: imageUrls[i],
         ...(v.platform === "bluesky" && blueskyThread ? { blueskyThread } : {}),
       }),
     ),

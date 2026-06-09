@@ -179,6 +179,29 @@ socialRoutes.post('/upload-asset', async (c) => {
   });
 });
 
+// POST /upload-image - Store a generated PNG (raw binary body) in R2 and return
+// its public URL. The autopost engine renders one woven-cloth + saying image per
+// post and calls this; the returned URL is served unauthenticated by the public
+// GET /api/social-assets/* route so social platforms can fetch it.
+socialRoutes.post('/upload-image', async (c) => {
+  const filename = c.req.query('filename');
+  const contentType = c.req.header('Content-Type') || 'image/png';
+  if (!filename || !/^[A-Za-z0-9._-]+\.(png|jpg|jpeg|webp)$/.test(filename)) {
+    return c.json({ error: 'filename query param required (e.g. weave-2026-06-09-instagram.png)' }, 400);
+  }
+
+  const body = await c.req.arrayBuffer();
+  if (!body.byteLength) {
+    return c.json({ error: 'empty image body' }, 400);
+  }
+
+  const key = `social-assets/weave/${filename}`;
+  await c.env.STORAGE.put(key, body, { httpMetadata: { contentType } });
+
+  const origin = new URL(c.req.url).origin;
+  return c.json({ key, url: `${origin}/api/social-assets/weave/${filename}` });
+});
+
 // GET /templates - List content templates
 socialRoutes.get('/templates', async (c) => {
   const week = c.req.query('week');
