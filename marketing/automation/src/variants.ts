@@ -110,14 +110,21 @@ Platforms to produce variants for:
 
 ${platformBlock}
 
+HASHTAG RULES — follow exactly:
+- VISUAL PLATFORMS (instagram, reels, tiktok, threads, youtubeshorts): hashtags array MUST be non-empty. Use 5-12 tags chosen from the candidates above. Do NOT write hashtags inside the caption text — they go in the hashtags array ONLY and will be appended automatically.
+- DISCOVERY PLATFORMS (pinterest): hashtags array must be empty []. Pinterest is a search engine — hashtags go in description keywords, not the array.
+- TEXT PLATFORMS (facebook, linkedin, x, bluesky): hashtags array must be empty [] per their guidelines above.
+
+The caption field must NEVER contain any # symbols — hashtags belong only in the hashtags array.
+
 Produce strict JSON. No prose. No markdown fences:
 
 {
   "variants": [
     {
       "platform": "instagram" | "reels" | "tiktok" | "pinterest" | "facebook" | "linkedin" | "x" | "threads" | "bluesky" | "youtubeshorts",
-      "caption": "Full caption ready to post. Must obey the platform's guideline above.",
-      "hashtags": ["lowercase", "no", "hashes"],
+      "caption": "Full caption text only — no # symbols ever.",
+      "hashtags": ["tagone", "tagtwo", "tagthree"],
       "imageSpec": { "aspectRatio": "...", "width": ..., "height": ... }
     }
   ]
