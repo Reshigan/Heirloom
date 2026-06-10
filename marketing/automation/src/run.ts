@@ -141,6 +141,14 @@ async function postAll(source?: SourcePost): Promise<void> {
   const dateKey = new Date().toISOString().slice(0, 10);
   await writeJson(`output/${dateKey}/variants.json`, variants);
 
+  // Observability: output/ is gitignored, so log the per-platform hashtag count
+  // here — it's the only way to confirm tags are being generated in CI.
+  console.log(
+    `[variants] hashtags: ${variants
+      .map((v) => `${v.platform}=${v.hashtags.length}[${v.hashtags.join(",")}]`)
+      .join(" ")}`,
+  );
+
   // Bluesky thread: body + CTA as replies to the hook post, last gets link card
   const blueskyThread = today
     ? [today.body.slice(0, 280), today.cta.slice(0, 200)]

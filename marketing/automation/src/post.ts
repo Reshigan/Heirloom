@@ -53,6 +53,41 @@ function caption(variant: Variant): string {
     : variant.caption;
 }
 
+// Fit text + a hashtag suffix into Bluesky's 300-grapheme post cap. Trims the
+// body (never the tags) so the tags always survive; if the tags alone won't
+// fit, drop them and keep the body intact.
+function fitWithTags(text: string, tagLine: string): string {
+  if (!tagLine) return text.slice(0, 300);
+  const suffix = `\n\n${tagLine}`;
+  const room = 300 - suffix.length;
+  if (room < 20) return text.slice(0, 300);
+  return text.length <= room ? `${text}${suffix}` : `${text.slice(0, room).trimEnd()}${suffix}`;
+}
+
+// Build Bluesky richtext tag facets for every "#tag" in the text. Facet ranges
+// are UTF-8 BYTE offsets (not char indices), so we measure with TextEncoder.
+function buildTagFacets(
+  text: string,
+): Array<{ index: { byteStart: number; byteEnd: number }; features: Array<{ $type: string; tag: string }> }> {
+  const enc = new TextEncoder();
+  const facets: Array<{
+    index: { byteStart: number; byteEnd: number };
+    features: Array<{ $type: string; tag: string }>;
+  }> = [];
+  const re = /(^|\s)(#[A-Za-z0-9_]+)/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    const tagStart = m.index + m[1].length; // skip the leading whitespace group
+    const byteStart = enc.encode(text.slice(0, tagStart)).length;
+    const byteEnd = enc.encode(text.slice(0, tagStart + m[2].length)).length;
+    facets.push({
+      index: { byteStart, byteEnd },
+      features: [{ $type: "app.bsky.richtext.facet#tag", tag: m[2].slice(1) }],
+    });
+  }
+  return facets;
+}
+
 export async function post(input: PostInput): Promise<PostResult> {
   // Worker queue takes precedence when configured — it hands off to the
   // existing Postiz cron, which is the production publish pipeline.
@@ -324,10 +359,17 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
     ? await uploadBlueskyBlob(input.imageUrl, session.accessJwt)
     : null;
 
-  const threadPosts = [
-    caption(input.variant).slice(0, 300),
-    ...(input.blueskyThread ?? []),
-  ];
+  // Hashtags ride the FINAL post, not the opener. The opener is the longest
+  // post (hook + body) and slicing it to 300 would shear off any appended tags;
+  // the final post (CTA) is short and has room. fitWithTags guarantees the tags
+  // survive the 300-char cap on whichever post carries them.
+  const tagLine = input.variant.hashtags.length
+    ? input.variant.hashtags.map((h) => `#${h}`).join(" ")
+    : "";
+  const base = [input.variant.caption, ...(input.blueskyThread ?? [])];
+  const threadPosts = base.map((text, i) =>
+    i === base.length - 1 ? fitWithTags(text, tagLine) : text.slice(0, 300),
+  );
 
   let rootUri = "";
   let rootCid = "";
@@ -338,11 +380,18 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
     const isFirst = i === 0;
     const isLast = i === threadPosts.length - 1;
 
+    const text = threadPosts[i].slice(0, 300);
     const record: Record<string, unknown> = {
       $type: "app.bsky.feed.post",
-      text: threadPosts[i].slice(0, 300),
+      text,
       createdAt: new Date().toISOString(),
     };
+
+    // Without tag facets, a "#foo" in the text is inert literal text — Bluesky
+    // only treats it as a real, clickable/searchable hashtag when a richtext
+    // facet#tag points at its byte range.
+    const facets = buildTagFacets(text);
+    if (facets.length) record.facets = facets;
 
     if (!isFirst) {
       record.reply = {
