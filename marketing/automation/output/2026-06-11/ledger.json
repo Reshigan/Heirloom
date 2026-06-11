@@ -23,5 +23,10 @@
     "hour": 21,
     "hook": "Your dad has a story about the day that changed his life's direction.",
     "saying": "The story he's been waiting for someone to ask about."
+  },
+  {
+    "hour": 22,
+    "hook": "Your dad's voice is fading from family stories",
+    "saying": "The voice that's fading from family stories"
   }
 ]
