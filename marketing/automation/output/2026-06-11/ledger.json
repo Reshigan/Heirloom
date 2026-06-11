@@ -18,5 +18,10 @@
     "hour": 19,
     "hook": "Your dad's dreams before responsibility set in",
     "saying": "The dreams he had before your name"
+  },
+  {
+    "hour": 21,
+    "hook": "Your dad has a story about the day that changed his life's direction.",
+    "saying": "The story he's been waiting for someone to ask about."
   }
 ]
