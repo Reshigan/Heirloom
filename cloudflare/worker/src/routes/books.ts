@@ -255,16 +255,27 @@ bookOrderRoutes.post('/webhook', async (c) => {
     luluStatus === 'REJECTED' || luluStatus === 'CANCELED' ? 'FAILED' :
     'PRINTING';
 
-  await c.env.DB.prepare(
-    `UPDATE book_orders
-     SET lulu_status = ?, status = ?, tracking_url = COALESCE(?, tracking_url),
-         updated_at = datetime('now')
-     WHERE id = ?`,
-  ).bind(luluStatus, localStatus, trackingUrl ?? null, externalId).run();
-
-  // Notify the purchaser when the book ships.
-  if (luluStatus === 'SHIPPED') {
-    c.executionCtx.waitUntil(sendBookShippedEmail(c.env, externalId, trackingUrl));
+  if (localStatus === 'SHIPPED') {
+    // Atomically claim the ship transition. Lulu delivers webhooks
+    // at-least-once and the cron backstop can fire on the same order, so only
+    // the update that actually flips the row out of a non-SHIPPED state emails
+    // the purchaser — re-deliveries see status already SHIPPED and no-op.
+    const claim = await c.env.DB.prepare(
+      `UPDATE book_orders
+       SET lulu_status = ?, status = 'SHIPPED', tracking_url = COALESCE(?, tracking_url),
+           updated_at = datetime('now')
+       WHERE id = ? AND status != 'SHIPPED'`,
+    ).bind(luluStatus, trackingUrl ?? null, externalId).run();
+    if ((claim.meta?.changes ?? 0) > 0) {
+      c.executionCtx.waitUntil(sendBookShippedEmail(c.env, externalId, trackingUrl));
+    }
+  } else {
+    await c.env.DB.prepare(
+      `UPDATE book_orders
+       SET lulu_status = ?, status = ?, tracking_url = COALESCE(?, tracking_url),
+           updated_at = datetime('now')
+       WHERE id = ?`,
+    ).bind(luluStatus, localStatus, trackingUrl ?? null, externalId).run();
   }
 
   return c.json({ ok: true });

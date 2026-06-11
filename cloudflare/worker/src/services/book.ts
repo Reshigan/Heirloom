@@ -315,18 +315,32 @@ export async function syncOpenPrintJobs(env: AppEnv['Bindings']): Promise<{ upda
       status.status === 'REJECTED' || status.status === 'CANCELED' ? 'FAILED' :
       'PRINTING';
 
-    await env.DB.prepare(
-      `UPDATE book_orders
-       SET lulu_status = ?, status = ?, tracking_url = COALESCE(?, tracking_url),
-           total_cents = COALESCE(?, total_cents),
-           updated_at = datetime('now')
-       WHERE id = ?`,
-    ).bind(status.status, localStatus, status.trackingUrl ?? null, status.cost ?? null, o.id).run();
-
-    // Notify the purchaser when the book ships. This runs from the daily
-    // cron backstop, so we send inline (no executionCtx here).
     if (localStatus === 'SHIPPED') {
-      await sendBookShippedEmail(env, o.id, status.trackingUrl);
+      // Atomically claim the ship transition: only the update that actually
+      // moves the row out of a non-SHIPPED state proceeds to email. The
+      // webhook handler can race this backstop (both fire on SHIPPED) and
+      // Lulu delivers at-least-once, so gating the send on changes > 0 emails
+      // the purchaser exactly once.
+      const claim = await env.DB.prepare(
+        `UPDATE book_orders
+         SET lulu_status = ?, status = 'SHIPPED',
+             tracking_url = COALESCE(?, tracking_url),
+             total_cents = COALESCE(?, total_cents),
+             updated_at = datetime('now')
+         WHERE id = ? AND status != 'SHIPPED'`,
+      ).bind(status.status, status.trackingUrl ?? null, status.cost ?? null, o.id).run();
+      // This runs from the daily cron backstop, so we send inline (no executionCtx here).
+      if ((claim.meta?.changes ?? 0) > 0) {
+        await sendBookShippedEmail(env, o.id, status.trackingUrl);
+      }
+    } else {
+      await env.DB.prepare(
+        `UPDATE book_orders
+         SET lulu_status = ?, status = ?, tracking_url = COALESCE(?, tracking_url),
+             total_cents = COALESCE(?, total_cents),
+             updated_at = datetime('now')
+         WHERE id = ?`,
+      ).bind(status.status, localStatus, status.trackingUrl ?? null, status.cost ?? null, o.id).run();
     }
 
     updated++;
