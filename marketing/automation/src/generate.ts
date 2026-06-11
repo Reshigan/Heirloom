@@ -33,20 +33,30 @@ interface GenerateInput {
   date: Date;
   // Optional: recent post hooks to avoid repetition.
   recentHooks?: string[];
+  // Optional: which slot this run is in the day (e.g. the UTC hour). When the
+  // day fires several runs, this deterministically rotates the angle so each
+  // slot draws a different one from the theme's pool — guaranteeing the day's
+  // posts diverge instead of randomly colliding. Falls back to random.
+  slotSeed?: number;
 }
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-function buildUserPrompt({ theme, date, recentHooks }: GenerateInput): string {
+function buildUserPrompt({ theme, date, recentHooks, slotSeed }: GenerateInput): string {
   const isoDate = date.toISOString().slice(0, 10);
   const dayOfWeek = date.toLocaleDateString("en-US", { weekday: "long" });
   const recent = recentHooks?.length
-    ? `\n\nRecent hooks to avoid repeating (vary your angle and phrasing):\n${recentHooks.map((h) => `- ${h}`).join("\n")}`
+    ? `\n\nAlready posted — do NOT repeat the angle, opening, or phrasing of any of these. Take a genuinely different line:\n${recentHooks.map((h) => `- ${h}`).join("\n")}`
     : "";
 
-  const angle = theme.angles[Math.floor(Math.random() * theme.angles.length)];
+  // Deterministic per-slot rotation when a slot seed is given, so each of the
+  // day's runs lands on a different angle; otherwise fall back to random.
+  const angle =
+    slotSeed === undefined
+      ? theme.angles[Math.floor(Math.random() * theme.angles.length)]
+      : theme.angles[slotSeed % theme.angles.length];
 
   return `Today is ${dayOfWeek}, ${isoDate}.
 

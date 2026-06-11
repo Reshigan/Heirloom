@@ -4,26 +4,31 @@ name: Social autopost
 # See marketing/PLAYBOOK.md and marketing/automation/README.md.
 #
 # Triggers:
-#   - anchor   at 14:00 UTC (~10am ET) — the always-on post, every day
-#   - seasonal at 16:00 / 19:00 / 22:00 UTC — fire only inside the four peak
+#   - always-on at 13:00 / 17:00 / 21:00 UTC — three posts every day, year-round,
+#     spread across the US engagement peaks (≈9am, 1pm, 5pm ET).
+#   - seasonal  at 15:00 / 19:00 / 23:00 UTC — fire only inside the four peak
 #     windows (Mother's/Father's/Grandparents/Christmas); run.ts no-ops every
-#     non-anchor slot outside a window.
+#     seasonal-only slot outside a window.
 #   - manual: workflow_dispatch with optional `mode` input
 #
-# Net cadence: one post a day year-round, FOUR a day during the seasonal peaks
-# (brand voice rule 14 — compounding, not a volume blast; the extra posts only
-# land where buying/visiting intent genuinely spikes, spread across the day so
-# they hit the morning, midday, afternoon, and evening engagement peaks).
+# Net cadence: THREE posts a day year-round, SIX a day during the seasonal peaks
+# (brand voice rule 14 — compounding, not a volume blast; every run generates a
+# fresh, distinct piece, so this is broader coverage rather than a repeat blast,
+# and the seasonal surge only lands where buying/visiting intent genuinely spikes).
 
 on:
   schedule:
-    # Anchor post — every day. 14:00 UTC ≈ 10am ET, the morning engagement peak.
-    - cron: "0 14 * * *"
-    # Seasonal-only extras — fire daily but run.ts no-ops every non-anchor slot
-    # outside a peak window. Spread across the day to catch each engagement peak.
-    - cron: "0 16 * * *"  # ≈ midday ET
-    - cron: "0 19 * * *"  # ≈ mid-afternoon ET
-    - cron: "0 22 * * *"  # ≈ evening ET
+    # Always-on posts — every day, three times. Spread across the US engagement
+    # peaks: 13:00 ≈ 9am ET (morning), 17:00 ≈ 1pm ET (midday), 21:00 ≈ 5pm ET
+    # (evening commute). ALWAYS_ON_HOURS in run.ts must match these hours.
+    - cron: "0 13 * * *"  # ≈ 9am ET
+    - cron: "0 17 * * *"  # ≈ 1pm ET
+    - cron: "0 21 * * *"  # ≈ 5pm ET
+    # Seasonal-only extras — fire daily but run.ts no-ops every seasonal slot
+    # outside a peak window. Interleaved with the always-on slots to fill the day.
+    - cron: "0 15 * * *"  # ≈ 11am ET, seasonal
+    - cron: "0 19 * * *"  # ≈ 3pm ET, seasonal
+    - cron: "0 23 * * *"  # ≈ 7pm ET, seasonal
   workflow_dispatch:
     inputs:
       mode:
@@ -94,5 +99,11 @@ jobs:
           git config user.name "heirloom-autopost[bot]"
           git config user.email "noreply@heirloom.blue"
           git add marketing/automation/output || true
-          git diff --staged --quiet || git commit -m "chore(autopost): $(date -u +%Y-%m-%d)"
+          # output/ is gitignored, but the per-day ledger MUST persist across the
+          # day's separate cron jobs so each slot avoids what earlier slots already
+          # posted (same-day distinctness). The concurrency group serializes these
+          # jobs, so each checkout already sees prior ledger commits — we only need
+          # to force-add the ledger past the ignore so this slot's entry is saved.
+          git add -f marketing/automation/output/*/ledger.json 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "chore(autopost): $(date -u +%Y-%m-%dT%H:%MZ)"
           git push || true

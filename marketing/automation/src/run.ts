@@ -52,17 +52,47 @@ async function readJson<T>(rel: string): Promise<T | null> {
   }
 }
 
+// One line per post already published today, so when the day fires several runs
+// each new generation can be told exactly what to avoid. Survives across the
+// day's separate CI jobs because output/ is committed back by the workflow.
+interface LedgerEntry {
+  hour: number;
+  hook: string;
+  saying: string;
+}
+
+async function readDayLedger(dateKey: string): Promise<LedgerEntry[]> {
+  return (await readJson<LedgerEntry[]>(`output/${dateKey}/ledger.json`)) ?? [];
+}
+
 async function generate(): Promise<SourcePost> {
   const date = new Date();
   const theme = themeForDate(date);
-  const recent = await topHooks(20);
-
-  console.log(`[generate] date=${date.toISOString().slice(0, 10)} theme=${theme.id}`);
-  const source = await generateSourcePost({ theme, date, recentHooks: recent });
-
   const dateKey = date.toISOString().slice(0, 10);
+  const hour = date.getUTCHours();
+
+  // Avoid-list = anything already posted today (same-day distinctness — the whole
+  // point of multiple daily slots) plus any top historical hooks.
+  const ledger = await readDayLedger(dateKey);
+  const recent = [
+    ...ledger.map((e) => e.hook),
+    ...ledger.map((e) => e.saying),
+    ...(await topHooks(20)),
+  ];
+
+  console.log(
+    `[generate] date=${dateKey} hour=${hour} theme=${theme.id} avoid=${ledger.length} prior post(s) today`,
+  );
+  const source = await generateSourcePost({ theme, date, recentHooks: recent, slotSeed: hour });
+
   await writeJson(`output/${dateKey}/source.json`, { theme, source });
   await writeJson(`output/source.json`, { theme, source });
+
+  // Record this run so the day's later slots avoid it.
+  await writeJson(`output/${dateKey}/ledger.json`, [
+    ...ledger,
+    { hour, hook: source.hook, saying: source.saying },
+  ]);
 
   console.log(`[generate] hook="${source.hook}"`);
   return source;
@@ -106,15 +136,18 @@ async function imageForVariant(
   v: Variant,
   saying: string,
   dateKey: string,
+  slot: number,
 ): Promise<RenderedImage> {
   try {
     const png = renderWeave({
       saying,
       width: v.imageSpec.width,
       height: v.imageSpec.height,
-      seed: `${dateKey}-${v.platform}`,
+      // Slot in the seed so a day's separate runs weave a visibly different
+      // cloth, not the same pattern repeated under different sayings.
+      seed: `${dateKey}-${slot}-${v.platform}`,
     });
-    const filename = `weave-${dateKey}-${v.platform}.png`;
+    const filename = `weave-${dateKey}-${slot}-${v.platform}.png`;
     // Persist locally so preview/CI runs leave the images on disk for review.
     const localPath = path.resolve(process.cwd(), `output/${dateKey}/images/${filename}`);
     await fs.mkdir(path.dirname(localPath), { recursive: true });
@@ -149,7 +182,9 @@ async function postAll(source?: SourcePost): Promise<void> {
   console.log(`[variants] generating ${platforms.length} platform variants…`);
   const variants = await generateVariants({ source: today, platforms, seasonHashtags });
 
-  const dateKey = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const dateKey = now.toISOString().slice(0, 10);
+  const slot = now.getUTCHours();
   await writeJson(`output/${dateKey}/variants.json`, variants);
 
   // Observability: output/ is gitignored, so log the per-platform hashtag count
@@ -170,7 +205,7 @@ async function postAll(source?: SourcePost): Promise<void> {
   // than the same static picture every day.
   console.log(`[image] rendering ${variants.length} cloth images for saying: "${today.saying}"`);
   const images = await Promise.all(
-    variants.map((v) => imageForVariant(v, today.saying, dateKey)),
+    variants.map((v) => imageForVariant(v, today.saying, dateKey, slot)),
   );
 
   console.log(`[post] dispatching ${variants.length} posts…`);
@@ -220,23 +255,25 @@ async function metrics(): Promise<void> {
   console.log(`[metrics] pulled ${m.length} datapoints`);
 }
 
+// Always-on slots (UTC hours) that run every day, year-round — three posts a day
+// for broad baseline coverage, spread across the US engagement peaks (≈9am, 1pm,
+// 5pm ET). Every OTHER scheduled slot is seasonal-only: it fires solely inside the
+// four high-intent windows (Mother's/Father's/Grandparents/Christmas), lifting the
+// cadence to six posts a day during a peak. Brand voice rule 14 still holds — each
+// run generates a fresh, distinct piece, so this is more coverage, not a repeat
+// blast, and the surge lands only where buying/visiting intent genuinely spikes.
+const ALWAYS_ON_HOURS = new Set([13, 17, 21]);
+
 async function daily(): Promise<void> {
-  // Seasonal cadence. The 14:00 UTC anchor slot runs every day, year-round. Every
-  // other scheduled slot (16:00 / 19:00 / 22:00 UTC) is seasonal-only: it fires
-  // only inside the four high-intent windows (Mother's/Father's/Grandparents/
-  // Christmas), giving four posts a day during a peak and one-a-day otherwise
-  // (brand voice rule 14: compounding, not volume — the boost lands only where
-  // intent spikes).
-  //
-  // The anchor cron always runs. Any non-anchor scheduled slot skips cleanly
-  // outside a window. Manual workflow_dispatch is always intentional, so it
-  // never skips.
+  // Always-on slots run every day. Any non-always-on scheduled slot skips cleanly
+  // outside a seasonal window. Manual workflow_dispatch is always intentional, so
+  // it never skips.
   const now = new Date();
   const season = seasonForDate(now);
-  const isAnchorSlot = now.getUTCHours() === 14;
+  const isAlwaysOnSlot = ALWAYS_ON_HOURS.has(now.getUTCHours());
   const scheduled = process.env.GITHUB_EVENT_NAME === "schedule";
-  if (scheduled && !isAnchorSlot && !season) {
-    console.log("[skip] non-anchor slot is seasonal-only and no season is active today. Nothing posted.");
+  if (scheduled && !isAlwaysOnSlot && !season) {
+    console.log("[skip] seasonal-only slot and no season is active today. Nothing posted.");
     return;
   }
   if (season) console.log(`[daily] seasonal window active: ${season.id}`);
