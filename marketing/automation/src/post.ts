@@ -28,6 +28,11 @@ import { PlatformKey } from "./voice.js";
 export interface PostInput {
   variant: Variant;
   imageUrl?: string;
+  // Raw rendered image bytes (the woven-cloth + saying PNG). Preferred over
+  // imageUrl on platforms that accept a binary upload (Bluesky blob, Facebook
+  // /photos source) — it carries the actual saying-image without needing a
+  // public URL / R2 round-trip (which is gated on HEIRLOOM_ADMIN_TOKEN).
+  imageBytes?: Uint8Array;
   videoUrl?: string;
   scheduleAt?: string;
   // Bluesky thread: additional post texts posted as replies to variant.caption.
@@ -188,21 +193,27 @@ async function postFacebook(input: PostInput): Promise<PostResult> {
   const pageId = process.env.META_PAGE_ID;
   if (!token || !pageId) return queue(input);
 
-  const params = new URLSearchParams({
-    message: caption(input.variant),
-    access_token: token,
-  });
-  if (input.imageUrl) params.set("link", input.imageUrl);
+  const cap = caption(input.variant);
 
-  const url = input.imageUrl
-    ? `https://graph.facebook.com/v21.0/${pageId}/photos`
-    : `https://graph.facebook.com/v21.0/${pageId}/feed`;
-
-  const body = new URLSearchParams({
-    [input.imageUrl ? "caption" : "message"]: caption(input.variant),
-    access_token: token,
-  });
-  if (input.imageUrl) body.set("url", input.imageUrl);
+  // Prefer uploading the rendered woven-cloth bytes directly to /photos via a
+  // multipart `source` — that puts the actual saying-image on the post with no
+  // public URL needed. Fall back to a public image URL, then plain feed text.
+  let url: string;
+  let body: BodyInit;
+  if (input.imageBytes) {
+    url = `https://graph.facebook.com/v21.0/${pageId}/photos`;
+    const form = new FormData();
+    form.set("caption", cap);
+    form.set("access_token", token);
+    form.set("source", new Blob([input.imageBytes as unknown as BlobPart], { type: "image/png" }), "weave.png");
+    body = form;
+  } else if (input.imageUrl) {
+    url = `https://graph.facebook.com/v21.0/${pageId}/photos`;
+    body = new URLSearchParams({ caption: cap, url: input.imageUrl, access_token: token });
+  } else {
+    url = `https://graph.facebook.com/v21.0/${pageId}/feed`;
+    body = new URLSearchParams({ message: cap, access_token: token });
+  }
 
   const res = await fetch(url, { method: "POST", body });
   const json = (await res.json().catch(() => ({}))) as { id?: string; error?: { message: string } };
@@ -322,19 +333,31 @@ type BlueskyBlob = {
   size: number;
 };
 
+async function uploadBlueskyBlobBytes(
+  bytes: Uint8Array,
+  mimeType: string,
+  token: string,
+): Promise<BlueskyBlob | null> {
+  try {
+    const res = await fetch("https://bsky.social/xrpc/com.atproto.repo.uploadBlob", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": mimeType },
+      body: bytes as unknown as BodyInit,
+    });
+    const json = (await res.json().catch(() => ({}))) as { blob?: BlueskyBlob };
+    return json.blob ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function uploadBlueskyBlob(imageUrl: string, token: string): Promise<BlueskyBlob | null> {
   try {
     const imgRes = await fetch(imageUrl);
     if (!imgRes.ok) return null;
     const mimeType = imgRes.headers.get("content-type") ?? "image/jpeg";
-    const bytes = await imgRes.arrayBuffer();
-    const res = await fetch("https://bsky.social/xrpc/com.atproto.repo.uploadBlob", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}`, "Content-Type": mimeType },
-      body: bytes,
-    });
-    const json = (await res.json().catch(() => ({}))) as { blob?: BlueskyBlob };
-    return json.blob ?? null;
+    const bytes = new Uint8Array(await imgRes.arrayBuffer());
+    return uploadBlueskyBlobBytes(bytes, mimeType, token);
   } catch {
     return null;
   }
@@ -355,9 +378,13 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
     return { platform: input.variant.platform, ok: false, error: "auth failed", mode: "direct" };
   }
 
-  const imageBlob = input.imageUrl
-    ? await uploadBlueskyBlob(input.imageUrl, session.accessJwt)
-    : null;
+  // Prefer the rendered woven-cloth bytes (the saying-image); fall back to a
+  // public image URL only when bytes aren't available.
+  const imageBlob = input.imageBytes
+    ? await uploadBlueskyBlobBytes(input.imageBytes, "image/png", session.accessJwt)
+    : input.imageUrl
+      ? await uploadBlueskyBlob(input.imageUrl, session.accessJwt)
+      : null;
 
   // Hashtags ride the FINAL post, not the opener. The opener is the longest
   // post (hook + body) and slicing it to 300 would shear off any appended tags;

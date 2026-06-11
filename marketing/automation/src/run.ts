@@ -94,11 +94,19 @@ function imageForPlatform(platform: string): string {
 // run's output dir for inspection, upload it to R2, and return its public URL.
 // Falls back to the static platform image if rendering or upload fails (e.g. no
 // admin token in a dry-run) so a post never goes out image-less.
+interface RenderedImage {
+  // Public URL — uploaded weave when R2 is configured, else the static fallback.
+  url: string;
+  // Raw rendered bytes, attached directly to platforms that take binary uploads
+  // (Bluesky/Facebook) so the saying-image lands even without R2/admin token.
+  bytes: Uint8Array | null;
+}
+
 async function imageForVariant(
   v: Variant,
   saying: string,
   dateKey: string,
-): Promise<string> {
+): Promise<RenderedImage> {
   try {
     const png = renderWeave({
       saying,
@@ -115,13 +123,16 @@ async function imageForVariant(
     const url = await uploadWeave(png, filename);
     if (url) {
       console.log(`[image] ${v.platform} → ${url}`);
-      return url;
+      return { url, bytes: png };
     }
-    console.log(`[image] ${v.platform} → rendered (not uploaded), using static fallback URL`);
+    // No R2 upload (e.g. no admin token) — still hand the bytes to the poster so
+    // Bluesky/Facebook get the real woven saying-image, not the static picture.
+    console.log(`[image] ${v.platform} → rendered, attaching bytes directly (no R2 upload)`);
+    return { url: imageForPlatform(v.platform), bytes: png };
   } catch (err) {
     console.error(`[image] ${v.platform} render failed — static fallback`, err);
   }
-  return imageForPlatform(v.platform);
+  return { url: imageForPlatform(v.platform), bytes: null };
 }
 
 async function postAll(source?: SourcePost): Promise<void> {
@@ -158,7 +169,7 @@ async function postAll(source?: SourcePost): Promise<void> {
   // saying. Done before posting so each platform gets its own woven image rather
   // than the same static picture every day.
   console.log(`[image] rendering ${variants.length} cloth images for saying: "${today.saying}"`);
-  const imageUrls = await Promise.all(
+  const images = await Promise.all(
     variants.map((v) => imageForVariant(v, today.saying, dateKey)),
   );
 
@@ -167,7 +178,8 @@ async function postAll(source?: SourcePost): Promise<void> {
     variants.map((v, i) =>
       post({
         variant: v,
-        imageUrl: imageUrls[i],
+        imageUrl: images[i].url,
+        ...(images[i].bytes ? { imageBytes: images[i].bytes! } : {}),
         ...(v.platform === "bluesky" && blueskyThread ? { blueskyThread } : {}),
       }),
     ),
