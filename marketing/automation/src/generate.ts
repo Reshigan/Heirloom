@@ -11,11 +11,38 @@ import { z } from "zod";
 import { Theme } from "./themes.js";
 import { BRAND_VOICE_SYSTEM_PROMPT } from "./voice.js";
 
-// Default to Sonnet 4.6 — quality is more than enough for marketing copy,
-// and at this volume (1 daily run, ~250K input + ~120K output tokens/mo)
-// cost is roughly $3-5/mo at sonnet pricing. Switch to claude-haiku-4-5
-// for ~$0.25/mo, or claude-opus-4-7 for ~$13/mo if quality drift appears.
-const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
+// Generation provider. Cloudflare Workers AI is preferred when its creds are
+// present (free tier, ~10k neurons/day — this workload of a few short JSON
+// generations a day costs $0 and reuses the platform we already run on).
+// Anthropic is the fallback when only ANTHROPIC_API_KEY is set. Force either
+// explicitly with GEN_PROVIDER=cloudflare|anthropic.
+export type GenProvider = "cloudflare" | "anthropic";
+
+const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
+// Llama 3.3 70B (fp8 fast) is the closest free model to the prior Sonnet output
+// for marketing copy. Override with CLOUDFLARE_AI_MODEL.
+const CLOUDFLARE_MODEL =
+  process.env.CLOUDFLARE_AI_MODEL ?? "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+
+function hasCloudflare(): boolean {
+  return Boolean(process.env.CLOUDFLARE_API_TOKEN && process.env.CLOUDFLARE_ACCOUNT_ID);
+}
+
+// The provider that will actually run, honoring an explicit GEN_PROVIDER and
+// otherwise auto-selecting Cloudflare → Anthropic by which creds exist. Returns
+// null when nothing is configured (engine stays dormant rather than crashing).
+export function activeProvider(): GenProvider | null {
+  const explicit = process.env.GEN_PROVIDER as GenProvider | undefined;
+  if (explicit === "cloudflare") return hasCloudflare() ? "cloudflare" : null;
+  if (explicit === "anthropic") return process.env.ANTHROPIC_API_KEY ? "anthropic" : null;
+  if (hasCloudflare()) return "cloudflare";
+  if (process.env.ANTHROPIC_API_KEY) return "anthropic";
+  return null;
+}
+
+export function hasGenProvider(): boolean {
+  return activeProvider() !== null;
+}
 
 const sourcePostSchema = z.object({
   hook: z.string().min(5).max(200),
@@ -40,9 +67,13 @@ interface GenerateInput {
   slotSeed?: number;
 }
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+// Lazy — the Anthropic SDK throws on construction without a key, which would
+// crash a Cloudflare-only run at import time.
+let _anthropic: Anthropic | null = null;
+function anthropic(): Anthropic {
+  if (!_anthropic) _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  return _anthropic;
+}
 
 function buildUserPrompt({ theme, date, recentHooks, slotSeed }: GenerateInput): string {
   const isoDate = date.toISOString().slice(0, 10);
@@ -88,28 +119,73 @@ function stripFences(raw: string): string {
   return raw.trim();
 }
 
-export async function generateSourcePost(input: GenerateInput): Promise<SourcePost> {
-  const userPrompt = buildUserPrompt(input);
+// One chat turn → raw model text. Dispatches to whichever provider is active.
+async function chat(system: string, user: string): Promise<string> {
+  const provider = activeProvider();
+  if (provider === "cloudflare") return chatCloudflare(system, user);
+  if (provider === "anthropic") return chatAnthropic(system, user);
+  throw new Error(
+    "No generation provider configured. Set CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID (free) or ANTHROPIC_API_KEY.",
+  );
+}
 
-  const response = await client.messages.create({
-    model: MODEL,
+async function chatAnthropic(system: string, user: string): Promise<string> {
+  const response = await anthropic().messages.create({
+    model: ANTHROPIC_MODEL,
     max_tokens: 1500,
-    system: [
-      {
-        type: "text",
-        text: BRAND_VOICE_SYSTEM_PROMPT,
-        cache_control: { type: "ephemeral" },
-      },
-    ],
-    messages: [{ role: "user", content: userPrompt }],
+    system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
+    messages: [{ role: "user", content: user }],
   });
-
   const textBlock = response.content.find((c) => c.type === "text");
   if (!textBlock || textBlock.type !== "text") {
     throw new Error("No text content in Claude response");
   }
+  return textBlock.text;
+}
 
-  const raw = textBlock.text.trim();
+async function chatCloudflare(system: string, user: string): Promise<string> {
+  const account = process.env.CLOUDFLARE_ACCOUNT_ID!;
+  const token = process.env.CLOUDFLARE_API_TOKEN!;
+  const res = await fetch(
+    `https://api.cloudflare.com/client/v4/accounts/${account}/ai/run/${CLOUDFLARE_MODEL}`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        max_tokens: 1500,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+        // Nudge models that honor it toward bare JSON; stripFences() handles the rest.
+        response_format: { type: "json_object" },
+      }),
+    },
+  );
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Cloudflare Workers AI ${res.status}: ${body.slice(0, 300)}`);
+  }
+  const data = (await res.json()) as {
+    success?: boolean;
+    result?: { response?: string | object };
+    errors?: unknown[];
+  };
+  const out = data.result?.response;
+  if (!data.success || out == null) {
+    throw new Error(
+      `Cloudflare Workers AI returned no response: ${JSON.stringify(data.errors ?? data).slice(0, 300)}`,
+    );
+  }
+  // response_format:json_object can come back already-parsed; re-stringify so the
+  // shared stripFences/JSON.parse path below handles both shapes uniformly.
+  return typeof out === "string" ? out : JSON.stringify(out);
+}
+
+export async function generateSourcePost(input: GenerateInput): Promise<SourcePost> {
+  const userPrompt = buildUserPrompt(input);
+
+  const raw = (await chat(BRAND_VOICE_SYSTEM_PROMPT, userPrompt)).trim();
   // Tolerate accidental markdown fences (including ```json, ```javascript, ```js).
   const json = stripFences(raw);
 
