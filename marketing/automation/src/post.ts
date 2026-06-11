@@ -434,7 +434,9 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
       };
     }
 
-    // Last post in a multi-post thread gets the link card
+    // Last post in a multi-post thread gets the link card. Give it the woven
+    // saying-image as its thumb so the reply (which sits at the top of the
+    // feed) shows the cloth too — not a blank gray card.
     if (isLast && !isFirst) {
       record.embed = {
         $type: "app.bsky.embed.external",
@@ -442,6 +444,7 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
           uri: "https://heirloom.blue",
           title: "Heirloom",
           description: "Start your family's thousand-year thread.",
+          ...(imageBlob ? { thumb: imageBlob } : {}),
         },
       };
     }

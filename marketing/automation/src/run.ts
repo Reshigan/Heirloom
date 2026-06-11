@@ -221,20 +221,22 @@ async function metrics(): Promise<void> {
 }
 
 async function daily(): Promise<void> {
-  // Seasonal cadence. One anchor post every day (the 14:00 UTC slot). A second
-  // post fires only inside the four high-intent windows (Mother's/Father's/
-  // Grandparents/Christmas) via the 22:00 UTC slot — so outside the peaks we
-  // hold at one-a-day (brand voice rule 14: compounding, not volume).
+  // Seasonal cadence. The 14:00 UTC anchor slot runs every day, year-round. Every
+  // other scheduled slot (16:00 / 19:00 / 22:00 UTC) is seasonal-only: it fires
+  // only inside the four high-intent windows (Mother's/Father's/Grandparents/
+  // Christmas), giving four posts a day during a peak and one-a-day otherwise
+  // (brand voice rule 14: compounding, not volume — the boost lands only where
+  // intent spikes).
   //
-  // The morning cron always runs. The evening cron is seasonal-only: when it
-  // fires on a schedule outside a window, skip cleanly. Manual workflow_dispatch
-  // is always intentional, so it never skips.
+  // The anchor cron always runs. Any non-anchor scheduled slot skips cleanly
+  // outside a window. Manual workflow_dispatch is always intentional, so it
+  // never skips.
   const now = new Date();
   const season = seasonForDate(now);
-  const isEveningSlot = now.getUTCHours() >= 20;
+  const isAnchorSlot = now.getUTCHours() === 14;
   const scheduled = process.env.GITHUB_EVENT_NAME === "schedule";
-  if (scheduled && isEveningSlot && !season) {
-    console.log("[skip] evening slot is seasonal-only and no season is active today. Nothing posted.");
+  if (scheduled && !isAnchorSlot && !season) {
+    console.log("[skip] non-anchor slot is seasonal-only and no season is active today. Nothing posted.");
     return;
   }
   if (season) console.log(`[daily] seasonal window active: ${season.id}`);

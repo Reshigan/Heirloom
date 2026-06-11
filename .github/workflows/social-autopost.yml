@@ -4,22 +4,26 @@ name: Social autopost
 # See marketing/PLAYBOOK.md and marketing/automation/README.md.
 #
 # Triggers:
-#   - daily   at 14:00 UTC (~10am ET) — the always-on anchor post
-#   - seasonal at 22:00 UTC (~6pm ET) — fires only inside the four peak windows
-#     (Mother's/Father's/Grandparents/Christmas); run.ts skips it otherwise
+#   - anchor   at 14:00 UTC (~10am ET) — the always-on post, every day
+#   - seasonal at 16:00 / 19:00 / 22:00 UTC — fire only inside the four peak
+#     windows (Mother's/Father's/Grandparents/Christmas); run.ts no-ops every
+#     non-anchor slot outside a window.
 #   - manual: workflow_dispatch with optional `mode` input
 #
-# Net cadence: one post a day year-round, two a day during the seasonal peaks
-# (brand voice rule 14 — compounding, not a volume blast; the boost only lands
-# where buying/visiting intent genuinely spikes).
+# Net cadence: one post a day year-round, FOUR a day during the seasonal peaks
+# (brand voice rule 14 — compounding, not a volume blast; the extra posts only
+# land where buying/visiting intent genuinely spikes, spread across the day so
+# they hit the morning, midday, afternoon, and evening engagement peaks).
 
 on:
   schedule:
     # Anchor post — every day. 14:00 UTC ≈ 10am ET, the morning engagement peak.
     - cron: "0 14 * * *"
-    # Seasonal second post — fires daily but run.ts no-ops it outside a window.
-    # 22:00 UTC ≈ 6pm ET, the evening peak.
-    - cron: "0 22 * * *"
+    # Seasonal-only extras — fire daily but run.ts no-ops every non-anchor slot
+    # outside a peak window. Spread across the day to catch each engagement peak.
+    - cron: "0 16 * * *"  # ≈ midday ET
+    - cron: "0 19 * * *"  # ≈ mid-afternoon ET
+    - cron: "0 22 * * *"  # ≈ evening ET
   workflow_dispatch:
     inputs:
       mode:
