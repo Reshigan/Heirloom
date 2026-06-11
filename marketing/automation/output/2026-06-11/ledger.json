@@ -8,5 +8,10 @@
     "hour": 16,
     "hook": "Your dad is the same age you are now, but what was he doing?",
     "saying": "The life he lived at your age, in his words"
+  },
+  {
+    "hour": 18,
+    "hook": "He'll tell the birth story, but what about the moment it became real?",
+    "saying": "The moment he knew he was a father, not just a dad"
   }
 ]
