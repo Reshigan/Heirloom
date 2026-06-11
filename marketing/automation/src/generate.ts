@@ -18,11 +18,14 @@ import { BRAND_VOICE_SYSTEM_PROMPT } from "./voice.js";
 // explicitly with GEN_PROVIDER=cloudflare|anthropic.
 export type GenProvider = "cloudflare" | "anthropic";
 
-const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
+// NB: use `||` not `??` — GitHub Actions injects an *empty string* for an unset
+// `vars.X`, which `??` would pass through. An empty model collapses the request
+// URL to `.../ai/run/` and Cloudflare then errors "Invalid request body: model".
+const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 // Llama 3.3 70B (fp8 fast) is the closest free model to the prior Sonnet output
 // for marketing copy. Override with CLOUDFLARE_AI_MODEL.
 const CLOUDFLARE_MODEL =
-  process.env.CLOUDFLARE_AI_MODEL ?? "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+  process.env.CLOUDFLARE_AI_MODEL || "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
 
 function hasCloudflare(): boolean {
   return Boolean(process.env.CLOUDFLARE_API_TOKEN && process.env.CLOUDFLARE_ACCOUNT_ID);
