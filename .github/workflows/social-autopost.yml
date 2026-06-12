@@ -93,12 +93,17 @@ jobs:
           # variants to the worker queue, which Postiz then publishes. See
           # marketing/PLAYBOOK.md §4.
           HEIRLOOM_API_URL: ${{ vars.HEIRLOOM_API_URL || 'https://api.heirloom.blue' }}
+          # NOTE: leave HEIRLOOM_ADMIN_TOKEN UNSET. Setting it switches post()
+          # into the Postiz worker-queue path (imageUrl only) and disables the
+          # direct weave-bytes upload to Facebook/Bluesky.
+          HEIRLOOM_ADMIN_TOKEN: ${{ secrets.HEIRLOOM_ADMIN_TOKEN }}
           # Long-lived shared secret so the freshly-rendered weave image uploads
           # to R2 and is served by public URL. Without it uploadWeave() returns
           # null and the URL-only platforms (Pinterest/Instagram/LinkedIn) post
           # the OLD static brand card instead of the new woven saying image.
-          # Must equal the worker's SOCIAL_UPLOAD_TOKEN secret.
-          HEIRLOOM_ADMIN_TOKEN: ${{ secrets.SOCIAL_UPLOAD_TOKEN }}
+          # Must equal the worker's SOCIAL_UPLOAD_TOKEN secret. Facebook/Bluesky
+          # already get the weave via direct byte upload regardless of this.
+          SOCIAL_UPLOAD_TOKEN: ${{ secrets.SOCIAL_UPLOAD_TOKEN }}
           # Direct-posting strategy (no Postiz): the five platforms with free
           # publishing APIs. tiktok/x/threads/youtube have no free API — add
           # them back to generate manual-paste queue files if wanted.

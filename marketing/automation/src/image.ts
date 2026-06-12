@@ -239,7 +239,11 @@ export function renderWeave({ saying, width, height, seed }: RenderOpts): Buffer
 // caller can fall back to the static image.
 export async function uploadWeave(png: Buffer, filename: string): Promise<string | null> {
   const apiUrl = process.env.HEIRLOOM_API_URL || "https://api.heirloom.blue";
-  const token = process.env.HEIRLOOM_ADMIN_TOKEN;
+  // Dedicated upload secret — deliberately NOT HEIRLOOM_ADMIN_TOKEN. That var
+  // also switches post() into the Postiz worker-queue path (post.ts), which
+  // posts by imageUrl only and would drop the direct weave-bytes upload to
+  // Facebook/Bluesky. Keep the two concerns on separate secrets.
+  const token = process.env.SOCIAL_UPLOAD_TOKEN;
   if (!token) return null;
 
   try {

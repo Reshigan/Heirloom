@@ -200,6 +200,7 @@ async function postFacebook(input: PostInput): Promise<PostResult> {
   // public URL needed. Fall back to a public image URL, then plain feed text.
   let url: string;
   let body: BodyInit;
+  let imgMode: string;
   if (input.imageBytes) {
     url = `https://graph.facebook.com/v21.0/${pageId}/photos`;
     const form = new FormData();
@@ -207,16 +208,20 @@ async function postFacebook(input: PostInput): Promise<PostResult> {
     form.set("access_token", token);
     form.set("source", new Blob([input.imageBytes as unknown as BlobPart], { type: "image/png" }), "weave.png");
     body = form;
+    imgMode = `weave-bytes(${input.imageBytes.byteLength}B)`;
   } else if (input.imageUrl) {
     url = `https://graph.facebook.com/v21.0/${pageId}/photos`;
     body = new URLSearchParams({ caption: cap, url: input.imageUrl, access_token: token });
+    imgMode = `url(${input.imageUrl})`;
   } else {
     url = `https://graph.facebook.com/v21.0/${pageId}/feed`;
     body = new URLSearchParams({ message: cap, access_token: token });
+    imgMode = "text-only";
   }
 
   const res = await fetch(url, { method: "POST", body });
-  const json = (await res.json().catch(() => ({}))) as { id?: string; error?: { message: string } };
+  const json = (await res.json().catch(() => ({}))) as { id?: string; post_id?: string; error?: { message: string } };
+  console.log(`[fb] image=${imgMode} → ${res.status} id=${json.id ?? "-"} post_id=${json.post_id ?? "-"}${json.error ? ` err=${json.error.message}` : ""}`);
   if (!res.ok || json.error) {
     return { platform: input.variant.platform, ok: false, error: json.error?.message ?? `HTTP ${res.status}`, mode: "direct" };
   }
