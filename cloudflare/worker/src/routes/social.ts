@@ -17,6 +17,23 @@ socialRoutes.use('*', async (c, next) => {
   }
 
   const token = authHeader.substring(7);
+
+  // The autopost engine uploads the freshly-rendered weave image on an
+  // unattended daily schedule, where a KV admin session (which expires) is
+  // impractical. Accept a long-lived shared secret for the image-upload
+  // endpoint ONLY; every other social-admin route still requires a real
+  // admin session.
+  if (
+    c.env.SOCIAL_UPLOAD_TOKEN &&
+    token === c.env.SOCIAL_UPLOAD_TOKEN &&
+    c.req.path.endsWith('/upload-image')
+  ) {
+    c.set('adminId', 'autopost');
+    c.set('adminRole', 'service');
+    await next();
+    return;
+  }
+
   const adminSession = await c.env.KV.get(`admin:session:${token}`);
   if (!adminSession) {
     return c.json({ error: 'Invalid or expired admin session' }, 401);

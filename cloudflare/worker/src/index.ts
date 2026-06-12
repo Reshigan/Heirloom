@@ -125,6 +125,11 @@ export interface Env {
   // Admin first-login gate: must match body.setupToken when password_hash = CHANGE_ME_ON_FIRST_LOGIN
   ADMIN_SETUP_SECRET?: string;
 
+  // Long-lived shared secret the autopost engine uses to upload the freshly
+  // rendered weave image (POST /api/admin/social/upload-image) on its unattended
+  // daily schedule, where an expiring admin session is impractical.
+  SOCIAL_UPLOAD_TOKEN?: string;
+
   // Feature flags
   CRON_ENABLED?: string;
   
