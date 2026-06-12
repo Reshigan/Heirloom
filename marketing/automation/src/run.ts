@@ -223,6 +223,7 @@ async function postAll(source?: SourcePost): Promise<void> {
         imageUrl: images[i].url,
         ...(images[i].bytes ? { imageBytes: images[i].bytes! } : {}),
         ...(v.platform === "bluesky" && blueskyThread ? { blueskyThread } : {}),
+        imageAlt: today.saying,
       }),
     ),
   );

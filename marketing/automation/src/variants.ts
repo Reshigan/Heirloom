@@ -12,6 +12,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { SourcePost } from "./generate.js";
 import { BRAND_VOICE_SYSTEM_PROMPT, PLATFORM_GUIDELINES, PlatformKey } from "./voice.js";
+import { monthlyHashtagPool, rotateForSlot } from "./hashtags.js";
 
 // See generate.ts — Sonnet 4.6 default for cost.
 const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
@@ -113,13 +114,18 @@ Platforms to produce variants for:
 
 ${platformBlock}
 
-HASHTAG RULES — follow exactly. EVERY platform's hashtags array MUST be non-empty; pick tags from the candidates above (and the active-season tags when present) that fit each platform's audience:
-- VISUAL PLATFORMS (instagram, reels, tiktok, youtubeshorts): 5-12 tags.
-- threads, pinterest: 3-5 tags.
-- facebook, linkedin, bluesky: 2-3 tags.
+HASHTAG RULES — follow exactly. EVERY platform's hashtags array MUST be non-empty; pick tags from the candidates above (and the active-season tags when present) that fit each platform's audience. Few and relevant beats many — tag walls get posts downranked everywhere in 2026:
+- instagram, reels, tiktok, youtubeshorts: 4-5 tags. At most ONE broad tag (family, ancestors, memories) — the rest mid/niche.
+- pinterest, linkedin: 3-5 tags, keyword-rich.
+- threads: exactly 1 (Threads supports a single topic tag).
+- facebook, bluesky: 2-3 tags (Bluesky tags count against the 300-char budget).
 - x: 1-2 tags (they count against the 260-char caption budget — keep the caption short enough that caption + tags fit).
 
 Do NOT write hashtags inside the caption text — they go in the hashtags array ONLY and are appended automatically. The caption field must NEVER contain any # symbols.
+
+CAPTION SEO — search now finds posts through caption KEYWORDS more than hashtags (≈70/30 on Instagram). Work one natural search phrase into each caption where it doesn't bend the sentence — phrases real people type: "questions to ask your dad", "family stories", "record your parents' voice", "family history". Never stuff; one phrase, naturally placed.
+
+SHARE TRIGGER — on instagram, facebook, threads and bluesky, where it fits the post, end the caption with ONE short line that gives the reader something to do with another person: tag a sibling, send it to the family group chat, or reply with their own answer ("Tag the sibling who needs to ask this." / "Send this to the family group chat."). Comments and sends are the strongest ranking signals every platform has. Skip it when the post is somber — never bolt it onto grief.
 
 Produce strict JSON. No prose. No markdown fences:
 
@@ -178,23 +184,40 @@ JSON only.`;
   // Facebook "old type, no #'s" symptom). Backfill any short/empty array from
   // the source candidates + active-season tags so this can't reach the wire.
   const HASHTAG_MINIMUMS: Partial<Record<PlatformKey, number>> = {
-    instagram: 5, reels: 5, tiktok: 5, youtubeshorts: 5,
-    threads: 3, pinterest: 3,
-    facebook: 2, linkedin: 2, bluesky: 2, x: 1,
+    instagram: 4, reels: 4, tiktok: 4, youtubeshorts: 4,
+    threads: 1, pinterest: 3,
+    facebook: 2, linkedin: 3, bluesky: 2, x: 1,
   };
-  const fallbackPool = [...(seasonHashtags ?? []), ...source.hashtags]
+  // Backfill pool: season tags first (highest intent), then the source's picks,
+  // then the month's rotation pool — rotated by slot so two posts never share
+  // the exact same fallback block (identical repeated tag blocks read as spam).
+  const slotSeed = new Date().getUTCDate() * 24 + new Date().getUTCHours();
+  const fallbackPool = [
+    ...(seasonHashtags ?? []),
+    ...rotateForSlot([...source.hashtags, ...monthlyHashtagPool()], slotSeed),
+  ]
     .map((t) => t.replace(/^#/, "").trim())
     .filter(Boolean);
+  // Hard caps per 2026 platform norms — a model that ignores the prompt and
+  // returns a tag wall would otherwise get the account downranked.
+  const HASHTAG_MAXIMUMS: Partial<Record<PlatformKey, number>> = {
+    instagram: 5, reels: 5, tiktok: 5, youtubeshorts: 5,
+    threads: 1, pinterest: 5,
+    facebook: 3, linkedin: 5, bluesky: 3, x: 2,
+  };
   for (const v of result.variants) {
     const min = HASHTAG_MINIMUMS[v.platform];
-    if (!min || v.hashtags.length >= min) continue;
-    const have = new Set(v.hashtags.map((t) => t.toLowerCase()));
-    for (const tag of fallbackPool) {
-      if (v.hashtags.length >= min) break;
-      if (have.has(tag.toLowerCase())) continue;
-      v.hashtags.push(tag);
-      have.add(tag.toLowerCase());
+    if (min && v.hashtags.length < min) {
+      const have = new Set(v.hashtags.map((t) => t.toLowerCase()));
+      for (const tag of fallbackPool) {
+        if (v.hashtags.length >= min) break;
+        if (have.has(tag.toLowerCase())) continue;
+        v.hashtags.push(tag);
+        have.add(tag.toLowerCase());
+      }
     }
+    const max = HASHTAG_MAXIMUMS[v.platform];
+    if (max && v.hashtags.length > max) v.hashtags = v.hashtags.slice(0, max);
   }
 
   return result.variants;

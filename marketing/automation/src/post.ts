@@ -38,6 +38,10 @@ export interface PostInput {
   // Bluesky thread: additional post texts posted as replies to variant.caption.
   // Last part gets a heirloom.blue link card embed.
   blueskyThread?: string[];
+  // Alt text for the attached image. The weave image IS its saying, so passing
+  // the saying makes the alt accurate for screen readers and puts the line in
+  // text platforms index — generic brand alt wastes both.
+  imageAlt?: string;
 }
 
 export interface PostResult {
@@ -435,7 +439,7 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
     if (isFirst && imageBlob) {
       record.embed = {
         $type: "app.bsky.embed.images",
-        images: [{ image: imageBlob, alt: "Heirloom — start your family's thousand-year thread." }],
+        images: [{ image: imageBlob, alt: input.imageAlt ?? "Heirloom — start your family's thousand-year thread." }],
       };
     }
 
