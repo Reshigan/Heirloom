@@ -65,6 +65,8 @@ export interface CanvasEntry {
   author?: string;
   sealed?: boolean;
   sealUntil?: Date;
+  /** The entry's own title — the cloth whispers it on hover. */
+  title?: string;
 }
 
 interface DrawOpts {

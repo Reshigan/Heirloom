@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
@@ -6,10 +6,7 @@ import { VaultModal } from '../components/VaultModal';
 import { threadsApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
-
-const ClothCanvas3D = lazy(() =>
-  import('../loom/components/ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
-);
+import { ClothWeave } from '../loom/components/ClothWeave';
 
 // Signup — Loom 3 three-step inline parchment flow (heirloom-auth.jsx §Signup).
 // step one · the thread's name   — what the family calls itself
@@ -390,9 +387,7 @@ export function Signup() {
             minHeight: 'min(360px, 40vh)',
           }}
         >
-          <Suspense fallback={<div style={{ position: 'absolute', inset: 0, background: 'var(--ink)' }} />}>
-            <ClothCanvas3D entries={REGISTER_3D_ENTRIES} />
-          </Suspense>
+          <ClothWeave />
           <div className="hl-mono" style={{
             position: 'absolute', left: 24, bottom: 24,
             fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
@@ -487,15 +482,3 @@ function PInput({
   );
 }
 
-// Pre-generated 3D cloth entries — deterministic, no Math.random()
-// Offset seed differs from Login (i * 13 + 7 vs i * 17 + 1) for visual variety
-const REGISTER_DYE_KEYS = ['madder','cochineal','kermes','saffron','weld','walnut','oakgall','woad','indigo','iron'] as const;
-function registerHash(n: number): number {
-  const x = Math.sin(n * 9301 + 49297) * 233280;
-  return x - Math.floor(x);
-}
-const REGISTER_3D_ENTRIES = Array.from({ length: 80 }, (_, i) => ({
-  date: new Date(1960 + Math.floor(registerHash(i * 13 + 7) * 70), 0, 1),
-  dye: REGISTER_DYE_KEYS[i % REGISTER_DYE_KEYS.length] as typeof REGISTER_DYE_KEYS[number],
-  locked: i % 5 === 0,
-}));

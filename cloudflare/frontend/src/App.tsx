@@ -216,12 +216,12 @@ function LoomShellRoot({ children }: { children: React.ReactNode }) {
   const { theme } = useLoomTheme();
   return (
     <div className="loom" data-theme={theme} style={{ minHeight: '100vh', position: 'relative', background: 'var(--ink)' }}>
-      {/* Global cloth substrate — the animated tapestry behind every screen,
-          mounted once so there is a single WebGL context for the whole app. */}
+      {/* Global cloth substrate — the woven canvas behind every screen,
+          mounted once. On home surfaces the cloth is the screen and answers
+          touch (whispers route via window-level listeners, so pointer-events
+          stays none here); in the rooms it recedes behind the veil. */}
       <div aria-hidden style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}>
-        {/* ClothBackdrop owns its own theme-aware legibility scrim (layered
-            below the ambient dye sparks) so the living colour stays visible. */}
-        <ClothBackdrop opacity={0.42} threadOpacity={0.55} />
+        <ClothBackdrop />
       </div>
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
         <Suspense

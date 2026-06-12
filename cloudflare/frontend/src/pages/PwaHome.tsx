@@ -273,45 +273,80 @@ function AuthHome({
     ? { label: 'thread →', to: '/loom' }
     : { label: 'write →', to: '/compose' };
 
+  const nowYear = new Date().getFullYear();
+  const firstYear = count > 0
+    ? entries.reduce((min, e) => Math.min(min, e.date.getFullYear()), nowYear)
+    : nowYear;
+  const threadYear = nowYear - firstYear + 1;
+  const heroStat = {
+    fontFamily: 'var(--mono)',
+    fontSize: 9,
+    letterSpacing: '0.3em',
+    textTransform: 'uppercase' as const,
+    color: 'var(--bone-faint)',
+    textShadow: '0 1px 10px var(--ink), 0 0 22px var(--ink)',
+  };
+
   return (
     <>
-      {/* Date anchor — today's page in the archive */}
+      {/* Home hero — the edge of the cloth. The cloth itself is the global
+          backdrop; this layer holds only the prompt, the breathing fell
+          line, and the selvedge stats. */}
       <div style={{
-        padding: `14px ${P} 0`,
-        fontFamily: 'var(--mono)',
-        fontSize: 9,
-        letterSpacing: '0.30em',
-        textTransform: 'uppercase',
-        color: 'var(--bone-faint)',
+        position: 'relative',
+        minHeight: 'clamp(380px, 68vh, 640px)',
         display: 'flex',
-        alignItems: 'baseline',
-        gap: 16,
-        flexWrap: 'wrap',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        paddingBottom: 130,
       }}>
-        <span>{todayStamp()}</span>
-        {stats && (
-          <span style={{ fontSize: 8, letterSpacing: '0.22em' }}>
-            {stats.entries} {stats.entries === 1 ? 'entry' : 'entries'}
-            {stats.members > 0 ? ` · ${stats.members} ${stats.members === 1 ? 'member' : 'members'}` : ''}
-          </span>
-        )}
-      </div>
-
-      {/* Thread-open hero — cloth now provided by ClothShell backdrop */}
-      <div style={{
-        padding: `32px ${P} 28px`,
-        borderBottom: '1px solid var(--rule)',
-      }}>
+        <div style={{ textAlign: 'center', padding: `0 ${P}` }}>
+          <p style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 10,
+            letterSpacing: '0.34em',
+            textTransform: 'uppercase',
+            color: 'var(--warm-dim)',
+            margin: '0 0 18px',
+          }}>
+            {todayStamp().toLowerCase()} · the edge of the cloth
+          </p>
+          {isReadOnly ? (
+            <p className="hl-serif" style={{
+              fontStyle: 'italic', fontWeight: 300,
+              fontSize: 'clamp(28px, 4.4vw, 48px)',
+              color: 'var(--bone)', margin: 0,
+              textShadow: '0 0 50px var(--ink)',
+            }}>
+              The cloth remembers.
+            </p>
+          ) : (
+            <Link to="/compose" className="hl-serif" style={{
+              display: 'inline-block',
+              fontStyle: 'italic', fontWeight: 300,
+              fontSize: 'clamp(28px, 4.4vw, 48px)',
+              color: 'var(--bone)', textDecoration: 'none',
+              cursor: 'text',
+              textShadow: '0 0 50px var(--ink)',
+            }}>
+              What will you keep from today?<span className="hl-hero-caret" aria-hidden />
+            </Link>
+          )}
+        </div>
+        <div className="hl-fell-line" style={{ bottom: 96 }} aria-hidden />
         <div style={{
-          fontFamily: '"Source Serif 4", Georgia, serif',
-          fontStyle: 'italic',
-          fontWeight: 300,
-          fontSize: 28,
-          color: 'var(--bone)',
-          lineHeight: 1.2,
-          letterSpacing: '-0.01em',
+          position: 'absolute', left: 0, right: 0, bottom: 30,
+          display: 'flex', justifyContent: 'space-between',
+          gap: 14, flexWrap: 'wrap',
+          padding: '0 28px',
         }}>
-          ∞ the thread is open
+          <span style={heroStat}>
+            since {firstYear} · <b style={{ color: 'var(--warm-dim)', fontWeight: 400 }}>{count}</b> {count === 1 ? 'memory' : 'memories'} woven
+          </span>
+          <span style={heroStat}>touch a thread — the cloth remembers</span>
+          <span style={heroStat}>
+            {stats && stats.members > 0 ? `${stats.members} ${stats.members === 1 ? 'voice' : 'voices'} · ` : ''}year {threadYear} of a thousand
+          </span>
         </div>
       </div>
 

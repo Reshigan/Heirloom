@@ -102,17 +102,18 @@
   --danger: #c25a5a;
   --safe:   #5a7a5a;
 
-  /* natural-dye palette — only inside the cloth (woven threads) */
-  --dye-madder:    #e84030;
-  --dye-cochineal: #d42868;
-  --dye-kermes:    #f05268;
-  --dye-saffron:   #f5c832;
-  --dye-weld:      #edae2e;
-  --dye-walnut:    #a07040;
-  --dye-oakgall:   #7c5c4a;
-  --dye-woad:      #4898d8;
-  --dye-indigo:    #3878e8;
-  --dye-iron:      #4a4a46;
+  /* natural-dye palette — muted, plant-dyed wool. Only inside the cloth
+     (woven threads) and as identity signal (left-margin thread, name color). */
+  --dye-madder:    #d94f38;
+  --dye-cochineal: #8a5578;
+  --dye-kermes:    #c46a7a;
+  --dye-saffron:   #d4a32f;
+  --dye-weld:      #c9941f;
+  --dye-walnut:    #7d5635;
+  --dye-oakgall:   #6d8a56;
+  --dye-woad:      #4f8a8a;
+  --dye-indigo:    #46679c;
+  --dye-iron:      #56707a;
 
   /* Cloth legibility scrim — layered beneath the ambient dye sparks so prose
      stays readable while the living colour shows through. Default = vault ink;
@@ -191,20 +192,19 @@
   /* Parchment scrim — keeps light mode reading as paper, not ink-washed. */
   --cloth-scrim: rgba(245,236,224,0.72);
 
-  /* Parchment-safe dye palette — the bright dyes (saffron/weld/kermes…) wash
-     out as text/swatches on the #f5ece0 surface; darken them so dye-as-signal
-     (member names, emotion chips, the suggest result) keeps contrast on paper.
-     The 3D cloth threads use their own JS constants, so vault chroma is intact. */
-  --dye-madder:    #c23a2c;
-  --dye-cochineal: #b02458;
-  --dye-kermes:    #c2415a;
-  --dye-saffron:   #b8881a;
+  /* Parchment-safe dye palette — same dyes, mordanted darker so dye-as-signal
+     (member names, left-margin threads, whisper labels) keeps contrast on
+     paper. The cloth canvas reads these vars at paint time. */
+  --dye-madder:    #b54230;
+  --dye-cochineal: #744764;
+  --dye-kermes:    #a55867;
+  --dye-saffron:   #b08826;
   --dye-weld:      #a87a18;
-  --dye-walnut:    #7c5430;
-  --dye-oakgall:   #5e4636;
-  --dye-woad:      #2f6fae;
-  --dye-indigo:    #2a58c8;
-  --dye-iron:      #3a3a36;
+  --dye-walnut:    #68472c;
+  --dye-oakgall:   #5a7347;
+  --dye-woad:      #427373;
+  --dye-indigo:    #3a5582;
+  --dye-iron:      #485e66;
 }
 
 * {
@@ -1425,6 +1425,31 @@ html {
   animation: loom-caret 1.1s steps(1) infinite;
 }
 @keyframes loom-caret { 50% { opacity: 0; } }
+
+/* ─── Home hero — the edge of the cloth ────────────────────────────
+   The prompt caret blinks like a waiting pen; the fell line — the live
+   edge where the next thread goes in — breathes. Both die under
+   prefers-reduced-motion via the global .loom kill switch. */
+.hl-hero-caret {
+  display: inline-block;
+  width: 1px; height: 0.9em;
+  background: var(--bone);
+  vertical-align: -0.1em;
+  margin-left: 6px;
+  animation: hl-hero-blink 1.4s steps(1) infinite;
+}
+@keyframes hl-hero-blink { 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0; } }
+.hl-fell-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--warm);
+  animation: hl-fell-breath 9s var(--ease-out) infinite;
+}
+@keyframes hl-fell-breath {
+  0%, 100% { opacity: 0.7; box-shadow: 0 0 16px rgba(176, 122, 74, 0.4); }
+  50% { opacity: 1; box-shadow: 0 0 32px rgba(176, 122, 74, 0.65); }
+}
 
 /* ─── AI whisper (composer) ────────────────────────────────────── */
 .loom-whisper {

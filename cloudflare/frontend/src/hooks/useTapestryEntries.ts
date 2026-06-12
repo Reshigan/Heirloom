@@ -58,17 +58,32 @@ export function useTapestryEntries(): { entries: CanvasEntry[]; isError: boolean
       const when = m.metadata?.entryDate ?? m.memory_date ?? m.createdAt ?? m.created_at;
       const date = new Date(when ?? Date.now());
       if (isNaN(date.getTime())) continue;
-      all.push({ date, n: n++, dye: pickDye(m.type ?? 'memory'), tier: 'family', author: m.userId ?? m.user_id });
+      all.push({
+        date, n: n++, dye: pickDye(m.type ?? 'memory'), tier: 'family',
+        author: m.userId ?? m.user_id,
+        title: typeof m.title === 'string' && m.title ? m.title : undefined,
+      });
     }
     for (const l of lets) {
       const date = new Date(l.createdAt ?? l.created_at ?? Date.now());
       if (isNaN(date.getTime())) continue;
-      all.push({ date, n: n++, dye: 'indigo', tier: 'family', sealed: !!l.sealedAt });
+      // A sealed letter with a future unlock date is a knot in the unwoven
+      // future — the cloth shows it above the fell line.
+      const unlockRaw = l.unlock_date ?? l.unlockDate ?? l.deliveryDate ?? l.delivery_date;
+      const unlock = unlockRaw ? new Date(unlockRaw) : null;
+      all.push({
+        date, n: n++, dye: 'indigo', tier: 'family', sealed: !!l.sealedAt,
+        sealUntil: unlock && !isNaN(unlock.getTime()) && unlock.getTime() > Date.now() ? unlock : undefined,
+        title: typeof l.title === 'string' && l.title ? l.title : undefined,
+      });
     }
     for (const v of vox) {
       const date = new Date(v.createdAt ?? v.created_at ?? Date.now());
       if (isNaN(date.getTime())) continue;
-      all.push({ date, n: n++, dye: 'saffron', tier: 'family' });
+      all.push({
+        date, n: n++, dye: 'saffron', tier: 'family',
+        title: typeof v.title === 'string' && v.title ? v.title : undefined,
+      });
     }
 
     return all.sort((a, b) => a.date.getTime() - b.date.getTime());

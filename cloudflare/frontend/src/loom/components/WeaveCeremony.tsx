@@ -1,14 +1,19 @@
+import { useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { weaveIntoCloth } from './ClothWeave';
+import { DYES, type Dye } from '../dye';
 
 /**
  * WeaveCeremony — the single "a new point activates in the cloth" celebration.
  *
- * Every authored entry (memory, letter, voice) ends here: one weft thread flashes
- * into the tapestry, then the eyebrow + headline rise. Unifying the three save paths
- * keeps invariant (A) — the Tapestry is the interface — true at the moment of authorship.
+ * Every authored entry (memory, letter, voice) ends here: the global cloth
+ * runs the weave ritual — a shuttle carries the new weft across the fell in
+ * the author's dye — while the eyebrow + headline rise over a translucent
+ * scrim so the weaving is visible. Unifying the three save paths keeps
+ * invariant (A) — the Cloth is the interface — true at the moment of authorship.
  */
 export function WeaveCeremony({
-  dye: _dye,
+  dye,
   entryDate: _entryDate,
   seed: _seed,
   eyebrow,
@@ -24,13 +29,16 @@ export function WeaveCeremony({
   headline: string;
   footer?: ReactNode;
 }) {
+  useEffect(() => {
+    weaveIntoCloth((DYES as readonly string[]).includes(dye) ? (dye as Dye) : undefined);
+  }, [dye]);
 
   return (
     <div
       style={{
         position: 'absolute',
         inset: 0,
-        background: 'var(--ink)',
+        background: 'color-mix(in srgb, var(--ink) 62%, transparent)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',

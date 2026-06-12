@@ -1,12 +1,15 @@
-// HLogo — Woven-H Thread Mark
-// The mark is two vertical warp threads (bone) with one weft thread (warm)
-// crossing over the left warp and under the right warp — the over/under
-// weaving effect implied by SVG draw order.
+// HLogo — the woven mark.
+// Two warp threads (bone) crossed by one weft thread (warm): the smallest
+// honest picture of the product — a family's threads, held by one warm one.
+// Beside it the wordmark sits in archival mono, letterspaced like a spine
+// label. The ∞ stays the only glyph elsewhere; this mark is thread, not type.
 //
-// New size API: size='sm'|'md'|'lg' (sm=topbar, md=page, lg=splash)
-// Legacy size API: size={number} — still accepted for backward compatibility.
-// Deprecated props (glow, mono, color, wordColor, tagline, style) are
-// accepted but silently ignored; the new mark is self-contained.
+// Size API: size='sm'|'md'|'lg' (sm=topbar, md=page, lg=splash).
+// Legacy numeric sizes and deprecated props (glow, mono, color, wordColor,
+// tagline, style) are accepted but silently ignored; the mark is
+// self-contained and theme-aware through the --bone/--warm tokens.
+
+import type React from 'react';
 
 type SizeToken = 'sm' | 'md' | 'lg';
 
@@ -30,42 +33,32 @@ function resolveToken(size: SizeToken | number): SizeToken {
   return 'lg';
 }
 
-import type React from 'react';
-
 export function HLogo({ size = 'sm', wordmark = true }: HLogoProps) {
   const token = resolveToken(size);
-  const dims: Record<SizeToken, [number, number]> = { sm: [16, 19], md: [20, 24], lg: [32, 38] };
+  const dims: Record<SizeToken, [number, number]> = { sm: [17, 20], md: [22, 26], lg: [34, 40] };
   const [w, h] = dims[token];
-  const fs: Record<SizeToken, number> = { sm: 16, md: 20, lg: 28 };
-  const gap: Record<SizeToken, number> = { sm: 8, md: 10, lg: 14 };
+  const fs: Record<SizeToken, number> = { sm: 10, md: 11, lg: 13 };
+  const gap: Record<SizeToken, number> = { sm: 10, md: 12, lg: 16 };
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: gap[token], userSelect: 'none' }}>
-      <svg
-        viewBox="0 0 24 28"
-        width={w}
-        height={h}
-        fill="none"
-        aria-hidden
-      >
-        {/* Left warp */}
-        <line x1="4" y1="2" x2="4" y2="26" stroke="rgba(244,236,216,0.5)" strokeWidth="1.5" strokeLinecap="round"/>
-        {/* Right warp */}
-        <line x1="20" y1="2" x2="20" y2="26" stroke="rgba(244,236,216,0.5)" strokeWidth="1.5" strokeLinecap="round"/>
-        {/* Weft thread (over left, under right) */}
-        <line x1="0" y1="14" x2="24" y2="14" stroke="#b07a4a" strokeWidth="2" strokeLinecap="round"/>
-        {/* Overdraw right warp at crossing → weft goes under */}
-        <line x1="20" y1="11" x2="20" y2="17" stroke="rgba(244,236,216,0.5)" strokeWidth="3" strokeLinecap="round"/>
+      <svg viewBox="0 0 24 28" width={w} height={h} fill="none" aria-hidden>
+        {/* Warp pair — the family's standing threads */}
+        <line x1="8" y1="2" x2="8" y2="26" stroke="var(--bone)" strokeOpacity="0.55" strokeWidth="2" strokeLinecap="round" />
+        <line x1="16" y1="2" x2="16" y2="26" stroke="var(--bone)" strokeOpacity="0.55" strokeWidth="2" strokeLinecap="round" />
+        {/* Weft — today's thread, over the left warp, under the right */}
+        <line x1="1" y1="14" x2="23" y2="14" stroke="var(--warm)" strokeWidth="2.5" strokeLinecap="round" />
+        {/* Overdraw right warp at the crossing → the weft passes under */}
+        <line x1="16" y1="10.5" x2="16" y2="17.5" stroke="var(--bone)" strokeOpacity="0.55" strokeWidth="2" strokeLinecap="round" />
       </svg>
       {wordmark && (
         <span style={{
-          fontFamily: '"Source Serif 4", Georgia, serif',
-          fontStyle: 'italic',
-          fontWeight: 300,
+          fontFamily: 'var(--mono)',
           fontSize: fs[token],
-          color: '#b07a4a',
+          letterSpacing: '0.42em',
+          textTransform: 'uppercase',
+          color: 'var(--bone-faint)',
           lineHeight: 1,
-          letterSpacing: '-0.01em',
         }}>
           Heirloom
         </span>

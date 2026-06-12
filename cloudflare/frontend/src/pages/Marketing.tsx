@@ -1,33 +1,12 @@
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
 import { SecurityDot } from '../loom/components/Frame';
+import { ClothWeave } from '../loom/components/ClothWeave';
 import {
   getDeferredPrompt, isIOS, isStandalone,
   onInstallStateChange, promptInstall, wasInstalled,
 } from '../lib/pwa';
-
-// Lazy-load the 3D cloth — pulls Three.js (~600KB)
-const ClothCanvas3D = lazy(() =>
-  import('../loom/components/ClothCanvas3D').then(m => ({ default: m.ClothCanvas3D }))
-);
-
-// ── Demo cloth — a fictional family's 70-year thread ─────────────────
-// Deterministic dye assignment: no random, always the same specimen
-const DYE_NAMES = ['madder','indigo','saffron','weld','woad','cochineal','walnut','oakgall'] as const;
-
-const DEMO_ENTRIES = Array.from({ length: 280 }, (_, i) => ({
-  date: new Date(1952 + Math.floor(i * 0.25), (i * 5) % 12, 1),
-  n: i,
-  dye: DYE_NAMES[i % 8],
-  tier: 'family' as const,
-}));
-
-const DEMO_3D_ENTRIES = DEMO_ENTRIES.map((e, i) => ({
-  date: e.date,
-  dye: e.dye,
-  locked: i % 9 === 3,  // ~11% sealed — deterministic
-}));
 
 // ── Permanence answers ────────────────────────────────────────────────
 const PERMANENCE = [
@@ -65,21 +44,11 @@ function useReveal(threshold = 0.12) {
   return { ref, visible };
 }
 
-// ── WebGL detection ───────────────────────────────────────────────────
-function detectWebGL(): boolean {
-  if (typeof window === 'undefined') return false;
-  try {
-    const c = document.createElement('canvas');
-    return !!(c.getContext('webgl2') || c.getContext('webgl'));
-  } catch { return false; }
-}
-
 export function Marketing() {
   const install = useInstallState();
   const [vpH, setVpH] = useState(typeof window !== 'undefined' ? window.innerHeight : 900);
   const [vpW, setVpW] = useState(typeof window !== 'undefined' ? window.innerWidth : 1440);
   const [taglineIn, setTaglineIn] = useState(false);
-  const [use3D, setUse3D] = useState(false);
   const pillars  = useReveal(0.08);
   const permSect = useReveal(0.06);
   const bookSect = useReveal(0.08);
@@ -97,9 +66,6 @@ export function Marketing() {
     const t = setTimeout(() => setTaglineIn(true), 800);
     return () => clearTimeout(t);
   }, []);
-
-  // Check WebGL — deferred to avoid SSR issues
-  useEffect(() => { setUse3D(detectWebGL()); }, []);
 
   return (
     <main style={{ background: 'var(--ink)', color: 'var(--bone)', overflowX: 'hidden' }}>
@@ -131,18 +97,7 @@ export function Marketing() {
 
         {/* ── The cloth — fills the entire hero ── */}
         <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-          {use3D ? (
-            <Suspense fallback={<FallbackCloth entries={DEMO_ENTRIES} vpW={vpW} vpH={vpH} />}>
-              <ClothCanvas3D
-                entries={DEMO_3D_ENTRIES}
-                yearStart={1952}
-                yearEnd={2026}
-                style={{ width: '100%', height: '100%' }}
-              />
-            </Suspense>
-          ) : (
-            <FallbackCloth entries={DEMO_ENTRIES} vpW={vpW} vpH={vpH} />
-          )}
+          <ClothWeave />
           {/* Gradient so headline is legible over cloth */}
           <div style={{
             position: 'absolute', bottom: 0, left: 0, right: 0, height: '58%',
@@ -531,9 +486,3 @@ export function Marketing() {
   );
 }
 
-// ── CSS fallback — no WebGL or while 3D loads ─────────────────────────
-function FallbackCloth(_props: { entries: typeof DEMO_ENTRIES; vpW: number; vpH: number }) {
-  return (
-    <div style={{ position: 'absolute', inset: 0, background: 'var(--ink)' }} />
-  );
-}
