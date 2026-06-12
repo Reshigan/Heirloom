@@ -170,5 +170,32 @@ JSON only.`;
   }
 
   const result = variantsSchema.parse(parsed);
+
+  // Safety net: the prompt asks for non-empty hashtags on every platform, but
+  // the schema permits []. The daily run now uses the free Cloudflare Llama
+  // model, which complies less reliably than Sonnet — and an empty array on a
+  // hashtag platform means a published post with NO hashtags (exactly the
+  // Facebook "old type, no #'s" symptom). Backfill any short/empty array from
+  // the source candidates + active-season tags so this can't reach the wire.
+  const HASHTAG_MINIMUMS: Partial<Record<PlatformKey, number>> = {
+    instagram: 5, reels: 5, tiktok: 5, youtubeshorts: 5,
+    threads: 3, pinterest: 3,
+    facebook: 2, linkedin: 2, bluesky: 2, x: 1,
+  };
+  const fallbackPool = [...(seasonHashtags ?? []), ...source.hashtags]
+    .map((t) => t.replace(/^#/, "").trim())
+    .filter(Boolean);
+  for (const v of result.variants) {
+    const min = HASHTAG_MINIMUMS[v.platform];
+    if (!min || v.hashtags.length >= min) continue;
+    const have = new Set(v.hashtags.map((t) => t.toLowerCase()));
+    for (const tag of fallbackPool) {
+      if (v.hashtags.length >= min) break;
+      if (have.has(tag.toLowerCase())) continue;
+      v.hashtags.push(tag);
+      have.add(tag.toLowerCase());
+    }
+  }
+
   return result.variants;
 }
