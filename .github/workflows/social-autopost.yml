@@ -17,10 +17,12 @@ name: Social autopost
 
 on:
   schedule:
-    # Always-on posts — every day, twice: 13:00 ≈ 9am ET (morning), 21:00 ≈ 5pm
-    # ET (evening commute). ALWAYS_ON_HOURS in run.ts must match these hours.
+    # Always-on posts — every day, twice: 13:00 ≈ 9am ET (US morning + UK
+    # afternoon), 23:00 ≈ 7pm ET (US evening prime — the demographic's biggest
+    # Facebook/Pinterest block — plus 9am AEST Australia morning).
+    # ALWAYS_ON_HOURS in run.ts must match these hours.
     - cron: "0 13 * * *"  # ≈ 9am ET
-    - cron: "0 21 * * *"  # ≈ 5pm ET
+    - cron: "0 23 * * *"  # ≈ 7pm ET
     # Seasonal-only midday slot — fires daily but run.ts no-ops it outside a
     # peak window.
     - cron: "0 17 * * *"  # ≈ 1pm ET, seasonal

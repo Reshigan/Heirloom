@@ -263,13 +263,18 @@ async function metrics(): Promise<void> {
   console.log(`[metrics] pulled ${m.length} datapoints`);
 }
 
-// Always-on slots (UTC hours) that run every day, year-round — two posts a day
-// (≈9am and 5pm ET). The 17:00 slot is seasonal-only: it fires solely inside the
-// four high-intent windows (Mother's/Father's/Grandparents/Christmas), lifting
-// the cadence to three a day during a peak. Brand voice rule 14 holds — this
+// Always-on slots (UTC hours) that run every day, year-round — two posts a day,
+// timed to the largest catchable audience for the 30–55 family-keeper buyer:
+// 13:00 UTC ≈ 9am ET (US East/Central morning + 2pm UK afternoon) and 23:00 UTC
+// ≈ 7pm ET (US evening prime — the demographic's biggest Facebook/Pinterest
+// engagement block, ET+CT = ~76% of the US — plus 9am AEST Australia morning).
+// The 17:00 slot is seasonal-only: it fires solely inside the four high-intent
+// windows (Mother's/Father's/Grandparents/Christmas), lifting the cadence to
+// three a day during a peak; in-season it is also the best single global hour
+// (US lunch coast-to-coast + UK/SA evening). Brand voice rule 14 holds — this
 // account has near-zero followers, so volume buys nothing; distinct, shareable
 // pieces at a calm cadence read as a person, six a day reads as a bot.
-const ALWAYS_ON_HOURS = new Set([13, 21]);
+const ALWAYS_ON_HOURS = new Set([13, 23]);
 
 async function daily(): Promise<void> {
   // Always-on slots run every day. Any non-always-on scheduled slot skips cleanly
