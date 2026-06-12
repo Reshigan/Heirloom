@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
@@ -10,6 +10,7 @@ import { PENDING_INVITE_KEY } from './lib/constants';
 import { PwaNudge } from './components/PwaNudge';
 import { BottomNav } from './loom/components/BottomNav';
 import { ClothBackdrop } from './loom/components/ClothBackdrop';
+import { WarpThreads } from './loom/components/WarpThreads';
 import { OfflineGate } from './pages/Offline';
 import { useLoomTheme } from './loom/theme';
 
@@ -224,12 +225,28 @@ function LoomShellRoot({ children }: { children: React.ReactNode }) {
         <ClothBackdrop />
       </div>
       <div style={{ position: 'relative', zIndex: 1, minHeight: '100vh' }}>
-        <Suspense
-          fallback={<div style={{ minHeight: '100vh' }} />}
-        >
+        {/* Warp-first loading: while a room's code is fetched, the loom is
+            strung — vertical warp threads rise over the cloth (no spinner). */}
+        <Suspense fallback={<WarpThreads />}>
           {children}
         </Suspense>
       </div>
+    </div>
+  );
+}
+
+/**
+ * WovenPassage — the route transition. Moving between rooms re-keys this
+ * wrapper on the pathname so the incoming room weaves in: a 360ms rise on
+ * the one canonical curve (globals.css `.woven-route`). The cloth backdrop
+ * persists beneath, so the passage reads as a new cloth panel sliding onto
+ * the same loom — never a hard cut.
+ */
+function WovenPassage({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  return (
+    <div key={location.pathname} className="woven-route">
+      {children}
     </div>
   );
 }
@@ -258,6 +275,7 @@ export default function App() {
           <PendingInviteAcceptor />
           <PwaNudge />
           <LoomShellRoot>
+          <WovenPassage>
           <OfflineGate>
           <Routes>
           {/* Public routes */}
@@ -568,6 +586,7 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
           </Routes>
           </OfflineGate>
+          </WovenPassage>
           <BottomNav />
           </LoomShellRoot>
         </BrowserRouter>

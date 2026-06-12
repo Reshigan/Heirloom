@@ -132,6 +132,7 @@ export const memoriesApi = {
   update: (id: string, data: any) => api.patch(`/memories/${id}`, data),
   delete: (id: string) => api.delete(`/memories/${id}`),
   received: () => api.get('/memories/received'),
+  getRevisions: (id: string) => api.get(`/memories/${id}/revisions`),
 };
 
 // Letters API
@@ -151,6 +152,7 @@ export const lettersApi = {
   open: (id: string) => api.post(`/letters/${id}/open`),
   awaitingMe: () => api.get('/letters/awaiting-me'),
   received: () => api.get('/letters/received'),
+  getRevisions: (id: string) => api.get(`/letters/${id}/revisions`),
 };
 
 // Voice API
@@ -164,6 +166,7 @@ export const voiceApi = {
   create: (data: any) => api.post('/voice', data),
   update: (id: string, data: any) => api.patch(`/voice/${id}`, data),
   delete: (id: string) => api.delete(`/voice/${id}`),
+  getRevisions: (id: string) => api.get(`/voice/${id}/revisions`),
 };
 
 // Billing API

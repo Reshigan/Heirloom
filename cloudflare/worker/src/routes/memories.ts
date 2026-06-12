@@ -13,6 +13,7 @@ import {
   recordRevision,
   mutableUntilFrom,
   withinGrace,
+  listRevisions,
 } from '../lib/legacyArchive';
 import { sendEmail } from '../utils/email';
 import { checkStorageQuota } from '../lib/quota';
@@ -442,10 +443,27 @@ memoriesRoutes.get('/search', async (c) => {
 });
 
 // Get a specific memory
+// Selvedge: the append-only revision log for one memory, newest first.
+// No deleted_at filter — revoked entries keep their history readable.
+memoriesRoutes.get('/:id/revisions', async (c) => {
+  const userId = c.get('userId');
+  const memoryId = c.req.param('id');
+
+  const owned = await c.env.DB.prepare(
+    `SELECT id FROM memories WHERE id = ? AND user_id = ?`,
+  ).bind(memoryId, userId).first();
+  if (!owned) {
+    return c.json({ error: 'Memory not found' }, 404);
+  }
+
+  const revisions = await listRevisions(c.env, 'memory', memoryId);
+  return c.json({ revisions });
+});
+
 memoriesRoutes.get('/:id', async (c) => {
   const userId = c.get('userId');
   const memoryId = c.req.param('id');
-  
+
   const memory = await c.env.DB.prepare(`
     SELECT * FROM memories WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(memoryId, userId).first();

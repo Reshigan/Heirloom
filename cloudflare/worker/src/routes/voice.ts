@@ -6,7 +6,7 @@
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { mirrorIntoDefaultThread, mirrorVoiceUpdate, mirrorVoiceDelete } from '../services/threadMesh';
-import { recordRevision, withinGrace, mutableUntilFrom } from '../lib/legacyArchive';
+import { recordRevision, withinGrace, mutableUntilFrom, listRevisions } from '../lib/legacyArchive';
 import { checkStorageQuota } from '../lib/quota';
 
 export const voiceRoutes = new Hono<AppEnv>();
@@ -306,10 +306,27 @@ voiceRoutes.get('/prompts/list', async (c) => {
 });
 
 // Get a specific voice recording
+// Selvedge: the append-only revision log for one recording, newest first.
+// No deleted_at filter — revoked entries keep their history readable.
+voiceRoutes.get('/:id/revisions', async (c) => {
+  const userId = c.get('userId');
+  const recordingId = c.req.param('id');
+
+  const owned = await c.env.DB.prepare(
+    `SELECT id FROM voice_recordings WHERE id = ? AND user_id = ?`,
+  ).bind(recordingId, userId).first();
+  if (!owned) {
+    return c.json({ error: 'Voice recording not found' }, 404);
+  }
+
+  const revisions = await listRevisions(c.env, 'voice', recordingId);
+  return c.json({ revisions });
+});
+
 voiceRoutes.get('/:id', async (c) => {
   const userId = c.get('userId');
   const recordingId = c.req.param('id');
-  
+
   const recording = await c.env.DB.prepare(`
     SELECT * FROM voice_recordings WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(recordingId, userId).first();

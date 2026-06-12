@@ -125,6 +125,56 @@ export async function recordRevision(
   }
 }
 
+/** A single readable entry from the append-only revision log. */
+export interface RevisionEntry {
+  id: string;
+  reason: string;
+  createdAt: string;
+  snapshot: Record<string, unknown>;
+}
+
+/**
+ * Read the revision log for one entity, newest first. Snapshots are stored as
+ * JSON with memory descriptions possibly at-rest encrypted; resolve those back
+ * to plaintext here so callers always get readable history. Letter bodies that
+ * were E2E-encrypted client-side stay as ciphertext (the server never had the
+ * key) — the `encrypted` flag in the snapshot tells the client.
+ */
+export async function listRevisions(
+  env: Env,
+  entityType: LegacyEntity,
+  entityId: string,
+): Promise<RevisionEntry[]> {
+  const { results } = await env.DB.prepare(
+    `SELECT id, snapshot, reason, created_at FROM legacy_revisions
+     WHERE entity_type = ? AND entity_id = ?
+     ORDER BY created_at DESC, id DESC`,
+  ).bind(entityType, entityId).all();
+
+  const out: RevisionEntry[] = [];
+  for (const row of results ?? []) {
+    let snapshot: Record<string, unknown> = {};
+    try {
+      snapshot = JSON.parse(row.snapshot as string) as Record<string, unknown>;
+    } catch {
+      // Corrupt snapshot rows still surface as dated entries.
+    }
+    if (snapshot.description_enc && snapshot.description_iv) {
+      const plain = await decryptText(env, snapshot.description_enc as string, snapshot.description_iv as string);
+      if (plain !== null) snapshot.description = plain;
+      delete snapshot.description_enc;
+      delete snapshot.description_iv;
+    }
+    out.push({
+      id: row.id as string,
+      reason: (row.reason as string) ?? 'edit',
+      createdAt: row.created_at as string,
+      snapshot,
+    });
+  }
+  return out;
+}
+
 /** created_at + 30 days, ISO. */
 export function mutableUntilFrom(createdAtIso: string): string {
   const base = new Date(createdAtIso).getTime();

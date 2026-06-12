@@ -7,7 +7,7 @@ import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { generateLetterSuggestion, classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
 import { mirrorIntoDefaultThread, mirrorLetterUpdate, mirrorLetterDelete } from '../services/threadMesh';
-import { recordRevision, withinGrace, mutableUntilFrom } from '../lib/legacyArchive';
+import { recordRevision, withinGrace, mutableUntilFrom, listRevisions } from '../lib/legacyArchive';
 import { sendEmail } from '../utils/email';
 import { letterDeliveryEmail, letterMilestoneTeaserEmail, letterOpenedNotificationEmail } from '../email-templates';
 
@@ -308,6 +308,23 @@ lettersRoutes.get('/received', async (c) => {
 });
 
 // Get a specific letter
+// Selvedge: the append-only revision log for one letter, newest first.
+// No deleted_at filter — revoked entries keep their history readable.
+lettersRoutes.get('/:id/revisions', async (c) => {
+  const userId = c.get('userId');
+  const letterId = c.req.param('id');
+
+  const owned = await c.env.DB.prepare(
+    `SELECT id FROM letters WHERE id = ? AND user_id = ?`,
+  ).bind(letterId, userId).first();
+  if (!owned) {
+    return c.json({ error: 'Letter not found' }, 404);
+  }
+
+  const revisions = await listRevisions(c.env, 'letter', letterId);
+  return c.json({ revisions });
+});
+
 lettersRoutes.get('/:id', async (c) => {
   const userId = c.get('userId');
   const letterId = c.req.param('id');

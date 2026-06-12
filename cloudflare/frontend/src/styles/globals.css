@@ -751,6 +751,61 @@ html {
   }
 }
 
+/* ─── WarpThreads — warp-first loading (the Suspense fallback) ───
+   Before a room is woven, the loom is strung: vertical warp threads rise
+   top→bottom in sequence on the canonical curve. Transparent over the
+   ClothBackdrop; reduced-motion shows the warp already strung. */
+.warp-loading {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  gap: clamp(20px, 7vw, 64px);
+  padding: 0 24px;
+}
+.warp-loading span {
+  width: 1px;
+  background: rgba(244, 236, 216, 0.1); /* bone, faint */
+  transform-origin: top;
+  animation: warp-string 720ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.warp-loading span:nth-child(1) { animation-delay: 0ms; }
+.warp-loading span:nth-child(2) { animation-delay: 80ms; }
+.warp-loading span:nth-child(3) { animation-delay: 160ms; }
+.warp-loading span:nth-child(4) { animation-delay: 240ms; }
+.warp-loading span:nth-child(5) { animation-delay: 320ms; }
+.warp-loading span:nth-child(6) { animation-delay: 400ms; }
+.warp-loading span:nth-child(7) { animation-delay: 480ms; }
+.warp-loading span:nth-child(8) { animation-delay: 560ms; }
+.warp-loading span:nth-child(9) { animation-delay: 640ms; }
+@keyframes warp-string {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .warp-loading span {
+    animation: none;
+    transform: scaleY(1);
+  }
+}
+
+/* ─── WovenPassage — the route transition ───
+   The incoming room weaves onto the loom: one 360ms rise on the canonical
+   curve. The ClothBackdrop persists beneath, so navigation reads as a new
+   panel on the same cloth, never a hard cut. */
+.woven-route {
+  min-height: 100vh;
+  animation: woven-route-in 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes woven-route-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .woven-route {
+    animation: none;
+  }
+}
+
 /* ════════════════════════════════════════════════════════════════════════
    HEIRLOOM DESIGN SYSTEM — hl-* primitives
    Ported verbatim from the Claude Design bundle (heirloom-styles.css). These

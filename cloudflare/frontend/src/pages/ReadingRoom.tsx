@@ -58,6 +58,115 @@ function paragraphs(body: string): string[] {
     .filter(Boolean);
 }
 
+// ── SelvedgeHistory ───────────────────────────────────────────────────────────
+// The selvedge edge of an entry: its append-only revision log. Every edit,
+// amendment, and unweaving is kept forever (legacy_revisions); this folds the
+// prior versions in below the entry, mono and quiet, hidden entirely when the
+// entry has never been rewoven.
+type Revision = {
+  id: string;
+  reason: string;
+  createdAt: string;
+  snapshot: {
+    title?: string | null;
+    description?: string | null;
+    body?: string | null;
+    transcript?: string | null;
+    encrypted?: unknown;
+  };
+};
+
+const REASON_LABEL: Record<string, string> = {
+  edit: 'rewoven',
+  amendment: 'amended',
+  revoke: 'unwoven',
+};
+
+function SelvedgeHistory({ t }: { t: Thread }) {
+  const [revisions, setRevisions] = useState<Revision[] | null>(null);
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    setRevisions(null);
+    setOpen(false);
+    const apiFor = t.kind === 'letter' ? lettersApi : t.kind === 'voice' ? voiceApi : memoriesApi;
+    apiFor.getRevisions(t.id)
+      .then((res) => { if (alive) setRevisions(res.data?.revisions ?? []); })
+      .catch(() => { if (alive) setRevisions([]); });
+    return () => { alive = false; };
+  }, [t.kind, t.id]);
+
+  if (!revisions || revisions.length === 0) return null;
+
+  return (
+    <div style={{
+      marginTop: 28, paddingTop: 14,
+      borderTop: '1px solid rgba(244,236,216,0.07)',
+    }}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        style={{
+          background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+          fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em',
+          textTransform: 'uppercase', color: 'var(--bone-faint)',
+        }}
+      >
+        selvedge · woven over — {revisions.length} earlier version{revisions.length === 1 ? '' : 's'} {open ? '−' : '+'}
+      </button>
+
+      {open && (
+        <div style={{ marginTop: 18, display: 'grid', gap: 18 }}>
+          {revisions.map((r) => {
+            const sealed = Boolean(r.snapshot.encrypted);
+            const text = sealed
+              ? ''
+              : (r.snapshot.description ?? r.snapshot.body ?? r.snapshot.transcript ?? '');
+            const when = (r.createdAt || '').slice(0, 10).replace(/-/g, '·');
+            return (
+              <div key={r.id} style={{ borderLeft: '1px solid rgba(244,236,216,0.14)', paddingLeft: 16 }}>
+                <div style={{
+                  fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.12em',
+                  color: 'var(--bone-faint)', marginBottom: 6,
+                }}>
+                  {when} · {REASON_LABEL[r.reason] ?? r.reason}
+                </div>
+                {r.snapshot.title ? (
+                  <div style={{
+                    fontFamily: 'var(--serif)', fontSize: 14, fontStyle: 'italic',
+                    color: 'var(--bone-dim)', marginBottom: text ? 6 : 0, lineHeight: 1.4,
+                  }}>
+                    {r.snapshot.title}
+                  </div>
+                ) : null}
+                {sealed ? (
+                  <p style={{
+                    fontFamily: 'var(--serif)', fontSize: 13, fontStyle: 'italic',
+                    color: 'var(--bone-faint)', margin: 0, lineHeight: 1.7,
+                  }}>
+                    sealed at the writing — this version stays encrypted.
+                  </p>
+                ) : text ? (
+                  <p style={{
+                    fontFamily: 'var(--serif)', fontSize: 13, color: 'var(--bone-dim)',
+                    margin: 0, lineHeight: 1.7, whiteSpace: 'pre-wrap',
+                    display: '-webkit-box', WebkitLineClamp: 6, WebkitBoxOrient: 'vertical',
+                    overflow: 'hidden',
+                  }}>
+                    {text}
+                  </p>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── ReadingContent ────────────────────────────────────────────────────────────
 function ReadingContent({
   t, dye, onPrev, onNext, onJump, activeIndex, total,
@@ -161,6 +270,9 @@ function ReadingContent({
         }}>
           ∞ the loom is listening across this thread.
         </div>
+
+        {/* Selvedge — the entry's append-only revision history */}
+        <SelvedgeHistory t={t} />
 
         <div style={{ flex: 1 }} />
 
