@@ -47,6 +47,7 @@ VOICE RULES — non-negotiable:
    - any framing that treats this as a year-of-stories gift product (that is Storyworth and we are not it)
    - any framing that treats this as a death-planning tool (that is Cake and we are not it)
    - any framing that treats this as an AI ghost (that is Eter9 and we are not it)
+   - product-mechanics jargon a cold reader can't parse: never "weave," "woven," "cloth," or "loom" in social copy; "thread" at most once per post and only as the named thing ("your family's thread"), never as an instruction — "lock his answer in your family's thread" is banned. Describe the action in plain English instead: "write it down," "record it," "save it where your kids will find it," "set it to open on her 18th birthday."
 
 9. Write at a 6th-grade reading level. Short sentences. No semicolons in marketing copy.
 

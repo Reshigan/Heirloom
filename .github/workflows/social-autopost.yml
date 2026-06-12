@@ -4,31 +4,26 @@ name: Social autopost
 # See marketing/PLAYBOOK.md and marketing/automation/README.md.
 #
 # Triggers:
-#   - always-on at 13:00 / 17:00 / 21:00 UTC — three posts every day, year-round,
-#     spread across the US engagement peaks (≈9am, 1pm, 5pm ET).
-#   - seasonal  at 15:00 / 19:00 / 23:00 UTC — fire only inside the four peak
-#     windows (Mother's/Father's/Grandparents/Christmas); run.ts no-ops every
+#   - always-on at 13:00 / 21:00 UTC — two posts every day, year-round
+#     (≈9am and 5pm ET).
+#   - seasonal  at 17:00 UTC — fires only inside the four peak windows
+#     (Mother's/Father's/Grandparents/Christmas); run.ts no-ops the
 #     seasonal-only slot outside a window.
 #   - manual: workflow_dispatch with optional `mode` input
 #
-# Net cadence: THREE posts a day year-round, SIX a day during the seasonal peaks
-# (brand voice rule 14 — compounding, not a volume blast; every run generates a
-# fresh, distinct piece, so this is broader coverage rather than a repeat blast,
-# and the seasonal surge only lands where buying/visiting intent genuinely spikes).
+# Net cadence: TWO posts a day year-round, THREE a day during the seasonal
+# peaks. The account has near-zero followers — volume buys nothing; distinct,
+# shareable pieces at a calm cadence read as a person, six a day reads as a bot.
 
 on:
   schedule:
-    # Always-on posts — every day, three times. Spread across the US engagement
-    # peaks: 13:00 ≈ 9am ET (morning), 17:00 ≈ 1pm ET (midday), 21:00 ≈ 5pm ET
-    # (evening commute). ALWAYS_ON_HOURS in run.ts must match these hours.
+    # Always-on posts — every day, twice: 13:00 ≈ 9am ET (morning), 21:00 ≈ 5pm
+    # ET (evening commute). ALWAYS_ON_HOURS in run.ts must match these hours.
     - cron: "0 13 * * *"  # ≈ 9am ET
-    - cron: "0 17 * * *"  # ≈ 1pm ET
     - cron: "0 21 * * *"  # ≈ 5pm ET
-    # Seasonal-only extras — fire daily but run.ts no-ops every seasonal slot
-    # outside a peak window. Interleaved with the always-on slots to fill the day.
-    - cron: "0 15 * * *"  # ≈ 11am ET, seasonal
-    - cron: "0 19 * * *"  # ≈ 3pm ET, seasonal
-    - cron: "0 23 * * *"  # ≈ 7pm ET, seasonal
+    # Seasonal-only midday slot — fires daily but run.ts no-ops it outside a
+    # peak window.
+    - cron: "0 17 * * *"  # ≈ 1pm ET, seasonal
   workflow_dispatch:
     inputs:
       mode:

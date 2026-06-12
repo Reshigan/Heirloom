@@ -13,7 +13,7 @@
 import "dotenv/config";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { themeForDate, seasonForDate, seasonalHashtagsForDate } from "./themes.js";
+import { themeForDate, evergreenThemeForDate, seasonForDate, seasonalHashtagsForDate } from "./themes.js";
 import { generateSourcePost, SourcePost, hasGenProvider, activeProvider } from "./generate.js";
 import { generateVariants } from "./variants.js";
 import { post } from "./post.js";
@@ -67,13 +67,20 @@ async function readDayLedger(dateKey: string): Promise<LedgerEntry[]> {
 
 async function generate(): Promise<SourcePost> {
   const date = new Date();
-  const theme = themeForDate(date);
   const dateKey = date.toISOString().slice(0, 10);
   const hour = date.getUTCHours();
 
   // Avoid-list = anything already posted today (same-day distinctness — the whole
   // point of multiple daily slots) plus any top historical hooks.
   const ledger = await readDayLedger(dateKey);
+
+  // In-season variety: the day's first slot carries the seasonal theme; later
+  // slots pull an evergreen theme so a peak window doesn't turn the feed into
+  // one occasion on loop.
+  const theme =
+    seasonForDate(date) && ledger.length > 0
+      ? evergreenThemeForDate(date, ledger.length)
+      : themeForDate(date);
   const recent = [
     ...ledger.map((e) => e.hook),
     ...ledger.map((e) => e.saying),
@@ -255,14 +262,13 @@ async function metrics(): Promise<void> {
   console.log(`[metrics] pulled ${m.length} datapoints`);
 }
 
-// Always-on slots (UTC hours) that run every day, year-round — three posts a day
-// for broad baseline coverage, spread across the US engagement peaks (≈9am, 1pm,
-// 5pm ET). Every OTHER scheduled slot is seasonal-only: it fires solely inside the
-// four high-intent windows (Mother's/Father's/Grandparents/Christmas), lifting the
-// cadence to six posts a day during a peak. Brand voice rule 14 still holds — each
-// run generates a fresh, distinct piece, so this is more coverage, not a repeat
-// blast, and the surge lands only where buying/visiting intent genuinely spikes.
-const ALWAYS_ON_HOURS = new Set([13, 17, 21]);
+// Always-on slots (UTC hours) that run every day, year-round — two posts a day
+// (≈9am and 5pm ET). The 17:00 slot is seasonal-only: it fires solely inside the
+// four high-intent windows (Mother's/Father's/Grandparents/Christmas), lifting
+// the cadence to three a day during a peak. Brand voice rule 14 holds — this
+// account has near-zero followers, so volume buys nothing; distinct, shareable
+// pieces at a calm cadence read as a person, six a day reads as a bot.
+const ALWAYS_ON_HOURS = new Set([13, 21]);
 
 async function daily(): Promise<void> {
   // Always-on slots run every day. Any non-always-on scheduled slot skips cleanly

@@ -1,6 +1,6 @@
 // image.ts — render a distinct woven-cloth image per post, with the post's
-// saying woven across the lower field, then upload it to R2 (via the worker) so
-// the social platforms can fetch it by URL.
+// saying set as the hero, then upload it to R2 (via the worker) so the social
+// platforms can fetch it by URL.
 //
 // Why this exists: the engine already generates a unique `saying` per post, but
 // every post used to fall back to one static og-image.png. Seeing the same
@@ -9,9 +9,15 @@
 // from the post's seed, so the same post always renders identically (cache-safe)
 // while different posts look distinct.
 //
-// Palette + type follow ART_DIRECTION.md exactly: ink base, bone threads, the one
-// warm accent at <3% surface, Source Serif 4 for the saying, JetBrains Mono for
-// the archival wordmark. No gradients-as-decoration, no glass, the ∞ as the only
+// The saying IS the image. At feed thumbnail size (≈300px wide) the card has one
+// job: be readable. The type is set large and centered, and the ground rotates
+// per seed between the two brand surfaces — bone type on the ink cloth and ink
+// type on the paper cloth — so a row of these cards never reads as one repeated
+// dark rectangle.
+//
+// Palette + type follow ART_DIRECTION.md exactly: ink/bone grounds, the one warm
+// accent at <3% surface, Source Serif 4 for the saying, JetBrains Mono for the
+// archival wordmark. No gradients-as-decoration, no glass, the ∞ as the only
 // mark. The cloth IS the Heirloom identity.
 
 import { createCanvas, GlobalFonts, type SKRSContext2D } from "@napi-rs/canvas";
@@ -71,6 +77,18 @@ function withAlpha(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
+// One of the two brand surfaces: the ink cloth (bone type on near-black weave)
+// or the paper cloth (ink type on bone weave). Rotated per seed in renderWeave.
+interface Ground {
+  bg: string;
+  thread: string;
+  text: string;
+  markAlpha: number;
+  paper: boolean;
+}
+const INK_GROUND: Ground = { bg: INK, thread: BONE, text: BONE, markAlpha: 0.55, paper: false };
+const PAPER_GROUND: Ground = { bg: BONE, thread: INK, text: INK, markAlpha: 0.62, paper: true };
+
 // Draw the woven field: warp (vertical) + weft (horizontal) threads with an
 // over-under interlace illusion, jittered per seed.
 function drawWeave(
@@ -78,12 +96,13 @@ function drawWeave(
   w: number,
   h: number,
   rnd: () => number,
+  g: Ground,
 ): void {
   // Pitch (thread spacing) varies the weave tightness between posts.
   const pitch = Math.round(Math.min(w, h) / (44 + Math.floor(rnd() * 36))); // ~tight..loose
   const threadW = pitch * 0.62;
 
-  ctx.fillStyle = INK;
+  ctx.fillStyle = g.bg;
   ctx.fillRect(0, 0, w, h);
 
   const cols = Math.ceil(w / pitch) + 1;
@@ -92,8 +111,8 @@ function drawWeave(
   // Warp — vertical threads.
   for (let c = 0; c < cols; c++) {
     const x = c * pitch + (rnd() - 0.5) * pitch * 0.12;
-    const tone = 0.06 + rnd() * 0.05; // base bone alpha, jittered
-    ctx.fillStyle = withAlpha(BONE, tone);
+    const tone = 0.06 + rnd() * 0.05; // thread alpha against the ground, jittered
+    ctx.fillStyle = withAlpha(g.thread, tone);
     ctx.fillRect(x - threadW / 2, 0, threadW, h);
   }
 
@@ -106,21 +125,21 @@ function drawWeave(
       if ((r + c) % 2 === 0) continue; // under — let warp show through
       const x = c * pitch;
       const tone = 0.07 + rnd() * 0.06;
-      ctx.fillStyle = withAlpha(BONE, tone);
+      ctx.fillStyle = withAlpha(g.thread, tone);
       ctx.fillRect(x - threadW / 2, y - threadW / 2, pitch, threadW);
     }
   }
 
   // A single warm weft thread — the one bloodline-dye signal, kept well under
-  // 3% of surface. Placed in the upper field, away from the text.
-  const warmY = h * (0.18 + rnd() * 0.16);
-  ctx.fillStyle = withAlpha(WARM, 0.5);
+  // 3% of surface. Pinned high so it stays clear of the centered saying.
+  const warmY = h * (0.06 + rnd() * 0.05);
+  ctx.fillStyle = withAlpha(WARM, g.paper ? 0.65 : 0.5);
   ctx.fillRect(0, warmY - threadW / 2, w, threadW * 0.8);
 }
 
 // Directional raking light: one soft highlight from a seed-chosen corner, fading
 // to shadow — the light angle is what makes two same-pitch cloths feel distinct.
-function drawLight(ctx: SKRSContext2D, w: number, h: number, rnd: () => number): void {
+function drawLight(ctx: SKRSContext2D, w: number, h: number, rnd: () => number, g: Ground): void {
   const corner = Math.floor(rnd() * 4);
   const [cx, cy] = [
     [0, 0],
@@ -129,21 +148,29 @@ function drawLight(ctx: SKRSContext2D, w: number, h: number, rnd: () => number):
     [w, h],
   ][corner];
   const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(w, h) * 0.9);
-  grad.addColorStop(0, withAlpha(BONE, 0.07));
-  grad.addColorStop(0.45, withAlpha(BONE, 0.0));
-  grad.addColorStop(1, "rgba(0,0,0,0.45)");
+  if (g.paper) {
+    // Paper ground: faint white raking light, gentle ink fall-off — the shadow
+    // must stay light enough that ink type keeps full contrast everywhere.
+    grad.addColorStop(0, "rgba(255,255,255,0.20)");
+    grad.addColorStop(0.45, "rgba(255,255,255,0)");
+    grad.addColorStop(1, withAlpha(INK, 0.10));
+  } else {
+    grad.addColorStop(0, withAlpha(BONE, 0.07));
+    grad.addColorStop(0.45, withAlpha(BONE, 0.0));
+    grad.addColorStop(1, "rgba(0,0,0,0.45)");
+  }
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
 }
 
 // Film grain — scattered low-alpha specks, breaks up the digital flatness.
-function drawGrain(ctx: SKRSContext2D, w: number, h: number, rnd: () => number): void {
+function drawGrain(ctx: SKRSContext2D, w: number, h: number, rnd: () => number, g: Ground): void {
   const count = Math.floor((w * h) / 1400);
   for (let i = 0; i < count; i++) {
     const x = rnd() * w;
     const y = rnd() * h;
     const a = rnd() * 0.05;
-    ctx.fillStyle = rnd() > 0.5 ? withAlpha(BONE, a) : `rgba(0,0,0,${a})`;
+    ctx.fillStyle = rnd() > 0.5 ? withAlpha(g.thread, a) : `rgba(0,0,0,${a})`;
     ctx.fillRect(x, y, 1, 1);
   }
 }
@@ -180,54 +207,60 @@ export function renderWeave({ saying, width, height, seed }: RenderOpts): Buffer
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext("2d");
 
-  drawWeave(ctx, width, height, rnd);
-  drawLight(ctx, width, height, rnd);
-  drawGrain(ctx, width, height, rnd);
+  // Ground rotates deterministically with the seed — roughly half the cards
+  // are bone type on the ink cloth, half ink type on the paper cloth.
+  const g = rnd() < 0.5 ? PAPER_GROUND : INK_GROUND;
 
-  // Darken the lower field so the saying is legible over the weave.
-  const shade = ctx.createLinearGradient(0, height * 0.42, 0, height);
-  shade.addColorStop(0, "rgba(14,14,12,0)");
-  shade.addColorStop(0.55, "rgba(14,14,12,0.72)");
-  shade.addColorStop(1, "rgba(14,14,12,0.94)");
-  ctx.fillStyle = shade;
-  ctx.fillRect(0, height * 0.42, width, height * 0.58);
+  drawWeave(ctx, width, height, rnd, g);
+  drawLight(ctx, width, height, rnd, g);
+  drawGrain(ctx, width, height, rnd, g);
 
-  const margin = width * 0.1;
+  // Soft vignette of the ground color behind the type block — keeps the saying
+  // legible over the weave without flattening the cloth.
+  const vg = ctx.createRadialGradient(
+    width / 2, height * 0.5, Math.min(width, height) * 0.12,
+    width / 2, height * 0.5, Math.max(width, height) * 0.72,
+  );
+  vg.addColorStop(0, withAlpha(g.bg, 0.5));
+  vg.addColorStop(1, withAlpha(g.bg, 0));
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, width, height);
+
+  const margin = width * 0.09;
   const maxTextWidth = width - margin * 2;
 
-  // The saying — Source Serif, sized to the canvas, wrapped, set in the lower
-  // third with generous leading.
-  let fontSize = Math.round(Math.min(width, height) * 0.062);
+  // The saying IS the image — Source Serif, large, centered. At thumbnail size
+  // the type either reads or the card is a blank rectangle, so start big and
+  // shrink only until the block fits.
+  let fontSize = Math.round(Math.min(width, height) * 0.095);
   ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
   let lines: string[] = [];
-  // Shrink until it fits in at most 4 lines.
-  for (let attempt = 0; attempt < 6; attempt++) {
+  for (let attempt = 0; attempt < 8; attempt++) {
     ctx.font = `400 ${fontSize}px "${serif}"`;
     lines = wrapText(ctx, saying, maxTextWidth);
-    if (lines.length <= 4) break;
-    fontSize = Math.round(fontSize * 0.88);
+    if (lines.length <= 6 && lines.length * fontSize * 1.28 <= height * 0.62) break;
+    fontSize = Math.round(fontSize * 0.9);
   }
-  const lineHeight = fontSize * 1.32;
+  const lineHeight = fontSize * 1.28;
   const blockHeight = lines.length * lineHeight;
-  // Anchor the block so it sits in the lower third, above the wordmark.
-  const baselineStart = height * 0.82 - blockHeight + lineHeight * 0.78;
+  const firstBaseline = height * 0.52 - blockHeight / 2 + lineHeight * 0.72;
 
   ctx.font = `400 ${fontSize}px "${serif}"`;
-  ctx.fillStyle = BONE;
+  ctx.fillStyle = g.text;
   lines.forEach((ln, i) => {
-    ctx.fillText(ln, width / 2, baselineStart + i * lineHeight);
+    ctx.fillText(ln, width / 2, firstBaseline + i * lineHeight);
   });
 
   // Eyebrow ∞ mark in warm, above the saying.
-  ctx.font = `400 ${Math.round(fontSize * 0.9)}px "${serif}"`;
+  ctx.font = `400 ${Math.round(fontSize * 0.66)}px "${serif}"`;
   ctx.fillStyle = WARM;
-  ctx.fillText("∞", width / 2, baselineStart - blockHeight + lineHeight * 0.1 - fontSize * 0.4);
+  ctx.fillText("∞", width / 2, firstBaseline - lineHeight * 1.1);
 
   // Archival wordmark, JetBrains Mono, bottom-centered, letter-spaced.
-  const markSize = Math.round(Math.min(width, height) * 0.022);
+  const markSize = Math.round(Math.min(width, height) * 0.024);
   ctx.font = `400 ${markSize}px "${mono}"`;
-  ctx.fillStyle = withAlpha(BONE, 0.55);
+  ctx.fillStyle = withAlpha(g.text, g.markAlpha);
   const wordmark = "H E I R L O O M . B L U E";
   ctx.fillText(wordmark, width / 2, height - margin * 0.55);
 

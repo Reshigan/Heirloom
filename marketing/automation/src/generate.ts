@@ -51,7 +51,7 @@ const sourcePostSchema = z.object({
   hook: z.string().min(5).max(200),
   body: z.string().min(40).max(800),
   cta: z.string().min(5).max(200),
-  saying: z.string().min(8).max(120),
+  saying: z.string().min(8).max(160),
   imagePrompt: z.string().min(20).max(600),
   hashtags: z.array(z.string()).max(12),
 });
@@ -105,7 +105,7 @@ Produce ONE source post we'll adapt across platforms. Output strict JSON, no pro
   "hook": "First 1-2 sentences. Must stop the scroll. Specific, present-tense, no abstract 'memories' / 'legacy' language. 80-200 chars.",
   "body": "The middle. 80-500 chars. One concrete observation, one small example, one human moment. No generic motivational content.",
   "cta": "A small, specific action. 'Ask one question this Sunday.' Not 'start your legacy.' Not a URL — leave linking to the variant layer.",
-  "saying": "A single short line (12-18 words max) distilled from the post's central truth — the one sentence a reader would screenshot and share. No hashtags, no product name, no emoji. Must work as text on a cloth image. Example shapes: 'The recipe with no card. The voice on the 1997 tape. The photo nobody can name.' or 'Ask before the seat at the table changes.' or 'Your grandchildren can Google anything. They can't Google her voice.'",
+  "saying": "The headline of the image — at thumbnail size the reader sees ONLY this line, so it must stop the scroll on its own. 8-20 words of plain spoken English a 50-year-old would text to a sibling. Use the taggable-question or asymmetry shape: a question so specific the reader knows exactly who to send it to, or a contrast that reframes something familiar. Examples: 'Ask your dad how he knew he was in love with your mom. Not how you met — how he knew.' / 'Your kids can Google anything. They can't Google your father's voice.' / 'Do you know what your dad was doing at your age? Most people never ask.' NOT poetry fragments, NOT product language (no 'thread', 'weave', 'loom'), no hashtags, no product name, no emoji.",
   "imagePrompt": "A 40-80 word visual brief for the Heirloom cloth image — always a close-up of woven linen or natural-fiber textile. The cloth is the Heirloom identity: woven threads, natural cream-to-bone color, visible weave structure, soft directional light from one side, film grain. Leave the lower third clear for the saying text overlay. NOT: photography of people, hands, letters, objects, or scenery — only the woven cloth itself. Vary the weave tightness, thread texture, and light angle across posts so each feels distinct. Example: 'Close-up of cream linen weave, thread detail visible, raking afternoon light from the left, film grain, no objects, lower third in shadow for text overlay.'",
   "hashtags": ["10-12 lowercase tag candidates without the # symbol. Use all four groups below, picking the most relevant 2-4 from each: (1) intent tags — 'questionstoaskmom', 'questionstoaskdad', 'questionstoaskyourgrandparents', 'thingstodowithagingparents', 'questionstodowithparents', 'eldercare', 'agingparents'; (2) community tags — 'familyhistory', 'genealogy', 'ancestors', 'heritage', 'familytree', 'familystories', 'oralhistory', 'rootsandculture'; (3) emotion/occasion tags — 'memoriesforever', 'neverforget', 'generationalgift', 'familylove', 'familymemories', 'keepingitmemorable', 'rememberingthem'; (4) discovery tags — 'digitallegacy', 'legacyplanning', 'familyarchive', 'timecapsule', 'familykeepsake', 'preservefamilystories'. Vary per theme — don't repeat the same 10 every day."]
 }

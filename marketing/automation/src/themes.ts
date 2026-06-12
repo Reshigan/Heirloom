@@ -177,3 +177,21 @@ export function themeForDate(date: Date = new Date()): Theme {
   const week = isoWeek(date);
   return WEEKLY_THEMES[(week - 1) % WEEKLY_THEMES.length];
 }
+
+// In-season variety: slots after a day's first pull an evergreen theme instead
+// of the seasonal one. A three-week window that pins every slot to one occasion
+// turns the feed into a single idea on loop — and gives followers outside that
+// relation nothing. Pool excludes all occasion-bound themes plus anything aimed
+// at the active season's relation; the offset rotates within the day so two
+// evergreen slots diverge.
+const OCCASION_THEME_IDS = /mothersday|fathersday|grandparents|thanksgiving|christmas|postmom|postdad|postthanks|valentines|newyear/;
+
+export function evergreenThemeForDate(date: Date = new Date(), offset = 0): Theme {
+  const seasonal = SEASONAL_WINDOWS.find((w) => inWindow(date, w));
+  const pool = WEEKLY_THEMES.filter(
+    (t) =>
+      !OCCASION_THEME_IDS.test(t.id) &&
+      (!seasonal || t.relation !== seasonal.theme.relation),
+  );
+  return pool[(isoWeek(date) + offset) % pool.length];
+}
