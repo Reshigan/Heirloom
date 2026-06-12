@@ -8,5 +8,10 @@
     "hour": 16,
     "hook": "Your dad's life story has a chapter the same age as you.",
     "saying": "The story he lived at your age, in his own words."
+  },
+  {
+    "hour": 17,
+    "hook": "Your parent has a story that still gives them chills.",
+    "saying": "What's the one story your dad still can't explain?"
   }
 ]
