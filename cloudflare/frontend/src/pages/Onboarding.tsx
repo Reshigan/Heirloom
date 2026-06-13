@@ -16,8 +16,8 @@ const STEPS: Step[] = ['tour', 'entry', 'invite'];
 
 const body: React.CSSProperties = {
   flex: 1,
-  padding: 'clamp(48px, 10vw, 96px) clamp(24px, 8vw, 96px)',
-  maxWidth: 560,
+  padding: 'var(--page-pad-top) var(--page-pad-x)',
+  maxWidth: 'var(--page-max-focus)',
   width: '100%',
 };
 

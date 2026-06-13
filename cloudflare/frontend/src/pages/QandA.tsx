@@ -107,10 +107,10 @@ export function QandA() {
       `}</style>
       <div
         style={{
-          paddingTop: 80,
+          paddingTop: 'var(--page-pad-top)',
           paddingBottom: 36,
-          paddingLeft: 'clamp(20px, 5vw, 56px)',
-          paddingRight: 'clamp(20px, 5vw, 56px)',
+          paddingLeft: 'var(--page-pad-x)',
+          paddingRight: 'var(--page-pad-x)',
         }}
       >
         <div
