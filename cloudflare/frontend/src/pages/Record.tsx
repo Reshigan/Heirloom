@@ -61,10 +61,10 @@ export function Record() {
   // Family autosuggest — only fetch when authenticated to avoid 401s
   const { data: familyData } = useQuery({
     queryKey: ['family'],
-    queryFn: () => familyApi.getAll().then(r => (r.data as any)?.members ?? r.data ?? []),
+    queryFn: familyApi.list,
     enabled: isAuthenticated,
   });
-  const familyMembers: { id: string; name: string; relationship?: string; dye?: string | null }[] =
+  const familyMembers: { id: string; name: string; relationship?: string | null; dye?: string | null }[] =
     Array.isArray(familyData) ? familyData : [];
 
   // Pre-fill recipient from ?recipientId= URL param

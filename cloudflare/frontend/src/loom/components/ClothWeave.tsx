@@ -159,7 +159,7 @@ export function ClothWeave({
       for (let j = 0; j < cols; j++) {
         warpX[j] = j * warpGap + (rnd() - 0.5) * 1.6;
         warpWd[j] = 1.9 + rnd() * 0.8;
-        warpAl[j] = (paper ? 0.12 : 0.085) + rnd() * 0.04;
+        warpAl[j] = 0.12 + rnd() * 0.04;
       }
 
       // weft rows: runs of one dye — one entry's stretch of days in the cloth
@@ -197,7 +197,7 @@ export function ClothWeave({
           weftAl[i] = (paper ? 0.5 : 0.4) + rnd() * 0.24;
         } else {
           weftC[i] = null;
-          weftAl[i] = (paper ? 0.09 : 0.06) + rnd() * 0.04;
+          weftAl[i] = (paper ? 0.09 : 0.12) + rnd() * 0.04;
         }
         rowEntry[i] = dye ? entry : null;
         // above the fell the cloth thins to bare warp — the unwoven future
@@ -257,8 +257,8 @@ export function ClothWeave({
       const cx = W / 2;
       const cy = H * 0.58;
       const g = t.createRadialGradient(cx, cy, 80, cx, cy, Math.min(W * 0.55, 680));
-      g.addColorStop(0, `rgba(${inkRgb},${paper ? 0.96 : 0.95})`);
-      g.addColorStop(0.55, `rgba(${inkRgb},${paper ? 0.62 : 0.6})`);
+      g.addColorStop(0, `rgba(${inkRgb},${paper ? 0.96 : 0.72})`);
+      g.addColorStop(0.55, `rgba(${inkRgb},${paper ? 0.62 : 0.4})`);
       g.addColorStop(1, `rgba(${inkRgb},0)`);
       t.fillStyle = g;
       t.fillRect(0, 0, W, H);

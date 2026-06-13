@@ -110,6 +110,21 @@ export const authApi = {
 // Family API
 export const familyApi = {
   getAll: () => api.get('/family'),
+  // Normalized recipient list — the single source of truth for the shared
+  // ['family'] query. The worker returns a flat array; this also tolerates a
+  // {members:[...]} / {data:[...]} envelope. Critically it does NOT swallow
+  // errors into [] — a rejected promise lets React Query treat the failure as
+  // an error (and retry) instead of caching an empty array as SUCCESS under the
+  // shared ['family'] key, which (with staleTime 5min) previously blanked the
+  // recipient autocomplete across ComposeLetter *and* Record for minutes.
+  list: async (): Promise<Array<{ id: string; name: string; relationship?: string | null; email?: string | null; dye?: string | null }>> => {
+    const r = await api.get('/family');
+    const d: any = r.data;
+    if (Array.isArray(d)) return d;
+    if (Array.isArray(d?.members)) return d.members;
+    if (Array.isArray(d?.data)) return d.data;
+    return [];
+  },
   getOne: (id: string) => api.get(`/family/${id}`),
   create: (data: { name: string; relationship: string; email?: string; phone?: string; avatarUrl?: string }) =>
     api.post('/family', data),

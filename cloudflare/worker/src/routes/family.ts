@@ -7,8 +7,101 @@ import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { mirrorFamilyMemberIntoDefaultThread } from '../services/threadMesh';
 import { readDescription } from '../lib/legacyArchive';
+import { sendEmail } from '../utils/email';
+import { letterDeliveryEmail } from '../email-templates';
 
 export const familyRoutes = new Hono<AppEnv>();
+
+/**
+ * Deliver letters that were meant to reach this recipient *now* but couldn't at
+ * seal time because the recipient had no email address. Called when a member
+ * gains (or changes) an email — that is the data-flow that "resends" a letter
+ * written before the address existed.
+ *
+ * Scope is deliberately narrow: only IMMEDIATE, non-milestone, sealed,
+ * not-yet-delivered letters that name this member as a recipient. SCHEDULED,
+ * POSTHUMOUS and milestone letters stay sealed — they wait for their trigger or
+ * an explicit release and must NOT fire merely because an address was added.
+ *
+ * Idempotent: a letter already DELIVERED to this address is skipped, so editing
+ * the same email twice never double-sends. Per-recipient truth lives in
+ * letter_deliveries; the letter-level delivered_at flag is intentionally left
+ * untouched so other recipients' "awaiting" views are not disturbed.
+ *
+ * Best-effort: callers swallow errors — a delivery hiccup must never fail the
+ * underlying family-member update.
+ */
+async function redeliverPendingLetters(
+  env: Env,
+  opts: { memberId: string; authorId: string; email: string },
+): Promise<number> {
+  const { memberId, authorId, email } = opts;
+
+  const pending = await env.DB.prepare(`
+    SELECT l.id, l.salutation, l.body, l.signature
+    FROM letters l
+    JOIN letter_recipients lr ON lr.letter_id = l.id
+    WHERE lr.family_member_id = ?
+      AND l.user_id = ?
+      AND l.deleted_at IS NULL
+      AND l.sealed_at IS NOT NULL
+      AND l.delivery_trigger = 'IMMEDIATE'
+      AND l.milestone_label IS NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM letter_deliveries d
+        WHERE d.letter_id = l.id
+          AND lower(d.recipient_email) = lower(?)
+          AND d.status = 'DELIVERED'
+      )
+  `).bind(memberId, authorId, email).all();
+
+  const rows = (pending.results as any[]) ?? [];
+  if (rows.length === 0) return 0;
+
+  const author = await env.DB.prepare(
+    `SELECT first_name, last_name FROM users WHERE id = ?`,
+  ).bind(authorId).first() as { first_name: string; last_name: string } | null;
+  const senderName = `${author?.first_name ?? ''} ${author?.last_name ?? ''}`.trim() || 'your family';
+
+  const member = await env.DB.prepare(
+    `SELECT name FROM family_members WHERE id = ?`,
+  ).bind(memberId).first() as { name: string } | null;
+  const toName = member?.name || 'there';
+
+  let sent = 0;
+  for (const letter of rows) {
+    try {
+      const { subject, html } = letterDeliveryEmail(toName, senderName, {
+        salutation: letter.salutation || '',
+        body: letter.body || '',
+        signature: letter.signature || '',
+      });
+      await sendEmail(
+        env,
+        { from: 'Heirloom <noreply@heirloom.blue>', to: email, subject, html },
+        'letter_delivery',
+      );
+
+      const now = new Date().toISOString();
+      // Mark this recipient's delivery DELIVERED. A PENDING row may already
+      // exist (only if the address matched at seal); upsert either way.
+      const upd: any = await env.DB.prepare(`
+        UPDATE letter_deliveries SET status = 'DELIVERED', sent_at = ?, delivered_at = ?, updated_at = ?
+        WHERE letter_id = ? AND lower(recipient_email) = lower(?)
+      `).bind(now, now, now, letter.id, email).run();
+      if (!upd?.meta?.changes) {
+        await env.DB.prepare(`
+          INSERT INTO letter_deliveries (id, letter_id, recipient_email, status, sent_at, delivered_at, created_at, updated_at)
+          VALUES (?, ?, ?, 'DELIVERED', ?, ?, ?, ?)
+        `).bind(crypto.randomUUID(), letter.id, email, now, now, now, now).run();
+      }
+      sent++;
+    } catch (err) {
+      console.error('redeliverPendingLetters failed', letter.id, email, err);
+    }
+  }
+  return sent;
+}
 
 // Get all family members
 familyRoutes.get('/', async (c) => {
@@ -254,7 +347,20 @@ familyRoutes.patch('/:id', async (c) => {
   const member = await c.env.DB.prepare(`
     SELECT * FROM family_members WHERE id = ?
   `).bind(memberId).first();
-  
+
+  // If this edit gave the member an email (or changed it), deliver any letters
+  // that were sealed to them before an address existed. Best-effort — a hiccup
+  // here must never fail the member update.
+  const oldEmail = (existing as any)?.email as string | null;
+  const newEmail = (member as any)?.email as string | null;
+  if (newEmail && newEmail.trim() && newEmail.toLowerCase() !== (oldEmail ?? '').toLowerCase()) {
+    try {
+      await redeliverPendingLetters(c.env, { memberId, authorId: userId as string, email: newEmail });
+    } catch (err) {
+      console.error('redeliverPendingLetters check failed', memberId, err);
+    }
+  }
+
   return c.json({
     id: member?.id,
     name: member?.name,

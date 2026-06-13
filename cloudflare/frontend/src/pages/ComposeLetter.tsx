@@ -48,16 +48,17 @@ export function ComposeLetter() {
   const [error, setError] = useState<string | null>(null);
 
   const user = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
+  // Shared ['family'] cache: gate on auth so we never fire pre-hydration (a 401
+  // would otherwise poison the shared cache) and reuse the normalized fetcher so
+  // ComposeLetter and Record agree on shape. See familyApi.list.
   const { data: family } = useQuery({
     queryKey: ['family'],
-    queryFn: () =>
-      familyApi
-        .getAll()
-        .then((r) => r.data as FamilyMember[])
-        .catch(() => []),
+    queryFn: familyApi.list,
+    enabled: isAuthenticated,
   });
-  const members: FamilyMember[] = Array.isArray(family) ? family : [];
+  const members: FamilyMember[] = Array.isArray(family) ? (family as FamilyMember[]) : [];
 
   const { data: legacyContactsData } = useQuery({
     queryKey: ['legacy-contacts'],
