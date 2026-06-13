@@ -348,12 +348,14 @@ familyRoutes.patch('/:id', async (c) => {
     SELECT * FROM family_members WHERE id = ?
   `).bind(memberId).first();
 
-  // If this edit gave the member an email (or changed it), deliver any letters
-  // that were sealed to them before an address existed. Best-effort — a hiccup
-  // here must never fail the member update.
-  const oldEmail = (existing as any)?.email as string | null;
+  // Whenever a member with an email is saved, flush any letters that were
+  // sealed to them before an address existed. Fires on every save (not just on
+  // email change) so a member emailed *before* this feature shipped delivers on
+  // their next edit — redeliverPendingLetters is idempotent (skips already-
+  // DELIVERED) so re-running is a cheap no-op. Best-effort: a hiccup here must
+  // never fail the member update.
   const newEmail = (member as any)?.email as string | null;
-  if (newEmail && newEmail.trim() && newEmail.toLowerCase() !== (oldEmail ?? '').toLowerCase()) {
+  if (newEmail && newEmail.trim()) {
     try {
       await redeliverPendingLetters(c.env, { memberId, authorId: userId as string, email: newEmail });
     } catch (err) {

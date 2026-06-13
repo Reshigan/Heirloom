@@ -41,6 +41,7 @@ export function RecipientPicker({
   const qc = useQueryClient();
   const [open, setOpen] = useState(false);
   const [creating, setCreating] = useState(false);
+  const [rel, setRel] = useState('');
 
   const q = name.trim().toLowerCase();
   const matches = members.filter(
@@ -53,15 +54,17 @@ export function RecipientPicker({
   const canAdd = q.length > 0 && !exact && !selectedId;
   const selected = selectedId ? members.find((m) => m.id === selectedId) : null;
 
-  async function add(relationship: 'friend' | 'family') {
+  async function add(relationship: string) {
     const trimmed = name.trim();
-    if (!trimmed || creating) return;
+    const r0 = relationship.trim();
+    if (!trimmed || !r0 || creating) return;
     setCreating(true);
     try {
-      const r = await familyApi.create({ name: trimmed, relationship });
+      const r = await familyApi.create({ name: trimmed, relationship: r0 });
       const id = (r.data as { id?: string })?.id ?? null;
       qc.invalidateQueries({ queryKey: ['family'] });
       onChange(trimmed, id);
+      setRel('');
       setOpen(false);
     } finally {
       setCreating(false);
@@ -108,7 +111,7 @@ export function RecipientPicker({
           outline: 'none',
         }}
       />
-      {open && (matches.length > 0 || canAdd) && (
+      {open && matches.length > 0 && (
         <div
           style={{
             position: 'absolute',
@@ -161,66 +164,73 @@ export function RecipientPicker({
               )}
             </button>
           ))}
-          {canAdd && (
-            <div
+        </div>
+      )}
+      {canAdd && (
+        <div
+          style={{
+            marginTop: 10,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+          }}
+        >
+          <div
+            style={{
+              fontFamily: MONO,
+              fontSize: 10,
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+            }}
+          >
+            add "{name.trim()}" — their relationship to you
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <input
+              value={rel}
+              onChange={(e) => setRel(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && rel.trim()) {
+                  e.preventDefault();
+                  add(rel);
+                }
+              }}
+              placeholder="grandmother · sister · son"
               style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '10px 12px',
+                flex: 1,
+                boxSizing: 'border-box',
+                background: 'transparent',
+                border: 0,
+                borderBottom: '1px solid var(--rule)',
+                color: 'var(--bone)',
+                caretColor: 'var(--warm)',
+                fontFamily: MONO,
+                fontSize: 13,
+                letterSpacing: '0.04em',
+                padding: '5px 0 4px',
+                outline: 'none',
+              }}
+            />
+            <button
+              type="button"
+              disabled={creating || !rel.trim()}
+              onClick={() => add(rel)}
+              style={{
+                background: 'none',
+                border: 0,
+                cursor: creating || !rel.trim() ? 'default' : 'pointer',
+                padding: 0,
                 fontFamily: MONO,
                 fontSize: 10,
                 letterSpacing: '0.16em',
                 textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
+                color: rel.trim() ? 'var(--warm)' : 'var(--bone-faint)',
               }}
             >
-              <span>add "{name.trim()}" as</span>
-              <button
-                type="button"
-                disabled={creating}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  add('friend');
-                }}
-                style={{
-                  background: 'none',
-                  border: 0,
-                  cursor: creating ? 'default' : 'pointer',
-                  padding: 0,
-                  fontFamily: MONO,
-                  fontSize: 10,
-                  letterSpacing: '0.16em',
-                  textTransform: 'uppercase',
-                  color: 'var(--warm)',
-                }}
-              >
-                friend
-              </button>
-              <span style={{ color: 'var(--rule)' }}>·</span>
-              <button
-                type="button"
-                disabled={creating}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  add('family');
-                }}
-                style={{
-                  background: 'none',
-                  border: 0,
-                  cursor: creating ? 'default' : 'pointer',
-                  padding: 0,
-                  fontFamily: MONO,
-                  fontSize: 10,
-                  letterSpacing: '0.16em',
-                  textTransform: 'uppercase',
-                  color: 'var(--warm)',
-                }}
-              >
-                family
-              </button>
-            </div>
-          )}
+              {creating ? 'weaving…' : 'add'}
+            </button>
+          </div>
         </div>
       )}
       {selected && (
