@@ -15,7 +15,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { themeForDate, evergreenThemeForDate, seasonForDate, seasonalHashtagsForDate } from "./themes.js";
 import { generateSourcePost, SourcePost, hasGenProvider, activeProvider } from "./generate.js";
-import { generateVariants } from "./variants.js";
+import { generateVariants, sanitizeCaption } from "./variants.js";
 import { post } from "./post.js";
 import { pullMetrics, topHooks } from "./metrics.js";
 import { PlatformKey } from "./voice.js";
@@ -202,9 +202,11 @@ async function postAll(source?: SourcePost): Promise<void> {
       .join(" ")}`,
   );
 
-  // Bluesky thread: body + CTA as replies to the hook post, last gets link card
+  // Bluesky thread: body + CTA as replies to the hook post, last gets link card.
+  // Sanitize each part too — the same thread-plan leak that hits captions can
+  // surface in the source body/CTA, and these ship as post bodies verbatim.
   const blueskyThread = today
-    ? [today.body.slice(0, 280), today.cta.slice(0, 200)]
+    ? [sanitizeCaption(today.body).slice(0, 280), sanitizeCaption(today.cta).slice(0, 200)]
     : undefined;
 
   // Render + upload one distinct cloth image per variant, keyed to today's

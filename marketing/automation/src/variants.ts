@@ -85,6 +85,39 @@ function stripFences(raw: string): string {
   return raw.trim();
 }
 
+// A caption is exactly ONE post. Models sometimes "help" by laying out a whole
+// thread plan inside the single caption field — literal "Post 2:" / "Post 3:"
+// labels, or echoed schema keys ("Hook:", "Body:", "CTA:") — which then ship as
+// the post body verbatim (the Bluesky opener once published a literal
+// "...Post 2: ... Post 3: ..." plan). Cut everything from the first scaffold
+// label onward so only the real opening post survives.
+const SCAFFOLD_LABEL = /(?:^|\n)[ \t]*(?:post[ \t]*\d+|hook|body|cta|caption|saying|thread)[ \t]*:/i;
+
+export function sanitizeCaption(raw: string): string {
+  let c = (raw ?? "").trim();
+  // Drop a single echoed label at the very start (search below only cuts labels
+  // that appear *after* position 0).
+  c = c.replace(/^[ \t]*(?:post[ \t]*\d+|hook|body|cta|caption|saying|thread)[ \t]*:[ \t]*/i, "");
+  const m = c.match(SCAFFOLD_LABEL);
+  if (m && m.index !== undefined && m.index > 0) c = c.slice(0, m.index);
+  return c.replace(/\n{3,}/g, "\n\n").trim();
+}
+
+// The caption field must never contain '#' — tags belong in the hashtags array
+// (the prompt says so, but the free model ignores it). Pull any inline #tags out
+// so they still count toward the post's tags, then strip them from the prose.
+function harvestInlineTags(caption: string): { caption: string; tags: string[] } {
+  const tags: string[] = [];
+  for (const m of caption.matchAll(/#([\p{L}\p{N}_]{2,40})/gu)) tags.push(m[1]);
+  const cleaned = caption
+    .replace(/#[\p{L}\p{N}_]{2,40}/gu, "")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/[ \t]+\n/g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  return { caption: cleaned, tags };
+}
+
 export async function generateVariants({ source, platforms, seasonHashtags }: VariantInput): Promise<Variant[]> {
   const platformBlock = platforms
     .map((p) => `### ${p}\n${PLATFORM_GUIDELINES[p]}`)
@@ -122,6 +155,8 @@ HASHTAG RULES — follow exactly. EVERY platform's hashtags array MUST be non-em
 - x: 1-2 tags (they count against the 260-char caption budget — keep the caption short enough that caption + tags fit).
 
 Do NOT write hashtags inside the caption text — they go in the hashtags array ONLY and are appended automatically. The caption field must NEVER contain any # symbols.
+
+The caption is ONE single post. NEVER lay out a multi-post thread inside it. NEVER write labels like "Post 1:", "Post 2:", "Post 3:", "Hook:", "Body:", "CTA:", or "Thread:" anywhere in the caption — write only the finished post text itself.
 
 CAPTION SEO — search now finds posts through caption KEYWORDS more than hashtags (≈70/30 on Instagram). Work one natural search phrase into each caption where it doesn't bend the sentence — phrases real people type: "questions to ask your dad", "family stories", "record your parents' voice", "family history". Never stuff; one phrase, naturally placed.
 
@@ -206,6 +241,21 @@ JSON only.`;
     facebook: 3, linkedin: 5, bluesky: 3, x: 2,
   };
   for (const v of result.variants) {
+    // Strip any thread-plan scaffolding the model leaked into the single-post
+    // caption, then move inline #tags into the hashtags array before the
+    // min/max enforcement below counts them.
+    v.caption = sanitizeCaption(v.caption);
+    const harvested = harvestInlineTags(v.caption);
+    v.caption = harvested.caption;
+    if (harvested.tags.length) {
+      const have = new Set(v.hashtags.map((t) => t.toLowerCase()));
+      for (const tag of harvested.tags) {
+        const key = tag.toLowerCase();
+        if (have.has(key)) continue;
+        v.hashtags.push(tag);
+        have.add(key);
+      }
+    }
     const min = HASHTAG_MINIMUMS[v.platform];
     if (min && v.hashtags.length < min) {
       const have = new Set(v.hashtags.map((t) => t.toLowerCase()));
