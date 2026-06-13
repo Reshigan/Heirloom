@@ -96,8 +96,8 @@ export function Inbox() {
       {/* scrollable content column */}
       <div
         style={{
-          padding: 'clamp(16px, 4vw, 56px)',
-          paddingBottom: 80,
+          padding: 'var(--page-pad-top) var(--page-pad-x)',
+          paddingBottom: 'var(--page-clear)',
           overflowX: 'hidden',
         }}
       >

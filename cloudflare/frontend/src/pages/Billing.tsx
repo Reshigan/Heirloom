@@ -76,7 +76,7 @@ export function Billing() {
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'billing' }]} />}
     >
       <style>{BILLING_CSS}</style>
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(24px, 5vw, 40px) clamp(16px, 4vw, 40px) 80px' }}>
+      <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
           {subscriptionError && (
             <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 16 }}>

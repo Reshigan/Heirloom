@@ -478,7 +478,7 @@ export function Memories() {
         columns: 'var(--mosaic-cols, 3) auto',
         columnGap: 24,
         padding: 'clamp(24px, 5vw, 48px)',
-        paddingBottom: allMemories.length > 0 ? 0 : 80,
+        paddingBottom: allMemories.length > 0 ? 0 : 'var(--page-clear)',
       }}>
         <style>{`
           @media (max-width: 900px) { :root { --mosaic-cols: 2 } }
@@ -492,8 +492,8 @@ export function Memories() {
 
       {allMemories.length > 0 && (
         <div style={{
-          padding: 'clamp(20px, 4vw, 40px) clamp(24px, 5vw, 48px)',
-          paddingBottom: 80,
+          padding: 'clamp(20px, 4vw, 40px) var(--page-pad-x)',
+          paddingBottom: 'var(--page-clear)',
           borderTop: '1px solid var(--rule)',
         }}>
           <span className="hl-eyebrow" style={{ display: 'inline', color: 'var(--bone-faint)', marginRight: 14 }}>

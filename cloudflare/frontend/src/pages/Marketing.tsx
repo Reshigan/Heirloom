@@ -84,9 +84,9 @@ export function Marketing() {
         }}>
           <HLogo size="md" wordmark />
           <span style={{
-            display: 'flex', gap: 'clamp(16px, 3vw, 28px)', alignItems: 'center',
-            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
-            textTransform: 'uppercase', color: 'rgba(244,236,216,0.40)',
+            display: 'flex', gap: 'clamp(18px, 3vw, 32px)', alignItems: 'center',
+            fontFamily: 'var(--mono)', fontSize: 11.5, letterSpacing: '0.22em',
+            textTransform: 'uppercase', color: 'rgba(244,236,216,0.52)',
           }}>
             <Link to="/pricing"  style={{ color: 'inherit', textDecoration: 'none' }} className="mkt-nav-hide-sm">pricing</Link>
             <Link to="/founder"  style={{ color: 'inherit', textDecoration: 'none' }} className="mkt-nav-hide-sm">founder</Link>
@@ -241,9 +241,9 @@ export function Marketing() {
             }}>{title}</h2>
             <p style={{
               fontFamily: 'var(--serif)',
-              fontSize: 'clamp(15px, 1.4vw, 17px)',
-              lineHeight: 1.72, margin: 0,
-              color: 'rgba(244,236,216,0.46)',
+              fontSize: 'clamp(16px, 1.5vw, 19px)',
+              lineHeight: 1.74, margin: 0,
+              color: 'rgba(244,236,216,0.62)',
               paddingTop: vpW < 680 ? 0 : 'clamp(4px, 0.6vh, 8px)',
             }}>{body}</p>
           </div>
@@ -288,9 +288,9 @@ export function Marketing() {
               }}>{q}</p>
               <p style={{
                 fontFamily: 'var(--serif)',
-                fontSize: 'clamp(14px, 1.3vw, 16px)',
-                lineHeight: 1.72, margin: 0,
-                color: 'rgba(244,236,216,0.42)',
+                fontSize: 'clamp(15px, 1.4vw, 17px)',
+                lineHeight: 1.74, margin: 0,
+                color: 'rgba(244,236,216,0.58)',
               }}>{a}</p>
             </div>
           ))}
@@ -335,9 +335,9 @@ export function Marketing() {
           </h2>
           <p style={{
             fontFamily: 'var(--serif)',
-            fontSize: 'clamp(14px, 1.4vw, 17px)',
-            lineHeight: 1.72, margin: '0 0 32px',
-            color: 'rgba(244,236,216,0.46)',
+            fontSize: 'clamp(15px, 1.5vw, 18px)',
+            lineHeight: 1.74, margin: '0 0 32px',
+            color: 'rgba(244,236,216,0.58)',
             maxWidth: '44ch',
           }}>
             Every entry your family has ever written — memories, letters, voice transcripts, milestones — bound into a letterpress-quality heirloom book. Not a photo album. Not a scrapbook. A record. Physical. Permanent. Something to hold.
@@ -431,6 +431,18 @@ export function Marketing() {
           maxWidth: '18ch', marginLeft: 'auto', marginRight: 'auto',
         }}>
           The cloth waits.<br />Start your thread.
+        </p>
+        <p
+          aria-hidden
+          style={{
+            fontFamily: 'var(--font-hand)',
+            fontSize: 'clamp(30px, 4vw, 46px)',
+            lineHeight: 1,
+            color: 'var(--warm)',
+            margin: '0 0 clamp(32px, 5vh, 48px)',
+          }}
+        >
+          — for the ones who come after
         </p>
         <Link
           to="/signup"

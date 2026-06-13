@@ -205,7 +205,7 @@ export function Settings() {
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'settings' }]} />}
     >
       <style>{RESPONSIVE_CSS}</style>
-        <div style={{ maxWidth: 720, margin: '0 auto', padding: 'clamp(24px, 5vw, 40px) clamp(16px, 4vw, 40px) 80px' }}>
+        <div style={{ maxWidth: 'var(--page-max-prose)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
           <h1 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 300, margin: '0 0 28px', letterSpacing: '-0.016em' }}>
             Settings

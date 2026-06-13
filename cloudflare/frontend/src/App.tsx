@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from
 import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
+import { getAuthToken } from './services/api';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { isNativePlatform } from './services/pushNotificationService';
 import { clearChunkReloadFlag } from './lib/chunkReload';
@@ -170,6 +171,23 @@ function PendingInviteAcceptor() {
   return null;
 }
 
+/**
+ * AuthBoot — keeps a returning user signed in. On launch (PWA or web), once the
+ * persisted auth state has rehydrated, if a token is on disk we revalidate it
+ * against /auth/me. Success refreshes the user; failure (expired/revoked, and
+ * the api.ts refresh-token flow couldn't save it) clears tokens so the guards
+ * fall through to /login. This is what makes the installed PWA "remember login
+ * and open directly" instead of trusting a stale persisted flag.
+ */
+function AuthBoot() {
+  const { _hasHydrated, fetchUser } = useAuthStore();
+  useEffect(() => {
+    if (!_hasHydrated) return;
+    if (getAuthToken()) fetchUser();
+  }, [_hasHydrated, fetchUser]);
+  return null;
+}
+
 function PushNotificationHandler() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
@@ -271,6 +289,7 @@ export default function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          <AuthBoot />
           <PushNotificationHandler />
           <PendingInviteAcceptor />
           <PwaNudge />

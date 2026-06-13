@@ -218,7 +218,7 @@ export function Family() {
         <button type="button" className="hl-btn" onClick={() => openForm('add')} style={{ fontSize: 12, padding: '6px 14px' }}>add →</button>
       ) : undefined}
     >
-      <div style={{ padding: 'clamp(24px, 5vw, 56px)', paddingBottom: 80, maxWidth: 760 }}>
+      <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x)', paddingBottom: 'var(--page-clear)', maxWidth: 'var(--page-max-prose)' }}>
 
 
         {/* heading row */}

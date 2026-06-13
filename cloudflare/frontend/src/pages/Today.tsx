@@ -82,8 +82,8 @@ export function Today() {
     return (
       <ClothShell topbarLeft={todayTopbar}>
         <div style={{
-          padding: 'clamp(48px, 9vw, 80px) clamp(20px, 6vw, 56px)',
-          maxWidth: 600,
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+          maxWidth: 'var(--page-max-focus)',
           opacity: revealed ? 1 : 0,
           transform: revealed ? 'translateY(0)' : 'translateY(14px)',
           transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,

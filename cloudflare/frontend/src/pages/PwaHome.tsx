@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
+import { getAuthToken } from '../services/api';
 import { useRole } from '../hooks/useRole';
 import { useTapestryEntries } from '../hooks/useTapestryEntries';
 import { useListener } from '../hooks/useListener';
@@ -516,7 +517,7 @@ export function PwaHome() {
   const prompt  = useListener();
   const { isNewUser, isLoading: isNewUserLoading } = useIsNewUser();
   const [wizardDone, setWizardDone] = useState(() => !shouldShowWizard());
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, _hasHydrated } = useAuthStore();
   const [stats, setStats] = useState<{ entries: number; members: number } | null>(null);
 
   useEffect(() => {
@@ -537,6 +538,13 @@ export function PwaHome() {
     el.addEventListener('scroll', onScroll, { passive: true });
     return () => el.removeEventListener('scroll', onScroll);
   }, []);
+
+  // The installed app remembers you. Once auth has rehydrated, a launch with no
+  // token (never signed in, or session cleared) goes straight to login rather
+  // than the visitor marketing preview — the PWA opens directly into its door.
+  if (_hasHydrated && !isAuthenticated && !getAuthToken()) {
+    return <Navigate to="/login" replace />;
+  }
 
   return (
     <ClothShell

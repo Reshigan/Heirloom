@@ -57,8 +57,8 @@ export function Letters() {
     >
       <div
         style={{
-          padding: 'clamp(24px, 5vw, 56px)',
-          paddingBottom: 80,
+          padding: 'var(--page-pad-top) var(--page-pad-x)',
+          paddingBottom: 'var(--page-clear)',
           minHeight: '100%',
         }}
       >
