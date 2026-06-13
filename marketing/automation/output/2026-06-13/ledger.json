@@ -8,5 +8,10 @@
     "hour": 9,
     "hook": "Your parents had a picture of your future",
     "saying": "What did your parents think you'd grow up to be"
+  },
+  {
+    "hour": 14,
+    "hook": "Your family's ghost story is fading.",
+    "saying": "What's the one story your family can't explain?"
   }
 ]
