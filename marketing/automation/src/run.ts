@@ -6,6 +6,7 @@
 //   tsx src/run.ts preview     — dry-run, prints to stdout, no API calls except Claude
 //   tsx src/run.ts post        — post pre-generated source post (from output/source.json)
 //   tsx src/run.ts metrics     — pull metrics back for known post IDs
+//   tsx src/run.ts engage      — daily organic-growth work-list (no posting)
 //
 // Designed to be called by GitHub Actions on a daily cron. See
 // .github/workflows/social-autopost.yml.
@@ -18,6 +19,7 @@ import { generateSourcePost, SourcePost, hasGenProvider, activeProvider } from "
 import { generateVariants, sanitizeCaption } from "./variants.js";
 import { post } from "./post.js";
 import { pullMetrics, topHooks } from "./metrics.js";
+import { engage } from "./engage.js";
 import { PlatformKey } from "./voice.js";
 import { renderWeave, uploadWeave } from "./image.js";
 import type { Variant } from "./variants.js";
@@ -432,6 +434,12 @@ const handlers: Record<string, () => Promise<void>> = {
   // update-profile: refresh Bluesky avatar + bio (no post generated)
   "update-profile": async () => {
     await updateBlueskyProfile();
+  },
+  // engage: daily organic-growth work-list — where a human should genuinely
+  // reply (Bluesky threads) or comment (FB groups). Works with no LLM; enriches
+  // with reply-opener drafts when a provider is set. NOT in NEEDS_LLM.
+  engage: async () => {
+    await engage();
   },
 };
 

@@ -186,6 +186,13 @@ async function chatCloudflare(system: string, user: string): Promise<string> {
   return typeof out === "string" ? out : JSON.stringify(out);
 }
 
+// Generic one-shot completion against the active provider. Used by engage.ts to
+// draft genuine reply openers. Guard with hasGenProvider() before calling —
+// chat() throws when nothing is configured.
+export async function complete(system: string, user: string): Promise<string> {
+  return (await chat(system, user)).trim();
+}
+
 export async function generateSourcePost(input: GenerateInput): Promise<SourcePost> {
   const userPrompt = buildUserPrompt(input);
 
