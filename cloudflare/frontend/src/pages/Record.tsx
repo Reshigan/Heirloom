@@ -64,7 +64,7 @@ export function Record() {
     queryFn: () => familyApi.getAll().then(r => (r.data as any)?.members ?? r.data ?? []),
     enabled: isAuthenticated,
   });
-  const familyMembers: { id: string; name: string; relationship?: string }[] =
+  const familyMembers: { id: string; name: string; relationship?: string; dye?: string | null }[] =
     Array.isArray(familyData) ? familyData : [];
 
   // Pre-fill recipient from ?recipientId= URL param

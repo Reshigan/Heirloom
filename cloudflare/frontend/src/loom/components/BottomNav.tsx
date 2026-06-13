@@ -29,7 +29,7 @@ const HIDE_EXACT = new Set(['/']);
 const HIDE_PREFIXES = ['/login', '/signup', '/pricing', '/privacy', '/terms', '/admin', '/onboarding', '/loom/marketing'];
 
 /** The shell reserves this much bottom space so content clears the nav. */
-export const BOTTOM_NAV_CLEARANCE = 'calc(64px + env(safe-area-inset-bottom, 0px))';
+export const BOTTOM_NAV_CLEARANCE = 'calc(76px + env(safe-area-inset-bottom, 0px))';
 
 export function BottomNav() {
   const { pathname } = useLocation();
@@ -49,9 +49,10 @@ export function BottomNav() {
         bottom: 0,
         left: 0,
         right: 0,
-        height: 'calc(64px + env(safe-area-inset-bottom, 0px))',
+        height: 'calc(76px + env(safe-area-inset-bottom, 0px))',
         zIndex: 30,
-        background: 'var(--ink)',
+        background: 'var(--ink-translucent)',
+        backdropFilter: 'none',
         borderTop: '1px solid var(--rule)',
         display: 'flex',
         alignItems: 'stretch',
@@ -71,16 +72,18 @@ export function BottomNav() {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 3,
+              gap: 4,
               textDecoration: 'none',
               borderTop: isActive ? '2px solid var(--warm)' : '2px solid transparent',
               paddingTop: isActive ? 0 : 2,
               color: isCenter
                 ? isActive ? 'var(--warm)' : 'var(--warm-dim)'
-                : isActive ? 'var(--bone)' : 'var(--bone-low)',
+                : isActive ? 'var(--bone)' : 'var(--bone-faint)',
               fontFamily: isCenter ? 'var(--serif)' : 'var(--mono)',
-              fontSize: isCenter ? 22 : 9,
-              letterSpacing: isCenter ? undefined : '0.18em',
+              fontSize: isCenter ? 38 : 10.5,
+              fontWeight: isCenter ? 300 : undefined,
+              lineHeight: isCenter ? 0.8 : undefined,
+              letterSpacing: isCenter ? undefined : '0.2em',
               textTransform: isCenter ? undefined : 'uppercase',
               transition: 'color 180ms cubic-bezier(0.16,1,0.3,1), border-color 180ms cubic-bezier(0.16,1,0.3,1)',
             }}

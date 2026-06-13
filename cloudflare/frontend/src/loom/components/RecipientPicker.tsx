@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { familyApi } from '../../services/api';
+import { dyeColor } from '../dye';
 
 export interface RecipientMember {
   id: string;
   name: string;
   relationship?: string | null;
+  dye?: string | null;
 }
 
 interface RecipientPickerProps {
@@ -41,9 +43,15 @@ export function RecipientPicker({
   const [creating, setCreating] = useState(false);
 
   const q = name.trim().toLowerCase();
-  const matches = members.filter((m) => !q || m.name.toLowerCase().includes(q));
+  const matches = members.filter(
+    (m) =>
+      !q ||
+      m.name.toLowerCase().includes(q) ||
+      (m.relationship && m.relationship.toLowerCase().includes(q)),
+  );
   const exact = members.some((m) => m.name.toLowerCase() === q);
   const canAdd = q.length > 0 && !exact && !selectedId;
+  const selected = selectedId ? members.find((m) => m.id === selectedId) : null;
 
   async function add(relationship: 'friend' | 'family') {
     const trimmed = name.trim();
@@ -128,11 +136,12 @@ export function RecipientPicker({
                 textAlign: 'left',
                 background: 'transparent',
                 border: 0,
-                padding: '10px 12px',
+                borderLeft: `3px solid ${dyeColor(m.id, m.dye)}`,
+                padding: '11px 12px 11px 9px',
                 cursor: 'pointer',
                 fontFamily: MONO,
-                fontSize: 13,
-                color: 'var(--bone-dim)',
+                fontSize: 13.5,
+                color: dyeColor(m.id, m.dye),
                 borderBottom: '1px solid var(--rule)',
               }}
             >
@@ -212,6 +221,36 @@ export function RecipientPicker({
               </button>
             </div>
           )}
+        </div>
+      )}
+      {selected && (
+        <div
+          style={{
+            marginTop: 8,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            fontFamily: MONO,
+            fontSize: 11,
+            letterSpacing: '0.06em',
+            color: 'var(--bone-faint)',
+          }}
+        >
+          <span
+            aria-hidden
+            style={{
+              width: 8,
+              height: 8,
+              flexShrink: 0,
+              background: dyeColor(selected.id, selected.dye),
+            }}
+          />
+          <span>
+            already woven into your bloodline ·{' '}
+            <span className="hl-signature" style={{ fontSize: '1.5em' }}>
+              {selected.name}
+            </span>
+          </span>
         </div>
       )}
     </div>

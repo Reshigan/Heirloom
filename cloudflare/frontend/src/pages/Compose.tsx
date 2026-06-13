@@ -5,6 +5,7 @@ import { memoriesApi, lettersApi, familyApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
 import { type FamilyMember } from '../types';
+import { dyeColor } from '../loom/dye';
 import { HLogo } from '../loom/components/HLogo';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { uploadMemoryImage, validateImage } from '../utils/uploadImage';
@@ -176,9 +177,10 @@ function ToField({
                   width: '100%',
                   alignItems: 'center',
                   gap: 12,
-                  padding: '10px 16px',
+                  padding: '12px 16px 12px 13px',
                   background: 'none',
                   border: 'none',
+                  borderLeft: `3px solid ${dyeColor(m.id, m.dye)}`,
                   borderBottom: '1px solid rgba(244,236,216,0.05)',
                   cursor: 'pointer',
                   textAlign: 'left',
@@ -191,8 +193,8 @@ function ToField({
                 <span
                   style={{
                     fontFamily: 'var(--mono)',
-                    fontSize: 13,
-                    color: 'var(--bone)',
+                    fontSize: 13.5,
+                    color: dyeColor(m.id, m.dye),
                     letterSpacing: '0.04em',
                   }}
                 >
@@ -210,6 +212,19 @@ function ToField({
                     {m.relationship}
                   </span>
                 )}
+                <span
+                  style={{
+                    marginLeft: 'auto',
+                    fontFamily: 'var(--mono)',
+                    fontSize: 8.5,
+                    color: 'var(--bone-faint)',
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    flexShrink: 0,
+                  }}
+                >
+                  woven in
+                </span>
               </button>
             ))}
           </div>
@@ -218,17 +233,42 @@ function ToField({
 
       <div
         style={{
-          marginTop: 6,
+          marginTop: 8,
           fontFamily: 'var(--mono)',
           fontSize: 11,
           color: 'var(--bone-faint)',
           letterSpacing: '0.04em',
           fontStyle: 'italic',
+          display: 'flex',
+          alignItems: 'baseline',
+          gap: 8,
         }}
       >
-        {recipientName.trim()
-          ? `letter · addressed to ${recipientName}`
-          : 'leave empty to write a personal memory'}
+        {selectedMember ? (
+          <>
+            <span
+              aria-hidden
+              style={{
+                width: 8,
+                height: 8,
+                flexShrink: 0,
+                borderRadius: 0,
+                background: dyeColor(selectedMember.id, selectedMember.dye),
+                alignSelf: 'center',
+              }}
+            />
+            <span style={{ fontStyle: 'normal', letterSpacing: '0.06em' }}>
+              already woven into your bloodline ·{' '}
+              <span className="hl-signature" style={{ fontSize: '1.5em' }}>
+                {selectedMember.name}
+              </span>
+            </span>
+          </>
+        ) : recipientName.trim() ? (
+          <span>letter · a new name in the cloth — {recipientName.trim()}</span>
+        ) : (
+          <span>leave empty to write a personal memory</span>
+        )}
       </div>
     </div>
   );
@@ -936,19 +976,19 @@ export function Compose() {
         className="hl-compose-scroll"
         style={{
           position: 'absolute',
-          top: 'calc(56px + env(safe-area-inset-top, 0px))',
+          top: 'var(--topbar-h)',
           bottom: 0,
           left: 0,
           right: 0,
           overflowY: 'auto',
-          padding: '48px clamp(20px, 5vw, 48px) calc(100px + env(safe-area-inset-bottom, 0px))',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           zIndex: 10,
           opacity: revealed ? 1 : 0,
           transform: revealed ? 'translateY(0)' : 'translateY(12px)',
           transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
         }}
       >
-        <div style={{ maxWidth: 660, margin: '0 auto' }}>
+        <div style={{ maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
           {/* eyebrow */}
           <p
             style={{
@@ -1031,9 +1071,9 @@ export function Compose() {
                 color: title ? 'var(--bone)' : 'var(--bone-faint)',
                 caretColor: 'var(--warm)',
                 fontFamily: 'var(--serif)',
-                fontVariationSettings: "'opsz' 32",
+                fontVariationSettings: "'opsz' 40",
                 fontStyle: 'italic',
-                fontSize: 'clamp(22px, 4vw, 28px)',
+                fontSize: 'clamp(26px, 4.5vw, 34px)',
                 fontWeight: 300,
                 letterSpacing: '-0.01em',
                 width: '100%',
@@ -1064,12 +1104,12 @@ export function Compose() {
                 background: 'transparent',
                 caretColor: 'var(--warm)',
                 fontFamily: 'var(--serif)',
-                fontVariationSettings: "'opsz' 14",
+                fontVariationSettings: "'opsz' 18",
                 fontFeatureSettings: '"onum" 1, "liga" 1',
-                fontSize: 'clamp(18px, 4vw, 21px)',
-                lineHeight: 1.9,
+                fontSize: 'clamp(20px, 2.8vw, 26px)',
+                lineHeight: 1.78,
                 color: 'var(--bone)',
-                minHeight: 260,
+                minHeight: 300,
                 outline: 'none',
                 resize: 'none',
                 padding: 0,

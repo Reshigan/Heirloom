@@ -5,6 +5,16 @@ import { Frame } from './Frame';
 // Wraps content in the canonical Frame (absolute hl-topbar + TapestryEdge)
 // with a centred, max-width-constrained scrollable content column.
 // Set nav=false for full-screen pages that manage their own chrome.
+// Canonical content widths — all sourced from the layout tokens in globals.css
+// so every authenticated page sits on the same measure. 'reading' is the
+// default data column; 'prose'/'focus' narrow for long-form text; 'wide' fills.
+const WIDTH_TOKEN: Record<string, string> = {
+  reading: 'var(--page-max-reading)',
+  wide: '100%',
+  prose: 'var(--page-max-prose)',
+  focus: 'var(--page-max-focus)',
+};
+
 export function AppFrame({
   children,
   width = 'reading',
@@ -14,7 +24,7 @@ export function AppFrame({
   role: _role, // TODO(wave-3): consumed by PwaHome role-keyed rendering
 }: {
   children: ReactNode;
-  width?: 'reading' | 'wide';
+  width?: 'reading' | 'wide' | 'prose' | 'focus';
   left?: string;
   right?: ReactNode;
   nav?: boolean;
@@ -32,9 +42,9 @@ export function AppFrame({
     <Frame left={left} right={right}>
       <div
         style={{
-          maxWidth: width === 'wide' ? '100%' : 1180,
+          maxWidth: WIDTH_TOKEN[width] ?? 'var(--page-max-reading)',
           margin: '0 auto',
-          padding: '40px 32px calc(96px + env(safe-area-inset-bottom, 0px))',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
         {children}

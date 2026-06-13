@@ -67,7 +67,9 @@
      onto it. Inter for UI, JetBrains Mono for archival metadata. */
   --font-display: 'Source Serif 4', 'Source Serif Pro', Charter, Georgia, serif;
   --font-body: 'Source Serif 4', 'Source Serif Pro', Charter, Georgia, serif;
-  --font-hand: 'Source Serif 4', Georgia, serif;
+  /* The one hand face — used ONLY at intimate moments (signoffs, dedications,
+     the sealed-note "who", thread/member names). Body + UI stay Source Serif 4. */
+  --font-hand: 'Tangerine', 'Source Serif 4', 'Snell Roundhand', Georgia, cursive;
 
   /* Canonical aliases (match the Claude Design bundle's heirloom-styles.css) */
   --ink: #0e0e0c;
@@ -146,6 +148,21 @@
   --type-caption:  clamp(12px, 1.2vw, 14px);   /* opsz 12, weight 400 */
   --type-label:    11px;                        /* mono uppercase, ls 0.18em */
   --type-micro:    10px;                        /* mono uppercase, ls 0.22em */
+
+  /* Layout — one set of page-width + clearance tokens so every authed page
+     reads as one product, not a pile of bespoke wrappers. */
+  --page-max-reading: 1180px;  /* default data pages */
+  --page-max-wide:    920px;   /* generous single column */
+  --page-max-prose:   720px;   /* reading / letters */
+  --page-max-focus:   600px;   /* ceremony, onboarding */
+  --page-pad-x:   clamp(20px, 5vw, 48px);
+  --page-pad-top: clamp(32px, 5vw, 52px);
+  /* Bottom clearance so content always clears the (enlarged) BottomNav. */
+  --page-clear:   calc(108px + env(safe-area-inset-bottom, 0px));
+
+  /* Chrome heights — the topbar + bottom nav are deliberately taller now;
+     scroll regions offset by these so nothing hides under the chrome. */
+  --topbar-h: calc(68px + env(safe-area-inset-top, 0px));
 }
 
 /* ── Unified dark/light theme — global token bridge ────────────────
@@ -460,6 +477,12 @@ em {
 @keyframes hl-widen {
   from { opacity: 0; clip-path: inset(0 40% 0 40%); }
   to   { opacity: 1; clip-path: inset(0 0% 0 0%);   }
+}
+
+/* The Listener's pulse — a warm bead breathing while subtle AI reads along. */
+@keyframes hl-listener-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1);    }
+  50%      { opacity: 1;    transform: scale(1.35); }
 }
 
 /* Utility classes: duration controlled by --hl-dur (defaults 700ms) */
@@ -872,8 +895,8 @@ html {
 .hl-topbar {
   position: absolute; top: 0; left: 0; right: 0;
   display: flex; align-items: center; justify-content: space-between;
-  padding: calc(18px + env(safe-area-inset-top, 0px)) 32px 18px;
-  font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 36px 22px;
+  font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.2em; text-transform: uppercase;
   color: var(--bone-dim);
   z-index: 5;
 }
@@ -883,8 +906,8 @@ html {
 /* §1.5-B — the append-only counter IS the product. Not a footnote. */
 .hl-topbar .hl-counter {
   color: var(--bone-dim);
-  letter-spacing: 0.06em;
-  font-size: 14px;
+  letter-spacing: 0.08em;
+  font-size: 17px;
   font-feature-settings: "tnum";
 }
 .hl-topbar .hl-counter b { color: var(--bone); font-weight: 400; }
@@ -1087,7 +1110,19 @@ html {
 /* sealed note primitive */
 .hl-sealed { font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; line-height: 1.6; color: var(--bone-dim); text-align: center; }
 .hl-sealed .glyph { display: block; font-family: var(--serif); font-size: 22px; color: var(--warm); font-weight: 300; margin-bottom: 6px; line-height: 1; }
-.hl-sealed .who { font-family: var(--serif); font-style: italic; color: var(--bone); }
+.hl-sealed .who { font-family: var(--font-hand); font-style: normal; font-size: 1.9em; line-height: 0.9; color: var(--bone); }
+
+/* The signature — the one hand face at intimate moments. Tangerine sits small,
+   so signatures render at ~1.7em of the surrounding context to read as ink. */
+.hl-signature {
+  font-family: var(--font-hand);
+  font-size: 1.7em;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--bone);
+}
+.hl-signature--warm { color: var(--warm); }
 
 /* display heading utility — tight leading for display serifs */
 .hl-tight { line-height: 1.06; letter-spacing: -0.022em; }

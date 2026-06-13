@@ -346,19 +346,22 @@ export function ComposeLetter() {
               setSignature(e.target.value);
             }}
             placeholder="— your name"
+            aria-label="Signature"
             style={{
               width: '100%',
               border: 0,
               background: 'transparent',
               caretColor: 'var(--warm)',
-              fontFamily: 'var(--serif)',
-              fontStyle: 'italic',
-              fontSize: 18,
+              fontFamily: 'var(--font-hand)',
+              fontStyle: 'normal',
+              fontSize: 34,
+              lineHeight: 1.1,
               fontWeight: 400,
-              color: 'var(--bone-dim)',
+              letterSpacing: '0.01em',
+              color: 'var(--warm)',
               outline: 'none',
               padding: 0,
-              marginTop: 32,
+              marginTop: 36,
             }}
           />
 

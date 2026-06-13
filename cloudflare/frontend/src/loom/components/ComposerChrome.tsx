@@ -161,25 +161,40 @@ export function ListenerLine({
         lineHeight: 1.75,
         letterSpacing: '0.03em',
         color: 'var(--bone-dim)',
-        maxWidth: '32ch',
+        maxWidth: '40ch',
+        borderLeft: '1px solid rgba(176,122,74,0.28)',
+        paddingLeft: 'clamp(14px, 2.5vw, 22px)',
       }}
     >
       <span
         style={{
-          display: 'block',
-          marginBottom: 8,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          marginBottom: 10,
           fontSize: 10,
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
-          color: 'var(--bone-faint)',
+          color: 'var(--warm-dim)',
         }}
       >
+        <span
+          aria-hidden
+          style={{
+            width: 5,
+            height: 5,
+            borderRadius: '50%',
+            background: 'var(--warm)',
+            opacity: loading ? 1 : 0.55,
+            animation: loading ? 'hl-listener-pulse 1400ms cubic-bezier(0.16,1,0.3,1) infinite' : 'none',
+          }}
+        />
         the listener offers
       </span>
       {loading ? (
-        <span style={{ color: 'var(--bone-faint)', fontStyle: 'italic' }}>…</span>
+        <span style={{ color: 'var(--bone-faint)', fontStyle: 'italic' }}>listening…</span>
       ) : (
-        <span style={{ color: 'var(--bone)', fontStyle: 'italic', fontSize: 13, fontFamily: "'Source Serif 4', serif", fontWeight: 300, lineHeight: 1.6 }}>
+        <span style={{ color: 'var(--bone)', fontStyle: 'italic', fontSize: 'clamp(15px, 1.6vw, 17px)', fontFamily: "'Source Serif 4', serif", fontWeight: 300, lineHeight: 1.62 }}>
           "{text}"
         </span>
       )}

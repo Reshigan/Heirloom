@@ -334,7 +334,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
         className="hl-frame-scroll"
         style={{
           position: 'absolute',
-          top: 'calc(56px + env(safe-area-inset-top, 0px))',
+          top: 'var(--topbar-h)',
           bottom: showEdge ? 8 : 0,
           left: 0,
           right: 0,
