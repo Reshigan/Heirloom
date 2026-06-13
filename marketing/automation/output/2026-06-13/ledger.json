@@ -13,5 +13,10 @@
     "hour": 14,
     "hook": "Your family's ghost story is fading.",
     "saying": "What's the one story your family can't explain?"
+  },
+  {
+    "hour": 18,
+    "hook": "These quiet days between Christmas and New Year are perfect for asking your parents about their childhood.",
+    "saying": "What was your mom's favorite Christmas gift as a kid?"
   }
 ]
