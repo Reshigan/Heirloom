@@ -3,5 +3,10 @@
     "hour": 0,
     "hook": "Your dad's stories are disappearing.",
     "saying": "What was your first job, Dad?"
+  },
+  {
+    "hour": 9,
+    "hook": "Your parents had a picture of your future",
+    "saying": "What did your parents think you'd grow up to be"
   }
 ]
