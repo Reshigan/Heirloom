@@ -34,6 +34,41 @@ function fmt(s: number): string {
   return `${m}:${r.toString().padStart(2, '0')}`;
 }
 
+// Word-level highlight: words the AI introduced (not in the spoken original)
+// glow warm; the writer's own words stay calm. Not a true LCS diff — a cheap
+// multiset check that reads right: it shows what changed, not where it moved.
+const wordKey = (w: string) => w.toLowerCase().replace(/[^\p{L}\p{N}']/gu, '');
+
+function DiffText({ base, text }: { base: string; text: string }) {
+  const have = new Map<string, number>();
+  for (const w of base.split(/\s+/)) {
+    const k = wordKey(w);
+    if (k) have.set(k, (have.get(k) ?? 0) + 1);
+  }
+  const tokens = text.split(/(\s+)/); // keep whitespace tokens
+  return (
+    <p className="hl-serif" style={{ margin: 0, fontSize: 14, lineHeight: 1.65, color: 'var(--bone-dim)' }}>
+      {tokens.map((tok, i) => {
+        if (/^\s+$/.test(tok) || tok === '') return tok;
+        const k = wordKey(tok);
+        const kept = k !== '' && (have.get(k) ?? 0) > 0;
+        if (kept) have.set(k, (have.get(k) as number) - 1);
+        return (
+          <span key={i} style={kept ? undefined : { color: 'var(--warm)' }}>
+            {tok}
+          </span>
+        );
+      })}
+    </p>
+  );
+}
+
+const NUDGES: { id: 'warmer' | 'shorter' | 'plainer'; label: string }[] = [
+  { id: 'warmer', label: 'warmer' },
+  { id: 'shorter', label: 'shorter' },
+  { id: 'plainer', label: 'plainer' },
+];
+
 function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const fr = new FileReader();
@@ -52,6 +87,7 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
   const [transcript, setTranscript] = useState('');
   const [variants, setVariants] = useState<Variant[]>([]);
   const [level, setLevel] = useState(0);
+  const [nudging, setNudging] = useState<string | null>(null);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -206,6 +242,24 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
     reset();
   };
 
+  // Re-shape one variant in place — warmer, shorter, plainer — without
+  // disturbing the others. The card keeps its label; only its text changes.
+  const applyNudge = async (variant: Variant, nudge: 'warmer' | 'shorter' | 'plainer') => {
+    if (nudging) return;
+    setNudging(variant.id);
+    try {
+      const res = await aiApi.refine(variant.text, nudge);
+      const next = res.data?.variants?.[0]?.text?.trim();
+      if (next) {
+        setVariants((prev) => prev.map((v) => (v.id === variant.id ? { ...v, text: next } : v)));
+      }
+    } catch {
+      // Leave the variant as-is — a failed nudge is a no-op, not an error state.
+    } finally {
+      setNudging(null);
+    }
+  };
+
   const eyebrow: React.CSSProperties = {
     fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
     textTransform: 'uppercase', color: 'var(--bone-faint)',
@@ -283,12 +337,29 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
               {variants.map((v) => (
                 <div key={v.id} style={{ display: 'grid', gap: 8, borderLeft: '2px solid var(--rule-warm, rgba(176,122,74,0.22))', paddingLeft: 12 }}>
                   <span style={{ ...eyebrow, color: 'var(--warm)' }}>{v.label}</span>
-                  <p className="hl-serif" style={{ margin: 0, fontSize: 14, lineHeight: 1.65, color: 'var(--bone)' }}>
-                    {v.text}
-                  </p>
-                  <button type="button" onClick={() => choose(v.text)} className="hl-btn" style={{ fontSize: 11, padding: '8px 16px', justifySelf: 'start' }}>
-                    use this →
-                  </button>
+                  {nudging === v.id ? (
+                    <ProgressHair label="re-shaping…" />
+                  ) : (
+                    <DiffText base={transcript} text={v.text} />
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                    <button type="button" onClick={() => choose(v.text)} disabled={nudging === v.id} className="hl-btn" style={{ fontSize: 11, padding: '8px 16px' }}>
+                      use this →
+                    </button>
+                    <span style={{ ...eyebrow, textTransform: 'none', letterSpacing: '0.04em' }}>nudge:</span>
+                    {NUDGES.map((n) => (
+                      <button
+                        key={n.id}
+                        type="button"
+                        onClick={() => applyNudge(v, n.id)}
+                        disabled={nudging !== null}
+                        className="hl-btn text"
+                        style={{ fontSize: 11, opacity: nudging !== null && nudging !== v.id ? 0.4 : 1 }}
+                      >
+                        {n.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>

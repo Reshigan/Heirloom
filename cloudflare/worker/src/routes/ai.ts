@@ -1042,6 +1042,17 @@ const REFINE_VARIANTS: { id: string; label: string; instruction: string }[] = [
   },
 ];
 
+// Directional nudges — a follow-up tap on a chosen version, steering it one way.
+const NUDGE_INSTRUCTIONS: Record<string, string> = {
+  warmer: 'Rewrite this letter to feel warmer and more tender, without becoming flowery or generic.',
+  shorter: 'Rewrite this letter to be noticeably shorter and tighter — cut filler and repetition, keep every important point.',
+  longer: 'Expand this letter a little — add warmth and detail that is already implied, without inventing new facts.',
+  plainer: 'Rewrite this letter in plainer, simpler language — short sentences, everyday words, nothing ornate.',
+};
+const NUDGE_LABELS: Record<string, string> = {
+  warmer: 'warmer', shorter: 'shorter', longer: 'fuller', plainer: 'plainer',
+};
+
 // Strip the chatty preamble small models like to prepend ("Here is the
 // rewritten letter:", surrounding quotes) so the body is paste-ready.
 function cleanRefined(raw: string): string {
@@ -1075,9 +1086,11 @@ aiRoutes.post('/refine', async (c) => {
   }
 
   let text = '';
+  let nudge = '';
   try {
     const body = await c.req.json();
     text = (body.text || '').toString().trim();
+    nudge = (body.nudge || '').toString().trim().toLowerCase();
   } catch {
     return c.json({ error: 'Invalid body' }, 400);
   }
@@ -1085,6 +1098,31 @@ aiRoutes.post('/refine', async (c) => {
   // Bound cost: long letters are truncated for the model (the writer keeps the
   // full original — variants are a starting point, not a hard replacement).
   const source = text.slice(0, 4000);
+
+  // A nudge steers an already-chosen version one direction and returns a single
+  // variant — a follow-up tap ("warmer", "shorter") rather than the three-way fan-out.
+  if (nudge) {
+    const instr = NUDGE_INSTRUCTIONS[nudge];
+    if (!instr) return c.json({ error: 'Unknown nudge' }, 400);
+    try {
+      const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+        messages: [
+          {
+            role: 'system',
+            content: `You are a careful editor helping someone write a personal letter to their family. ${instr} Keep every fact and the writer's meaning. Return ONLY the rewritten letter text — no preamble, no explanation, no quotation marks, no markdown.`,
+          },
+          { role: 'user', content: source },
+        ],
+        max_tokens: 700,
+        temperature: 0.6,
+      });
+      const out = cleanRefined((response as any).response || '');
+      if (!out) throw new Error('empty');
+      return c.json({ variants: [{ id: nudge, label: NUDGE_LABELS[nudge], text: out }] });
+    } catch {
+      return c.json({ error: 'Could not refine right now. Your words are saved.' }, 502);
+    }
+  }
 
   const settled = await Promise.allSettled(
     REFINE_VARIANTS.map(async (v) => {

@@ -76,6 +76,8 @@ const ThreadCompose = lazy(() => import('./pages/ThreadCompose').then(m => ({ de
 const DailySentence = lazy(() => import('./pages/DailySentence').then(m => ({ default: m.DailySentence })));
 const FoundersWall = lazy(() => import('./pages/FoundersWall').then(m => ({ default: m.FoundersWall })));
 const Inbox = lazy(() => import('./pages/Inbox').then(m => ({ default: m.Inbox })));
+const SearchPage = lazy(() => import('./pages/SearchPage').then(m => ({ default: m.SearchPage })));
+const ExportPage = lazy(() => import('./pages/ExportPage').then(m => ({ default: m.ExportPage })));
 const QandA = lazy(() => import('./pages/QandA').then(m => ({ default: m.QandA })));
 const Join = lazy(() => import('./pages/Join').then(m => ({ default: m.Join })));
 
@@ -561,6 +563,8 @@ export default function App() {
           <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
           <Route path="/help" element={<ProtectedRoute><HelpSupport /></ProtectedRoute>} />
           <Route path="/inbox" element={<ProtectedRoute><Inbox /></ProtectedRoute>} />
+          <Route path="/search" element={<ProtectedRoute><SearchPage /></ProtectedRoute>} />
+          <Route path="/export" element={<ProtectedRoute><ExportPage /></ProtectedRoute>} />
           <Route path="/ask" element={<ProtectedRoute><QandA /></ProtectedRoute>} />
           <Route path="/qa" element={<Navigate to="/ask" replace />} />
           <Route path="/invite" element={<ProtectedRoute><InviteCard /></ProtectedRoute>} />

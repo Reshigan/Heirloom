@@ -17,6 +17,7 @@
 
 import type { AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
+import { sendPushToUser } from '../routes/push-notifications';
 
 interface PendingUnlock {
   id: string;
@@ -125,6 +126,12 @@ export async function resolveTimeLocks(env: AppEnv['Bindings']): Promise<{
       // the specific target gets the primary email; the rest of the
       // family gets an optional informational note (skipped for now —
       // not all families will want it).
+      // A matured lock is one of the few moments worth a push: a letter written
+      // years ago has just become readable. Email stays the system of record;
+      // push is a best-effort nudge for members with a registered device.
+      const pushUnlock = (userId: string | null) =>
+        notifyUnlockPush(env, userId, lock.thread_name, lock.entry_title, lock.thread_id, lock.entry_id);
+
       if (lock.lock_type === 'AGE' && lock.target_email) {
         await sendUnlockNotification(env, {
           to: lock.target_email,
@@ -135,17 +142,18 @@ export async function resolveTimeLocks(env: AppEnv['Bindings']): Promise<{
           entryId: lock.entry_id,
           context: resolutionNote,
         });
+        await pushUnlock(lock.target_user_id);
         notifications++;
       } else {
         // Notify all active readers + authors of the thread.
         const readers = await env.DB.prepare(
-          `SELECT DISTINCT email
+          `SELECT DISTINCT email, user_id
            FROM thread_members
            WHERE thread_id = ?
              AND revoked_at IS NULL
              AND email IS NOT NULL
              AND email NOT LIKE '%placeholder.heirloom.blue'`,
-        ).bind(lock.thread_id).all<{ email: string }>();
+        ).bind(lock.thread_id).all<{ email: string; user_id: string | null }>();
 
         for (const r of readers.results ?? []) {
           await sendUnlockNotification(env, {
@@ -157,6 +165,7 @@ export async function resolveTimeLocks(env: AppEnv['Bindings']): Promise<{
             entryId: lock.entry_id,
             context: resolutionNote,
           });
+          await pushUnlock(r.user_id);
           notifications++;
         }
       }
@@ -166,6 +175,30 @@ export async function resolveTimeLocks(env: AppEnv['Bindings']): Promise<{
   }
 
   return { resolvedDate, resolvedAge, resolvedGeneration, notifications, errors };
+}
+
+// Best-effort web/native push when a lock matures. Never throws into the cron —
+// push is a nudge, not the source of truth (email already went out).
+async function notifyUnlockPush(
+  env: AppEnv['Bindings'],
+  userId: string | null,
+  threadName: string | null,
+  entryTitle: string | null,
+  threadId: string,
+  entryId: string,
+): Promise<void> {
+  if (!userId) return;
+  try {
+    await sendPushToUser(env, userId, {
+      title: 'An entry just unlocked',
+      body: entryTitle
+        ? `"${entryTitle}" in ${threadName ?? 'your family thread'} is now readable.`
+        : `A sealed entry in ${threadName ?? 'your family thread'} is now readable.`,
+      data: { url: `/threads/${threadId}#entry-${entryId}` },
+    });
+  } catch {
+    // swallow — the email is the guarantee; push is a bonus.
+  }
 }
 
 interface NotificationInput {

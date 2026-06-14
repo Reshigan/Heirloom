@@ -342,9 +342,11 @@ export const aiApi = {
   // Transcribe — Whisper on Workers AI; audioUrl may be an http(s) or data: URL
   transcribe: (data: { audioUrl: string }) => api.post('/ai/transcribe', data),
 
-  // Refine — turn raw (often spoken) text into three letter variants to choose
-  refine: (text: string) =>
-    api.post<{ variants: { id: string; label: string; text: string }[] }>('/ai/refine', { text }),
+  // Refine — turn raw (often spoken) text into three letter variants to choose.
+  // With `nudge`, returns a single variant steered in that direction (a follow-up
+  // tap on an already-chosen version: warmer, shorter, longer, plainer).
+  refine: (text: string, nudge?: 'warmer' | 'shorter' | 'longer' | 'plainer') =>
+    api.post<{ variants: { id: string; label: string; text: string }[] }>('/ai/refine', { text, nudge }),
 
   // Dye auto-classify
   suggestDye: (text: string) => api.post('/ai/suggest-dye', { text }),
@@ -362,6 +364,16 @@ export const searchApi = {
   search: (query: string, type?: 'all' | 'memories' | 'voice' | 'letters', limit?: number) =>
     api.get('/memories/search', { params: { q: query, type, limit } }),
 };
+
+// The bloodline, bound. ExportJob shape for the history list.
+export interface ExportJob {
+  id: string;
+  type: string;
+  status: string;
+  createdAt: string;
+  completedAt: string | null;
+  downloadUrl: string | null;
+}
 
 // Voice transcription API extension
 export const transcriptionApi = {
@@ -399,6 +411,25 @@ export const exportApi = {
   exportData: () => api.get('/settings/export'),
   bookPreview: (config: any) => api.post('/export/book/preview', config),
   bookOrder: (config: any) => api.post('/export/book/order', config),
+  // The bloodline, bound — worker renders PDFs synchronously and returns a
+  // downloadUrl; downloading needs the auth header, so pull the file as a blob
+  // through the authed axios instance rather than a bare link.
+  familyBook: (data: {
+    title?: string;
+    subtitle?: string;
+    dedication?: string;
+    coverStyle?: 'classic' | 'modern' | 'elegant';
+    includeMemories?: boolean;
+    includeLetters?: boolean;
+    includeVoiceTranscripts?: boolean;
+    includeFamilyTree?: boolean;
+  }) =>
+    api.post<{ exportId: string; status: string; downloadUrl: string }>('/export/family-book', data),
+  memoriesPdf: (data: { title?: string; style?: 'classic' | 'modern' | 'elegant' }) =>
+    api.post<{ exportId: string; status: string; downloadUrl: string }>('/export/memories-pdf', data),
+  history: () => api.get<{ exports: ExportJob[] }>('/export/history'),
+  download: (exportId: string) =>
+    api.get(`/export/${exportId}/download`, { responseType: 'blob' }),
 };
 
 // Email verification API extension
