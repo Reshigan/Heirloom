@@ -47,14 +47,19 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
   const [stage, setStage] = useState<Stage>('idle');
   const [elapsed, setElapsed] = useState(0);
   const [working, setWorking] = useState('');
+  const [refining, setRefining] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [transcript, setTranscript] = useState('');
   const [variants, setVariants] = useState<Variant[]>([]);
+  const [level, setLevel] = useState(0);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   const stopTick = () => {
     if (tickRef.current) {
@@ -63,36 +68,60 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
     }
   };
 
+  const stopMeter = () => {
+    if (rafRef.current !== null) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+    analyserRef.current = null;
+    if (audioCtxRef.current) {
+      void audioCtxRef.current.close().catch(() => {});
+      audioCtxRef.current = null;
+    }
+    setLevel(0);
+  };
+
   useEffect(() => () => {
     stopTick();
+    stopMeter();
     streamRef.current?.getTracks().forEach((t) => t.stop());
   }, []);
 
   const process = useCallback(async (blob: Blob) => {
     setStage('working');
+    setWorking('listening to your words…');
+    let heard = '';
     try {
-      setWorking('listening to your words…');
       const dataUrl = await blobToDataUrl(blob);
       const tRes = await aiApi.transcribe({ audioUrl: dataUrl });
-      const heard = (tRes.data?.transcript || '').trim();
-      if (!heard) {
-        setError("Couldn't quite hear that. Try again, a little closer.");
-        setStage('idle');
-        return;
-      }
-      setTranscript(heard);
+      heard = (tRes.data?.transcript || '').trim();
+    } catch {
+      setError('The microphone or network gave out. Try again.');
+      setStage('idle');
+      return;
+    }
+    if (!heard) {
+      setError("Couldn't quite hear that. Try again, a little closer.");
+      setStage('idle');
+      return;
+    }
 
-      setWorking('finding better words…');
+    // Show the raw transcript immediately — no blind wait while refine runs.
+    setTranscript(heard);
+    setVariants([]);
+    setRefining(true);
+    setStage('choosing');
+
+    try {
       const rRes = await aiApi.refine(heard);
       setVariants(rRes.data?.variants ?? []);
-      setStage('choosing');
     } catch {
-      // Transcript may exist even if refine failed — let them keep their words.
+      // Refine failed — the transcript is already keepable, so just stop.
       setVariants([]);
-      setStage(transcript ? 'choosing' : 'idle');
-      if (!transcript) setError('The microphone or network gave out. Try again.');
+    } finally {
+      setRefining(false);
     }
-  }, [transcript]);
+  }, []);
 
   const start = useCallback(async () => {
     setError(null);
@@ -101,6 +130,36 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
+
+      // Live input level for the meter — purely visual, never recorded.
+      try {
+        const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const ctx = new Ctx();
+        audioCtxRef.current = ctx;
+        const source = ctx.createMediaStreamSource(stream);
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 512;
+        source.connect(analyser);
+        analyserRef.current = analyser;
+        const buf = new Uint8Array(analyser.frequencyBinCount);
+        const loop = () => {
+          const a = analyserRef.current;
+          if (!a) return;
+          a.getByteTimeDomainData(buf);
+          let sum = 0;
+          for (let i = 0; i < buf.length; i++) {
+            const v = (buf[i] - 128) / 128;
+            sum += v * v;
+          }
+          const rms = Math.sqrt(sum / buf.length);
+          setLevel((prev) => prev * 0.6 + Math.min(1, rms * 2.6) * 0.4);
+          rafRef.current = requestAnimationFrame(loop);
+        };
+        rafRef.current = requestAnimationFrame(loop);
+      } catch {
+        // Meter is optional — recording proceeds without it.
+      }
+
       const type = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus']
         .find((t) => MediaRecorder.isTypeSupported(t)) ?? '';
       const recorder = new MediaRecorder(stream, {
@@ -113,6 +172,7 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
       recorder.onstop = () => {
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || type || 'audio/webm' });
         stream.getTracks().forEach((t) => t.stop());
+        stopMeter();
         void process(blob);
       };
       recorder.start();
@@ -121,6 +181,7 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
       stopTick();
       tickRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
     } catch {
+      stopMeter();
       setError('We could not start the microphone. Check your browser permissions.');
     }
   }, [process]);
@@ -134,7 +195,10 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
     setStage('idle');
     setTranscript('');
     setVariants([]);
+    setRefining(false);
     setError(null);
+    stopTick();
+    stopMeter();
   }, []);
 
   const choose = (text: string) => {
@@ -163,7 +227,23 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
 
       {stage === 'recording' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <span aria-hidden style={{ width: 8, height: 8, background: 'var(--warm)', boxShadow: '0 0 10px var(--warm)' }} />
+          <span aria-hidden style={{ display: 'flex', alignItems: 'center', gap: 3, height: 22 }}>
+            {[0, 1, 2, 3, 4, 5, 6].map((i) => {
+              // Center bars react most — a soft bell so the meter reads as a voice, not a VU strip.
+              const weight = 1 - Math.abs(i - 3) / 4;
+              const h = 3 + level * weight * 19;
+              return (
+                <span
+                  key={i}
+                  style={{
+                    width: 2, height: h, background: 'var(--warm)',
+                    boxShadow: level > 0.08 ? '0 0 6px var(--warm)' : 'none',
+                    transition: 'height 90ms linear',
+                  }}
+                />
+              );
+            })}
+          </span>
           <span style={{ fontFamily: 'var(--mono)', fontSize: 15, letterSpacing: '0.08em', color: 'var(--bone)' }}>
             {fmt(elapsed)}
           </span>
@@ -191,7 +271,13 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
             </button>
           </div>
 
-          {variants.length > 0 && (
+          {refining && (
+            <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 12 }}>
+              <ProgressHair label="finding better words…" />
+            </div>
+          )}
+
+          {!refining && variants.length > 0 && (
             <div style={{ display: 'grid', gap: 12, borderTop: '1px solid var(--rule)', paddingTop: 12 }}>
               <span style={eyebrow}>or choose a version</span>
               {variants.map((v) => (
