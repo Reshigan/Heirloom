@@ -131,7 +131,13 @@ test.describe('authenticated nav smoke', () => {
 
     for (const path of AUTHED_ROUTES) {
       const errors: string[] = [];
-      const onError = (e: Error) => errors.push(e.message);
+      // Cloudflare's RUM beacon (/cdn-cgi/rum) is blocked by access-control on
+      // some networks and surfaces as a pageerror — third-party telemetry, not
+      // app code. Ignore it; it has nothing to do with whether the route renders.
+      const onError = (e: Error) => {
+        if (/cdn-cgi\/rum|access control checks/i.test(e.message)) return;
+        errors.push(e.message);
+      };
       page.on('pageerror', onError);
 
       await page.goto(path);
