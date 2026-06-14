@@ -50,6 +50,7 @@ export function Marketing() {
   const [vpW, setVpW] = useState(typeof window !== 'undefined' ? window.innerWidth : 1440);
   const [taglineIn, setTaglineIn] = useState(false);
   const pillars  = useReveal(0.08);
+  const arc      = useReveal(0.06);
   const permSect = useReveal(0.06);
   const bookSect = useReveal(0.08);
   const finalCta = useReveal(0.1);
@@ -249,6 +250,52 @@ export function Marketing() {
           </div>
         ))}
         <div style={{ borderTop: '1px solid rgba(244,236,216,0.10)' }} />
+      </section>
+
+      {/* ════════════════════════════════════════════════════════════
+          THE ARC — write → seal → read. Three editorial plates. The
+          headline type is set inside each plate (same serif/mono), so
+          no caption is repeated — the image IS the specimen.
+          ════════════════════════════════════════════════════════════ */}
+      <section
+        ref={arc.ref}
+        style={{
+          padding: 'clamp(72px, 10vh, 120px) clamp(24px, 6vw, 80px)',
+          borderTop: '1px solid rgba(244,236,216,0.07)',
+        }}
+      >
+        <div style={{
+          fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.32em',
+          textTransform: 'uppercase', color: 'rgba(244,236,216,0.26)',
+          marginBottom: 'clamp(40px, 6vh, 60px)',
+        }}>
+          the arc
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(28px, 5vh, 56px)' }}>
+          {([
+            ['/marketing/write.png',  'Write today — the story begins when you decide to.'],
+            ['/marketing/sealed.png', 'Sealed for descendants — locked until they are ready to read it.'],
+            ['/marketing/read.png',   'Read what came before — the voices that wrote before you.'],
+          ] as const).map(([src, alt], i) => (
+            <figure key={i} style={{
+              margin: 0,
+              opacity: arc.visible ? 1 : 0,
+              transform: arc.visible ? 'translateY(0)' : 'translateY(20px)',
+              transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
+              transitionDelay: `${i * 160}ms`,
+            }}>
+              <img
+                src={src}
+                alt={alt}
+                loading="lazy"
+                style={{
+                  width: '100%', height: 'auto', display: 'block',
+                  border: '1px solid rgba(244,236,216,0.07)',
+                }}
+              />
+            </figure>
+          ))}
+        </div>
       </section>
 
       {/* ════════════════════════════════════════════════════════════

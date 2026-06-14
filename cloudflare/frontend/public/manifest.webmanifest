@@ -38,6 +38,8 @@
   ],
   "screenshots": [
     { "src": "/screenshot-wide.png", "sizes": "1376x768", "type": "image/png", "form_factor": "wide", "label": "The Cloth — your family's woven thread" },
+    { "src": "/screenshot-composer.png", "sizes": "1376x768", "type": "image/png", "form_factor": "wide", "label": "The Composer — write tonight's entry" },
+    { "src": "/screenshot-tree.png", "sizes": "1376x768", "type": "image/png", "form_factor": "wide", "label": "The Bloodline — four generations woven" },
     { "src": "/screenshot-narrow.png", "sizes": "768x1376", "type": "image/png", "form_factor": "narrow", "label": "The Cloth — your family's woven thread" }
   ]
 }
