@@ -41,8 +41,11 @@ export function ClothShell({
             display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
             padding: '0 24px',
             paddingTop: 'env(safe-area-inset-top, 0px)',
-            background: 'var(--ink)',
-            borderBottom: '1px solid var(--rule)',
+            // Floats over the filament web: a translucent ink scrim (no blur —
+            // §2.6) with a filament underline. CosmicLoom already settles the
+            // top band into ink, so topbar text stays legible.
+            background: 'var(--ink-translucent)',
+            borderBottom: '1px solid var(--filament)',
           }}
         >
           <div style={{ minWidth: 120 }}>
