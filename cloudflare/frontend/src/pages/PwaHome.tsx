@@ -297,7 +297,10 @@ function AuthHome({
           line, and the selvedge stats. */}
       <div style={{
         position: 'relative',
-        minHeight: 'clamp(380px, 68vh, 640px)',
+        // Fill exactly the first screen above the fixed BottomNav (76px) and
+        // below the topbar (56px) — svh, not vh, so iOS browser chrome can't
+        // overshoot and shove the selvedge stats behind the nav.
+        minHeight: 'clamp(360px, calc(100svh - 132px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), 720px)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'flex-end',
@@ -613,12 +616,6 @@ export function PwaHome() {
 
       {/* First-run experience — shown when the user has no entries yet */}
       {!isNewUserLoading && isNewUser && (
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          overflowY: 'auto',
-          overflowX: 'hidden',
-        }}>
           <div style={{
             padding: 'clamp(40px, 9vw, 64px) clamp(20px, 5vw, 32px)',
             maxWidth: 520,
@@ -679,22 +676,14 @@ export function PwaHome() {
               </div>
             )}
           </div>
-        </div>
       )}
 
-      {/* Scrollable content — transparent so cloth shows through */}
+      {/* Content — ClothShell's <main> is the single scroller: it offsets the
+          topbar and reserves BottomNav clearance, so rendering directly here
+          keeps content off the fixed nav and lets the cloth parallax read
+          `.loom main` scroll. (A nested absolute scroller defeated both.) */}
       {!isNewUser && (
-        <div
-          className="hl-frame-scroll"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            overflowY: 'auto',
-            overflowX: 'hidden',
-          }}
-        >
-          <AuthHome role={role} entries={entries} prompt={prompt} stats={stats} />
-        </div>
+        <AuthHome role={role} entries={entries} prompt={prompt} stats={stats} />
       )}
 
     </ClothShell>
