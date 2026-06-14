@@ -1030,10 +1030,14 @@ export default {
           WHERE deleted_at IS NOT NULL
             AND deleted_at <= datetime('now', '-7 days')
         `).all();
-        for (const row of expired.results) {
-          await env.DB.prepare(`DELETE FROM family_members WHERE id = ?`).bind(row.id).run();
+        const expiredIds = expired.results.map((r: any) => r.id);
+        if (expiredIds.length > 0) {
+          // One round-trip instead of N — cascades still fire per FK ON DELETE CASCADE.
+          await env.DB.prepare(
+            `DELETE FROM family_members WHERE id IN (${expiredIds.map(() => '?').join(',')})`
+          ).bind(...expiredIds).run();
         }
-        console.log(`Family member purge — removed:${expired.results.length}`);
+        console.log(`Family member purge — removed:${expiredIds.length}`);
       } catch (e) {
         console.error('Family member purge error:', e);
       }
@@ -1071,7 +1075,7 @@ export default {
       await env.DB.batch([
         env.DB.prepare(`DELETE FROM marketing_audit_log WHERE created_at < datetime('now', '-90 days')`),
         env.DB.prepare(`DELETE FROM post_reminder_emails WHERE sent_at < datetime('now', '-365 days')`),
-        env.DB.prepare(`DELETE FROM notifications WHERE created_at < datetime('now', '-180 days') AND (is_read = 1 OR is_read IS NULL)`),
+        env.DB.prepare(`DELETE FROM notifications WHERE created_at < datetime('now', '-180 days') AND (read = 1 OR read IS NULL)`),
       ]);
       console.log('Stale audit/reminder/notification rows purged.');
 

@@ -203,10 +203,13 @@ announcementsRoutes.post('/admin/:id/send-email', adminAuth, async (c) => {
   let sentCount = 0;
   let failedCount = 0;
 
+  // Send all emails first; collect the audit-row inserts and flush them in one
+  // D1 batch instead of an INSERT round-trip per recipient.
+  const emailWrites = [];
   for (const user of recipients) {
     try {
       const emailId = crypto.randomUUID().replace(/-/g, '');
-      
+
       const result = await sendEmail(c.env, {
         from: 'Heirloom <updates@heirloom.blue>',
         to: (user as any).email,
@@ -214,16 +217,18 @@ announcementsRoutes.post('/admin/:id/send-email', adminAuth, async (c) => {
         html: generateAnnouncementEmail(announcement, (user as any).name),
       }, 'ANNOUNCEMENT');
 
-      await c.env.DB.prepare(`
-        INSERT INTO announcement_emails (id, announcement_id, user_id, email, status, sent_at)
-        VALUES (?, ?, ?, ?, ?, datetime('now'))
-      `).bind(
-        emailId,
-        announcementId,
-        (user as any).id,
-        (user as any).email,
-        result.success ? 'SENT' : 'FAILED'
-      ).run();
+      emailWrites.push(
+        c.env.DB.prepare(`
+          INSERT INTO announcement_emails (id, announcement_id, user_id, email, status, sent_at)
+          VALUES (?, ?, ?, ?, ?, datetime('now'))
+        `).bind(
+          emailId,
+          announcementId,
+          (user as any).id,
+          (user as any).email,
+          result.success ? 'SENT' : 'FAILED'
+        )
+      );
 
       if (result.success) {
         sentCount++;
@@ -235,13 +240,16 @@ announcementsRoutes.post('/admin/:id/send-email', adminAuth, async (c) => {
     }
   }
 
-  // Update announcement with email sent info
-  await c.env.DB.prepare(`
-    UPDATE announcements SET 
-      email_sent_at = datetime('now'),
-      email_sent_count = ?
-    WHERE id = ?
-  `).bind(sentCount, announcementId).run();
+  // Audit rows + the announcement summary in one round-trip.
+  emailWrites.push(
+    c.env.DB.prepare(`
+      UPDATE announcements SET
+        email_sent_at = datetime('now'),
+        email_sent_count = ?
+      WHERE id = ?
+    `).bind(sentCount, announcementId)
+  );
+  await c.env.DB.batch(emailWrites);
 
   return c.json({ success: true, sentCount, failedCount, totalRecipients: recipients.length });
 });
@@ -260,6 +268,9 @@ announcementsRoutes.post('/admin/send-influencer-vouchers', adminAuth, async (c)
   let sentCount = 0;
   let failedCount = 0;
 
+  // Send first, collect the status UPDATEs, flush in one batch (was one UPDATE
+  // round-trip per contacted influencer).
+  const statusWrites = [];
   for (let i = 0; i < recipients.length; i++) {
     const influencer = recipients[i] as any;
     const voucherCode = voucherCodes && voucherCodes[i] ? voucherCodes[i] : null;
@@ -274,9 +285,11 @@ announcementsRoutes.post('/admin/send-influencer-vouchers', adminAuth, async (c)
 
       if (result.success) {
         sentCount++;
-        await c.env.DB.prepare(`
-          UPDATE influencers SET status = 'CONTACTED', last_contacted_at = datetime('now') WHERE id = ?
-        `).bind(influencer.id).run();
+        statusWrites.push(
+          c.env.DB.prepare(`
+            UPDATE influencers SET status = 'CONTACTED', last_contacted_at = datetime('now') WHERE id = ?
+          `).bind(influencer.id)
+        );
       } else {
         failedCount++;
       }
@@ -284,6 +297,7 @@ announcementsRoutes.post('/admin/send-influencer-vouchers', adminAuth, async (c)
       failedCount++;
     }
   }
+  if (statusWrites.length > 0) await c.env.DB.batch(statusWrites);
 
   return c.json({ success: true, sentCount, failedCount, totalRecipients: recipients.length });
 });

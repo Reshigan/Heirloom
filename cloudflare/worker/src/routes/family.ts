@@ -107,27 +107,29 @@ async function redeliverPendingLetters(
 familyRoutes.get('/', async (c) => {
   const userId = c.get('userId');
   
-  // Get family members with counts
-  const members = await c.env.DB.prepare(`
-    SELECT
-      fm.*,
-      (SELECT COUNT(*) FROM memory_recipients mr WHERE mr.family_member_id = fm.id) as memory_count,
-      (SELECT COUNT(*) FROM letter_recipients lr WHERE lr.family_member_id = fm.id) as letter_count,
-      (SELECT COUNT(*) FROM voice_recipients vr WHERE vr.family_member_id = fm.id) as voice_count
-    FROM family_members fm
-    WHERE fm.user_id = ? AND fm.deleted_at IS NULL
-    ORDER BY fm.created_at ASC
-    LIMIT 500
-  `).bind(userId).all();
-
-  // Include soft-deleted members still within grace window so the UI can offer restore
-  const pending = await c.env.DB.prepare(`
-    SELECT fm.*
-    FROM family_members fm
-    WHERE fm.user_id = ? AND fm.deleted_at IS NOT NULL
-      AND fm.deleted_at > datetime('now', '-7 days')
-    ORDER BY fm.deleted_at DESC
-  `).bind(userId).all();
+  // Active members (with counts) and grace-window soft-deletes are independent
+  // reads — fetch them in parallel (one round-trip instead of two sequential).
+  const [members, pending] = await Promise.all([
+    c.env.DB.prepare(`
+      SELECT
+        fm.*,
+        (SELECT COUNT(*) FROM memory_recipients mr WHERE mr.family_member_id = fm.id) as memory_count,
+        (SELECT COUNT(*) FROM letter_recipients lr WHERE lr.family_member_id = fm.id) as letter_count,
+        (SELECT COUNT(*) FROM voice_recipients vr WHERE vr.family_member_id = fm.id) as voice_count
+      FROM family_members fm
+      WHERE fm.user_id = ? AND fm.deleted_at IS NULL
+      ORDER BY fm.created_at ASC
+      LIMIT 500
+    `).bind(userId).all(),
+    // Include soft-deleted members still within grace window so the UI can offer restore
+    c.env.DB.prepare(`
+      SELECT fm.*
+      FROM family_members fm
+      WHERE fm.user_id = ? AND fm.deleted_at IS NOT NULL
+        AND fm.deleted_at > datetime('now', '-7 days')
+      ORDER BY fm.deleted_at DESC
+    `).bind(userId).all(),
+  ]);
 
   return c.json([
     ...members.results.map((m: any) => ({

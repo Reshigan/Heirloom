@@ -44,13 +44,21 @@ export async function backfillMemoryDescriptionEncryption(env: Env): Promise<Bac
     const pending = rows.results as Array<{ id: string; description: string }>;
     if (pending.length === 0) break;
 
+    // Encrypt each row (CPU-bound, sequential), collecting the writes; flush the
+    // whole batch in ONE D1 round-trip instead of up to BATCH sequential UPDATEs.
+    const updates = [];
     for (const row of pending) {
       const enc = await encryptText(env, row.description);
       if (!enc) continue; // key vanished mid-run — bail safely next read
-      await env.DB.prepare(
-        `UPDATE memories SET description = NULL, description_enc = ?, description_iv = ? WHERE id = ?`,
-      ).bind(enc.ciphertext, enc.iv, row.id).run();
-      encrypted++;
+      updates.push(
+        env.DB.prepare(
+          `UPDATE memories SET description = NULL, description_enc = ?, description_iv = ? WHERE id = ?`,
+        ).bind(enc.ciphertext, enc.iv, row.id),
+      );
+    }
+    if (updates.length > 0) {
+      await env.DB.batch(updates);
+      encrypted += updates.length;
     }
 
     if (pending.length < BATCH) break; // drained

@@ -23,37 +23,46 @@ voiceRoutes.get('/', async (c) => {
     ORDER BY created_at DESC LIMIT ? OFFSET ?
   `).bind(userId, limit, offset).all();
   
-  // Get recipients for each recording
-  const recordingsWithRecipients = await Promise.all(
-    recordings.results.map(async (recording: any) => {
-      const recipients = await c.env.DB.prepare(`
-        SELECT fm.id, fm.name, fm.relationship FROM family_members fm
-        JOIN voice_recipients vr ON fm.id = vr.family_member_id
-        WHERE vr.voice_recording_id = ?
-      `).bind(recording.id).all();
-      
-      // Fallback: construct fileUrl from file_key if file_url is missing or broken
-      let fileUrl = recording.file_url;
-      if ((!fileUrl || fileUrl.includes('undefined')) && recording.file_key) {
-        fileUrl = `${c.env.API_URL}/api/voice/file/${encodeURIComponent(recording.file_key)}`;
-      }
-      return {
-        id: recording.id,
-        title: recording.title,
-        description: recording.description,
-        fileUrl,
-        fileKey: recording.file_key,
-        duration: recording.duration,
-        fileSize: recording.file_size,
-        transcript: recording.transcript,
-        emotion: recording.emotion,
-        encrypted: !!recording.encrypted,
-        recipients: recipients.results,
-        createdAt: recording.created_at,
-        updatedAt: recording.updated_at,
-      };
-    })
-  );
+  // Recipients for the whole page in ONE query (was N+1: one per recording),
+  // then grouped in-memory by recording id.
+  const recordingIds = recordings.results.map((r: any) => r.id);
+  const recipientsByRecording = new Map<string, any[]>();
+  if (recordingIds.length > 0) {
+    const allRecipients = await c.env.DB.prepare(`
+      SELECT vr.voice_recording_id, fm.id, fm.name, fm.relationship
+      FROM family_members fm
+      JOIN voice_recipients vr ON fm.id = vr.family_member_id
+      WHERE vr.voice_recording_id IN (${recordingIds.map(() => '?').join(',')})
+    `).bind(...recordingIds).all();
+    for (const row of allRecipients.results as any[]) {
+      const list = recipientsByRecording.get(row.voice_recording_id) ?? [];
+      list.push({ id: row.id, name: row.name, relationship: row.relationship });
+      recipientsByRecording.set(row.voice_recording_id, list);
+    }
+  }
+
+  const recordingsWithRecipients = recordings.results.map((recording: any) => {
+    // Fallback: construct fileUrl from file_key if file_url is missing or broken
+    let fileUrl = recording.file_url;
+    if ((!fileUrl || fileUrl.includes('undefined')) && recording.file_key) {
+      fileUrl = `${c.env.API_URL}/api/voice/file/${encodeURIComponent(recording.file_key)}`;
+    }
+    return {
+      id: recording.id,
+      title: recording.title,
+      description: recording.description,
+      fileUrl,
+      fileKey: recording.file_key,
+      duration: recording.duration,
+      fileSize: recording.file_size,
+      transcript: recording.transcript,
+      emotion: recording.emotion,
+      encrypted: !!recording.encrypted,
+      recipients: recipientsByRecording.get(recording.id) ?? [],
+      createdAt: recording.created_at,
+      updatedAt: recording.updated_at,
+    };
+  });
   
   // Get total count
   const countResult = await c.env.DB.prepare(`

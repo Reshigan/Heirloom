@@ -19,11 +19,17 @@ export const engagementRoutes = new Hono<AppEnv>();
 engagementRoutes.get('/streaks', requireAuth, async (c) => {
   const userId = c.get('userId');
   
-  // Get or create streak record
-  let streak = await c.env.DB.prepare(`
-    SELECT * FROM user_streaks WHERE user_id = ?
-  `).bind(userId).first();
-  
+  // Streak and badges are independent reads — fetch in parallel. (The streak
+  // INSERT below only fires on first-ever visit, so the common path is 1 round-trip.)
+  let [streak, badges] = await Promise.all([
+    c.env.DB.prepare(`SELECT * FROM user_streaks WHERE user_id = ?`).bind(userId).first(),
+    c.env.DB.prepare(`
+      SELECT badge_type, badge_name, badge_description, earned_at
+      FROM user_badges WHERE user_id = ?
+      ORDER BY earned_at DESC
+    `).bind(userId).all(),
+  ]);
+
   if (!streak) {
     const now = new Date().toISOString();
     const id = crypto.randomUUID();
@@ -33,13 +39,6 @@ engagementRoutes.get('/streaks', requireAuth, async (c) => {
     `).bind(id, userId, now, now).run();
     streak = { id, user_id: userId, current_streak: 0, longest_streak: 0, total_activity_days: 0 };
   }
-  
-  // Get badges
-  const badges = await c.env.DB.prepare(`
-    SELECT badge_type, badge_name, badge_description, earned_at
-    FROM user_badges WHERE user_id = ?
-    ORDER BY earned_at DESC
-  `).bind(userId).all();
   
   return c.json({
     streak: {

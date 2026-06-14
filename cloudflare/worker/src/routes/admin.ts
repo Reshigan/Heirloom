@@ -216,54 +216,48 @@ adminRoutes.get('/me', adminAuth, async (c) => {
 
 // Get dashboard analytics
 adminRoutes.get('/analytics', adminAuth, async (c) => {
-  // User stats
-  const userStats = await c.env.DB.prepare(`
-    SELECT 
-      COUNT(*) as total_users,
-      SUM(CASE WHEN created_at > datetime('now', '-7 days') THEN 1 ELSE 0 END) as new_users_week,
-      SUM(CASE WHEN created_at > datetime('now', '-30 days') THEN 1 ELSE 0 END) as new_users_month
-    FROM users
-  `).first();
-  
-  // Subscription stats
-  const subStats = await c.env.DB.prepare(`
-    SELECT 
-      tier,
-      COUNT(*) as count
-    FROM subscriptions
-    WHERE status = 'ACTIVE'
-    GROUP BY tier
-  `).all();
-  
-  // Content stats
-  const contentStats = await c.env.DB.prepare(`
-    SELECT 
-      (SELECT COUNT(*) FROM memories) as total_memories,
-      (SELECT COUNT(*) FROM letters) as total_letters,
-      (SELECT COUNT(*) FROM voice_recordings) as total_voice,
-      (SELECT COUNT(*) FROM family_members) as total_family_members
-  `).first();
-  
-  // Storage stats
-  const storageStats = await c.env.DB.prepare(`
-    SELECT 
-      COALESCE(SUM(file_size), 0) as memory_storage
-    FROM memories
-  `).first();
-  
-  const voiceStorage = await c.env.DB.prepare(`
-    SELECT 
-      COALESCE(SUM(file_size), 0) as voice_storage
-    FROM voice_recordings
-  `).first();
-  
-  // Recent activity
-  const recentUsers = await c.env.DB.prepare(`
-    SELECT id, email, first_name, last_name, created_at
-    FROM users
-    ORDER BY created_at DESC
-    LIMIT 10
-  `).all();
+  // All six dashboard reads are independent — fire them in parallel (one
+  // round-trip's worth of latency instead of six sequential).
+  const [userStats, subStats, contentStats, storageStats, voiceStorage, recentUsers] = await Promise.all([
+    c.env.DB.prepare(`
+      SELECT
+        COUNT(*) as total_users,
+        SUM(CASE WHEN created_at > datetime('now', '-7 days') THEN 1 ELSE 0 END) as new_users_week,
+        SUM(CASE WHEN created_at > datetime('now', '-30 days') THEN 1 ELSE 0 END) as new_users_month
+      FROM users
+    `).first(),
+    c.env.DB.prepare(`
+      SELECT
+        tier,
+        COUNT(*) as count
+      FROM subscriptions
+      WHERE status = 'ACTIVE'
+      GROUP BY tier
+    `).all(),
+    c.env.DB.prepare(`
+      SELECT
+        (SELECT COUNT(*) FROM memories) as total_memories,
+        (SELECT COUNT(*) FROM letters) as total_letters,
+        (SELECT COUNT(*) FROM voice_recordings) as total_voice,
+        (SELECT COUNT(*) FROM family_members) as total_family_members
+    `).first(),
+    c.env.DB.prepare(`
+      SELECT
+        COALESCE(SUM(file_size), 0) as memory_storage
+      FROM memories
+    `).first(),
+    c.env.DB.prepare(`
+      SELECT
+        COALESCE(SUM(file_size), 0) as voice_storage
+      FROM voice_recordings
+    `).first(),
+    c.env.DB.prepare(`
+      SELECT id, email, first_name, last_name, created_at
+      FROM users
+      ORDER BY created_at DESC
+      LIMIT 10
+    `).all(),
+  ]);
   
   return c.json({
     users: {

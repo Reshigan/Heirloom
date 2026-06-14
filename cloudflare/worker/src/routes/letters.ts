@@ -711,21 +711,24 @@ lettersRoutes.post('/:id/release', async (c) => {
   if (!letter.sealed_at) return c.json({ error: 'Letter must be sealed before it can be released' }, 400);
   if (letter.delivered_at) return c.json({ error: 'Letter has already been released' }, 400);
 
-  const author = await c.env.DB.prepare(`SELECT first_name, last_name FROM users WHERE id = ?`).bind(userId).first() as
-    | { first_name: string; last_name: string }
-    | null;
+  // Author name and recipient list are independent reads — fetch in parallel.
+  const [author, recipients] = await Promise.all([
+    c.env.DB.prepare(`SELECT first_name, last_name FROM users WHERE id = ?`).bind(userId).first() as Promise<
+      { first_name: string; last_name: string } | null
+    >,
+    c.env.DB.prepare(`
+      SELECT fm.email, fm.name FROM family_members fm
+      JOIN letter_recipients lr ON fm.id = lr.family_member_id
+      WHERE lr.letter_id = ?
+    `).bind(letterId).all(),
+  ]);
   const senderName = `${author?.first_name ?? ''} ${author?.last_name ?? ''}`.trim() || 'your family';
-
-  const recipients = await c.env.DB.prepare(`
-    SELECT fm.email, fm.name FROM family_members fm
-    JOIN letter_recipients lr ON fm.id = lr.family_member_id
-    WHERE lr.letter_id = ?
-  `).bind(letterId).all();
 
   const recipientsWithEmail = (recipients.results as any[]).filter((r) => r.email);
   const now = new Date().toISOString();
-  let sent = 0;
+  const deliveredEmails: string[] = [];
 
+  // Send emails first (each gated on success); defer all DB writes to one batch.
   for (const recipient of recipientsWithEmail) {
     try {
       const { subject, html } = letterDeliveryEmail(recipient.name || 'there', senderName, {
@@ -743,19 +746,24 @@ lettersRoutes.post('/:id/release', async (c) => {
         },
         'letter_delivery'
       );
-      await c.env.DB.prepare(`
-        UPDATE letter_deliveries SET status = 'DELIVERED', sent_at = ?, delivered_at = ?, updated_at = ?
-        WHERE letter_id = ? AND recipient_email = ?
-      `).bind(now, now, now, letterId, recipient.email).run();
-      sent++;
+      deliveredEmails.push(recipient.email);
     } catch (err) {
       console.error('Letter release email failed', recipient.email, err);
     }
   }
 
-  await c.env.DB.prepare(`
-    UPDATE letters SET delivered_at = ?, updated_at = ? WHERE id = ?
-  `).bind(now, now, letterId).run();
+  // One round-trip for all delivery rows + the letter, instead of N+1 sequential writes.
+  const writes = deliveredEmails.map((email) =>
+    c.env.DB.prepare(`
+      UPDATE letter_deliveries SET status = 'DELIVERED', sent_at = ?, delivered_at = ?, updated_at = ?
+      WHERE letter_id = ? AND recipient_email = ?
+    `).bind(now, now, now, letterId, email)
+  );
+  writes.push(
+    c.env.DB.prepare(`UPDATE letters SET delivered_at = ?, updated_at = ? WHERE id = ?`).bind(now, now, letterId)
+  );
+  await c.env.DB.batch(writes);
+  const sent = deliveredEmails.length;
 
   return c.json({ id: letterId, deliveredAt: now, emailsSent: sent, message: 'Letter released' });
 });
