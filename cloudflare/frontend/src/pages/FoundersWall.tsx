@@ -316,8 +316,6 @@ export function FoundersWall() {
               to="/founder"
               className="hl-btn"
               style={{
-                background: 'var(--warm)',
-                color: 'var(--bone)',
                 textDecoration: 'none',
                 whiteSpace: 'nowrap',
               }}

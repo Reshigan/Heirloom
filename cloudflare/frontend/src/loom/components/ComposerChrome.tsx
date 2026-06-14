@@ -162,7 +162,7 @@ export function ListenerLine({
         letterSpacing: '0.03em',
         color: 'var(--bone-dim)',
         maxWidth: '40ch',
-        borderLeft: '1px solid rgba(176,122,74,0.28)',
+        borderLeft: '1px solid var(--rule-warm)',
         paddingLeft: 'clamp(14px, 2.5vw, 22px)',
       }}
     >

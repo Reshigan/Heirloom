@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { lettersApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { type Letter } from '../types';
 import { formatDate } from '../utils/date';
 
@@ -94,7 +95,9 @@ export function Letters() {
             </h1>
 
             {isLoading ? (
-              <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.4, marginBottom: 24 }} />
+              <div style={{ marginBottom: 24 }}>
+                <ProgressHair width={80} />
+              </div>
             ) : isError ? (
               <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
                 could not load letters — try refreshing
@@ -311,11 +314,11 @@ function LetterRow({ letter }: { letter: Letter }) {
                     Deliver now?
                   </span>
                   <button type="button" onClick={() => releaseMut.mutate()} disabled={releaseMut.isPending}
-                    style={{ background: 'transparent', border: '1px solid var(--warm)', borderRadius: 0, padding: '5px 12px', cursor: releaseMut.isPending ? 'wait' : 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--warm)', opacity: releaseMut.isPending ? 0.6 : 1 }}>
+                    className="hl-btn ghost" style={{ cursor: releaseMut.isPending ? 'wait' : 'pointer', opacity: releaseMut.isPending ? 0.6 : 1 }}>
                     {releaseMut.isPending ? 'releasing…' : 'confirm release'}
                   </button>
                   <button type="button" onClick={() => setConfirmRelease(false)} disabled={releaseMut.isPending}
-                    style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                    className="hl-btn text">
                     not yet
                   </button>
                   {releaseMut.isError && (
@@ -349,11 +352,11 @@ function LetterRow({ letter }: { letter: Letter }) {
         <div style={{ paddingBottom: 14, paddingLeft: 96, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
           <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>Delete this draft?</span>
           <button type="button" onClick={() => { setDeleteError(null); deleteMut.mutate(); }} disabled={deleteMut.isPending}
-            style={{ background: 'transparent', border: '1px solid var(--danger)', borderRadius: 0, padding: '5px 12px', cursor: deleteMut.isPending ? 'wait' : 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--danger)', opacity: deleteMut.isPending ? 0.6 : 1 }}>
+            className="hl-btn ghost" style={{ cursor: deleteMut.isPending ? 'wait' : 'pointer', opacity: deleteMut.isPending ? 0.6 : 1 }}>
             {deleteMut.isPending ? 'deleting…' : 'confirm'}
           </button>
           <button type="button" onClick={() => { setConfirmDelete(false); setDeleteError(null); }}
-            style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+            className="hl-btn text">
             cancel
           </button>
           {deleteError && (

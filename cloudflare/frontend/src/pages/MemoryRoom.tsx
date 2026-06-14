@@ -350,7 +350,7 @@ export function MemoryRoom() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(250,246,238,0.72)',
+            background: 'var(--ink-translucent)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -476,11 +476,12 @@ export function MemoryRoom() {
                         letterSpacing: '0.18em',
                         textTransform: 'uppercase',
                         border: '1px solid var(--parchment-rule)',
+                        borderBottom: contentType === 'TEXT' ? '2px solid var(--warm)' : '1px solid var(--parchment-rule)',
                         borderRadius: 0,
                         cursor: 'pointer',
-                        background: contentType === 'TEXT' ? 'var(--warm)' : 'transparent',
-                        color: contentType === 'TEXT' ? 'var(--bone)' : 'var(--parchment-ink)',
-                        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
+                        background: 'transparent',
+                        color: contentType === 'TEXT' ? 'var(--warm)' : 'var(--parchment-faint)',
+                        transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     >
                       Story

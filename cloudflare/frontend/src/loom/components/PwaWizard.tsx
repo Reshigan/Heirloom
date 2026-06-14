@@ -41,7 +41,7 @@ function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | 'trigger' |
 
   if (kind === 'seal') {
     return (
-      <div style={{ margin: '24px 0', padding: '16px 18px', borderLeft: '2px solid rgba(176,122,74,0.55)', border: '1px solid var(--rule)', borderLeftWidth: 2, borderLeftColor: 'rgba(176,122,74,0.55)' }}>
+      <div style={{ margin: '24px 0', padding: '16px 18px', borderLeft: '2px solid var(--warm)', border: '1px solid var(--rule)', borderLeftWidth: 2, borderLeftColor: 'var(--warm)' }}>
         <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 10 }}>
           sealed · for Clara · opens: her wedding day
         </div>
@@ -51,7 +51,7 @@ function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | 'trigger' |
             a letter from Margaret — written today
           </span>
         </div>
-        <div className="hl-mono" style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(176,122,74,0.65)', marginTop: 10 }}>
+        <div className="hl-mono" style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm-dim)', marginTop: 10 }}>
           awaiting · est. 2041
         </div>
       </div>
@@ -71,13 +71,13 @@ function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | 'trigger' |
           <div key={t.label} style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '10px 14px',
-            border: `1px solid ${t.active ? 'rgba(176,122,74,0.55)' : 'var(--rule)'}`,
+            border: `1px solid ${t.active ? 'var(--rule-warm)' : 'var(--rule)'}`,
             borderLeft: `2px solid ${t.active ? 'var(--warm)' : 'transparent'}`,
           }}>
             <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: t.active ? 'var(--warm)' : 'var(--bone-faint)' }}>
               {t.label}
             </span>
-            <span className="hl-mono" style={{ fontSize: 9, letterSpacing: '0.12em', color: t.active ? 'rgba(176,122,74,0.65)' : 'var(--bone-faint)', opacity: 0.7 }}>
+            <span className="hl-mono" style={{ fontSize: 9, letterSpacing: '0.12em', color: t.active ? 'var(--warm-dim)' : 'var(--bone-faint)', opacity: 0.7 }}>
               {t.hint}
             </span>
           </div>

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { threadsApi, memoriesApi, type UpcomingUnlock, type ThreadLockType } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { ProgressHair } from '../loom/components/ProgressHair';
 
 /**
  * Inbox — Loom 3 native "What is waiting."
@@ -167,7 +168,9 @@ export function Inbox() {
         )}
 
         {loading ? (
-          <div role="status" aria-label="Loading" style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.4, marginTop: 40 }} />
+          <div style={{ marginTop: 40 }}>
+            <ProgressHair width={80} />
+          </div>
         ) : sealed.length === 0 && opened.length === 0 ? (
           <EmptyState />
         ) : (

@@ -105,7 +105,7 @@ export function UserMenu() {
           top: 'calc(100% + 10px)',
           right: 0,
           minWidth: 200,
-          background: '#111110',
+          background: 'var(--ink-card)',
           border: '1px solid var(--rule)',
           zIndex: 50,
           borderRadius: 0,
@@ -303,7 +303,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
               className="hl-topbar-action"
               style={{
                 background: 'transparent',
-                border: '1px solid rgba(176,122,74,0.4)',
+                border: '1px solid var(--rule-warm)',
                 color: 'var(--warm)',
                 fontFamily: 'var(--mono)',
                 fontSize: 10,

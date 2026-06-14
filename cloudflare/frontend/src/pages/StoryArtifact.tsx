@@ -250,8 +250,8 @@ export function StoryArtifact() {
       <div
         style={{
           background: 'var(--ink)',
-          padding: '40px 48px',
-          maxWidth: 640,
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+          maxWidth: 'var(--page-max-prose)',
           margin: '0 auto',
           minHeight: '100%',
           boxSizing: 'border-box',
@@ -562,17 +562,20 @@ export function StoryArtifact() {
                 type="button"
                 onClick={() => resetForm()}
                 aria-label="Close"
+                className="hl-mono"
                 style={{
                   background: 'transparent',
                   border: 0,
                   cursor: 'pointer',
                   color: 'var(--bone-faint)',
-                  fontSize: 18,
+                  fontSize: 10,
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
                   lineHeight: 1,
                   padding: 4,
                 }}
               >
-                ✕
+                close
               </button>
             </div>
 
@@ -746,7 +749,7 @@ export function StoryArtifact() {
                             justifyContent: 'center',
                           }}
                         >
-                          <span style={{ color: 'var(--bone)', fontSize: 16 }}>✓</span>
+                          <span className="hl-mono" style={{ color: 'var(--bone)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' }}>selected</span>
                         </div>
                       )}
                     </button>

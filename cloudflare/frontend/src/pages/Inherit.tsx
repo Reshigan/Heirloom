@@ -684,15 +684,16 @@ export function Inherit() {
                   top: 1,
                   bottom: 1,
                   padding: '0 14px',
-                  background: 'var(--warm)',
+                  background: 'transparent',
                   border: 0,
+                  borderLeft: '1px solid var(--rule-warm)',
                   cursor: searchLoading || searchQuery.trim().length < 3 ? 'not-allowed' : 'pointer',
                   opacity: searchLoading || searchQuery.trim().length < 3 ? 0.4 : 1,
                   fontFamily: 'var(--mono)',
                   fontSize: 9,
                   letterSpacing: '0.22em',
                   textTransform: 'uppercase',
-                  color: 'var(--ink)',
+                  color: 'var(--warm)',
                   transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
                 }}
               >
@@ -951,8 +952,8 @@ export function Inherit() {
                       style={{
                         width: 44,
                         height: 44,
-                        background: playingVoiceId === recording.id ? 'var(--warm)' : 'transparent',
-                        border: '1px solid var(--parchment-rule)',
+                        background: 'transparent',
+                        border: playingVoiceId === recording.id ? '1px solid var(--warm)' : '1px solid var(--parchment-rule)',
                         cursor: 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -960,8 +961,8 @@ export function Inherit() {
                         fontFamily: 'var(--mono)',
                         fontSize: 10,
                         letterSpacing: '0.1em',
-                        color: playingVoiceId === recording.id ? 'var(--ink)' : 'var(--warm)',
-                        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        color: 'var(--warm)',
+                        transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
                         flexShrink: 0,
                       }}
                     >

@@ -136,15 +136,12 @@ export function Marketing() {
           }}>
             <Link
               to="/signup"
+              className="hl-btn"
               style={{
                 display: 'inline-block', padding: '12px 28px',
-                background: 'var(--warm)', color: 'var(--ink)',
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
                 textTransform: 'uppercase', textDecoration: 'none',
-                transition: `opacity 180ms ${ease}`,
               }}
-              onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
-              onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
             >
               begin the thread →
             </Link>
@@ -400,22 +397,13 @@ export function Marketing() {
           </p>
           <Link
             to="/book-builder"
+            className="hl-btn ghost"
             style={{
               display: 'inline-block', padding: '11px 28px',
-              border: '1px solid rgba(176,122,74,0.45)',
-              color: 'rgba(176,122,74,0.85)',
+              color: 'var(--warm)',
               fontFamily: 'var(--mono)', fontSize: 10,
               letterSpacing: '0.22em', textTransform: 'uppercase',
               textDecoration: 'none',
-              transition: `border-color 180ms ${ease}, color 180ms ${ease}`,
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'rgba(176,122,74,0.85)';
-              e.currentTarget.style.color = 'rgba(176,122,74,1)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'rgba(176,122,74,0.45)';
-              e.currentTarget.style.color = 'rgba(176,122,74,0.85)';
             }}
           >
             build the book →
@@ -493,16 +481,13 @@ export function Marketing() {
         </p>
         <Link
           to="/signup"
+          className="hl-btn"
           style={{
             display: 'inline-block', padding: '14px 36px',
-            background: 'var(--warm)', color: 'var(--ink)',
             fontFamily: 'var(--mono)', fontSize: 11,
             letterSpacing: '0.22em', textTransform: 'uppercase',
             textDecoration: 'none',
-            transition: `opacity 180ms ${ease}`,
           }}
-          onMouseEnter={e => { e.currentTarget.style.opacity = '0.85'; }}
-          onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
         >
           begin the thousand-year thread →
         </Link>

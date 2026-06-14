@@ -5,6 +5,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { Link } from 'react-router-dom';
 import { dyeColor } from '../loom/dye';
+import { ProgressHair } from '../loom/components/ProgressHair';
 
 export function ThreadsIndex() {
   const { isAuthenticated } = useAuthStore();
@@ -21,7 +22,9 @@ export function ThreadsIndex() {
       topbarLeft={<Breadcrumbs trail={[{ label: 'today', to: '/loom/today' }, { label: 'threads' }]} />}
     >
       {isLoading && (
-        <progress style={{ display: 'block', width: '100%', height: 1, marginBottom: 24, appearance: 'none', accentColor: 'var(--warm)' }} />
+        <div style={{ marginBottom: 24 }}>
+          <ProgressHair />
+        </div>
       )}
 
       <div

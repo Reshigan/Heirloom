@@ -72,7 +72,7 @@ export function Contact() {
           <div role="status" style={{ paddingTop: 40 }}>
             <p
               className="hl-serif"
-              style={{ fontSize: 36, color: 'var(--warm)', margin: '0 0 28px', lineHeight: 1 }}
+              style={{ fontSize: 32, color: 'var(--bone-faint)', margin: '0 0 28px', lineHeight: 1 }}
               aria-hidden
             >
               ∞

@@ -113,7 +113,7 @@ export function Streaks() {
       >
         {/* ── Kicker + H1 ── */}
         <p className="hl-eyebrow" style={{ margin: '0 0 22px', color: 'var(--bone-faint)', display: 'flex', alignItems: 'center', gap: 9 }}>
-          <span aria-hidden style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--warm)', display: 'inline-block' }} />
+          <span aria-hidden style={{ width: 5, height: 5, borderRadius: 0, background: 'var(--warm)', display: 'inline-block' }} />
           Continuity
         </p>
         <h1
@@ -412,7 +412,7 @@ export function Streaks() {
                         style={{
                           width: 6,
                           height: 6,
-                          borderRadius: '50%',
+                          borderRadius: 0,
                           background: reached ? 'var(--warm)' : 'transparent',
                           border: reached ? 'none' : '1px solid var(--rule)',
                           alignSelf: 'center',
@@ -566,7 +566,7 @@ export function Streaks() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(14,14,12,0.85)',
+            background: 'var(--ink-translucent)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
