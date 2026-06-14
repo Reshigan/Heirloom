@@ -605,9 +605,8 @@ export function Referrals() {
           onClick={() => setShowInviteModal(false)}
         >
           <div
+            className="cosmic-panel cosmic-panel--solid"
             style={{
-              background: '#0e0e0c',
-              border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 440,
               width: '100%',

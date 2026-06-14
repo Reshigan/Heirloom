@@ -421,11 +421,10 @@ export function TimeCapsule() {
           onClick={() => setShowCreateModal(false)}
         >
           <div
+            className="cosmic-panel cosmic-panel--solid"
             style={{
               width: '100%',
               maxWidth: 520,
-              background: 'var(--ink)',
-              border: '1px solid var(--rule)',
               padding: 40,
             }}
             onClick={(e) => e.stopPropagation()}

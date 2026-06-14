@@ -1048,9 +1048,8 @@ export function GiftSubscriptions() {
           role="status"
         >
           <div
+            className="cosmic-panel cosmic-panel--solid"
             style={{
-              background: 'var(--ink)',
-              border:     '1px solid var(--rule)',
               borderTop:  '1px solid var(--warm)',
               padding:    '48px',
               maxWidth:   440,

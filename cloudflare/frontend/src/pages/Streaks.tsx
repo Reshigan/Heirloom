@@ -570,9 +570,8 @@ export function Streaks() {
           onClick={() => setShowFreezeModal(false)}
         >
           <div
+            className="cosmic-panel cosmic-panel--solid"
             style={{
-              background: 'var(--ink)',
-              border: '1px solid var(--rule)',
               padding: '40px 36px',
               maxWidth: 400,
               width: '100%',

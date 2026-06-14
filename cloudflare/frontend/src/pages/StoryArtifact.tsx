@@ -449,9 +449,8 @@ export function StoryArtifact() {
           onClick={() => setShareUrl(null)}
         >
           <div
+            className="cosmic-panel cosmic-panel--solid"
             style={{
-              background: 'var(--ink)',
-              border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 500,
               width: '100%',
@@ -519,9 +518,8 @@ export function StoryArtifact() {
           onClick={() => resetForm()}
         >
           <div
+            className="cosmic-panel cosmic-panel--solid"
             style={{
-              background: 'var(--ink)',
-              border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 580,
               width: '100%',

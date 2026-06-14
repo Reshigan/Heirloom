@@ -496,9 +496,8 @@ export function Challenges() {
           onClick={() => setSelectedChallenge(null)}
         >
           <div
+            className="cosmic-panel cosmic-panel--solid"
             style={{
-              background: 'var(--ink)',
-              border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 480,
               width: '100%',
