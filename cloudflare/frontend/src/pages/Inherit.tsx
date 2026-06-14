@@ -410,7 +410,7 @@ export function Inherit() {
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 'clamp(28px, 4vw, 44px)',
+                fontSize: 'var(--type-title)',
                 fontWeight: 300,
                 color: 'var(--parchment-ink)',
                 margin: '0 0 20px',
@@ -526,7 +526,7 @@ export function Inherit() {
         <h1
           className="hl-serif hl-tight"
           style={{
-            fontSize: 56,
+            fontSize: 'var(--type-display)',
             fontWeight: 300,
             color: 'var(--parchment-ink)',
             margin: 0,
@@ -538,7 +538,7 @@ export function Inherit() {
         <p
           className="hl-serif hl-italic"
           style={{
-            fontSize: 36,
+            fontSize: 'var(--type-display)',
             color: 'var(--parchment-dim)',
             margin: '12px 0 0',
             lineHeight: 1.2,
@@ -756,7 +756,7 @@ export function Inherit() {
                   <header style={{ marginBottom: 24 }}>
                     <h2
                       className="hl-serif hl-italic"
-                      style={{ fontSize: 'clamp(20px, 2.5vw, 28px)', fontWeight: 300, color: 'var(--warm)', margin: '0 0 6px' }}
+                      style={{ fontSize: 'var(--type-subhead)', fontWeight: 300, color: 'var(--warm)', margin: '0 0 6px' }}
                     >
                       {selectedLetter.title}
                     </h2>

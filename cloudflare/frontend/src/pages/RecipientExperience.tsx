@@ -192,7 +192,7 @@ export function RecipientExperience() {
           <p
             className="hl-prose"
             style={{
-              fontSize: 17,
+              fontSize: 'var(--type-body)',
               color: 'var(--parchment-dim)',
               margin: '0 0 32px',
               maxWidth: '52ch',
@@ -235,7 +235,7 @@ export function RecipientExperience() {
         <h1
           className="hl-serif hl-tight"
           style={{
-            fontSize: 48,
+            fontSize: 'var(--type-display)',
             fontWeight: 300,
             color: 'var(--parchment-ink)',
             margin: '0 0 20px',
@@ -248,7 +248,7 @@ export function RecipientExperience() {
         <p
           className="hl-prose"
           style={{
-            fontSize: 17,
+            fontSize: 'var(--type-body)',
             color: 'var(--parchment-dim)',
             margin: '0 0 32px',
             maxWidth: '52ch',
@@ -297,7 +297,7 @@ export function RecipientExperience() {
           <p
             className="hl-prose"
             style={{
-              fontSize: 18,
+              fontSize: 'var(--type-body-lg)',
               color: 'var(--parchment-ink)',
               margin: 0,
               maxWidth: 'none',

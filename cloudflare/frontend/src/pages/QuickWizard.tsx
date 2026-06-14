@@ -382,11 +382,11 @@ export function QuickWizard() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '80px 32px',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           overflowY: 'auto',
         }}
       >
-        <div style={{ textAlign: 'center', maxWidth: 540, width: '100%' }}>
+        <div style={{ textAlign: 'center', maxWidth: 'var(--page-max-focus)', width: '100%' }}>
 
           {/* Step indicator */}
           <p
@@ -404,9 +404,9 @@ export function QuickWizard() {
 
           {/* Step question */}
           <h2
-            className="hl-serif"
+            className="hl-serif hl-tight"
             style={{
-              fontSize: 28,
+              fontSize: 'var(--type-title)',
               fontWeight: 400,
               letterSpacing: '-0.012em',
               color: 'var(--bone)',

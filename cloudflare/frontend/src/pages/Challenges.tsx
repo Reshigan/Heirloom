@@ -121,7 +121,7 @@ export function Challenges() {
         <header style={{ marginBottom: 40, padding: '0 clamp(16px, 4vw, 40px)' }}>
           <h1
             className="hl-serif hl-tight"
-            style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}
+            style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}
           >
             Your challenges.
           </h1>

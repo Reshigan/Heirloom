@@ -11,9 +11,9 @@ export function BookSuccess() {
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'the book', to: '/book-builder' }, { label: 'ordered' }]} />} topbarCenter="book ordered" topbarRight={<UserMenu />}>
       <div
         style={{
-          maxWidth: 560,
+          maxWidth: 'var(--page-max-focus)',
           margin: '0 auto',
-          padding: '96px 32px 80px',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           textAlign: 'center',
         }}
       >
@@ -31,8 +31,8 @@ export function BookSuccess() {
         </p>
 
         <h1
-          className="hl-serif"
-          style={{ fontSize: 36, fontWeight: 300, margin: '0 0 20px', color: 'var(--bone)', lineHeight: 1.2 }}
+          className="hl-serif hl-tight"
+          style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 20px', color: 'var(--bone)', lineHeight: 1.2 }}
         >
           Your book is being printed.
         </h1>

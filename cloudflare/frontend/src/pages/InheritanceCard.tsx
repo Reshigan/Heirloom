@@ -54,9 +54,9 @@ export function InheritanceCard() {
 
   return (
     <ClothShell topbarLeft={topbar} topbarCenter="inheritance">
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: '64px 32px' }}>
-        <div style={{ maxWidth: 480, width: '100%', textAlign: 'center' }}>
-          <h1 className="hl-serif hl-tight" style={{ fontSize: 36, fontWeight: 300, color: 'var(--bone)', margin: '0 0 16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
+        <div style={{ maxWidth: 'var(--page-max-focus)', width: '100%', textAlign: 'center' }}>
+          <h1 className="hl-serif hl-tight" style={{ fontSize: 'var(--type-title)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 16px' }}>
             {data?.ownerName}
           </h1>
 
@@ -67,7 +67,7 @@ export function InheritanceCard() {
             </p>
           )}
 
-          <hr style={{ border: 0, borderTop: '1px solid var(--rule)', margin: '0 0 48px' }} />
+          <hr className="hl-rule" style={{ margin: '0 0 48px' }} />
 
           {!unlocked ? (
             <button

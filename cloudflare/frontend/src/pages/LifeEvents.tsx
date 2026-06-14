@@ -324,14 +324,14 @@ export function LifeEvents() {
 
   return (
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />} topbarCenter="life events" topbarRight={<UserMenu />}>
-      <div style={{ padding: 'clamp(16px, 4vw, 48px)', paddingBottom: 80, maxWidth: 860, margin: '0 auto' }}>
+      <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
 
         {/* Page header */}
         <header style={{ marginBottom: 48, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
           <div>
             <h1
-              className="hl-serif"
-              style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 300, margin: '0 0 28px', lineHeight: 1.2 }}
+              className="hl-serif hl-tight"
+              style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}
             >
               The moments that shaped the cloth.
             </h1>

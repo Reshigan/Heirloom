@@ -72,7 +72,7 @@ export function Login() {
             </div>
             <div className="hl-eyebrow dark" style={{ marginBottom: 22 }}>welcome back</div>
             <h1 className="hl-serif hl-tight" style={{
-              fontSize: 'clamp(40px, 5.5vw, 60px)',
+              fontSize: 'var(--type-display)',
               fontWeight: 300, lineHeight: 1.06,
               letterSpacing: '-0.022em',
               margin: '0 0 40px', maxWidth: '13ch',
@@ -86,8 +86,8 @@ export function Login() {
             {sessionExpired ? (
               <div style={{
                 marginBottom: 28, padding: '12px 0',
-                borderTop: '1px solid rgba(176,122,74,0.3)',
-                borderBottom: '1px solid rgba(176,122,74,0.3)',
+                borderTop: '1px solid var(--warm-dim)',
+                borderBottom: '1px solid var(--warm-dim)',
                 fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)',
                 letterSpacing: '0.04em',
               }}>

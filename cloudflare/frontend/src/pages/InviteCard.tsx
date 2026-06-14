@@ -31,11 +31,11 @@ export function InviteCard() {
         background: 'var(--parchment)', color: 'var(--parchment-ink)',
         border: '1px solid var(--parchment-rule)',
       }}>
-        <p className="hl-serif" style={{ fontSize: 14, color: 'var(--parchment-faint)', letterSpacing: '0.08em', textTransform: 'uppercase', margin: '0 0 48px' }}>
+        <p className="hl-eyebrow dark" style={{ margin: '0 0 48px' }}>
           Heirloom · Family Thread
         </p>
 
-        <p className="hl-serif" style={{ fontSize: 20, lineHeight: 1.7, fontWeight: 300, color: 'var(--parchment-ink)', margin: '0 0 32px' }}>
+        <p className="hl-serif" style={{ fontSize: 'var(--type-subhead)', lineHeight: 1.7, fontWeight: 300, color: 'var(--parchment-ink)', margin: '0 0 32px' }}>
           You have been included in <em>{threadName}</em>.
         </p>
 
@@ -46,8 +46,8 @@ export function InviteCard() {
         </p>
 
         <div style={{ margin: '48px 0', padding: '24px 32px', borderLeft: '1px solid var(--parchment-rule)' }}>
-          <p className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--parchment-faint)', margin: '0 0 8px' }}>to read the thread</p>
-          <p className="hl-serif" style={{ fontSize: 18, color: 'var(--parchment-ink)', margin: 0 }}>
+          <p className="hl-eyebrow dark" style={{ margin: '0 0 8px' }}>to read the thread</p>
+          <p className="hl-serif" style={{ fontSize: 'var(--type-body-lg)', color: 'var(--parchment-ink)', margin: 0 }}>
             heirloom.blue/signup
           </p>
         </div>

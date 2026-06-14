@@ -146,10 +146,9 @@ export function PersonPage() {
       <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: 'person' }]} />} topbarCenter="person" topbarRight={<UserMenu />}>
         <div
           style={{
-            paddingTop: 80,
-            paddingBottom: 36,
-            paddingLeft: 56,
-            paddingRight: 56,
+            padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+            maxWidth: 'var(--page-max-wide)',
+            margin: '0 auto',
           }}
         >
           <p
@@ -168,10 +167,9 @@ export function PersonPage() {
       <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: 'person' }]} />} topbarCenter="person" topbarRight={<UserMenu />}>
         <div
           style={{
-            paddingTop: 80,
-            paddingBottom: 36,
-            paddingLeft: 56,
-            paddingRight: 56,
+            padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+            maxWidth: 'var(--page-max-wide)',
+            margin: '0 auto',
           }}
         >
           <Link
@@ -207,10 +205,9 @@ export function PersonPage() {
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: member.name }]} />} topbarCenter="person" topbarRight={<UserMenu />}>
       <div
         style={{
-          paddingTop: 80,
-          paddingBottom: 36,
-          paddingLeft: 'clamp(20px, 5vw, 56px)',
-          paddingRight: 'clamp(20px, 5vw, 56px)',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+          maxWidth: 'var(--page-max-wide)',
+          margin: '0 auto',
         }}
       >
         {/* Two-column grid */}
@@ -329,13 +326,12 @@ export function PersonPage() {
             ) : (
               <>
                 <h1
-                  className="hl-serif"
+                  className="hl-serif hl-tight"
                   style={{
-                    fontSize: 38,
+                    fontSize: 'var(--type-title)',
                     fontWeight: 300,
                     margin: 0,
                     color: 'var(--bone)',
-                    lineHeight: 1.1,
                   }}
                 >
                   {member.name}

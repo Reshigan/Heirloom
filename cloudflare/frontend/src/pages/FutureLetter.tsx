@@ -101,9 +101,9 @@ export function FutureLetter() {
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'future letter' }]} />} topbarCenter="future letter" topbarRight={<UserMenu />}>
       <div
         style={{
-          maxWidth: 980,
+          maxWidth: 'var(--page-max-wide)',
           margin: '0 auto',
-          padding: '48px 32px 80px',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
         {/* back link */}
@@ -133,12 +133,11 @@ export function FutureLetter() {
             a letter across time
           </p>
           <h1
-            className="hl-serif"
+            className="hl-serif hl-tight"
             style={{
-              fontSize: 36,
+              fontSize: 'var(--type-display)',
               fontWeight: 300,
               margin: '0 0 28px',
-              lineHeight: 1.15,
               color: 'var(--bone)',
             }}
           >
@@ -322,7 +321,7 @@ export function FutureLetter() {
                   style={{
                     whiteSpace: 'pre-wrap',
                     fontSize: 17,
-                    color: 'var(--bone)',
+                    color: 'var(--bone-dim)',
                     lineHeight: 1.85,
                     maxWidth: 'none',
                   }}

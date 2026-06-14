@@ -315,12 +315,9 @@ export function InterviewMode() {
       <div>
         <div
           style={{
-            maxWidth: 640,
+            maxWidth: 'var(--page-max-wide)',
             margin: '0 auto',
-            paddingTop: 60,
-            paddingLeft: 24,
-            paddingRight: 24,
-            paddingBottom: 48,
+            padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           }}
         >
           {/* Question display */}

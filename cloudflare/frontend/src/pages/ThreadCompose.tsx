@@ -215,9 +215,9 @@ export function ThreadCompose() {
       >
         <div
           style={{
-            maxWidth: 720,
+            maxWidth: 'var(--page-max-wide)',
             margin: '0 auto',
-            padding: 'clamp(24px, 5vw, 56px)',
+            padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           }}
         >
           <form

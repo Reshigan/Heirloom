@@ -150,18 +150,17 @@ export function GiftSubscriptions() {
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'gift' }]} />}
     >
-      <div style={{ padding: 'clamp(24px, 5vw, 48px)', paddingBottom: 80 }}>
+      <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-reading)', margin: '0 auto' }}>
 
         {/* Page header */}
         <h1
           className="hl-serif hl-tight"
           style={{
-            fontSize: 52,
+            fontSize: 'var(--type-display)',
             fontWeight: 300,
             margin: 0,
             marginBottom: 40,
             color: 'var(--bone)',
-            letterSpacing: '-0.022em',
           }}
         >
           Give the gift of a thousand years.
@@ -292,7 +291,7 @@ export function GiftSubscriptions() {
                       flexDirection:   'column',
                       textAlign:       'left',
                       padding:         '36px 32px',
-                      background:      isFamily ? 'rgba(244,236,216,0.04)' : 'transparent',
+                      background:      isFamily ? 'color-mix(in srgb, var(--bone) 4%, transparent)' : 'transparent',
                       color:           isFamily ? 'var(--bone)' : 'var(--bone)',
                       opacity:         isFree ? 0.55 : 1,
                       borderTop:       (isFamily || selected) && !isFree
@@ -1042,7 +1041,7 @@ export function GiftSubscriptions() {
             zIndex:      50,
             display:     'grid',
             placeItems:  'center',
-            background:  'rgba(14, 14, 12, 0.88)',
+            background:  'color-mix(in srgb, var(--ink) 88%, transparent)',
             padding:     '24px',
           }}
           role="status"

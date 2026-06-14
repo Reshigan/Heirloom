@@ -195,12 +195,12 @@ export function BookBuilder() {
       topbarCenter="book builder"
     >
       {/* scrollable inner */}
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '48px 32px 80px' }}>
+      <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
         {/* H1 */}
         <h1
-          className="hl-serif"
-          style={{ fontSize: 36, fontWeight: 300, marginBottom: 28, marginTop: 0, color: 'var(--bone)' }}
+          className="hl-serif hl-tight"
+          style={{ fontSize: 'var(--type-display)', fontWeight: 300, marginBottom: 28, marginTop: 0, color: 'var(--bone)' }}
         >
           Your living book.
         </h1>
@@ -432,7 +432,7 @@ export function BookBuilder() {
                   width: 232,
                   height: 320,
                   margin: '0 auto 32px',
-                  background: 'var(--ink, #0e0e0c)',
+                  background: 'var(--ink)',
                   border: '1px solid var(--warm)',
                   display: 'flex',
                   flexDirection: 'column',
@@ -472,7 +472,7 @@ export function BookBuilder() {
                       position: 'absolute',
                       inset: 0,
                       backgroundImage:
-                        'repeating-linear-gradient(90deg, rgba(244,236,216,0.10) 0 0.5px, transparent 0.5px 9px)',
+                        'repeating-linear-gradient(90deg, var(--rule) 0 0.5px, transparent 0.5px 9px)',
                       pointerEvents: 'none',
                     }}
                   />

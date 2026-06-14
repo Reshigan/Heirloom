@@ -169,16 +169,16 @@ export function MemoryCards() {
     <ClothShell topbarLeft={backLink} topbarCenter="memory cards">
       <div
         style={{
-          maxWidth: 900,
+          maxWidth: 'var(--page-max-reading)',
           margin: '0 auto',
-          padding: '48px 32px 64px',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
         {/* H1 */}
         <h1
-          className="hl-serif"
+          className="hl-serif hl-tight"
           style={{
-            fontSize: 36,
+            fontSize: 'var(--type-display)',
             fontWeight: 300,
             color: 'var(--bone)',
             margin: '0 0 28px',
@@ -451,7 +451,7 @@ export function MemoryCards() {
                     {generatedCard.photoUrl && (
                       <div
                         style={{
-                          border: '1px solid rgba(244,236,216,0.12)',
+                          border: '1px solid var(--rule-strong)',
                           marginBottom: 20,
                           overflow: 'hidden',
                         }}

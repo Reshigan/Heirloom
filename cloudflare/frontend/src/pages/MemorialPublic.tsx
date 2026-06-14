@@ -57,21 +57,20 @@ export function MemorialPublic() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '48px clamp(20px, 5vw, 48px)',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        <div style={{ maxWidth: 560, width: '100%' }}>
+        <div style={{ maxWidth: 'var(--page-max-wide)', width: '100%' }}>
           {isLoading && (
             <ProgressHair label="loading memorial…" />
           )}
 
           {!isLoading && (isError || !data) && (
             <p
+              className="hl-serif hl-italic"
               style={{
-                fontFamily: 'var(--serif)',
-                fontSize: 'clamp(16px, 3vw, 20px)',
+                fontSize: 'var(--type-subhead)',
                 color: 'var(--bone-faint)',
-                fontStyle: 'italic',
                 lineHeight: 1.7,
                 margin: 0,
               }}
@@ -84,15 +83,13 @@ export function MemorialPublic() {
             <>
               {/* Name */}
               <h1
+                className="hl-serif hl-tight"
                 style={{
-                  fontFamily: 'var(--serif)',
                   fontVariationSettings: "'opsz' 32",
-                  fontSize: 'clamp(28px, 6vw, 42px)',
+                  fontSize: 'var(--type-display)',
                   fontWeight: 300,
                   color: 'var(--bone)',
                   margin: '0 0 12px',
-                  lineHeight: 1.15,
-                  letterSpacing: '-0.01em',
                 }}
               >
                 {data.memorial_name}
@@ -135,11 +132,10 @@ export function MemorialPublic() {
               {/* Description / biography */}
               {data.memorial_description && (
                 <p
-                  className="hl-prose"
+                  className="hl-serif hl-prose"
                   style={{
-                    fontFamily: 'var(--serif)',
-                    fontSize: 'clamp(15px, 3vw, 17px)',
-                    color: 'var(--bone)',
+                    fontSize: 'var(--type-body)',
+                    color: 'var(--bone-dim)',
                     lineHeight: 1.9,
                     margin: 0,
                   }}

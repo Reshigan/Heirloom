@@ -100,19 +100,18 @@ export function Memorials() {
 
   return (
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'memorials' }]} />} topbarCenter="memorials" topbarRight={<UserMenu />}>
-      <div style={{ maxWidth: 680, margin: '0 auto', padding: 'clamp(16px, 4vw, 32px)', paddingBottom: 80 }}>
+      <div style={{ maxWidth: 'var(--page-max-reading)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
         {/* Page header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, marginBottom: 64 }}>
           <h1
-            className="hl-serif"
+            className="hl-serif hl-tight"
             style={{
-              fontSize: 'clamp(24px, 5vw, 36px)',
+              fontSize: 'var(--type-display)',
               fontWeight: 300,
-              letterSpacing: '-0.018em',
               margin: 0,
               marginBottom: 40,
-              lineHeight: 1.15,
+              color: 'var(--bone)',
             }}
           >
             In memory of.

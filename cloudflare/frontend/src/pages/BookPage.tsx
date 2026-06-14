@@ -7,8 +7,9 @@ export function BookPage() {
   return (
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'the book' }]} />} topbarCenter="the book" topbarRight={<UserMenu />}>
       <div style={{
-        padding: 'clamp(48px, 9vw, 88px) clamp(20px, 6vw, 60px)',
-        maxWidth: 720,
+        padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+        maxWidth: 'var(--page-max-wide)',
+        margin: '0 auto',
       }}>
 
         {/* Eyebrow */}
@@ -18,7 +19,7 @@ export function BookPage() {
 
         {/* Headline */}
         <h1 className="hl-serif hl-tight" style={{
-          fontSize: 'clamp(28px, 4.5vw, 52px)',
+          fontSize: 'var(--type-display)',
           fontWeight: 300,
           lineHeight: 1.08,
           margin: '0 0 24px',

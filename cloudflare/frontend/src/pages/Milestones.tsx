@@ -116,14 +116,14 @@ export function Milestones() {
 
   return (
     <ClothShell topbarLeft={backLink} topbarCenter="milestones">
-      <div style={{ maxWidth: 760, margin: '0 auto', padding: '52px 40px 80px' }}>
+      <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
         {/* Page header */}
         <header style={{ marginBottom: 52, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
           <div>
             <h1
-              className="hl-serif"
-              style={{ fontSize: 36, fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)', lineHeight: 1.15 }}
+              className="hl-serif hl-tight"
+              style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}
             >
               Your milestones.
             </h1>

@@ -107,10 +107,10 @@ export function GiftRedeem() {
           alignItems: 'center',
           justifyContent: 'center',
           minHeight: 'calc(100% - 73px)',
-          padding: '48px 24px 80px',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        <div style={{ textAlign: 'center', maxWidth: 440, width: '100%' }}>
+        <div style={{ textAlign: 'center', maxWidth: 'var(--page-max-focus)', width: '100%' }}>
 
           {redeemSuccess ? (
             // ── Success state ──────────────────────────────────────────────
@@ -124,7 +124,7 @@ export function GiftRedeem() {
               <h1
                 className="hl-serif hl-tight"
                 style={{
-                  fontSize: 48,
+                  fontSize: 'var(--type-display)',
                   fontWeight: 300,
                   fontStyle: 'italic',
                   color: 'var(--bone)',
@@ -163,7 +163,7 @@ export function GiftRedeem() {
               <h1
                 className="hl-serif hl-tight"
                 style={{
-                  fontSize: 48,
+                  fontSize: 'var(--type-display)',
                   fontWeight: 300,
                   color: 'var(--bone)',
                   margin: '0 0 28px',

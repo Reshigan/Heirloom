@@ -85,17 +85,17 @@ export function Referrals() {
     >
       <div
         style={{
-          maxWidth: 780,
+          maxWidth: 'var(--page-max-wide)',
           margin: '0 auto',
-          padding: '64px 40px 80px',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
         {/* Header */}
         <header style={{ marginBottom: 52 }}>
           <h1
-            className="hl-serif"
+            className="hl-serif hl-tight"
             style={{
-              fontSize: 36,
+              fontSize: 'var(--type-display)',
               fontWeight: 300,
               color: 'var(--bone)',
               margin: '0 0 28px',
@@ -143,7 +143,7 @@ export function Referrals() {
                 </p>
                 <div
                   style={{
-                    background: '#0a0a08',
+                    background: 'var(--ink)',
                     padding: '18px 22px',
                     display: 'flex',
                     alignItems: 'center',

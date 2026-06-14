@@ -270,9 +270,9 @@ export function TimeCapsule() {
     <ClothShell topbarLeft={backLink} topbarCenter="time capsules">
       <div
         style={{
-          maxWidth: 720,
+          maxWidth: 'var(--page-max-prose)',
           margin: '0 auto',
-          padding: '64px 32px 80px',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
         <ThreadComposeBanner />
@@ -280,13 +280,12 @@ export function TimeCapsule() {
         {/* Header */}
         <header style={{ marginBottom: 48, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
           <h1
-            className="hl-serif"
+            className="hl-serif hl-tight"
             style={{
-              fontSize: 36,
+              fontSize: 'var(--type-display)',
               fontWeight: 300,
               color: 'var(--bone)',
               margin: '0 0 28px',
-              lineHeight: 1.2,
             }}
           >
             Entries sealed for the future.

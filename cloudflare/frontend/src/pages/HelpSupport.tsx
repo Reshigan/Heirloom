@@ -137,13 +137,10 @@ export function HelpSupport() {
 
   return (
     <ClothShell topbarLeft={topbarLeft} topbarCenter="help & support">
-      <div style={{ padding: 'clamp(24px,5vw,48px)', paddingBottom: 140, maxWidth: 680 }}>
+      <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
 
         {/* ── In-system help ─────────────────────────────────────────────── */}
-        <div style={{
-          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
-          textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 18,
-        }}>
+        <div className="hl-eyebrow" style={{ marginBottom: 18 }}>
           the basics
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 56 }}>
@@ -183,10 +180,7 @@ export function HelpSupport() {
         </div>
 
         {/* ── The support assistant ──────────────────────────────────────── */}
-        <div style={{
-          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
-          textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 8,
-        }}>
+        <div className="hl-eyebrow" style={{ marginBottom: 8 }}>
           ask the assistant
         </div>
         <p style={{ fontFamily: 'var(--serif)', fontSize: 14, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-faint)', margin: '0 0 18px', lineHeight: 1.6 }}>
@@ -210,7 +204,7 @@ export function HelpSupport() {
             <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               <span style={{
                 fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.18em', textTransform: 'uppercase',
-                color: m.role === 'user' ? 'var(--warm)' : 'rgba(244,236,216,0.35)',
+                color: m.role === 'user' ? 'var(--warm)' : 'var(--bone-faint)',
               }}>
                 {m.role === 'user' ? 'you' : 'assistant'}
               </span>
@@ -276,10 +270,7 @@ export function HelpSupport() {
         {/* ── Conversation history ───────────────────────────────────────── */}
         {past.length > 0 && (
           <div style={{ marginTop: 56 }}>
-            <div style={{
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
-              textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 14,
-            }}>
+            <div className="hl-eyebrow" style={{ marginBottom: 14 }}>
               your past conversations
             </div>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -308,7 +299,7 @@ export function HelpSupport() {
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '0 0 18px', animation: `hl-fade 360ms ${EASE}` }}>
                         {c.messages.map((m, i) => (
                           <div key={i}>
-                            <span style={{ fontFamily: 'var(--mono)', fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', color: m.role === 'user' ? 'var(--warm)' : 'rgba(244,236,216,0.3)' }}>
+                            <span style={{ fontFamily: 'var(--mono)', fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', color: m.role === 'user' ? 'var(--warm)' : 'var(--bone-faint)' }}>
                               {m.role === 'user' ? 'you' : 'assistant'}
                             </span>
                             <p style={{ fontFamily: 'var(--serif)', fontSize: 14, fontWeight: 300, lineHeight: 1.65, color: 'var(--bone-dim)', margin: '2px 0 0', whiteSpace: 'pre-wrap' }}>

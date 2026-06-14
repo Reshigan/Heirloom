@@ -62,16 +62,16 @@ export function FamilyFeed() {
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'family feed' }]} />} topbarCenter="family feed" topbarRight={<UserMenu />}>
       <div
         style={{
-          padding: '56px 48px 80px',
-          maxWidth: 760,
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+          maxWidth: 'var(--page-max-reading)',
           margin: '0 auto',
         }}
       >
         {/* H1 */}
         <h1
-          className="hl-serif"
+          className="hl-serif hl-tight"
           style={{
-            fontSize: 36,
+            fontSize: 'var(--type-display)',
             fontWeight: 300,
             fontStyle: 'normal',
             margin: '0 0 28px',

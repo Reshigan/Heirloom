@@ -106,8 +106,8 @@ export function GiftAMemory() {
       <ClothShell topbarLeft={topbar.left} topbarCenter={topbar.center}>
         <div
           style={{
-            padding: '64px 32px 80px',
-            maxWidth: 560,
+            padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+            maxWidth: 'var(--page-max-focus)',
             margin: '0 auto',
           }}
         >
@@ -118,9 +118,9 @@ export function GiftAMemory() {
             sent
           </p>
           <h2
-            className="hl-serif"
+            className="hl-serif hl-tight"
             style={{
-              fontSize: 36,
+              fontSize: 'var(--type-display)',
               fontWeight: 300,
               margin: '0 0 20px',
               color: 'var(--bone)',
@@ -197,20 +197,19 @@ export function GiftAMemory() {
     <ClothShell topbarLeft={topbar.left} topbarCenter={topbar.center}>
       <div
         style={{
-          padding: '64px 32px 80px',
-          maxWidth: 560,
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+          maxWidth: 'var(--page-max-focus)',
           margin: '0 auto',
         }}
       >
         {/* H1 */}
         <h1
-          className="hl-serif"
+          className="hl-serif hl-tight"
           style={{
-            fontSize: 36,
+            fontSize: 'var(--type-display)',
             fontWeight: 300,
             margin: '0 0 28px',
             color: 'var(--bone)',
-            lineHeight: 1.2,
           }}
         >
           Send a piece of the cloth.

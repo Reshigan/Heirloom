@@ -24,7 +24,7 @@ export function GiftSuccess() {
           justifyContent: 'center',
         }}
       >
-        <div style={{ textAlign: 'center', maxWidth: 440, padding: '0 24px' }}>
+        <div style={{ textAlign: 'center', maxWidth: 'var(--page-max-focus)', padding: '0 var(--page-pad-x)' }}>
           <HLogo
             size="md"
             wordmark
@@ -33,9 +33,10 @@ export function GiftSuccess() {
           <h1
             className="hl-serif hl-tight"
             style={{
-              fontSize: 40,
+              fontSize: 'var(--type-title)',
               fontWeight: 300,
               margin: '24px 0 18px',
+              color: 'var(--bone)',
             }}
           >
             The gift is on its way.

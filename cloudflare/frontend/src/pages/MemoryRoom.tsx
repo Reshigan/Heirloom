@@ -162,26 +162,27 @@ export function MemoryRoom() {
       }
     >
       {/* Content area — ClothShell already offsets topbar height */}
-      <div>
+      <div style={{
+        padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+        maxWidth: 'var(--page-max-reading)',
+        margin: '0 auto',
+      }}>
 
         {/* H1 */}
         <h1
           className="hl-serif hl-tight"
           style={{
-            fontSize: 48,
+            fontSize: 'var(--type-display)',
             fontWeight: 300,
             color: 'var(--parchment-ink)',
-            marginTop: 80,
-            marginLeft: 56,
-            marginBottom: 0,
-            lineHeight: 1.06,
+            margin: 0,
           }}
         >
           A room in the cloth.
         </h1>
 
         {/* Room meta */}
-        <div style={{ marginLeft: 56, marginTop: 24, marginRight: 56 }}>
+        <div style={{ marginTop: 24 }}>
           <p
             className="hl-eyebrow dark"
             style={{ marginBottom: 8 }}
@@ -204,8 +205,6 @@ export function MemoryRoom() {
           <div
             role="status"
             style={{
-              marginLeft: 56,
-              marginRight: 56,
               marginTop: 32,
               padding: '14px 20px',
               border: '1px solid var(--warm)',
@@ -221,7 +220,7 @@ export function MemoryRoom() {
         )}
 
         {/* Memory list */}
-        <div style={{ marginLeft: 56, marginRight: 56, marginTop: 56, paddingBottom: 96 }}>
+        <div style={{ marginTop: 56 }}>
           {contributions.length > 0 ? (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {contributions.map((c) => (

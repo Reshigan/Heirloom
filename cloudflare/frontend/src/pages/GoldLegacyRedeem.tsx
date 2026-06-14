@@ -119,10 +119,10 @@ export function GoldLegacyRedeem() {
           alignItems: 'center',
           justifyContent: 'center',
           overflowY: 'auto',
-          padding: '72px 24px 32px',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        <div style={{ width: '100%', maxWidth: 440, textAlign: 'center' }}>
+        <div style={{ width: '100%', maxWidth: 'var(--page-max-focus)', textAlign: 'center' }}>
 
           {redeemSuccess ? (
             /* ── Success state ── */
@@ -143,7 +143,7 @@ export function GoldLegacyRedeem() {
 
               <h1
                 className="hl-serif hl-tight"
-                style={{ fontSize: 40, fontWeight: 300, margin: '0 0 28px' }}
+                style={{ fontSize: 'var(--type-title)', fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}
               >
                 Your lifetime access.
               </h1>
@@ -243,7 +243,7 @@ export function GoldLegacyRedeem() {
 
               <h1
                 className="hl-serif hl-tight"
-                style={{ fontSize: 40, fontWeight: 300, margin: '0 0 28px' }}
+                style={{ fontSize: 'var(--type-title)', fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}
               >
                 Your lifetime access.
               </h1>
@@ -417,16 +417,12 @@ export function GoldLegacyRedeem() {
                         <div style={{ display: 'flex', gap: 12 }}>
                           <Link
                             to={`/login?redirect=${encodeURIComponent(`/gold/redeem?code=${code}`)}`}
+                            className="hl-btn ghost"
                             style={{
                               flex: 1,
                               textAlign: 'center',
                               textDecoration: 'none',
-                              fontFamily: 'var(--mono)',
-                              fontSize: 11,
-                              letterSpacing: '0.1em',
-                              color: 'var(--bone-dim)',
-                              border: '1px solid var(--rule)',
-                              padding: '10px 0',
+                              color: 'var(--bone)',
                               display: 'block',
                             }}
                           >

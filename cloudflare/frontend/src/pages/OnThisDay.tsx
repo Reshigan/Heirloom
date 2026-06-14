@@ -82,21 +82,19 @@ export function OnThisDay() {
     >
       <div
         style={{
-          padding: 'clamp(16px, 4vw, 48px)',
-          paddingBottom: 80,
-          maxWidth: 720,
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+          maxWidth: 'var(--page-max-prose)',
           margin: '0 auto',
         }}
       >
         {/* ── Header ───────────────────────────────────────────────────── */}
         <h1
-          className="hl-serif"
+          className="hl-serif hl-tight"
           style={{
-            fontSize: 'clamp(24px, 5vw, 36px)',
+            fontSize: 'var(--type-display)',
             fontWeight: 300,
             color: 'var(--bone)',
             margin: '0 0 8px',
-            lineHeight: 1.1,
           }}
         >
           On this day.

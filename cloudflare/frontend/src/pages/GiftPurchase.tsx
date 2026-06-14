@@ -101,20 +101,18 @@ export function GiftPurchase() {
       topbarRight={<Link to="/login">sign in →</Link>}
     >
       {/* Content */}
-      <div style={{ padding: '64px 56px' }}>
+      <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
         <form onSubmit={(e) => { e.preventDefault(); handlePurchase(); }}>
-        <div style={{ maxWidth: 680, margin: '0 auto' }}>
+        <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
 
           {/* H1 */}
           <h1
             className="hl-serif hl-tight"
             style={{
-              fontSize: 48,
+              fontSize: 'var(--type-display)',
               fontWeight: 300,
               color: 'var(--bone)',
               margin: '0 0 32px',
-              letterSpacing: '-0.022em',
-              lineHeight: 1.08,
             }}
           >
             Give a thread to someone.

@@ -146,7 +146,7 @@ export function VoiceRoom() {
         }}
       />
 
-      <div style={{ padding: 'clamp(24px, 5vw, 48px)', paddingBottom: 120, maxWidth: 680 }}>
+      <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
         {/* CTA */}
         <Link
           to="/record"
@@ -175,14 +175,14 @@ export function VoiceRoom() {
         {/* Empty state */}
         {!isLoading && !isError && recordings.length === 0 && (
           <div style={{ paddingTop: 40 }}>
-            <p style={{
-              fontFamily: 'var(--serif)', fontSize: 17, fontStyle: 'italic',
+            <p className="hl-serif hl-italic" style={{
+              fontSize: 'var(--type-body-lg)',
               fontWeight: 300, color: 'var(--bone-faint)', lineHeight: 1.7, margin: '0 0 4px',
             }}>
               Record your voice.
             </p>
-            <p style={{
-              fontFamily: 'var(--serif)', fontSize: 17, fontStyle: 'italic',
+            <p className="hl-serif hl-italic" style={{
+              fontSize: 'var(--type-body-lg)',
               fontWeight: 300, color: 'var(--bone-faint)', lineHeight: 1.7, margin: 0,
             }}>
               Your family will hear it long after you're gone.
@@ -211,7 +211,7 @@ export function VoiceRoom() {
                 id={`voice-${entry.id}`}
                 style={{
                   borderLeft: `3px solid ${dye}`,
-                  borderBottom: '1px solid rgba(244,236,216,0.06)',
+                  borderBottom: '1px solid var(--rule)',
                   padding: '10px 14px',
                   transition: `background 180ms ${EASE}`,
                 }}
@@ -220,7 +220,7 @@ export function VoiceRoom() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{
                     fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.18em',
-                    textTransform: 'uppercase', color: 'rgba(244,236,216,0.35)',
+                    textTransform: 'uppercase', color: 'var(--bone-faint)',
                   }}>
                     {duration ? `voice · ${duration}` : 'voice'}
                   </span>
@@ -279,10 +279,10 @@ export function VoiceRoom() {
                         style={{
                           background: 'transparent', border: 0, padding: '12px 4px', minHeight: 44,
                           cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9,
-                          letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(244,236,216,0.2)',
+                          letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-low)',
                         }}
                         onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(244,236,216,0.2)'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-low)'; }}
                       >
                         delete
                       </button>
@@ -299,7 +299,7 @@ export function VoiceRoom() {
                         display: 'inline-flex', alignItems: 'center',
                         cursor: 'pointer',
                         fontFamily: 'var(--mono)', fontSize: 13,
-                        color: 'rgba(244,236,216,0.55)',
+                        color: 'var(--bone-dim)',
                         lineHeight: 1,
                       }}
                     >
@@ -363,9 +363,9 @@ export function VoiceRoom() {
                 ) : (
                   /* Title */
                   entry.title && (
-                    <p style={{
-                      fontFamily: 'var(--serif)', fontSize: 13, fontStyle: 'italic',
-                      fontWeight: 300, color: 'rgba(244,236,216,0.55)', lineHeight: 1.5, margin: '4px 0 0',
+                    <p className="hl-serif hl-italic" style={{
+                      fontSize: 13,
+                      fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.5, margin: '4px 0 0',
                     }}>
                       {entry.title}
                     </p>
@@ -385,7 +385,7 @@ export function VoiceRoom() {
                       key={i}
                       style={{
                         width: 1, height: h,
-                        background: 'rgba(244,236,216,0.15)',
+                        background: 'var(--rule-strong)',
                         flexShrink: 0,
                       }}
                     />

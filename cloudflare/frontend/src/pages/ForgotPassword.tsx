@@ -48,13 +48,13 @@ export function ForgotPassword() {
       topbarCenter="forgot password"
       topbarRight={<Link to="/login" className="hl-mono" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>sign in →</Link>}
     >
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: 'clamp(24px,5vw,48px)' }}>
+      <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
         {success ? (
           <div role="status">
             <h1
-              className="hl-serif"
+              className="hl-serif hl-tight"
               style={{
-                fontSize: 36,
+                fontSize: 'var(--type-title)',
                 fontWeight: 300,
                 lineHeight: 1.1,
                 letterSpacing: '-0.018em',
@@ -134,9 +134,9 @@ export function ForgotPassword() {
         ) : (
           <>
             <h1
-              className="hl-serif"
+              className="hl-serif hl-tight"
               style={{
-                fontSize: 36,
+                fontSize: 'var(--type-title)',
                 fontWeight: 300,
                 lineHeight: 1.1,
                 letterSpacing: '-0.018em',

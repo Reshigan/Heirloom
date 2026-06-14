@@ -207,7 +207,11 @@ export function DailySentence() {
         style={{
           overflowY: 'auto',
           overflowX: 'hidden',
-          padding: '48px 56px 80px',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+          maxWidth: 'var(--page-max-wide)',
+          margin: '0 auto',
+          width: '100%',
+          boxSizing: 'border-box',
           display: 'flex',
           flexDirection: 'column',
           gap: 48,
@@ -216,12 +220,10 @@ export function DailySentence() {
         {/* headline + lede */}
         <div>
           <h2
-            className="hl-serif"
+            className="hl-serif hl-tight"
             style={{
-              fontSize: 30,
+              fontSize: 'var(--type-title)',
               fontWeight: 300,
-              lineHeight: 1.18,
-              letterSpacing: '-0.014em',
               margin: 0,
               color: 'var(--bone)',
             }}
@@ -238,10 +240,9 @@ export function DailySentence() {
           <p
             className="hl-serif hl-tight"
             style={{
-              fontSize: 'clamp(28px, 4vw, 48px)',
+              fontSize: 'var(--type-display)',
               fontWeight: 300,
               color: 'var(--bone)',
-              lineHeight: 1.2,
               margin: '28px 0 8px',
               maxWidth: '28ch',
             }}

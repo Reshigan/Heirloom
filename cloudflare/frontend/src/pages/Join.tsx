@@ -75,15 +75,15 @@ export function Join() {
       >
       <div
         style={{
-          maxWidth: 480,
+          maxWidth: 'var(--page-max-focus)',
           width: '100%',
-          padding: '40px clamp(20px, 5vw, 40px) 80px',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
         {!isValid ? (
           <>
             <p className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 16 }}>invalid link</p>
-            <h1 className="hl-serif hl-tight" style={{ fontSize: 'clamp(24px, 6vw, 32px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px' }}>
+            <h1 className="hl-serif hl-tight" style={{ fontSize: 'var(--type-title)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px' }}>
               This invite link is not valid.
             </h1>
             <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', lineHeight: 1.7, fontWeight: 300, margin: '0 0 32px' }}>
@@ -99,7 +99,7 @@ export function Join() {
         ) : done ? (
           <>
             <p className="hl-eyebrow" style={{ color: 'var(--warm)', marginBottom: 16 }}>welcome to the thread</p>
-            <h1 className="hl-serif hl-tight" style={{ fontSize: 'clamp(24px, 6vw, 32px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px' }}>
+            <h1 className="hl-serif hl-tight" style={{ fontSize: 'var(--type-title)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px' }}>
               You've joined the family cloth.
             </h1>
             <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', lineHeight: 1.7, fontWeight: 300 }}>
@@ -115,7 +115,7 @@ export function Join() {
         ) : (
           <>
             <p className="hl-eyebrow" style={{ color: 'var(--warm)', marginBottom: 16 }}>you've been included</p>
-            <h1 className="hl-serif hl-tight" style={{ fontSize: 'clamp(24px, 6vw, 32px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px', letterSpacing: '-0.016em', lineHeight: 1.2 }}>
+            <h1 className="hl-serif hl-tight" style={{ fontSize: 'var(--type-title)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px', letterSpacing: '-0.016em', lineHeight: 1.2 }}>
               Your thread is waiting for your voice.
             </h1>
             <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', lineHeight: 1.7, fontWeight: 300, margin: '0 0 8px' }}>

@@ -106,20 +106,19 @@ export function Streaks() {
     <ClothShell topbarLeft={backLink} topbarCenter="streaks">
       <div
         style={{
-          maxWidth: 720,
+          maxWidth: 'var(--page-max-wide)',
           margin: '0 auto',
-          padding: '64px 32px 80px',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
         {/* ── H1 ── */}
         <h1
-          className="hl-serif"
+          className="hl-serif hl-tight"
           style={{
-            fontSize: 36,
+            fontSize: 'var(--type-display)',
             fontWeight: 300,
             color: 'var(--bone)',
             margin: '0 0 28px',
-            lineHeight: 1.1,
           }}
         >
           The thread unbroken.
@@ -337,7 +336,7 @@ export function Streaks() {
                         width: 28,
                         height: 28,
                         borderRadius: 0,
-                        background: day.hasEntry ? 'rgba(244,236,216,0.08)' : 'var(--ink)',
+                        background: day.hasEntry ? 'var(--rule)' : 'var(--ink)',
                         borderLeft: day.hasEntry ? `3px solid var(--dye-${dyeForDate(day.date)})` : '3px solid transparent',
                         cursor: 'default',
                         transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',

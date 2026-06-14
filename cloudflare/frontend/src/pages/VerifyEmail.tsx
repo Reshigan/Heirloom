@@ -69,7 +69,7 @@ export function VerifyEmail() {
       topbarLeft={<HLogo />}
       topbarCenter="verify email"
     >
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: 'clamp(24px,5vw,48px)', textAlign: 'center' }}>
+      <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', textAlign: 'center' }}>
 
         {/* ── Pending ── */}
         {status === 'loading' && (
@@ -116,9 +116,9 @@ export function VerifyEmail() {
               ∞
             </div>
             <h1
-              className="hl-serif"
+              className="hl-serif hl-tight"
               style={{
-                fontSize: 36,
+                fontSize: 'var(--type-title)',
                 fontWeight: 300,
                 color: 'var(--bone)',
                 margin: '0 0 0',
@@ -261,9 +261,9 @@ export function VerifyEmail() {
               ∞
             </div>
             <h1
-              className="hl-serif"
+              className="hl-serif hl-tight"
               style={{
-                fontSize: 36,
+                fontSize: 'var(--type-title)',
                 fontWeight: 300,
                 color: 'var(--bone)',
                 margin: '0 0 20px',

@@ -44,9 +44,9 @@ export function Privacy() {
       topbarCenter="privacy"
       topbarRight={<Link to="/terms">terms →</Link>}
     >
-      <div style={{ maxWidth: 700, margin: '0 auto', padding: 'clamp(24px,5vw,48px)' }}>
+      <div style={{ maxWidth: 'var(--page-max-prose)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
         <div className="hl-eyebrow dark" style={{ marginBottom: 18 }}>privacy · plain words version</div>
-        <h1 className="hl-serif hl-tight" style={{ fontSize: 52, lineHeight: 1.06, fontWeight: 300, margin: 0, letterSpacing: '-0.022em', color: 'var(--bone)' }}>
+        <h1 className="hl-serif hl-tight" style={{ fontSize: 'var(--type-display)', lineHeight: 1.06, fontWeight: 300, margin: 0, letterSpacing: '-0.022em', color: 'var(--bone)' }}>
           Six things you should know.
         </h1>
 
@@ -55,7 +55,7 @@ export function Privacy() {
             <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.32em', textTransform: 'uppercase' }}>{s.n}</div>
             <div>
               <h2 className="hl-serif hl-tight" style={{ fontSize: 28, fontWeight: 400, margin: 0, letterSpacing: '-0.012em', color: 'var(--bone)' }}>{s.h}</h2>
-              <p className="hl-prose" style={{ fontSize: 17, lineHeight: 1.8, marginTop: 14, color: 'var(--bone)' }}>{s.b}</p>
+              <p className="hl-prose" style={{ fontSize: 17, lineHeight: 1.8, marginTop: 14, color: 'var(--bone-dim)' }}>{s.b}</p>
             </div>
           </div>
         ))}

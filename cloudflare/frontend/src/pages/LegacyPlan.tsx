@@ -140,7 +140,7 @@ export function LegacyPlan() {
         topbarCenter="legacy plan"
         topbarRight={<UserMenu />}
       >
-        <div style={{ padding: '64px 56px' }}>
+        <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
           <HairlineLoader />
         </div>
       </ClothShell>
@@ -170,17 +170,16 @@ export function LegacyPlan() {
       topbarCenter="legacy plan"
       topbarRight={<UserMenu />}
     >
-      <div style={{ padding: '64px 56px', maxWidth: 860, margin: '0 auto' }}>
+      <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
 
         {/* H1 */}
         <h1
           className="hl-serif hl-tight"
           style={{
-            fontSize: 52,
+            fontSize: 'var(--type-display)',
             fontWeight: 300,
             margin: '0 0 40px',
             color: 'var(--bone)',
-            letterSpacing: '-0.02em',
           }}
         >
           The thread continues.
@@ -565,7 +564,7 @@ export function LegacyPlan() {
           </div>
 
           <p className="hl-serif" style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--bone-faint)', margin: '12px 0 0', lineHeight: 1.6 }}>
-            Configure your dead-man's switch in <Link to="/settings" style={{ color: 'var(--warm)', textDecoration: 'none', borderBottom: '1px solid rgba(176,122,74,0.3)' }}>Settings →</Link>
+            Configure your dead-man's switch in <Link to="/settings" style={{ color: 'var(--warm)', textDecoration: 'none', borderBottom: '1px solid var(--warm-dim)' }}>Settings →</Link>
           </p>
 
           <div

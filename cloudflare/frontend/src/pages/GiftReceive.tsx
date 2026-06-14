@@ -97,10 +97,10 @@ export function GiftReceive() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '84px 56px',
+            padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           }}
         >
-          <div style={{ maxWidth: 440, width: '100%' }}>
+          <div style={{ maxWidth: 'var(--page-max-focus)', width: '100%' }}>
             <p
               className="hl-eyebrow dark"
               style={{ marginBottom: 20 }}
@@ -110,7 +110,7 @@ export function GiftReceive() {
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 48,
+                fontSize: 'var(--type-display)',
                 fontWeight: 300,
                 color: 'var(--bone)',
                 margin: '0 0 20px',
@@ -151,12 +151,12 @@ export function GiftReceive() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '84px 56px',
+            padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           }}
         >
           <div
             style={{
-              maxWidth: 440,
+              maxWidth: 'var(--page-max-focus)',
               width: '100%',
               opacity: 0,
               animation: 'css-fade-in 720ms cubic-bezier(0.16,1,0.3,1) forwards',
@@ -172,7 +172,7 @@ export function GiftReceive() {
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 48,
+                fontSize: 'var(--type-display)',
                 fontWeight: 300,
                 color: 'var(--bone)',
                 margin: '0 0 20px',
@@ -209,14 +209,14 @@ export function GiftReceive() {
     <ClothShell topbarCenter="a gift">
 
       {/* Content area — below topbar */}
-      <div style={{ padding: '84px 56px', minHeight: '100%' }}>
-        <div style={{ maxWidth: 540, margin: '0 auto' }}>
+      <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', minHeight: '100%' }}>
+        <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto' }}>
 
           {/* H1 */}
           <h1
             className="hl-serif hl-tight"
             style={{
-              fontSize: 48,
+              fontSize: 'var(--type-display)',
               fontWeight: 300,
               color: 'var(--bone)',
               margin: '0 0 20px',

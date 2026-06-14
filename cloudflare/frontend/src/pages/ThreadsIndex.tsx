@@ -23,8 +23,14 @@ export function ThreadsIndex() {
         <progress style={{ display: 'block', width: '100%', height: 1, marginBottom: 24, appearance: 'none', accentColor: 'var(--warm)' }} />
       )}
 
-      <div style={{ maxWidth: 800, margin: '0 auto' }}>
-        <div style={{ paddingTop: 40 }}>
+      <div
+        style={{
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+          maxWidth: 'var(--page-max-reading)',
+          margin: '0 auto',
+        }}
+      >
+        <div>
           {isError && (
             <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 12, margin: '0 0 24px', letterSpacing: '0.12em' }}>
               could not load threads

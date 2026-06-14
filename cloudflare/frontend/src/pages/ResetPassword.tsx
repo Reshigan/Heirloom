@@ -61,7 +61,7 @@ export function ResetPassword() {
       topbarCenter="reset password"
       topbarRight={<Link to="/login" className="hl-mono" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>sign in →</Link>}
     >
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: 'clamp(24px,5vw,48px)' }}>
+      <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
         {!token ? (
           /* Invalid link state */
@@ -69,7 +69,7 @@ export function ResetPassword() {
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 36,
+                fontSize: 'var(--type-title)',
                 fontWeight: 300,
                 margin: '0 0 28px',
                 color: 'var(--bone)',
@@ -95,7 +95,7 @@ export function ResetPassword() {
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 36,
+                fontSize: 'var(--type-title)',
                 fontWeight: 300,
                 margin: '0 0 28px',
                 color: 'var(--bone)',
@@ -121,7 +121,7 @@ export function ResetPassword() {
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 36,
+                fontSize: 'var(--type-title)',
                 fontWeight: 300,
                 margin: '0 0 28px',
                 color: 'var(--bone)',

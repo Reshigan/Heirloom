@@ -142,7 +142,7 @@ export function PhotoQuick() {
 
   return (
     <ClothShell topbarLeft={topbarLeft}>
-      <div style={{ maxWidth: 640, margin: '0 auto', padding: 'clamp(28px, 6vw, 56px) clamp(20px, 5vw, 40px) 100px' }}>
+      <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
         <input
           ref={fileInputRef}
           type="file"
@@ -333,19 +333,11 @@ export function PhotoQuick() {
                   save.mutate();
                 }}
                 disabled={!canSave}
+                className="hl-btn"
                 style={{
                   marginLeft: 'auto',
-                  background: 'var(--warm)',
-                  border: '1px solid var(--warm)',
-                  color: 'var(--ink)',
-                  fontFamily: 'var(--mono)',
-                  fontSize: 12,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  padding: '12px 26px',
                   cursor: canSave ? 'pointer' : 'default',
                   opacity: canSave ? 1 : 0.45,
-                  minHeight: 44,
                 }}
               >
                 {save.isPending ? 'weaving…' : 'weave into cloth →'}

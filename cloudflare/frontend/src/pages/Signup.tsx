@@ -163,7 +163,7 @@ export function Signup() {
             begin · this takes about 90 seconds
           </div>
           <h1 className="hl-serif hl-tight" style={{
-            fontSize: 'clamp(40px, 5.5vw, 60px)',
+            fontSize: 'var(--type-display)',
             fontWeight: 300, lineHeight: 1.06, letterSpacing: '-0.022em',
             margin: 0, maxWidth: '16ch',
             color: 'var(--bone)',

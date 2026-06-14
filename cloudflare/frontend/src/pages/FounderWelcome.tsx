@@ -48,10 +48,10 @@ export function FounderWelcome() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '80px 56px 56px',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        <div style={{ textAlign: 'center', maxWidth: '52ch' }}>
+        <div style={{ textAlign: 'center', maxWidth: 'var(--page-max-focus)' }}>
           {/* Logo glyph */}
           <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'center' }}>
             <HLogo size={56} glow />
@@ -87,7 +87,7 @@ export function FounderWelcome() {
           <h1
             className="hl-serif hl-tight"
             style={{
-              fontSize: 40,
+              fontSize: 'var(--type-title)',
               fontWeight: 300,
               margin: 0,
               color: 'var(--bone)',

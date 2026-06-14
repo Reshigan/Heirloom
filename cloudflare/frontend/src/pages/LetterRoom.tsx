@@ -70,7 +70,7 @@ export function LetterRoom() {
         }}
       />
 
-      <div style={{ padding: 'clamp(24px, 5vw, 48px)', paddingBottom: 120, maxWidth: 680 }}>
+      <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
         {/* CTA */}
         <Link
           to="/loom/compose-letter"
@@ -157,8 +157,8 @@ export function LetterRoom() {
                         to={`/loom/compose-letter?id=${letter.id}`}
                         style={{
                           fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em',
-                          textTransform: 'uppercase', color: 'rgba(176,122,74,0.7)',
-                          textDecoration: 'none', borderBottom: '1px solid rgba(176,122,74,0.25)',
+                          textTransform: 'uppercase', color: 'var(--warm-dim)',
+                          textDecoration: 'none', borderBottom: '1px solid var(--warm-dim)',
                           padding: '12px 6px', minHeight: 44,
                           display: 'inline-flex', alignItems: 'center',
                         }}

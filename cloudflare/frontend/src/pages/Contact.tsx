@@ -67,7 +67,7 @@ export function Contact() {
 
   return (
     <ClothShell topbarLeft={<HLogo />} topbarCenter="contact">
-      <div style={{ maxWidth: 700, margin: '0 auto', padding: 'clamp(24px,5vw,48px)' }}>
+      <div style={{ maxWidth: 'var(--page-max-prose)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
         {isSubmitted ? (
           <div role="status" style={{ paddingTop: 40 }}>
             <p
@@ -79,7 +79,7 @@ export function Contact() {
             </p>
             <h1
               className="hl-serif hl-tight"
-              style={{ fontSize: 52, fontWeight: 300, margin: '0 0 20px', color: 'var(--bone)' }}
+              style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 20px', color: 'var(--bone)' }}
             >
               Message sent.
             </h1>
@@ -97,7 +97,7 @@ export function Contact() {
           <>
             <h1
               className="hl-serif hl-tight"
-              style={{ fontSize: 52, fontWeight: 300, margin: '0 0 20px', color: 'var(--bone)' }}
+              style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 20px', color: 'var(--bone)' }}
             >
               Write to us.
             </h1>
