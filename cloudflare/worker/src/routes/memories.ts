@@ -535,10 +535,6 @@ memoriesRoutes.post('/', async (c) => {
     // Use memoryDate if provided (for historic memories), otherwise use current date
     const createdAt = memoryDate ? new Date(memoryDate).toISOString() : now;
   
-  // Classify emotion using Cloudflare Workers AI (falls back to keyword-based)
-  const textToClassify = `${title} ${description || ''}`.trim();
-  const emotionResult = await classifyEmotionWithAI(textToClassify, c.env.AI);
-  
   // Sanitize metadata — only allow known keys to prevent proto-pollution and
   // block the metadata.to notification-injection vector. Scalar keys take
   // string/number values; `images` is the composer's photo array; `tags` a
@@ -546,6 +542,10 @@ memoriesRoutes.post('/', async (c) => {
   const SCALAR_METADATA_KEYS = new Set([
     'location', 'weather', 'device', 'source', 'color', 'caption',
     'visibility', 'dye', 'dyeMotif', 'entryDate',
+    // Composer attributes — subject the memory is about, its relation, the
+    // place/room it belongs to, and a user-chosen feeling (the subtle AI
+    // classifier below only fills `emotion` when the author leaves it blank).
+    'about', 'aboutRelation', 'room', 'emotion',
   ]);
   const safeUserMeta: Record<string, unknown> = {};
   if (metadata && typeof metadata === 'object') {
@@ -570,6 +570,13 @@ memoriesRoutes.post('/', async (c) => {
       }
     }
   }
+
+  // The subtle AI: when the author named a feeling in the Composer we keep it
+  // (the human's word wins); otherwise Workers AI reads the entry and names one.
+  const userEmotion = typeof safeUserMeta.emotion === 'string' ? safeUserMeta.emotion.trim() : '';
+  const emotionResult = userEmotion
+    ? { label: userEmotion, confidence: 1 }
+    : await classifyEmotionWithAI(`${title} ${description || ''}`.trim(), c.env.AI);
 
   // Merge emotion into metadata
   const enrichedMetadata = {

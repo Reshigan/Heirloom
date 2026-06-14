@@ -823,6 +823,71 @@ aiRoutes.post('/suggest-dye', async (c) => {
 });
 
 // ============================================
+// EMOTION AUTO-CLASSIFY — the Composer's subtle Listener names the feeling.
+// Same taxonomy as classifyEmotionWithAI so a suggestion round-trips with the
+// server-side classifier that runs on save.
+// ============================================
+
+const EMOTION_PALETTE = [
+  'joyful', 'nostalgic', 'grateful', 'loving', 'bittersweet',
+  'sad', 'reflective', 'proud', 'peaceful', 'hopeful',
+] as const;
+
+aiRoutes.post('/suggest-emotion', async (c) => {
+  const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Unauthorized' }, 401);
+
+  // Rate limit: 10 AI calls per user per minute (shared bucket with suggest-dye).
+  const rateLimitKey = `ai:${userId}:${Math.floor(Date.now() / 60000)}`;
+  try {
+    const count = parseInt(await c.env.KV.get(rateLimitKey) ?? '0', 10);
+    if (count >= 10) return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+    await c.env.KV.put(rateLimitKey, String(count + 1), { expirationTtl: 60 });
+  } catch {
+    const now = Date.now();
+    const entry = aiRateMap.get(rateLimitKey);
+    if (entry && entry.resetAt > now) {
+      if (entry.count >= 10) return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+      entry.count++;
+    } else {
+      aiRateMap.set(rateLimitKey, { count: 1, resetAt: now + 60000 });
+    }
+  }
+
+  let text = '';
+  try {
+    const body = await c.req.json();
+    text = (body.text || '').slice(0, 600);
+  } catch {
+    return c.json({ error: 'Invalid body' }, 400);
+  }
+
+  if (text.length < 20) {
+    return c.json({ emotion: 'reflective', reason: 'too short to classify' });
+  }
+
+  try {
+    const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+      messages: [
+        {
+          role: 'system',
+          content: `You are an emotion classifier for a family memory archive. Read the writing and pick the single best-matching feeling from this list:\n\n${EMOTION_PALETTE.join(', ')}\n\nRespond with ONLY the feeling (one word, lowercase). No explanation.`,
+        },
+        { role: 'user', content: text },
+      ],
+      max_tokens: 10,
+      temperature: 0.3,
+    });
+
+    const raw = ((response as any).response || '').trim().toLowerCase();
+    const emotion = EMOTION_PALETTE.find((e) => raw.includes(e)) ?? 'reflective';
+    return c.json({ emotion });
+  } catch {
+    return c.json({ emotion: 'reflective' });
+  }
+});
+
+// ============================================
 // INTERVIEW FOLLOW-UP — generate next interview question from context
 // ============================================
 

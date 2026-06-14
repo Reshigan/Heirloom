@@ -345,6 +345,9 @@ export const aiApi = {
   // Dye auto-classify
   suggestDye: (text: string) => api.post('/ai/suggest-dye', { text }),
 
+  // Emotion auto-classify — the Composer's subtle Listener names the feeling
+  suggestEmotion: (text: string) => api.post('/ai/suggest-emotion', { text }),
+
   // On This Day ambient narration
   onThisDayNarration: (memories: { title: string; description?: string; yearsAgo: number; type: string }[]) =>
     api.post('/ai/on-this-day-narration', { memories }),

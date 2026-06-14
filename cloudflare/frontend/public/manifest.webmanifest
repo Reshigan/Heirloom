@@ -37,7 +37,7 @@
     }
   ],
   "screenshots": [
-    { "src": "/og-image.png", "sizes": "1200x630", "type": "image/png", "form_factor": "wide", "label": "Heirloom — family thread" },
-    { "src": "/og-image.png", "sizes": "1200x630", "type": "image/png", "form_factor": "narrow", "label": "Heirloom — family thread" }
+    { "src": "/screenshot-wide.png", "sizes": "1376x768", "type": "image/png", "form_factor": "wide", "label": "The Cloth — your family's woven thread" },
+    { "src": "/screenshot-narrow.png", "sizes": "768x1376", "type": "image/png", "form_factor": "narrow", "label": "The Cloth — your family's woven thread" }
   ]
 }

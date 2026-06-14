@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { memoriesApi, lettersApi, familyApi } from '../services/api';
+import { memoriesApi, lettersApi, familyApi, aiApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
 import { type FamilyMember } from '../types';
@@ -471,6 +471,189 @@ function EntryDateField({
   );
 }
 
+/* ─── Shared field label ─────────────────────────────────────────────── */
+const fieldLabel: React.CSSProperties = {
+  fontFamily: 'var(--mono)',
+  fontSize: 11,
+  letterSpacing: '0.22em',
+  textTransform: 'uppercase',
+  color: 'var(--bone-faint)',
+  marginBottom: 10,
+};
+
+const lineInput: React.CSSProperties = {
+  border: 0,
+  background: 'transparent',
+  color: 'var(--bone)',
+  caretColor: 'var(--warm)',
+  fontFamily: 'var(--mono)',
+  fontSize: 15,
+  letterSpacing: '0.05em',
+  padding: '6px 0 4px',
+  outline: 'none',
+  borderBottom: '1px solid var(--rule)',
+  transition: 'border-color 180ms var(--ease)',
+};
+
+/* ─── About: who or what the memory is about (subject, not recipient) ── */
+function AboutField({
+  about,
+  relation,
+  onAboutChange,
+  onRelationChange,
+}: {
+  about: string;
+  relation: string;
+  onAboutChange: (v: string) => void;
+  onRelationChange: (v: string) => void;
+}) {
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <div style={fieldLabel}>about</div>
+      <div style={{ display: 'flex', gap: 'clamp(16px, 4vw, 40px)', flexWrap: 'wrap' }}>
+        <input
+          value={about}
+          onChange={(e) => onAboutChange(e.target.value)}
+          placeholder="a person, a place, a thing"
+          aria-label="What this memory is about"
+          style={{ ...lineInput, flex: '2 1 220px' }}
+          onFocus={(e) => (e.currentTarget.style.borderBottomColor = 'var(--warm)')}
+          onBlur={(e) => (e.currentTarget.style.borderBottomColor = 'var(--rule)')}
+        />
+        <input
+          value={relation}
+          onChange={(e) => onRelationChange(e.target.value)}
+          placeholder="relation — e.g. grandmother"
+          aria-label="Relation to the subject"
+          disabled={!about.trim()}
+          style={{
+            ...lineInput,
+            flex: '1 1 160px',
+            opacity: about.trim() ? 1 : 0.4,
+          }}
+          onFocus={(e) => (e.currentTarget.style.borderBottomColor = 'var(--warm)')}
+          onBlur={(e) => (e.currentTarget.style.borderBottomColor = 'var(--rule)')}
+        />
+      </div>
+    </div>
+  );
+}
+
+/* ─── Room: the place in the house this thread belongs to ────────────── */
+function RoomField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <div style={fieldLabel}>room</div>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="the kitchen table, the porch, the old house"
+        aria-label="The room or place this belongs to"
+        style={{ ...lineInput, width: '100%', maxWidth: 480 }}
+        onFocus={(e) => (e.currentTarget.style.borderBottomColor = 'var(--warm)')}
+        onBlur={(e) => (e.currentTarget.style.borderBottomColor = 'var(--rule)')}
+      />
+    </div>
+  );
+}
+
+/* ─── Emotion: the feeling — chosen by the author, or named by the AI ── */
+// Same taxonomy as the worker's classifier so a choice round-trips on save.
+const EMOTIONS = [
+  'joyful', 'nostalgic', 'grateful', 'loving', 'bittersweet',
+  'sad', 'reflective', 'proud', 'peaceful', 'hopeful',
+] as const;
+
+function EmotionField({
+  body,
+  value,
+  onChange,
+}: {
+  body: string;
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [aiNamed, setAiNamed] = useState(false);
+
+  const nameIt = async () => {
+    if (body.trim().length < 20 || loading) return;
+    setLoading(true);
+    try {
+      const res = await aiApi.suggestEmotion(body);
+      const e = (res.data as any)?.emotion as string | undefined;
+      if (e) { onChange(e); setAiNamed(true); }
+    } catch {
+      // the Listener stays quiet on failure
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <div style={{ ...fieldLabel, display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+        <span>the feeling</span>
+        <span style={{ letterSpacing: '0.06em', textTransform: 'none', fontStyle: 'italic', color: 'var(--bone-faint)' }}>
+          {value
+            ? aiNamed ? 'named by the listener — change it freely' : 'your word'
+            : 'optional · the listener will name one when you weave'}
+        </span>
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 18px', alignItems: 'baseline' }}>
+        {EMOTIONS.map((e) => {
+          const active = e === value;
+          return (
+            <button
+              key={e}
+              type="button"
+              onClick={() => { setAiNamed(false); onChange(active ? '' : e); }}
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: '2px 0',
+                cursor: 'pointer',
+                fontFamily: 'var(--serif)',
+                fontStyle: 'italic',
+                fontSize: 'clamp(16px, 2vw, 19px)',
+                fontWeight: 300,
+                color: active ? 'var(--warm)' : 'var(--bone-dim)',
+                opacity: value && !active ? 0.5 : 1,
+                transition: 'color 180ms var(--ease), opacity 180ms var(--ease)',
+              }}
+              onMouseEnter={(e2) => { if (!active) e2.currentTarget.style.color = 'var(--bone)'; }}
+              onMouseLeave={(e2) => { if (!active) e2.currentTarget.style.color = 'var(--bone-dim)'; }}
+            >
+              {e}
+            </button>
+          );
+        })}
+      </div>
+      <button
+        type="button"
+        onClick={nameIt}
+        disabled={loading || body.trim().length < 20}
+        style={{
+          marginTop: 12,
+          background: 'transparent',
+          border: 0,
+          padding: 0,
+          cursor: body.trim().length < 20 ? 'default' : 'pointer',
+          fontFamily: 'var(--mono)',
+          fontSize: 10,
+          letterSpacing: '0.16em',
+          textTransform: 'uppercase',
+          color: loading ? 'var(--bone-faint)' : 'var(--warm)',
+          opacity: body.trim().length < 20 ? 0.35 : 1,
+          transition: 'color 180ms var(--ease), opacity 180ms var(--ease)',
+        }}
+      >
+        {loading ? 'listening…' : 'let the listener name it →'}
+      </button>
+    </div>
+  );
+}
+
 /* ─── Draft persistence ─────────────────────────────────────────────── */
 const DRAFT_PREFIX = 'hl-compose-draft:';
 
@@ -494,6 +677,10 @@ type DraftData = {
   recipientName?: string;
   deliveryTrigger?: DeliveryTrigger;
   scheduledDate?: string;
+  about?: string;
+  aboutRelation?: string;
+  room?: string;
+  emotion?: string;
 };
 
 function readDraft(key: string): DraftData {
@@ -526,6 +713,10 @@ export function Compose() {
   const [body, setBody] = useState(() => draft0.body ?? '');
   const [visibility, setVisibility] = useState<Visibility>('family');
   const [dye, setDye] = useState('walnut');
+  const [about, setAbout] = useState(() => draft0.about ?? '');
+  const [aboutRelation, setAboutRelation] = useState(() => draft0.aboutRelation ?? '');
+  const [room, setRoom] = useState(() => draft0.room ?? '');
+  const [emotion, setEmotion] = useState(() => draft0.emotion ?? '');
   const [error, setError] = useState<string | null>(null);
   const [bodyError, setBodyError] = useState<string | null>(null);
   const [woven, setWoven] = useState(false);
@@ -612,6 +803,10 @@ export function Compose() {
     setBody(m.description ?? '');
     if (m.metadata?.entryDate) setEntryDate(m.metadata.entryDate);
     if (m.metadata?.dye) setDye(m.metadata.dye);
+    if (m.metadata?.about) setAbout(m.metadata.about);
+    if (m.metadata?.aboutRelation) setAboutRelation(m.metadata.aboutRelation);
+    if (m.metadata?.room) setRoom(m.metadata.room);
+    if (m.metadata?.emotion) setEmotion(m.metadata.emotion);
   }, [editMemory]);
 
   // isLetter: true when any recipient name is set
@@ -646,6 +841,10 @@ export function Compose() {
             recipientName,
             deliveryTrigger,
             scheduledDate,
+            about,
+            aboutRelation,
+            room,
+            emotion,
           }),
         );
       } else {
@@ -655,7 +854,7 @@ export function Compose() {
     return () => {
       if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
     };
-  }, [body, title, entryDate, recipientId, recipientName, deliveryTrigger, scheduledDate, woven, draftKey]);
+  }, [body, title, entryDate, recipientId, recipientName, deliveryTrigger, scheduledDate, about, aboutRelation, room, emotion, woven, draftKey]);
 
   // Guard browser tab close when there's unsaved content
   useEffect(() => {
@@ -800,6 +999,10 @@ export function Compose() {
                 dye,
                 dyeMotif: dye,
                 entryDate,
+                ...(about.trim() ? { about: about.trim() } : {}),
+                ...(about.trim() && aboutRelation.trim() ? { aboutRelation: aboutRelation.trim() } : {}),
+                ...(room.trim() ? { room: room.trim() } : {}),
+                ...(emotion ? { emotion } : {}),
                 images: photos.map((p) => ({ fileKey: p.fileKey, fileUrl: p.fileUrl, mimeType: p.mimeType })),
               },
             })
@@ -818,6 +1021,10 @@ export function Compose() {
               dye,
               dyeMotif: dye,
               entryDate,
+              ...(about.trim() ? { about: about.trim() } : {}),
+              ...(about.trim() && aboutRelation.trim() ? { aboutRelation: aboutRelation.trim() } : {}),
+              ...(room.trim() ? { room: room.trim() } : {}),
+              ...(emotion ? { emotion } : {}),
               images: photos.map((p) => ({ fileKey: p.fileKey, fileUrl: p.fileUrl, mimeType: p.mimeType })),
             },
           })
@@ -850,11 +1057,11 @@ export function Compose() {
     if ((body.trim() || title.trim()) && !woven) {
       localStorage.setItem(
         draftKey,
-        JSON.stringify({ title, body, entryDate, recipientId, recipientName, deliveryTrigger, scheduledDate }),
+        JSON.stringify({ title, body, entryDate, recipientId, recipientName, deliveryTrigger, scheduledDate, about, aboutRelation, room, emotion }),
       );
     }
     navigate('/loom/index');
-  }, [body, title, entryDate, recipientId, recipientName, deliveryTrigger, scheduledDate, woven, navigate, draftKey]);
+  }, [body, title, entryDate, recipientId, recipientName, deliveryTrigger, scheduledDate, about, aboutRelation, room, emotion, woven, navigate, draftKey]);
 
   const handleRecipientChange = useCallback((id: string | null, name: string) => {
     setRecipientId(id);
@@ -1272,6 +1479,29 @@ export function Compose() {
               >
                 {images.length > 0 ? '+ add another photo' : '+ add a photo'}
               </button>
+            </div>
+          )}
+
+          {/* ── The attributes — who it's about, where, the feeling ───── */}
+          {!isLetter && (
+            <div
+              style={{
+                marginTop: 44,
+                paddingTop: 24,
+                paddingLeft: 'clamp(16px, 3vw, 28px)',
+                borderTop: '1px solid var(--rule)',
+                opacity: writingFocused ? 0.45 : 1,
+                transition: `opacity 720ms ${ease}`,
+              }}
+            >
+              <AboutField
+                about={about}
+                relation={aboutRelation}
+                onAboutChange={setAbout}
+                onRelationChange={setAboutRelation}
+              />
+              <RoomField value={room} onChange={setRoom} />
+              <EmotionField body={body} value={emotion} onChange={setEmotion} />
             </div>
           )}
 
