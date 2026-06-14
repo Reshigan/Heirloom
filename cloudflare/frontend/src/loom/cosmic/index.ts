@@ -8,3 +8,4 @@ export { CosmicHeader } from './CosmicHeader';
 export { CosmicRule } from './CosmicRule';
 export { CosmicButton } from './CosmicButton';
 export { CosmicField } from './CosmicField';
+export { CosmicHeroMedia } from './CosmicHeroMedia';
