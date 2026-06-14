@@ -18,7 +18,6 @@ import { RecipientPicker } from '../loom/components/RecipientPicker';
 const MAX_RECORDING_SECS = 120; // 2 min — used for hairline progress and auto-stop
 
 const PROMPTS = [
-  'What did your mother say about the war?',
   'What was the song that always played?',
   'What was your father afraid of?',
   'Where did you feel most at home?',
