@@ -1011,6 +1011,111 @@ aiRoutes.post('/transcribe', async (c) => {
 });
 
 // ============================================
+// REFINE — rewrite spoken/typed text into three letter variants
+// ============================================
+// Takes raw text (usually a voice transcript) and offers three rewrites the
+// writer can choose from, or ignore in favour of their own words:
+//   faithful — light polish, voice preserved
+//   warmer   — more tender, heartfelt
+//   tighter  — more concise, clearer
+// Runs on Workers AI (llama-3-8b). Each variant is an independent model call so
+// one failure never sinks the others.
+
+const REFINE_VARIANTS: { id: string; label: string; instruction: string }[] = [
+  {
+    id: 'faithful',
+    label: 'lightly polished',
+    instruction:
+      'Lightly polish this letter: fix grammar, spelling, punctuation and flow only. Preserve the writer\'s exact voice, words and meaning. Do not add new ideas or sentiments.',
+  },
+  {
+    id: 'warmer',
+    label: 'warmer',
+    instruction:
+      'Rewrite this letter to feel warmer and more tender — a heartfelt, personal letter to someone the writer loves. Keep every fact and all the meaning. Stay sincere, never flowery or generic.',
+  },
+  {
+    id: 'tighter',
+    label: 'more concise',
+    instruction:
+      'Rewrite this letter to be clearer and more concise. Remove filler, hedging and repetition. Keep every important point and the personal, human tone.',
+  },
+];
+
+// Strip the chatty preamble small models like to prepend ("Here is the
+// rewritten letter:", surrounding quotes) so the body is paste-ready.
+function cleanRefined(raw: string): string {
+  let t = (raw || '').trim();
+  t = t.replace(/^(here(?:'s| is)[^\n:]*:?\s*)/i, '');
+  t = t.replace(/^(sure[!,.]?\s*)/i, '');
+  t = t.replace(/^["“'']+/, '').replace(/["”'']+$/, '');
+  return t.trim();
+}
+
+aiRoutes.post('/refine', async (c) => {
+  const userId = c.get('userId');
+  if (!userId) return c.json({ error: 'Unauthorized' }, 401);
+
+  // Rate limit: 10 AI calls per user per minute (one /refine request = one unit,
+  // even though it fans out to three model calls).
+  const rateLimitKey = `ai:${userId}:${Math.floor(Date.now() / 60000)}`;
+  try {
+    const count = parseInt((await c.env.KV.get(rateLimitKey)) ?? '0', 10);
+    if (count >= 10) return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+    await c.env.KV.put(rateLimitKey, String(count + 1), { expirationTtl: 60 });
+  } catch {
+    const now = Date.now();
+    const entry = aiRateMap.get(rateLimitKey);
+    if (entry && entry.resetAt > now) {
+      if (entry.count >= 10) return c.json({ error: 'Rate limit exceeded. Try again in a minute.' }, 429);
+      entry.count++;
+    } else {
+      aiRateMap.set(rateLimitKey, { count: 1, resetAt: now + 60000 });
+    }
+  }
+
+  let text = '';
+  try {
+    const body = await c.req.json();
+    text = (body.text || '').toString().trim();
+  } catch {
+    return c.json({ error: 'Invalid body' }, 400);
+  }
+  if (!text) return c.json({ error: 'Nothing to refine' }, 400);
+  // Bound cost: long letters are truncated for the model (the writer keeps the
+  // full original — variants are a starting point, not a hard replacement).
+  const source = text.slice(0, 4000);
+
+  const settled = await Promise.allSettled(
+    REFINE_VARIANTS.map(async (v) => {
+      const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+        messages: [
+          {
+            role: 'system',
+            content: `You are a careful editor helping someone write a personal letter to their family. ${v.instruction} Return ONLY the rewritten letter text — no preamble, no explanation, no quotation marks, no markdown.`,
+          },
+          { role: 'user', content: source },
+        ],
+        max_tokens: 700,
+        temperature: 0.6,
+      });
+      const out = cleanRefined((response as any).response || '');
+      if (!out) throw new Error('empty');
+      return { id: v.id, label: v.label, text: out };
+    })
+  );
+
+  const variants = settled
+    .filter((r): r is PromiseFulfilledResult<{ id: string; label: string; text: string }> => r.status === 'fulfilled')
+    .map((r) => r.value);
+
+  if (variants.length === 0) {
+    return c.json({ error: 'Could not refine right now. Your words are saved.' }, 502);
+  }
+  return c.json({ variants });
+});
+
+// ============================================
 // ON-THIS-DAY NARRATION — ambient one-line thread commentary
 // ============================================
 

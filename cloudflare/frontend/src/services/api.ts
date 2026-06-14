@@ -339,8 +339,12 @@ export const aiApi = {
   interviewFollowup: (data: { currentQuestion: string; transcriptSoFar: string }) =>
     api.post('/ai/interview-followup', data),
 
-  // Transcribe
+  // Transcribe — Whisper on Workers AI; audioUrl may be an http(s) or data: URL
   transcribe: (data: { audioUrl: string }) => api.post('/ai/transcribe', data),
+
+  // Refine — turn raw (often spoken) text into three letter variants to choose
+  refine: (text: string) =>
+    api.post<{ variants: { id: string; label: string; text: string }[] }>('/ai/refine', { text }),
 
   // Dye auto-classify
   suggestDye: (text: string) => api.post('/ai/suggest-dye', { text }),

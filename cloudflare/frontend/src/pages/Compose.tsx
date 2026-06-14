@@ -7,6 +7,7 @@ import { usePageMeta } from '../lib/usePageMeta';
 import { type FamilyMember } from '../types';
 import { dyeColor } from '../loom/dye';
 import { HLogo } from '../loom/components/HLogo';
+import { VoiceRefine } from '../loom/components/VoiceRefine';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { uploadMemoryImage, validateImage } from '../utils/uploadImage';
 import {
@@ -1327,6 +1328,14 @@ export function Compose() {
                 {bodyError}
               </p>
             )}
+
+            {/* speak it → AI offers versions to choose from */}
+            <div style={{ marginTop: 16 }}>
+              <VoiceRefine
+                kind={isLetter ? 'letter' : 'memory'}
+                onPick={(text) => setBody((prev) => (prev.trim() ? `${prev.trim()}\n\n${text}` : text))}
+              />
+            </div>
           </div>
 
           {/* ── Photos (memory mode only) ─────────────────────────────── */}

@@ -7,6 +7,7 @@ import { HLogo } from '../loom/components/HLogo';
 import { UserMenu } from '../loom/components/Frame';
 import { ClothShell } from '../loom/components/ClothShell';
 import { RecipientPicker } from '../loom/components/RecipientPicker';
+import { VoiceRefine } from '../loom/components/VoiceRefine';
 import { useAuthStore } from '../stores/authStore';
 
 /**
@@ -344,6 +345,14 @@ export function ComposeLetter() {
                 padding: 0,
               }}
             />
+
+            {/* speak it → AI offers versions to choose from */}
+            <div style={{ marginTop: 8, marginBottom: 8 }}>
+              <VoiceRefine
+                kind="letter"
+                onPick={(text) => setBody((prev) => (prev.trim() ? `${prev.trim()}\n\n${text}` : text))}
+              />
+            </div>
 
             {/* signature */}
             <input

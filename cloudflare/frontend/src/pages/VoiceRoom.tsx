@@ -7,6 +7,7 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeColor } from '../loom/dye';
+import { VoiceRefine } from '../loom/components/VoiceRefine';
 
 const FIELD_STYLE: React.CSSProperties = {
   display: 'block', width: '100%', background: 'transparent',
@@ -332,6 +333,12 @@ export function VoiceRoom() {
                         {editError}
                       </p>
                     )}
+                    <div style={{ marginTop: 12 }}>
+                      <VoiceRefine
+                        kind="memory"
+                        onPick={(text) => { setEditDesc((prev) => (prev.trim() ? `${prev.trim()}\n\n${text}` : text)); setEditError(null); }}
+                      />
+                    </div>
                     <div style={{ display: 'flex', gap: 14, marginTop: 10, alignItems: 'center' }}>
                       <button
                         type="button"
