@@ -155,8 +155,8 @@
   --page-max-wide:    920px;   /* generous single column */
   --page-max-prose:   720px;   /* reading / letters */
   --page-max-focus:   600px;   /* ceremony, onboarding */
-  --page-pad-x:   clamp(20px, 5vw, 48px);
-  --page-pad-top: clamp(32px, 5vw, 52px);
+  --page-pad-x:   clamp(22px, 6vw, 84px);
+  --page-pad-top: clamp(40px, 6vw, 76px);
   /* Bottom clearance so content always clears the (enlarged) BottomNav. */
   --page-clear:   calc(108px + env(safe-area-inset-bottom, 0px));
 

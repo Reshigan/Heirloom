@@ -92,14 +92,14 @@ export function Today() {
             entry no. 0001
           </div>
           <h1 className="hl-serif hl-tight" style={{
-            fontSize: 'clamp(26px, 4vw, 44px)', fontWeight: 300, lineHeight: 1.1,
-            margin: '0 0 20px', color: 'var(--bone)', fontVariationSettings: '"opsz" 44',
+            fontSize: 'clamp(30px, 4.8vw, 54px)', fontWeight: 300,
+            margin: '0 0 24px', color: 'var(--bone)', fontVariationSettings: '"opsz" 54',
           }}>
             There is someone who needs to read this.<br />Just not yet.
           </h1>
           <p className="hl-serif" style={{
-            fontSize: 'clamp(15px, 1.6vw, 18px)', fontWeight: 300,
-            color: 'var(--bone-dim)', lineHeight: 1.68, margin: '0 0 36px', maxWidth: '42ch',
+            fontSize: 'clamp(16px, 1.7vw, 19px)', fontWeight: 300,
+            color: 'var(--bone-dim)', lineHeight: 1.74, margin: '0 0 36px', maxWidth: '44ch',
           }}>
             Write a letter today. Seal it for a date, a milestone, a death — or the moment you choose.
             It holds safe and finds them exactly when you intended.
@@ -149,8 +149,8 @@ export function Today() {
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* ── Content: top third of screen ── */}
       <div style={{
-        padding: 'clamp(36px, 7vw, 64px) clamp(20px, 6vw, 56px) 0',
-        maxWidth: 680,
+        padding: 'var(--page-pad-top) var(--page-pad-x) 0',
+        maxWidth: 720,
         opacity: revealed ? 1 : 0,
         transform: revealed ? 'translateY(0)' : 'translateY(14px)',
         transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
@@ -167,12 +167,12 @@ export function Today() {
         <h1
           className="hl-serif hl-tight loom-today-headline"
           style={{
-            fontSize: 'clamp(24px, 3.6vw, 40px)',
+            fontSize: 'clamp(28px, 4.4vw, 48px)',
             fontWeight: 300,
-            lineHeight: 1.14,
+            lineHeight: 1.12,
             margin: 0,
             color: 'var(--bone)',
-            fontVariationSettings: '"opsz" 40',
+            fontVariationSettings: '"opsz" 48',
           }}
         >
           {prompt}
