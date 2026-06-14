@@ -21,9 +21,11 @@ export const CLOTH_BG_ENTRIES = Array.from({ length: 48 }, (_, i) => ({
   locked: i % 4 === 0,
 }));
 
-// On these routes the cloth IS the screen — full presence, touchable.
-// Everywhere else it recedes behind a veil so the room's work is legible.
-const HOME_ROUTES = new Set(['/loom', '/loom/pwa', '/loom/today', '/loom/weft']);
+// On these routes the cloth IS the screen — full presence, touchable, no
+// reading column to protect. Everywhere else (incl. /loom/today and /loom/weft,
+// which carry prose + actions) the cloth recedes behind a veil so the room's
+// work stays legible — type is the hero, the weave breathes at the margins.
+const HOME_ROUTES = new Set(['/loom', '/loom/pwa']);
 
 interface ClothBackdropProps {
   /** Deprecated — the woven cloth manages its own presence. Accepted for back-compat. */
@@ -76,7 +78,7 @@ export function ClothBackdrop(_props: ClothBackdropProps) {
         style={{
           position: 'absolute',
           inset: 0,
-          opacity: isHome ? 1 : 0.34,
+          opacity: isHome ? 1 : 0.26,
           transition: 'opacity 1400ms var(--ease-out)',
         }}
       >
@@ -88,17 +90,19 @@ export function ClothBackdrop(_props: ClothBackdropProps) {
         />
       </div>
       {/* The veil — in the rooms the cloth recedes so the page's work is the
-          focus; the weave stays present near the centre and settles into ink
-          at the edges. Never on home: there the cloth is the screen. */}
+          focus. The reading column sits in calm ink at the centre; the weave
+          survives only at the far margins and corners, a faint warm web behind
+          the negative space. Never on home: there the cloth is the screen. */}
       <div
         aria-hidden
         style={{
           position: 'absolute',
           inset: 0,
           pointerEvents: 'none',
-          opacity: isHome ? 0 : 0.93,
+          opacity: isHome ? 0 : 0.97,
           transition: 'opacity 1400ms var(--ease-out)',
-          background: 'radial-gradient(ellipse 90% 70% at 50% 42%, transparent 16%, var(--ink) 80%)',
+          background:
+            'radial-gradient(ellipse 76% 88% at 50% 46%, var(--ink) 38%, color-mix(in srgb, var(--ink) 55%, transparent) 68%, transparent 92%)',
         }}
       />
     </>
