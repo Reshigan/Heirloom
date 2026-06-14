@@ -1,0 +1,156 @@
+/* ── Cosmic Loom semantic layer ──────────────────────────────────────────────
+   The page interiors stop being opaque parchment cards and become luminous-edged
+   ink panels that let the filament web (CosmicLoom) breathe at their edges.
+
+   This layer adds NO new colour — it maps the canonical ink/bone/warm/dye
+   primitives (globals.css) to cosmic semantics. "Floating in the deep" is built
+   from translucent-ink fill + a 1px luminous border + an outer warm glow —
+   NEVER backdrop-filter / frosted glass (ART_DIRECTION §2.6 anti-pattern).
+
+   Vault (default) values live in :root; the paper theme overrides them under
+   .loom[data-theme="light"] so the theme toggle stays honest. ──────────────── */
+
+:root {
+  /* the ground — the deep behind every panel */
+  --cosmic-deep: var(--ink);
+
+  /* floating panel fill: translucent ink so the web shows faintly at the edges */
+  --cosmic-panel: rgba(20, 20, 18, 0.72);
+  /* dense reading panels that need full legibility (prose, forms) */
+  --cosmic-panel-solid: rgba(20, 20, 18, 0.94);
+
+  /* luminous hairline border — resting, then warm on focus/hover */
+  --cosmic-edge: rgba(244, 236, 216, 0.10);
+  --cosmic-edge-warm: rgba(207, 147, 90, 0.30);
+
+  /* the outer focal glow that makes a panel read as adrift in the deep */
+  --cosmic-glow: 0 0 40px rgba(207, 147, 90, 0.07), 0 1px 0 rgba(244, 236, 216, 0.04) inset;
+  --cosmic-glow-warm: 0 0 48px rgba(207, 147, 90, 0.16), 0 1px 0 rgba(244, 236, 216, 0.06) inset;
+
+  /* divider filament + wax knot accent */
+  --filament: var(--rule);
+  --wax: var(--warm);
+
+  /* panel geometry — quiet, archival. No pill rounding (anti rounded-full). */
+  --cosmic-radius: 4px;
+}
+
+.loom[data-theme="light"] {
+  --cosmic-deep: var(--ink);
+  --cosmic-panel: rgba(250, 246, 238, 0.80);
+  --cosmic-panel-solid: rgba(250, 246, 238, 0.96);
+  --cosmic-edge: rgba(18, 14, 10, 0.12);
+  --cosmic-edge-warm: rgba(160, 92, 32, 0.34);
+  --cosmic-glow: 0 0 40px rgba(160, 92, 32, 0.06), 0 1px 0 rgba(18, 14, 10, 0.03) inset;
+  --cosmic-glow-warm: 0 0 48px rgba(160, 92, 32, 0.14), 0 1px 0 rgba(18, 14, 10, 0.05) inset;
+}
+
+/* ── Cosmic primitive base classes — consumed by src/loom/cosmic/* ─────────── */
+
+.cosmic-panel {
+  position: relative;
+  background: var(--cosmic-panel);
+  border: 1px solid var(--cosmic-edge);
+  border-radius: var(--cosmic-radius);
+  box-shadow: var(--cosmic-glow);
+  transition: border-color var(--dur-mid) var(--ease), box-shadow var(--dur-mid) var(--ease);
+}
+.cosmic-panel--solid { background: var(--cosmic-panel-solid); }
+.cosmic-panel--interactive { cursor: pointer; }
+.cosmic-panel--interactive:hover,
+.cosmic-panel:focus-within {
+  border-color: var(--cosmic-edge-warm);
+  box-shadow: var(--cosmic-glow-warm);
+}
+
+/* dye left-thread on cards — the family identity signal (3px) */
+.cosmic-card { border-left: 3px solid var(--cosmic-dye, var(--rule)); }
+
+/* filament divider with an optional wax node */
+.cosmic-rule {
+  position: relative;
+  height: 1px;
+  border: 0;
+  background: var(--filament);
+  margin: 0;
+}
+.cosmic-rule--node::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 50%;
+  background: var(--wax);
+  box-shadow: 0 0 8px var(--warm-glow);
+}
+
+/* buttons — warm hairline that fills with glow, never a solid warm slab */
+.cosmic-btn {
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  padding: 11px 18px;
+  border-radius: var(--cosmic-radius);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--bone);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease);
+}
+.cosmic-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.cosmic-btn--primary { border-color: var(--rule-warm); color: var(--warm-bright); }
+.cosmic-btn--primary:hover:not(:disabled) { background: var(--warm-glow); border-color: var(--cosmic-edge-warm); }
+.cosmic-btn--ghost { border-color: var(--cosmic-edge); color: var(--bone-dim); }
+.cosmic-btn--ghost:hover:not(:disabled) { border-color: var(--cosmic-edge-warm); color: var(--bone); }
+.cosmic-btn--text { padding: 4px 0; color: var(--bone-dim); }
+.cosmic-btn--text:hover:not(:disabled) { color: var(--warm-bright); }
+
+/* fields — transparent, bottom filament that warms on focus */
+.cosmic-field-label {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+  margin-bottom: 8px;
+}
+.cosmic-field-input {
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--cosmic-edge);
+  color: var(--bone);
+  font-family: var(--serif);
+  font-size: 17px;
+  padding: 8px 0;
+  transition: border-color var(--dur-fast) var(--ease);
+}
+.cosmic-field-input::placeholder { color: var(--bone-faint); }
+.cosmic-field-input:focus { outline: none; border-bottom-color: var(--cosmic-edge-warm); }
+
+/* page header chrome */
+.cosmic-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--warm);
+}
+.cosmic-title {
+  font-family: var(--serif);
+  font-weight: 300;
+  color: var(--bone);
+  line-height: 1.1;
+}
+.cosmic-sub {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 300;
+  color: var(--bone-dim);
+}

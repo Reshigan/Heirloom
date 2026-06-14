@@ -5,6 +5,7 @@ import { installChunkReloadHandlers } from './lib/chunkReload';
 import { registerServiceWorker } from './lib/registerSW';
 import { initSentry } from './lib/sentry';
 import './styles/globals.css';
+import './styles/cosmic.css';
 
 // Error tracking — no-op when VITE_SENTRY_DSN is absent.
 initSentry();
