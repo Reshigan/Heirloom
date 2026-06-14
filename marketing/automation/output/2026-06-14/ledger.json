@@ -3,5 +3,10 @@
     "hour": 15,
     "hook": "Your dad's stories about his dad are all you have left.",
     "saying": "What did your dad's dad teach him about being a man?"
+  },
+  {
+    "hour": 18,
+    "hook": "Your parents had a picture of your future before you were born.",
+    "saying": "What did your parents imagine for you before you could talk?"
   }
 ]
