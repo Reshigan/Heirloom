@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const BASE = 'http://localhost:4173';
-const OUT = '/tmp/audit';
+const OUT = process.env.AUDIT_AUTH === '1' ? '/tmp/audit-auth' : '/tmp/audit';
 fs.mkdirSync(OUT, { recursive: true });
 
 const routes = fs.readFileSync('/tmp/routes.txt', 'utf8')
@@ -14,6 +14,41 @@ const routes = fs.readFileSync('/tmp/routes.txt', 'utf8')
 
 const browser = await chromium.launch({ channel: 'chrome' });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 }, colorScheme: 'dark' });
+
+// Seed a persisted auth session so ProtectedRoute (reads isAuthenticated from the
+// 'heirloom-auth' zustand-persist key) lets us through to the signed-in interiors.
+// API calls may 401 — that's fine; we're verifying render/pixel, not data.
+const AUTH = process.env.AUDIT_AUTH === '1';
+if (AUTH) {
+  await ctx.addInitScript(() => {
+    try {
+      localStorage.setItem('token', 'audit-fake-token');
+      localStorage.setItem('refreshToken', 'audit-fake-refresh');
+      localStorage.setItem('heirloom-auth', JSON.stringify({
+        version: 0,
+        state: {
+          isAuthenticated: true,
+          user: {
+            id: 'audit-demo', email: 'audit@heirloom.blue',
+            firstName: 'Audit', lastName: 'Demo', avatarUrl: null,
+            emailVerified: true, twoFactorEnabled: false,
+            preferredCurrency: 'USD', defaultThreadId: 'demo',
+          },
+        },
+      }));
+    } catch { /* ignore */ }
+  });
+  // /auth/me runs on hydrate (AuthBoot) and would 401 with our fake token →
+  // clearTokens → redirect to /login. Stub it so the session stays valid.
+  const USER = {
+    id: 'audit-demo', email: 'audit@heirloom.blue',
+    firstName: 'Audit', lastName: 'Demo', avatarUrl: null,
+    emailVerified: true, twoFactorEnabled: false,
+    preferredCurrency: 'USD', defaultThreadId: 'demo',
+  };
+  await ctx.route('**/auth/me', r =>
+    r.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(USER) }));
+}
 
 const report = [];
 for (const route of routes) {
