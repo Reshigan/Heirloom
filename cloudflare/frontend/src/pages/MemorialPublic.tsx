@@ -60,7 +60,7 @@ export function MemorialPublic() {
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        <div style={{ maxWidth: 'var(--page-max-wide)', width: '100%' }}>
+        <div style={{ maxWidth: 'var(--page-max-focus)', width: '100%', textAlign: 'center' }}>
           {isLoading && (
             <ProgressHair label="loading memorial…" />
           )}
@@ -81,15 +81,31 @@ export function MemorialPublic() {
 
           {!isLoading && data && (
             <>
+              {/* Infinity mark */}
+              <div
+                aria-hidden
+                className="hl-serif"
+                style={{
+                  fontSize: 18,
+                  color: 'var(--warm)',
+                  opacity: 0.55,
+                  margin: '0 0 44px',
+                  lineHeight: 1,
+                }}
+              >
+                ∞
+              </div>
+
               {/* Name */}
               <h1
-                className="hl-serif hl-tight"
+                className="hl-serif"
                 style={{
                   fontVariationSettings: "'opsz' 32",
                   fontSize: 'var(--type-display)',
-                  fontWeight: 300,
+                  fontWeight: 200,
+                  letterSpacing: '0.04em',
                   color: 'var(--bone)',
-                  margin: '0 0 12px',
+                  margin: '0 0 20px',
                 }}
               >
                 {data.memorial_name}
@@ -98,50 +114,97 @@ export function MemorialPublic() {
               {/* Years */}
               {(birthYear || deathYear) && (
                 <p
+                  className="hl-mono"
                   style={{
-                    fontFamily: 'var(--mono)',
                     fontSize: 13,
-                    letterSpacing: '0.18em',
-                    color: 'var(--bone-faint)',
-                    margin: '0 0 36px',
+                    letterSpacing: '0.24em',
+                    color: 'var(--bone-dim)',
+                    margin: '0 0 28px',
                   }}
                 >
-                  {birthYear ?? '—'} – {deathYear ?? '—'}
+                  {birthYear ?? '—'} — {deathYear ?? '—'}
                 </p>
               )}
 
               {/* Epitaph */}
               {data.epitaph && (
                 <p
-                  className="hl-prose"
+                  className="hl-serif hl-italic"
                   style={{
-                    fontFamily: 'var(--serif)',
-                    fontSize: 'clamp(16px, 3vw, 18px)',
-                    fontStyle: 'italic',
+                    fontSize: 'var(--type-body-lg)',
                     color: 'var(--bone-dim)',
-                    lineHeight: 1.8,
-                    margin: '0 0 32px',
-                    borderLeft: '3px solid var(--warm)',
-                    paddingLeft: 20,
+                    lineHeight: 1.7,
+                    margin: '0 auto 44px',
+                    maxWidth: '34ch',
                   }}
                 >
                   {data.epitaph}
                 </p>
               )}
 
+              {/* Hairline rule */}
+              <hr
+                className="hl-rule"
+                style={{ width: 120, margin: '0 auto 44px', border: 0, height: 1 }}
+              />
+
               {/* Description / biography */}
               {data.memorial_description && (
                 <p
-                  className="hl-serif hl-prose"
+                  className="hl-serif"
                   style={{
                     fontSize: 'var(--type-body)',
                     color: 'var(--bone-dim)',
                     lineHeight: 1.9,
-                    margin: 0,
+                    margin: '0 auto 44px',
+                    maxWidth: '46ch',
                   }}
                 >
                   {data.memorial_description}
                 </p>
+              )}
+
+              {/* Remembered moments */}
+              {data.tributes && data.tributes.length > 0 && (
+                <>
+                  <div
+                    className="hl-eyebrow"
+                    style={{ marginBottom: 28, color: 'var(--bone-faint)' }}
+                  >
+                    remembered moments
+                  </div>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 auto', maxWidth: '40ch' }}>
+                    {data.tributes.map((t) => (
+                      <li key={t.id} style={{ margin: '0 0 26px' }}>
+                        {t.name && (
+                          <p
+                            className="hl-mono"
+                            style={{
+                              fontSize: 11,
+                              letterSpacing: '0.18em',
+                              textTransform: 'uppercase',
+                              color: 'var(--bone-faint)',
+                              margin: '0 0 6px',
+                            }}
+                          >
+                            {t.name}
+                          </p>
+                        )}
+                        <p
+                          className="hl-serif"
+                          style={{
+                            fontSize: 'var(--type-body)',
+                            color: 'var(--bone-dim)',
+                            lineHeight: 1.7,
+                            margin: 0,
+                          }}
+                        >
+                          {t.message}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                </>
               )}
             </>
           )}

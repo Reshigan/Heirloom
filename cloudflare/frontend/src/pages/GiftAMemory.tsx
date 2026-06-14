@@ -206,29 +206,38 @@ export function GiftAMemory() {
         <h1
           className="hl-serif hl-tight"
           style={{
-            fontSize: 'var(--type-display)',
-            fontWeight: 300,
-            margin: '0 0 28px',
+            fontSize: 'clamp(40px, 6.5vw, 64px)',
+            fontWeight: 200,
+            margin: '0 0 18px',
             color: 'var(--bone)',
+            whiteSpace: 'pre-line',
           }}
         >
-          Send a piece of the cloth.
+          {'Give a thread\nthat outlives you'}
         </h1>
 
-        <hr
-          className="hl-rule"
-          style={{ marginBottom: 36 }}
-        />
+        <p
+          className="hl-serif"
+          style={{
+            fontSize: 'var(--type-body)',
+            color: 'var(--bone-dim)',
+            lineHeight: 1.6,
+            margin: '0 0 52px',
+            maxWidth: '32ch',
+          }}
+        >
+          Craft a digital memory capsule for a cherished person.
+        </p>
 
         <form onSubmit={handleSubmit} noValidate>
           {/* Recipient name */}
-          <div style={{ marginBottom: 18 }}>
+          <div style={{ marginBottom: 34 }}>
             <label
-              className="hl-eyebrow"
+              className="hl-mono"
               htmlFor="gift-recipient-name"
-              style={{ display: 'block', marginBottom: 10 }}
+              style={{ display: 'block', marginBottom: 12, fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
             >
-              recipient's name
+              recipient
             </label>
             <input
               id="gift-recipient-name"
@@ -244,11 +253,11 @@ export function GiftAMemory() {
           </div>
 
           {/* Recipient email */}
-          <div style={{ marginBottom: 18 }}>
+          <div style={{ marginBottom: 34 }}>
             <label
-              className="hl-eyebrow"
+              className="hl-mono"
               htmlFor="gift-recipient-email"
-              style={{ display: 'block', marginBottom: 10 }}
+              style={{ display: 'block', marginBottom: 12, fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
             >
               recipient's email
             </label>
@@ -266,13 +275,13 @@ export function GiftAMemory() {
           </div>
 
           {/* Personal note */}
-          <div style={{ marginBottom: 18 }}>
+          <div style={{ marginBottom: 34 }}>
             <label
-              className="hl-eyebrow"
+              className="hl-mono"
               htmlFor="gift-personal-message"
-              style={{ display: 'block', marginBottom: 10 }}
+              style={{ display: 'block', marginBottom: 12, fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
             >
-              personal note
+              memory
             </label>
             <textarea
               id="gift-personal-message"
@@ -293,12 +302,12 @@ export function GiftAMemory() {
 
           {/* Entry selection — only rendered when content exists */}
           {contentList.length > 0 && (
-            <div style={{ marginBottom: 18 }}>
+            <div style={{ marginBottom: 34 }}>
               <p
-                className="hl-eyebrow"
-                style={{ marginBottom: 10 }}
+                className="hl-mono"
+                style={{ marginBottom: 12, fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
               >
-                choose entry to gift
+                occasion
               </p>
 
               {/* Memory type switcher */}
@@ -379,11 +388,11 @@ export function GiftAMemory() {
           )}
 
           {/* Unlock date (optional) */}
-          <div style={{ marginBottom: 36 }}>
+          <div style={{ marginBottom: 44 }}>
             <label
-              className="hl-eyebrow"
+              className="hl-mono"
               htmlFor="gift-unlock-date"
-              style={{ display: 'block', marginBottom: 10 }}
+              style={{ display: 'block', marginBottom: 12, fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
             >
               open after (optional)
             </label>
@@ -425,18 +434,25 @@ export function GiftAMemory() {
             </p>
           )}
 
-          {/* Submit */}
+          {/* Submit — amber text-link CTA */}
           <button
             type="submit"
             disabled={!canSubmit}
-            className="hl-btn"
             style={{
+              background: 'transparent',
+              border: 0,
+              padding: 0,
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
               opacity: canSubmit ? 1 : 0.45,
               cursor: canSubmit ? 'pointer' : 'default',
               transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
             }}
           >
-            {sendMutation.isPending ? 'sending…' : 'Send →'}
+            {sendMutation.isPending ? 'sending…' : 'Complete the gift →'}
           </button>
         </form>
 

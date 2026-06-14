@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { dyeColor } from '../loom/dye';
 import api from '../services/api';
 
 interface RoomData {
@@ -97,7 +98,7 @@ export function MemoryRoom() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
           <p
             className="hl-mono"
-            style={{ fontSize: 11, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--parchment-dim)' }}
+            style={{ fontSize: 11, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}
           >
             loading the room…
           </p>
@@ -119,13 +120,13 @@ export function MemoryRoom() {
             </p>
             <h1
               className="hl-serif hl-tight"
-              style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px', color: 'var(--parchment-ink)' }}
+              style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px', color: 'var(--bone)' }}
             >
               Room not found.
             </h1>
             <p
               className="hl-prose dark"
-              style={{ fontSize: 15, color: 'var(--parchment-dim)', margin: 0 }}
+              style={{ fontSize: 15, color: 'var(--bone-dim)', margin: 0 }}
             >
               This memory room may not be active or the link may be invalid.
             </p>
@@ -164,41 +165,52 @@ export function MemoryRoom() {
       {/* Content area — ClothShell already offsets topbar height */}
       <div style={{
         padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
-        maxWidth: 'var(--page-max-reading)',
+        maxWidth: 'var(--page-max-prose)',
         margin: '0 auto',
       }}>
 
-        {/* H1 */}
-        <h1
-          className="hl-serif hl-tight"
-          style={{
-            fontSize: 'var(--type-display)',
-            fontWeight: 300,
-            color: 'var(--parchment-ink)',
-            margin: 0,
-          }}
-        >
-          A room in the cloth.
-        </h1>
-
-        {/* Room meta */}
-        <div style={{ marginTop: 24 }}>
-          <p
-            className="hl-eyebrow dark"
-            style={{ marginBottom: 8 }}
+        {/* Room header — mono kicker over the room name as oversized serif title */}
+        <header>
+          <div
+            className="hl-mono"
+            style={{
+              fontSize: 11,
+              letterSpacing: '0.28em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              marginBottom: 22,
+            }}
           >
-            {room.ownerName}
-            {room.name ? ` · ${room.name}` : ''}
-          </p>
+            MEMORY ROOM <span style={{ color: 'var(--warm)' }}>·</span> {room.ownerName}
+          </div>
+
+          <h1
+            className="hl-serif hl-tight"
+            style={{
+              fontSize: 'var(--type-hero)',
+              fontWeight: 200,
+              color: 'var(--bone)',
+              margin: '0 0 28px',
+            }}
+          >
+            {room.name || 'A room in the cloth.'}
+          </h1>
+
           {room.description && (
             <p
-              className="hl-prose dark"
-              style={{ fontSize: 16, color: 'var(--parchment-dim)', margin: '12px 0 0', maxWidth: 540 }}
+              className="hl-serif hl-prose dark"
+              style={{
+                fontSize: 'var(--type-body-lg)',
+                color: 'var(--bone-dim)',
+                lineHeight: 1.85,
+                margin: 0,
+                maxWidth: 'var(--page-max-prose)',
+              }}
             >
               {room.description}
             </p>
           )}
-        </div>
+        </header>
 
         {/* Inline success status */}
         {submitted && (
@@ -219,86 +231,90 @@ export function MemoryRoom() {
           </div>
         )}
 
-        {/* Memory list */}
-        <div style={{ marginTop: 56 }}>
+        {/* Memory list — each entry read as a single memory per the comp */}
+        <div style={{ marginTop: 72 }}>
           {contributions.length > 0 ? (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {contributions.map((c) => (
-                <li
-                  key={c.id}
-                  style={{
-                    borderTop: '1px solid var(--parchment-rule)',
-                    paddingTop: 28,
-                    marginBottom: 28,
-                  }}
-                >
-                  {/* Title */}
-                  <p
-                    className="hl-serif"
-                    style={{
-                      fontSize: 20,
-                      fontWeight: 400,
-                      color: 'var(--parchment-ink)',
-                      margin: 0,
-                    }}
-                  >
-                    {c.title || c.contributor_name}
-                    {!c.title && c.contributor_relationship && (
-                      <span
-                        className="hl-mono"
-                        style={{ fontSize: 10, color: 'var(--parchment-faint)', marginLeft: 12, letterSpacing: '0.18em', textTransform: 'uppercase' }}
-                      >
-                        {c.contributor_relationship}
-                      </span>
-                    )}
-                  </p>
-                  {/* If title shown separately, show contributor below */}
-                  {c.title && (
-                    <p
+              {contributions.map((c) => {
+                const dye = dyeColor(c.id);
+                const year = new Date(c.created_at).getFullYear();
+                const dateLine = new Date(c.created_at).toLocaleDateString(undefined, {
+                  day: '2-digit',
+                  month: 'long',
+                  year: 'numeric',
+                });
+                return (
+                  <li key={c.id} style={{ marginBottom: 80 }}>
+                    {/* Kicker — MEMORY · <year> */}
+                    <div
                       className="hl-mono"
-                      style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--parchment-faint)', margin: '6px 0 0' }}
+                      style={{
+                        fontSize: 11,
+                        letterSpacing: '0.28em',
+                        textTransform: 'uppercase',
+                        color: 'var(--bone-faint)',
+                        marginBottom: 18,
+                      }}
                     >
-                      {c.contributor_name}
-                      {c.contributor_relationship ? ` · ${c.contributor_relationship}` : ''}
-                      {` · ${contentTypeLabel(c.content_type)}`}
+                      MEMORY <span style={{ color: 'var(--warm)' }}>·</span> {year}
+                    </div>
+
+                    {/* Title — oversized serif display, wraps naturally */}
+                    <h2
+                      className="hl-serif hl-tight"
+                      style={{
+                        fontSize: 'clamp(34px, 6vw, 64px)',
+                        fontWeight: 200,
+                        color: 'var(--bone)',
+                        margin: '0 0 28px',
+                      }}
+                    >
+                      {c.title || c.contributor_name}
+                    </h2>
+
+                    {/* Body — narrow prose with the author's dye on the left margin */}
+                    <p
+                      className="hl-serif hl-prose dark"
+                      style={{
+                        fontSize: 'var(--type-body-lg)',
+                        color: 'var(--bone-dim)',
+                        lineHeight: 1.85,
+                        margin: 0,
+                        maxWidth: '64ch',
+                        paddingLeft: 22,
+                        borderLeft: `3px solid ${dye}`,
+                        whiteSpace: 'pre-wrap',
+                      }}
+                    >
+                      {c.content}
                     </p>
-                  )}
-                  {/* Body */}
-                  <p
-                    className="hl-prose dark"
-                    style={{
-                      fontSize: 17,
-                      color: 'var(--parchment-dim)',
-                      marginTop: 12,
-                      marginBottom: 0,
-                      whiteSpace: 'pre-wrap',
-                    }}
-                  >
-                    {c.content}
-                  </p>
-                  {/* Date */}
-                  <p
-                    className="hl-mono"
-                    style={{
-                      fontSize: 10,
-                      color: 'var(--parchment-faint)',
-                      marginTop: 8,
-                      letterSpacing: '0.18em',
-                    }}
-                  >
-                    {new Date(c.created_at).toLocaleDateString(undefined, {
-                      day: '2-digit',
-                      month: 'short',
-                      year: 'numeric',
-                    })}
-                  </p>
-                </li>
-              ))}
+
+                    {/* Footer — hairline rule then mono date · author */}
+                    <div style={{ marginTop: 32, maxWidth: '64ch' }}>
+                      <hr className="hl-rule" />
+                      <p
+                        className="hl-mono"
+                        style={{
+                          fontSize: 11,
+                          color: 'var(--bone-faint)',
+                          letterSpacing: '0.18em',
+                          textTransform: 'uppercase',
+                          marginTop: 18,
+                        }}
+                      >
+                        {dateLine} <span style={{ color: 'var(--warm)' }}>·</span> {c.contributor_name}
+                        {c.contributor_relationship ? `, ${c.contributor_relationship}` : ''}
+                        {` · ${contentTypeLabel(c.content_type)}`}
+                      </p>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <p
-              className="hl-prose dark"
-              style={{ fontSize: 15, color: 'var(--parchment-dim)', fontStyle: 'italic' }}
+              className="hl-serif hl-prose dark"
+              style={{ fontSize: 'var(--type-body-lg)', color: 'var(--bone-dim)', fontStyle: 'italic' }}
             >
               No memories shared yet. Be the first to contribute.
             </p>
@@ -306,12 +322,12 @@ export function MemoryRoom() {
 
           {/* Footer */}
           <footer style={{ marginTop: 80 }}>
-            <hr className="hl-rule parchment" />
+            <hr className="hl-rule" />
             <p
               className="hl-mono"
               style={{
                 fontSize: 10,
-                color: 'var(--parchment-faint)',
+                color: 'var(--bone-faint)',
                 letterSpacing: '0.18em',
                 marginTop: 18,
               }}

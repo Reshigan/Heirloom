@@ -325,11 +325,27 @@ export function PersonPage() {
               </div>
             ) : (
               <>
+                {/* Infinity mark */}
+                <div
+                  aria-hidden
+                  className="hl-serif"
+                  style={{
+                    fontSize: 16,
+                    color: 'var(--warm)',
+                    opacity: 0.55,
+                    margin: '0 0 22px',
+                    lineHeight: 1,
+                  }}
+                >
+                  ∞
+                </div>
+
                 <h1
-                  className="hl-serif hl-tight"
+                  className="hl-serif"
                   style={{
                     fontSize: 'var(--type-title)',
-                    fontWeight: 300,
+                    fontWeight: 200,
+                    letterSpacing: '0.04em',
                     margin: 0,
                     color: 'var(--bone)',
                   }}
@@ -341,26 +357,28 @@ export function PersonPage() {
                 <p
                   className="hl-mono"
                   style={{
-                    fontSize: 10.5,
-                    color: 'var(--bone-faint)',
-                    marginTop: 6,
+                    fontSize: 11,
+                    color: 'var(--bone-dim)',
+                    marginTop: 10,
                     marginBottom: 0,
-                    letterSpacing: '0.12em',
+                    letterSpacing: '0.24em',
                     textTransform: 'uppercase',
                   }}
                 >
                   {member.relationship}
                 </p>
 
-                {/* Bio / notes */}
+                {/* Bio / notes — epitaph treatment */}
                 {member.notes && (
                   <p
-                    className="hl-prose"
+                    className="hl-serif hl-italic"
                     style={{
-                      fontSize: 16,
+                      fontSize: 'var(--type-body-lg)',
                       marginTop: 20,
                       marginBottom: 0,
                       color: 'var(--bone-dim)',
+                      lineHeight: 1.7,
+                      maxWidth: '34ch',
                     }}
                   >
                     {member.notes}
