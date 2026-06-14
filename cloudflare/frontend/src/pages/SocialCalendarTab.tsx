@@ -163,7 +163,7 @@ export function SocialCalendarTab() {
             <ProgressHair label="Loading posts…" />
           </div>
         ) : posts.length === 0 ? (
-          <div style={{ border: '1px solid var(--rule)', padding: '48px 24px', textAlign: 'center' }}>
+          <div className="cosmic-panel" style={{ padding: '48px 24px', textAlign: 'center' }}>
             <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', marginBottom: 6 }}>No posts found.</p>
             <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>Use the bulk-load API to add content for a week.</p>
           </div>

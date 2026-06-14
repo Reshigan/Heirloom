@@ -234,8 +234,8 @@ export function Founder() {
             {done ? (
               <div
                 role="status"
+                className="cosmic-panel"
                 style={{
-                  border:      '1px solid var(--rule)',
                   padding:      40,
                   textAlign:   'center',
                 }}
@@ -452,8 +452,8 @@ export function Founder() {
           </div>
 
           <div
+            className="cosmic-panel"
             style={{
-              border:    '1px solid var(--rule)',
               padding:   '32px 40px',
               marginTop:  48,
             }}
