@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { type ClothWhisperEntry, type ClothSealRef } from './ClothWeave';
 import { CosmicLoom } from './CosmicLoom';
@@ -52,6 +52,26 @@ export function ClothBackdrop(_props: ClothBackdropProps) {
   const { entries } = useTapestryEntries();
   const isHome = HOME_ROUTES.has(location.pathname.replace(/\/$/, '') || '/');
 
+  // The ceremony surge — when an entry is woven anywhere (the save celebration,
+  // a letter unlocked), the cloth answers: the veil lifts and the weave comes to
+  // full presence so the shuttle's new filament is *seen* streaking across it.
+  // It settles back the moment the ritual ends. Without this the rooms' veil
+  // would smother the one motion the product earns.
+  const [surging, setSurging] = useState(false);
+  useEffect(() => {
+    let t: number;
+    const onWeave = () => {
+      setSurging(true);
+      window.clearTimeout(t);
+      // 1400ms ritual + a held breath, then settle on the canonical curve.
+      t = window.setTimeout(() => setSurging(false), 2200);
+    };
+    window.addEventListener('heirloom:weave', onWeave);
+    return () => { window.removeEventListener('heirloom:weave', onWeave); window.clearTimeout(t); };
+  }, []);
+
+  const present = isHome || surging;
+
   const { whispers, seals } = useMemo(() => {
     const whispers: ClothWhisperEntry[] = [];
     const seals: ClothSealRef[] = [];
@@ -78,7 +98,7 @@ export function ClothBackdrop(_props: ClothBackdropProps) {
         style={{
           position: 'absolute',
           inset: 0,
-          opacity: isHome ? 1 : 0.26,
+          opacity: present ? 1 : 0.26,
           transition: 'opacity 1400ms var(--ease-out)',
         }}
       >
@@ -99,7 +119,7 @@ export function ClothBackdrop(_props: ClothBackdropProps) {
           position: 'absolute',
           inset: 0,
           pointerEvents: 'none',
-          opacity: isHome ? 0 : 0.97,
+          opacity: present ? 0 : 0.97,
           transition: 'opacity 1400ms var(--ease-out)',
           background:
             'radial-gradient(ellipse 76% 88% at 50% 46%, var(--ink) 38%, color-mix(in srgb, var(--ink) 55%, transparent) 68%, transparent 92%)',

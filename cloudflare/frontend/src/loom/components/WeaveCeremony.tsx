@@ -38,12 +38,17 @@ export function WeaveCeremony({
       style={{
         position: 'absolute',
         inset: 0,
-        background: 'color-mix(in srgb, var(--ink) 62%, transparent)',
+        // A base-anchored vignette — clear at the top where the shuttle streaks
+        // its new filament across the (now fully present) cloth, deepening to ink
+        // at the foot so the words read. The weave is the hero; the type rests
+        // beneath it. Never a flat scrim — that would smother the one motion.
+        background:
+          'linear-gradient(to bottom, transparent 0%, transparent 42%, color-mix(in srgb, var(--ink) 78%, transparent) 78%, color-mix(in srgb, var(--ink) 92%, transparent) 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justifyContent: 'center',
-        padding: 40,
+        justifyContent: 'flex-end',
+        padding: 'clamp(40px, 9vh, 96px) 40px',
         zIndex: 100,
         animation: 'hl-fade 360ms var(--ease) both',
       }}

@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react';
+import { weaveIntoCloth } from './ClothWeave';
+import { DYES, type Dye } from '../dye';
 
 /**
  * LetterOpeningCeremony — the Unlock, for a letter received from another hand.
@@ -29,7 +31,7 @@ interface OpenedLetter {
 export function LetterOpeningCeremony({
   letter,
   from,
-  dye: _dye,
+  dye,
   entryDate,
   onClose,
 }: {
@@ -44,13 +46,16 @@ export function LetterOpeningCeremony({
   const date = entryDate ? new Date(entryDate) : new Date();
   const safeDate = isNaN(date.getTime()) ? new Date() : date;
 
-  // Beat 1 → 3: hold the seal for 1400ms, then part it and weave the thread.
+  // Beat 1 → 3: hold the seal for 1400ms, then part it and weave the thread —
+  // the global cloth runs the weave ritual in the sender's dye and surges to
+  // full presence behind the words, so the letter is *seen* joining the cloth.
   useEffect(() => {
     const t = window.setTimeout(() => {
+      weaveIntoCloth((DYES as readonly string[]).includes(dye) ? (dye as Dye) : undefined);
       setPhase('reveal');
     }, 1400);
     return () => window.clearTimeout(t);
-  }, []);
+  }, [dye]);
 
   const dateStr = safeDate.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
 
@@ -62,7 +67,10 @@ export function LetterOpeningCeremony({
         position: 'fixed',
         inset: 0,
         zIndex: 200,
-        background: 'var(--ink)',
+        // Near-ink, but not opaque — the global cloth survives faintly behind the
+        // held seal and blooms through as the thread weaves at beat 3. A flat
+        // ink fill would hide the very cloth the letter is joining.
+        background: 'color-mix(in srgb, var(--ink) 88%, transparent)',
         overflowY: 'auto',
         animation: 'hl-fade 360ms var(--ease) both',
       }}
@@ -99,9 +107,10 @@ export function LetterOpeningCeremony({
             aria-hidden
             style={{
               fontFamily: 'var(--serif)',
-              fontSize: 64,
+              fontSize: 'clamp(76px, 12vw, 108px)',
               lineHeight: 1,
-              color: 'var(--warm)',
+              color: 'var(--warm-bright)',
+              textShadow: '0 0 32px rgba(207,147,90,0.55), 0 0 12px rgba(207,147,90,0.4)',
               animation: 'hl-breathe 1400ms var(--ease) both',
             }}
           >
