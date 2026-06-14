@@ -113,11 +113,31 @@ export function GiftRedeem() {
         <div style={{ textAlign: 'center', maxWidth: 'var(--page-max-focus)', width: '100%' }}>
 
           {redeemSuccess ? (
-            // ── Success state ──────────────────────────────────────────────
+            // ── Success state — centered ceremony ──────────────────────────
             <div role="status">
+              {/* ∞ mark — faint amber */}
+              <div
+                className="hl-serif"
+                style={{
+                  fontSize: 44,
+                  fontWeight: 200,
+                  lineHeight: 1,
+                  color: 'var(--warm)',
+                  opacity: 0.7,
+                  marginBottom: 28,
+                }}
+              >
+                ∞
+              </div>
               <p
-                className="hl-eyebrow dark"
-                style={{ marginBottom: 20, textAlign: 'center' }}
+                className="hl-mono"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: '0.32em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-dim)',
+                  margin: '0 0 22px',
+                }}
               >
                 activated
               </p>
@@ -125,23 +145,20 @@ export function GiftRedeem() {
                 className="hl-serif hl-tight"
                 style={{
                   fontSize: 'var(--type-display)',
-                  fontWeight: 300,
-                  fontStyle: 'italic',
+                  fontWeight: 200,
                   color: 'var(--bone)',
-                  margin: '0 0 20px',
-                  lineHeight: 1.06,
+                  margin: '0 0 18px',
                 }}
               >
                 Your thread is live.
               </h1>
               <p
+                className="hl-serif"
                 style={{
-                  fontFamily: 'var(--serif)',
-                  fontSize: 15,
+                  fontSize: 'var(--type-body)',
                   color: 'var(--bone-dim)',
-                  margin: '0 0 40px',
+                  margin: '0 0 36px',
                   lineHeight: 1.7,
-                  fontWeight: 300,
                 }}
               >
                 Your {formatTier(voucherInfo?.tier || '')} thread is now active.
@@ -151,10 +168,19 @@ export function GiftRedeem() {
               </p>
               <button
                 onClick={() => navigate('/loom/today')}
-                className="hl-btn"
-                style={{ cursor: 'pointer' }}
+                className="hl-mono"
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  padding: 0,
+                  fontSize: 11,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  cursor: 'pointer',
+                }}
               >
-                open the thread
+                open the thread →
               </button>
             </div>
           ) : (
@@ -164,10 +190,9 @@ export function GiftRedeem() {
                 className="hl-serif hl-tight"
                 style={{
                   fontSize: 'var(--type-display)',
-                  fontWeight: 300,
+                  fontWeight: 200,
                   color: 'var(--bone)',
                   margin: '0 0 28px',
-                  lineHeight: 1.06,
                 }}
               >
                 Your gift is here.
@@ -322,14 +347,21 @@ export function GiftRedeem() {
                     <button
                       onClick={handleRedeem}
                       disabled={isRedeeming}
-                      className="hl-btn"
+                      className="hl-mono"
                       style={{
-                        width: '100%',
+                        background: 'transparent',
+                        border: 0,
+                        padding: 0,
+                        fontSize: 11,
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        color: 'var(--warm)',
                         opacity: isRedeeming ? 0.5 : 1,
                         cursor: isRedeeming ? 'default' : 'pointer',
+                        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     >
-                      {isRedeeming ? 'activating…' : 'Redeem →'}
+                      {isRedeeming ? 'activating…' : 'redeem the gift →'}
                     </button>
                   ) : (
                     <div>
@@ -371,18 +403,26 @@ export function GiftRedeem() {
                 </div>
               )}
 
-              {/* Redeem button (pre-validation or after entry) */}
+              {/* Redeem button (pre-validation or after entry) — amber text-link */}
               {!voucherInfo && (
                 <button
                   onClick={() => validateCode(code)}
                   disabled={isValidating || code.length < 10}
-                  className="hl-btn"
+                  className="hl-mono"
                   style={{
+                    background: 'transparent',
+                    border: 0,
+                    padding: 0,
+                    fontSize: 11,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: 'var(--warm)',
                     opacity: isValidating || code.length < 10 ? 0.45 : 1,
                     cursor: isValidating || code.length < 10 ? 'default' : 'pointer',
+                    transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
                   }}
                 >
-                  {isValidating ? 'checking…' : 'Redeem →'}
+                  {isValidating ? 'checking…' : 'redeem the gift →'}
                 </button>
               )}
             </>

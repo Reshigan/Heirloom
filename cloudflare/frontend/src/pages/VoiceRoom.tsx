@@ -385,8 +385,10 @@ export function VoiceRoom() {
                       key={i}
                       style={{
                         width: 1, height: h,
-                        background: 'var(--rule-strong)',
+                        background: 'var(--warm)',
+                        opacity: isPlaying ? 0.8 : 0.45,
                         flexShrink: 0,
+                        transition: `opacity 360ms ${EASE}`,
                       }}
                     />
                   ))}

@@ -62,71 +62,75 @@ export function ResetPassword() {
       topbarRight={<Link to="/login" className="hl-mono" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>sign in →</Link>}
     >
       <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
+        <div
+          aria-hidden
+          className="hl-serif"
+          style={{ fontSize: 'clamp(40px, 6vw, 56px)', fontWeight: 200, color: 'var(--warm)', opacity: 0.7, lineHeight: 1, marginBottom: 30 }}
+        >
+          ∞
+        </div>
 
         {!token ? (
           /* Invalid link state */
           <div role="status">
+            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>reset</p>
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 'var(--type-title)',
-                fontWeight: 300,
+                fontSize: 'clamp(34px, 5vw, 56px)',
+                fontWeight: 200,
                 margin: '0 0 28px',
                 color: 'var(--bone)',
-                lineHeight: 1.08,
-                letterSpacing: '-0.018em',
               }}
             >
               Invalid reset link.
             </h1>
             <p
-              className="hl-mono"
-              style={{ fontSize: 13, color: 'var(--bone-dim)', lineHeight: 1.7, margin: '0 0 32px', letterSpacing: '0.04em' }}
+              className="hl-serif"
+              style={{ fontSize: 'var(--type-body-lg)', color: 'var(--bone-dim)', lineHeight: 1.7, maxWidth: '46ch', margin: '0 0 32px' }}
             >
               This link has expired or is no longer valid.
             </p>
-            <Link to="/forgot-password" className="hl-btn" style={{ textDecoration: 'none' }}>
-              request a new link
+            <Link to="/forgot-password" className="hl-btn text" style={{ textDecoration: 'none', letterSpacing: '0.06em' }}>
+              request a new link →
             </Link>
           </div>
         ) : success ? (
           /* Success state */
           <div role="status">
+            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>reset</p>
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 'var(--type-title)',
-                fontWeight: 300,
+                fontSize: 'clamp(34px, 5vw, 56px)',
+                fontWeight: 200,
                 margin: '0 0 28px',
                 color: 'var(--bone)',
-                lineHeight: 1.08,
-                letterSpacing: '-0.018em',
               }}
             >
               Password reset.
             </h1>
             <p
-              className="hl-mono"
-              style={{ fontSize: 13, color: 'var(--bone-dim)', lineHeight: 1.7, margin: '0 0 32px', letterSpacing: '0.04em' }}
+              className="hl-serif"
+              style={{ fontSize: 'var(--type-body-lg)', color: 'var(--bone-dim)', lineHeight: 1.7, maxWidth: '46ch', margin: '0 0 32px' }}
             >
               Your thread is secured. Returning you to sign in…
             </p>
-            <Link to="/login" className="hl-btn" style={{ textDecoration: 'none' }}>
+            <Link to="/login" className="hl-btn text" style={{ textDecoration: 'none', letterSpacing: '0.06em' }}>
               go to sign in →
             </Link>
           </div>
         ) : (
           /* Main form */
           <>
+            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>reset</p>
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 'var(--type-title)',
-                fontWeight: 300,
+                fontSize: 'clamp(34px, 5vw, 56px)',
+                fontWeight: 200,
                 margin: '0 0 28px',
                 color: 'var(--bone)',
-                lineHeight: 1.08,
-                letterSpacing: '-0.018em',
               }}
             >
               New password.
@@ -149,27 +153,16 @@ export function ResetPassword() {
                 >
                   new password
                 </label>
-                <div style={{ borderBottom: '1px solid var(--bone)', paddingBottom: 6 }}>
-                  <input
-                    id="rp-password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    minLength={8}
-                    autoComplete="new-password"
-                    style={{
-                      width: '100%',
-                      background: 'transparent',
-                      border: 0,
-                      outline: 'none',
-                      fontFamily: 'var(--serif)',
-                      fontSize: 17,
-                      color: 'var(--bone)',
-                      padding: '6px 0',
-                    }}
-                  />
-                </div>
+                <input
+                  id="rp-password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  className="hl-input"
+                />
                 <p
                   className="hl-mono"
                   style={{ margin: '6px 0 0', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}
@@ -194,26 +187,15 @@ export function ResetPassword() {
                 >
                   confirm password
                 </label>
-                <div style={{ borderBottom: '1px solid var(--bone)', paddingBottom: 6 }}>
-                  <input
-                    id="rp-confirm"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                    autoComplete="new-password"
-                    style={{
-                      width: '100%',
-                      background: 'transparent',
-                      border: 0,
-                      outline: 'none',
-                      fontFamily: 'var(--serif)',
-                      fontSize: 17,
-                      color: 'var(--bone)',
-                      padding: '6px 0',
-                    }}
-                  />
-                </div>
+                <input
+                  id="rp-confirm"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  autoComplete="new-password"
+                  className="hl-input"
+                />
               </div>
 
               {/* Error */}
@@ -232,10 +214,10 @@ export function ResetPassword() {
                 <button
                   type="submit"
                   disabled={isLoading || !password.trim() || !confirmPassword.trim()}
-                  className="hl-btn"
-                  style={{ opacity: isLoading || !password.trim() || !confirmPassword.trim() ? 0.5 : 1 }}
+                  className="hl-btn text"
+                  style={{ letterSpacing: '0.06em', opacity: isLoading || !password.trim() || !confirmPassword.trim() ? 0.5 : 1 }}
                 >
-                  {isLoading ? 'setting…' : 'Set password →'}
+                  {isLoading ? 'setting…' : 'set password →'}
                 </button>
               </div>
             </form>

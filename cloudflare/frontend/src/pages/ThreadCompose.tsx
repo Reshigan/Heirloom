@@ -549,48 +549,72 @@ export function ThreadCompose() {
               </p>
             ) : null}
 
-            {/* Append-only notice */}
-            <p
-              className="hl-eyebrow"
-              style={{ margin: 0, color: 'var(--bone-faint)' }}
+            {/* Hairline footer — append-only notice left, text-link actions right */}
+            <div
+              style={{
+                paddingTop: 18,
+                borderTop: '1px solid var(--rule)',
+                display: 'flex',
+                alignItems: 'baseline',
+                justifyContent: 'space-between',
+                gap: 16,
+                flexWrap: 'wrap',
+              }}
             >
-              {create.isPending ? 'weaving…' : 'append-only · cannot be altered once woven'}
-            </p>
-
-            {/* Save button */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <Link
-                to={`/threads/${threadId}`}
+              <span
+                className="hl-mono"
                 style={{
-                  fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
-                  fontSize: 11,
-                  letterSpacing: '0.14em',
+                  fontSize: 10,
+                  letterSpacing: '0.18em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
-                  textDecoration: 'none',
-                  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone-dim)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone-faint)';
                 }}
               >
-                cancel
-              </Link>
-              <button
-                type="submit"
-                disabled={create.isPending || !body.trim()}
-                className="hl-btn"
-                onClick={handleSave}
-                style={{
-                  opacity: create.isPending || !body.trim() ? 0.4 : 1,
-                  transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
-                }}
-              >
-                {create.isPending ? 'saving…' : 'save entry →'}
-              </button>
+                {create.isPending ? 'weaving…' : 'append-only · cannot be altered once woven'}
+              </span>
+              <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 24 }}>
+                <Link
+                  to={`/threads/${threadId}`}
+                  style={{
+                    fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+                    fontSize: 11,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: 'var(--bone-faint)',
+                    textDecoration: 'none',
+                    transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone-dim)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone-faint)';
+                  }}
+                >
+                  cancel
+                </Link>
+                <button
+                  type="submit"
+                  disabled={create.isPending || !body.trim()}
+                  onClick={handleSave}
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    padding: '8px 0',
+                    minHeight: 44,
+                    cursor: create.isPending || !body.trim() ? 'default' : 'pointer',
+                    fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+                    fontSize: 12,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: 'var(--warm)',
+                    opacity: create.isPending || !body.trim() ? 0.4 : 1,
+                    transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                  }}
+                >
+                  {create.isPending ? 'saving…' : 'save entry →'}
+                </button>
+              </span>
             </div>
           </form>
         </div>

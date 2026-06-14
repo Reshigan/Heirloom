@@ -51,64 +51,78 @@ export function FounderWelcome() {
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        <div style={{ textAlign: 'center', maxWidth: 'var(--page-max-focus)' }}>
-          {/* Logo glyph */}
-          <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'center' }}>
-            <HLogo size={56} glow />
+        <div
+          style={{
+            textAlign: 'center',
+            maxWidth: 'var(--page-max-focus)',
+            borderTop: '1px solid var(--rule)',
+            borderBottom: '1px solid var(--rule)',
+            padding: 'clamp(40px, 7vw, 72px) 0',
+          }}
+        >
+          {/* Infinity mark */}
+          <div
+            aria-hidden
+            className="hl-serif"
+            style={{
+              fontSize: 'clamp(40px, 6vw, 56px)',
+              fontWeight: 200,
+              color: 'var(--warm)',
+              opacity: 0.7,
+              lineHeight: 1,
+              marginBottom: 30,
+            }}
+          >
+            ∞
           </div>
 
           {/* Eyebrow */}
           <p
             className="hl-eyebrow"
-            style={{ color: 'var(--warm)', marginBottom: 18 }}
+            style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 26 }}
           >
-            your pledge number, engraved just now
+            welcome
           </p>
-
-          {/* Pledge number — the centrepiece */}
-          <div
-            className="hl-mono"
-            style={{
-              fontSize: 72,
-              color: 'var(--warm)',
-              letterSpacing: '0.12em',
-              fontWeight: 400,
-              lineHeight: 1,
-              marginBottom: 6,
-            }}
-          >
-            {pledgeDisplay}
-          </div>
-          <div style={{ marginBottom: 22 }}>
-            <span className="hl-mono" style={{ fontSize: 13, letterSpacing: '0.14em', color: 'var(--bone-faint)' }}>#{pledgeDisplay}</span>
-          </div>
 
           {/* Heading */}
           <h1
             className="hl-serif hl-tight"
             style={{
-              fontSize: 'var(--type-title)',
-              fontWeight: 300,
+              fontSize: 'clamp(34px, 5vw, 56px)',
+              fontWeight: 200,
               margin: 0,
               color: 'var(--bone)',
             }}
           >
-            Welcome, {name}.{' '}
-            <span
-              className="hl-italic"
-              style={{ color: 'var(--bone-dim)', fontSize: 38 }}
-            >
-              You are now in the continuity record.
-            </span>
+            Welcome, {name}. You are now in the continuity record.
           </h1>
+
+          {/* Pledge number — the centrepiece */}
+          <div
+            className="hl-mono"
+            style={{
+              fontSize: 'clamp(48px, 7vw, 72px)',
+              color: 'var(--warm)',
+              letterSpacing: '0.12em',
+              fontWeight: 400,
+              lineHeight: 1,
+              margin: '34px 0 4px',
+            }}
+          >
+            {pledgeDisplay}
+          </div>
+          <div style={{ marginBottom: 28 }}>
+            <span className="hl-mono" style={{ fontSize: 13, letterSpacing: '0.14em', color: 'var(--bone-faint)' }}>#{pledgeDisplay}</span>
+          </div>
 
           {/* Body prose */}
           <p
-            className="hl-prose"
+            className="hl-serif"
             style={{
-              fontSize: 17,
+              fontSize: 'var(--type-body-lg)',
               color: 'var(--bone-dim)',
-              marginTop: 24,
+              lineHeight: 1.7,
+              maxWidth: '46ch',
               marginLeft: 'auto',
               marginRight: 'auto',
             }}
@@ -119,24 +133,24 @@ export function FounderWelcome() {
             next steps and the date of your first quarterly Founder call.
           </p>
 
-          {/* Buttons */}
+          {/* CTA */}
           <div
             style={{
-              marginTop: 36,
+              marginTop: 44,
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
-              gap: 16,
+              gap: 18,
             }}
           >
-            <Link to="/loom" className="hl-btn" style={{ textDecoration: 'none' }}>
-              Begin the thread →
+            <Link to="/loom" className="hl-btn text" style={{ textDecoration: 'none', letterSpacing: '0.06em' }}>
+              begin the thread →
             </Link>
             <span
               className="hl-mono"
               style={{
                 fontSize: '10.5px',
-                color: 'var(--bone-dim)',
+                color: 'var(--bone-faint)',
                 letterSpacing: '0.12em',
               }}
             >

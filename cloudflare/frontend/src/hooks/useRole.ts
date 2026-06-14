@@ -4,6 +4,7 @@ import { billingApi, threadsApi } from '../services/api';
 
 export type UserRole =
   | 'visitor'
+  | 'free'
   | 'trial'
   | 'family'
   | 'founder'
@@ -47,6 +48,10 @@ export function useRole(): UserRole {
   if (tier === 'FOUNDER') return 'founder';
   if (tier === 'FAMILY' && !isTrialing) return 'family';
   if (isTrialing) return 'trial';
-  if (tier === 'FREE' || tier === 'STARTER') return 'visitor';
+  // An authenticated FREE/STARTER account is a real writing member (gated by
+  // quota, not by role) — never a 'visitor'. 'visitor' is the signed-out case
+  // only (handled above). This also covers the moment before the subscription
+  // query resolves, so a logged-in user never flashes the "Begin free" invite.
+  if (tier === 'FREE' || tier === 'STARTER') return 'free';
   return 'family';
 }

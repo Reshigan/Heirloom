@@ -20,7 +20,7 @@ export function BookPage() {
         {/* Headline */}
         <h1 className="hl-serif hl-tight" style={{
           fontSize: 'var(--type-display)',
-          fontWeight: 300,
+          fontWeight: 200,
           lineHeight: 1.08,
           margin: '0 0 24px',
           color: 'var(--bone)',
@@ -100,37 +100,53 @@ export function BookPage() {
               <div key={i} style={{
                 display: 'flex',
                 gap: 24,
-                padding: '16px 0',
+                padding: '18px 0',
                 borderBottom: '1px solid var(--rule)',
+                alignItems: 'baseline',
               }}>
                 <div className="hl-mono" style={{
-                  fontSize: 10,
-                  letterSpacing: '0.16em',
-                  textTransform: 'uppercase',
+                  fontSize: 11,
+                  letterSpacing: '0.12em',
                   color: 'var(--warm)',
                   flexShrink: 0,
-                  paddingTop: 2,
-                  minWidth: 120,
+                  minWidth: 44,
                 }}>
-                  {title}
+                  {String((i + 1) * 4).padStart(3, '0')}
                 </div>
-                <p className="hl-serif" style={{
-                  fontSize: 14,
-                  fontWeight: 300,
-                  color: 'var(--bone-dim)',
-                  lineHeight: 1.65,
-                  margin: 0,
-                }}>
-                  {desc}
-                </p>
+                <div style={{ flex: 1 }}>
+                  <div className="hl-serif" style={{
+                    fontSize: 17,
+                    fontWeight: 200,
+                    color: 'var(--bone)',
+                    lineHeight: 1.3,
+                    margin: '0 0 4px',
+                  }}>
+                    {title}
+                  </div>
+                  <p className="hl-serif" style={{
+                    fontSize: 14,
+                    fontWeight: 300,
+                    color: 'var(--bone-dim)',
+                    lineHeight: 1.65,
+                    margin: 0,
+                  }}>
+                    {desc}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* CTA */}
+        {/* CTA — amber mono text-link, no box */}
         <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Link to="/book-builder" className="hl-btn">Build your book →</Link>
+          <Link
+            to="/book-builder"
+            className="hl-mono"
+            style={{ fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}
+          >
+            Build your book →
+          </Link>
           <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
             from your existing entries
           </span>

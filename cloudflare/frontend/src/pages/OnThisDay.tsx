@@ -88,6 +88,10 @@ export function OnThisDay() {
         }}
       >
         {/* ── Header ───────────────────────────────────────────────────── */}
+        <p className="hl-eyebrow" style={{ margin: '0 0 22px', color: 'var(--bone-faint)', display: 'flex', alignItems: 'center', gap: 9 }}>
+          <span aria-hidden style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--warm)', display: 'inline-block' }} />
+          On this day
+        </p>
         <h1
           className="hl-serif hl-tight"
           style={{

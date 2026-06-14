@@ -4,6 +4,7 @@ import { threadsApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { Link } from 'react-router-dom';
+import { dyeColor } from '../loom/dye';
 
 export function ThreadsIndex() {
   const { isAuthenticated } = useAuthStore();
@@ -31,6 +32,23 @@ export function ThreadsIndex() {
         }}
       >
         <div>
+          {/* kicker */}
+          <div
+            className="hl-eyebrow"
+            style={{ marginBottom: 16, color: 'var(--bone-faint)', display: 'flex', alignItems: 'center', gap: 10 }}
+          >
+            <span aria-hidden style={{ width: 6, height: 6, background: 'var(--warm)', display: 'block', flexShrink: 0 }} />
+            the threads
+          </div>
+
+          {/* H1 */}
+          <h1
+            className="hl-serif hl-tight"
+            style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 32px', color: 'var(--bone)', lineHeight: 1.15 }}
+          >
+            Every thread in the family.
+          </h1>
+
           {isError && (
             <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 12, margin: '0 0 24px', letterSpacing: '0.12em' }}>
               could not load threads
@@ -45,19 +63,37 @@ export function ThreadsIndex() {
             <Link
               key={thread.id ?? i}
               to={`/threads/${thread.id}`}
-              style={{ display: 'block', textDecoration: 'none', borderBottom: '1px solid var(--rule)', padding: '20px 0' }}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '10px 1fr',
+                gap: 16,
+                alignItems: 'baseline',
+                textDecoration: 'none',
+                borderBottom: '1px solid var(--rule)',
+                padding: '22px 0',
+              }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 24 }}>
-                <span className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)' }}>
+              {/* dye square */}
+              <span
+                aria-hidden
+                style={{
+                  width: 8,
+                  height: 8,
+                  background: thread.id ? dyeColor(String(thread.id)) : 'var(--warm)',
+                  display: 'block',
+                  flexShrink: 0,
+                  transform: 'translateY(4px)',
+                }}
+              />
+              {/* title + meta */}
+              <div style={{ minWidth: 0 }}>
+                <span className="hl-serif" style={{ display: 'block', fontSize: 'var(--type-subhead)', fontWeight: 300, color: 'var(--bone)', lineHeight: 1.3 }}>
                   {thread.name ?? 'Unnamed Thread'}
                 </span>
-                <span style={{ display: 'flex', gap: 24, flexShrink: 0 }}>
-                  <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
-                    {thread.memberCount ?? 1} {thread.memberCount === 1 ? 'member' : 'members'}
-                  </span>
-                  <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
-                    {thread.lastEntryAt ? new Date(thread.lastEntryAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : '—'}
-                  </span>
+                <span className="hl-mono" style={{ display: 'block', marginTop: 6, fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+                  {thread.lastEntryAt ? new Date(thread.lastEntryAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }) : '—'}
+                  {' · '}
+                  {thread.memberCount ?? 1} {thread.memberCount === 1 ? 'member' : 'members'}
                 </span>
               </div>
             </Link>

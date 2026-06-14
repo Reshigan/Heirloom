@@ -71,6 +71,23 @@ export function LetterRoom() {
       />
 
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
+        {/* kicker */}
+        <div
+          className="hl-eyebrow"
+          style={{ marginBottom: 16, color: 'var(--bone-faint)', display: 'flex', alignItems: 'center', gap: 10 }}
+        >
+          <span aria-hidden style={{ width: 6, height: 6, background: 'var(--warm)', display: 'block', flexShrink: 0 }} />
+          the letters
+        </div>
+
+        {/* H1 */}
+        <h1
+          className="hl-serif hl-tight"
+          style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 32px', color: 'var(--bone)', lineHeight: 1.15 }}
+        >
+          Letters waiting to be read.
+        </h1>
+
         {/* CTA */}
         <Link
           to="/loom/compose-letter"
@@ -123,19 +140,29 @@ export function LetterRoom() {
                 style={{
                   borderLeft: `3px solid ${dye}`,
                   borderBottom: '1px solid var(--rule)',
-                  padding: '10px 14px',
+                  padding: '20px 14px',
                   transition: `background 180ms ${EASE}`,
                 }}
               >
                 {/* Header row */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{
-                    fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.18em',
-                    textTransform: 'uppercase', color: 'var(--bone-faint)',
-                  }}>
-                    {recipientName ? `to: ${recipientName}` : 'no recipient'} · {status}
-                  </span>
-                  <div style={{ display: 'flex', gap: 10 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16 }}>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{
+                      fontFamily: 'var(--serif)', fontSize: 'var(--type-subhead)', fontWeight: 300,
+                      color: 'var(--bone)', lineHeight: 1.3, margin: 0,
+                    }}>
+                      {letter.salutation || letter.title}
+                    </p>
+                    <span style={{
+                      display: 'block', marginTop: 6,
+                      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
+                      textTransform: 'uppercase', color: 'var(--bone-faint)',
+                    }}>
+                      {recipientName ? `to: ${recipientName}` : 'no recipient'} · {status}
+                      {letter.scheduledDate ? ` · ${new Date(letter.scheduledDate).toLocaleDateString()}` : ''}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, flexShrink: 0 }}>
                     <button
                       type="button"
                       aria-expanded={isExpanded}
@@ -168,25 +195,6 @@ export function LetterRoom() {
                     )}
                   </div>
                 </div>
-
-                {/* Title */}
-                <p style={{
-                  fontFamily: 'var(--serif)', fontSize: 13, fontStyle: 'italic',
-                  fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.5, margin: '4px 0 0',
-                }}>
-                  {letter.salutation || letter.title}
-                </p>
-
-                {/* Delivery metadata */}
-                {letter.scheduledDate && (
-                  <span style={{
-                    fontFamily: 'var(--mono)', fontSize: 8, letterSpacing: '0.14em',
-                    textTransform: 'uppercase', color: 'var(--bone-faint)',
-                    display: 'block', marginTop: 3,
-                  }}>
-                    delivery: {new Date(letter.scheduledDate).toLocaleDateString()}
-                  </span>
-                )}
 
                 {/* Expanded body */}
                 {isExpanded && (

@@ -1261,9 +1261,7 @@ export function Compose() {
           {/* ── Step 3: The writing area ──────────────────────────────── */}
           <div
             style={{
-              borderLeft: isLetter
-                ? '3px solid rgba(74,100,176,0.25)'
-                : '1px solid rgba(176,122,74,0.18)',
+              borderLeft: '3px solid color-mix(in srgb, var(--warm) 32%, transparent)',
               paddingLeft: 'clamp(16px, 3vw, 28px)',
             }}
           >
@@ -1323,22 +1321,6 @@ export function Compose() {
                 overflow: 'hidden',
               }}
             />
-
-            {/* Word count */}
-            <div
-              style={{
-                marginTop: 12,
-                fontFamily: 'var(--mono)',
-                fontSize: 10,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
-                opacity: wordCount > 0 ? 1 : 0,
-                transition: `opacity 360ms ${ease}`,
-              }}
-            >
-              {wordCount} {wordCount === 1 ? 'word' : 'words'}
-            </div>
 
             {bodyError && (
               <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.1em', marginTop: 6 }}>
@@ -1543,92 +1525,95 @@ export function Compose() {
             </ComposerRail>
           )}
 
-          {/* Actions */}
+          {/* Hairline footer — word count left, cancel + amber text-link CTA right */}
           <div
             style={{
               marginTop: 28,
+              paddingTop: 18,
+              borderTop: '1px solid var(--rule)',
               display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'flex-end',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
               gap: 16,
               flexWrap: 'wrap',
             }}
           >
-            <button
-              type="button"
-              onClick={handleCancel}
+            <span
+              className="hl-mono"
               style={{
-                background: 'transparent',
-                border: '1px solid var(--rule)',
-                color: 'var(--bone-dim)',
-                fontFamily: 'var(--mono)',
-                fontSize: 12,
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
-                padding: '10px 20px',
-                cursor: 'pointer',
-                minHeight: 44,
-                transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = 'var(--bone)';
-                e.currentTarget.style.borderColor = 'var(--bone-dim)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'var(--bone-dim)';
-                e.currentTarget.style.borderColor = 'var(--rule)';
-              }}
-            >
-              cancel
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setError(null);
-                if (uploadingCount > 0) {
-                  setError('Wait for photos to finish uploading.');
-                  return;
-                }
-                if (!body.trim()) {
-                  setBodyError('write something first');
-                  return;
-                }
-                if (!hasContent) {
-                  setError(isLetter ? 'Write something — even a sentence.' : 'Write something, or add a photo.');
-                  return;
-                }
-                if (isLetter && deliveryTrigger === 'date' && !scheduledDate) {
-                  setError('Choose the date this letter unseals.');
-                  return;
-                }
-                save.mutate();
-              }}
-              disabled={submitDisabled}
-              style={{
-                background: 'var(--warm)',
-                border: '1px solid var(--warm)',
-                color: 'var(--ink)',
-                fontFamily: 'var(--mono)',
-                fontSize: 12,
+                fontSize: 10,
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
-                padding: '10px 24px',
-                cursor: submitDisabled ? 'default' : 'pointer',
-                minHeight: 44,
-                opacity: submitDisabled ? 0.45 : 1,
-                transition: 'opacity 180ms var(--ease), transform 180ms var(--ease)',
+                color: 'var(--bone-faint)',
               }}
-              onMouseEnter={(e) => {
-                if (!submitDisabled) e.currentTarget.style.opacity = '0.85';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.opacity = submitDisabled ? '0.45' : '1';
-              }}
-              onMouseDown={(e) => { e.currentTarget.style.transform = 'scale(0.97)'; }}
-              onMouseUp={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
             >
-              {save.isPending ? (isLetter ? 'sealing…' : 'saving…') : submitLabel}
-            </button>
+              {save.isPending
+                ? (isLetter ? 'sealing…' : 'weaving…')
+                : `${wordCount} ${wordCount === 1 ? 'word' : 'words'}`}
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 24 }}>
+              <button
+                type="button"
+                onClick={handleCancel}
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  padding: '8px 0',
+                  minHeight: 44,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  transition: 'color 180ms var(--ease)',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--bone-dim)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--bone-faint)'; }}
+              >
+                cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null);
+                  if (uploadingCount > 0) {
+                    setError('Wait for photos to finish uploading.');
+                    return;
+                  }
+                  if (!body.trim()) {
+                    setBodyError('write something first');
+                    return;
+                  }
+                  if (!hasContent) {
+                    setError(isLetter ? 'Write something — even a sentence.' : 'Write something, or add a photo.');
+                    return;
+                  }
+                  if (isLetter && deliveryTrigger === 'date' && !scheduledDate) {
+                    setError('Choose the date this letter unseals.');
+                    return;
+                  }
+                  save.mutate();
+                }}
+                disabled={submitDisabled}
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  padding: '8px 0',
+                  minHeight: 44,
+                  fontFamily: 'var(--mono)',
+                  fontSize: 12,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  cursor: submitDisabled ? 'default' : 'pointer',
+                  opacity: submitDisabled ? 0.45 : 1,
+                  transition: 'opacity 180ms var(--ease)',
+                }}
+              >
+                {save.isPending ? (isLetter ? 'sealing…' : 'saving…') : submitLabel}
+              </button>
+            </span>
           </div>
         </div>
       </div>

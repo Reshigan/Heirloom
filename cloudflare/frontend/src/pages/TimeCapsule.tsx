@@ -114,51 +114,65 @@ function CapsuleRow({
           background: isSelected ? 'rgba(176,122,74,0.04)' : 'transparent',
           border: 0,
           borderBottom: '1px solid var(--rule)',
-          padding: '18px 0',
+          padding: '22px 0',
           cursor: 'pointer',
           textAlign: 'left',
           display: 'grid',
-          gridTemplateColumns: '56px 1fr auto',
-          gap: 20,
+          gridTemplateColumns: '10px 1fr',
+          gap: 16,
           alignItems: 'baseline',
           transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
         }}
       >
-        {/* Left — ∞ mark */}
+        {/* Left — dye square */}
         <span
-          className="hl-serif"
+          aria-hidden
           style={{
-            fontSize: 28,
-            fontWeight: 300,
-            lineHeight: 1,
-            color: 'var(--warm)',
-            userSelect: 'none',
+            width: 8,
+            height: 8,
+            background: 'var(--warm)',
+            display: 'block',
+            flexShrink: 0,
+            transform: 'translateY(4px)',
           }}
-        >
-          ∞
-        </span>
+        />
 
-        {/* Middle — title + recipient */}
-        <div>
+        {/* Title + meta */}
+        <div style={{ minWidth: 0 }}>
           <p
             className="hl-serif"
             style={{
-              fontSize: 16,
+              fontSize: 'var(--type-subhead)',
               fontWeight: 300,
               color: 'var(--bone)',
               margin: 0,
-              lineHeight: 1.35,
+              lineHeight: 1.3,
             }}
           >
             {capsule.title}
           </p>
+          <span
+            className="hl-mono"
+            style={{
+              display: 'block',
+              marginTop: 6,
+              fontSize: 10,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: status === 'unlocked' ? 'var(--bone-faint)' : 'var(--warm)',
+            }}
+          >
+            {status === 'unlocked'
+              ? 'unlocked'
+              : `unlocks ${formatUnlockDate(capsule.unlock_date)}`}
+          </span>
           {capsule.description && (
             <p
               className="hl-serif hl-italic"
               style={{
                 fontSize: 13,
                 color: 'var(--bone-dim)',
-                margin: '4px 0 0',
+                margin: '6px 0 0',
                 lineHeight: 1.5,
                 overflow: 'hidden',
                 display: '-webkit-box',
@@ -170,26 +184,6 @@ function CapsuleRow({
             </p>
           )}
         </div>
-
-        {/* Right — unlock label */}
-        <span
-          className="hl-mono"
-          style={{
-            fontSize: 10,
-            letterSpacing: '0.1em',
-            color:
-              status === 'unlocked'
-                ? 'var(--bone-faint)'
-                : 'var(--warm)',
-            flexShrink: 0,
-            whiteSpace: 'nowrap',
-            alignSelf: 'center',
-          }}
-        >
-          {status === 'unlocked'
-            ? 'unlocked'
-            : `unlocks ${formatUnlockDate(capsule.unlock_date)}`}
-        </span>
       </button>
     </>
   );
@@ -361,7 +355,7 @@ export function TimeCapsule() {
                   {selectedCapsule === capsule.id && (
                     <div
                       style={{
-                        padding: '14px 0 20px 76px',
+                        padding: '14px 0 20px 26px',
                         borderBottom: '1px solid var(--rule)',
                         marginTop: -1,
                       }}

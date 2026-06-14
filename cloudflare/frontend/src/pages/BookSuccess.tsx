@@ -32,7 +32,7 @@ export function BookSuccess() {
 
         <h1
           className="hl-serif hl-tight"
-          style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 20px', color: 'var(--bone)', lineHeight: 1.2 }}
+          style={{ fontSize: 'var(--type-display)', fontWeight: 200, margin: '0 0 20px', color: 'var(--bone)', lineHeight: 1.2 }}
         >
           Your book is being printed.
         </h1>

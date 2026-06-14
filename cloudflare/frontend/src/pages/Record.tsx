@@ -284,70 +284,126 @@ export function Record() {
         />
       )}
 
-      {/* ── main content area ──────────────────────────────────────── */}
+      {/* ── main content area — centered, reverent column ──────────── */}
       <div
         style={{
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+          maxWidth: 'var(--page-max-focus)',
+          margin: '0 auto',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: recordingState === 'idle' ? 'flex-start' : 'center',
-          minHeight: '100%',
-          paddingTop: recordingState === 'idle' ? 40 : 0,
-          paddingBottom: 40,
-          gap: 0,
+          textAlign: 'center',
         }}
       >
-        {/* ── square border + timer ──────────────────────────────── */}
+        {/* ── mono kicker, hairline-framed ─────────────────────────── */}
+        <div className="hl-rule" style={{ width: 120, height: 1, marginBottom: 22 }} />
         <div
+          className="hl-eyebrow hl-mono"
           style={{
-            width: 200,
-            height: 200,
-            flexShrink: 0,
-            border: `1px solid ${live && recordingState === 'recording' ? 'var(--warm)' : 'var(--bone-faint)'}`,
-            borderRadius: 0,
-            display: 'flex',
+            color: 'var(--bone-faint)',
+            letterSpacing: '0.3em',
+            display: 'inline-flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            transition: 'border-color 360ms cubic-bezier(0.16,1,0.3,1)',
+            gap: 10,
+            marginBottom: 22,
           }}
         >
-          {recordingState === 'idle' ? (
-            /* begin recording button — centered inside the square */
-            <button
-              type="button"
-              onClick={start}
-              style={{
-                background: 'transparent',
-                border: 0,
-                padding: 0,
-                cursor: 'pointer',
-                fontFamily: 'var(--mono)',
-                fontSize: 10,
-                letterSpacing: '0.32em',
-                textTransform: 'uppercase',
-                color: 'var(--warm)',
-              }}
-            >
-              begin recording
-            </button>
-          ) : (
-            /* timer */
-            <span
-              style={{
-                fontFamily: 'var(--mono)',
-                fontSize: 'clamp(48px, 8vw, 72px)',
-                letterSpacing: '0.04em',
-                color: recordingState === 'paused' ? 'var(--bone-faint)' : 'var(--bone)',
-                lineHeight: 1,
-                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-              }}
-            >
-              {mm}:{ss}
-            </span>
-          )}
+          voice
+          <span aria-hidden style={{ width: 3, height: 3, background: 'var(--warm)', display: 'inline-block' }} />
+          speak it
         </div>
+        <div className="hl-rule" style={{ width: 120, height: 1, marginBottom: 40 }} />
 
-        {/* ── controls below square ─────────────────────────────── */}
+        {/* ── thin serif line ──────────────────────────────────────── */}
+        <p
+          className="hl-serif hl-italic"
+          style={{
+            fontSize: 'var(--type-subhead)',
+            color: 'var(--bone-dim)',
+            lineHeight: 1.3,
+            margin: '0 0 44px',
+          }}
+        >
+          Say it the way you remember.
+        </p>
+
+        {/* ── calm amber hairline waveform ─────────────────────────── */}
+        <svg
+          aria-hidden
+          viewBox="0 0 400 48"
+          preserveAspectRatio="none"
+          style={{
+            width: '100%',
+            maxWidth: 400,
+            height: 48,
+            marginBottom: 40,
+            opacity: recordingState === 'recording' ? 0.9 : 0.45,
+            transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
+          }}
+        >
+          <path
+            d="M0 24 C 20 24, 26 18, 34 24 S 48 30, 56 24 S 72 8, 84 24 S 100 36, 112 24 S 130 14, 144 24 S 162 30, 176 24 S 196 16, 212 24 S 232 32, 248 24 S 268 18, 284 24 S 304 28, 320 24 S 344 20, 364 24 S 388 24, 400 24"
+            fill="none"
+            stroke="var(--warm)"
+            strokeWidth={1}
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+
+        {/* ── mono timer ───────────────────────────────────────────── */}
+        <span
+          style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 'var(--type-subhead)',
+            letterSpacing: '0.18em',
+            color: recordingState === 'paused' ? 'var(--bone-faint)' : 'var(--bone)',
+            lineHeight: 1,
+            marginBottom: 28,
+            transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+          }}
+        >
+          {mm}:{ss}
+        </span>
+
+        {/* ── record control — thin amber ring, no icon ────────────── */}
+        {recordingState === 'idle' ? (
+          <button
+            type="button"
+            onClick={start}
+            aria-label="Begin recording"
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              border: '1px solid var(--warm)',
+              background: 'transparent',
+              padding: 0,
+              cursor: 'pointer',
+            }}
+          />
+        ) : live ? (
+          <button
+            type="button"
+            onClick={stop}
+            aria-label="Stop recording"
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              border: '1px solid var(--warm)',
+              background: recordingState === 'recording' ? 'var(--warm-dim)' : 'transparent',
+              padding: 0,
+              cursor: 'pointer',
+              animation: recordingState === 'recording'
+                ? 'hl-record-pulse 1400ms cubic-bezier(0.16,1,0.3,1) infinite'
+                : 'none',
+              transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
+            }}
+          />
+        ) : null}
+
+        {/* ── controls below ring ───────────────────────────────── */}
         {live ? (
           <div style={{ marginTop: 28, display: 'flex', gap: 32, alignItems: 'center' }}>
             <button
@@ -386,6 +442,19 @@ export function Record() {
               {recordingState === 'paused' ? 'resume' : 'pause'}
             </button>
           </div>
+        ) : recordingState === 'idle' ? (
+          <p
+            className="hl-mono"
+            style={{
+              marginTop: 18,
+              fontSize: 9,
+              letterSpacing: '0.28em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+            }}
+          >
+            tap to record
+          </p>
         ) : null}
 
         {/* ── pre-recording fields (idle only) ──────────────────── */}

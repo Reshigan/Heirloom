@@ -111,7 +111,11 @@ export function Streaks() {
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        {/* ── H1 ── */}
+        {/* ── Kicker + H1 ── */}
+        <p className="hl-eyebrow" style={{ margin: '0 0 22px', color: 'var(--bone-faint)', display: 'flex', alignItems: 'center', gap: 9 }}>
+          <span aria-hidden style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--warm)', display: 'inline-block' }} />
+          Continuity
+        </p>
         <h1
           className="hl-serif hl-tight"
           style={{
@@ -141,10 +145,10 @@ export function Streaks() {
                 <span
                   className="hl-serif"
                   style={{
-                    fontSize: 72,
-                    fontWeight: 300,
+                    fontSize: 'clamp(56px, 9vw, 96px)',
+                    fontWeight: 200,
                     letterSpacing: '-0.022em',
-                    color: 'var(--warm)',
+                    color: 'var(--bone)',
                     lineHeight: 1,
                     display: 'block',
                   }}
@@ -388,64 +392,67 @@ export function Streaks() {
                   }}
                 />
               </div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0, borderTop: '1px solid var(--rule)' }}>
                 {continuityMarks.map(mark => {
                   const reached = longestStreak >= mark.days;
-                  const progress = Math.min(100, (currentStreak / mark.days) * 100);
                   return (
                     <li
                       key={mark.days}
                       style={{
                         display: 'grid',
-                        gridTemplateColumns: '200px 1fr 60px',
-                        gap: 20,
-                        alignItems: 'center',
-                        padding: '12px 0',
+                        gridTemplateColumns: '14px 64px 1fr 64px',
+                        gap: 18,
+                        alignItems: 'baseline',
+                        padding: '14px 0',
                         borderBottom: '1px solid var(--rule)',
                       }}
                     >
+                      <span
+                        aria-hidden
+                        style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: '50%',
+                          background: reached ? 'var(--warm)' : 'transparent',
+                          border: reached ? 'none' : '1px solid var(--rule)',
+                          alignSelf: 'center',
+                          justifySelf: 'center',
+                        }}
+                      />
                       <span
                         className="hl-mono"
                         style={{
                           fontSize: 11,
                           letterSpacing: '0.04em',
-                          color: reached ? 'var(--warm)' : 'var(--bone-faint)',
-                          margin: 0,
-                        }}
-                      >
-                        {reached ? '∞ ' : ''}{mark.label}
-                      </span>
-                      <div
-                        style={{
-                          height: 1,
-                          background: reached ? 'var(--warm)' : 'var(--rule)',
-                          position: 'relative',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        {!reached && (
-                          <div
-                            style={{
-                              position: 'absolute',
-                              left: 0, top: 0, bottom: 0,
-                              width: `${progress}%`,
-                              background: 'var(--warm)',
-                              transition: 'width 360ms cubic-bezier(0.16,1,0.3,1)',
-                            }}
-                          />
-                        )}
-                      </div>
-                      <span
-                        className="hl-mono"
-                        style={{
-                          fontSize: 10,
                           color: 'var(--bone-faint)',
-                          textAlign: 'right',
-                          letterSpacing: '0.04em',
                           margin: 0,
                         }}
                       >
                         {mark.days}d
+                      </span>
+                      <span
+                        className="hl-serif"
+                        style={{
+                          fontSize: 16,
+                          fontWeight: 300,
+                          color: reached ? 'var(--bone)' : 'var(--bone-dim)',
+                          margin: 0,
+                        }}
+                      >
+                        {mark.label}
+                      </span>
+                      <span
+                        className="hl-mono"
+                        style={{
+                          fontSize: 9.5,
+                          color: 'var(--bone-faint)',
+                          textAlign: 'right',
+                          letterSpacing: '0.18em',
+                          textTransform: 'uppercase',
+                          margin: 0,
+                        }}
+                      >
+                        {reached ? 'reached' : '—'}
                       </span>
                     </li>
                   );

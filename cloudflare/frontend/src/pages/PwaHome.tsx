@@ -99,6 +99,8 @@ function PwaMenu() {
         </div>
 
         {[
+          { to: '/book',               label: 'the book' },
+          { to: '/wrapped',            label: 'wrapped' },
           { to: '/settings',           label: 'settings' },
           { to: '/billing',            label: 'billing' },
           { to: '/family',             label: 'family' },
@@ -447,6 +449,61 @@ function AuthHome({
         </div>
       </div>
 
+      {/* Recently woven — the thread itself, not just its count. The most
+          recent entries with a title, newest first, each opening the woven
+          band. This is the list the cloth promises: what's actually here. */}
+      {count > 0 && (() => {
+        const recent = [...entries].filter(e => e.title).reverse().slice(0, 5);
+        if (recent.length === 0) return null;
+        return (
+          <div style={{ borderTop: '1px solid var(--rule)', padding: `20px ${P} 4px` }}>
+            <div className="hl-mono" style={{
+              fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase',
+              color: 'var(--bone-faint)', marginBottom: 14,
+            }}>
+              recently woven
+            </div>
+            {recent.map((e, i) => (
+              <Link
+                key={`${e.n}-${i}`}
+                to="/loom/weft"
+                style={{
+                  display: 'grid', gridTemplateColumns: 'auto 1fr auto',
+                  alignItems: 'baseline', columnGap: 12,
+                  textDecoration: 'none', padding: '11px 0', minHeight: 44,
+                  borderBottom: '1px solid var(--rule)',
+                }}
+              >
+                <span aria-hidden style={{
+                  width: 8, height: 8, alignSelf: 'center',
+                  background: `var(--dye-${e.dye}, var(--warm))`,
+                  boxShadow: `0 0 8px var(--dye-${e.dye}, var(--warm))`,
+                }} />
+                <span className="hl-serif" style={{
+                  fontSize: 'clamp(15px, 4vw, 17px)', fontWeight: 300, color: 'var(--bone)',
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                }}>
+                  {e.title}{e.sealed ? ' ∞' : ''}
+                </span>
+                <span className="hl-mono" style={{
+                  fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase',
+                  color: 'var(--bone-faint)', textAlign: 'right',
+                }}>
+                  {e.date.getFullYear()}
+                </span>
+              </Link>
+            ))}
+            <Link to="/memories" className="hl-mono" style={{
+              display: 'inline-block', marginTop: 14,
+              fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
+              color: 'var(--warm)', textDecoration: 'none',
+            }}>
+              see all {count} {count === 1 ? 'memory' : 'memories'} →
+            </Link>
+          </div>
+        );
+      })()}
+
       {/* Quick links */}
       <div
         style={{
@@ -459,11 +516,12 @@ function AuthHome({
         }}
       >
         {([
+          { to: '/wrapped',            label: 'wrapped',       sub: 'your thread, this year' },
           { to: '/letters',            label: 'letters',       sub: 'write to someone not yet ready' },
           { to: '/memories',           label: 'memories',      sub: 'add a thread to the weave' },
           { to: '/ask',                label: 'ask the thread', sub: 'what did they say about…' },
           { to: '/family',             label: 'family',        sub: 'the bloodline' },
-          { to: '/book-builder',       label: 'print book',    sub: 'make it physical, permanent' },
+          { to: '/book',               label: 'the book',      sub: 'make it physical, permanent' },
           { to: '/gift-subscriptions', label: 'gift a thread', sub: 'start someone else\'s cloth' },
         ] as const).map(item => (
           <Link

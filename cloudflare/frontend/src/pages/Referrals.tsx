@@ -595,7 +595,7 @@ export function Referrals() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(14,14,12,0.84)',
+            background: 'color-mix(in srgb, var(--ink) 84%, transparent)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -676,19 +676,8 @@ export function Referrals() {
                 <button
                   type="button"
                   onClick={() => setShowInviteModal(false)}
-                  style={{
-                    flex: 1,
-                    background: 'transparent',
-                    border: '1px solid var(--rule)',
-                    color: 'var(--bone-dim)',
-                    fontFamily: 'var(--mono)',
-                    fontSize: 11,
-                    letterSpacing: '0.12em',
-                    textTransform: 'uppercase',
-                    padding: '12px 0',
-                    cursor: 'pointer',
-                    borderRadius: 0,
-                  }}
+                  className="hl-btn ghost"
+                  style={{ flex: 1 }}
                 >
                   cancel
                 </button>

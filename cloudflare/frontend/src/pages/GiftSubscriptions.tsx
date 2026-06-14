@@ -152,18 +152,18 @@ export function GiftSubscriptions() {
     >
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-reading)', margin: '0 auto' }}>
 
-        {/* Page header */}
+        {/* Page header — 2-line thin serif */}
         <h1
           className="hl-serif hl-tight"
           style={{
             fontSize: 'var(--type-display)',
-            fontWeight: 300,
-            margin: 0,
-            marginBottom: 40,
+            fontWeight: 200,
+            margin: '0 0 40px',
             color: 'var(--bone)',
+            whiteSpace: 'pre-line',
           }}
         >
-          Give the gift of a thousand years.
+          {'Give the gift of\na thousand years.'}
         </h1>
 
         {/* Step indicator */}
@@ -905,10 +905,21 @@ export function GiftSubscriptions() {
               type="button"
               onClick={() => purchaseMutation.mutate()}
               disabled={purchaseMutation.isPending}
-              className="hl-btn"
-              style={{ width: '100%', opacity: purchaseMutation.isPending ? 0.5 : 1 }}
+              className="hl-mono"
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: 0,
+                fontSize: 11,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                opacity: purchaseMutation.isPending ? 0.5 : 1,
+                cursor: purchaseMutation.isPending ? 'default' : 'pointer',
+                transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+              }}
             >
-              {purchaseMutation.isPending ? 'processing…' : 'complete purchase'}
+              {purchaseMutation.isPending ? 'processing…' : 'complete the gift →'}
             </button>
           </div>
         )}
@@ -1047,32 +1058,44 @@ export function GiftSubscriptions() {
           role="status"
         >
           <div
-            className="cosmic-panel cosmic-panel--solid"
             style={{
-              borderTop:  '1px solid var(--warm)',
               padding:    '48px',
-              maxWidth:   440,
+              maxWidth:   'var(--page-max-focus)',
               width:      '100%',
               textAlign:  'center',
             }}
           >
+            {/* ∞ mark — faint amber */}
+            <div
+              className="hl-serif"
+              style={{
+                fontSize:   44,
+                fontWeight: 200,
+                lineHeight: 1,
+                color:      'var(--warm)',
+                opacity:    0.7,
+                marginBottom: 28,
+              }}
+            >
+              ∞
+            </div>
             <p
               className="hl-mono"
               style={{
-                fontSize:      9,
+                fontSize:      10,
                 letterSpacing: '0.32em',
                 textTransform: 'uppercase',
                 color:         'var(--bone-dim)',
-                marginBottom:  20,
+                marginBottom:  22,
               }}
             >
-              sent
+              gift sent
             </p>
             <h3
               className="hl-serif hl-tight"
               style={{
-                fontSize:   36,
-                fontWeight: 300,
+                fontSize:   'var(--type-display)',
+                fontWeight: 200,
                 margin:     '0 0 16px',
                 color:      'var(--bone)',
               }}
@@ -1080,11 +1103,10 @@ export function GiftSubscriptions() {
               Gift sent.
             </h3>
             <p
+              className="hl-serif"
               style={{
-                fontFamily:  'var(--serif)',
-                fontStyle:   'italic',
                 color:       'var(--bone-dim)',
-                fontSize:    15,
+                fontSize:    'var(--type-body)',
                 margin:      '0 0 32px',
                 lineHeight:  1.7,
               }}
@@ -1143,9 +1165,19 @@ export function GiftSubscriptions() {
                   scheduledDate:   '',
                 });
               }}
-              className="hl-btn"
+              className="hl-mono"
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: 0,
+                fontSize: 11,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                cursor: 'pointer',
+              }}
             >
-              done
+              done →
             </button>
           </div>
         </div>

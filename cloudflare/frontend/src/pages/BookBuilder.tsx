@@ -200,7 +200,7 @@ export function BookBuilder() {
         {/* H1 */}
         <h1
           className="hl-serif hl-tight"
-          style={{ fontSize: 'var(--type-display)', fontWeight: 300, marginBottom: 28, marginTop: 0, color: 'var(--bone)' }}
+          style={{ fontSize: 'var(--type-display)', fontWeight: 200, marginBottom: 28, marginTop: 0, color: 'var(--bone)' }}
         >
           Your living book.
         </h1>
@@ -305,9 +305,9 @@ export function BookBuilder() {
                         {config[key].includes(item.id) && (
                           <span
                             className="hl-mono"
-                            style={{ fontSize: 9, color: 'var(--warm)', letterSpacing: '0.2em', flexShrink: 0 }}
+                            style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.2em', flexShrink: 0 }}
                           >
-                            ✓
+                            ·
                           </span>
                         )}
                       </button>
@@ -687,11 +687,23 @@ export function BookBuilder() {
                 <button
                   type="submit"
                   disabled={orderMutation.isPending}
-                  className="hl-btn"
-                  style={{ width: '100%', opacity: orderMutation.isPending ? 0.45 : 1, marginTop: 6 }}
+                  className="hl-mono"
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    padding: '6px 0 0',
+                    marginTop: 6,
+                    cursor: orderMutation.isPending ? 'default' : 'pointer',
+                    fontSize: 12,
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                    color: 'var(--warm)',
+                    textAlign: 'left',
+                    opacity: orderMutation.isPending ? 0.45 : 1,
+                  }}
                 >
                   {orderMutation.isPending ? (
-                    <span style={{ fontStyle: 'italic' }}>Processing…</span>
+                    <span style={{ textTransform: 'none', letterSpacing: '0.04em' }}>Processing…</span>
                   ) : (
                     'Place order →'
                   )}

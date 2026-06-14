@@ -30,7 +30,7 @@ const fieldStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
   border: '1px solid var(--rule)',
-  borderRadius: 2,
+  borderRadius: 0,
   color: 'var(--bone)',
   caretColor: 'var(--warm)',
   fontFamily: 'var(--serif)',
@@ -261,7 +261,7 @@ export function FutureLetter() {
               /* inner letter card */
               <div
                 style={{
-                  background: 'rgba(14,14,12,0.8)',
+                  border: '1px solid var(--rule)',
                   padding: '40px 48px',
                   maxWidth: 640,
                 }}

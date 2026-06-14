@@ -105,18 +105,32 @@ export function GiftPurchase() {
         <form onSubmit={(e) => { e.preventDefault(); handlePurchase(); }}>
         <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
 
-          {/* H1 */}
+          {/* H1 — 2-line thin serif */}
           <h1
             className="hl-serif hl-tight"
             style={{
               fontSize: 'var(--type-display)',
-              fontWeight: 300,
+              fontWeight: 200,
               color: 'var(--bone)',
-              margin: '0 0 32px',
+              margin: '0 0 18px',
+              whiteSpace: 'pre-line',
             }}
           >
-            Give a thread to someone.
+            {'Give a thread\nthat outlives you.'}
           </h1>
+
+          <p
+            className="hl-serif"
+            style={{
+              fontSize: 'var(--type-body)',
+              color: 'var(--bone-dim)',
+              lineHeight: 1.6,
+              margin: '0 0 40px',
+              maxWidth: '34ch',
+            }}
+          >
+            Give someone the gift of a family thread.
+          </p>
 
           {/* Billing cycle toggle */}
           <div
@@ -526,24 +540,31 @@ export function GiftPurchase() {
             </p>
           )}
 
-          {/* CTA */}
+          {/* CTA — amber mono text-link */}
           <button
             type="submit"
             disabled={isLoading || !formData.purchaserEmail}
-            className="hl-btn"
+            className="hl-mono"
             style={{
-              marginTop: 24,
-              width: '100%',
+              marginTop: 28,
+              background: 'transparent',
+              border: 0,
+              padding: 0,
+              fontSize: 11,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
               opacity: isLoading || !formData.purchaserEmail ? 0.45 : 1,
+              cursor: isLoading || !formData.purchaserEmail ? 'default' : 'pointer',
+              transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
             }}
           >
-            {isLoading ? 'preparing checkout…' : 'Purchase →'}
+            {isLoading ? 'preparing checkout…' : 'complete the gift →'}
           </button>
 
           <p
             className="hl-mono"
             style={{
-              textAlign: 'center',
               fontSize: 9,
               letterSpacing: '0.18em',
               color: 'var(--bone-faint)',

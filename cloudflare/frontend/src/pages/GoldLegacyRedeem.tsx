@@ -131,10 +131,11 @@ export function GoldLegacyRedeem() {
               <div
                 className="hl-serif"
                 style={{
-                  fontSize: 56,
-                  fontWeight: 300,
+                  fontSize: 44,
+                  fontWeight: 200,
                   color: 'var(--warm)',
-                  marginBottom: 18,
+                  opacity: 0.7,
+                  marginBottom: 28,
                   lineHeight: 1,
                 }}
               >
@@ -143,7 +144,7 @@ export function GoldLegacyRedeem() {
 
               <h1
                 className="hl-serif hl-tight"
-                style={{ fontSize: 'var(--type-title)', fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}
+                style={{ fontSize: 'var(--type-display)', fontWeight: 200, margin: '0 0 28px', color: 'var(--bone)' }}
               >
                 Your lifetime access.
               </h1>
@@ -220,7 +221,20 @@ export function GoldLegacyRedeem() {
                 ))}
               </ul>
 
-              <button onClick={() => navigate('/loom')} className="hl-btn">
+              <button
+                onClick={() => navigate('/loom')}
+                className="hl-mono"
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  padding: 0,
+                  fontSize: 11,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  cursor: 'pointer',
+                }}
+              >
                 open the thread →
               </button>
             </div>
@@ -231,10 +245,11 @@ export function GoldLegacyRedeem() {
               <div
                 className="hl-serif"
                 style={{
-                  fontSize: 56,
-                  fontWeight: 300,
+                  fontSize: 44,
+                  fontWeight: 200,
                   color: 'var(--warm)',
-                  marginBottom: 18,
+                  opacity: 0.7,
+                  marginBottom: 28,
                   lineHeight: 1,
                 }}
               >
@@ -243,7 +258,7 @@ export function GoldLegacyRedeem() {
 
               <h1
                 className="hl-serif hl-tight"
-                style={{ fontSize: 'var(--type-title)', fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}
+                style={{ fontSize: 'var(--type-display)', fontWeight: 200, margin: '0 0 28px', color: 'var(--bone)' }}
               >
                 Your lifetime access.
               </h1>
@@ -395,8 +410,19 @@ export function GoldLegacyRedeem() {
                       <button
                         onClick={handleRedeem}
                         disabled={isRedeeming}
-                        className="hl-btn"
-                        style={{ width: '100%', opacity: isRedeeming ? 0.5 : 1 }}
+                        className="hl-mono"
+                        style={{
+                          background: 'transparent',
+                          border: 0,
+                          padding: 0,
+                          fontSize: 11,
+                          letterSpacing: '0.18em',
+                          textTransform: 'uppercase',
+                          color: 'var(--warm)',
+                          opacity: isRedeeming ? 0.5 : 1,
+                          cursor: isRedeeming ? 'default' : 'pointer',
+                          transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                        }}
                       >
                         {isRedeeming ? 'activating…' : 'activate →'}
                       </button>
@@ -447,8 +473,19 @@ export function GoldLegacyRedeem() {
                 <button
                   onClick={() => validateCode(code)}
                   disabled={isValidating}
-                  className="hl-btn"
-                  style={{ opacity: isValidating ? 0.5 : 1 }}
+                  className="hl-mono"
+                  style={{
+                    background: 'transparent',
+                    border: 0,
+                    padding: 0,
+                    fontSize: 11,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: 'var(--warm)',
+                    opacity: isValidating ? 0.5 : 1,
+                    cursor: isValidating ? 'default' : 'pointer',
+                    transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                  }}
                 >
                   {isValidating ? 'checking…' : 'activate →'}
                 </button>
@@ -456,7 +493,20 @@ export function GoldLegacyRedeem() {
 
               {!voucherInfo && !error && code.length < 10 && (
                 <>
-                  <button className="hl-btn" style={{ opacity: 0.35, pointerEvents: 'none' }}>
+                  <button
+                    className="hl-mono"
+                    style={{
+                      background: 'transparent',
+                      border: 0,
+                      padding: 0,
+                      fontSize: 11,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: 'var(--warm)',
+                      opacity: 0.35,
+                      pointerEvents: 'none',
+                    }}
+                  >
                     activate →
                   </button>
 

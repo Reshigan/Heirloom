@@ -592,64 +592,47 @@ export function MemoryCards() {
                   <li
                     key={card.id}
                     style={{
-                      borderTop: '1px solid var(--rule-strong)',
-                      paddingTop: 22,
-                      paddingBottom: 22,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 10,
+                      borderBottom: '1px solid var(--rule)',
+                      padding: '22px 0',
+                      display: 'grid',
+                      gridTemplateColumns: '10px 1fr',
+                      gap: 16,
+                      alignItems: 'baseline',
                     }}
                   >
-                    {/* Dye swatch */}
-                    <div
+                    {/* Dye square */}
+                    <span
                       aria-hidden
-                      style={{
-                        width: 24,
-                        height: 3,
-                        background: dyeFor(i),
-                      }}
+                      style={{ width: 8, height: 8, background: dyeFor(i), display: 'block', flexShrink: 0, transform: 'translateY(4px)' }}
                     />
-                    {/* Entry */}
-                    <p
-                      className="hl-serif"
-                      style={{
-                        fontSize: 17,
-                        fontWeight: 400,
-                        fontStyle: 'italic',
-                        color: 'var(--bone)',
-                        margin: 0,
-                      }}
-                    >
-                      {card.quote || card.memoryTitle || 'Untitled'}
-                    </p>
-                    {/* Date */}
-                    {card.memoryDate && (
-                      <span
-                        className="hl-mono"
-                        style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.08em' }}
+                    <div style={{ minWidth: 0 }}>
+                      {/* Entry */}
+                      <p
+                        className="hl-serif"
+                        style={{ fontSize: 'var(--type-subhead)', fontWeight: 300, color: 'var(--bone)', margin: 0, lineHeight: 1.3 }}
                       >
-                        {card.memoryDate}
-                      </span>
-                    )}
-                    {/* Author */}
-                    {card.authorName && (
-                      <span
-                        className="hl-mono"
-                        style={{ fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.08em' }}
+                        {card.quote || card.memoryTitle || 'Untitled'}
+                      </p>
+                      {/* Date · Author */}
+                      {(card.memoryDate || card.authorName) && (
+                        <p
+                          className="hl-mono"
+                          style={{ margin: '6px 0 0', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
+                        >
+                          {[card.memoryDate, card.authorName].filter(Boolean).join(' · ')}
+                        </p>
+                      )}
+                      {/* Print / share */}
+                      <a
+                        href={card.shareUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hl-link warm"
+                        style={{ display: 'inline-block', marginTop: 10, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase' }}
                       >
-                        {card.authorName}
-                      </span>
-                    )}
-                    {/* Print / share */}
-                    <a
-                      href={card.shareUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hl-link warm"
-                      style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase' }}
-                    >
-                      print / share →
-                    </a>
+                        print / share →
+                      </a>
+                    </div>
                   </li>
                 ))}
               </ul>
@@ -705,36 +688,31 @@ export function MemoryCards() {
                         <li
                           key={memory.id}
                           style={{
-                            borderTop: '1px solid var(--rule-strong)',
-                            paddingTop: 22,
-                            paddingBottom: 22,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 10,
+                            borderBottom: '1px solid var(--rule)',
+                            padding: '22px 0',
+                            display: 'grid',
+                            gridTemplateColumns: '10px 1fr',
+                            gap: 16,
+                            alignItems: 'baseline',
                           }}
                         >
-                          {/* Dye swatch */}
-                          <div
+                          {/* Dye square */}
+                          <span
                             aria-hidden
-                            style={{ width: 24, height: 3, background: dyeFor(i) }}
+                            style={{ width: 8, height: 8, background: dyeFor(i), display: 'block', flexShrink: 0, transform: 'translateY(4px)' }}
                           />
+                          <div style={{ minWidth: 0 }}>
                           {/* Entry */}
                           <p
                             className="hl-serif"
-                            style={{
-                              fontSize: 17,
-                              fontWeight: 400,
-                              fontStyle: 'italic',
-                              color: 'var(--bone)',
-                              margin: 0,
-                            }}
+                            style={{ fontSize: 'var(--type-subhead)', fontWeight: 300, color: 'var(--bone)', margin: 0, lineHeight: 1.3 }}
                           >
                             {memory.title || 'Untitled Memory'}
                           </p>
                           {/* Date */}
                           <span
                             className="hl-mono"
-                            style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.08em' }}
+                            style={{ display: 'block', marginTop: 6, fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
                           >
                             {memory.year} — {memory.yearsAgo}y ago
                           </span>
@@ -742,14 +720,14 @@ export function MemoryCards() {
                           {memory.description && (
                             <span
                               className="hl-mono"
-                              style={{ fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}
+                              style={{ display: 'block', marginTop: 4, fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}
                             >
                               {memory.description}
                             </span>
                           )}
                           {memory.photoUrl && (
                             <div
-                              style={{ border: '1px solid var(--rule)', overflow: 'hidden', marginTop: 4 }}
+                              style={{ border: '1px solid var(--rule)', overflow: 'hidden', marginTop: 10 }}
                             >
                               <img
                                 src={memory.photoUrl}
@@ -760,7 +738,7 @@ export function MemoryCards() {
                             </div>
                           )}
                           {/* Print / share */}
-                          <div style={{ display: 'flex', gap: 24, marginTop: 4 }}>
+                          <div style={{ display: 'flex', gap: 24, marginTop: 10 }}>
                             <button
                               type="button"
                               onClick={() => { setSelectedMemory(memory.id); setActiveTab('create'); }}
@@ -794,6 +772,7 @@ export function MemoryCards() {
                               view memory →
                             </button>
                           </div>
+                          </div>
                         </li>
                       ))}
                     </ul>
@@ -818,36 +797,31 @@ export function MemoryCards() {
                         <li
                           key={memory.id}
                           style={{
-                            borderTop: '1px solid var(--rule-strong)',
-                            paddingTop: 22,
-                            paddingBottom: 22,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 10,
+                            borderBottom: '1px solid var(--rule)',
+                            padding: '22px 0',
+                            display: 'grid',
+                            gridTemplateColumns: '10px 1fr',
+                            gap: 16,
+                            alignItems: 'baseline',
                           }}
                         >
-                          {/* Dye swatch */}
-                          <div
+                          {/* Dye square */}
+                          <span
                             aria-hidden
-                            style={{ width: 24, height: 3, background: dyeFor(i + 5) }}
+                            style={{ width: 8, height: 8, background: dyeFor(i + 5), display: 'block', flexShrink: 0, transform: 'translateY(4px)' }}
                           />
+                          <div style={{ minWidth: 0 }}>
                           {/* Entry */}
                           <p
                             className="hl-serif"
-                            style={{
-                              fontSize: 17,
-                              fontWeight: 400,
-                              fontStyle: 'italic',
-                              color: 'var(--bone)',
-                              margin: 0,
-                            }}
+                            style={{ fontSize: 'var(--type-subhead)', fontWeight: 300, color: 'var(--bone)', margin: 0, lineHeight: 1.3 }}
                           >
                             {memory.title || 'Untitled Memory'}
                           </p>
                           {/* Date */}
                           <span
                             className="hl-mono"
-                            style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.08em' }}
+                            style={{ display: 'block', marginTop: 6, fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
                           >
                             {memory.year} — {memory.yearsAgo}y ago
                           </span>
@@ -855,11 +829,12 @@ export function MemoryCards() {
                           {memory.description && (
                             <span
                               className="hl-mono"
-                              style={{ fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}
+                              style={{ display: 'block', marginTop: 4, fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}
                             >
                               {memory.description}
                             </span>
                           )}
+                          </div>
                         </li>
                       ))}
                     </ul>

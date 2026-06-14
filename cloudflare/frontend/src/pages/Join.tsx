@@ -113,61 +113,49 @@ export function Join() {
             <Link to="/loom" className="hl-link warm" style={{ fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase' }}>go to heirloom →</Link>
           </>
         ) : (
-          <>
-            <p className="hl-eyebrow" style={{ color: 'var(--warm)', marginBottom: 16 }}>you've been included</p>
-            <h1 className="hl-serif hl-tight" style={{ fontSize: 'var(--type-title)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px', letterSpacing: '-0.016em', lineHeight: 1.2 }}>
+          <div style={{ textAlign: 'center', borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', padding: 'clamp(40px, 7vw, 72px) 0' }}>
+            <div aria-hidden className="hl-serif" style={{ fontSize: 'clamp(40px, 6vw, 56px)', fontWeight: 200, color: 'var(--warm)', opacity: 0.7, lineHeight: 1, marginBottom: 30 }}>∞</div>
+            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 26 }}>welcome</p>
+            <h1 className="hl-serif hl-tight" style={{ fontSize: 'clamp(34px, 5vw, 56px)', fontWeight: 200, color: 'var(--bone)', margin: 0 }}>
               Your thread is waiting for your voice.
             </h1>
-            <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', lineHeight: 1.7, fontWeight: 300, margin: '0 0 8px' }}>
+            <p className="hl-serif" style={{ fontSize: 'var(--type-body-lg)', color: 'var(--bone-dim)', lineHeight: 1.7, maxWidth: '46ch', margin: '24px auto 0' }}>
               Someone in your family has woven a permanent record of memories, letters, and stories — owned by your bloodline, not a platform. You've been included. Add your voice, or simply read what has been written.
             </p>
 
-            <div
-              style={{
-                margin: '28px 0',
-                padding: '12px 16px',
-                border: '1px solid var(--rule)',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 12,
-              }}
-            >
-              <span style={{ fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 300, color: 'var(--warm)' }}>∞</span>
-              <div>
-                <div className="hl-mono" style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 2 }}>invite code</div>
-                <div className="hl-mono" style={{ fontSize: 13, color: 'var(--bone)', letterSpacing: '0.1em' }}>{code}</div>
-              </div>
+            <div className="hl-mono" style={{ margin: '32px 0', fontSize: 13, color: 'var(--bone)', letterSpacing: '0.1em' }}>
+              <span style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>invite code</span>
+              {'  '}{code}
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18 }}>
               <button
                 type="button"
-                className="hl-btn"
+                className="hl-btn text"
                 onClick={() => storeAndGo('/signup')}
-                style={{ width: '100%', fontSize: 13, padding: '14px 20px' }}
+                style={{ letterSpacing: '0.06em' }}
               >
                 create account →
               </button>
               <button
                 type="button"
                 onClick={() => storeAndGo('/login')}
+                className="hl-mono"
                 style={{
-                  width: '100%',
                   background: 'transparent',
-                  border: '1px solid var(--rule)',
-                  color: 'var(--bone-dim)',
-                  fontFamily: 'var(--mono)',
-                  fontSize: 11,
+                  border: 0,
+                  padding: 0,
+                  color: 'var(--bone-faint)',
+                  fontSize: 10.5,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
-                  padding: '12px 20px',
                   cursor: 'pointer',
                 }}
               >
                 already have an account → sign in
               </button>
             </div>
-          </>
+          </div>
         )}
       </div>
       </div>

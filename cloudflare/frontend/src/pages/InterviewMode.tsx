@@ -324,9 +324,9 @@ export function InterviewMode() {
           <div key={currentQuestion}>
             <p
               className="hl-eyebrow"
-              style={{ marginBottom: 14 }}
+              style={{ marginBottom: 14, color: 'var(--bone-faint)' }}
             >
-              the listener
+              <span style={{ color: 'var(--warm)' }}>·</span>&nbsp; the listener
             </p>
             <h2
               className="hl-serif"
@@ -343,12 +343,12 @@ export function InterviewMode() {
             </h2>
           </div>
 
-          {/* Answer area */}
+          {/* Answer area — faint amber left thread */}
           <div
             style={{
-              marginTop: 24,
-              borderTop: '1px solid var(--rule)',
-              paddingTop: 18,
+              marginTop: 28,
+              borderLeft: '3px solid color-mix(in srgb, var(--warm) 32%, transparent)',
+              paddingLeft: 20,
             }}
           >
             <textarea
@@ -367,7 +367,7 @@ export function InterviewMode() {
                 minHeight: 160,
                 color: 'var(--bone)',
                 caretColor: 'var(--warm)',
-                lineHeight: 1.7,
+                lineHeight: 1.85,
               }}
             />
           </div>

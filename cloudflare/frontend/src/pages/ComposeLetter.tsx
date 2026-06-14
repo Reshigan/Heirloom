@@ -287,84 +287,91 @@ export function ComposeLetter() {
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-          {/* eyebrow */}
+          {/* eyebrow — mono kicker, warm dot */}
           <p
             className="hl-eyebrow"
-            style={{ marginBottom: 22 }}
+            style={{ marginBottom: 22, color: 'var(--bone-faint)' }}
           >
-            a letter to the future
+            <span style={{ color: 'var(--warm)' }}>·</span>&nbsp; a letter to the future
           </p>
 
-          {/* salutation */}
-          <input
-            value={salutation}
-            onChange={(e) => setSalutation(e.target.value)}
-            placeholder="To [name], on this day,"
+          {/* Writing area — faint amber left thread */}
+          <div
             style={{
-              width: '100%',
-              border: 0,
-              borderBottom: '1px solid var(--rule)',
-              background: 'transparent',
-              caretColor: 'var(--warm)',
-              fontFamily: 'var(--serif)',
-              fontSize: 20,
-              fontWeight: 400,
-              color: 'var(--bone)',
-              outline: 'none',
-              padding: '0 0 8px',
-              marginBottom: 24,
+              borderLeft: '3px solid color-mix(in srgb, var(--warm) 32%, transparent)',
+              paddingLeft: 20,
             }}
-          />
+          >
+            {/* salutation */}
+            <input
+              value={salutation}
+              onChange={(e) => setSalutation(e.target.value)}
+              placeholder="To [name], on this day,"
+              style={{
+                width: '100%',
+                border: 0,
+                background: 'transparent',
+                caretColor: 'var(--warm)',
+                fontFamily: 'var(--serif)',
+                fontSize: 20,
+                fontWeight: 400,
+                color: 'var(--bone)',
+                outline: 'none',
+                padding: 0,
+                marginBottom: 24,
+              }}
+            />
 
-          {/* body */}
-          <textarea
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="Write your letter here…"
-            rows={12}
-            style={{
-              width: '100%',
-              border: 0,
-              background: 'transparent',
-              caretColor: 'var(--warm)',
-              fontFamily: 'var(--serif)',
-              fontSize: 18,
-              fontWeight: 400,
-              lineHeight: 1.85,
-              color: 'var(--bone)',
-              minHeight: 280,
-              outline: 'none',
-              resize: 'none',
-              padding: 0,
-            }}
-          />
+            {/* body */}
+            <textarea
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="Write your letter here…"
+              rows={12}
+              style={{
+                width: '100%',
+                border: 0,
+                background: 'transparent',
+                caretColor: 'var(--warm)',
+                fontFamily: 'var(--serif)',
+                fontSize: 18,
+                fontWeight: 400,
+                lineHeight: 1.85,
+                color: 'var(--bone)',
+                minHeight: 280,
+                outline: 'none',
+                resize: 'none',
+                padding: 0,
+              }}
+            />
 
-          {/* signature */}
-          <input
-            value={signature}
-            onChange={(e) => {
-              setSignatureTouched(true);
-              setSignature(e.target.value);
-            }}
-            placeholder="— your name"
-            aria-label="Signature"
-            style={{
-              width: '100%',
-              border: 0,
-              background: 'transparent',
-              caretColor: 'var(--warm)',
-              fontFamily: 'var(--font-hand)',
-              fontStyle: 'normal',
-              fontSize: 34,
-              lineHeight: 1.1,
-              fontWeight: 400,
-              letterSpacing: '0.01em',
-              color: 'var(--warm)',
-              outline: 'none',
-              padding: 0,
-              marginTop: 36,
-            }}
-          />
+            {/* signature */}
+            <input
+              value={signature}
+              onChange={(e) => {
+                setSignatureTouched(true);
+                setSignature(e.target.value);
+              }}
+              placeholder="— your name"
+              aria-label="Signature"
+              style={{
+                width: '100%',
+                border: 0,
+                background: 'transparent',
+                caretColor: 'var(--warm)',
+                fontFamily: 'var(--font-hand)',
+                fontStyle: 'normal',
+                fontSize: 34,
+                lineHeight: 1.1,
+                fontWeight: 400,
+                letterSpacing: '0.01em',
+                color: 'var(--warm)',
+                outline: 'none',
+                padding: 0,
+                marginTop: 36,
+              }}
+            />
+          </div>
 
           {/* delivery trigger row */}
           <div
@@ -558,19 +565,31 @@ export function ComposeLetter() {
             </p>
           ) : null}
 
-          {/* delivery summary */}
-          {body.trim() && (
-            <div
+          {/* Hairline footer — delivery summary left, amber text-link CTA right */}
+          <div
+            style={{
+              marginTop: 24,
+              paddingTop: 18,
+              borderTop: '1px solid var(--rule)',
+              display: 'flex',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
+              gap: 16,
+              flexWrap: 'wrap',
+            }}
+          >
+            <span
               className="hl-mono"
               style={{
                 fontSize: 9.5,
                 letterSpacing: '0.1em',
                 color: 'var(--bone-faint)',
                 textTransform: 'uppercase',
-                marginBottom: 12,
               }}
             >
-              {deliveryTrigger === 'date' && scheduledDate
+              {!body.trim()
+                ? null
+                : deliveryTrigger === 'date' && scheduledDate
                 ? `opens ${new Date(`${scheduledDate}T00:00:00`).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}`
                 : deliveryTrigger === 'milestone' && milestoneLabel
                 ? `opens on: ${milestoneLabel}`
@@ -579,43 +598,50 @@ export function ComposeLetter() {
                 : deliveryTrigger === 'now'
                 ? 'opens immediately'
                 : null}
-            </div>
-          )}
+            </span>
 
-          {/* primary CTA */}
-          <button
-            type="button"
-            onClick={() => {
-              setError(null);
-              if (!body.trim()) {
-                setError('Write the letter first — even a line.');
-                return;
-              }
-              if (deliveryTrigger === 'date' && !scheduledDate) {
-                setError('Choose the date this letter unseals.');
-                return;
-              }
-              if (deliveryTrigger === 'milestone' && !milestoneLabel.trim()) {
-                setError('Name the milestone this letter waits for.');
-                return;
-              }
-              seal.mutate();
-            }}
-            disabled={busy}
-            className="hl-btn"
-            style={{
-              marginTop: 24,
-              opacity: busy ? 0.5 : 1,
-              transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
-              cursor: busy ? 'not-allowed' : 'pointer',
-            }}
-          >
-            {seal.isPending
-              ? 'sealing…'
-              : sealedUntil
-                ? `seal until ${sealedUntil}`
-                : 'seal and save →'}
-          </button>
+            {/* primary CTA */}
+            <button
+              type="button"
+              onClick={() => {
+                setError(null);
+                if (!body.trim()) {
+                  setError('Write the letter first — even a line.');
+                  return;
+                }
+                if (deliveryTrigger === 'date' && !scheduledDate) {
+                  setError('Choose the date this letter unseals.');
+                  return;
+                }
+                if (deliveryTrigger === 'milestone' && !milestoneLabel.trim()) {
+                  setError('Name the milestone this letter waits for.');
+                  return;
+                }
+                seal.mutate();
+              }}
+              disabled={busy}
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: '8px 0',
+                minHeight: 44,
+                fontFamily: 'var(--mono)',
+                fontSize: 12,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                opacity: busy ? 0.5 : 1,
+                transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                cursor: busy ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {seal.isPending
+                ? 'sealing…'
+                : sealedUntil
+                  ? `seal until ${sealedUntil} →`
+                  : 'seal and save →'}
+            </button>
+          </div>
       </div>
     </ClothShell>
   );

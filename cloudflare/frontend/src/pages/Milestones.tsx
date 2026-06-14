@@ -121,15 +121,19 @@ export function Milestones() {
         {/* Page header */}
         <header style={{ marginBottom: 52, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
           <div>
+            <p className="hl-eyebrow" style={{ margin: '0 0 22px', color: 'var(--bone-faint)', display: 'flex', alignItems: 'center', gap: 9 }}>
+              <span aria-hidden style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--warm)', display: 'inline-block' }} />
+              Milestones
+            </p>
             <h1
               className="hl-serif hl-tight"
-              style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}
+              style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 14px', color: 'var(--bone)' }}
             >
               Your milestones.
             </h1>
             <p
-              className="hl-eyebrow"
-              style={{ margin: 0 }}
+              className="hl-mono"
+              style={{ margin: 0, fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
             >
               Dates in the thread
             </p>
@@ -199,6 +203,36 @@ export function Milestones() {
           </p>
         ) : (
           <div style={{ display: 'grid', gap: 56 }}>
+
+            {/* One large stat parked in negative space */}
+            <div>
+              <span
+                className="hl-serif"
+                style={{
+                  display: 'block',
+                  fontSize: 'clamp(56px, 9vw, 96px)',
+                  fontWeight: 200,
+                  lineHeight: 1,
+                  letterSpacing: '-0.022em',
+                  color: 'var(--bone)',
+                }}
+              >
+                {milestoneList.length}
+              </span>
+              <span
+                className="hl-mono"
+                style={{
+                  display: 'block',
+                  marginTop: 12,
+                  fontSize: 10,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                }}
+              >
+                {milestoneList.length === 1 ? 'date held in the thread' : 'dates held in the thread'}
+              </span>
+            </div>
 
             {/* Coming up */}
             <section>

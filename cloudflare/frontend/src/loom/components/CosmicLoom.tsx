@@ -144,7 +144,11 @@ export function CosmicLoom({
       // ── filaments — the family thread as a web of glowing light ─────────
       // entries first (dyed, real), then warm filler so the web feels deep.
       const list = entriesRef.current ?? [];
-      const target = Math.max(14, Math.min(34, list.length + 12));
+      // Density scales with the thread: a fuller cloth reads denser. Real
+      // entries are always drawn; warm filler thins as the family's own
+      // threads take over the web.
+      const filler = list.length >= 40 ? 6 : 14;
+      const target = Math.max(16, Math.min(56, list.length + filler));
       const filaments: Filament[] = [];
       const cy0 = H * 0.5;
       for (let i = 0; i < target; i++) {
@@ -448,7 +452,7 @@ export function CosmicLoom({
 
   return (
     <div ref={hostRef} aria-hidden style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
-      <canvas ref={webRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
+      <canvas ref={webRef} className="hl-cloth-breath" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }} />
       <canvas ref={fxRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} />
       <div
         ref={whisperRef}

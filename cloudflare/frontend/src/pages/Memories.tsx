@@ -150,7 +150,7 @@ function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; act
             width: '100%',
             height: 'auto',
             marginBottom: 10,
-            background: 'rgba(255,255,255,0.03)',
+            background: 'var(--rule)',
           }}
         />
       )}
@@ -173,7 +173,7 @@ function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; act
             style={{ width: '100%', background: 'transparent', border: '1px solid var(--rule)', borderRadius: 0, color: 'var(--bone)', caretColor: 'var(--warm)', fontFamily: 'var(--serif)', fontSize: 15, lineHeight: 1.7, padding: '8px 10px', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
           <div style={{ display: 'flex', gap: 16, marginTop: 10 }}>
             <button type="button" onClick={() => updateMut.mutate()} disabled={updateMut.isPending}
-              style={{ background: 'var(--warm)', color: '#0e0e0c', border: 0, borderRadius: 0, padding: '7px 16px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: updateMut.isPending ? 'wait' : 'pointer', opacity: updateMut.isPending ? 0.6 : 1 }}>
+              style={{ background: 'var(--warm)', color: 'var(--ink)', border: 0, borderRadius: 0, padding: '7px 16px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: updateMut.isPending ? 'wait' : 'pointer', opacity: updateMut.isPending ? 0.6 : 1 }}>
               {updateMut.isPending ? 'saving…' : 'save'}
             </button>
             <button type="button" onClick={() => setEditing(false)}

@@ -75,13 +75,15 @@ export function VerifyEmail() {
         {status === 'loading' && (
           <div role="status">
             <div
+              aria-hidden
               className="hl-serif"
               style={{
-                fontSize: 56,
-                fontWeight: 300,
+                fontSize: 'clamp(40px, 6vw, 56px)',
+                fontWeight: 200,
                 color: 'var(--warm)',
+                opacity: 0.7,
                 lineHeight: 1,
-                marginBottom: 18,
+                marginBottom: 30,
               }}
             >
               ∞
@@ -104,26 +106,27 @@ export function VerifyEmail() {
         {status === 'success' && (
           <div role="status">
             <div
+              aria-hidden
               className="hl-serif"
               style={{
-                fontSize: 56,
-                fontWeight: 300,
+                fontSize: 'clamp(40px, 6vw, 56px)',
+                fontWeight: 200,
                 color: 'var(--warm)',
+                opacity: 0.7,
                 lineHeight: 1,
-                marginBottom: 18,
+                marginBottom: 30,
               }}
             >
               ∞
             </div>
+            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>verified</p>
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 'var(--type-title)',
-                fontWeight: 300,
+                fontSize: 'clamp(34px, 5vw, 56px)',
+                fontWeight: 200,
                 color: 'var(--bone)',
-                margin: '0 0 0',
-                letterSpacing: '-0.01em',
-                lineHeight: 1.2,
+                margin: 0,
               }}
             >
               Your account is confirmed.
@@ -249,26 +252,27 @@ export function VerifyEmail() {
         {status === 'no-token' && (
           <div role="status">
             <div
+              aria-hidden
               className="hl-serif"
               style={{
-                fontSize: 56,
-                fontWeight: 300,
+                fontSize: 'clamp(40px, 6vw, 56px)',
+                fontWeight: 200,
                 color: 'var(--warm)',
+                opacity: 0.7,
                 lineHeight: 1,
-                marginBottom: 18,
+                marginBottom: 30,
               }}
             >
               ∞
             </div>
+            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>verify</p>
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 'var(--type-title)',
-                fontWeight: 300,
+                fontSize: 'clamp(34px, 5vw, 56px)',
+                fontWeight: 200,
                 color: 'var(--bone)',
                 margin: '0 0 20px',
-                letterSpacing: '-0.01em',
-                lineHeight: 1.2,
               }}
             >
               Verify your email.

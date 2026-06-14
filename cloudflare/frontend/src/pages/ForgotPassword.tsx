@@ -49,15 +49,21 @@ export function ForgotPassword() {
       topbarRight={<Link to="/login" className="hl-mono" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>sign in →</Link>}
     >
       <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
+        <div
+          aria-hidden
+          className="hl-serif"
+          style={{ fontSize: 'clamp(40px, 6vw, 56px)', fontWeight: 200, color: 'var(--warm)', opacity: 0.7, lineHeight: 1, marginBottom: 30 }}
+        >
+          ∞
+        </div>
         {success ? (
           <div role="status">
+            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>reset</p>
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 'var(--type-title)',
-                fontWeight: 300,
-                lineHeight: 1.1,
-                letterSpacing: '-0.018em',
+                fontSize: 'clamp(34px, 5vw, 56px)',
+                fontWeight: 200,
                 color: 'var(--bone)',
                 margin: '0 0 28px',
               }}
@@ -66,10 +72,12 @@ export function ForgotPassword() {
             </h1>
 
             <p
-              className="hl-prose dark"
+              className="hl-serif"
               style={{
-                fontSize: 15,
+                fontSize: 'var(--type-body-lg)',
                 color: 'var(--bone-dim)',
+                lineHeight: 1.7,
+                maxWidth: '46ch',
                 marginBottom: 28,
               }}
             >
@@ -133,13 +141,12 @@ export function ForgotPassword() {
           </div>
         ) : (
           <>
+            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>reset</p>
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontSize: 'var(--type-title)',
-                fontWeight: 300,
-                lineHeight: 1.1,
-                letterSpacing: '-0.018em',
+                fontSize: 'clamp(34px, 5vw, 56px)',
+                fontWeight: 200,
                 color: 'var(--bone)',
                 margin: '0 0 28px',
               }}
@@ -148,10 +155,12 @@ export function ForgotPassword() {
             </h1>
 
             <p
-              className="hl-prose dark"
+              className="hl-serif"
               style={{
-                fontSize: 15,
+                fontSize: 'var(--type-body-lg)',
                 color: 'var(--bone-dim)',
+                lineHeight: 1.7,
+                maxWidth: '46ch',
                 marginBottom: 28,
               }}
             >
@@ -159,6 +168,13 @@ export function ForgotPassword() {
             </p>
 
             <form onSubmit={handleSubmit}>
+              <label
+                htmlFor="fp-email"
+                className="hl-mono"
+                style={{ display: 'block', marginBottom: 4, fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
+              >
+                email
+              </label>
               <input
                 id="fp-email"
                 type="email"
@@ -189,12 +205,13 @@ export function ForgotPassword() {
               <button
                 type="submit"
                 disabled={isLoading || !email.trim()}
-                className="hl-btn"
+                className="hl-btn text"
                 style={{
+                  letterSpacing: '0.06em',
                   opacity: isLoading || !email.trim() ? 0.5 : 1,
                 }}
               >
-                {isLoading ? 'sending…' : 'Send reset →'}
+                {isLoading ? 'sending…' : 'send reset →'}
               </button>
             </form>
 

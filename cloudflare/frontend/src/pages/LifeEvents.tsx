@@ -329,6 +329,10 @@ export function LifeEvents() {
         {/* Page header */}
         <header style={{ marginBottom: 48, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
           <div>
+            <p className="hl-eyebrow" style={{ margin: '0 0 22px', color: 'var(--bone-faint)', display: 'flex', alignItems: 'center', gap: 9 }}>
+              <span aria-hidden style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--warm)', display: 'inline-block' }} />
+              Life events
+            </p>
             <h1
               className="hl-serif hl-tight"
               style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}

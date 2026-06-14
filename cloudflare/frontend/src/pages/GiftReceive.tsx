@@ -100,10 +100,29 @@ export function GiftReceive() {
             padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           }}
         >
-          <div style={{ maxWidth: 'var(--page-max-focus)', width: '100%' }}>
+          <div style={{ maxWidth: 'var(--page-max-focus)', width: '100%', textAlign: 'center' }}>
+            <div
+              className="hl-serif"
+              style={{
+                fontSize: 44,
+                fontWeight: 200,
+                lineHeight: 1,
+                color: 'var(--warm)',
+                opacity: 0.7,
+                marginBottom: 28,
+              }}
+            >
+              ∞
+            </div>
             <p
-              className="hl-eyebrow dark"
-              style={{ marginBottom: 20 }}
+              className="hl-mono"
+              style={{
+                fontSize: 10,
+                letterSpacing: '0.32em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-dim)',
+                margin: '0 0 22px',
+              }}
             >
               gift not found
             </p>
@@ -111,28 +130,39 @@ export function GiftReceive() {
               className="hl-serif hl-tight"
               style={{
                 fontSize: 'var(--type-display)',
-                fontWeight: 300,
+                fontWeight: 200,
                 color: 'var(--bone)',
-                margin: '0 0 20px',
+                margin: '0 0 18px',
               }}
             >
               This link has expired.
             </h1>
             <p
-              className="hl-prose dark"
+              className="hl-serif"
               style={{
-                fontSize: 17,
+                fontSize: 'var(--type-body)',
                 color: 'var(--bone-dim)',
                 margin: '0 0 36px',
+                lineHeight: 1.7,
               }}
             >
               {error}
             </p>
             <button
               onClick={() => navigate('/')}
-              className="hl-btn"
+              className="hl-mono"
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: 0,
+                fontSize: 11,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                cursor: 'pointer',
+              }}
             >
-              go to heirloom
+              go to heirloom →
             </button>
           </div>
         </div>
@@ -158,14 +188,35 @@ export function GiftReceive() {
             style={{
               maxWidth: 'var(--page-max-focus)',
               width: '100%',
+              textAlign: 'center',
               opacity: 0,
               animation: 'css-fade-in 720ms cubic-bezier(0.16,1,0.3,1) forwards',
             }}
             role="status"
           >
+            {/* ∞ mark — faint amber */}
+            <div
+              className="hl-serif"
+              style={{
+                fontSize: 44,
+                fontWeight: 200,
+                lineHeight: 1,
+                color: 'var(--warm)',
+                opacity: 0.7,
+                marginBottom: 28,
+              }}
+            >
+              ∞
+            </div>
             <p
-              className="hl-eyebrow dark"
-              style={{ marginBottom: 20 }}
+              className="hl-mono"
+              style={{
+                fontSize: 10,
+                letterSpacing: '0.32em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-dim)',
+                margin: '0 0 22px',
+              }}
             >
               claimed
             </p>
@@ -173,20 +224,20 @@ export function GiftReceive() {
               className="hl-serif hl-tight"
               style={{
                 fontSize: 'var(--type-display)',
-                fontWeight: 300,
+                fontWeight: 200,
                 color: 'var(--bone)',
-                margin: '0 0 20px',
+                margin: '0 0 18px',
               }}
             >
               This thread is yours now.
             </h1>
             <p
-              className="hl-prose dark"
+              className="hl-serif"
               style={{
-                fontSize: 17,
+                fontSize: 'var(--type-body)',
                 color: 'var(--bone-dim)',
                 margin: '0 0 36px',
-                lineHeight: 1.85,
+                lineHeight: 1.7,
               }}
             >
               Create a free account to keep it safe and start your own
@@ -194,9 +245,19 @@ export function GiftReceive() {
             </p>
             <button
               onClick={() => navigate('/signup')}
-              className="hl-btn"
+              className="hl-mono"
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: 0,
+                fontSize: 11,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                cursor: 'pointer',
+              }}
             >
-              begin a thread
+              begin a thread →
             </button>
           </div>
         </div>
@@ -212,28 +273,29 @@ export function GiftReceive() {
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', minHeight: '100%' }}>
         <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto' }}>
 
-          {/* H1 */}
+          {/* H1 — 2-line thin serif */}
           <h1
             className="hl-serif hl-tight"
             style={{
               fontSize: 'var(--type-display)',
-              fontWeight: 300,
+              fontWeight: 200,
               color: 'var(--bone)',
               margin: '0 0 20px',
+              whiteSpace: 'pre-line',
             }}
           >
-            Someone gave you a thread.
+            {'Someone gave you\na thread.'}
           </h1>
 
           {/* Hairline rule */}
           <hr className="hl-rule parchment" style={{ margin: '0 0 28px' }} />
 
-          {/* Sender message block — parchment-deep inset */}
+          {/* Sender message block — left-rule quote */}
           {gift?.personal_message && (
             <div
               style={{
-                background: 'var(--parchment-deep)',
-                padding: '36px 40px',
+                borderLeft: '1px solid var(--warm)',
+                paddingLeft: 20,
                 maxWidth: 540,
                 marginBottom: 32,
               }}
@@ -328,14 +390,26 @@ export function GiftReceive() {
             </p>
           )}
 
-          {/* Accept button */}
+          {/* Accept — amber mono text-link */}
           <button
             onClick={handleClaim}
             disabled={claiming}
-            className="hl-btn"
-            style={{ marginTop: 24, opacity: claiming ? 0.5 : 1 }}
+            className="hl-mono"
+            style={{
+              marginTop: 24,
+              background: 'transparent',
+              border: 0,
+              padding: 0,
+              fontSize: 11,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
+              opacity: claiming ? 0.5 : 1,
+              cursor: claiming ? 'default' : 'pointer',
+              transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+            }}
           >
-            {claiming ? 'accepting…' : 'Accept →'}
+            {claiming ? 'accepting…' : 'accept the gift →'}
           </button>
 
           {/* Create account link */}

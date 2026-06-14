@@ -67,6 +67,15 @@ export function FamilyFeed() {
           margin: '0 auto',
         }}
       >
+        {/* kicker */}
+        <div
+          className="hl-eyebrow"
+          style={{ marginBottom: 16, color: 'var(--bone-faint)', display: 'flex', alignItems: 'center', gap: 10 }}
+        >
+          <span aria-hidden style={{ width: 6, height: 6, background: 'var(--warm)', display: 'block', flexShrink: 0 }} />
+          the thread
+        </div>
+
         {/* H1 */}
         <h1
           className="hl-serif hl-tight"
@@ -74,7 +83,7 @@ export function FamilyFeed() {
             fontSize: 'var(--type-display)',
             fontWeight: 300,
             fontStyle: 'normal',
-            margin: '0 0 28px',
+            margin: '0 0 32px',
             color: 'var(--bone)',
             lineHeight: 1.15,
           }}
@@ -115,55 +124,41 @@ export function FamilyFeed() {
                     textDecoration: 'none',
                     color: 'inherit',
                     display: 'grid',
-                    gridTemplateColumns: '14px 1fr auto',
-                    alignItems: 'center',
-                    gap: 14,
-                    paddingTop: 14,
-                    paddingBottom: 14,
+                    gridTemplateColumns: '10px 1fr',
+                    alignItems: 'baseline',
+                    gap: 16,
+                    paddingTop: 20,
+                    paddingBottom: 20,
                   }}
                 >
-                  {/* dye swatch */}
+                  {/* dye square */}
                   <span
                     aria-hidden
                     style={{
-                      width: 14,
-                      height: 2,
+                      width: 8,
+                      height: 8,
                       background: `var(--dye-${itemDye(item)})`,
                       display: 'block',
                       flexShrink: 0,
+                      transform: 'translateY(4px)',
                     }}
                   />
 
-                  {/* main text */}
-                  <p
-                    className="hl-serif"
-                    style={{ margin: 0, fontSize: 15.5, lineHeight: 1.35 }}
-                  >
-                    <span
-                      style={{ fontStyle: 'italic', color: 'var(--bone-dim)' }}
+                  {/* title + meta */}
+                  <div style={{ minWidth: 0 }}>
+                    <p
+                      className="hl-serif"
+                      style={{ margin: 0, fontSize: 'var(--type-subhead)', fontWeight: 300, color: 'var(--bone)', lineHeight: 1.3 }}
                     >
-                      {item.author_name}
-                    </span>
-                    {' '}
-                    <span style={{ fontStyle: 'normal', color: 'var(--bone)' }}>
-                      {typeVerb[item.type] ?? 'added an entry'}
-                      {item.title ? ` · ${item.title}` : ''}
-                    </span>
-                  </p>
-
-                  {/* date */}
-                  <time
-                    className="hl-mono"
-                    dateTime={item.created_at}
-                    style={{
-                      fontSize: 10.5,
-                      color: 'var(--bone-faint)',
-                      letterSpacing: '0.04em',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    {fmtDate(item.created_at)}
-                  </time>
+                      {item.title || (typeVerb[item.type] ?? 'added an entry')}
+                    </p>
+                    <p
+                      className="hl-mono"
+                      style={{ margin: '6px 0 0', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
+                    >
+                      {fmtDate(item.created_at)} · {item.author_name}
+                    </p>
+                  </div>
                 </Link>
               </li>
             ))}
