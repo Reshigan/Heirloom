@@ -496,9 +496,8 @@ export function LifeEvents() {
           onClick={() => resetForm()}
         >
           <div
+            className="cosmic-panel cosmic-panel--solid"
             style={{
-              background: 'var(--ink)',
-              border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 560,
               width: '100%',
@@ -811,9 +810,8 @@ export function LifeEvents() {
           onClick={() => setShowContentPicker(false)}
         >
           <div
+            className="cosmic-panel cosmic-panel--solid"
             style={{
-              background: 'var(--ink)',
-              border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 440,
               width: '100%',

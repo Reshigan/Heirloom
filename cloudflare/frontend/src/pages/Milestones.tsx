@@ -469,9 +469,8 @@ export function Milestones() {
           onClick={() => setShowCreateModal(false)}
         >
           <div
+            className="cosmic-panel cosmic-panel--solid"
             style={{
-              background: '#0e0e0c',
-              border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 520,
               width: '100%',

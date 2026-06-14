@@ -414,9 +414,8 @@ export function Challenges() {
           onClick={() => setShowSubmitModal(false)}
         >
           <div
+            className="cosmic-panel cosmic-panel--solid"
             style={{
-              background: 'var(--ink)',
-              border: '1px solid var(--rule)',
               padding: 40,
               maxWidth: 520,
               width: '100%',
