@@ -555,7 +555,7 @@ export function Settings() {
             )}
 
             {deleteStage === 'confirm' && (
-              <div style={{ border: '1px solid rgba(194,90,90,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
+              <div className="cosmic-panel cosmic-panel--solid" style={{ border: '1px solid rgba(194,90,90,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 14 }}>close account</div>
                 <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
                   Your thread will be archived for 90 days. During that window you can download a full export of everything you have ever written. After 90 days it is permanently erased.
@@ -574,7 +574,7 @@ export function Settings() {
             )}
 
             {deleteStage === 'quote' && (
-              <div style={{ border: '1px solid rgba(194,90,90,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
+              <div className="cosmic-panel cosmic-panel--solid" style={{ border: '1px solid rgba(194,90,90,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 14 }}>export fee</div>
                 {exitQuoteQ.isLoading ? (
                   <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.5, margin: '24px 0' }} />
@@ -608,7 +608,7 @@ export function Settings() {
             )}
 
             {deleteStage === 'password' && (
-              <div style={{ border: '1px solid rgba(194,90,90,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
+              <div className="cosmic-panel cosmic-panel--solid" style={{ border: '1px solid rgba(194,90,90,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 14 }}>confirm password</div>
                 <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 18px', lineHeight: 1.6 }}>
                   Enter your password to archive your account. A download link will be emailed to you.
@@ -640,7 +640,7 @@ export function Settings() {
             )}
 
             {deleteStage === 'archived' && (
-              <div style={{ border: '1px solid rgba(176,122,74,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
+              <div className="cosmic-panel cosmic-panel--solid" style={{ border: '1px solid rgba(176,122,74,0.35)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--warm)', marginBottom: 14 }}>archived</div>
                 <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
                   Your account has been archived. Check your email for a download link. Your thread will be permanently erased in 90 days.

@@ -304,7 +304,7 @@ export function ThreadCompose() {
             </div>
 
             {/* Time-lock panel */}
-            <div style={{ border: '1px solid var(--rule)', padding: '20px 24px' }}>
+            <div className="cosmic-panel" style={{ padding: '20px 24px' }}>
               <label
                 style={{ display: 'flex', alignItems: 'flex-start', gap: 14, cursor: 'pointer' }}
               >

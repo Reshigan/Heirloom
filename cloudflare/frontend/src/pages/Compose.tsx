@@ -316,7 +316,7 @@ function DeliveryField({
       </div>
 
       {/* Stacked option rows — each a full-width tappable target */}
-      <div style={{ border: '1px solid var(--rule)' }}>
+      <div className="cosmic-panel">
         {TRIGGER_OPTIONS.map((opt, i) => {
           const active = opt.value === trigger;
           return (
