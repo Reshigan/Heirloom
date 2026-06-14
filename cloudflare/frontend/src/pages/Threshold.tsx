@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { Loom } from '../loom/components/Loom';
@@ -20,6 +20,13 @@ export function Threshold() {
     const t = setTimeout(() => setRevealed(true), 240);
     return () => clearTimeout(t);
   }, []);
+
+  // `/loom` is wired as "home" / "← heirloom" across the whole app — breadcrumbs,
+  // back-links, post-login, post-join, post-purchase. But this screen is the
+  // anonymous brand splash showing a demo family's threads, not the visitor's own.
+  // Forward a signed-in visitor to their real home so every one of those links
+  // lands correctly from this single guard. Anonymous visitors keep the splash.
+  if (isAuthenticated) return <Navigate to="/loom/pwa" replace />;
 
   return (
     <ClothShell

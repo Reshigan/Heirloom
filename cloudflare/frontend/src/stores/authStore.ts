@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
 import { authApi, setTokens, clearTokens } from '../services/api';
+import { checkForServiceWorkerUpdate } from '../lib/registerSW';
 
 export interface User {
   id: string;
@@ -85,6 +86,9 @@ export const useAuthStore = create<AuthState>()(
           const { data } = await authApi.login({ email, password });
           setTokens(data.token ?? data.accessToken, data.refreshToken);
           set({ user: data.user, isAuthenticated: true, isLoading: false });
+          // Force-adopt the latest deployed shell on login so an installed PWA
+          // never runs a stale build (fire-and-forget — never blocks the UI).
+          void checkForServiceWorkerUpdate();
         } catch (error) {
           set({ isLoading: false });
           throw error;
@@ -103,6 +107,8 @@ export const useAuthStore = create<AuthState>()(
           });
           setTokens(data.token ?? data.accessToken, data.refreshToken);
           set({ user: data.user, isAuthenticated: true, isLoading: false });
+          // New account on this device → same freshness guarantee as login.
+          void checkForServiceWorkerUpdate();
         } catch (error) {
           set({ isLoading: false });
           throw error;

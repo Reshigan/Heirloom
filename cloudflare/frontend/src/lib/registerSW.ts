@@ -52,6 +52,30 @@ export function registerServiceWorker(): void {
   });
 }
 
+/**
+ * Force an immediate update check — call at moments where the freshest shell
+ * matters most (e.g. right after login). Fetches sw.js out-of-band, and if a
+ * newer worker is parked waiting, tells it to take over now. The registration's
+ * own updatefound + controllerchange handlers then reload onto the new build.
+ * Best-effort: never throws, never blocks its caller, no-ops outside a
+ * production PWA context.
+ */
+export async function checkForServiceWorkerUpdate(): Promise<void> {
+  if (!import.meta.env.PROD) return;
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return;
+  try {
+    const reg = await navigator.serviceWorker.getRegistration();
+    if (!reg) return;
+    await reg.update().catch(() => {});
+    // A worker that finished installing while the old one still controls the
+    // page sits in `waiting` and never activates on its own — nudge it so the
+    // user adopts the latest build this session, not the next cold start.
+    if (reg.waiting) reg.waiting.postMessage('SKIP_WAITING');
+  } catch {
+    /* best-effort — an update check must never break the login flow */
+  }
+}
+
 function reloadOnce(): void {
   if (sessionStorage.getItem(RELOAD_FLAG) === '1') return;
   sessionStorage.setItem(RELOAD_FLAG, '1');
