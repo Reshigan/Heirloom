@@ -6,7 +6,7 @@ import { VaultModal } from '../components/VaultModal';
 import { threadsApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
-import { ClothWeave } from '../loom/components/ClothWeave';
+import { CosmicLoom } from '../loom/components/CosmicLoom';
 
 // Signup — Loom 3 three-step inline parchment flow (heirloom-auth.jsx §Signup).
 // step one · the thread's name   — what the family calls itself
@@ -387,7 +387,7 @@ export function Signup() {
             minHeight: 'min(360px, 40vh)',
           }}
         >
-          <ClothWeave />
+          <CosmicLoom />
           <div className="hl-mono" style={{
             position: 'absolute', left: 24, bottom: 24,
             fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',

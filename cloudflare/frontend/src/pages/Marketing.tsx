@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
 import { SecurityDot } from '../loom/components/Frame';
-import { ClothWeave } from '../loom/components/ClothWeave';
+import { CosmicLoom } from '../loom/components/CosmicLoom';
 import {
   getDeferredPrompt, isIOS, isStandalone,
   onInstallStateChange, promptInstall, wasInstalled,
@@ -98,7 +98,7 @@ export function Marketing() {
 
         {/* ── The cloth — fills the entire hero ── */}
         <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-          <ClothWeave />
+          <CosmicLoom />
           {/* Gradient so headline is legible over cloth */}
           <div style={{
             position: 'absolute', bottom: 0, left: 0, right: 0, height: '58%',

@@ -6,7 +6,7 @@ import { VaultModal } from '../components/VaultModal';
 import { encryptionService } from '../services/encryptionService';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
-import { ClothWeave } from '../loom/components/ClothWeave';
+import { CosmicLoom } from '../loom/components/CosmicLoom';
 
 // Login — animated cloth weaving hero on the right, form on the left.
 export function Login() {
@@ -175,7 +175,7 @@ export function Login() {
             minHeight: 'min(360px, 40vh)',
           }}
         >
-          <ClothWeave />
+          <CosmicLoom />
           <div className="hl-mono" style={{
             position: 'absolute', left: 24, bottom: 24,
             fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
