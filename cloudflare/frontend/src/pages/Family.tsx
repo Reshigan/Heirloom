@@ -565,9 +565,13 @@ export function Family() {
                         <div className="hl-serif" style={{ fontSize: 17, fontWeight: 400, color: dyeText ?? 'var(--bone)', lineHeight: 1.25, transition: 'opacity 180ms var(--ease)' }}>
                           {m.name}
                         </div>
-                        {(m.relationship || m.role) && (
+                        {(m.relationship || m.role) ? (
                           <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-dim)', marginTop: 3, lineHeight: 1.2 }}>
                             {[m.relationship, m.role].filter(Boolean).join(' · ')}
+                          </div>
+                        ) : (
+                          <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-faint)', marginTop: 3, lineHeight: 1.2 }}>
+                            relationship not set — edit to weave it in
                           </div>
                         )}
                       </button>

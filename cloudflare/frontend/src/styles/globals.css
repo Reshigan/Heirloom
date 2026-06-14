@@ -1182,6 +1182,7 @@ html {
   --loom-bone-dim:   rgba(244, 236, 216, 0.72);
   --loom-bone-faint: rgba(244, 236, 216, 0.44);
   --loom-bone-ghost: rgba(244, 236, 216, 0.14);
+  --loom-warp-rgb:   244, 236, 216;
   --loom-rule:       rgba(244, 236, 216, 0.11);
   --loom-rule-warm:  rgba(176, 122, 74, 0.24);
   --loom-warm:       #b07a4a;
@@ -1204,6 +1205,7 @@ html {
   --loom-bone-dim:   rgba(18, 14, 10, 0.74);
   --loom-bone-faint: rgba(18, 14, 10, 0.48);
   --loom-bone-ghost: rgba(18, 14, 10, 0.18);
+  --loom-warp-rgb:   18, 14, 10;
   --loom-rule:       rgba(18, 14, 10, 0.12);
   --loom-rule-warm:  rgba(140, 70, 20, 0.32);
   --loom-warm:       #a05c20;

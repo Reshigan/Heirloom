@@ -136,7 +136,7 @@ export function Loom({
     const j = jitter(k * 1.7 + 3);
     warps.push({
       left: (base + (j - 0.5) * 0.0008) * 100,
-      alpha: 0.04 + jitter(k * 2.3 + 1) * 0.06,
+      alpha: 0.1 + jitter(k * 2.3 + 1) * 0.14,
     });
   }
 
@@ -160,7 +160,7 @@ export function Loom({
               bottom: 0,
               left: `${wp.left}%`,
               width: 1,
-              background: `rgba(244,236,216,${wp.alpha.toFixed(3)})`,
+              background: `rgba(var(--loom-warp-rgb), ${wp.alpha.toFixed(3)})`,
             }}
           />
         ))}
