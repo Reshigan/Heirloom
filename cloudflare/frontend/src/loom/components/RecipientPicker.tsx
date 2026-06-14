@@ -42,6 +42,7 @@ export function RecipientPicker({
   const [open, setOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const [rel, setRel] = useState('');
+  const [email, setEmail] = useState('');
 
   const q = name.trim().toLowerCase();
   const matches = members.filter(
@@ -54,17 +55,18 @@ export function RecipientPicker({
   const canAdd = q.length > 0 && !exact && !selectedId;
   const selected = selectedId ? members.find((m) => m.id === selectedId) : null;
 
-  async function add(relationship: string) {
+  async function add(relationship: string, emailAddr: string) {
     const trimmed = name.trim();
     const r0 = relationship.trim();
     if (!trimmed || !r0 || creating) return;
     setCreating(true);
     try {
-      const r = await familyApi.create({ name: trimmed, relationship: r0 });
+      const r = await familyApi.create({ name: trimmed, relationship: r0, email: emailAddr.trim() || undefined });
       const id = (r.data as { id?: string })?.id ?? null;
       qc.invalidateQueries({ queryKey: ['family'] });
       onChange(trimmed, id);
       setRel('');
+      setEmail('');
       setOpen(false);
     } finally {
       setCreating(false);
@@ -184,19 +186,45 @@ export function RecipientPicker({
               color: 'var(--bone-faint)',
             }}
           >
-            add "{name.trim()}" — their relationship to you
+            add "{name.trim()}" — so a letter can reach them
           </div>
+          <input
+            value={rel}
+            onChange={(e) => setRel(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && rel.trim()) {
+                e.preventDefault();
+                add(rel, email);
+              }
+            }}
+            placeholder="relationship — grandmother · sister · son"
+            style={{
+              width: '100%',
+              boxSizing: 'border-box',
+              background: 'transparent',
+              border: 0,
+              borderBottom: '1px solid var(--rule)',
+              color: 'var(--bone)',
+              caretColor: 'var(--warm)',
+              fontFamily: MONO,
+              fontSize: 13,
+              letterSpacing: '0.04em',
+              padding: '5px 0 4px',
+              outline: 'none',
+            }}
+          />
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <input
-              value={rel}
-              onChange={(e) => setRel(e.target.value)}
+              value={email}
+              type="email"
+              onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && rel.trim()) {
                   e.preventDefault();
-                  add(rel);
+                  add(rel, email);
                 }
               }}
-              placeholder="grandmother · sister · son"
+              placeholder="email — so they're told a letter awaits"
               style={{
                 flex: 1,
                 boxSizing: 'border-box',
@@ -215,7 +243,7 @@ export function RecipientPicker({
             <button
               type="button"
               disabled={creating || !rel.trim()}
-              onClick={() => add(rel)}
+              onClick={() => add(rel, email)}
               style={{
                 background: 'none',
                 border: 0,

@@ -195,7 +195,7 @@ export function TapestryEdge({ nowFrac = 0.78 }: { nowFrac?: number }) {
 
 // ── Route → label map ─────────────────────────────────────────────────────
 function routeLabel(pathname: string): string {
-  if (pathname.startsWith('/loom/weft'))    return 'the weft';
+  if (pathname.startsWith('/loom/weft'))    return 'the cloth';
   if (pathname.startsWith('/loom/compose')) return 'compose';
   if (pathname.startsWith('/loom/tied'))    return 'tied off';
   if (pathname.startsWith('/loom/kin'))     return 'kin';

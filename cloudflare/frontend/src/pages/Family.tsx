@@ -60,7 +60,7 @@ export function Family() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [mode, setMode] = useState<Mode>('add');
-  const [addForm, setAddForm] = useState({ name: '', relationship: '', email: '' });
+  const [addForm, setAddForm] = useState({ name: '', relationship: '', email: '', birthDate: '' });
   const [inviteForm, setInviteForm] = useState({ name: '', email: '' });
   const [error, setError] = useState<string | null>(null);
   const [inviteSent, setInviteSent] = useState(false);
@@ -70,6 +70,7 @@ export function Family() {
   const [editName, setEditName] = useState('');
   const [editRelationship, setEditRelationship] = useState('');
   const [editEmail, setEditEmail] = useState('');
+  const [editBirthDate, setEditBirthDate] = useState('');
   const [editError, setEditError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -95,10 +96,11 @@ export function Family() {
         name: addForm.name.trim(),
         relationship: addForm.relationship.trim(),
         email: addForm.email.trim() || undefined,
+        birthDate: addForm.birthDate || undefined,
       }).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['family'] });
-      setAddForm({ name: '', relationship: '', email: '' });
+      setAddForm({ name: '', relationship: '', email: '', birthDate: '' });
       setShowForm(false);
       setError(null);
     },
@@ -150,6 +152,7 @@ export function Family() {
         name: editName.trim(),
         relationship: editRelationship.trim(),
         email: editEmail.trim() || undefined,
+        birthDate: editBirthDate || undefined,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['family'] });
@@ -317,6 +320,7 @@ export function Family() {
                 <InputField label="name" value={addForm.name} onChange={(v) => setAddForm({ ...addForm, name: v })} placeholder="full name" />
                 <InputField label="relationship" value={addForm.relationship} onChange={(v) => setAddForm({ ...addForm, relationship: v })} placeholder="grandmother · sister · son" />
                 <InputField label="email — optional" value={addForm.email} onChange={(v) => setAddForm({ ...addForm, email: v })} type="email" placeholder="name@example.com" />
+                <InputField label="birthday — optional" value={addForm.birthDate} onChange={(v) => setAddForm({ ...addForm, birthDate: v })} type="date" placeholder="" />
                 {error && (
                   <p role="alert" className="hl-serif" style={{ gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--danger)', fontSize: 14, margin: 0 }}>
                     {error}
@@ -574,6 +578,11 @@ export function Family() {
                             relationship not set — edit to weave it in
                           </div>
                         )}
+                        {m.birthDate && (
+                          <div className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginTop: 4 }}>
+                            born {formatDate(m.birthDate)}
+                          </div>
+                        )}
                       </button>
                       <button
                         type="button"
@@ -586,6 +595,7 @@ export function Family() {
                             setEditName(m.name);
                             setEditRelationship(m.relationship ?? '');
                             setEditEmail(m.email ?? '');
+                            setEditBirthDate(m.birthDate ?? '');
                             setEditError(null);
                           }
                         }}
@@ -677,6 +687,13 @@ export function Family() {
                         onChange={(e) => { setEditEmail(e.target.value); setEditError(null); }}
                         placeholder="email — optional"
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
+                      />
+                      <input
+                        type="date"
+                        value={editBirthDate}
+                        onChange={(e) => { setEditBirthDate(e.target.value); setEditError(null); }}
+                        placeholder="birthday — optional"
+                        style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--mono)', fontSize: 13, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
                       />
                       {editError && (
                         <p className="hl-mono" style={{ fontSize: 12, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{editError}</p>

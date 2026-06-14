@@ -176,7 +176,7 @@ export function ClothWeave({
       for (let i = 0; i < rows; i++) {
         weftY[i] = i * weftGap + (rnd() - 0.5) * 1.6;
         if (run <= 0) {
-          if (rnd() < 0.42) {
+          if (rnd() < 0.32) {
             if (list.length > 0) {
               entry = list[nextEntry++ % list.length];
               dye = dyeHex[entry.dye] ?? dyeHex.madder;

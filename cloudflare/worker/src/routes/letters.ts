@@ -628,14 +628,16 @@ lettersRoutes.post('/:id/seal', async (c) => {
       )
     );
 
-    // Milestone teaser (viral hook): the moment a milestone letter is sealed,
-    // tell each recipient something awaits them for the named moment — without
-    // revealing the content. The letter itself stays sealed until release/open.
+    // Identify the sender once for any seal-time email below.
+    const author = await c.env.DB.prepare(`SELECT first_name, last_name FROM users WHERE id = ?`).bind(userId).first() as
+      | { first_name: string; last_name: string }
+      | null;
+    const senderName = `${author?.first_name ?? ''} ${author?.last_name ?? ''}`.trim() || 'Someone in your family';
+
     if (existing.milestone_label) {
-      const author = await c.env.DB.prepare(`SELECT first_name, last_name FROM users WHERE id = ?`).bind(userId).first() as
-        | { first_name: string; last_name: string }
-        | null;
-      const senderName = `${author?.first_name ?? ''} ${author?.last_name ?? ''}`.trim() || 'Someone in your family';
+      // Milestone teaser (viral hook): the moment a milestone letter is sealed,
+      // tell each recipient something awaits them for the named moment — without
+      // revealing the content. The letter itself stays sealed until release/open.
       for (const recipient of recipientsWithEmail) {
         try {
           const { subject, html } = letterMilestoneTeaserEmail(
@@ -647,6 +649,33 @@ lettersRoutes.post('/:id/seal', async (c) => {
         } catch (err) {
           console.error('Milestone teaser email failed', recipient.email, err);
         }
+      }
+    } else if (String(existing.delivery_trigger) === 'IMMEDIATE') {
+      // Immediate, non-milestone letter: the recipient already has an email at
+      // seal time, so send the full letter now and mark it delivered. Without
+      // this an IMMEDIATE letter sat as a PENDING row that nothing sent until
+      // the recipient's family record was next edited (redeliverPendingLetters).
+      let delivered = 0;
+      for (const recipient of recipientsWithEmail) {
+        try {
+          const { subject, html } = letterDeliveryEmail(recipient.name || 'there', senderName, {
+            salutation: String(existing.salutation || ''),
+            body: String(existing.body || ''),
+            signature: String(existing.signature || ''),
+          });
+          await sendEmail(c.env, { from: 'Heirloom <noreply@heirloom.blue>', to: recipient.email, subject, html }, 'letter_delivery');
+          await c.env.DB.prepare(`
+            UPDATE letter_deliveries SET status = 'DELIVERED', sent_at = ?, delivered_at = ?, updated_at = ?
+            WHERE letter_id = ? AND recipient_email = ?
+          `).bind(now, now, now, letterId, recipient.email).run();
+          delivered++;
+        } catch (err) {
+          console.error('Immediate letter delivery failed', recipient.email, err);
+        }
+      }
+      if (delivered > 0) {
+        await c.env.DB.prepare(`UPDATE letters SET delivered_at = ?, updated_at = ? WHERE id = ?`)
+          .bind(now, now, letterId).run();
       }
     }
   }

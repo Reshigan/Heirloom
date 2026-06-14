@@ -19,7 +19,7 @@ import { useAuthStore } from '../../stores/authStore';
 const NAV = [
   { label: 'cloth',  href: '/loom/weft' },
   { label: 'memory', href: '/compose' },
-  { label: '∞',      href: '/loom/index',  center: true },
+  { label: '∞',      href: '/loom/pwa',    center: true },
   { label: 'letter', href: '/loom/compose-letter' },
   { label: 'voice',  href: '/record' },
 ] as const;

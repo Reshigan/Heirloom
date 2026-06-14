@@ -363,7 +363,7 @@ function AuthHome({
             marginBottom: 14,
           }}
         >
-          {count} {count === 1 ? 'thread' : 'threads'} woven · {TARGET - count > 0 ? `${TARGET - count} remaining` : 'full cloth'}
+          {count} {count === 1 ? 'memory' : 'memories'} woven · {TARGET - count > 0 ? `${TARGET - count} remaining` : 'full cloth'}
         </div>
 
         <h2
@@ -463,7 +463,6 @@ function AuthHome({
           { to: '/memories',           label: 'memories',      sub: 'add a thread to the weave' },
           { to: '/ask',                label: 'ask the thread', sub: 'what did they say about…' },
           { to: '/family',             label: 'family',        sub: 'the bloodline' },
-          { to: '/loom/weft',          label: 'the cloth',     sub: 'read the full weave' },
           { to: '/book-builder',       label: 'print book',    sub: 'make it physical, permanent' },
           { to: '/gift-subscriptions', label: 'gift a thread', sub: 'start someone else\'s cloth' },
         ] as const).map(item => (

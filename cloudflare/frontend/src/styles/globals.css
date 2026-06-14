@@ -1536,11 +1536,11 @@ html {
   left: 0; right: 0;
   height: 2px;
   background: var(--warm);
-  animation: hl-fell-breath 9s var(--ease-out) infinite;
+  animation: hl-fell-breath 14s var(--ease-out) infinite;
 }
 @keyframes hl-fell-breath {
-  0%, 100% { opacity: 0.7; box-shadow: 0 0 16px rgba(176, 122, 74, 0.4); }
-  50% { opacity: 1; box-shadow: 0 0 32px rgba(176, 122, 74, 0.65); }
+  0%, 100% { opacity: 0.72; box-shadow: 0 0 12px rgba(176, 122, 74, 0.26); }
+  50% { opacity: 0.9; box-shadow: 0 0 20px rgba(176, 122, 74, 0.4); }
 }
 
 /* ─── AI whisper (composer) ────────────────────────────────────── */
