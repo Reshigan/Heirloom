@@ -1,6 +1,6 @@
-// HLogo — the woven mark.
-// Two warp threads (bone) crossed by one weft thread (warm): the smallest
-// honest picture of the product — a family's threads, held by one warm one.
+// HLogo — the Cosmic Loom mark.
+// A web of bone filaments converging on one warm node: the smallest honest
+// picture of the product — a family's many threads, held by one warm point.
 // Beside it the wordmark sits in archival mono, letterspaced like a spine
 // label. The ∞ stays the only glyph elsewhere; this mark is thread, not type.
 //
@@ -43,13 +43,16 @@ export function HLogo({ size = 'sm', wordmark = true }: HLogoProps) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: gap[token], userSelect: 'none' }}>
       <svg viewBox="0 0 24 28" width={w} height={h} fill="none" aria-hidden>
-        {/* Warp pair — the family's standing threads */}
-        <line x1="8" y1="2" x2="8" y2="26" stroke="var(--bone)" strokeOpacity="0.55" strokeWidth="2" strokeLinecap="round" />
-        <line x1="16" y1="2" x2="16" y2="26" stroke="var(--bone)" strokeOpacity="0.55" strokeWidth="2" strokeLinecap="round" />
-        {/* Weft — today's thread, over the left warp, under the right */}
-        <line x1="1" y1="14" x2="23" y2="14" stroke="var(--warm)" strokeWidth="2.5" strokeLinecap="round" />
-        {/* Overdraw right warp at the crossing → the weft passes under */}
-        <line x1="16" y1="10.5" x2="16" y2="17.5" stroke="var(--bone)" strokeOpacity="0.55" strokeWidth="2" strokeLinecap="round" />
+        {/* Eight bone filaments — the family's threads, converging on the node */}
+        <g stroke="var(--bone)" strokeOpacity="0.5" strokeWidth="1.3" strokeLinecap="round">
+          <line x1="12" y1="3"   x2="12" y2="25" />
+          <line x1="2.5" y1="14" x2="21.5" y2="14" />
+          <line x1="5" y1="7"    x2="19" y2="21" />
+          <line x1="19" y1="7"   x2="5" y2="21" />
+        </g>
+        {/* The convergence node — the one warm point: glow halo then core */}
+        <circle cx="12" cy="14" r="4.4" fill="var(--warm)" fillOpacity="0.22" />
+        <circle cx="12" cy="14" r="2.1" fill="var(--warm)" />
       </svg>
       {wordmark && (
         <span style={{
