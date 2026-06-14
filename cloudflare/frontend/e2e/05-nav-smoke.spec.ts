@@ -59,25 +59,75 @@ const AUTHED_ROUTES = [
 async function signup(page: Page) {
   const stamp = Date.now();
   await page.goto('/signup');
-  await page.locator('#s-thread').fill(`Smoke Thread ${stamp}`);
-  await page.locator('#s-first').fill('Smoke');
-  await page.locator('#s-last').fill('Tester');
-  await page.locator('#s-birth').fill('1980');
-  await page.locator('#s-email').fill(freshEmail());
-  await page.locator('#s-pw').fill(PASSWORD);
-  await page.locator('#s-pw2').fill(PASSWORD);
+
+  // The cloth splash overlay tears down on first paint; an early keystroke can
+  // land before React attaches the controlled inputs, leaving the field empty
+  // and tripping client validation (no API call, no token). Wait for the
+  // splash to detach and the form to be interactive first.
+  await page.locator('#hl-splash').waitFor({ state: 'detached', timeout: 8000 }).catch(() => {});
+  await page.locator('#s-thread').waitFor({ state: 'visible' });
+
+  // Fill each field and confirm the value actually stuck in the controlled
+  // input; re-fill on the rare race where the first keystroke is swallowed.
+  const fields: [string, string][] = [
+    ['#s-thread', `Smoke Thread ${stamp}`],
+    ['#s-first', 'Smoke'],
+    ['#s-last', 'Tester'],
+    ['#s-birth', '1980'],
+    ['#s-email', freshEmail()],
+    ['#s-pw', PASSWORD],
+    ['#s-pw2', PASSWORD],
+  ];
+  for (const [sel, val] of fields) {
+    const loc = page.locator(sel);
+    for (let i = 0; i < 3; i++) {
+      await loc.fill(val);
+      if ((await loc.inputValue()) === val) break;
+      await page.waitForTimeout(250);
+    }
+    await expect(loc).toHaveValue(val);
+  }
+
   await page.getByRole('button', { name: /^Free/ }).click().catch(() => {});
   await page.locator('input[type="checkbox"]').first().check();
-  await page.getByRole('button', { name: /begin your thread/i }).click();
-  // Register resolves -> token is set; signup now routes to /onboarding.
-  await page.waitForTimeout(4000);
+  // Submit by type rather than label — the label changes with the chosen tier.
+  await page.locator('button[type="submit"]').click();
+
+  // Wait for the store to flip to authenticated rather than a fixed sleep.
+  await page.waitForFunction(() => {
+    try {
+      return JSON.parse(localStorage.getItem('heirloom-auth') || '{}')?.state?.isAuthenticated === true;
+    } catch {
+      return false;
+    }
+  }, { timeout: 20000 });
 }
 
 test.describe('authenticated nav smoke', () => {
-  test('signup, walk every primary route — no NotFound, no runtime error', async ({ page }) => {
-    test.setTimeout(180000);
+  // Register exactly once for the whole file. Prod rate-limits rapid repeat
+  // registrations from one IP, so signing up per-test made 2 of 3 tests fail to
+  // authenticate. We sign up once, snapshot the auth localStorage, and seed it
+  // into each test via addInitScript so every test starts already signed in.
+  let authStorage: Record<string, string> = {};
 
+  test.beforeAll(async ({ browser }) => {
+    const ctx = await browser.newContext();
+    const page = await ctx.newPage();
     await signup(page);
+    authStorage = await page.evaluate(() =>
+      Object.fromEntries(Object.keys(localStorage).map((k) => [k, localStorage.getItem(k) ?? ''])),
+    );
+    await ctx.close();
+  });
+
+  test.beforeEach(async ({ page }) => {
+    await page.addInitScript((store: Record<string, string>) => {
+      for (const k of Object.keys(store)) localStorage.setItem(k, store[k]);
+    }, authStorage);
+  });
+
+  test('walk every primary route — no NotFound, no runtime error', async ({ page }) => {
+    test.setTimeout(180000);
 
     for (const path of AUTHED_ROUTES) {
       const errors: string[] = [];
@@ -98,7 +148,6 @@ test.describe('authenticated nav smoke', () => {
 
   test('onboarding leads with the tour, then advances to first step', async ({ page }) => {
     test.setTimeout(120000);
-    await signup(page);
 
     await page.goto('/onboarding');
     await page.waitForLoadState('networkidle').catch(() => {});
@@ -120,7 +169,6 @@ test.describe('authenticated nav smoke', () => {
 
   test('/help renders help topics and the support assistant', async ({ page }) => {
     test.setTimeout(120000);
-    await signup(page);
 
     await page.goto('/help');
     await page.waitForLoadState('networkidle').catch(() => {});
