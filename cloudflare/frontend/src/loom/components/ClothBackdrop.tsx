@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ClothWeave, type ClothWhisperEntry, type ClothSealRef } from './ClothWeave';
+import { type ClothWhisperEntry, type ClothSealRef } from './ClothWeave';
+import { CosmicLoom } from './CosmicLoom';
 import { useTapestryEntries } from '../../hooks/useTapestryEntries';
 import type { Dye } from '../dye';
 
@@ -79,7 +80,7 @@ export function ClothBackdrop(_props: ClothBackdropProps) {
           transition: 'opacity 1400ms var(--ease-out)',
         }}
       >
-        <ClothWeave
+        <CosmicLoom
           entries={whispers}
           seals={seals}
           interactive={isHome}
