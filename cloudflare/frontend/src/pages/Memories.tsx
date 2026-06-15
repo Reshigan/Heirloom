@@ -370,7 +370,7 @@ function FilterBar({ memories, filters, setFilters }: {
 export function Memories() {
   const { isAuthenticated } = useAuthStore();
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
-  const listenerPrompt = useListener();
+  const { prompt: listenerPrompt } = useListener();
 
   const { data, isLoading } = useQuery({
     queryKey: ['memories-mosaic'],

@@ -17,7 +17,7 @@ interface OnThisDayEntry {
 }
 
 export function Today() {
-  const localPrompt = useListener();
+  const { prompt: localPrompt } = useListener();
   const { isAuthenticated } = useAuthStore();
   const [prompt, setPrompt] = useState<string>(localPrompt);
   const [promptUnavailable, setPromptUnavailable] = useState(false);

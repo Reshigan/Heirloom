@@ -574,7 +574,7 @@ function AuthHome({
 export function PwaHome() {
   const role = useRole();
   const { entries } = useTapestryEntries();
-  const prompt  = useListener();
+  const { prompt } = useListener();
   const { isNewUser, isLoading: isNewUserLoading } = useIsNewUser();
   const [wizardDone, setWizardDone] = useState(() => !shouldShowWizard());
   const { isAuthenticated, _hasHydrated } = useAuthStore();
