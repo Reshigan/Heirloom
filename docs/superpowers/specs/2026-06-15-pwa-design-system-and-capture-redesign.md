@@ -142,6 +142,17 @@ returning the next prompt + a `↻` re-roll affordance on home.
   searchable (worker `memories.ts` searches `transcript`).
 - Veil: visit `/loom` (full), `/loom/pwa` (band, legible), a room route (radial, legible).
 
+## Web + desktop (same codebase)
+
+`cloudflare/frontend` is one React SPA — served in-browser at `heirloom.blue` and as the
+installed PWA from the same routes. The design system therefore applies to web automatically;
+no separate tree. Added requirement: Room primitives are **responsive** — phone-first (the
+renders) but legible and well-composed at tablet/desktop widths. Room frame uses the existing
+`clamp()` page-pad tokens; lists and reading measure cap at a comfortable max-width (no full-bleed
+prose on wide screens); Capture/Thread/Reading/Builder anchors each define their desktop behavior
+(centered max-width column, generous margins, 60–70% negative space preserved). Verify each anchor
+at ~390px (PWA) and ~1280px (desktop browser).
+
 ## Non-goals
 
 - No worker/DB schema changes (transcribe/refine backends exist).
