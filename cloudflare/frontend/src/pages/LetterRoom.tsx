@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { RoomHeader } from '../loom/components/room';
 import { UserMenu } from '../loom/components/Frame';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
@@ -71,22 +72,12 @@ export function LetterRoom() {
       />
 
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
-        {/* kicker */}
-        <div
-          className="hl-eyebrow"
-          style={{ marginBottom: 16, color: 'var(--bone-faint)', display: 'flex', alignItems: 'center', gap: 10 }}
-        >
-          <span aria-hidden style={{ width: 6, height: 6, background: 'var(--warm)', display: 'block', flexShrink: 0 }} />
-          the letters
-        </div>
-
-        {/* H1 */}
-        <h1
-          className="hl-serif hl-tight"
-          style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 32px', color: 'var(--bone)', lineHeight: 1.15 }}
-        >
-          Letters waiting to be read.
-        </h1>
+        <RoomHeader
+          eyebrow="the letters"
+          title="Letters waiting to be read."
+          className="hl-room-header"
+        />
+        <style>{`.hl-room-header { margin-bottom: 32px; }`}</style>
 
         {/* CTA */}
         <Link

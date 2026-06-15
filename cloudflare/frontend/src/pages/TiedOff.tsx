@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { RoomHeader } from '../loom/components/room';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -101,25 +102,11 @@ export function TiedOff() {
           {error && (
             <p className="loom-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>{error}</p>
           )}
-          <div className="loom-eyebrow">
-            tied off ·{' '}
-            {loading
-              ? '…'
-              : `${locked.length} ${locked.length === 1 ? 'thread' : 'threads'} waiting`}
-          </div>
-          <div
-            className="loom-h2"
-            style={{ fontSize: 44, marginTop: 12, fontStyle: 'italic', fontWeight: 300 }}
-          >
-            sealed against time
-          </div>
-          <div
-            className="loom-body loom-dim"
-            style={{ fontSize: 15, fontStyle: 'italic', marginTop: 8, maxWidth: 620 }}
-          >
-            each is a thread tied off at the loom's edge. when its date arrives, the loom unties
-            it and weaves it back into the cloth — for whoever is reading then.
-          </div>
+          <RoomHeader
+            eyebrow={`tied off · ${loading ? '…' : `${locked.length} ${locked.length === 1 ? 'thread' : 'threads'} waiting`}`}
+            title="sealed against time"
+            lede="each is a thread tied off at the loom's edge. when its date arrives, the loom unties it and weaves it back into the cloth — for whoever is reading then."
+          />
         </div>
 
         {/* horizon ribbon */}
