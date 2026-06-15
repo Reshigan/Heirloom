@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
+import { RoomHeader, RoomSection } from '../loom/components/room';
 
 export function BookPage() {
   return (
@@ -12,43 +13,20 @@ export function BookPage() {
         margin: '0 auto',
       }}>
 
-        {/* Eyebrow */}
-        <div className="hl-eyebrow" style={{ marginBottom: 20, color: 'var(--warm)' }}>
-          proof of permanence
-        </div>
-
-        {/* Headline */}
-        <h1 className="hl-serif hl-tight" style={{
-          fontSize: 'var(--type-display)',
-          fontWeight: 200,
-          lineHeight: 1.08,
-          margin: '0 0 24px',
-          color: 'var(--bone)',
-          fontVariationSettings: '"opsz" 44',
-          letterSpacing: '-0.018em',
-        }}>
-          The cloth, printed.<br />
-          Something they can hold.
-        </h1>
-
-        <p className="hl-serif" style={{
-          fontSize: 'clamp(16px, 1.9vw, 20px)',
-          fontWeight: 300,
-          color: 'var(--bone-dim)',
-          lineHeight: 1.65,
-          margin: '0 0 52px',
-          maxWidth: '52ch',
-        }}>
-          Every memory, letter, and voice your family has woven — bound in cloth, printed on archival paper.
-          A physical record that will still exist long after every server is gone.
-        </p>
+        {/* Header */}
+        <RoomHeader
+          warmEyebrow
+          eyebrow="proof of permanence"
+          title={<>The cloth, printed.<br />Something they can hold.</>}
+          lede="Every memory, letter, and voice your family has woven — bound in cloth, printed on archival paper. A physical record that will still exist long after every server is gone."
+        />
 
         {/* Three pillars */}
+        <RoomSection label="why it lasts">
         <div style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
           gap: 0,
-          marginBottom: 56,
           borderTop: '1px solid var(--rule)',
         }}>
           {[
@@ -85,10 +63,10 @@ export function BookPage() {
             </div>
           ))}
         </div>
+        </RoomSection>
 
         {/* What goes inside */}
-        <div style={{ marginBottom: 56 }}>
-          <div className="hl-eyebrow" style={{ marginBottom: 20 }}>what goes inside</div>
+        <RoomSection label="what goes inside">
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {[
               ['the cloth spread', 'Your full tapestry, printed across facing pages. Every weft thread visible.'],
@@ -136,21 +114,19 @@ export function BookPage() {
               </div>
             ))}
           </div>
-        </div>
+        </RoomSection>
 
-        {/* CTA — amber mono text-link, no box */}
-        <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Link
-            to="/book-builder"
-            className="hl-mono"
-            style={{ fontSize: 12, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}
-          >
-            Build your book →
-          </Link>
-          <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-            from your existing entries
-          </span>
-        </div>
+        {/* CTA — the single warm action */}
+        <RoomSection>
+          <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap' }}>
+            <Link to="/book-builder" className="hl-btn">
+              Build your book →
+            </Link>
+            <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+              from your existing entries
+            </span>
+          </div>
+        </RoomSection>
 
       </div>
     </ClothShell>
