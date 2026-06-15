@@ -206,7 +206,31 @@ export function SearchPage() {
                     {hits.map((r) => (
                       <RoomRow
                         key={r.id}
-                        title={r.title}
+                        title={
+                          r.snippet ? (
+                            <>
+                              {r.title}
+                              <span
+                                style={{
+                                  marginTop: 3,
+                                  fontFamily: 'var(--serif)',
+                                  fontSize: 13,
+                                  fontStyle: 'italic',
+                                  color: 'var(--bone-faint)',
+                                  lineHeight: 1.5,
+                                  overflow: 'hidden',
+                                  display: '-webkit-box',
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: 'vertical',
+                                }}
+                              >
+                                {r.snippet}
+                              </span>
+                            </>
+                          ) : (
+                            r.title
+                          )
+                        }
                         meta={`${r.type} · ${formatDate(r.created_at)}`}
                         href={ROW_LINK[r.type]}
                       />
