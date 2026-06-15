@@ -8,5 +8,10 @@
     "hour": 17,
     "hook": "Your parent has a story they've never told anyone.",
     "saying": "What's the one story your parent has never told you?"
+  },
+  {
+    "hour": 20,
+    "hook": "These slow winter days are perfect for a long conversation with your parent.",
+    "saying": "What did your dad want to be when he was your age?"
   }
 ]
