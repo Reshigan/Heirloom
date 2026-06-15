@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { getAuthToken } from '../services/api';
 import { useRole } from '../hooks/useRole';
 import { useTapestryEntries } from '../hooks/useTapestryEntries';
@@ -10,7 +10,7 @@ import { memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
-import { CapturePills } from '../loom/components/room';
+import { WarmDot } from '../loom/cosmic/CosmicUI';
 import type { UserRole } from '../hooks/useRole';
 import type { CanvasEntry } from '../loom/components/TapestryCanvas';
 
@@ -151,6 +151,7 @@ function AuthHome({
   stats: { entries: number; members: number } | null;
 }) {
   const { user, isAuthenticated } = useAuthStore();
+  const navigate = useNavigate();
   const count = entries.length;
   const P = 'clamp(20px, 5vw, 28px)';
 
@@ -258,6 +259,12 @@ function AuthHome({
     : nowYear;
   const threadYear = nowYear - firstYear + 1;
   const recent = [...entries].filter((e) => e.title).reverse().slice(0, 3);
+  // Suggestion chips: derive from recent woven titles when present, else the seeds.
+  const SEEDS = ["Grandma's Recipe", 'The Old Oak Tree', 'A Forgotten Song'];
+  const chips: string[] = recent.length
+    ? recent.map((e) => String(e.title)).slice(0, 3)
+    : SEEDS;
+  while (chips.length < 3) chips.push(SEEDS[chips.length]);
   const QUIET_NAV: { to: string; label: string }[] = [
     { to: '/letters', label: 'letters' },
     { to: '/family', label: 'family' },
@@ -267,18 +274,19 @@ function AuthHome({
 
   return (
     <div style={{ padding: `0 ${P}`, maxWidth: 540, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
-      {/* Listener hero — centered over the touchable cloth filament band.
-          The global CosmicLoom filament reads through the empty top third;
-          the question and capture pills sit at the optical center. */}
+      {/* Listener hero — cosmic-home mockup: eyebrow + centered serif
+          question + twin WRITE|SPEAK pills + 3 suggestion chips, all
+          centered over the global CosmicLoom filament (page bg stays
+          transparent so the filament reads through). */}
       <div style={{
         minHeight: 'clamp(420px, calc(100svh - 150px - env(safe-area-inset-top, 0px)), 720px)',
         display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
         alignItems: 'center', textAlign: 'center',
-        gap: 28, paddingBottom: 4,
+        gap: 30, paddingBottom: 4,
       }}>
-        {/* Eyebrow */}
+        {/* Eyebrow — tapping the question rerolls; eyebrow names the listener */}
         <span className="hl-mono" style={{
-          fontSize: 10, letterSpacing: '0.34em', textTransform: 'uppercase',
+          fontSize: 11, letterSpacing: '0.34em', textTransform: 'uppercase',
           color: 'var(--bone-faint)', display: 'inline-flex', alignItems: 'center', gap: 12,
         }}>
           {isReadOnly ? 'the cloth remembers' : (
@@ -292,25 +300,75 @@ function AuthHome({
           )}
         </span>
 
-        {/* The question */}
-        <h1 className="hl-serif hl-tight" style={{
-          margin: 0, fontWeight: 300,
-          fontSize: 'clamp(27px, 7.4vw, 40px)', lineHeight: 1.16,
-          color: 'var(--bone)', fontVariationSettings: '"opsz" 40',
-          fontStyle: 'italic', textShadow: '0 0 60px var(--ink)',
-          maxWidth: '16ch',
-        }}>
+        {/* The question — tap to reroll a new prompt */}
+        <h1
+          className="hl-serif hl-tight"
+          onClick={isReadOnly ? undefined : reroll}
+          style={{
+            margin: 0, fontWeight: 400,
+            fontSize: 'clamp(28px, 7.6vw, 42px)', lineHeight: 1.16,
+            color: 'var(--bone)', fontVariationSettings: '"opsz" 42',
+            textShadow: '0 0 60px var(--ink)',
+            maxWidth: '15ch',
+            cursor: isReadOnly ? 'default' : 'pointer',
+          }}
+        >
           {isReadOnly ? 'The cloth remembers.' : prompt}
         </h1>
 
-        {/* Capture — co-equal Write / Speak */}
-        <div style={{ marginTop: 4 }}>
-          {isReadOnly ? (
+        {/* Capture — twin warm-outline WRITE | SPEAK pills */}
+        {isReadOnly ? (
+          <div style={{ marginTop: 2 }}>
             <Link to="/loom" className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>open the thread →</Link>
-          ) : (
-            <CapturePills writeHref="/compose" speakHref="/record" className="hl-home-pills" />
-          )}
-        </div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 2 }}>
+            {[
+              { to: '/compose', label: 'write' },
+              { to: '/record', label: 'speak' },
+            ].map((p) => (
+              <Link
+                key={p.to}
+                to={p.to}
+                className="hl-mono"
+                style={{
+                  fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase',
+                  color: 'var(--bone)', textDecoration: 'none',
+                  border: '1px solid var(--warm)', borderRadius: 999,
+                  padding: '11px 28px', background: 'transparent',
+                  transition: 'background 180ms var(--ease), color 180ms var(--ease)',
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--warm)'; e.currentTarget.style.color = 'var(--ink)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--bone)'; }}
+              >
+                {p.label}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Suggestion chips — [warm dot] serif label → /compose?prompt= */}
+        {!isReadOnly && (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginTop: 6 }}>
+            {chips.map((seed, i) => (
+              <button
+                key={`${seed}-${i}`}
+                type="button"
+                onClick={() => navigate('/compose?prompt=' + encodeURIComponent(seed))}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 10,
+                  background: 'transparent', border: 'none', cursor: 'pointer',
+                  padding: '4px 0', minHeight: 32,
+                }}
+              >
+                <WarmDot />
+                <span className="hl-serif" style={{ fontSize: 'clamp(15px, 4.2vw, 17px)', fontWeight: 400, color: 'var(--bone-dim)' }}>
+                  {seed}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Recently woven — centered list under the hero */}
