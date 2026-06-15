@@ -70,37 +70,38 @@ function ToField({
 
   return (
     <div style={{ marginBottom: 28 }}>
-      <div
-        style={{
-          fontFamily: 'var(--mono)',
-          fontSize: 11,
-          letterSpacing: '0.22em',
-          textTransform: 'uppercase',
-          color: 'var(--bone-faint)',
-          marginBottom: 10,
-        }}
-      >
-        to
-      </div>
       <div style={{ position: 'relative' }}>
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 12,
             borderBottom: '1px solid var(--rule)',
             paddingBottom: 2,
           }}
         >
+          <span
+            aria-hidden
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 12,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-dim)',
+              flexShrink: 0,
+            }}
+          >
+            to
+          </span>
           <input
             value={recipientName}
             onChange={(e) => {
               onChange(null, e.target.value);
               setOpen(true);
             }}
-            onFocus={(e) => { setOpen(true); e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
-            onBlur={(e) => { e.currentTarget.style.borderBottomColor = ''; setTimeout(() => setOpen(false), 200); }}
-            placeholder="e.g. Grandma — or leave empty"
+            onFocus={(e) => { setOpen(true); e.currentTarget.parentElement && (e.currentTarget.parentElement.style.borderBottomColor = 'var(--warm)'); }}
+            onBlur={(e) => { e.currentTarget.parentElement && (e.currentTarget.parentElement.style.borderBottomColor = ''); setTimeout(() => setOpen(false), 200); }}
+            placeholder="e.g. Grandpa"
             aria-label="Recipient name"
             style={{
               border: 0,
@@ -1197,10 +1198,11 @@ export function Compose() {
         }}
       >
         <div style={{ maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
-          {/* masthead — mono eyebrow over a large serif headline (mockup rhythm) */}
+          {/* masthead — mono eyebrow over a large left-aligned serif headline (cosmic-composer mockup) */}
           <header
             style={{
-              margin: '0 0 44px',
+              textAlign: 'left',
+              margin: '0 0 36px',
               opacity: writingFocused ? 0.4 : 1,
               transition: `opacity 720ms ${ease}`,
             }}
@@ -1208,11 +1210,11 @@ export function Compose() {
             <p
               style={{
                 fontFamily: 'var(--mono)',
-                fontSize: 10,
-                letterSpacing: '0.32em',
+                fontSize: 11,
+                letterSpacing: '0.28em',
                 textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
-                margin: '0 0 14px',
+                color: 'var(--bone-dim)',
+                margin: '0 0 10px',
               }}
             >
               the composer
@@ -1221,9 +1223,9 @@ export function Compose() {
               style={{
                 fontFamily: 'var(--serif)',
                 fontVariationSettings: "'opsz' 60",
-                fontWeight: 300,
+                fontWeight: 400,
                 fontSize: 'clamp(44px, 9vw, 72px)',
-                lineHeight: 0.96,
+                lineHeight: 1.0,
                 letterSpacing: '-0.015em',
                 color: 'var(--bone)',
                 textTransform: 'uppercase',
@@ -1232,18 +1234,6 @@ export function Compose() {
             >
               {isLetter ? 'Letter' : 'Write'}
             </h1>
-            <p
-              style={{
-                fontFamily: 'var(--mono)',
-                fontSize: 10,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: 'var(--warm)',
-                margin: '16px 0 0',
-              }}
-            >
-              ∞ &nbsp; {isLetter ? 'a sealed letter for the future' : 'a thread in your family cloth'}
-            </p>
           </header>
 
           {/* ── Step 1: Who is this for? ──────────────────────────────── */}
@@ -1292,13 +1282,8 @@ export function Compose() {
             }}
           />
 
-          {/* ── Step 3: The writing area ──────────────────────────────── */}
-          <div
-            style={{
-              borderLeft: '3px solid color-mix(in srgb, var(--warm) 32%, transparent)',
-              paddingLeft: 'clamp(16px, 3vw, 28px)',
-            }}
-          >
+          {/* ── Step 3: The writing area — flat italic serif body (cosmic-composer mockup) ── */}
+          <div>
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -1309,17 +1294,14 @@ export function Compose() {
                 background: 'transparent',
                 color: title ? 'var(--bone)' : 'var(--bone-faint)',
                 caretColor: 'var(--warm)',
-                fontFamily: 'var(--serif)',
-                fontVariationSettings: "'opsz' 40",
-                fontStyle: 'italic',
-                fontSize: 'clamp(26px, 4.5vw, 34px)',
-                fontWeight: 300,
-                letterSpacing: '-0.01em',
+                fontFamily: 'var(--mono)',
+                fontSize: 12,
+                letterSpacing: '0.1em',
                 width: '100%',
                 outline: 'none',
                 padding: 0,
-                margin: '0 0 20px',
-                lineHeight: 1.2,
+                margin: '0 0 18px',
+                lineHeight: 1.4,
               }}
             />
 
@@ -1343,10 +1325,12 @@ export function Compose() {
                 background: 'transparent',
                 caretColor: 'var(--warm)',
                 fontFamily: 'var(--serif)',
-                fontVariationSettings: "'opsz' 18",
+                fontStyle: 'italic',
+                fontVariationSettings: "'opsz' 24",
                 fontFeatureSettings: '"onum" 1, "liga" 1',
-                fontSize: 'clamp(20px, 2.8vw, 26px)',
-                lineHeight: 1.78,
+                fontSize: 'clamp(22px, 3vw, 30px)',
+                fontWeight: 300,
+                lineHeight: 1.7,
                 color: 'var(--bone)',
                 minHeight: 300,
                 outline: 'none',
@@ -1373,7 +1357,7 @@ export function Compose() {
 
           {/* ── Photos (memory mode only) ─────────────────────────────── */}
           {!isLetter && (
-            <div style={{ marginTop: 28, paddingLeft: 'clamp(16px, 3vw, 28px)' }}>
+            <div style={{ marginTop: 28 }}>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -1512,7 +1496,6 @@ export function Compose() {
               style={{
                 marginTop: 44,
                 paddingTop: 24,
-                paddingLeft: 'clamp(16px, 3vw, 28px)',
                 borderTop: '1px solid var(--rule)',
                 opacity: writingFocused ? 0.45 : 1,
                 transition: `opacity 720ms ${ease}`,
@@ -1530,7 +1513,7 @@ export function Compose() {
           )}
 
           {/* Listener */}
-          <div style={{ marginTop: 28, paddingLeft: 'clamp(16px, 3vw, 28px)' }}>
+          <div style={{ marginTop: 28 }}>
             <ListenerLine
               text={suggestion}
               loading={listenerLoading}
@@ -1567,33 +1550,79 @@ export function Compose() {
             </ComposerRail>
           )}
 
-          {/* Hairline footer — word count left, cancel + amber text-link CTA right */}
+          {/* Footer — centered warm-outline WEAVE button (cosmic-composer mockup) */}
           <div
             style={{
-              marginTop: 28,
-              paddingTop: 18,
+              marginTop: 36,
+              paddingTop: 24,
               borderTop: '1px solid var(--rule)',
               display: 'flex',
-              alignItems: 'baseline',
-              justifyContent: 'space-between',
+              flexDirection: 'column',
+              alignItems: 'center',
               gap: 16,
-              flexWrap: 'wrap',
             }}
           >
-            <span
-              className="hl-mono"
+            <button
+              type="button"
+              onClick={() => {
+                setError(null);
+                if (uploadingCount > 0) {
+                  setError('Wait for photos to finish uploading.');
+                  return;
+                }
+                if (!body.trim()) {
+                  setBodyError('write something first');
+                  return;
+                }
+                if (!hasContent) {
+                  setError(isLetter ? 'Write something — even a sentence.' : 'Write something, or add a photo.');
+                  return;
+                }
+                if (isLetter && deliveryTrigger === 'date' && !scheduledDate) {
+                  setError('Choose the date this letter unseals.');
+                  return;
+                }
+                save.mutate();
+              }}
+              disabled={submitDisabled}
               style={{
-                fontSize: 10,
-                letterSpacing: '0.18em',
+                background: 'transparent',
+                border: '1px solid var(--warm)',
+                padding: '13px 48px',
+                minHeight: 44,
+                fontFamily: 'var(--mono)',
+                fontSize: 13,
+                letterSpacing: '0.28em',
                 textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
+                color: 'var(--warm)',
+                cursor: submitDisabled ? 'default' : 'pointer',
+                opacity: submitDisabled ? 0.4 : 1,
+                transition: 'background 180ms var(--ease), color 180ms var(--ease), opacity 180ms var(--ease)',
+              }}
+              onMouseEnter={(e) => {
+                if (submitDisabled) return;
+                e.currentTarget.style.background = 'var(--warm-glow)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
               }}
             >
-              {save.isPending
-                ? (isLetter ? 'sealing…' : 'weaving…')
-                : `${wordCount} ${wordCount === 1 ? 'word' : 'words'}`}
-            </span>
-            <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 24 }}>
+              {save.isPending ? (isLetter ? 'sealing…' : 'weaving…') : (isLetter ? submitLabel : 'weave')}
+            </button>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 24 }}>
+              <span
+                className="hl-mono"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                }}
+              >
+                {save.isPending
+                  ? (isLetter ? 'sealing…' : 'weaving…')
+                  : `${wordCount} ${wordCount === 1 ? 'word' : 'words'}`}
+              </span>
               <button
                 type="button"
                 onClick={handleCancel}
@@ -1604,7 +1633,7 @@ export function Compose() {
                   minHeight: 44,
                   cursor: 'pointer',
                   fontFamily: 'var(--mono)',
-                  fontSize: 11,
+                  fontSize: 10,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
@@ -1615,54 +1644,7 @@ export function Compose() {
               >
                 cancel
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setError(null);
-                  if (uploadingCount > 0) {
-                    setError('Wait for photos to finish uploading.');
-                    return;
-                  }
-                  if (!body.trim()) {
-                    setBodyError('write something first');
-                    return;
-                  }
-                  if (!hasContent) {
-                    setError(isLetter ? 'Write something — even a sentence.' : 'Write something, or add a photo.');
-                    return;
-                  }
-                  if (isLetter && deliveryTrigger === 'date' && !scheduledDate) {
-                    setError('Choose the date this letter unseals.');
-                    return;
-                  }
-                  save.mutate();
-                }}
-                disabled={submitDisabled}
-                style={{
-                  background: 'transparent',
-                  border: '1px solid var(--warm)',
-                  padding: '11px 26px',
-                  minHeight: 44,
-                  fontFamily: 'var(--mono)',
-                  fontSize: 12,
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  color: 'var(--warm)',
-                  cursor: submitDisabled ? 'default' : 'pointer',
-                  opacity: submitDisabled ? 0.4 : 1,
-                  transition: 'background 180ms var(--ease), color 180ms var(--ease), opacity 180ms var(--ease)',
-                }}
-                onMouseEnter={(e) => {
-                  if (submitDisabled) return;
-                  e.currentTarget.style.background = 'var(--warm-glow)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                }}
-              >
-                {save.isPending ? (isLetter ? 'sealing…' : 'saving…') : submitLabel}
-              </button>
-            </span>
+            </div>
           </div>
         </div>
       </div>
