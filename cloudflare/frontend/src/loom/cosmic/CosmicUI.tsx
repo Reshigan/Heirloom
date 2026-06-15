@@ -16,11 +16,11 @@ export function WarmDot({ filled = true, size = 6 }: { filled?: boolean; size?: 
 }
 
 /** list row: dot + serif title (+optional sub) left, mono meta right */
-export function EntryRow({ title, sub, meta, italic, onClick }: { title: ReactNode; sub?: ReactNode; meta?: ReactNode; italic?: boolean; onClick?: () => void }) {
+export function EntryRow({ title, sub, meta, italic, filled = true, onClick }: { title: ReactNode; sub?: ReactNode; meta?: ReactNode; italic?: boolean; filled?: boolean; onClick?: () => void }) {
   return (
     <button type="button" onClick={onClick} disabled={!onClick}
       style={{ display: 'flex', alignItems: 'flex-start', gap: 14, width: '100%', textAlign: 'left', padding: '16px 0', background: 'none', borderWidth: 0, borderBottom: '1px solid var(--rule)', cursor: onClick ? 'pointer' : 'default', transition: 'opacity 180ms var(--ease)' }}>
-      <span style={{ marginTop: 8 }}><WarmDot /></span>
+      <span style={{ marginTop: 8 }}><WarmDot filled={filled} /></span>
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ fontFamily: 'var(--serif)', fontStyle: italic ? 'italic' : 'normal', fontSize: 18, color: 'var(--bone)', display: 'block' }}>{title}</span>
         {sub && <span style={{ fontFamily: 'var(--sans)', fontSize: 13, color: 'var(--bone-dim)', display: 'block', marginTop: 3 }}>{sub}</span>}

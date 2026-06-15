@@ -1,20 +1,22 @@
-import type { CSSProperties, ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { threadsApi, memoriesApi, type UpcomingUnlock, type ThreadLockType } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { CosmicHeader, EntryRow, SectionLabel } from '../loom/cosmic/CosmicUI';
 
 /**
- * Inbox — Loom 3 native "What is waiting."
+ * Inbox — Loom 3 native "What is waiting." Re-skinned to the cosmic-inbox mockup:
+ * a calm single column of EntryRows under a centered CosmicHeader.
  *
  * §1.5(B) / §6 the Sealed Note: locked items expose metadata + unlock date
  * only — never the ciphertext body.
  *
- * Data:
- *   threadsApi.upcomingUnlocks()  → sealed rows (still locked)
- *   threadsApi.recentUnlocks()    → opened rows (lock resolved, linkable)
+ * Data (every hook preserved):
+ *   memoriesApi.received()        → arrived rows (for you, unread)   [filled dot]
+ *   threadsApi.upcomingUnlocks()  → sealed rows (still locked)        [filled dot]
+ *   threadsApi.recentUnlocks()    → opened rows (lock resolved)       [hollow dot]
  */
 
 interface RecentUnlock {
@@ -30,38 +32,9 @@ interface RecentUnlock {
   dye?: string | null;
 }
 
-const DYE_VARS: Record<string, string> = {
-  madder:    'var(--dye-madder)',
-  cochineal: 'var(--dye-cochineal)',
-  kermes:    'var(--dye-kermes)',
-  saffron:   'var(--dye-saffron)',
-  weld:      'var(--dye-weld)',
-  walnut:    'var(--dye-walnut)',
-  oakgall:   'var(--dye-oakgall)',
-  woad:      'var(--dye-woad)',
-  indigo:    'var(--dye-indigo)',
-  iron:      'var(--dye-iron)',
-};
-
-/** 14×2 dye swatch — only rendered when a real dye value is present. */
-function DyeSwatch({ dye }: { dye?: string | null }) {
-  const color = dye ? DYE_VARS[dye.toLowerCase()] : undefined;
-  return (
-    <span
-      aria-hidden
-      style={{
-        display: 'block',
-        width: 14,
-        height: 2,
-        alignSelf: 'center',
-        background: color ?? 'transparent',
-      }}
-    />
-  );
-}
-
-
 export function Inbox() {
+  const navigate = useNavigate();
+
   const upcomingQ = useQuery({
     queryKey: ['inbox', 'upcoming'],
     queryFn: () =>
@@ -91,292 +64,122 @@ export function Inbox() {
   const loading = upcomingQ.isLoading || recentQ.isLoading;
   const hasError = upcomingQ.isError || recentQ.isError || receivedQ.isError;
 
+  const isEmpty = received.length === 0 && sealed.length === 0 && opened.length === 0;
+
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'today', to: '/loom/today' }, { label: 'inbox' }]} />}
     >
-      {/* scrollable content column */}
       <div
         style={{
-          padding: 'var(--page-pad-top) var(--page-pad-x)',
-          paddingBottom: 'var(--page-clear)',
-          overflowX: 'hidden',
-          maxWidth: 'min(100%, 560px)',
-          margin: '0 auto',
+          minHeight: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          background: 'transparent',
+          padding: '64px 24px 96px',
         }}
       >
-        {/* ── masthead ── */}
-        <header style={{ textAlign: 'center', marginBottom: 72 }}>
-          <p
-            className="hl-mono"
-            style={{
-              fontSize: 10,
-              letterSpacing: '0.42em',
-              color: 'var(--bone-faint)',
-              textTransform: 'uppercase',
-              marginBottom: 18,
-            }}
-          >
-            the inbox
-          </p>
-          <h1
-            className="hl-serif"
-            style={{
-              fontSize: 'clamp(40px, 11vw, 64px)',
-              fontWeight: 400,
-              lineHeight: 1,
-              color: 'var(--bone)',
-              margin: 0,
-            }}
-          >
-            Inbox
-          </h1>
-        </header>
+        <div style={{ width: '100%', maxWidth: 440 }}>
+          <CosmicHeader eyebrow="THE INBOX" title="Inbox" />
 
-        {hasError && (
-          <p
-            className="hl-mono"
-            style={{ color: 'var(--danger)', fontSize: 11, margin: '0 0 28px', letterSpacing: '0.14em', textAlign: 'center' }}
-          >
-            could not load inbox
-          </p>
-        )}
+          {hasError && (
+            <p
+              style={{ fontFamily: 'var(--mono)', color: 'var(--danger)', fontSize: 11, margin: '0 0 28px', letterSpacing: '0.14em', textAlign: 'center' }}
+            >
+              could not load inbox
+            </p>
+          )}
 
-        {loading && received.length === 0 ? (
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 40 }}>
-            <ProgressHair width={80} />
-          </div>
-        ) : received.length === 0 && sealed.length === 0 && opened.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0, borderTop: '1px solid var(--rule)' }}>
-            {/* ── for you (received) ── */}
-            {received.map((m) => (
-              <ReceivedRow key={m.id} item={m} />
-            ))}
+          {loading && isEmpty ? (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: 40 }}>
+              <ProgressHair width={80} />
+            </div>
+          ) : isEmpty ? (
+            <EmptyState onSeal={() => navigate('/letters/new')} />
+          ) : (
+            <>
+              {/* ── arrived (received, for you) ── */}
+              {received.length > 0 && <SectionLabel>For you</SectionLabel>}
+              {received.map((m) => (
+                <EntryRow
+                  key={m.id}
+                  filled
+                  title={m.title}
+                  sub={`from ${m.from || 'a family member'}`}
+                  meta={formatDate(m.createdAt)}
+                  onClick={() => navigate(`/loom/read?entry=${m.id}`)}
+                />
+              ))}
 
-            {/* ── still sealed ── */}
-            {sealed.map((u) => (
-              <SealedRow key={u.unlock_id} item={u} />
-            ))}
+              {/* ── still sealed (locked, waiting) ── */}
+              {sealed.length > 0 && <SectionLabel>Sealed</SectionLabel>}
+              {sealed.map((u) => {
+                const itemWithDye = u as UpcomingUnlock & { dye?: string | null };
+                const subText = [u.thread_name, u.target_name ?? lockKindLabel(u.lock_type)]
+                  .filter(Boolean)
+                  .join(' · ');
+                return (
+                  <EntryRow
+                    key={u.unlock_id}
+                    filled
+                    italic={!!u.entry_title}
+                    title={
+                      <>
+                        <span aria-hidden style={{ color: 'var(--warm)', fontWeight: 300, marginRight: 8 }}>∞</span>
+                        {u.entry_title ?? 'A sealed note'}
+                      </>
+                    }
+                    sub={subText || undefined}
+                    meta={`unlocks ${sealedUntilLabel(itemWithDye)}`}
+                  />
+                );
+              })}
 
-            {/* ── already opened ── */}
-            {opened.map((u) => (
-              <OpenedRow key={u.unlock_id} item={u} />
-            ))}
-          </ul>
-        )}
+              {/* ── already opened (arrived, resolved) ── */}
+              {opened.length > 0 && <SectionLabel>Arrived</SectionLabel>}
+              {opened.map((u) => {
+                const subText = [u.thread_name, u.resolution_note].filter(Boolean).join(' · ');
+                return (
+                  <EntryRow
+                    key={u.unlock_id}
+                    filled={false}
+                    title={u.entry_title ?? 'An entry has opened'}
+                    sub={subText || undefined}
+                    meta={formatDate(u.resolved_at)}
+                    onClick={() => navigate(`/loom/read?entry=${u.entry_id}`)}
+                  />
+                );
+              })}
+            </>
+          )}
+        </div>
       </div>
     </ClothShell>
   );
 }
 
-/* ── Shared list-row shell ──────────────────────────────────────────────────
- * A calm archival row: warm unread dot | (serif primary + dim secondary) | mono date.
- */
-function InboxRow({
-  to,
-  unread,
-  dye,
-  primary,
-  primaryColor = 'var(--bone)',
-  primaryItalic = false,
-  secondary,
-  date,
-  dateColor = 'var(--bone-faint)',
-}: {
-  to?: string;
-  unread: boolean;
-  dye?: string | null;
-  primary: ReactNode;
-  primaryColor?: string;
-  primaryItalic?: boolean;
-  secondary?: ReactNode;
-  date: string;
-  dateColor?: string;
-}) {
-  const gridStyle: CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: '14px 1fr auto',
-    alignItems: 'baseline',
-    columnGap: 14,
-    padding: '20px 0',
-    textDecoration: 'none',
-  };
-  const body = (
-    <>
-        {/* col 1: unread dot + dye signal */}
-        <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, alignSelf: 'center' }}>
-          <span
-            aria-hidden
-            style={{
-              display: 'block',
-              width: 6,
-              height: 6,
-              borderRadius: '50%',
-              background: unread ? 'var(--warm)' : 'transparent',
-              boxShadow: unread ? '0 0 8px var(--warm-glow)' : 'none',
-            }}
-          />
-          <DyeSwatch dye={dye} />
-        </span>
-
-        {/* col 2: primary serif line + dim secondary */}
-        <span style={{ minWidth: 0 }}>
-          <span
-            className="hl-serif"
-            style={{
-              display: 'block',
-              fontSize: 17,
-              fontWeight: 400,
-              lineHeight: 1.3,
-              color: primaryColor,
-              fontStyle: primaryItalic ? 'italic' : 'normal',
-            }}
-          >
-            {primary}
-          </span>
-          {secondary != null && (
-            <span
-              className="hl-serif"
-              style={{
-                display: 'block',
-                fontSize: 13.5,
-                lineHeight: 1.45,
-                color: 'var(--bone-dim)',
-                fontStyle: 'italic',
-                marginTop: 4,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {secondary}
-            </span>
-          )}
-        </span>
-
-        {/* col 3: mono date */}
-        <span
-          className="hl-mono"
-          style={{
-            fontSize: 10,
-            letterSpacing: '0.14em',
-            textTransform: 'uppercase',
-            color: dateColor,
-            whiteSpace: 'nowrap',
-            alignSelf: 'center',
-          }}
-        >
-          {date}
-        </span>
-    </>
-  );
-
-  return (
-    <li style={{ borderBottom: '1px solid var(--rule)' }}>
-      {to ? (
-        <Link to={to} className="hl-link" style={gridStyle}>
-          {body}
-        </Link>
-      ) : (
-        <div style={gridStyle}>{body}</div>
-      )}
-    </li>
-  );
-}
-
-/* ── For-you (received) row ─────────────────────────────────────────────── */
-function ReceivedRow({
-  item,
-}: {
-  item: { id: string; title: string; type: string; createdAt: string; from: string; metadata: any };
-}) {
-  return (
-    <InboxRow
-      to={`/loom/read?entry=${item.id}`}
-      unread
-      primary={item.title}
-      primaryColor="var(--warm)"
-      secondary={`from ${item.from || 'a family member'}`}
-      date={formatDate(item.createdAt)}
-    />
-  );
-}
-
-/* ── Already-opened row ─────────────────────────────────────────────────── */
-function OpenedRow({ item }: { item: RecentUnlock }) {
-  const secondary = [item.thread_name, item.resolution_note].filter(Boolean).join(' · ');
-  return (
-    <InboxRow
-      to={`/loom/read?entry=${item.entry_id}`}
-      unread={false}
-      dye={item.dye}
-      primary={item.entry_title ?? 'An entry has opened'}
-      secondary={secondary || undefined}
-      date={formatDate(item.resolved_at)}
-    />
-  );
-}
-
-/* ── Still-sealed row ───────────────────────────────────────────────────── */
-function SealedRow({ item }: { item: UpcomingUnlock }) {
-  const itemWithDye = item as UpcomingUnlock & { dye?: string | null };
-  const unlockLabel = sealedUntilLabel(item);
-  const secondary = [item.thread_name, item.target_name ?? lockKindLabel(item.lock_type)]
-    .filter(Boolean)
-    .join(' · ');
-  return (
-    <InboxRow
-      unread={false}
-      dye={itemWithDye.dye}
-      primary={
-        <>
-          <span aria-hidden style={{ color: 'var(--warm)', fontWeight: 300, marginRight: 8 }}>∞</span>
-          {item.entry_title ?? 'A sealed note'}
-        </>
-      }
-      primaryColor="var(--bone-dim)"
-      primaryItalic={!!item.entry_title}
-      secondary={secondary || undefined}
-      date={`unlocks ${unlockLabel}`}
-      dateColor="var(--warm)"
-    />
-  );
-}
-
 /* ── Empty state ────────────────────────────────────────────────────────── */
-function EmptyState() {
+function EmptyState({ onSeal }: { onSeal: () => void }) {
   return (
     <div style={{ marginTop: 40, textAlign: 'center' }}>
       <p
-        className="hl-serif"
-        style={{
-          fontStyle: 'italic',
-          color: 'var(--bone-faint)',
-          marginBottom: 8,
-        }}
+        style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--bone-faint)', marginBottom: 8 }}
       >
         Nothing is waiting.
       </p>
       <p
-        className="hl-serif"
-        style={{
-          fontStyle: 'italic',
-          color: 'var(--bone-faint)',
-          fontSize: 14,
-          marginBottom: 24,
-        }}
+        style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 14, marginBottom: 24 }}
       >
         Seal a letter or lock a memory to start the wait.
       </p>
-      <Link
-        to="/letters/new"
-        className="hl-link warm"
-        style={{ fontSize: 14 }}
+      <button
+        type="button"
+        onClick={onSeal}
+        style={{ fontFamily: 'var(--sans)', fontSize: 14, color: 'var(--warm)', background: 'none', border: 'none', cursor: 'pointer' }}
       >
         seal a letter →
-      </Link>
+      </button>
     </div>
   );
 }
@@ -429,3 +232,4 @@ function formatDate(iso: string): string {
     return iso;
   }
 }
+
