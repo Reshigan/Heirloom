@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { searchApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { RoomSection, RoomRow } from '../loom/components/room';
+import { EntryRow, SectionLabel } from '../loom/cosmic/CosmicUI';
 
 /**
  * SearchPage — Loom native "Find a thread."
@@ -50,6 +51,7 @@ const GROUPS: { type: SearchResult['type']; label: string }[] = [
 ];
 
 export function SearchPage() {
+  const navigate = useNavigate();
   const [input, setInput] = useState('');
   const [query, setQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<TypeFilter>(undefined);
@@ -99,7 +101,7 @@ export function SearchPage() {
             fontVariationSettings: '"opsz" 32',
           }}
         >
-          Search <span style={{ color: 'var(--bone-dim)' }}>the family archive.</span>
+          SEARCH <span style={{ color: 'var(--bone-dim)' }}>the family archive.</span>
         </h1>
 
         {/* ── search input: underlined field, mono micro-label placeholder ── */}
@@ -214,51 +216,41 @@ export function SearchPage() {
             >
               {total} {total === 1 ? 'thread' : 'threads'}
             </p>
-            {(() => {
-              let firstRendered = true;
-              return GROUPS.map(({ type, label }) => {
-                const hits = results.filter((r) => r.type === type);
-                if (hits.length === 0) return null;
-                const flush = firstRendered;
-                firstRendered = false;
-                return (
-                  <RoomSection key={type} label={label} flush={flush}>
-                    {hits.map((r) => (
-                      <RoomRow
-                        key={r.id}
-                        title={
-                          r.snippet ? (
-                            <>
-                              {r.title}
-                              <span
-                                style={{
-                                  marginTop: 3,
-                                  fontFamily: 'var(--serif)',
-                                  fontSize: 13,
-                                  fontStyle: 'italic',
-                                  color: 'var(--bone-faint)',
-                                  lineHeight: 1.5,
-                                  overflow: 'hidden',
-                                  display: '-webkit-box',
-                                  WebkitLineClamp: 2,
-                                  WebkitBoxOrient: 'vertical',
-                                }}
-                              >
-                                {r.snippet}
-                              </span>
-                            </>
-                          ) : (
-                            r.title
-                          )
-                        }
-                        meta={formatDate(r.created_at)}
-                        href={ROW_LINK[r.type]}
-                      />
-                    ))}
-                  </RoomSection>
-                );
-              });
-            })()}
+            {GROUPS.map(({ type, label }) => {
+              const hits = results.filter((r) => r.type === type);
+              if (hits.length === 0) return null;
+              return (
+                <section key={type}>
+                  <SectionLabel>{label}</SectionLabel>
+                  {hits.map((r) => (
+                    <EntryRow
+                      key={r.id}
+                      title={r.title}
+                      sub={
+                        r.snippet ? (
+                          <span
+                            style={{
+                              fontFamily: 'var(--serif)',
+                              fontStyle: 'italic',
+                              color: 'var(--bone-faint)',
+                              lineHeight: 1.5,
+                              overflow: 'hidden',
+                              display: '-webkit-box',
+                              WebkitLineClamp: 2,
+                              WebkitBoxOrient: 'vertical',
+                            }}
+                          >
+                            {r.snippet}
+                          </span>
+                        ) : undefined
+                      }
+                      meta={formatDate(r.created_at)}
+                      onClick={() => navigate(ROW_LINK[r.type])}
+                    />
+                  ))}
+                </section>
+              );
+            })}
           </>
         )}
       </div>
@@ -268,11 +260,13 @@ export function SearchPage() {
 
 function formatDate(iso: string): string {
   try {
-    return new Date(iso).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
+    return new Date(iso)
+      .toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      })
+      .toUpperCase();
   } catch {
     return iso;
   }
