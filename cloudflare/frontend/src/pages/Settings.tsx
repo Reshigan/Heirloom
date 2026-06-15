@@ -6,6 +6,8 @@ import { settingsApi, exportApi, deadmanApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { usePageMeta } from '../lib/usePageMeta';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { CosmicHeader } from '../loom/cosmic/CosmicUI';
+import { useLoomTheme } from '../loom/theme';
 
 const RESPONSIVE_CSS = `
 .hl-setting-row {
@@ -50,7 +52,62 @@ const RESPONSIVE_CSS = `
   transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
 }
 .hl-signout:hover { color: var(--warm-bright); }
+
+.hl-sumrow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  padding: 26px 2px;
+  cursor: pointer;
+  transition: opacity 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
+}
+.hl-sumrow:hover { opacity: 0.78; }
+.hl-sumrow-label {
+  font-family: var(--serif);
+  font-size: 23px;
+  font-weight: 400;
+  color: var(--bone);
+  line-height: 1.1;
+}
+.hl-sumrow-meta {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-faint);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.hl-sumrow-body {
+  padding: 4px 2px 36px;
+  border-bottom: 1px solid var(--rule);
+}
 `;
+
+/** Cosmic summary row — large serif label + mono meta, expands to reveal section content. */
+function SummaryRow({ label, meta, open, onToggle, children }: {
+  label: string;
+  meta: React.ReactNode;
+  open: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <>
+      <button type="button" className="hl-sumrow" onClick={onToggle} aria-expanded={open}>
+        <span className="hl-sumrow-label">{label}</span>
+        <span className="hl-sumrow-meta">{open ? 'CLOSE ×' : meta}</span>
+      </button>
+      {open && <div className="hl-sumrow-body">{children}</div>}
+    </>
+  );
+}
 
 function Row({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
   return (
@@ -68,6 +125,10 @@ export function Settings() {
   usePageMeta('Settings');
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const { theme, setTheme } = useLoomTheme();
+  const [openRow, setOpenRow] = useState<null | 'account' | 'notifications' | 'theme' | 'privacy'>(null);
+  const toggleRow = (r: 'account' | 'notifications' | 'theme' | 'privacy') =>
+    setOpenRow((cur) => (cur === r ? null : r));
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
   const [birthDate, setBirthDate] = useState('');
@@ -223,6 +284,26 @@ export function Settings() {
 
   const prefs = ((notifData as any)?.preferences ?? {}) as Record<string, boolean>;
 
+  // ── Mono meta values, derived from existing data ──────────────────
+  const accountMeta = (() => {
+    const id = (user as any)?.id as string | undefined;
+    if (id) return `USER_ID: ${id.slice(0, 8).toUpperCase()}`;
+    if (user?.email) return user.email.toUpperCase();
+    return 'MANAGE';
+  })();
+  const notifMeta = (() => {
+    const on: string[] = [];
+    if (prefs.pushNotifications) on.push('PUSH');
+    if (prefs.emailNotifications || prefs.weeklyDigest || prefs.reminderEmails) on.push('EMAIL');
+    return on.length ? `ENABLED: ${on.join(', ')}` : 'MANAGE';
+  })();
+  const themeMeta = `CURRENT: ${(theme === 'system' ? 'SYSTEM' : theme).toUpperCase()} MODE`;
+  const privacyMeta = (() => {
+    const last = (dmStatus.lastCheckIn ?? dmStatus.lastCheckInAt) as string | undefined;
+    if (last) return `LAST REVIEW: ${new Date(last).toISOString().slice(0, 10)}`;
+    return 'MANAGE';
+  })();
+
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'settings' }]} />}
@@ -230,14 +311,7 @@ export function Settings() {
       <style>{RESPONSIVE_CSS}</style>
         <div style={{ maxWidth: 'var(--page-max-prose)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
-          <div style={{ textAlign: 'center', margin: '0 0 56px' }}>
-            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.34em', textTransform: 'uppercase', marginBottom: 14 }}>
-              your thread
-            </div>
-            <h1 className="hl-serif" style={{ fontSize: 'clamp(34px, 8vw, 46px)', fontWeight: 400, color: 'var(--bone)', margin: 0, lineHeight: 1.05, letterSpacing: '-0.01em' }}>
-              Settings
-            </h1>
-          </div>
+          <CosmicHeader eyebrow="SETTINGS" title="Settings" />
 
           {profileLoadError && !profileData && (
             <p className="hl-mono" style={{ fontSize: 11, color: 'var(--warm-dim)', letterSpacing: '0.16em', margin: '0 0 20px', textTransform: 'uppercase' }}>
@@ -245,8 +319,11 @@ export function Settings() {
             </p>
           )}
 
+          {/* ════════ ACCOUNT ════════ */}
+          <SummaryRow label="Account" meta={accountMeta} open={openRow === 'account'} onToggle={() => toggleRow('account')}>
+
           {/* ── Your name ─────────────────────────────────── */}
-          <div className="hl-eyebrow" style={{ marginBottom: 14, color: 'var(--warm)' }}>you</div>
+          <div className="hl-eyebrow" style={{ margin: '4px 0 14px', color: 'var(--warm)' }}>you</div>
 
           <div className="hl-setting-row">
             <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>first name</div>
@@ -393,8 +470,82 @@ export function Settings() {
             )}
           </div>
 
+          </SummaryRow>
+
+          {/* ════════ NOTIFICATIONS ════════ */}
+          <SummaryRow label="Notifications" meta={notifMeta} open={openRow === 'notifications'} onToggle={() => toggleRow('notifications')}>
+
+          {/* ── Notifications ────────────────────────────── */}
+          <div className="hl-eyebrow" style={{ margin: '4px 0 14px', color: 'var(--warm)' }}>the listener</div>
+
+          {([
+            { key: 'weeklyDigest',       label: 'weekly digest',   hint: 'family entries since last week',      ariaLabel: 'Enable weekly digest emails' },
+            { key: 'reminderEmails',     label: 'quarterly',       hint: 'gentle prompt to add a thread',       ariaLabel: 'Enable quarterly reminder emails' },
+            { key: 'pushNotifications',  label: 'locks opening',   hint: 'when sealed entries unlock',          ariaLabel: 'Enable push notifications for sealed entry unlocks' },
+            { key: 'emailNotifications', label: 'receipts',        hint: 'transactional only',                  ariaLabel: 'Enable transactional email notifications' },
+            { key: 'marketingEmails',    label: 'product updates', hint: 'occasional · unsubscribe any time',   ariaLabel: 'Enable product update emails' },
+          ] as const).map((item) => (
+            <div key={item.key} className="hl-notif-row">
+              <div>
+                <div className="hl-mono" style={{ fontSize: 10.5, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>{item.label}</div>
+                <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-faint)', fontWeight: 400, marginTop: 2 }}>{item.hint}</div>
+              </div>
+              <input
+                type="checkbox"
+                aria-label={item.ariaLabel}
+                checked={!!prefs[item.key]}
+                onChange={(e) => updateNotif.mutate({ [item.key]: e.target.checked })}
+                style={{ accentColor: 'var(--warm)', width: 16, height: 16, cursor: 'pointer', flexShrink: 0 }}
+              />
+            </div>
+          ))}
+          {notifError && (
+            <span className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.12em', display: 'block', paddingTop: 6 }}>{notifError}</span>
+          )}
+
+          </SummaryRow>
+
+          {/* ════════ THEME ════════ */}
+          <SummaryRow label="Theme" meta={themeMeta} open={openRow === 'theme'} onToggle={() => toggleRow('theme')}>
+
+          <div className="hl-eyebrow" style={{ margin: '4px 0 14px', color: 'var(--warm)' }}>appearance</div>
+          <p className="hl-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.65, margin: '0 0 18px', maxWidth: '52ch' }}>
+            The thread is written for the dark — but it reads in either light.
+          </p>
+          <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' }}>
+            {(['dark', 'light', 'system'] as const).map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => setTheme(opt)}
+                aria-pressed={theme === opt}
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  borderBottom: theme === opt ? '1px solid var(--warm)' : '1px solid var(--rule)',
+                  padding: '10px 22px 10px 0',
+                  marginRight: 24,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: theme === opt ? 'var(--warm)' : 'var(--bone-dim)',
+                  transition: 'color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1))',
+                }}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+
+          </SummaryRow>
+
+          {/* ════════ PRIVACY ════════ */}
+          <SummaryRow label="Privacy" meta={privacyMeta} open={openRow === 'privacy'} onToggle={() => toggleRow('privacy')}>
+
           {/* ── The thread ────────────────────────────────── */}
-          <div className="hl-eyebrow" style={{ margin: '28px 0 6px', color: 'var(--warm)' }}>the thread</div>
+          <div className="hl-eyebrow" style={{ margin: '4px 0 6px', color: 'var(--warm)' }}>the thread</div>
           <div style={{ marginBottom: 14 }}>
             <Link to="/billing" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none', borderBottom: '1px solid var(--rule)' }}>manage billing →</Link>
           </div>
@@ -459,34 +610,6 @@ export function Settings() {
           <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--warm)' }}>encryption</div>
           <Row label="key escrow" hint="shamir-split · zero-knowledge to platform">enabled · 3 trusted, 2 required</Row>
           <Row label="recovery phrase" hint="print and store offline">four words · configure in onboarding</Row>
-
-          {/* ── Notifications ────────────────────────────── */}
-          <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--warm)' }}>the listener</div>
-
-          {([
-            { key: 'weeklyDigest',       label: 'weekly digest',   hint: 'family entries since last week',      ariaLabel: 'Enable weekly digest emails' },
-            { key: 'reminderEmails',     label: 'quarterly',       hint: 'gentle prompt to add a thread',       ariaLabel: 'Enable quarterly reminder emails' },
-            { key: 'pushNotifications',  label: 'locks opening',   hint: 'when sealed entries unlock',          ariaLabel: 'Enable push notifications for sealed entry unlocks' },
-            { key: 'emailNotifications', label: 'receipts',        hint: 'transactional only',                  ariaLabel: 'Enable transactional email notifications' },
-            { key: 'marketingEmails',    label: 'product updates', hint: 'occasional · unsubscribe any time',   ariaLabel: 'Enable product update emails' },
-          ] as const).map((item) => (
-            <div key={item.key} className="hl-notif-row">
-              <div>
-                <div className="hl-mono" style={{ fontSize: 10.5, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>{item.label}</div>
-                <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-faint)', fontWeight: 400, marginTop: 2 }}>{item.hint}</div>
-              </div>
-              <input
-                type="checkbox"
-                aria-label={item.ariaLabel}
-                checked={!!prefs[item.key]}
-                onChange={(e) => updateNotif.mutate({ [item.key]: e.target.checked })}
-                style={{ accentColor: 'var(--warm)', width: 16, height: 16, cursor: 'pointer', flexShrink: 0 }}
-              />
-            </div>
-          ))}
-          {notifError && (
-            <span className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.12em', display: 'block', paddingTop: 6 }}>{notifError}</span>
-          )}
 
           {/* ── Support ──────────────────────────────────── */}
           <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--warm)' }}>support</div>
@@ -689,6 +812,8 @@ export function Settings() {
               </div>
             )}
           </div>
+
+          </SummaryRow>
 
           {/* ── Sign out ─────────────────────────────────── */}
           <button
