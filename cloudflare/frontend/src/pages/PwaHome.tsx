@@ -261,10 +261,10 @@ function AuthHome({
   const recent = [...entries].filter((e) => e.title).reverse().slice(0, 3);
   // Suggestion chips: derive from recent woven titles when present, else the seeds.
   const SEEDS = ["Grandma's Recipe", 'The Old Oak Tree', 'A Forgotten Song'];
-  const chips: string[] = recent.length
-    ? recent.map((e) => String(e.title)).slice(0, 3)
-    : SEEDS;
-  while (chips.length < 3) chips.push(SEEDS[chips.length]);
+  const chips: string[] = [
+    ...recent.map((e) => String(e.title)),
+    ...SEEDS,
+  ].filter((v, i, arr) => arr.indexOf(v) === i).slice(0, 3);
   const QUIET_NAV: { to: string; label: string }[] = [
     { to: '/letters', label: 'letters' },
     { to: '/family', label: 'family' },
@@ -350,9 +350,9 @@ function AuthHome({
         {/* Suggestion chips — [warm dot] serif label → /compose?prompt= */}
         {!isReadOnly && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginTop: 6 }}>
-            {chips.map((seed, i) => (
+            {chips.map((seed) => (
               <button
-                key={`${seed}-${i}`}
+                key={seed}
                 type="button"
                 onClick={() => navigate('/compose?prompt=' + encodeURIComponent(seed))}
                 style={{
