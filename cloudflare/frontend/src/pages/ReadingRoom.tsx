@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ClothPage } from '../loom/components/ClothPage';
 import { ClothBackdrop } from '../loom/components/ClothBackdrop';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeVar, dyeFromMetadata, dyeForId, type Dye } from '../loom/dye';
@@ -200,13 +201,13 @@ function ReadingContent({
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: 'clamp(72px, 14vh, 132px) 28px 56px',
     }}>
-      <div style={{ maxWidth: '40ch', width: '100%', position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ maxWidth: '64ch', width: '100%', position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
 
-        {/* Provenance stamp — the museum label */}
+        {/* Provenance stamp — the museum label: DATE · WOVEN BY <author> */}
         <div style={{
-          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.26em',
-          textTransform: 'uppercase', color: 'var(--warm)', lineHeight: 1.6,
-          marginBottom: 'clamp(28px, 6vh, 52px)',
+          fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.28em',
+          textTransform: 'uppercase', color: 'var(--bone-dim)', lineHeight: 1.6,
+          marginBottom: 'clamp(20px, 4vh, 36px)',
         }}>
           {stamp}
         </div>
@@ -214,15 +215,15 @@ function ReadingContent({
         {/* Title — the hero */}
         <h1 style={{
           fontFamily: 'var(--serif)', fontWeight: 300,
-          fontSize: 'clamp(34px, 7vw, 52px)', lineHeight: 1.08,
+          fontSize: 'clamp(36px, 7.5vw, 60px)', lineHeight: 1.05,
           letterSpacing: '-0.01em', color: 'var(--bone)',
-          margin: '0 0 clamp(32px, 7vh, 56px)',
+          margin: '0 0 clamp(36px, 7vh, 60px)',
         }}>
           {t.title}
         </h1>
 
-        {/* Body — serif prose, generous leading, dye margin */}
-        <div style={{ borderLeft: `3px solid ${dye}`, paddingLeft: 'clamp(18px, 5vw, 32px)' }}>
+        {/* Body — justified serif prose at a comfortable reading measure */}
+        <div>
           {t.photoUrl && (
             <div style={{
               aspectRatio: '4 / 3', marginBottom: 30,
@@ -249,15 +250,16 @@ function ReadingContent({
           {paras.length > 0 ? (
             paras.map((p, i) => (
               <p key={i} style={{
-                fontFamily: 'var(--serif)', fontSize: 'clamp(17px, 2.1vw, 19px)', lineHeight: 2,
-                color: 'var(--bone)', margin: '0 0 20px', fontWeight: 300,
+                fontFamily: 'var(--serif)', fontSize: 'clamp(18px, 2.2vw, 21px)', lineHeight: 1.85,
+                color: 'var(--bone)', margin: '0 0 24px', fontWeight: 300,
+                textAlign: 'justify', textJustify: 'inter-word', hyphens: 'auto',
               }}>
                 {p}
               </p>
             ))
           ) : (
             <p style={{
-              fontFamily: 'var(--serif)', fontSize: 'clamp(17px, 2.1vw, 19px)', lineHeight: 2,
+              fontFamily: 'var(--serif)', fontSize: 'clamp(18px, 2.2vw, 21px)', lineHeight: 1.85,
               color: 'var(--bone-dim)', fontStyle: 'italic', margin: 0, fontWeight: 300,
             }}>
               {t.kind === 'voice'
@@ -267,21 +269,12 @@ function ReadingContent({
           )}
         </div>
 
-        {/* Listener mark — the single warm punctuation, the ∞ at rest */}
+        {/* Closing mark — the ∞ wax seal at rest, the product's only mark */}
         <div style={{
           marginTop: 'clamp(40px, 9vh, 72px)',
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14,
+          display: 'flex', justifyContent: 'flex-start',
         }}>
-          <span aria-hidden style={{
-            width: 8, height: 8, borderRadius: '50%',
-            background: 'var(--warm)', boxShadow: '0 0 14px var(--warm-glow, rgba(176,122,74,0.5))',
-          }} />
-          <span style={{
-            fontFamily: 'var(--serif)', fontSize: 13, fontStyle: 'italic',
-            color: 'rgba(176,122,74,0.55)', lineHeight: 1.6, textAlign: 'center',
-          }}>
-            the loom is listening across this thread.
-          </span>
+          <WaxSeal size={30} />
         </div>
 
         {/* Selvedge — the entry's append-only revision history */}
