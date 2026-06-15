@@ -19,7 +19,7 @@ export function WarmDot({ filled = true, size = 6 }: { filled?: boolean; size?: 
 export function EntryRow({ title, sub, meta, italic, onClick }: { title: ReactNode; sub?: ReactNode; meta?: ReactNode; italic?: boolean; onClick?: () => void }) {
   return (
     <button type="button" onClick={onClick} disabled={!onClick}
-      style={{ display: 'flex', alignItems: 'flex-start', gap: 14, width: '100%', textAlign: 'left', padding: '16px 0', borderBottom: '1px solid var(--rule)', background: 'none', border: 'none', borderBottomStyle: 'solid', cursor: onClick ? 'pointer' : 'default', transition: 'opacity 180ms var(--ease)' }}>
+      style={{ display: 'flex', alignItems: 'flex-start', gap: 14, width: '100%', textAlign: 'left', padding: '16px 0', background: 'none', borderWidth: 0, borderBottom: '1px solid var(--rule)', cursor: onClick ? 'pointer' : 'default', transition: 'opacity 180ms var(--ease)' }}>
       <span style={{ marginTop: 8 }}><WarmDot /></span>
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ fontFamily: 'var(--serif)', fontStyle: italic ? 'italic' : 'normal', fontSize: 18, color: 'var(--bone)', display: 'block' }}>{title}</span>
