@@ -82,6 +82,8 @@ export function SearchPage() {
         style={{
           padding: 'var(--page-pad-top) var(--page-pad-x)',
           paddingBottom: 'var(--page-clear)',
+          maxWidth: 'var(--page-max-prose)',
+          margin: '0 auto',
           overflowX: 'hidden',
         }}
       >

@@ -20,6 +20,7 @@ const body: React.CSSProperties = {
   padding: 'var(--page-pad-top) var(--page-pad-x)',
   maxWidth: 'var(--page-max-focus)',
   width: '100%',
+  margin: '0 auto',
 };
 
 const inputStyle: React.CSSProperties = {

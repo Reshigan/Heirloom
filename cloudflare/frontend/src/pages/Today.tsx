@@ -85,6 +85,7 @@ export function Today() {
         <div style={{
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           maxWidth: 'var(--page-max-focus)',
+          margin: '0 auto',
           opacity: revealed ? 1 : 0,
           transform: revealed ? 'translateY(0)' : 'translateY(14px)',
           transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
@@ -144,6 +145,8 @@ export function Today() {
       <div style={{
         padding: 'var(--page-pad-top) var(--page-pad-x) 0',
         maxWidth: 720,
+        width: '100%',
+        alignSelf: 'center',
         opacity: revealed ? 1 : 0,
         transform: revealed ? 'translateY(0)' : 'translateY(14px)',
         transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,

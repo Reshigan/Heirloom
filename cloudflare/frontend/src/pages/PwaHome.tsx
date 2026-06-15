@@ -161,7 +161,7 @@ function AuthHome({
   // Visitor — no cloth, just invite
   if (role === 'visitor') {
     return (
-      <div style={{ padding: `36px ${P}`, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+      <div style={{ padding: `36px ${P}`, maxWidth: 560, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
         <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>preview</span>
         <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 24px', lineHeight: 1.15 }}>
           {greeting}
@@ -174,7 +174,7 @@ function AuthHome({
   // First-run for read-only thread members: show thread-viewer empty state
   if (count === 0 && (role === 'reader' || role === 'successor')) {
     return (
-      <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 480, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+      <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 480, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
         <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 18, color: 'var(--warm)' }}>
           {role === 'successor' ? 'heir' : 'reader'}
         </span>
@@ -191,7 +191,7 @@ function AuthHome({
   // First-run: no entries yet — show sealed letter prompt
   if (count === 0) {
     return (
-      <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 560, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+      <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 560, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
         <div className="hl-eyebrow" style={{ marginBottom: 18, color: 'var(--warm)' }}>
           entry no. 0001
         </div>
@@ -266,7 +266,7 @@ function AuthHome({
   ];
 
   return (
-    <div style={{ padding: `0 ${P}`, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+    <div style={{ padding: `0 ${P}`, maxWidth: 600, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
       {/* Listener hero — over the touchable cloth band. Fills the first view. */}
       <div style={{
         minHeight: 'clamp(340px, calc(100svh - 200px - env(safe-area-inset-top, 0px)), 640px)',
@@ -383,6 +383,7 @@ export function PwaHome() {
           <div style={{
             padding: 'clamp(40px, 9vw, 64px) clamp(20px, 5vw, 32px)',
             maxWidth: 520,
+            margin: '0 auto',
             paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))',
           }}>
             <div className="hl-eyebrow" style={{ marginBottom: 18, color: 'var(--warm)' }}>
