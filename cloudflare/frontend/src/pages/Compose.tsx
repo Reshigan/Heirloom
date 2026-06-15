@@ -1619,9 +1619,7 @@ export function Compose() {
                   color: 'var(--bone-faint)',
                 }}
               >
-                {save.isPending
-                  ? (isLetter ? 'sealing…' : 'weaving…')
-                  : `${wordCount} ${wordCount === 1 ? 'word' : 'words'}`}
+                {`${wordCount} ${wordCount === 1 ? 'word' : 'words'}`}
               </span>
               <button
                 type="button"
