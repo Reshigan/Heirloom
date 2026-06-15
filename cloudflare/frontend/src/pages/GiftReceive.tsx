@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { giftsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 
 interface GiftData {
   id: string;
@@ -273,22 +274,13 @@ export function GiftReceive() {
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', minHeight: '100%' }}>
         <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto' }}>
 
-          {/* H1 — 2-line thin serif */}
-          <h1
-            className="hl-serif hl-tight"
-            style={{
-              fontSize: 'var(--type-display)',
-              fontWeight: 200,
-              color: 'var(--bone)',
-              margin: '0 0 20px',
-              whiteSpace: 'pre-line',
-            }}
-          >
-            {'Someone gave you\na thread.'}
-          </h1>
+          <RoomHeader
+            eyebrow="a gift"
+            title={'Someone gave you a thread.'}
+          />
 
           {/* Hairline rule */}
-          <hr className="hl-rule parchment" style={{ margin: '0 0 28px' }} />
+          <hr className="hl-rule parchment" style={{ margin: '28px 0 28px' }} />
 
           {/* Sender message block — left-rule quote */}
           {gift?.personal_message && (

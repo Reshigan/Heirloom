@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 import { usePageMeta } from '../lib/usePageMeta';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -105,39 +106,18 @@ export function GiftPurchase() {
         <form onSubmit={(e) => { e.preventDefault(); handlePurchase(); }}>
         <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
 
-          {/* H1 — 2-line thin serif */}
-          <h1
-            className="hl-serif hl-tight"
-            style={{
-              fontSize: 'var(--type-display)',
-              fontWeight: 200,
-              color: 'var(--bone)',
-              margin: '0 0 18px',
-              whiteSpace: 'pre-line',
-            }}
-          >
-            {'Give a thread\nthat outlives you.'}
-          </h1>
-
-          <p
-            className="hl-serif"
-            style={{
-              fontSize: 'var(--type-body)',
-              color: 'var(--bone-dim)',
-              lineHeight: 1.6,
-              margin: '0 0 40px',
-              maxWidth: '34ch',
-            }}
-          >
-            Give someone the gift of a family thread.
-          </p>
+          <RoomHeader
+            eyebrow="gift a thread"
+            title={'Give a thread that outlives you.'}
+            lede="Give someone the gift of a family thread."
+          />
 
           {/* Billing cycle toggle */}
           <div
             style={{
               display: 'flex',
               gap: 0,
-              marginBottom: 28,
+              margin: '40px 0 28px',
               borderBottom: '1px solid var(--rule)',
             }}
           >

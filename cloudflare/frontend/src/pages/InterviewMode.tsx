@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { voiceApi, aiApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader, RoomSection } from '../loom/components/room';
 
 const SILENCE_THRESHOLD = 0.01;
 
@@ -321,27 +322,16 @@ export function InterviewMode() {
           }}
         >
           {/* Question display */}
-          <div key={currentQuestion}>
-            <p
-              className="hl-eyebrow"
-              style={{ marginBottom: 14, color: 'var(--bone-faint)' }}
-            >
-              <span style={{ color: 'var(--warm)' }}>·</span>&nbsp; the listener
-            </p>
-            <h2
-              className="hl-serif"
-              style={{
-                margin: 0,
-                fontSize: 30,
-                fontWeight: 400,
-                fontStyle: 'italic',
-                lineHeight: 1.3,
-                color: 'var(--bone-dim)',
-              }}
-            >
-              {currentQuestion}
-            </h2>
-          </div>
+          <RoomHeader
+            key={currentQuestion}
+            eyebrow="the listener"
+            warmEyebrow
+            title={
+              <span style={{ fontStyle: 'italic', color: 'var(--bone-dim)' }}>
+                {currentQuestion}
+              </span>
+            }
+          />
 
           {/* Answer area — faint amber left thread */}
           <div
@@ -374,13 +364,7 @@ export function InterviewMode() {
 
           {/* Follow-up suggestions */}
           {followUpQuestions.length > 0 && (
-            <div style={{ marginTop: 32 }}>
-              <p
-                className="hl-eyebrow"
-                style={{ marginBottom: 14 }}
-              >
-                follow-up questions
-              </p>
+            <RoomSection label="follow-up questions">
               <div>
                 {followUpQuestions.map((q, i) => (
                   <button
@@ -410,7 +394,7 @@ export function InterviewMode() {
                   </button>
                 ))}
               </div>
-            </div>
+            </RoomSection>
           )}
 
           {/* Next question link */}

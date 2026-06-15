@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 import { giftsApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 
 interface GiftConfig {
@@ -111,40 +112,17 @@ export function GiftAMemory() {
             margin: '0 auto',
           }}
         >
-          <p
-            className="hl-eyebrow"
-            style={{ marginBottom: 24 }}
-          >
-            sent
-          </p>
-          <h2
-            className="hl-serif hl-tight"
-            style={{
-              fontSize: 'var(--type-display)',
-              fontWeight: 300,
-              margin: '0 0 20px',
-              color: 'var(--bone)',
-            }}
-          >
-            Piece of the cloth sent.
-          </h2>
-          <p
-            className="hl-serif"
-            style={{
-              fontSize: 16,
-              color: 'var(--bone-dim)',
-              margin: '0 0 8px',
-              lineHeight: 1.6,
-            }}
-          >
-            {config.recipientName} will receive a link.
-          </p>
+          <RoomHeader
+            eyebrow="sent"
+            title="Piece of the cloth sent."
+            lede={`${config.recipientName} will receive a link.`}
+          />
           <p
             className="hl-mono"
             style={{
               fontSize: 12,
               color: 'var(--bone-faint)',
-              margin: '0 0 48px',
+              margin: '14px 0 48px',
               letterSpacing: '0.04em',
             }}
           >
@@ -202,34 +180,13 @@ export function GiftAMemory() {
           margin: '0 auto',
         }}
       >
-        {/* H1 */}
-        <h1
-          className="hl-serif hl-tight"
-          style={{
-            fontSize: 'clamp(40px, 6.5vw, 64px)',
-            fontWeight: 200,
-            margin: '0 0 18px',
-            color: 'var(--bone)',
-            whiteSpace: 'pre-line',
-          }}
-        >
-          {'Give a thread\nthat outlives you'}
-        </h1>
+        <RoomHeader
+          eyebrow="gift a memory"
+          title={'Give a thread that outlives you'}
+          lede="Craft a digital memory capsule for a cherished person."
+        />
 
-        <p
-          className="hl-serif"
-          style={{
-            fontSize: 'var(--type-body)',
-            color: 'var(--bone-dim)',
-            lineHeight: 1.6,
-            margin: '0 0 52px',
-            maxWidth: '32ch',
-          }}
-        >
-          Craft a digital memory capsule for a cherished person.
-        </p>
-
-        <form onSubmit={handleSubmit} noValidate>
+        <form onSubmit={handleSubmit} noValidate style={{ marginTop: 52 }}>
           {/* Recipient name */}
           <div style={{ marginBottom: 34 }}>
             <label

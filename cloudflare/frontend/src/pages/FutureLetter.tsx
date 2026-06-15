@@ -5,6 +5,7 @@ import { aiApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
+import { RoomHeader } from '../loom/components/room';
 
 /**
  * FutureLetter — Loom 3 rewrite (§6 Listener surface).
@@ -128,41 +129,31 @@ export function FutureLetter() {
         </button>
 
         {/* page heading */}
-        <header style={{ marginBottom: 48, maxWidth: 640 }}>
-          <p className="hl-eyebrow" style={{ marginBottom: 14, color: 'var(--warm)' }}>
-            a letter across time
-          </p>
-          <h1
-            className="hl-serif hl-tight"
-            style={{
-              fontSize: 'var(--type-display)',
-              fontWeight: 300,
-              margin: '0 0 28px',
-              color: 'var(--bone)',
-            }}
-          >
-            A letter from the past.
-          </h1>
-          <p
-            className="hl-prose"
-            style={{ fontSize: 17, color: 'var(--bone-dim)', margin: 0 }}
-          >
-            Written from your 80-year-old self, reflecting on the values, hopes and fears you hold
-            today. A quiet reminder of what truly matters — drafted by the Listener, kept by you.
-          </p>
-        </header>
+        <div style={{ marginBottom: 48, maxWidth: 640 }}>
+          <RoomHeader
+            warmEyebrow
+            eyebrow="a letter across time"
+            title="A letter from the past."
+            lede="Written from your 80-year-old self, reflecting on the values, hopes and fears you hold today. A quiet reminder of what truly matters — drafted by the Listener, kept by you."
+          />
+        </div>
 
         <hr className="hl-rule" style={{ marginBottom: 48 }} />
 
         <div style={{ display: 'grid', gap: 64, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
           {/* left: input form */}
           <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 24, alignContent: 'start' }}>
-            <h2
-              className="hl-serif"
-              style={{ fontSize: 22, fontWeight: 300, margin: 0, color: 'var(--bone)' }}
+            <span
+              className="hl-mono"
+              style={{
+                fontSize: 10,
+                letterSpacing: '0.30em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+              }}
             >
-              Tell the Listener about yourself
-            </h2>
+              tell the listener about yourself
+            </span>
 
             <div>
               <label htmlFor="fl-age" style={labelStyle}>Your current age</label>
@@ -258,11 +249,13 @@ export function FutureLetter() {
           {/* right: letter display + previous letters */}
           <div style={{ display: 'grid', gap: 32, alignContent: 'start' }}>
             {generatedLetter ? (
-              /* inner letter card */
+              /* the letter — structured by hairline, no card */
               <div
                 style={{
-                  border: '1px solid var(--rule)',
-                  padding: '40px 48px',
+                  borderTop: '1px solid var(--rule)',
+                  borderLeft: '3px solid color-mix(in srgb, var(--warm) 32%, transparent)',
+                  paddingTop: 28,
+                  paddingLeft: 'clamp(16px, 3vw, 28px)',
                   maxWidth: 640,
                 }}
               >
@@ -359,10 +352,10 @@ export function FutureLetter() {
             ) : (
               <div
                 style={{
-                  border: '1px solid var(--rule)',
-                  borderRadius: 0,
+                  borderTop: '1px solid var(--rule)',
                   textAlign: 'center',
-                  padding: '64px 28px',
+                  paddingTop: 64,
+                  paddingBottom: 64,
                 }}
               >
                 <p

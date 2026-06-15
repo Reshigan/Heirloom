@@ -8,6 +8,7 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { copyToClipboard } from '../utils/clipboard';
 import { type FamilyMember } from '../types';
 import { formatDate } from '../utils/date';
+import { RoomHeader, RoomSection, RoomRow } from '../loom/components/room';
 
 interface PendingInvite {
   id: string;
@@ -17,35 +18,6 @@ interface PendingInvite {
   status: string;
   sent_at: string;
 }
-
-const DYE_VARS: Record<string, string> = {
-  madder:    'var(--danger)',
-  cochineal: 'var(--dye-cochineal)',
-  kermes:    'var(--dye-kermes)',
-  saffron:   'var(--dye-saffron)',
-  weld:      'var(--dye-weld)',
-  walnut:    'var(--dye-walnut)',
-  oakgall:   'var(--dye-oakgall)',
-  woad:      'var(--dye-woad)',
-  indigo:    'var(--dye-indigo)',
-  iron:      'var(--dye-iron)',
-};
-
-// Text-safe lightened variants for rendering names on the ink background.
-// Each dye is brightened enough to pass contrast on #0e0e0c.
-const DYE_TEXT: Record<string, string> = {
-  madder:    '#d97860',
-  cochineal: '#c5607a',
-  kermes:    '#b56875',
-  saffron:   '#d8a84a',
-  weld:      '#c0b84a',
-  walnut:    '#a87a52',
-  oakgall:   '#958472',
-  woad:      '#7a9bab',
-  indigo:    '#6a90b0',
-  iron:      '#7a7a78',
-};
-
 
 function daysUntilExpiry(deletedAt: string): number {
   const expires = new Date(deletedAt).getTime() + 7 * 24 * 60 * 60 * 1000;
@@ -224,26 +196,12 @@ export function Family() {
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x)', paddingBottom: 'var(--page-clear)', maxWidth: 'var(--page-max-prose)' }}>
 
 
-        {/* heading row */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 32, gap: 16 }}>
-          <h1
-            className="hl-serif hl-tight"
-            style={{
-              fontSize: 'clamp(28px, 6vw, 38px)',
-              fontWeight: 300,
-              color: 'var(--bone)',
-              margin: 0,
-              letterSpacing: '-0.018em',
-              lineHeight: 1.15,
-            }}
-          >
-            The people on this thread.
-          </h1>
-          {!isLoading && members.length > 0 && (
-            <span className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase', flexShrink: 0, paddingTop: 6 }}>
-              {members.length} {members.length === 1 ? 'voice' : 'voices'}
-            </span>
-          )}
+        {/* heading */}
+        <div style={{ marginBottom: 32 }}>
+          <RoomHeader
+            eyebrow={!isLoading && members.length > 0 ? `${members.length} ${members.length === 1 ? 'voice' : 'voices'}` : 'family'}
+            title="The people on this thread."
+          />
         </div>
 
         {/* primary CTA row */}
@@ -524,66 +482,35 @@ export function Family() {
             </p>
           </div>
         ) : (
-          <div>
-            <div style={{ display: 'grid', gridTemplateColumns: '8px 1fr auto 28px', gap: 16, paddingBottom: 12, borderBottom: '1px solid var(--rule)', alignItems: 'baseline' }}>
-              <span />
-              <span className="hl-mono" style={{ fontSize: 12, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>name</span>
-              <span className="hl-mono" style={{ fontSize: 12, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>joined</span>
-              <span />
-            </div>
-
+          <RoomSection label="the bloodline">
             {members.map((m) => {
-              const dyeKey = m.dye?.toLowerCase() ?? '';
-              const dyeColor = dyeKey && DYE_VARS[dyeKey] ? DYE_VARS[dyeKey] : null;
-              const dyeText  = dyeKey && DYE_TEXT[dyeKey]  ? DYE_TEXT[dyeKey]  : null;
+              const dyeKey = m.dye?.toLowerCase() || undefined;
               const isEditing = editTarget?.id === m.id;
+              const relMeta = [m.relationship, m.role].filter(Boolean).join(' · ');
               return (
-                <div key={m.id} style={{ borderBottom: '1px solid var(--rule)' }}>
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '8px 1fr auto 28px',
-                      gap: 16,
-                      paddingTop: 16,
-                      paddingBottom: isEditing ? 8 : 16,
-                      alignItems: 'center',
-                      minHeight: 56,
-                    }}
-                  >
-                    <span
-                      aria-hidden
-                      style={{
-                        display: 'block', width: 3, height: 20, borderRadius: 0,
-                        background: dyeColor ?? 'var(--rule)',
-                        flexShrink: 0,
-                      }}
-                    />
-                    <div>
-                      <button
-                        type="button"
-                        onClick={() => navigate(`/person/${m.id}`)}
-                        style={{ cursor: 'pointer', outline: 'none', display: 'inline-block', background: 'transparent', border: 0, padding: 0, textAlign: 'left' }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = '0.75'; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = '1'; }}
-                      >
-                        <div className="hl-serif" style={{ fontSize: 17, fontWeight: 400, color: dyeText ?? 'var(--bone)', lineHeight: 1.25, transition: 'opacity 180ms var(--ease)' }}>
-                          {m.name}
-                        </div>
-                        {(m.relationship || m.role) ? (
-                          <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-dim)', marginTop: 3, lineHeight: 1.2 }}>
-                            {[m.relationship, m.role].filter(Boolean).join(' · ')}
-                          </div>
-                        ) : (
-                          <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-faint)', marginTop: 3, lineHeight: 1.2 }}>
-                            relationship not set — edit to weave it in
-                          </div>
-                        )}
-                        {m.birthDate && (
-                          <div className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginTop: 4 }}>
-                            born {formatDate(m.birthDate)}
-                          </div>
-                        )}
-                      </button>
+                <div key={m.id}>
+                  <RoomRow
+                    dye={dyeKey}
+                    href={`/person/${m.id}`}
+                    title={m.name}
+                    meta={formatDate(m.createdAt)}
+                  />
+                  <div style={{ paddingTop: 6, paddingBottom: isEditing ? 8 : 14, display: 'grid', gap: 6 }}>
+                    {relMeta ? (
+                      <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-dim)', lineHeight: 1.2 }}>
+                        {relMeta}
+                      </div>
+                    ) : (
+                      <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-faint)', lineHeight: 1.2 }}>
+                        relationship not set — edit to weave it in
+                      </div>
+                    )}
+                    {m.birthDate && (
+                      <div className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                        born {formatDate(m.birthDate)}
+                      </div>
+                    )}
+                    <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', alignItems: 'center' }}>
                       <button
                         type="button"
                         onClick={() => {
@@ -604,7 +531,6 @@ export function Family() {
                           fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bone-faint)',
                           letterSpacing: '0.18em', textTransform: 'uppercase',
                           transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
-                          marginTop: 6, display: 'block',
                         }}
                         onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
@@ -612,7 +538,7 @@ export function Family() {
                         {isEditing ? 'cancel' : 'edit →'}
                       </button>
                       {!isEditing && (
-                        <div style={{ display: 'flex', gap: 20, marginTop: 6, flexWrap: 'wrap' }}>
+                        <>
                           <button
                             type="button"
                             onClick={() => navigate(`/compose?recipientId=${m.id}`)}
@@ -641,29 +567,26 @@ export function Family() {
                           >
                             record voice →
                           </button>
-                        </div>
+                          <button
+                            type="button"
+                            onClick={() => deleteMember.mutate(m.id)}
+                            disabled={deleteMember.isPending}
+                            className="family-member-delete"
+                            style={{
+                              background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                              fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bone-faint)',
+                              letterSpacing: '0.18em', textTransform: 'uppercase',
+                              transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
+                            }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+                            aria-label={`remove ${m.name}`}
+                          >
+                            remove
+                          </button>
+                        </>
                       )}
                     </div>
-                    <div className="hl-mono" style={{ fontSize: 12, color: dyeText ? `${dyeText}99` : 'var(--bone-dim)', textAlign: 'right' }}>
-                      {formatDate(m.createdAt)}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => deleteMember.mutate(m.id)}
-                      disabled={deleteMember.isPending}
-                      className="family-member-delete"
-                      style={{
-                        background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                        width: 44, height: 44, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: 'transparent', fontSize: 18, lineHeight: 1,
-                        transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
-                      }}
-                      onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(244,236,216,0.28)'; }}
-                      onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'transparent'; }}
-                      aria-label={`remove ${m.name}`}
-                    >
-                      ×
-                    </button>
                   </div>
 
                   {/* Inline edit form */}
@@ -721,7 +644,7 @@ export function Family() {
                 </div>
               );
             })}
-          </div>
+          </RoomSection>
         )}
       </div>
     </ClothShell>

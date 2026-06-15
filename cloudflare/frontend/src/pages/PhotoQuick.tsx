@@ -6,6 +6,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { uploadMemoryImage, validateImage, type UploadedImage } from '../utils/uploadImage';
+import { RoomHeader } from '../loom/components/room';
 
 /**
  * PhotoQuick — the fast lane (§ photo entry).
@@ -143,6 +144,13 @@ export function PhotoQuick() {
   return (
     <ClothShell topbarLeft={topbarLeft}>
       <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
+        <RoomHeader
+          eyebrow="the fast lane"
+          title="A photograph, straight into the cloth."
+          lede="Pick a photo, add one line, weave. The full Composer is there when you want to write."
+          className="hl-mb-section"
+        />
+        <div style={{ height: 36 }} />
         <input
           ref={fileInputRef}
           type="file"

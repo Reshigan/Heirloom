@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { RoomHeader } from '../loom/components/room';
 import { giftSubscriptionsApi, settingsApi } from '../services/api';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -152,19 +153,13 @@ export function GiftSubscriptions() {
     >
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-reading)', margin: '0 auto' }}>
 
-        {/* Page header — 2-line thin serif */}
-        <h1
-          className="hl-serif hl-tight"
-          style={{
-            fontSize: 'var(--type-display)',
-            fontWeight: 200,
-            margin: '0 0 40px',
-            color: 'var(--bone)',
-            whiteSpace: 'pre-line',
-          }}
-        >
-          {'Give the gift of\na thousand years.'}
-        </h1>
+        {/* Page header */}
+        <RoomHeader
+          className="hl-room-header-gap"
+          eyebrow="gift a thread"
+          title={<span style={{ whiteSpace: 'pre-line' }}>{'Give the gift of\na thousand years.'}</span>}
+        />
+        <div style={{ height: 40 }} />
 
         {/* Step indicator */}
         <div style={{ display: 'flex', gap: 32, marginBottom: 48 }}>

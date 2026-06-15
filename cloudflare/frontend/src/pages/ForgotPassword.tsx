@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 
 export function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -58,33 +59,18 @@ export function ForgotPassword() {
         </div>
         {success ? (
           <div role="status">
-            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>reset</p>
-            <h1
-              className="hl-serif hl-tight"
-              style={{
-                fontSize: 'clamp(34px, 5vw, 56px)',
-                fontWeight: 200,
-                color: 'var(--bone)',
-                margin: '0 0 28px',
-              }}
-            >
-              Check your inbox.
-            </h1>
-
-            <p
-              className="hl-serif"
-              style={{
-                fontSize: 'var(--type-body-lg)',
-                color: 'var(--bone-dim)',
-                lineHeight: 1.7,
-                maxWidth: '46ch',
-                marginBottom: 28,
-              }}
-            >
-              If a thread exists for{' '}
-              <span style={{ color: 'var(--warm)' }}>{email}</span>, a reset
-              link will arrive shortly.
-            </p>
+            <RoomHeader
+              eyebrow="reset"
+              title="Check your inbox."
+              lede={
+                <>
+                  If a thread exists for{' '}
+                  <span style={{ color: 'var(--warm)' }}>{email}</span>, a reset
+                  link will arrive shortly.
+                </>
+              }
+            />
+            <div style={{ marginBottom: 28 }} />
 
             {resendFlash ? (
               <p
@@ -141,31 +127,12 @@ export function ForgotPassword() {
           </div>
         ) : (
           <>
-            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>reset</p>
-            <h1
-              className="hl-serif hl-tight"
-              style={{
-                fontSize: 'clamp(34px, 5vw, 56px)',
-                fontWeight: 200,
-                color: 'var(--bone)',
-                margin: '0 0 28px',
-              }}
-            >
-              Reset your password.
-            </h1>
-
-            <p
-              className="hl-serif"
-              style={{
-                fontSize: 'var(--type-body-lg)',
-                color: 'var(--bone-dim)',
-                lineHeight: 1.7,
-                maxWidth: '46ch',
-                marginBottom: 28,
-              }}
-            >
-              We'll email you a reset link.
-            </p>
+            <RoomHeader
+              eyebrow="reset"
+              title="Reset your password."
+              lede="We'll email you a reset link."
+            />
+            <div style={{ marginBottom: 28 }} />
 
             <form onSubmit={handleSubmit}>
               <label

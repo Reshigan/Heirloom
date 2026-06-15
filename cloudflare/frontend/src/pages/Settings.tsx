@@ -6,6 +6,7 @@ import { settingsApi, exportApi, deadmanApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { usePageMeta } from '../lib/usePageMeta';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { RoomHeader } from '../loom/components/room';
 
 const RESPONSIVE_CSS = `
 .hl-setting-row {
@@ -207,9 +208,9 @@ export function Settings() {
       <style>{RESPONSIVE_CSS}</style>
         <div style={{ maxWidth: 'var(--page-max-prose)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
-          <h1 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 300, margin: '0 0 28px', letterSpacing: '-0.016em' }}>
-            Settings
-          </h1>
+          <div style={{ marginBottom: 28 }}>
+            <RoomHeader eyebrow="your thread" title="Settings" />
+          </div>
 
           {profileLoadError && !profileData && (
             <p className="hl-mono" style={{ fontSize: 11, color: 'var(--warm-dim)', letterSpacing: '0.16em', margin: '0 0 20px', textTransform: 'uppercase' }}>
@@ -555,7 +556,7 @@ export function Settings() {
             )}
 
             {deleteStage === 'confirm' && (
-              <div className="cosmic-panel cosmic-panel--solid" style={{ border: '1px solid color-mix(in srgb, var(--danger) 35%, transparent)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
+              <div style={{ borderTop: '1px solid color-mix(in srgb, var(--danger) 35%, transparent)', paddingTop: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 14 }}>close account</div>
                 <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
                   Your thread will be archived for 90 days. During that window you can download a full export of everything you have ever written. After 90 days it is permanently erased.
@@ -574,7 +575,7 @@ export function Settings() {
             )}
 
             {deleteStage === 'quote' && (
-              <div className="cosmic-panel cosmic-panel--solid" style={{ border: '1px solid color-mix(in srgb, var(--danger) 35%, transparent)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
+              <div style={{ borderTop: '1px solid color-mix(in srgb, var(--danger) 35%, transparent)', paddingTop: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 14 }}>export fee</div>
                 {exitQuoteQ.isLoading ? (
                   <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.5, margin: '24px 0' }} />
@@ -608,7 +609,7 @@ export function Settings() {
             )}
 
             {deleteStage === 'password' && (
-              <div className="cosmic-panel cosmic-panel--solid" style={{ border: '1px solid color-mix(in srgb, var(--danger) 35%, transparent)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
+              <div style={{ borderTop: '1px solid color-mix(in srgb, var(--danger) 35%, transparent)', paddingTop: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 14 }}>confirm password</div>
                 <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 18px', lineHeight: 1.6 }}>
                   Enter your password to archive your account. A download link will be emailed to you.
@@ -640,7 +641,7 @@ export function Settings() {
             )}
 
             {deleteStage === 'archived' && (
-              <div className="cosmic-panel cosmic-panel--solid" style={{ border: '1px solid color-mix(in srgb, var(--warm) 35%, transparent)', padding: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
+              <div style={{ borderTop: '1px solid color-mix(in srgb, var(--warm) 35%, transparent)', paddingTop: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--warm)', marginBottom: 14 }}>archived</div>
                 <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
                   Your account has been archived. Check your email for a download link. Your thread will be permanently erased in 90 days.
