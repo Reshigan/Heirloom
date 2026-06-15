@@ -1,12 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { voiceApi, familyApi, getAuthHeaders } from '../services/api';
+import { voiceApi, familyApi, getAuthHeaders, aiApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { ClothShell } from '../loom/components/ClothShell';
 import { RecipientPicker } from '../loom/components/RecipientPicker';
+import { ProgressHair } from '../loom/components/ProgressHair';
+import { VoiceRefine } from '../loom/components/VoiceRefine';
 
 /**
  * Record — ComposerSpeak (Loom 3 · §6.3).
@@ -56,6 +58,8 @@ export function Record() {
   const [entryDate, setEntryDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [deliveryTrigger, setDeliveryTrigger] = useState<SpeakTrigger>('now');
   const [scheduledDate, setScheduledDate] = useState('');
+  const [transcribing, setTranscribing] = useState(false);
+  const [showRefine, setShowRefine] = useState(false);
 
   // Family autosuggest — only fetch when authenticated to avoid 401s
   const { data: familyData } = useQuery({
@@ -112,6 +116,23 @@ export function Record() {
     }
   }, [elapsed, recordingState]);
 
+  const autoTranscribe = useCallback(async (blob: Blob) => {
+    setTranscribing(true);
+    try {
+      const dataUrl = await blobToDataUrl(blob);
+      const res = await aiApi.transcribe({ audioUrl: dataUrl });
+      const heard = (res.data?.transcript || '').trim();
+      if (heard) {
+        setTranscript(heard);
+        setShowRefine(true);
+      }
+    } catch {
+      // Graceful fail — the manual transcript field stays available. Never block save.
+    } finally {
+      setTranscribing(false);
+    }
+  }, []);
+
   const startTick = () => {
     tickRef.current = setInterval(() => setElapsed((e) => e + 1), 1000);
   };
@@ -151,6 +172,7 @@ export function Record() {
         if (audioUrl) URL.revokeObjectURL(audioUrl);
         setAudioUrl(URL.createObjectURL(blob));
         stream.getTracks().forEach((t) => t.stop());
+        void autoTranscribe(blob);
       };
       recorder.start();
       setElapsed(0);
@@ -187,6 +209,8 @@ export function Record() {
     setAudioUrl(null);
     setElapsed(0);
     setRecordingState('idle');
+    setShowRefine(false);
+    setTranscribing(false);
   };
 
   const save = useMutation({
@@ -624,6 +648,12 @@ export function Record() {
         ) : null}
 
         {/* ── transcript (after recording stops) ────────────────── */}
+        {recordingState === 'recorded' && transcribing ? (
+          <div style={{ marginTop: 28, display: 'flex', justifyContent: 'center', width: '100%' }}>
+            <ProgressHair label="listening to your words…" width={240} />
+          </div>
+        ) : null}
+
         {recordingState === 'recorded' ? (
           <textarea
             value={transcript}
@@ -648,6 +678,13 @@ export function Record() {
               outline: 'none',
             }}
           />
+        ) : null}
+
+        {/* ── inline AI refine offer (parity with Write) ────────── */}
+        {recordingState === 'recorded' && showRefine && transcript.trim() ? (
+          <div style={{ marginTop: 20, width: '100%', maxWidth: 640, padding: '0 24px' }}>
+            <VoiceRefine kind="memory" onPick={(text) => setTranscript(text)} />
+          </div>
         ) : null}
 
         {/* ── save / discard row ────────────────────────────────── */}
@@ -757,6 +794,15 @@ export function Record() {
       )}
     </ClothShell>
   );
+}
+
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
 function promptCard(): React.CSSProperties {
