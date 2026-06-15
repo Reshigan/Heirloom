@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader, RoomSection } from '../loom/components/room';
 import { memoriesApi, lettersApi, voiceApi, booksApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -197,13 +198,12 @@ export function BookBuilder() {
       {/* scrollable inner */}
       <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
-        {/* H1 */}
-        <h1
-          className="hl-serif hl-tight"
-          style={{ fontSize: 'var(--type-display)', fontWeight: 200, marginBottom: 28, marginTop: 0, color: 'var(--bone)' }}
-        >
-          Your living book.
-        </h1>
+        {/* Header */}
+        <RoomHeader
+          eyebrow={`step ${currentStepIndex + 1} of ${stepOrder.length} · ${stepLabels[step]}`}
+          title="Your living book."
+          className="hl-bookbuilder-head"
+        />
 
         {/* Step progress — hairline track */}
         <div
@@ -211,6 +211,7 @@ export function BookBuilder() {
             display: 'flex',
             alignItems: 'center',
             gap: 0,
+            marginTop: 28,
             marginBottom: 48,
             borderBottom: '1px solid var(--rule)',
             paddingBottom: 0,
@@ -362,8 +363,7 @@ export function BookBuilder() {
                   style={{ ...inputStyle, resize: 'none' }}
                 />
               </div>
-              <div>
-                <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>Cover type</label>
+              <RoomSection label="Cover type">
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                   {(['hardcover', 'softcover'] as const).map((type) => (
                     <button
@@ -398,8 +398,9 @@ export function BookBuilder() {
                     </button>
                   ))}
                 </div>
-              </div>
-              <div style={{ display: 'grid', gap: 12 }}>
+              </RoomSection>
+              <RoomSection label="What goes inside">
+                <div style={{ display: 'grid', gap: 12 }}>
                 {[
                   { key: 'includePhotos', label: 'Include photos' },
                   { key: 'includeTranscriptions', label: 'Include voice transcriptions' },
@@ -417,7 +418,8 @@ export function BookBuilder() {
                     </span>
                   </label>
                 ))}
-              </div>
+                </div>
+              </RoomSection>
             </div>
           )}
 

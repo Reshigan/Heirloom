@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { TapestryEdge } from '../loom/components/Frame';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
+import { RoomHeader, RoomSection } from '../loom/components/room';
 import { threadsApi, type ThreadVisibility, type ThreadLockType } from '../services/api';
 
 /**
@@ -220,9 +221,15 @@ export function ThreadCompose() {
             padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           }}
         >
+          <RoomHeader
+            eyebrow="add to the thread"
+            title={<>A new <span className="hl-italic" style={{ fontStyle: 'italic', color: 'var(--warm)' }}>entry</span></>}
+            lede="Write to your descendants. What you weave here cannot be altered once it is woven."
+          />
+
           <form
             onSubmit={(e) => { e.preventDefault(); handleSave(); }}
-            style={{ display: 'grid', gap: 28 }}
+            style={{ display: 'grid', gap: 28, marginTop: 28 }}
           >
             {/* Title input */}
             <input
@@ -280,19 +287,11 @@ export function ThreadCompose() {
               }}
             />
 
-            <hr className="hl-rule" />
-
             {/* Visibility selector */}
-            <div>
-              <label
-                htmlFor="t-vis"
-                className="hl-eyebrow"
-                style={{ display: 'block', marginBottom: 10, color: 'var(--bone-dim)' }}
-              >
-                Who can read this
-              </label>
+            <RoomSection label="who can read this">
               <select
                 id="t-vis"
+                aria-label="Who can read this"
                 value={visibility}
                 onChange={(e) => setVisibility(e.target.value as ThreadVisibility)}
                 style={{ ...selectStyle, maxWidth: 480 }}
@@ -301,10 +300,10 @@ export function ThreadCompose() {
                 <option value="DESCENDANTS">Descendants only — generations after yours</option>
                 <option value="PRIVATE">Private — for a specific recipient (future feature)</option>
               </select>
-            </div>
+            </RoomSection>
 
-            {/* Time-lock panel */}
-            <div className="cosmic-panel" style={{ padding: '20px 24px' }}>
+            {/* Time-lock section */}
+            <RoomSection label="when it opens">
               <label
                 style={{ display: 'flex', alignItems: 'flex-start', gap: 14, cursor: 'pointer' }}
               >
@@ -530,7 +529,7 @@ export function ThreadCompose() {
                   ) : null}
                 </div>
               ) : null}
-            </div>
+            </RoomSection>
 
             {/* Inline error */}
             {error ? (

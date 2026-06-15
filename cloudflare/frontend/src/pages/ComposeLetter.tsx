@@ -6,6 +6,7 @@ import { type FamilyMember } from '../types';
 import { HLogo } from '../loom/components/HLogo';
 import { UserMenu } from '../loom/components/Frame';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader, RoomSection } from '../loom/components/room';
 import { RecipientPicker } from '../loom/components/RecipientPicker';
 import { VoiceRefine } from '../loom/components/VoiceRefine';
 import { useAuthStore } from '../stores/authStore';
@@ -288,17 +289,17 @@ export function ComposeLetter() {
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-          {/* eyebrow — mono kicker, warm dot */}
-          <p
-            className="hl-eyebrow"
-            style={{ marginBottom: 22, color: 'var(--bone-faint)' }}
-          >
-            <span style={{ color: 'var(--warm)' }}>·</span>&nbsp; a letter to the future
-          </p>
+          <RoomHeader
+            eyebrow="a letter to the future"
+            warmEyebrow
+            title={<>A sealed <span style={{ fontStyle: 'italic', color: 'var(--warm)' }}>letter</span></>}
+            lede="Written by hand, kept until the moment you choose."
+          />
 
           {/* Writing area — faint amber left thread */}
           <div
             style={{
+              marginTop: 28,
               borderLeft: '3px solid color-mix(in srgb, var(--warm) 32%, transparent)',
               paddingLeft: 20,
             }}
@@ -383,9 +384,9 @@ export function ComposeLetter() {
           </div>
 
           {/* delivery trigger row */}
+          <RoomSection label="when it opens">
           <div
             style={{
-              marginTop: 32,
               display: 'flex',
               gap: 24,
               flexWrap: 'wrap',
@@ -479,11 +480,12 @@ export function ComposeLetter() {
               milestone arrives.
             </p>
           )}
+          </RoomSection>
 
           {/* recipient row — autocomplete over friends & family, add-new inline */}
-          <div style={{ marginTop: 16, maxWidth: 340 }}>
+          <RoomSection label="for">
+          <div style={{ maxWidth: 340 }}>
             <RecipientPicker
-              label="for"
               members={members}
               name={recipientName}
               selectedId={recipientId}
@@ -539,6 +541,7 @@ export function ComposeLetter() {
               </div>
             </div>
           )}
+          </RoomSection>
 
           <hr className="hl-rule" style={{ marginTop: 28 }} />
 

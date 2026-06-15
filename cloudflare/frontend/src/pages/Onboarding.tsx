@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/authStore';
 import { threadsApi, familyReferralsApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Tour } from '../loom/components/Tour';
+import { RoomHeader } from '../loom/components/room';
 
 // ── Types ─────────────────────────────────────────────────────────────────
 // The thread itself is created at signup (from the signup form), so onboarding
@@ -19,35 +20,7 @@ const body: React.CSSProperties = {
   padding: 'var(--page-pad-top) var(--page-pad-x)',
   maxWidth: 'var(--page-max-focus)',
   width: '100%',
-};
-
-const eyebrow: React.CSSProperties = {
-  fontFamily: 'var(--mono)',
-  fontSize: 10,
-  color: 'var(--bone-faint)',
-  letterSpacing: '0.22em',
-  textTransform: 'uppercase' as const,
-  marginBottom: 28,
-};
-
-const heading: React.CSSProperties = {
-  fontFamily: 'var(--serif)',
-  fontSize: 'clamp(28px, 6vw, 44px)',
-  fontWeight: 300,
-  color: 'var(--bone)',
-  margin: '0 0 14px',
-  lineHeight: 1.12,
-  letterSpacing: '-0.016em',
-};
-
-const sub: React.CSSProperties = {
-  fontFamily: 'var(--serif)',
-  fontSize: 16,
-  fontWeight: 300,
-  lineHeight: 1.7,
-  color: 'var(--bone-dim)',
-  margin: '0 0 40px',
-  maxWidth: '40ch',
+  margin: '0 auto',
 };
 
 const inputStyle: React.CSSProperties = {
@@ -223,12 +196,13 @@ export function Onboarding() {
   const screens: Record<'entry' | 'invite', React.ReactNode> = {
     entry: (
       <>
-        <div style={eyebrow}>first entry</div>
-        <h1 style={heading}>Write the first entry.</h1>
-        <p style={sub}>
-          A memory, a thought, a truth about right now.
-          The cloth begins with this line.
-        </p>
+        <div style={{ marginBottom: 40 }}>
+          <RoomHeader
+            eyebrow="first entry"
+            title="Write the first entry."
+            lede="A memory, a thought, a truth about right now. The cloth begins with this line."
+          />
+        </div>
         <textarea
           style={textareaStyle}
           value={firstEntry}
@@ -243,12 +217,13 @@ export function Onboarding() {
 
     invite: (
       <>
-        <div style={eyebrow}>family</div>
-        <h1 style={heading}>Who else tends this thread?</h1>
-        <p style={sub}>
-          Invite one person — a partner, a parent, a grown child.
-          They'll receive an invitation to join.
-        </p>
+        <div style={{ marginBottom: 40 }}>
+          <RoomHeader
+            eyebrow="family"
+            title="Who else tends this thread?"
+            lede="Invite one person — a partner, a parent, a grown child. They'll receive an invitation to join."
+          />
+        </div>
         <input
           style={inputStyle}
           type="email"

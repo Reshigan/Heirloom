@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { RoomHeader } from '../loom/components/room';
 import { ClothPage } from '../loom/components/ClothPage';
 import { ClothBackdrop } from '../loom/components/ClothBackdrop';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
@@ -188,35 +189,19 @@ function ReadingContent({
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: '52px 24px 40px',
     }}>
-      <div style={{ maxWidth: 660, width: '100%', position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ maxWidth: '64ch', width: '100%', position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
 
-        {/* Header */}
-        <div style={{
-          fontFamily: 'var(--mono)', fontSize: 10, color: dye,
-          letterSpacing: '0.04em', marginBottom: 12,
-        }}>
-          ∞ &nbsp; {t.kind} · written by {t.who}
-        </div>
+        {/* Header — the reading-room anchor */}
+        <RoomHeader
+          eyebrow={`∞  ${t.date} · ${t.kind} · written by ${t.who}`}
+          title={t.title}
+          lede={`thread n°${activeIndex + 1} of ${total}`}
+          warmEyebrow={false}
+        />
+        <div style={{ height: 36 }} />
 
-        {/* Title */}
-        <div style={{
-          fontFamily: 'var(--serif)', fontSize: 'clamp(24px, 3.5vw, 34px)',
-          fontWeight: 300, fontStyle: 'italic', fontVariationSettings: '"opsz" 36',
-          margin: '0 0 8px', color: 'var(--bone)', lineHeight: 1.2,
-        }}>
-          {t.title}
-        </div>
-
-        {/* Dateline */}
-        <div style={{
-          fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--bone-faint)',
-          letterSpacing: '0.12em', marginBottom: 40,
-        }}>
-          {t.date} · thread n°{activeIndex + 1} of {total}
-        </div>
-
-        {/* Content with dye border */}
-        <div style={{ borderLeft: `3px solid ${dye}`, paddingLeft: 28 }}>
+        {/* Content with dye margin */}
+        <div style={{ borderLeft: `3px solid ${dye}`, paddingLeft: 'clamp(16px, 4vw, 28px)' }}>
           {t.photoUrl && (
             <div style={{
               aspectRatio: '4 / 3', marginBottom: 22,

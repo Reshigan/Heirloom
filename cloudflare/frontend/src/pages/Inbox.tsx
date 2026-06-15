@@ -4,6 +4,7 @@ import { threadsApi, memoriesApi, type UpcomingUnlock, type ThreadLockType } fro
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { RoomHeader } from '../loom/components/room';
 
 /**
  * Inbox — Loom 3 native "What is waiting."
@@ -100,6 +101,8 @@ export function Inbox() {
           padding: 'var(--page-pad-top) var(--page-pad-x)',
           paddingBottom: 'var(--page-clear)',
           overflowX: 'hidden',
+          maxWidth: 'min(100%, 720px)',
+          margin: '0 auto',
         }}
       >
         <style>{`
@@ -109,17 +112,9 @@ export function Inbox() {
             .inbox-col-hide { display: none; }
           }
         `}</style>
-        <h1
-          className="hl-serif hl-tight"
-          style={{
-            fontSize: 'clamp(28px, 6vw, 44px)',
-            fontWeight: 300,
-            margin: '0 0 40px',
-            color: 'var(--bone)',
-          }}
-        >
-          What is waiting.
-        </h1>
+        <div style={{ marginBottom: 40 }}>
+          <RoomHeader eyebrow="the inbox" title="What is waiting." />
+        </div>
 
         {/* ── for you ── */}
         {received.length > 0 && (

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { memoryCardsApi, memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 
 interface CardStyle {
   id: string;
@@ -175,17 +176,9 @@ export function MemoryCards() {
         }}
       >
         {/* H1 */}
-        <h1
-          className="hl-serif hl-tight"
-          style={{
-            fontSize: 'var(--type-display)',
-            fontWeight: 300,
-            color: 'var(--bone)',
-            margin: '0 0 28px',
-          }}
-        >
-          Cards from the cloth.
-        </h1>
+        <div style={{ marginBottom: 28 }}>
+          <RoomHeader eyebrow="memory cards" title="Cards from the cloth." />
+        </div>
 
         {/* Tab row */}
         <div

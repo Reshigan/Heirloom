@@ -10,30 +10,9 @@ import { memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
+import { RoomHeader, CapturePills, RoomRow } from '../loom/components/room';
 import type { UserRole } from '../hooks/useRole';
 import type { CanvasEntry } from '../loom/components/TapestryCanvas';
-
-/* ─── Date anchor — journal-style today stamp ────────────────────────────── */
-const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-function todayStamp(): string {
-  const d = new Date();
-  return `${DAYS[d.getDay()]} · ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-}
-
-/* ─── Stage-based encouragement ──────────────────────────────────────────── */
-interface Stage { headline: string; body: string }
-function getStage(count: number): Stage {
-  if (count === 0) return { headline: 'Your cloth is empty.',      body: 'The first thread changes everything.' };
-  if (count <= 3)  return { headline: 'The thread has begun.',     body: 'Every cloth in the world started here.' };
-  if (count <= 10) return { headline: 'The first threads are in.', body: 'A few more and the pattern begins to show.' };
-  if (count <= 25) return { headline: 'The cloth is forming.',     body: 'Someone will find this one day.' };
-  if (count <= 60) return { headline: 'The pattern is emerging.',  body: 'This is where most families stop. Keep going.' };
-  if (count <= 100) return { headline: 'The cloth is taking shape.', body: 'A hundred threads holds a life.' };
-  if (count <= 200) return { headline: 'A meaningful cloth.',       body: 'This will outlast you.' };
-  if (count <= 400) return { headline: 'A remarkable cloth.',       body: 'Most families never get here.' };
-  return { headline: 'A full cloth.', body: 'This will hold for a thousand years.' };
-}
 
 /* ─── PWA profile menu ────────────────────────────────────────────────────── */
 function PwaMenu() {
@@ -162,18 +141,18 @@ function AuthHome({
   role,
   entries,
   prompt,
+  reroll,
   stats,
 }: {
   role: UserRole;
   entries: CanvasEntry[];
   prompt: string;
+  reroll: () => void;
   stats: { entries: number; members: number } | null;
 }) {
   const { user, isAuthenticated } = useAuthStore();
   const count = entries.length;
-  const stage = getStage(count);
   const P = 'clamp(20px, 5vw, 28px)';
-  const TARGET = 400;
 
   const greeting = isAuthenticated && user
     ? `${user.firstName}'s thread.`
@@ -182,7 +161,7 @@ function AuthHome({
   // Visitor — no cloth, just invite
   if (role === 'visitor') {
     return (
-      <div style={{ padding: `36px ${P}`, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+      <div style={{ padding: `36px ${P}`, maxWidth: 560, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
         <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>preview</span>
         <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 24px', lineHeight: 1.15 }}>
           {greeting}
@@ -195,7 +174,7 @@ function AuthHome({
   // First-run for read-only thread members: show thread-viewer empty state
   if (count === 0 && (role === 'reader' || role === 'successor')) {
     return (
-      <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 480, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+      <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 480, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
         <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 18, color: 'var(--warm)' }}>
           {role === 'successor' ? 'heir' : 'reader'}
         </span>
@@ -212,7 +191,7 @@ function AuthHome({
   // First-run: no entries yet — show sealed letter prompt
   if (count === 0) {
     return (
-      <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 560, paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+      <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 560, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
         <div className="hl-eyebrow" style={{ marginBottom: 18, color: 'var(--warm)' }}>
           entry no. 0001
         </div>
@@ -271,302 +250,88 @@ function AuthHome({
     );
   }
 
+  // ── Active author / reader — capture-first home (layout C) ──
   const isReadOnly = role === 'reader' || role === 'successor';
-  const primaryCta = isReadOnly
-    ? { label: 'thread →', to: '/loom' }
-    : { label: 'write →', to: '/compose' };
-
   const nowYear = new Date().getFullYear();
   const firstYear = count > 0
     ? entries.reduce((min, e) => Math.min(min, e.date.getFullYear()), nowYear)
     : nowYear;
   const threadYear = nowYear - firstYear + 1;
-  const heroStat = {
-    fontFamily: 'var(--mono)',
-    fontSize: 9,
-    letterSpacing: '0.3em',
-    textTransform: 'uppercase' as const,
-    color: 'var(--bone-faint)',
-    textShadow: '0 1px 10px var(--ink), 0 0 22px var(--ink)',
-  };
+  const recent = [...entries].filter((e) => e.title).reverse().slice(0, 3);
+  const QUIET_NAV: { to: string; label: string }[] = [
+    { to: '/letters', label: 'letters' },
+    { to: '/family', label: 'family' },
+    { to: '/book', label: 'book' },
+    { to: '/ask', label: 'ask' },
+  ];
 
   return (
-    <>
-      {/* Home hero — the edge of the cloth. The cloth itself is the global
-          backdrop; this layer holds only the prompt, the breathing fell
-          line, and the selvedge stats. */}
+    <div style={{ padding: `0 ${P}`, maxWidth: 600, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+      {/* Listener hero — over the touchable cloth band. Fills the first view. */}
       <div style={{
-        position: 'relative',
-        // Fill exactly the first screen above the fixed BottomNav (76px) and
-        // below the topbar (56px) — svh, not vh, so iOS browser chrome can't
-        // overshoot and shove the selvedge stats behind the nav.
-        minHeight: 'clamp(360px, calc(100svh - 132px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)), 720px)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-        paddingBottom: 130,
+        minHeight: 'clamp(340px, calc(100svh - 200px - env(safe-area-inset-top, 0px)), 640px)',
+        display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+        gap: 22, paddingBottom: 8,
       }}>
-        <div style={{ textAlign: 'center', padding: `0 ${P}` }}>
-          <p style={{
-            fontFamily: 'var(--mono)',
-            fontSize: 10,
-            letterSpacing: '0.34em',
-            textTransform: 'uppercase',
-            color: 'var(--warm-dim)',
-            margin: '0 0 18px',
-          }}>
-            {todayStamp().toLowerCase()} · the edge of the cloth
-          </p>
-          {isReadOnly ? (
-            <p className="hl-serif" style={{
-              fontStyle: 'italic', fontWeight: 300,
-              fontSize: 'clamp(28px, 4.4vw, 48px)',
-              color: 'var(--bone)', margin: 0,
-              textShadow: '0 0 50px var(--ink)',
-            }}>
-              The cloth remembers.
-            </p>
-          ) : (
-            <Link to="/compose" className="hl-serif" style={{
-              display: 'inline-block',
-              fontStyle: 'italic', fontWeight: 300,
-              fontSize: 'clamp(28px, 4.4vw, 48px)',
-              color: 'var(--bone)', textDecoration: 'none',
-              cursor: 'text',
-              textShadow: '0 0 50px var(--ink)',
-            }}>
-              What will you keep from today?<span className="hl-hero-caret" aria-hidden />
-            </Link>
-          )}
-        </div>
-        <div className="hl-fell-line" style={{ bottom: 96 }} aria-hidden />
-        <div style={{
-          position: 'absolute', left: 0, right: 0, bottom: 30,
-          display: 'flex', justifyContent: 'space-between',
-          gap: 14, flexWrap: 'wrap',
-          padding: '0 28px',
-        }}>
-          <span style={heroStat}>
-            since {firstYear} · <b style={{ color: 'var(--warm-dim)', fontWeight: 400 }}>{count}</b> {count === 1 ? 'memory' : 'memories'} woven
-          </span>
-          <span style={heroStat}>touch a thread — the cloth remembers</span>
-          <span style={heroStat}>
-            {stats && stats.members > 0 ? `${stats.members} ${stats.members === 1 ? 'voice' : 'voices'} · ` : ''}year {threadYear} of a thousand
-          </span>
-        </div>
-      </div>
-
-      {/* Count + stage message */}
-      <div style={{ padding: `28px ${P} 24px` }}>
-        <div
-          className="hl-mono"
-          style={{
-            fontSize: 10,
-            letterSpacing: '0.30em',
-            textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
-            marginBottom: 14,
-          }}
-        >
-          {count} {count === 1 ? 'memory' : 'memories'} woven · {TARGET - count > 0 ? `${TARGET - count} remaining` : 'full cloth'}
-        </div>
-
-        <h2
-          className="hl-serif"
-          style={{
-            fontSize: 'clamp(20px, 5.5vw, 26px)',
-            fontWeight: 300,
-            color: 'var(--bone)',
-            margin: '0 0 10px',
-            lineHeight: 1.2,
-            letterSpacing: '-0.01em',
-            fontVariationSettings: '"opsz" 24',
-          }}
-        >
-          {stage.headline}
-        </h2>
-
-        <p
-          className="hl-serif"
-          style={{
-            fontSize: 'clamp(14px, 3.8vw, 16px)',
-            fontStyle: 'italic',
-            color: 'var(--bone-dim)',
-            margin: '0 0 6px',
-            lineHeight: 1.55,
-          }}
-        >
-          {stage.body}
-        </p>
-
-        {/* Listener prompt — shown only when there's an interesting prompt */}
-        {prompt && count > 0 && (
-          <p
-            className="hl-serif"
-            style={{
-              fontSize: 'clamp(13px, 3.5vw, 15px)',
-              fontStyle: 'italic',
-              color: 'var(--warm)',
-              margin: '14px 0 0',
-              lineHeight: 1.55,
-              borderLeft: '2px solid rgba(176,122,74,0.3)',
-              paddingLeft: 12,
-            }}
-          >
-            {prompt}
-          </p>
-        )}
-
-        {/* Entry count progress hairline */}
-        <div style={{ position: 'relative', height: 1, width: '100%', marginTop: 24, marginBottom: 24 }}>
-          <div style={{
-            position: 'absolute', top: 0, left: 0,
-            height: 1,
-            width: '100%',
-            background: 'rgba(244,236,216,0.06)',
-          }} />
-          <div style={{
-            position: 'absolute', top: 0, left: 0,
-            height: 1,
-            width: `${Math.min(100, (count / TARGET) * 100)}%`,
-            background: 'linear-gradient(to right, rgba(176,122,74,0.3), rgba(176,122,74,0.7))',
-            transition: 'width 720ms cubic-bezier(0.16,1,0.3,1)',
-          }} />
-        </div>
-
-        {/* Primary CTA */}
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 0, alignItems: 'center' }}>
-          <Link to={primaryCta.to} className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>
-            {primaryCta.label}
-          </Link>
-          {!isReadOnly && (
-            <Link to="/record" className="hl-btn text" style={{ fontSize: 13 }}>
-              speak →
-            </Link>
-          )}
-          {role === 'trial' && (
-            <Link to="/billing" className="hl-btn text" style={{ fontSize: 12 }}>
-              upgrade →
-            </Link>
-          )}
-        </div>
-      </div>
-
-      {/* Recently woven — the thread itself, not just its count. The most
-          recent entries with a title, newest first, each opening the woven
-          band. This is the list the cloth promises: what's actually here. */}
-      {count > 0 && (() => {
-        const recent = [...entries].filter(e => e.title).reverse().slice(0, 5);
-        if (recent.length === 0) return null;
-        return (
-          <div style={{ borderTop: '1px solid var(--rule)', padding: `20px ${P} 4px` }}>
-            <div className="hl-mono" style={{
-              fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase',
-              color: 'var(--bone-faint)', marginBottom: 14,
-            }}>
-              recently woven
-            </div>
-            {recent.map((e, i) => (
-              <Link
-                key={`${e.n}-${i}`}
-                to="/loom/weft"
-                style={{
-                  display: 'grid', gridTemplateColumns: 'auto 1fr auto',
-                  alignItems: 'baseline', columnGap: 12,
-                  textDecoration: 'none', padding: '11px 0', minHeight: 44,
-                  borderBottom: '1px solid var(--rule)',
-                }}
-              >
-                <span aria-hidden style={{
-                  width: 8, height: 8, alignSelf: 'center',
-                  background: `var(--dye-${e.dye}, var(--warm))`,
-                  boxShadow: `0 0 8px var(--dye-${e.dye}, var(--warm))`,
-                }} />
-                <span className="hl-serif" style={{
-                  fontSize: 'clamp(15px, 4vw, 17px)', fontWeight: 300, color: 'var(--bone)',
-                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
-                }}>
-                  {e.title}{e.sealed ? ' ∞' : ''}
-                </span>
-                <span className="hl-mono" style={{
-                  fontSize: 9, letterSpacing: '0.16em', textTransform: 'uppercase',
-                  color: 'var(--bone-faint)', textAlign: 'right',
-                }}>
-                  {e.date.getFullYear()}
-                </span>
-              </Link>
-            ))}
-            <Link to="/memories" className="hl-mono" style={{
-              display: 'inline-block', marginTop: 14,
-              fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
-              color: 'var(--warm)', textDecoration: 'none',
-            }}>
-              see all {count} {count === 1 ? 'memory' : 'memories'} →
-            </Link>
+        <RoomHeader
+          eyebrow={
+            isReadOnly ? 'the cloth remembers' : (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+                the listener asks
+                <button type="button" onClick={reroll} aria-label="another prompt" className="hl-mono"
+                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--warm)', fontSize: 12, lineHeight: 1, padding: 2 }}>
+                  ↻
+                </button>
+              </span>
+            )
+          }
+          title={
+            <span style={{ fontStyle: 'italic', textShadow: '0 0 50px var(--ink)' }}>
+              {isReadOnly ? 'The cloth remembers.' : prompt}
+            </span>
+          }
+        />
+        {isReadOnly ? (
+          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+            <Link to="/loom" className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>open the thread →</Link>
           </div>
-        );
-      })()}
+        ) : (
+          <CapturePills writeHref="/compose" speakHref="/record" />
+        )}
+      </div>
 
-      {/* Quick links */}
-      <div
-        style={{
-          borderTop: '1px solid var(--rule)',
-          padding: `16px ${P}`,
-          paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 0,
-        }}
-      >
-        {([
-          { to: '/wrapped',            label: 'wrapped',       sub: 'your thread, this year' },
-          { to: '/letters',            label: 'letters',       sub: 'write to someone not yet ready' },
-          { to: '/memories',           label: 'memories',      sub: 'add a thread to the weave' },
-          { to: '/ask',                label: 'ask the thread', sub: 'what did they say about…' },
-          { to: '/family',             label: 'family',        sub: 'the bloodline' },
-          { to: '/book',               label: 'the book',      sub: 'make it physical, permanent' },
-          { to: '/gift-subscriptions', label: 'gift a thread', sub: 'start someone else\'s cloth' },
-        ] as const).map(item => (
-          <Link
-            key={item.to}
-            to={item.to}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr auto',
-              alignItems: 'baseline',
-              columnGap: 12,
-              fontFamily: 'var(--mono)',
-              textDecoration: 'none',
-              padding: '12px 0',
-              minHeight: 44,
-              borderBottom: '1px solid var(--rule)',
-              transition: 'opacity 180ms var(--ease)',
-            }}
-            onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
-            onMouseLeave={e => (e.currentTarget.style.opacity = '0.85')}
-          >
-            <span style={{
-              fontSize: 12,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-dim)',
-            }}>
-              {item.label}
-            </span>
-            <span style={{
-              fontSize: 9,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
-              fontStyle: 'italic',
-              textAlign: 'right',
-            }}>
-              {item.sub} →
-            </span>
+      {/* Recently woven */}
+      {recent.length > 0 && (
+        <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 20, marginTop: 8 }}>
+          <div className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 12 }}>
+            recently woven
+          </div>
+          {recent.map((e, i) => (
+            <RoomRow key={`${e.n}-${i}`} dye={e.dye} href="/loom/weft"
+              title={`${e.title}${e.sealed ? ' ∞' : ''}`} meta={e.date.getFullYear()} />
+          ))}
+          <Link to="/memories" className="hl-mono" style={{ display: 'inline-block', marginTop: 14, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}>
+            see all {count} {count === 1 ? 'memory' : 'memories'} →
+          </Link>
+        </div>
+      )}
+
+      {/* Quiet nav */}
+      <div style={{ borderTop: '1px solid var(--rule)', marginTop: 24, paddingTop: 18, display: 'flex', gap: 18, flexWrap: 'wrap' }}>
+        {QUIET_NAV.map((n) => (
+          <Link key={n.to} to={n.to} className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-dim)', textDecoration: 'none' }}>
+            {n.label}
           </Link>
         ))}
       </div>
-    </>
+
+      {/* One status line */}
+      <p className="hl-mono" style={{ marginTop: 22, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+        since {firstYear} · <b style={{ color: 'var(--warm-dim)', fontWeight: 400 }}>{count}</b>{' '}
+        {count === 1 ? 'memory' : 'memories'} woven · year {threadYear} of a thousand
+        {stats && stats.members > 0 ? ` · ${stats.members} ${stats.members === 1 ? 'voice' : 'voices'}` : ''}
+      </p>
+    </div>
   );
 }
 
@@ -574,7 +339,7 @@ function AuthHome({
 export function PwaHome() {
   const role = useRole();
   const { entries } = useTapestryEntries();
-  const prompt  = useListener();
+  const { prompt, reroll } = useListener();
   const { isNewUser, isLoading: isNewUserLoading } = useIsNewUser();
   const [wizardDone, setWizardDone] = useState(() => !shouldShowWizard());
   const { isAuthenticated, _hasHydrated } = useAuthStore();
@@ -610,7 +375,6 @@ export function PwaHome() {
     <ClothShell
       topbarLeft={<HLogo size="sm" wordmark />}
       topbarRight={<PwaMenu />}
-      backdropOpacity={0.45}
     >
       {!wizardDone && <PwaWizard onDone={() => setWizardDone(true)} />}
 
@@ -619,6 +383,7 @@ export function PwaHome() {
           <div style={{
             padding: 'clamp(40px, 9vw, 64px) clamp(20px, 5vw, 32px)',
             maxWidth: 520,
+            margin: '0 auto',
             paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))',
           }}>
             <div className="hl-eyebrow" style={{ marginBottom: 18, color: 'var(--warm)' }}>
@@ -683,7 +448,7 @@ export function PwaHome() {
           keeps content off the fixed nav and lets the cloth parallax read
           `.loom main` scroll. (A nested absolute scroller defeated both.) */}
       {!isNewUser && (
-        <AuthHome role={role} entries={entries} prompt={prompt} stats={stats} />
+        <AuthHome role={role} entries={entries} prompt={prompt} reroll={reroll} stats={stats} />
       )}
 
     </ClothShell>

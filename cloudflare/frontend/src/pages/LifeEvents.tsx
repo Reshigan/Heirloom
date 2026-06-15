@@ -6,6 +6,7 @@ import { type FamilyMember } from '../types';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
+import { RoomHeader } from '../loom/components/room';
 
 // Quick Create wizard templates
 const QUICK_TEMPLATES = [
@@ -328,18 +329,7 @@ export function LifeEvents() {
 
         {/* Page header */}
         <header style={{ marginBottom: 48, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
-          <div>
-            <p className="hl-eyebrow" style={{ margin: '0 0 22px', color: 'var(--bone-faint)', display: 'flex', alignItems: 'center', gap: 9 }}>
-              <span aria-hidden style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--warm)', display: 'inline-block' }} />
-              Life events
-            </p>
-            <h1
-              className="hl-serif hl-tight"
-              style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}
-            >
-              The moments that shaped the cloth.
-            </h1>
-          </div>
+          <RoomHeader eyebrow="Life events" title="The moments that shaped the cloth." />
           <button
             onClick={() => setShowCreate(true)}
             className="hl-btn"

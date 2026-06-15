@@ -4,6 +4,7 @@ import { exportApi, type ExportJob } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { RoomHeader, RoomSection } from '../loom/components/room';
 
 /**
  * ExportPage — bind the bloodline into a single book.
@@ -110,30 +111,15 @@ export function ExportPage() {
         }}
       >
         {/* ── intro ── */}
-        <p className="hl-eyebrow" style={{ marginBottom: 14 }}>
-          the bloodline, bound
-        </p>
-        <h1
-          className="hl-serif hl-tight"
-          style={{
-            fontSize: 'clamp(28px, 6vw, 44px)',
-            fontWeight: 300,
-            margin: '0 0 20px',
-            color: 'var(--bone)',
-          }}
-        >
-          Bind your bloodline into a book.
-        </h1>
-        <p
-          className="hl-serif"
-          style={{ fontSize: 16, lineHeight: 1.6, color: 'var(--bone-dim)', margin: '0 0 48px' }}
-        >
-          Gather your family's thread into a single book — every memory, letter, and recorded
-          voice, set in type and bound as one PDF you can hold or print.
-        </p>
+        <RoomHeader
+          eyebrow="the bloodline, bound"
+          title="Bind your bloodline into a book."
+          lede="Gather your family's thread into a single book — every memory, letter, and recorded voice, set in type and bound as one PDF you can hold or print."
+        />
 
         {/* ── form ── */}
-        <section style={{ display: 'grid', gap: 28 }}>
+        <RoomSection label="the book" flush>
+          <div style={{ display: 'grid', gap: 28 }}>
           <Field label="title">
             <input
               type="text"
@@ -182,8 +168,11 @@ export function ExportPage() {
               ))}
             </div>
           </Field>
+          </div>
+        </RoomSection>
 
-          {/* includes */}
+        {/* ── includes ── */}
+        <RoomSection label="what goes inside">
           <div style={{ display: 'grid', gap: 0 }}>
             <ToggleRow
               label="include memories"
@@ -208,9 +197,11 @@ export function ExportPage() {
               onToggle={() => setForm((f) => ({ ...f, includeFamilyTree: !f.includeFamilyTree }))}
             />
           </div>
+        </RoomSection>
 
-          {/* bind action */}
-          <div style={{ marginTop: 8 }}>
+        {/* ── bind action — the single warm CTA ── */}
+        <RoomSection>
+          <div>
             <button
               type="button"
               className="hl-btn"
@@ -238,19 +229,10 @@ export function ExportPage() {
               </p>
             )}
           </div>
-        </section>
-
-        <hr
-          className="hl-rule"
-          style={{ margin: '56px 0 32px', border: 0, borderTop: '1px solid var(--rule)' }}
-        />
+        </RoomSection>
 
         {/* ── past bindings ── */}
-        <section>
-          <p className="hl-eyebrow" style={{ marginBottom: 18 }}>
-            past bindings
-          </p>
-
+        <RoomSection label="past bindings">
           {historyQ.isLoading ? (
             <ProgressHair width={80} />
           ) : exports.length === 0 ? (
@@ -263,7 +245,7 @@ export function ExportPage() {
           ) : (
             exports.map((job) => <HistoryRow key={job.id} job={job} />)
           )}
-        </section>
+        </RoomSection>
       </div>
     </ClothShell>
   );

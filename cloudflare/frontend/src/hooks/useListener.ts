@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 
 const PROMPTS = [
   'What did you almost forget to write down today?',
@@ -55,11 +55,58 @@ const PROMPTS = [
   'What do you need to hear from someone you can no longer ask?',
 ];
 
-export function useListener(): string {
-  return useMemo(() => {
-    const dayOfYear = Math.floor(
-      (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86_400_000
-    );
-    return PROMPTS[dayOfYear % PROMPTS.length];
-  }, []);
+const STORAGE_KEY = 'heirloom.listener.lastIdx';
+
+// Pure: pick an index different from `last`, deterministic given `seed` in [0,1).
+// Exposed for the rotation assertion script.
+export function nextIndex(last: number, total: number, seed: number): number {
+  if (total <= 1) return 0;
+  const offset = 1 + Math.floor(seed * (total - 1)); // 1..total-1, never 0
+  return ((last < 0 ? 0 : last) + offset) % total;
+}
+
+function readLast(): number {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const n = raw == null ? -1 : parseInt(raw, 10);
+    return Number.isFinite(n) ? n : -1;
+  } catch {
+    return -1;
+  }
+}
+
+function writeLast(i: number): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, String(i));
+  } catch {
+    /* private mode / disabled storage — rotation degrades to per-mount only */
+  }
+}
+
+export interface Listener {
+  prompt: string;
+  reroll: () => void;
+}
+
+/**
+ * useListener — a fresh prompt on every open/login. Persists the last index in
+ * localStorage and advances by a non-zero offset so the same prompt never
+ * repeats back-to-back. `reroll()` advances again for the ↻ affordance.
+ */
+export function useListener(): Listener {
+  const total = PROMPTS.length;
+  const [idx, setIdx] = useState(() => {
+    const i = nextIndex(readLast(), total, Math.random());
+    writeLast(i);
+    return i;
+  });
+  const reroll = useCallback(() => {
+    setIdx((cur) => {
+      const i = nextIndex(cur, total, Math.random());
+      writeLast(i);
+      return i;
+    });
+  }, [total]);
+  const prompt = useMemo(() => PROMPTS[idx], [idx]);
+  return { prompt, reroll };
 }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { searchApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 
 /**
  * QandA — Loom 3 "ask the thread" (RAG, cited).
@@ -124,43 +125,29 @@ export function QandA() {
         >
           {/* ── left: question + answer column ── */}
           <div style={{ minWidth: 0 }}>
-            {/* Current question heading */}
-            <h2
-              className="hl-serif"
-              style={{
-                fontSize: 30,
-                fontWeight: 400,
-                letterSpacing: '-0.014em',
-                margin: '0 0 0',
-                color: 'var(--bone)',
-                fontStyle: state.phase === 'idle' ? 'italic' : undefined,
-              }}
-            >
-              {state.phase === 'idle'
-                ? 'ask the thread.'
-                : state.phase === 'asking'
-                ? 'thinking…'
-                : state.phase === 'answered' || state.phase === 'error'
-                ? (state as { question: string }).question
-                : 'ask the thread.'}
-            </h2>
+            <RoomHeader
+              warmEyebrow
+              eyebrow="ask the bloodline"
+              title="ask the thread."
+              lede="Ask anything of the thread. The Listener finds the entries that answer it and cites each one."
+            />
 
-            {/* Answer prose */}
-            {state.phase === 'idle' && (
-              <p
-                className="hl-prose"
+            {/* Current question heading — the active question / state echo */}
+            {state.phase !== 'idle' && (
+              <h2
+                className="hl-serif"
                 style={{
-                  fontSize: 18,
-                  marginTop: 16,
-                  marginBottom: 24,
-                  color: 'var(--bone-faint)',
-                  fontStyle: 'italic',
-                  maxWidth: '62ch',
+                  fontSize: 30,
+                  fontWeight: 400,
+                  letterSpacing: '-0.014em',
+                  margin: '32px 0 0',
+                  color: 'var(--bone)',
                 }}
               >
-                Ask anything of the thread. The Listener will find the entries that answer it
-                and cite each one.
-              </p>
+                {state.phase === 'asking'
+                  ? 'thinking…'
+                  : (state as { question: string }).question}
+              </h2>
             )}
 
             {state.phase === 'asking' && (

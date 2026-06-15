@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 
 export function ResetPassword() {
   const navigate = useNavigate();
@@ -73,24 +74,12 @@ export function ResetPassword() {
         {!token ? (
           /* Invalid link state */
           <div role="status">
-            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>reset</p>
-            <h1
-              className="hl-serif hl-tight"
-              style={{
-                fontSize: 'clamp(34px, 5vw, 56px)',
-                fontWeight: 200,
-                margin: '0 0 28px',
-                color: 'var(--bone)',
-              }}
-            >
-              Invalid reset link.
-            </h1>
-            <p
-              className="hl-serif"
-              style={{ fontSize: 'var(--type-body-lg)', color: 'var(--bone-dim)', lineHeight: 1.7, maxWidth: '46ch', margin: '0 0 32px' }}
-            >
-              This link has expired or is no longer valid.
-            </p>
+            <RoomHeader
+              eyebrow="reset"
+              title="Invalid reset link."
+              lede="This link has expired or is no longer valid."
+            />
+            <div style={{ marginBottom: 32 }} />
             <Link to="/forgot-password" className="hl-btn text" style={{ textDecoration: 'none', letterSpacing: '0.06em' }}>
               request a new link →
             </Link>
@@ -98,24 +87,12 @@ export function ResetPassword() {
         ) : success ? (
           /* Success state */
           <div role="status">
-            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>reset</p>
-            <h1
-              className="hl-serif hl-tight"
-              style={{
-                fontSize: 'clamp(34px, 5vw, 56px)',
-                fontWeight: 200,
-                margin: '0 0 28px',
-                color: 'var(--bone)',
-              }}
-            >
-              Password reset.
-            </h1>
-            <p
-              className="hl-serif"
-              style={{ fontSize: 'var(--type-body-lg)', color: 'var(--bone-dim)', lineHeight: 1.7, maxWidth: '46ch', margin: '0 0 32px' }}
-            >
-              Your thread is secured. Returning you to sign in…
-            </p>
+            <RoomHeader
+              eyebrow="reset"
+              title="Password reset."
+              lede="Your thread is secured. Returning you to sign in…"
+            />
+            <div style={{ marginBottom: 32 }} />
             <Link to="/login" className="hl-btn text" style={{ textDecoration: 'none', letterSpacing: '0.06em' }}>
               go to sign in →
             </Link>
@@ -123,18 +100,8 @@ export function ResetPassword() {
         ) : (
           /* Main form */
           <>
-            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>reset</p>
-            <h1
-              className="hl-serif hl-tight"
-              style={{
-                fontSize: 'clamp(34px, 5vw, 56px)',
-                fontWeight: 200,
-                margin: '0 0 28px',
-                color: 'var(--bone)',
-              }}
-            >
-              New password.
-            </h1>
+            <RoomHeader eyebrow="reset" title="New password." />
+            <div style={{ marginBottom: 28 }} />
 
             <form onSubmit={handleSubmit} style={{ display: 'grid' }}>
               {/* Password input */}

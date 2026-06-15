@@ -4,6 +4,7 @@ import { emailVerificationApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 
 export function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -119,18 +120,7 @@ export function VerifyEmail() {
             >
               ∞
             </div>
-            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>verified</p>
-            <h1
-              className="hl-serif hl-tight"
-              style={{
-                fontSize: 'clamp(34px, 5vw, 56px)',
-                fontWeight: 200,
-                color: 'var(--bone)',
-                margin: 0,
-              }}
-            >
-              Your account is confirmed.
-            </h1>
+            <RoomHeader eyebrow="verified" title="Your account is confirmed." />
             <div style={{ marginTop: 24 }}>
               <Link
                 to="/loom"
@@ -265,30 +255,12 @@ export function VerifyEmail() {
             >
               ∞
             </div>
-            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 24 }}>verify</p>
-            <h1
-              className="hl-serif hl-tight"
-              style={{
-                fontSize: 'clamp(34px, 5vw, 56px)',
-                fontWeight: 200,
-                color: 'var(--bone)',
-                margin: '0 0 20px',
-              }}
-            >
-              Verify your email.
-            </h1>
-            <p
-              className="hl-mono"
-              style={{
-                fontSize: 11,
-                color: 'var(--bone-faint)',
-                margin: '0 0 32px',
-                letterSpacing: '0.06em',
-                lineHeight: 1.7,
-              }}
-            >
-              Check your inbox for a verification link, or request a new one below.
-            </p>
+            <RoomHeader
+              eyebrow="verify"
+              title="Verify your email."
+              lede="Check your inbox for a verification link, or request a new one below."
+            />
+            <div style={{ marginBottom: 32 }} />
 
             <div style={{ display: 'grid', gap: 16 }}>
               <button

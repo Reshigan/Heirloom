@@ -7,6 +7,7 @@ import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
 import { familyApi } from '../services/api';
 import api from '../services/api';
+import { RoomHeader } from '../loom/components/room';
 
 // ── Template options ────────────────────────────────────────────────────────
 const TEMPLATES = [
@@ -386,50 +387,14 @@ export function QuickWizard() {
           overflowY: 'auto',
         }}
       >
-        <div style={{ textAlign: 'center', maxWidth: 'var(--page-max-focus)', width: '100%' }}>
+        <div style={{ maxWidth: 'var(--page-max-focus)', width: '100%' }}>
 
-          {/* Step indicator */}
-          <p
-            className="hl-mono"
-            style={{
-              fontSize: 10,
-              color: 'var(--bone-dim)',
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              marginBottom: 18,
-            }}
-          >
-            step {currentStep} of {TOTAL_STEPS}
-          </p>
-
-          {/* Step question */}
-          <h2
-            className="hl-serif hl-tight"
-            style={{
-              fontSize: 'var(--type-title)',
-              fontWeight: 400,
-              letterSpacing: '-0.012em',
-              color: 'var(--bone)',
-              margin: 0,
-            }}
-          >
-            {question}
-          </h2>
-
-          {/* Step description */}
-          <p
-            className="hl-prose"
-            style={{
-              fontSize: 14.5,
-              color: 'var(--bone-dim)',
-              marginTop: 14,
-              marginBottom: 0,
-              lineHeight: 1.6,
-              maxWidth: '100%',
-            }}
-          >
-            {description}
-          </p>
+          {/* Step prompt — step indicator is the progress mechanism (eyebrow) */}
+          <RoomHeader
+            eyebrow={`step ${currentStep} of ${TOTAL_STEPS}`}
+            title={question}
+            lede={description}
+          />
 
           {/* ── Input area ─────────────────────────────────────────────── */}
           <div style={{ marginTop: 28 }}>

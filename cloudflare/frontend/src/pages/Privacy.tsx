@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 import { usePageMeta } from '../lib/usePageMeta';
 
 const SECTIONS = [
@@ -44,11 +45,8 @@ export function Privacy() {
       topbarCenter="privacy"
       topbarRight={<Link to="/terms">terms →</Link>}
     >
-      <div style={{ maxWidth: 'var(--page-max-prose)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
-        <div className="hl-eyebrow dark" style={{ marginBottom: 18 }}>privacy · plain words version</div>
-        <h1 className="hl-serif hl-tight" style={{ fontSize: 'var(--type-display)', lineHeight: 1.06, fontWeight: 300, margin: 0, letterSpacing: '-0.022em', color: 'var(--bone)' }}>
-          Six things you should know.
-        </h1>
+      <div style={{ maxWidth: 'min(68ch, var(--page-max-prose))', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
+        <RoomHeader eyebrow="privacy · plain words version" title="Six things you should know." />
 
         {SECTIONS.map((s) => (
           <div key={s.n} style={{ marginTop: 56, display: 'grid', gridTemplateColumns: 'min(100px, 22%) 1fr', gap: 'clamp(16px, 3vw, 32px)', borderTop: '1px solid var(--rule)', paddingTop: 28 }}>

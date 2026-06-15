@@ -6,6 +6,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
 import { type FamilyMember } from '../types';
+import { RoomHeader, RoomSection, RoomRow } from '../loom/components/room';
 
 interface RecentEntry {
   id: string;
@@ -44,24 +45,6 @@ function entryTo(kind: string, id: string): string {
   if (kind === 'voice') return `/loom/voice?id=${id}`;
   if (kind === 'letter') return `/loom/letter?id=${id}`;
   return `/loom/read?entry=${id}`;
-}
-
-/** 12×2 dye swatch used in the entries list */
-function DyeSwatch({ dye }: { dye?: string }) {
-  const color = dye ? (DYE_VARS[dye] ?? 'var(--rule-strong)') : 'var(--rule-strong)';
-  return (
-    <span
-      aria-hidden
-      style={{
-        display: 'inline-block',
-        width: 12,
-        height: 2,
-        background: color,
-        flexShrink: 0,
-        alignSelf: 'center',
-      }}
-    />
-  );
 }
 
 export function PersonPage() {
@@ -340,50 +323,11 @@ export function PersonPage() {
                   ∞
                 </div>
 
-                <h1
-                  className="hl-serif"
-                  style={{
-                    fontSize: 'var(--type-title)',
-                    fontWeight: 200,
-                    letterSpacing: '0.04em',
-                    margin: 0,
-                    color: 'var(--bone)',
-                  }}
-                >
-                  {member.name}
-                </h1>
-
-                {/* Relationship */}
-                <p
-                  className="hl-mono"
-                  style={{
-                    fontSize: 11,
-                    color: 'var(--bone-dim)',
-                    marginTop: 10,
-                    marginBottom: 0,
-                    letterSpacing: '0.24em',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  {member.relationship}
-                </p>
-
-                {/* Bio / notes — epitaph treatment */}
-                {member.notes && (
-                  <p
-                    className="hl-serif hl-italic"
-                    style={{
-                      fontSize: 'var(--type-body-lg)',
-                      marginTop: 20,
-                      marginBottom: 0,
-                      color: 'var(--bone-dim)',
-                      lineHeight: 1.7,
-                      maxWidth: '34ch',
-                    }}
-                  >
-                    {member.notes}
-                  </p>
-                )}
+                <RoomHeader
+                  eyebrow={member.relationship}
+                  title={member.name}
+                  lede={member.notes || undefined}
+                />
 
                 {/* Edit link */}
                 <button
@@ -452,86 +396,41 @@ export function PersonPage() {
 
           {/* ── RIGHT COLUMN ───────────────────────────────────── */}
           <div>
-            {/* Eyebrow */}
-            <p
-              className="hl-eyebrow"
-              style={{ marginBottom: 16, marginTop: 0 }}
-            >
-              their entries
-            </p>
-
             {/* Entry list */}
             {allEntries.length > 0 ? (
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+              <RoomSection label="their entries" flush>
                 {allEntries.map((entry) => (
-                  <li
+                  <RoomRow
                     key={`${entry.kind}-${entry.id}`}
-                    style={{
-                      borderBottom: '1px solid var(--rule)',
-                    }}
-                  >
-                    <Link
-                      to={entryTo(entry.kind, entry.id)}
-                      style={{
-                        textDecoration: 'none',
-                        color: 'inherit',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 12,
-                        paddingTop: 14,
-                        paddingBottom: 14,
-                      }}
-                    >
-                      <DyeSwatch dye={entry.dye} />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p
-                          className="hl-serif"
-                          style={{
-                            fontSize: 15,
-                            fontWeight: 300,
-                            color: 'var(--bone)',
-                            margin: 0,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {entry.title}
-                        </p>
-                        <p
-                          className="hl-mono"
-                          style={{
-                            fontSize: 10,
-                            color: 'var(--bone-faint)',
-                            margin: '3px 0 0',
-                            letterSpacing: '0.06em',
-                          }}
-                        >
-                          {entry.date
-                            ? new Date(entry.date).toLocaleDateString(undefined, {
-                                day: 'numeric',
-                                month: 'long',
-                                year: 'numeric',
-                              })
-                            : '—'}
-                        </p>
-                      </div>
-                    </Link>
-                  </li>
+                    dye={entry.dye}
+                    href={entryTo(entry.kind, entry.id)}
+                    title={entry.title}
+                    meta={
+                      entry.date
+                        ? new Date(entry.date).toLocaleDateString(undefined, {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          })
+                        : '—'
+                    }
+                  />
                 ))}
-              </ul>
+              </RoomSection>
             ) : (
-              <p
-                className="hl-serif hl-italic"
-                style={{
-                  fontSize: 15,
-                  color: 'var(--bone-faint)',
-                  margin: 0,
-                  fontStyle: 'italic',
-                }}
-              >
-                no entries visible
-              </p>
+              <RoomSection label="their entries" flush>
+                <p
+                  className="hl-serif hl-italic"
+                  style={{
+                    fontSize: 15,
+                    color: 'var(--bone-faint)',
+                    margin: 0,
+                    fontStyle: 'italic',
+                  }}
+                >
+                  no entries visible
+                </p>
+              </RoomSection>
             )}
 
             {/* Prompt suggestions — preserved API data, rendered quietly */}

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { RoomHeader } from '../loom/components/room';
 import { voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeColor } from '../loom/dye';
@@ -148,6 +149,13 @@ export function VoiceRoom() {
       />
 
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
+        <RoomHeader
+          eyebrow="the voices"
+          title="Voices waiting to be heard."
+          className="hl-room-header"
+        />
+        <style>{`.hl-room-header { margin-bottom: 32px; }`}</style>
+
         {/* CTA */}
         <Link
           to="/record"

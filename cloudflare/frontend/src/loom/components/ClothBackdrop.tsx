@@ -21,11 +21,17 @@ export const CLOTH_BG_ENTRIES = Array.from({ length: 48 }, (_, i) => ({
   locked: i % 4 === 0,
 }));
 
-// On these routes the cloth IS the screen — full presence, touchable, no
-// reading column to protect. Everywhere else (incl. /loom/today and /loom/weft,
-// which carry prose + actions) the cloth recedes behind a veil so the room's
-// work stays legible — type is the hero, the weave breathes at the margins.
-const HOME_ROUTES = new Set(['/loom', '/loom/pwa']);
+type VeilMode = 'full' | 'band' | 'room';
+
+// `/loom` — the cloth IS the screen, full presence, no veil.
+// `/loom/pwa` — capture home: cloth lives in a touchable top band, ink below.
+// everything else — the room veil draws over so the page's work stays legible.
+function veilModeFor(pathname: string): VeilMode {
+  const p = pathname.replace(/\/$/, '') || '/';
+  if (p === '/loom') return 'full';
+  if (p === '/loom/pwa') return 'band';
+  return 'room';
+}
 
 interface ClothBackdropProps {
   /** Deprecated — the woven cloth manages its own presence. Accepted for back-compat. */
@@ -50,7 +56,8 @@ export function ClothBackdrop(_props: ClothBackdropProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { entries } = useTapestryEntries();
-  const isHome = HOME_ROUTES.has(location.pathname.replace(/\/$/, '') || '/');
+  const veilMode = veilModeFor(location.pathname);
+  const isHome = veilMode !== 'room';
 
   // The ceremony surge — when an entry is woven anywhere (the save celebration,
   // a letter unlocked), the cloth answers: the veil lifts and the weave comes to
@@ -70,7 +77,10 @@ export function ClothBackdrop(_props: ClothBackdropProps) {
     return () => { window.removeEventListener('heirloom:weave', onWeave); window.clearTimeout(t); };
   }, []);
 
+  // Cloth comes to full presence on a home surface or during the weave ceremony.
   const present = isHome || surging;
+  // During a surge the veil always lifts; otherwise it follows the route mode.
+  const effectiveMode: VeilMode = surging ? 'full' : veilMode;
 
   const { whispers, seals } = useMemo(() => {
     const whispers: ClothWhisperEntry[] = [];
@@ -109,22 +119,36 @@ export function ClothBackdrop(_props: ClothBackdropProps) {
           onNavigate={navigate}
         />
       </div>
-      {/* The veil — in the rooms the cloth recedes so the page's work is the
-          focus. The reading column sits in calm ink at the centre; the weave
-          survives only at the far margins and corners, a faint warm web behind
-          the negative space. Never on home: there the cloth is the screen. */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          inset: 0,
-          pointerEvents: 'none',
-          opacity: present ? 0 : 0.97,
-          transition: 'opacity 1400ms var(--ease-out)',
-          background:
-            'radial-gradient(ellipse 76% 88% at 50% 46%, var(--ink) 38%, color-mix(in srgb, var(--ink) 55%, transparent) 68%, transparent 92%)',
-        }}
-      />
+      {/* The veil. `full` → none. `room` → radial ink, the page floats in calm
+          centre dark. `band` → vertical: cloth reads in the top band, solid ink
+          below so the capture block is legible while the cloth stays touchable. */}
+      {effectiveMode === 'room' && (
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            opacity: 0.97,
+            transition: 'opacity 1400ms var(--ease-out)',
+            background:
+              'radial-gradient(ellipse 76% 88% at 50% 46%, var(--ink) 38%, color-mix(in srgb, var(--ink) 55%, transparent) 68%, transparent 92%)',
+          }}
+        />
+      )}
+      {effectiveMode === 'band' && (
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            transition: 'opacity 1400ms var(--ease-out)',
+            background:
+              'linear-gradient(to bottom, transparent 0%, transparent 30%, color-mix(in srgb, var(--ink) 72%, transparent) 44%, var(--ink) 60%, var(--ink) 100%)',
+          }}
+        />
+      )}
     </>
   );
 }

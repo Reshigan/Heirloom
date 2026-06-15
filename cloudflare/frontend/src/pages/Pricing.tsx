@@ -4,6 +4,7 @@ import { billingApi } from '../services/api';
 import { PLAN_FEATURES } from '../lib/plans';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
+import { RoomHeader } from '../loom/components/room';
 import { usePageMeta } from '../lib/usePageMeta';
 
 interface PricingData {
@@ -86,13 +87,14 @@ export function Pricing() {
   return (
     <ClothShell topbarLeft={<HLogo />} topbarCenter="pricing">
       <div style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(24px,5vw,48px)' }}>
-        <div className="hl-eyebrow dark" style={{ marginBottom: 24 }}>Pricing</div>
-        <h1 className="hl-serif hl-tight" style={{ fontSize: 48, fontWeight: 300, margin: '0 0 40px', color: 'var(--bone)' }}>
-          One price for the whole family.
-        </h1>
+        <RoomHeader
+          eyebrow="pricing"
+          title="One price for the whole family."
+          className="hl-room-header"
+        />
 
         {/* Billing cycle toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 40 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '40px 0' }}>
           <button
             type="button"
             onClick={() => setAnnual(false)}

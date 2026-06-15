@@ -5,6 +5,7 @@ import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { useAuthStore } from '../stores/authStore';
+import { RoomHeader, RoomSection } from '../loom/components/room';
 
 /**
  * DailySentence — "the daily sentence · syndication" (§Pass-3, moment 03).
@@ -218,82 +219,61 @@ export function DailySentence() {
         }}
       >
         {/* headline + lede */}
-        <div>
-          <h2
-            className="hl-serif hl-tight"
-            style={{
-              fontSize: 'var(--type-title)',
-              fontWeight: 300,
-              margin: 0,
-              color: 'var(--bone)',
-            }}
-          >
-            One question a day. The question travels —{' '}
-            <em
-              className="hl-italic"
-              style={{ color: 'var(--warm)', fontStyle: 'italic' }}
-            >
-              the answers never do.
-            </em>
-          </h2>
+        <RoomHeader
+          eyebrow="the daily sentence"
+          title={
+            <>
+              One question a day. The question travels —{' '}
+              <em
+                className="hl-italic"
+                style={{ color: 'var(--warm)', fontStyle: 'italic' }}
+              >
+                the answers never do.
+              </em>
+            </>
+          }
+          lede="One prompt, generated for the whole archive. Pre-rendered for Instagram (square + vertical), the marketing newsletter, X, and podcasts. No identifying content. The question alone, in our type, on our ink."
+        />
 
+        {/* today's question */}
+        <RoomSection label={stamp} flush>
           <p
             className="hl-serif hl-tight"
             style={{
               fontSize: 'var(--type-display)',
               fontWeight: 300,
               color: 'var(--bone)',
-              margin: '28px 0 8px',
+              margin: 0,
               maxWidth: '28ch',
             }}
           >
             {question}
           </p>
-
-          <span
-            className="hl-mono"
-            style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}
-          >
-            {stamp}
-          </span>
-
-          <p
-            className="hl-prose"
-            style={{
-              fontSize: 15,
-              lineHeight: 1.7,
-              color: 'var(--bone-dim)',
-              marginTop: 14,
-              maxWidth: '64ch',
-            }}
-          >
-            One prompt, generated for the whole archive. Pre-rendered for Instagram (square +
-            vertical), the marketing newsletter, X, and podcasts. No identifying content. The
-            question alone, in our type, on our ink.
-          </p>
-        </div>
+        </RoomSection>
 
         {/* tile previews */}
-        <div
-          style={{
-            display: 'flex',
-            gap: 40,
-            alignItems: 'flex-start',
-            flexWrap: 'wrap',
-          }}
-        >
-          {VARIANTS.map((v) => (
-            <div key={v.label} style={{ flex: '0 0 auto' }}>
-              <div className="hl-eyebrow" style={{ marginBottom: 10 }}>
-                {v.label}
+        <RoomSection label="syndication">
+          <div
+            style={{
+              display: 'flex',
+              gap: 40,
+              alignItems: 'flex-start',
+              flexWrap: 'wrap',
+            }}
+          >
+            {VARIANTS.map((v) => (
+              <div key={v.label} style={{ flex: '0 0 auto' }}>
+                <div className="hl-eyebrow" style={{ marginBottom: 10 }}>
+                  {v.label}
+                </div>
+                <Tile question={question} stamp={stamp} audience={audience} />
               </div>
-              <Tile question={question} stamp={stamp} audience={audience} />
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </RoomSection>
 
         {/* notes */}
-        <div>
+        <RoomSection label="note">
           <p
             className="hl-serif"
             style={{
@@ -309,7 +289,7 @@ export function DailySentence() {
             performs the brand without performing the family. Like a Penguin paperback ad — type,
             restraint, and one beautiful thing.
           </p>
-        </div>
+        </RoomSection>
       </div>
 
     </ClothShell>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 import { dyeColor } from '../loom/dye';
 import api from '../services/api';
 
@@ -169,48 +170,12 @@ export function MemoryRoom() {
         margin: '0 auto',
       }}>
 
-        {/* Room header — mono kicker over the room name as oversized serif title */}
-        <header>
-          <div
-            className="hl-mono"
-            style={{
-              fontSize: 11,
-              letterSpacing: '0.28em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
-              marginBottom: 22,
-            }}
-          >
-            MEMORY ROOM <span style={{ color: 'var(--warm)' }}>·</span> {room.ownerName}
-          </div>
-
-          <h1
-            className="hl-serif hl-tight"
-            style={{
-              fontSize: 'var(--type-hero)',
-              fontWeight: 200,
-              color: 'var(--bone)',
-              margin: '0 0 28px',
-            }}
-          >
-            {room.name || 'A room in the cloth.'}
-          </h1>
-
-          {room.description && (
-            <p
-              className="hl-serif hl-prose dark"
-              style={{
-                fontSize: 'var(--type-body-lg)',
-                color: 'var(--bone-dim)',
-                lineHeight: 1.85,
-                margin: 0,
-                maxWidth: 'var(--page-max-prose)',
-              }}
-            >
-              {room.description}
-            </p>
-          )}
-        </header>
+        {/* Room header — the reading-room anchor */}
+        <RoomHeader
+          eyebrow={<>MEMORY ROOM <span style={{ color: 'var(--warm)' }}>·</span> {room.ownerName}</>}
+          title={room.name || 'A room in the cloth.'}
+          lede={room.description || undefined}
+        />
 
         {/* Inline success status */}
         {submitted && (

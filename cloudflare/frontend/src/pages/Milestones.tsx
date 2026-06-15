@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 import { milestonesApi } from '../services/api';
 
 const milestoneTypes = [
@@ -121,22 +122,7 @@ export function Milestones() {
         {/* Page header */}
         <header style={{ marginBottom: 52, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
           <div>
-            <p className="hl-eyebrow" style={{ margin: '0 0 22px', color: 'var(--bone-faint)', display: 'flex', alignItems: 'center', gap: 9 }}>
-              <span aria-hidden style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--warm)', display: 'inline-block' }} />
-              Milestones
-            </p>
-            <h1
-              className="hl-serif hl-tight"
-              style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 14px', color: 'var(--bone)' }}
-            >
-              Your milestones.
-            </h1>
-            <p
-              className="hl-mono"
-              style={{ margin: 0, fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
-            >
-              Dates in the thread
-            </p>
+            <RoomHeader eyebrow="Milestones" title="Your milestones." lede="Dates in the thread" />
           </div>
           <div style={{ display: 'flex', gap: 10, flexShrink: 0, paddingTop: 6 }}>
             <button

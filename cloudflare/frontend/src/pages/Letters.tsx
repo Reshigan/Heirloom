@@ -5,6 +5,7 @@ import { lettersApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { RoomHeader } from '../loom/components/room';
 import { type Letter } from '../types';
 import { formatDate } from '../utils/date';
 
@@ -82,17 +83,9 @@ export function Letters() {
         >
           {/* ── LEFT: letter list ── */}
           <div>
-            <h1
-              className="hl-serif hl-tight"
-              style={{
-                fontSize: 'clamp(24px, 5vw, 36px)',
-                fontWeight: 300,
-                color: 'var(--bone)',
-                marginBottom: 28,
-              }}
-            >
-              The letters you've sealed.
-            </h1>
+            <div style={{ marginBottom: 28 }}>
+              <RoomHeader eyebrow="the letters" title="The letters you've sealed." />
+            </div>
 
             {isLoading ? (
               <div style={{ marginBottom: 24 }}>

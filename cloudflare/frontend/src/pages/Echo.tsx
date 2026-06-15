@@ -13,7 +13,7 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
  * never a chatbot. Positioned at the floor of the screen, looking up.
  */
 export function Echo() {
-  const localPrompt = useListener();
+  const { prompt: localPrompt } = useListener();
   const { isAuthenticated } = useAuthStore();
   const [prompt, setPrompt] = useState<string>(localPrompt);
   const [promptId, setPromptId] = useState<string | null>(null);

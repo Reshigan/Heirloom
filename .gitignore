@@ -65,3 +65,4 @@ cloudflare/frontend/test-results/
 
 # Higgsfield local asset workspace (generated media; not deployed)
 .higgsfield/
+.superpowers/

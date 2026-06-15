@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { billingApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { RoomHeader } from '../loom/components/room';
 import { planLabel, isPaidTier, isFounderTier, isFreeTier, PLAN_LIMITS } from '../lib/plans';
 
 const BILLING_CSS = `
@@ -89,11 +90,8 @@ export function Billing() {
             </p>
           )}
 
-          <h1 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 5vw, 32px)', fontWeight: 300, margin: '0 0 6px', letterSpacing: '-0.016em' }}>
-            Billing
-          </h1>
-          <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 28 }}>
-            {counterText}
+          <div style={{ marginBottom: 28 }}>
+            <RoomHeader eyebrow={counterText} title="Billing" warmEyebrow={isFounder} />
           </div>
 
           <div className="hl-billing-grid">
@@ -141,7 +139,7 @@ export function Billing() {
 
                 <div style={{ marginTop: 18, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
                   {!isFounder && (
-                    <Link to="/founder" style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
+                    <Link to="/founder" style={{ color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
                       become a founder →
                     </Link>
                   )}
@@ -173,7 +171,7 @@ export function Billing() {
                     Receipts and full invoice history live in the Stripe portal.
                   </span>
                   <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending}
-                    style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0, flexShrink: 0 }}>
+                    style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0, flexShrink: 0 }}>
                     {portal.isPending ? 'opening…' : 'open portal →'}
                   </button>
                 </div>
@@ -187,7 +185,7 @@ export function Billing() {
                 <div className="hl-mono" style={{ fontSize: 13, color: 'var(--bone)', letterSpacing: '0.14em' }}>•••• •••• •••• ••••</div>
                 <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em', marginTop: 6 }}>managed via stripe</div>
                 <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending}
-                  style={{ display: 'inline-block', marginTop: 10, background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0 }}>
+                  style={{ display: 'inline-block', marginTop: 10, background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0 }}>
                   {portal.isPending ? 'opening…' : 'replace card →'}
                 </button>
               </div>

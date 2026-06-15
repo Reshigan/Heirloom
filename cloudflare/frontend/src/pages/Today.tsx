@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { RoomHeader } from '../loom/components/room';
 import { useListener } from '../hooks/useListener';
 import { useTapestryEntries } from '../hooks/useTapestryEntries';
 import { useAuthStore } from '../stores/authStore';
@@ -17,7 +18,7 @@ interface OnThisDayEntry {
 }
 
 export function Today() {
-  const localPrompt = useListener();
+  const { prompt: localPrompt } = useListener();
   const { isAuthenticated } = useAuthStore();
   const [prompt, setPrompt] = useState<string>(localPrompt);
   const [promptUnavailable, setPromptUnavailable] = useState(false);
@@ -84,26 +85,19 @@ export function Today() {
         <div style={{
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           maxWidth: 'var(--page-max-focus)',
+          margin: '0 auto',
           opacity: revealed ? 1 : 0,
           transform: revealed ? 'translateY(0)' : 'translateY(14px)',
           transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
         }}>
-          <div className="hl-eyebrow" style={{ marginBottom: 22, color: 'var(--warm)' }}>
-            entry no. 0001
-          </div>
-          <h1 className="hl-serif hl-tight" style={{
-            fontSize: 'clamp(30px, 4.8vw, 54px)', fontWeight: 300,
-            margin: '0 0 24px', color: 'var(--bone)', fontVariationSettings: '"opsz" 54',
-          }}>
-            There is someone who needs to read this.<br />Just not yet.
-          </h1>
-          <p className="hl-serif" style={{
-            fontSize: 'clamp(16px, 1.7vw, 19px)', fontWeight: 300,
-            color: 'var(--bone-dim)', lineHeight: 1.74, margin: '0 0 36px', maxWidth: '44ch',
-          }}>
-            Write a letter today. Seal it for a date, a milestone, a death — or the moment you choose.
-            It holds safe and finds them exactly when you intended.
-          </p>
+          <RoomHeader
+            eyebrow="entry no. 0001"
+            warmEyebrow
+            title={<>There is someone who needs to read this.<br />Just not yet.</>}
+            lede="Write a letter today. Seal it for a date, a milestone, a death — or the moment you choose. It holds safe and finds them exactly when you intended."
+            className="hl-room-header"
+          />
+          <style>{`.hl-room-header { margin-bottom: 36px; }`}</style>
 
           {/* Sealed letter preview */}
           <div style={{
@@ -151,6 +145,8 @@ export function Today() {
       <div style={{
         padding: 'var(--page-pad-top) var(--page-pad-x) 0',
         maxWidth: 720,
+        width: '100%',
+        alignSelf: 'center',
         opacity: revealed ? 1 : 0,
         transform: revealed ? 'translateY(0)' : 'translateY(14px)',
         transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
