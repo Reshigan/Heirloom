@@ -154,7 +154,7 @@ export function VoiceRoom() {
           title="Voices waiting to be heard."
           className="hl-room-header"
         />
-        <style>{`.hl-room-header { margin-bottom: 40px; } @media (hover:hover){ .hl-voice-card:hover .hl-voice-stop{ color: var(--warm); } }`}</style>
+        <style>{`.hl-room-header { margin-bottom: 40px; } @media (hover:hover){ .hl-voice-stop:hover{ border-color: var(--warm) !important; color: var(--warm-bright) !important; } }`}</style>
 
         {/* CTA */}
         <Link
@@ -307,39 +307,44 @@ export function VoiceRoom() {
                   </p>
                 )}
 
-                {/* Waveform — the one warm gesture, centered */}
+                {/* Waveform — the one warm gesture, full-width row of thin bars */}
                 <div
                   aria-hidden
                   style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2,
-                    height: 56, marginBottom: 20,
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    height: 64, marginBottom: 28,
                   }}
                 >
-                  {waveformHeights.map((h, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        width: 1.5, height: h,
-                        background: 'var(--warm)',
-                        opacity: isPlaying ? 0.85 : 0.42,
-                        flexShrink: 0,
-                        transition: `opacity 720ms ${EASE}`,
-                      }}
-                    />
-                  ))}
+                  {waveformHeights.map((h, i) => {
+                    // When playing, light the bars up to the current playback position.
+                    const progress = isPlaying && audioDuration > 0 ? currentTime / audioDuration : 0;
+                    const played = isPlaying && i / waveformHeights.length <= progress;
+                    return (
+                      <div
+                        key={i}
+                        style={{
+                          width: 2, height: h,
+                          background: 'var(--warm)',
+                          opacity: played ? 0.95 : isPlaying ? 0.5 : 0.55,
+                          flexShrink: 0,
+                          transition: `opacity 360ms ${EASE}`,
+                        }}
+                      />
+                    );
+                  })}
                 </div>
 
-                {/* Timer — mono, centered, large */}
+                {/* Timecode — mono, centered, large */}
                 <div style={{
                   textAlign: 'center',
                   fontFamily: 'var(--mono)', fontSize: 22, letterSpacing: '0.08em',
-                  color: 'var(--bone-dim)', marginBottom: 24,
+                  color: 'var(--bone)', marginBottom: 28,
                 }}>
                   {isPlaying && audioDuration > 0 ? formatTime(currentTime) : (duration || '0:00')}
                 </div>
 
-                {/* Stop / play control — square, centered */}
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 40 }}>
+                {/* Play / stop control — warm circular, centered */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 48 }}>
                   <button
                     type="button"
                     aria-label={isPlaying ? 'Stop voice recording' : 'Play voice recording'}
@@ -349,12 +354,13 @@ export function VoiceRoom() {
                     className="hl-voice-stop"
                     style={{
                       background: 'transparent',
-                      border: '1px solid var(--rule-strong)',
-                      width: 52, height: 52,
+                      border: `1px solid ${isPlaying ? 'var(--warm)' : 'var(--warm-dim)'}`,
+                      borderRadius: '50%',
+                      width: 60, height: 60,
                       display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                       cursor: 'pointer',
-                      fontFamily: 'var(--mono)', fontSize: 16,
-                      color: isPlaying ? 'var(--warm)' : 'var(--bone-dim)',
+                      fontFamily: 'var(--mono)', fontSize: 15,
+                      color: 'var(--warm)',
                       lineHeight: 1,
                       transition: `color 180ms ${EASE}, border-color 180ms ${EASE}`,
                     }}
@@ -388,16 +394,16 @@ export function VoiceRoom() {
                   </div>
                 )}
 
-                {/* WHAT YOU SAID — transcript */}
+                {/* WHAT YOU SAID — serif heading + transcript prose */}
                 {!isEditing && entry.transcript && (
                   <div>
-                    <span style={{
-                      display: 'block',
-                      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
-                      textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 16,
+                    <h2 className="hl-serif" style={{
+                      fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 400,
+                      letterSpacing: '0.04em', textTransform: 'uppercase',
+                      color: 'var(--bone)', lineHeight: 1.1, margin: '0 0 22px',
                     }}>
-                      what you said
-                    </span>
+                      What you said
+                    </h2>
                     <p className="hl-serif" style={{
                       fontFamily: 'var(--serif)', fontSize: 16, fontWeight: 300,
                       color: 'var(--bone-dim)', lineHeight: 1.72, margin: 0,
