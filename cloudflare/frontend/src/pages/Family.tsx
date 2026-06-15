@@ -19,6 +19,22 @@ interface PendingInvite {
   sent_at: string;
 }
 
+// Text-safe lightened dye variants for rendering member names on the ink
+// background — each brightened enough to pass contrast on #0e0e0c. The dye is
+// the member's identity signal: RoomRow paints the dot, the name carries the hue.
+const DYE_TEXT: Record<string, string> = {
+  madder:    '#d97860',
+  cochineal: '#c5607a',
+  kermes:    '#b56875',
+  saffron:   '#d8a84a',
+  weld:      '#c0b84a',
+  walnut:    '#a87a52',
+  oakgall:   '#958472',
+  woad:      '#7a9bab',
+  indigo:    '#6a90b0',
+  iron:      '#7a7a78',
+};
+
 function daysUntilExpiry(deletedAt: string): number {
   const expires = new Date(deletedAt).getTime() + 7 * 24 * 60 * 60 * 1000;
   return Math.max(0, Math.ceil((expires - Date.now()) / (24 * 60 * 60 * 1000)));
@@ -492,7 +508,11 @@ export function Family() {
                   <RoomRow
                     dye={dyeKey}
                     href={`/person/${m.id}`}
-                    title={m.name}
+                    title={
+                      dyeKey && DYE_TEXT[dyeKey]
+                        ? <span style={{ color: DYE_TEXT[dyeKey] }}>{m.name}</span>
+                        : m.name
+                    }
                     meta={formatDate(m.createdAt)}
                   />
                   <div style={{ paddingTop: 6, paddingBottom: isEditing ? 8 : 14, display: 'grid', gap: 6 }}>
