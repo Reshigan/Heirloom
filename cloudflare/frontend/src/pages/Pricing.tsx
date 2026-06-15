@@ -50,10 +50,10 @@ export function Pricing() {
       name: 'Free',
       price: fmt(s, 0),
       priceBilledAnnually: null as string | null,
-      sub: 'forever',
+      sub: 'ONE THREAD · 500MB',
       subAnnual: null as string | null,
       features: PLAN_FEATURES.STARTER,
-      cta: 'Begin free',
+      cta: 'Start',
       to: '/signup',
       warm: false,
     },
@@ -62,10 +62,10 @@ export function Pricing() {
       name: 'Family',
       price: fmt(s, pricing.FAMILY?.monthly ?? 6.99),
       priceBilledAnnually: fmt(s, pricing.FAMILY?.yearly ?? 69),
-      sub: '/ month',
-      subAnnual: '/ year · 2 months free',
+      sub: '/MONTH',
+      subAnnual: '/YEAR · 2 MONTHS FREE',
       features: PLAN_FEATURES.FAMILY,
-      cta: 'Start free 30-day trial',
+      cta: 'Choose Family',
       to: '/signup?tier=FAMILY',
       warm: true,
     },
@@ -74,10 +74,10 @@ export function Pricing() {
       name: 'Founder',
       price: fmt(s, pricing.FOUNDER?.lifetime ?? 249),
       priceBilledAnnually: null as string | null,
-      sub: 'once · lifetime',
+      sub: 'ONCE · LIFETIME · ALL FEATURES',
       subAnnual: null as string | null,
       features: PLAN_FEATURES.LEGACY,
-      cta: 'Become a founder',
+      cta: 'Become a Founder',
       to: '/founder',
       warm: false,
     },
@@ -93,19 +93,34 @@ export function Pricing() {
           textAlign: 'center',
         }}
       >
-        {/* Eyebrow — the mockup's "CHOOSE YOUR THREAD" */}
+        {/* Eyebrow — the mockup's "KEEP THE THREAD" */}
         <p
           className="hl-mono"
           style={{
             fontSize: 11,
             letterSpacing: '0.32em',
             textTransform: 'uppercase',
-            color: 'var(--bone-dim)',
+            color: 'var(--warm)',
             margin: 0,
           }}
         >
-          Choose your thread
+          Keep the thread
         </p>
+
+        {/* Serif heading */}
+        <h1
+          className="hl-serif"
+          style={{
+            fontSize: 'clamp(32px,8vw,48px)',
+            fontWeight: 300,
+            color: 'var(--bone)',
+            margin: '20px 0 0',
+            lineHeight: 1.08,
+            letterSpacing: '-0.01em',
+          }}
+        >
+          Choose how you keep it
+        </h1>
 
         {/* Billing cycle toggle */}
         <div
@@ -150,16 +165,19 @@ export function Pricing() {
               key={tier.id}
               style={{
                 width: '100%',
-                padding: tier.warm ? 'clamp(32px,6vh,48px) clamp(24px,5vw,40px)' : 0,
-                border: tier.warm ? '1px solid var(--warm)' : '0',
-                boxShadow: tier.warm ? '0 0 48px var(--warm-glow)' : 'none',
+                padding: 'clamp(28px,5vh,44px) clamp(20px,5vw,40px)',
+                borderTop: '1px solid var(--rule)',
+                borderLeft: tier.warm ? '3px solid var(--warm)' : '3px solid transparent',
+                background: tier.warm
+                  ? 'linear-gradient(90deg, rgba(176,122,74,0.06), transparent 60%)'
+                  : 'transparent',
                 transition: 'border-color 360ms var(--ease)',
               }}
             >
               <h2
                 className="hl-serif"
                 style={{
-                  fontSize: 'clamp(30px,7vw,40px)',
+                  fontSize: 'clamp(22px,5vw,28px)',
                   fontWeight: 300,
                   color: 'var(--bone)',
                   margin: 0,
@@ -169,23 +187,45 @@ export function Pricing() {
                 {tier.name}
               </h2>
 
+              {/* Price — serif numeral + mono period label */}
+              <div style={{ marginTop: 10, display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 8 }}>
+                <span
+                  className="hl-serif"
+                  style={{
+                    fontSize: 'clamp(34px,8vw,46px)',
+                    fontWeight: 300,
+                    lineHeight: 1,
+                    color: tier.warm ? 'var(--warm-bright)' : 'var(--bone)',
+                  }}
+                >
+                  {showAnnual && tier.priceBilledAnnually ? tier.priceBilledAnnually : tier.price}
+                </span>
+                {tier.id === 'FAMILY' && (
+                  <span
+                    className="hl-mono"
+                    style={{ fontSize: 10, letterSpacing: '0.18em', color: 'var(--bone-dim)' }}
+                  >
+                    {showAnnual && tier.subAnnual ? tier.subAnnual : tier.sub}
+                  </span>
+                )}
+              </div>
+
+              {/* Period / detail label */}
               <div
                 className="hl-mono"
                 style={{
-                  fontSize: 12,
-                  letterSpacing: '0.12em',
-                  color: tier.warm ? 'var(--warm-bright)' : 'var(--bone-dim)',
-                  marginTop: 14,
+                  fontSize: 10,
+                  letterSpacing: '0.18em',
+                  color: 'var(--bone-faint)',
+                  marginTop: 8,
                 }}
               >
-                {showAnnual && tier.priceBilledAnnually ? tier.priceBilledAnnually : tier.price}
-                {'  ·  '}
-                {showAnnual && tier.subAnnual ? tier.subAnnual : tier.sub}
+                {tier.id === 'FAMILY'
+                  ? (showAnnual ? '' : `OR ${tier.priceBilledAnnually}/YEAR`)
+                  : tier.sub}
               </div>
 
-              <hr className="hl-rule" style={{ margin: 'clamp(20px,4vh,28px) auto', width: 40 }} />
-
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              <ul style={{ listStyle: 'none', margin: 'clamp(18px,4vh,26px) 0 0', padding: 0 }}>
                 {tier.features.map((f) => (
                   <li
                     key={f}
@@ -201,11 +241,14 @@ export function Pricing() {
                 ))}
               </ul>
 
-              <div style={{ marginTop: 'clamp(24px,5vh,36px)' }}>
+              <div style={{ marginTop: 'clamp(20px,4vh,30px)' }}>
                 <Link
                   to={showAnnual && tier.id === 'FAMILY' ? '/signup?tier=FAMILY&cycle=annual' : tier.to}
-                  className={tier.warm ? 'hl-btn' : 'hl-btn ghost'}
-                  style={!tier.warm ? { color: 'var(--bone)', borderColor: 'var(--rule)' } : {}}
+                  className="hl-btn ghost"
+                  style={{
+                    color: 'var(--warm-bright)',
+                    borderColor: 'var(--warm)',
+                  }}
                 >
                   {tier.cta}
                 </Link>

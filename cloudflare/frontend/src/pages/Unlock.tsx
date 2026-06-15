@@ -39,6 +39,15 @@ interface UnlockLetter {
   years: number;         // whole years between sealed and opened
 }
 
+// First sentence/line of the letter body, for the dim serif teaser under the seal.
+const firstLine = (body: string): string => {
+  const t = (body || '').trim();
+  if (!t) return '';
+  const m = t.match(/^[^.!?\n]*[.!?]?/);
+  const s = (m ? m[0] : t.split('\n')[0]).trim();
+  return s.length > 90 ? s.slice(0, 88).trimEnd() + '…' : s;
+};
+
 const fmtYear = (iso?: string | null): string =>
   iso ? String(new Date(iso).getUTCFullYear()) : '';
 
@@ -181,7 +190,7 @@ export function Unlock() {
           {/* center stage — the 720ms typographic dissolve */}
           <div style={{ display: 'grid', placeItems: 'center', position: 'relative' }}>
             <div style={{ position: 'relative', maxWidth: 600, width: '100%', minHeight: 460 }}>
-              {/* THE SEAL — wax ∞ + sealed date, dissolving out */}
+              {/* THE SEAL — glowing amber ∞ wax seal dissolving into filament light */}
               <div
                 style={{
                   position: 'absolute',
@@ -190,23 +199,71 @@ export function Unlock() {
                   placeItems: 'center',
                   textAlign: 'center',
                   opacity: phase < 1 ? 1 : 0,
-                  transition: VEIL,
+                  transform: phase < 1 ? 'scale(1)' : 'scale(1.08)',
+                  filter: phase < 1 ? 'blur(0px)' : 'blur(6px)',
+                  transition: `opacity 1400ms var(--loom-ease), transform 1400ms var(--loom-ease), filter 1400ms var(--loom-ease)`,
                   pointerEvents: 'none',
                 }}
               >
-                <div>
-                  <WaxSeal size={64} />
+                <div style={{ display: 'grid', placeItems: 'center', gap: 'clamp(40px, 12vh, 96px)' }}>
+                  {/* eyebrow — SEALED yyyy · OPENED TODAY */}
                   <div
                     className="loom-mono"
                     style={{
+                      fontFamily: 'var(--mono)',
                       fontSize: 11,
                       color: 'var(--bone-faint)',
-                      letterSpacing: '0.16em',
+                      letterSpacing: '0.28em',
                       textTransform: 'uppercase',
-                      marginTop: 28,
                     }}
                   >
-                    sealed · {letter.years === 1 ? 'one year' : `${letter.years} years`}
+                    sealed&nbsp;&nbsp;{letter.sealedDate}&nbsp;&nbsp;·&nbsp;&nbsp;opened today
+                  </div>
+
+                  {/* the seal — large warm ∞ disc with a soft radial glow behind it */}
+                  <div style={{ position: 'relative', display: 'grid', placeItems: 'center' }}>
+                    <span
+                      aria-hidden
+                      style={{
+                        position: 'absolute',
+                        width: 360,
+                        height: 360,
+                        borderRadius: '50%',
+                        background:
+                          'radial-gradient(circle, var(--warm-glow) 0%, rgba(176,122,74,0.10) 38%, transparent 70%)',
+                        pointerEvents: 'none',
+                      }}
+                    />
+                    <WaxSeal size={132} />
+                  </div>
+
+                  {/* the headline + the letter's first line, dim serif italic */}
+                  <div style={{ display: 'grid', placeItems: 'center', gap: 14, maxWidth: 360 }}>
+                    <div
+                      style={{
+                        fontFamily: 'var(--serif)',
+                        fontVariationSettings: "'opsz' 48",
+                        fontSize: 'clamp(28px, 6vw, 36px)',
+                        fontWeight: 400,
+                        lineHeight: 1.1,
+                        letterSpacing: '-0.015em',
+                        color: 'var(--bone)',
+                      }}
+                    >
+                      A letter has opened.
+                    </div>
+                    <div
+                      style={{
+                        fontFamily: 'var(--serif)',
+                        fontSize: 18,
+                        fontStyle: 'italic',
+                        fontWeight: 300,
+                        lineHeight: 1.5,
+                        color: 'var(--bone-dim)',
+                      }}
+                    >
+                      {firstLine(letter.body) || letter.salutation}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -407,7 +464,7 @@ function WaxSeal({ size = 30 }: { size?: number }) {
         height: size,
         borderRadius: '50%',
         background: 'var(--warm)',
-        boxShadow: '0 0 0 1px var(--warm-bright), 0 0 18px var(--warm-glow)',
+        boxShadow: `0 0 0 1px var(--warm-bright), 0 0 ${size * 0.45}px var(--warm-glow), 0 0 ${size * 1.1}px var(--warm-glow)`,
       }}
     >
       <span

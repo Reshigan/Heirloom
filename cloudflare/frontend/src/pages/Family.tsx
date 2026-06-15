@@ -216,7 +216,7 @@ export function Family() {
         <div style={{ marginBottom: 40 }}>
           <RoomHeader
             eyebrow="the bloodline"
-            title="Family"
+            title="Who holds the thread"
           />
         </div>
 
@@ -498,7 +498,7 @@ export function Family() {
             </p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: 14 }}>
+          <div style={{ display: 'grid', gap: 0 }}>
             {members.map((m) => {
               const dyeKey = m.dye?.toLowerCase() || undefined;
               const isEditing = editTarget?.id === m.id;
@@ -509,27 +509,37 @@ export function Family() {
                 <div
                   key={m.id}
                   style={{
-                    background: 'var(--ink-card)',
-                    borderLeft: `3px solid ${thread}`,
+                    borderBottom: '1px solid var(--rule)',
                   }}
                 >
-                  {/* card row — serif name (dye) + mono relationship label */}
+                  {/* roster row — dye swatch + serif name (dye) + mono relation, right-aligned */}
                   <Link
                     to={`/person/${m.id}`}
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '1fr auto',
-                      alignItems: 'baseline',
-                      columnGap: 16,
+                      gridTemplateColumns: 'auto 1fr auto',
+                      alignItems: 'center',
+                      columnGap: 18,
                       textDecoration: 'none',
-                      padding: '20px 22px',
+                      padding: '22px 4px',
                       minHeight: 44,
                     }}
                   >
+                    {/* dye thread — the only identity mark (square swatch, never an avatar circle) */}
+                    <span
+                      aria-hidden
+                      style={{
+                        width: 34,
+                        height: 34,
+                        background: thread,
+                        flex: '0 0 auto',
+                        boxShadow: `0 0 0 1px var(--rule)`,
+                      }}
+                    />
                     <span
                       className="hl-serif"
                       style={{
-                        fontWeight: 300,
+                        fontWeight: 400,
                         fontSize: 'clamp(18px, 5vw, 22px)',
                         lineHeight: 1.2,
                         color: nameColor,
@@ -545,17 +555,18 @@ export function Family() {
                         className="hl-mono"
                         style={{
                           fontSize: 10,
-                          letterSpacing: '0.18em',
-                          textTransform: 'lowercase',
+                          letterSpacing: '0.22em',
+                          textTransform: 'uppercase',
                           color: 'var(--bone-dim)',
                           textAlign: 'right',
+                          whiteSpace: 'nowrap',
                         }}
                       >
                         {relMeta}
                       </span>
                     )}
                   </Link>
-                  <div style={{ padding: isEditing ? '0 22px 4px' : '0 22px 16px', display: 'grid', gap: 8 }}>
+                  <div style={{ padding: isEditing ? '0 4px 8px 56px' : '0 4px 18px 56px', display: 'grid', gap: 8 }}>
                     {!relMeta && (
                       <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-faint)', lineHeight: 1.2 }}>
                         relationship not set — edit to weave it in
@@ -647,7 +658,7 @@ export function Family() {
 
                   {/* Inline edit form */}
                   {isEditing && (
-                    <div style={{ padding: '0 22px 20px' }}>
+                    <div style={{ padding: '0 4px 22px 56px' }}>
                       <input
                         value={editName}
                         onChange={(e) => { setEditName(e.target.value); setEditError(null); }}
@@ -700,6 +711,35 @@ export function Family() {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {/* invite pill — the single warm call at the foot of the roster */}
+        {!showForm && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 56 }}>
+            <button
+              type="button"
+              onClick={() => openForm('invite')}
+              className="hl-mono"
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--warm)',
+                borderRadius: 999,
+                padding: '13px 30px',
+                cursor: 'pointer',
+                fontSize: 11,
+                letterSpacing: '0.28em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                transition: 'background 180ms var(--ease), color 180ms var(--ease)',
+                touchAction: 'manipulation',
+                minHeight: 44,
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--warm)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+            >
+              invite a member
+            </button>
           </div>
         )}
       </div>

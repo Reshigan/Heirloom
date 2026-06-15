@@ -10,7 +10,7 @@ import { memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
-import { WarmDot } from '../loom/cosmic/CosmicUI';
+import { WarmDot, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import type { UserRole } from '../hooks/useRole';
 import type { CanvasEntry } from '../loom/components/TapestryCanvas';
 
@@ -287,7 +287,7 @@ function AuthHome({
         {/* Eyebrow — tapping the question rerolls; eyebrow names the listener */}
         <span className="hl-mono" style={{
           fontSize: 11, letterSpacing: '0.34em', textTransform: 'uppercase',
-          color: 'var(--bone-faint)', display: 'inline-flex', alignItems: 'center', gap: 12,
+          color: 'var(--warm)', display: 'inline-flex', alignItems: 'center', gap: 12,
         }}>
           {isReadOnly ? 'the cloth remembers' : (
             <>
@@ -371,33 +371,22 @@ function AuthHome({
         )}
       </div>
 
-      {/* Recently woven — centered list under the hero */}
+      {/* Recently woven — left-aligned rows: dot · serif title · sub · mono date */}
       {recent.length > 0 && (
-        <div style={{ marginTop: 12, textAlign: 'center' }}>
-          <div className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 16 }}>
+        <div style={{ marginTop: 16, maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
+          <div className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 4 }}>
             recently woven
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxWidth: 360, margin: '0 auto' }}>
-            {recent.map((e, i) => {
-              const dot = e.dye ? `var(--dye-${e.dye}, var(--warm))` : 'var(--warm)';
-              return (
-                <Link
-                  key={`${e.n}-${i}`}
-                  to="/loom/weft"
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    gap: 10, padding: '8px 0', minHeight: 40, textDecoration: 'none',
-                  }}
-                >
-                  <span aria-hidden style={{ width: 6, height: 6, flexShrink: 0, background: dot, boxShadow: `0 0 8px ${dot}` }} />
-                  <span className="hl-serif" style={{ fontSize: 'clamp(15px, 4vw, 17px)', fontWeight: 300, color: 'var(--bone-dim)' }}>
-                    {e.title}{e.sealed ? ' ∞' : ''}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
-          <Link to="/memories" className="hl-mono" style={{ display: 'inline-block', marginTop: 18, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}>
+          {recent.map((e, i) => (
+            <EntryRow
+              key={`${e.n}-${i}`}
+              title={<>{e.title}{e.sealed ? ' ∞' : ''}</>}
+              sub={e.sealed ? 'sealed' : 'woven into the thread'}
+              meta={e.date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+              onClick={() => navigate('/loom/weft')}
+            />
+          ))}
+          <Link to="/memories" className="hl-mono" style={{ display: 'inline-block', marginTop: 16, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}>
             see all {count} {count === 1 ? 'memory' : 'memories'} →
           </Link>
         </div>
@@ -412,8 +401,11 @@ function AuthHome({
         ))}
       </div>
 
+      {/* The single ∞ mark */}
+      <div style={{ marginTop: 40 }}><WaxSeal size={22} /></div>
+
       {/* One status line */}
-      <p className="hl-mono" style={{ marginTop: 22, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textAlign: 'center' }}>
+      <p className="hl-mono" style={{ marginTop: 18, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textAlign: 'center' }}>
         since {firstYear} · <b style={{ color: 'var(--warm-dim)', fontWeight: 400 }}>{count}</b>{' '}
         {count === 1 ? 'memory' : 'memories'} woven · year {threadYear} of a thousand
         {stats && stats.members > 0 ? ` · ${stats.members} ${stats.members === 1 ? 'voice' : 'voices'}` : ''}

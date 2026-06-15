@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/authStore';
 import { threadsApi, familyReferralsApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Tour } from '../loom/components/Tour';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 // ── Types ─────────────────────────────────────────────────────────────────
 // The thread itself is created at signup (from the signup form), so onboarding
@@ -121,6 +122,52 @@ const skipStyle: React.CSSProperties = {
   textTransform: 'uppercase' as const,
   touchAction: 'manipulation',
 };
+
+// Soft glowing woven-filament light bloom — a single low-opacity amber radial
+// anchored in the upper third, over the vast dark stage. Not an image, not a
+// gradient mesh — one calm radial in the house idiom.
+const bloomStyle: React.CSSProperties = {
+  position: 'absolute',
+  top: '-14%',
+  left: '50%',
+  width: 'min(560px, 120vw)',
+  height: 'min(560px, 120vw)',
+  transform: 'translateX(-50%)',
+  pointerEvents: 'none',
+  background:
+    'radial-gradient(circle at 50% 40%, rgba(207,147,90,0.22) 0%, rgba(176,122,74,0.10) 34%, rgba(176,122,74,0) 62%)',
+  filter: 'saturate(1.05)',
+  zIndex: 0,
+};
+
+// Outlined amber pill — warm hairline border, mono uppercase label, no fill.
+const pillStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minWidth: 200,
+  padding: '13px 30px',
+  borderRadius: 999,
+  border: '1px solid var(--warm-dim)',
+  background: 'transparent',
+  color: 'var(--warm-bright)',
+  fontFamily: 'var(--mono)',
+  fontSize: 11,
+  letterSpacing: '0.28em',
+  textTransform: 'uppercase' as const,
+  cursor: 'pointer',
+  touchAction: 'manipulation',
+  transition: 'border-color 180ms var(--ease), color 180ms var(--ease)',
+};
+
+function pillHover(e: React.MouseEvent<HTMLButtonElement>) {
+  e.currentTarget.style.borderColor = 'var(--warm)';
+  e.currentTarget.style.color = 'var(--warm-bright)';
+}
+function pillLeave(e: React.MouseEvent<HTMLButtonElement>) {
+  e.currentTarget.style.borderColor = 'var(--warm-dim)';
+  e.currentTarget.style.color = 'var(--warm-bright)';
+}
 
 // ── Main ──────────────────────────────────────────────────────────────────
 export function Onboarding() {
@@ -328,13 +375,14 @@ export function Onboarding() {
         />
       </div>
 
-      {/* Stage — one question, centered in negative space */}
-      <div style={stage}>
-        <div style={{ ...stepLabel, marginTop: 18 }}>
+      {/* Stage — one question, centered in negative space, beneath the bloom */}
+      <div style={{ ...stage, position: 'relative' }}>
+        <div aria-hidden style={bloomStyle} />
+        <div style={{ ...stepLabel, marginTop: 18, position: 'relative', zIndex: 1 }}>
           step {stepIndex + 1} of {TOTAL_STEPS}
         </div>
 
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
           {screens[step]}
 
           {error && (
@@ -344,12 +392,19 @@ export function Onboarding() {
           )}
         </div>
 
-        <div style={actions}>
+        <div style={{ ...actions, position: 'relative', zIndex: 1 }}>
+          <WaxSeal size={22} />
+
           <button
             type="button"
-            className="hl-btn"
-            style={{ minWidth: 240 }}
+            style={{
+              ...pillStyle,
+              opacity: busy || (step === 'entry' && !firstEntry.trim()) ? 0.4 : 1,
+              cursor: busy || (step === 'entry' && !firstEntry.trim()) ? 'default' : 'pointer',
+            }}
             onClick={handleNext}
+            onMouseEnter={pillHover}
+            onMouseLeave={pillLeave}
             disabled={busy || (step === 'entry' && !firstEntry.trim())}
           >
             {ctaLabel}

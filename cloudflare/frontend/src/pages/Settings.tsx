@@ -88,7 +88,52 @@ const RESPONSIVE_CSS = `
   padding: 4px 2px 36px;
   border-bottom: 1px solid var(--rule);
 }
+
+/* slim pill toggle — track + warm dot when on (no chunky OS switch) */
+.hl-toggle {
+  position: relative;
+  width: 34px;
+  height: 16px;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--rule);
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
+}
+.hl-toggle[aria-checked="true"] { border-color: var(--warm-dim); }
+.hl-toggle::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--bone-faint);
+  transform: translate(0, -50%);
+  transition: transform 360ms var(--ease, cubic-bezier(0.16,1,0.3,1)), background 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
+}
+.hl-toggle[aria-checked="true"]::after {
+  background: var(--warm);
+  transform: translate(18px, -50%);
+}
 `;
+
+/** Slim pill toggle — quiet track, warm dot slides on. Not a chunky OS switch. */
+function PillToggle({ checked, onChange, ariaLabel }: { checked: boolean; onChange: (next: boolean) => void; ariaLabel: string }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={ariaLabel}
+      className="hl-toggle"
+      onClick={() => onChange(!checked)}
+    />
+  );
+}
 
 /** Cosmic summary row — large serif label + mono meta, expands to reveal section content. */
 function SummaryRow({ label, meta, open, onToggle, children }: {
@@ -311,7 +356,7 @@ export function Settings() {
       <style>{RESPONSIVE_CSS}</style>
         <div style={{ maxWidth: 'var(--page-max-prose)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
-          <CosmicHeader eyebrow="SETTINGS" title="Settings" />
+          <CosmicHeader eyebrow="THE KEEPING" title="Settings" align="left" />
 
           {profileLoadError && !profileData && (
             <p className="hl-mono" style={{ fontSize: 11, color: 'var(--warm-dim)', letterSpacing: '0.16em', margin: '0 0 20px', textTransform: 'uppercase' }}>
@@ -487,15 +532,13 @@ export function Settings() {
           ] as const).map((item) => (
             <div key={item.key} className="hl-notif-row">
               <div>
-                <div className="hl-mono" style={{ fontSize: 10.5, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>{item.label}</div>
+                <div className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', fontWeight: 400 }}>{item.label}</div>
                 <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-faint)', fontWeight: 400, marginTop: 2 }}>{item.hint}</div>
               </div>
-              <input
-                type="checkbox"
-                aria-label={item.ariaLabel}
+              <PillToggle
+                ariaLabel={item.ariaLabel}
                 checked={!!prefs[item.key]}
-                onChange={(e) => updateNotif.mutate({ [item.key]: e.target.checked })}
-                style={{ accentColor: 'var(--warm)', width: 16, height: 16, cursor: 'pointer', flexShrink: 0 }}
+                onChange={(next) => updateNotif.mutate({ [item.key]: next })}
               />
             </div>
           ))}

@@ -141,7 +141,7 @@ export function Constellation() {
           padding: 'clamp(40px, 9vh, 96px) 24px clamp(40px, 8vh, 88px)',
         }}
       >
-        <CosmicHeader eyebrow="THE BLOODLINE" title="Family Tree" />
+        <CosmicHeader eyebrow="THE LINEAGE" title="Family Tree" />
 
         {/* The tree — generation rows stacked vertically, joined by hairline
             CSS-border connectors. Siblings sit side-by-side in a row; a centered
@@ -212,7 +212,9 @@ export function Constellation() {
                         width: 0,
                         height: 'clamp(26px, 4vh, 44px)',
                         borderLeft: '1px solid',
-                        borderColor: rowLit ? 'var(--warm-dim)' : 'var(--rule)',
+                        borderColor: rowLit
+                          ? 'var(--warm)'
+                          : 'rgba(176,122,74,0.32)',
                         transition: 'border-color 360ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     />
@@ -225,7 +227,7 @@ export function Constellation() {
                       style={{
                         width: 'min(86%, 460px)',
                         height: 0,
-                        borderTop: '1px solid var(--rule)',
+                        borderTop: '1px solid rgba(176,122,74,0.22)',
                         marginBottom: 'clamp(14px, 2vh, 22px)',
                       }}
                     />
@@ -280,8 +282,13 @@ export function Constellation() {
                               borderRadius: 0,
                               background: dye,
                               transform: 'rotate(45deg)',
-                              opacity: isLit ? 1 : 0.7,
-                              transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
+                              opacity: isLit ? 1 : 0.78,
+                              boxShadow: k.you
+                                ? '0 0 8px 1px rgba(176,122,74,0.55)'
+                                : isLit
+                                  ? '0 0 7px 1px rgba(176,122,74,0.4)'
+                                  : '0 0 5px 0 rgba(176,122,74,0.22)',
+                              transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1), box-shadow 360ms cubic-bezier(0.16,1,0.3,1)',
                             }}
                           />
                           <span

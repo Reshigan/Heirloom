@@ -201,7 +201,7 @@ function ReadingContent({
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: 'clamp(72px, 14vh, 132px) 28px 56px',
     }}>
-      <div style={{ maxWidth: '64ch', width: '100%', position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
+      <div style={{ maxWidth: '38em', width: '100%', position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
 
         {/* Provenance stamp — the museum label: DATE · WOVEN BY <author> */}
         <div style={{
@@ -248,15 +248,32 @@ function ReadingContent({
           )}
 
           {paras.length > 0 ? (
-            paras.map((p, i) => (
-              <p key={i} style={{
-                fontFamily: 'var(--serif)', fontSize: 'clamp(18px, 2.2vw, 21px)', lineHeight: 1.85,
-                color: 'var(--bone)', margin: '0 0 24px', fontWeight: 300,
-                textAlign: 'justify', textJustify: 'inter-word', hyphens: 'auto',
-              }}>
-                {p}
-              </p>
-            ))
+            paras.map((p, i) => {
+              // Drop-cap the opening paragraph — editorial first letter in warm wax.
+              const dropCap = i === 0 && !t.photoUrl && t.kind !== 'voice';
+              return (
+                <p key={i} style={{
+                  fontFamily: 'var(--serif)', fontSize: 'clamp(18px, 2.2vw, 21px)', lineHeight: 1.85,
+                  color: 'var(--bone)', margin: '0 0 24px', fontWeight: 300,
+                  textAlign: 'justify', textJustify: 'inter-word', hyphens: 'auto',
+                }}>
+                  {dropCap && p.length > 1 ? (
+                    <>
+                      <span style={{
+                        float: 'left', fontFamily: 'var(--serif)', fontWeight: 300,
+                        fontSize: '3.4em', lineHeight: 0.78, color: 'var(--warm)',
+                        paddingRight: '0.08em', marginTop: '0.06em',
+                      }}>
+                        {p.charAt(0)}
+                      </span>
+                      {p.slice(1)}
+                    </>
+                  ) : (
+                    p
+                  )}
+                </p>
+              );
+            })
           ) : (
             <p style={{
               fontFamily: 'var(--serif)', fontSize: 'clamp(18px, 2.2vw, 21px)', lineHeight: 1.85,
@@ -274,7 +291,7 @@ function ReadingContent({
           marginTop: 'clamp(40px, 9vh, 72px)',
           display: 'flex', justifyContent: 'flex-start',
         }}>
-          <WaxSeal size={30} />
+          <WaxSeal size={22} />
         </div>
 
         {/* Selvedge — the entry's append-only revision history */}

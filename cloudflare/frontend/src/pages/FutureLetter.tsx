@@ -5,16 +5,21 @@ import { aiApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
-import { RoomHeader } from '../loom/components/room';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 /**
- * FutureLetter — Loom 3 rewrite (§6 Listener surface).
+ * FutureLetter — cosmic restyle (cosmic-letter.png).
  *
  * A letter written from your 80-year-old self, generated from the values,
  * hopes and fears you note today. Distinct from the hand-written Letter
  * composer (/letters/new) — this one the Listener drafts for you.
- * No AppFrame, no icons, no glassmorphism. One column, ink ground, bone cloth.
+ *
+ * Visual: intimate dark-paper writing surface, tiny mono eyebrow, serif
+ * recipient title, amber ∞ wax seal beside a single outlined pill, and a
+ * dim mono "opens when" line. No icons, no glass, ∞ is the only mark.
  */
+
+const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
@@ -27,17 +32,19 @@ const labelStyle: React.CSSProperties = {
   marginBottom: 10,
 };
 
+/** transparent, hairline-underlined serif field on the dark paper */
 const fieldStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
-  border: '1px solid var(--rule)',
+  border: 0,
+  borderBottom: '1px solid var(--rule)',
   borderRadius: 0,
   color: 'var(--bone)',
   caretColor: 'var(--warm)',
   fontFamily: 'var(--serif)',
-  fontSize: 16,
-  lineHeight: 1.7,
-  padding: '12px 14px',
+  fontSize: 17,
+  lineHeight: 1.85,
+  padding: '6px 0',
   outline: 'none',
 };
 
@@ -102,7 +109,7 @@ export function FutureLetter() {
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'future letter' }]} />} topbarCenter="future letter" topbarRight={<UserMenu />}>
       <div
         style={{
-          maxWidth: 'var(--page-max-wide)',
+          maxWidth: 560,
           margin: '0 auto',
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
@@ -121,325 +128,259 @@ export function FutureLetter() {
             letterSpacing: '0.18em',
             textTransform: 'uppercase',
             color: 'var(--bone-faint)',
-            marginBottom: 36,
+            marginBottom: 40,
             display: 'block',
           }}
         >
           back to the thread
         </button>
 
-        {/* page heading */}
-        <div style={{ marginBottom: 48, maxWidth: 640 }}>
-          <RoomHeader
-            warmEyebrow
-            eyebrow="a letter across time"
-            title="A letter from the past."
-            lede="Written from your 80-year-old self, reflecting on the values, hopes and fears you hold today. A quiet reminder of what truly matters — drafted by the Listener, kept by you."
-          />
-        </div>
+        {/* eyebrow + serif recipient */}
+        <header style={{ textAlign: 'center', marginBottom: 32 }}>
+          <div
+            className="hl-mono"
+            style={{ fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--warm)' }}
+          >
+            A letter to
+          </div>
+          <h1
+            className="hl-serif"
+            style={{ fontSize: 32, lineHeight: 1.15, color: 'var(--bone)', margin: '12px 0 0', fontWeight: 400 }}
+          >
+            your future self
+          </h1>
+        </header>
 
-        <hr className="hl-rule" style={{ marginBottom: 48 }} />
-
-        <div style={{ display: 'grid', gap: 64, gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
-          {/* left: input form */}
-          <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 24, alignContent: 'start' }}>
-            <span
-              className="hl-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: '0.30em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
-              }}
-            >
-              tell the listener about yourself
-            </span>
-
+        {/* the dark-paper writing surface */}
+        <div
+          style={{
+            borderRadius: 4,
+            border: '1px solid color-mix(in srgb, var(--warm) 22%, transparent)',
+            background: 'color-mix(in srgb, var(--bone) 3%, var(--ink))',
+            boxShadow: '0 0 60px -28px color-mix(in srgb, var(--warm) 60%, transparent)',
+            padding: 'clamp(24px, 6vw, 40px)',
+          }}
+        >
+          {generatedLetter ? (
+            /* the written letter, on the paper */
             <div>
-              <label htmlFor="fl-age" style={labelStyle}>Your current age</label>
-              <input
-                id="fl-age"
-                type="number"
-                min={18}
-                max={100}
-                value={formData.currentAge}
-                onChange={(e) => set({ currentAge: parseInt(e.target.value) || 30 })}
-                style={fieldStyle}
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="fl-values" style={labelStyle}>What do you value most?</label>
-              <textarea
-                id="fl-values"
-                value={formData.values}
-                onChange={(e) => set({ values: e.target.value })}
-                placeholder="Family, creativity, adventure, helping others…"
-                style={{ ...fieldStyle, minHeight: 84, resize: 'none' }}
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="fl-hopes" style={labelStyle}>What are your hopes for the future?</label>
-              <textarea
-                id="fl-hopes"
-                value={formData.hopes}
-                onChange={(e) => set({ hopes: e.target.value })}
-                placeholder="To see my children grow, to travel the world…"
-                style={{ ...fieldStyle, minHeight: 84, resize: 'none' }}
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="fl-fears" style={labelStyle}>What are your fears?</label>
-              <textarea
-                id="fl-fears"
-                value={formData.fears}
-                onChange={(e) => set({ fears: e.target.value })}
-                placeholder="Not having enough time, losing loved ones…"
-                style={{ ...fieldStyle, minHeight: 84, resize: 'none' }}
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="fl-loved" style={labelStyle}>Who are your loved ones?</label>
-              <textarea
-                id="fl-loved"
-                value={formData.lovedOnes}
-                onChange={(e) => set({ lovedOnes: e.target.value })}
-                placeholder="The people you love, the ones who matter most…"
-                style={{ ...fieldStyle, minHeight: 84, resize: 'none' }}
-                required
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={generateMutation.isPending}
-              className="hl-btn"
-              style={{ opacity: generateMutation.isPending ? 0.5 : 1, justifySelf: 'start' }}
-            >
-              {generateMutation.isPending ? 'writing across time…' : 'generate my letter'}
-            </button>
-
-            {genError && (
-              <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 11, margin: '4px 0 0', letterSpacing: '0.04em' }}>
-                {genError}
-              </p>
-            )}
-
-            {generateMutation.isPending ? (
-              <div style={{ height: 1, background: 'var(--rule)', overflow: 'hidden' }}>
-                <div
-                  style={{
-                    height: '100%',
-                    width: '40%',
-                    background: 'var(--warm)',
-                    animation: 'loom-shuttle 1.4s cubic-bezier(0.16,1,0.3,1) infinite',
-                  }}
-                />
-              </div>
-            ) : null}
-          </form>
-
-          {/* right: letter display + previous letters */}
-          <div style={{ display: 'grid', gap: 32, alignContent: 'start' }}>
-            {generatedLetter ? (
-              /* the letter — structured by hairline, no card */
-              <div
-                style={{
-                  borderTop: '1px solid var(--rule)',
-                  borderLeft: '3px solid color-mix(in srgb, var(--warm) 32%, transparent)',
-                  paddingTop: 28,
-                  paddingLeft: 'clamp(16px, 3vw, 28px)',
-                  maxWidth: 640,
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'baseline',
-                    justifyContent: 'space-between',
-                    marginBottom: 28,
-                  }}
-                >
-                  <h2
-                    className="hl-serif"
-                    style={{ fontSize: 18, fontWeight: 300, margin: 0, color: 'var(--bone)' }}
-                  >
-                    Your letter
-                  </h2>
-                  <button
-                    type="button"
-                    onClick={handleShare}
-                    className="hl-mono"
-                    style={{
-                      background: 'transparent',
-                      border: 0,
-                      cursor: 'pointer',
-                      fontSize: 10,
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      color: copied ? 'var(--warm)' : 'var(--bone-faint)',
-                      padding: 0,
-                    }}
-                  >
-                    {copied ? 'copied' : 'copy'}
-                  </button>
-                </div>
-                {shareError && (
-                  <p className="hl-mono" style={{ fontSize: 9, color: 'var(--danger)', letterSpacing: '0.1em', margin: '0 0 8px' }}>{shareError}</p>
-                )}
-
-                {/* salutation */}
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 22 }}>
                 <p
                   className="hl-serif"
-                  style={{
-                    fontSize: 16,
-                    fontStyle: 'italic',
-                    color: 'var(--bone-dim)',
-                    margin: '0 0 18px',
-                  }}
+                  style={{ fontSize: 17, fontStyle: 'italic', color: 'var(--bone-dim)', margin: 0 }}
                 >
                   Dear younger self,
                 </p>
-
-                {/* body */}
-                <div
-                  className="hl-prose"
-                  style={{
-                    whiteSpace: 'pre-wrap',
-                    fontSize: 17,
-                    color: 'var(--bone-dim)',
-                    lineHeight: 1.85,
-                    maxWidth: 'none',
-                  }}
-                >
-                  {generatedLetter.content}
-                </div>
-
-                {/* author */}
-                <p
-                  className="hl-serif"
-                  style={{
-                    fontSize: 16,
-                    fontStyle: 'italic',
-                    color: 'var(--bone-dim)',
-                    marginTop: 20,
-                    marginBottom: 0,
-                  }}
-                >
-                  Your future self
-                </p>
-
-                {/* date */}
-                <p
+                <button
+                  type="button"
+                  onClick={handleShare}
                   className="hl-mono"
                   style={{
+                    background: 'transparent',
+                    border: 0,
+                    cursor: 'pointer',
                     fontSize: 10,
-                    color: 'var(--bone-faint)',
-                    marginTop: 8,
-                    letterSpacing: '0.06em',
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: copied ? 'var(--warm)' : 'var(--bone-faint)',
+                    padding: 0,
+                    transition: `color 180ms ${EASE}`,
                   }}
                 >
-                  {new Date().toLocaleDateString()}
-                </p>
+                  {copied ? 'copied' : 'copy'}
+                </button>
               </div>
-            ) : (
+              {shareError && (
+                <p className="hl-mono" style={{ fontSize: 9, color: 'var(--danger)', letterSpacing: '0.1em', margin: '0 0 12px' }}>{shareError}</p>
+              )}
+
               <div
-                style={{
-                  borderTop: '1px solid var(--rule)',
-                  textAlign: 'center',
-                  paddingTop: 64,
-                  paddingBottom: 64,
-                }}
+                className="hl-prose"
+                style={{ whiteSpace: 'pre-wrap', fontSize: 17, color: 'var(--bone)', lineHeight: 1.95, maxWidth: 'none' }}
               >
-                <p
-                  className="hl-serif"
-                  style={{ fontSize: 30, color: 'var(--bone-faint)', margin: '0 0 16px' }}
-                  aria-hidden
-                >
-                  ∞
-                </p>
-                <p
-                  className="hl-prose"
-                  style={{ color: 'var(--bone-dim)', fontSize: 15, margin: '0 auto' }}
-                >
-                  Fill in the lines and the Listener will write you a letter from the far end of
-                  your life.
-                </p>
+                {generatedLetter.content}
               </div>
-            )}
 
-            {/* previous letters list */}
-            {previousLetters?.letters && previousLetters.letters.length > 0 ? (
+              <p
+                className="hl-serif"
+                style={{ fontSize: 16, fontStyle: 'italic', color: 'var(--bone-dim)', margin: '24px 0 0' }}
+              >
+                Your future self
+              </p>
+              <p
+                className="hl-mono"
+                style={{ fontSize: 10, color: 'var(--bone-faint)', margin: '8px 0 0', letterSpacing: '0.06em' }}
+              >
+                {new Date().toLocaleDateString()}
+              </p>
+            </div>
+          ) : (
+            /* the open writing form, on the paper */
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 22 }}>
               <div>
-                <h3
-                  className="hl-serif"
-                  style={{ fontSize: 17, fontWeight: 300, margin: '0 0 8px', color: 'var(--bone)' }}
-                >
-                  Previous letters
-                </h3>
-                <hr className="hl-rule" style={{ marginBottom: 0 }} />
-                <div>
-                  {previousLetters.letters.map((letter: any) => (
-                    <div
-                      key={letter.id}
-                      style={{
-                        borderBottom: '1px solid var(--rule)',
-                        paddingTop: 18,
-                        paddingBottom: 18,
-                      }}
-                    >
-                      {/* title */}
-                      <p
-                        className="hl-serif"
-                        style={{
-                          fontSize: 16,
-                          fontWeight: 300,
-                          color: 'var(--bone)',
-                          margin: '0 0 4px',
-                        }}
-                      >
-                        Letter from your future self
-                      </p>
-
-                      {/* recipient */}
-                      <p
-                        className="hl-serif"
-                        style={{
-                          fontSize: 14,
-                          fontStyle: 'italic',
-                          color: 'var(--bone-dim)',
-                          margin: '0 0 6px',
-                        }}
-                      >
-                        to {letter.recipientName ?? 'you'}
-                      </p>
-
-                      {/* delivery date */}
-                      <p
-                        className="hl-mono"
-                        style={{
-                          fontSize: 10,
-                          color: 'var(--warm)',
-                          margin: 0,
-                          letterSpacing: '0.06em',
-                        }}
-                      >
-                        {new Date(letter.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  ))}
-                </div>
+                <label htmlFor="fl-age" style={labelStyle}>Your current age</label>
+                <input
+                  id="fl-age"
+                  type="number"
+                  min={18}
+                  max={100}
+                  value={formData.currentAge}
+                  onChange={(e) => set({ currentAge: parseInt(e.target.value) || 30 })}
+                  style={fieldStyle}
+                  required
+                />
               </div>
-            ) : null}
-          </div>
+
+              <div>
+                <label htmlFor="fl-values" style={labelStyle}>What do you value most?</label>
+                <textarea
+                  id="fl-values"
+                  value={formData.values}
+                  onChange={(e) => set({ values: e.target.value })}
+                  placeholder="Family, creativity, adventure, helping others…"
+                  style={{ ...fieldStyle, minHeight: 64, resize: 'none' }}
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="fl-hopes" style={labelStyle}>What are your hopes for the future?</label>
+                <textarea
+                  id="fl-hopes"
+                  value={formData.hopes}
+                  onChange={(e) => set({ hopes: e.target.value })}
+                  placeholder="To see my children grow, to travel the world…"
+                  style={{ ...fieldStyle, minHeight: 64, resize: 'none' }}
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="fl-fears" style={labelStyle}>What are your fears?</label>
+                <textarea
+                  id="fl-fears"
+                  value={formData.fears}
+                  onChange={(e) => set({ fears: e.target.value })}
+                  placeholder="Not having enough time, losing loved ones…"
+                  style={{ ...fieldStyle, minHeight: 64, resize: 'none' }}
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="fl-loved" style={labelStyle}>Who are your loved ones?</label>
+                <textarea
+                  id="fl-loved"
+                  value={formData.lovedOnes}
+                  onChange={(e) => set({ lovedOnes: e.target.value })}
+                  placeholder="The people you love, the ones who matter most…"
+                  style={{ ...fieldStyle, minHeight: 64, resize: 'none' }}
+                  required
+                />
+              </div>
+
+              {/* progress hairline while writing */}
+              {generateMutation.isPending ? (
+                <div style={{ height: 1, background: 'var(--rule)', overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      height: '100%',
+                      width: '40%',
+                      background: 'var(--warm)',
+                      animation: `loom-shuttle 1.4s ${EASE} infinite`,
+                    }}
+                  />
+                </div>
+              ) : null}
+
+              {genError && (
+                <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 11, margin: 0, letterSpacing: '0.04em' }}>
+                  {genError}
+                </p>
+              )}
+
+              {/* seal + outlined pill — the seal-this-letter row */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginTop: 6 }}>
+                <WaxSeal size={26} />
+                <button
+                  type="submit"
+                  disabled={generateMutation.isPending}
+                  className="hl-mono"
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid var(--warm)',
+                    borderRadius: 999,
+                    color: 'var(--warm)',
+                    cursor: generateMutation.isPending ? 'default' : 'pointer',
+                    fontSize: 11,
+                    letterSpacing: '0.24em',
+                    textTransform: 'uppercase',
+                    padding: '12px 22px',
+                    opacity: generateMutation.isPending ? 0.5 : 1,
+                    transition: `opacity 180ms ${EASE}`,
+                  }}
+                >
+                  {generateMutation.isPending ? 'writing across time…' : 'seal this letter'}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
+
+        {/* dim mono "opens when" line beneath the paper */}
+        <p
+          className="hl-mono"
+          style={{
+            textAlign: 'center',
+            fontSize: 10,
+            letterSpacing: '0.24em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+            margin: '24px 0 0',
+          }}
+        >
+          {generatedLetter ? 'sealed across time' : 'opens at the far end of your life'}
+        </p>
+
+        {/* previous letters — quiet hairline list */}
+        {previousLetters?.letters && previousLetters.letters.length > 0 ? (
+          <div style={{ marginTop: 56 }}>
+            <div
+              className="hl-mono"
+              style={{ fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 4 }}
+            >
+              Previous letters
+            </div>
+            <hr className="hl-rule" style={{ marginBottom: 0 }} />
+            <div>
+              {previousLetters.letters.map((letter: any) => (
+                <div
+                  key={letter.id}
+                  style={{ borderBottom: '1px solid var(--rule)', paddingTop: 16, paddingBottom: 16 }}
+                >
+                  <p
+                    className="hl-serif"
+                    style={{ fontSize: 16, fontWeight: 300, color: 'var(--bone)', margin: '0 0 4px' }}
+                  >
+                    Letter from your future self
+                  </p>
+                  <p
+                    className="hl-serif"
+                    style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--bone-dim)', margin: '0 0 6px' }}
+                  >
+                    to {letter.recipientName ?? 'you'}
+                  </p>
+                  <p
+                    className="hl-mono"
+                    style={{ fontSize: 10, color: 'var(--warm)', margin: 0, letterSpacing: '0.06em' }}
+                  >
+                    {new Date(letter.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
     </ClothShell>
   );

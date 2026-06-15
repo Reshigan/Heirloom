@@ -57,15 +57,22 @@ export function MemoryMap() {
   const locations = groupByLocation(memories);
   const primaryPlace = locations[0] ?? null;
 
-  /** Project real lat/lng into a 0–100 viewBox for the hairline map. Falls back to a
-      stable hash-based scatter when coords are missing so dots still read as "places". */
+  /** Project real lat/lng into a 0–100 equirectangular field. Each point carries a tiny
+      serif label + mono year, placed beside the warm point as in the mockup. */
   const mapDots = memories
     .filter((m) => Number.isFinite(m.latitude) && Number.isFinite(m.longitude))
     .map((m) => {
       const x = ((m.longitude + 180) / 360) * 100;
       const y = ((90 - m.latitude) / 180) * 100;
-      return { id: m.id, x: clamp(x, 6, 94), y: clamp(y, 8, 92), memory: m };
+      return { id: m.id, x: clamp(x, 4, 96), y: clamp(y, 6, 94), memory: m };
     });
+
+  /** Year span across all placed memories — drives the quiet mono year-scale legend. */
+  const years = memories
+    .map((m) => new Date(m.created_at).getFullYear())
+    .filter((y) => Number.isFinite(y));
+  const minYear = years.length ? Math.min(...years) : null;
+  const maxYear = years.length ? Math.max(...years) : null;
 
   const backLink = (
     <Link
@@ -193,66 +200,154 @@ export function MemoryMap() {
           </div>
         ) : (
           <>
-            {/* Hairline map surface with warm location dots. Each dot keeps the
-                same select-on-click behavior (sets selectedMemory). */}
+            {/* The Map — a vast dark field with a faint continent outline. Memories sit
+                as restrained warm points placed by lat/lng, each tagged with a tiny serif
+                label + mono year, exactly as the mockup reads. Select-on-click preserved. */}
             <div
               style={{
                 position: 'relative',
                 width: '100%',
-                aspectRatio: '3 / 4',
-                border: '1px solid var(--rule)',
+                aspectRatio: '5 / 4',
                 background: 'transparent',
-                marginBottom: 36,
-                overflow: 'hidden',
+                marginBottom: 44,
+                overflow: 'visible',
               }}
             >
-              {/* Desaturated hairline grid — reads as a faint street map, not a tile map. */}
+              {/* Faint world outline — a coordinate field, never a styled map tile. */}
               <svg
-                viewBox="0 0 100 133"
+                viewBox="0 0 100 80"
                 preserveAspectRatio="none"
                 aria-hidden
                 style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
               >
-                <g stroke="var(--rule)" strokeWidth="0.4" fill="none">
-                  {[12, 30, 48, 66, 84, 102, 120].map((y) => (
-                    <line key={`h${y}`} x1="0" y1={y} x2="100" y2={y} />
-                  ))}
-                  {[14, 32, 50, 68, 86].map((x) => (
-                    <line key={`v${x}`} x1={x} y1="0" x2={x} y2="133" />
-                  ))}
+                {/* coastline-ish hairlines: schematic, low-contrast, no fills */}
+                <g stroke="var(--rule)" strokeWidth="0.35" fill="none">
+                  {/* North America */}
+                  <path d="M3 22 L14 19 L22 24 L26 34 L20 42 L12 40 L8 31 Z" />
+                  {/* South America */}
+                  <path d="M24 50 L30 49 L33 58 L29 70 L25 64 Z" />
+                  {/* Europe / Africa */}
+                  <path d="M48 22 L56 21 L60 30 L58 46 L52 60 L47 50 L46 34 Z" />
+                  {/* Asia */}
+                  <path d="M60 18 L80 17 L92 24 L88 36 L74 38 L64 30 Z" />
+                  {/* Australia */}
+                  <path d="M82 52 L92 51 L94 60 L86 62 Z" />
                 </g>
-                <g stroke="var(--rule)" strokeWidth="0.3" fill="none" opacity="0.6">
-                  <line x1="0" y1="44" x2="100" y2="70" />
-                  <line x1="20" y1="0" x2="78" y2="133" />
-                  <line x1="0" y1="96" x2="100" y2="58" />
+                {/* equator + a meridian, the faintest possible */}
+                <g stroke="var(--rule)" strokeWidth="0.25" fill="none" opacity="0.5">
+                  <line x1="0" y1="40" x2="100" y2="40" />
+                  <line x1="50" y1="0" x2="50" y2="80" />
                 </g>
               </svg>
 
-              {/* Warm dots — the only accent. Markers are dots, never pins. */}
-              {mapDots.map((d) => (
-                <button
-                  key={d.id}
-                  type="button"
-                  onClick={() => setSelectedMemory(d.memory)}
-                  aria-label={d.memory.title}
-                  style={{
-                    position: 'absolute',
-                    left: `${d.x}%`,
-                    top: `${d.y}%`,
-                    transform: 'translate(-50%, -50%)',
-                    width: 10,
-                    height: 10,
-                    padding: 0,
-                    border: 0,
-                    borderRadius: '50%',
-                    background: selectedMemory?.id === d.id ? 'var(--warm-bright)' : 'var(--warm)',
-                    boxShadow: '0 0 10px var(--warm-glow, var(--warm))',
-                    cursor: 'pointer',
-                    transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
-                  }}
-                />
-              ))}
+              {/* Warm points — the only accent, glow restrained via box-shadow. */}
+              {mapDots.map((d) => {
+                const active = selectedMemory?.id === d.id;
+                const year = new Date(d.memory.created_at).getFullYear();
+                const right = d.x > 70; // flip label to the left near the edge
+                return (
+                  <button
+                    key={d.id}
+                    type="button"
+                    onClick={() => setSelectedMemory(d.memory)}
+                    aria-label={d.memory.title}
+                    style={{
+                      position: 'absolute',
+                      left: `${d.x}%`,
+                      top: `${(d.y / 94) * 100}%`,
+                      transform: 'translate(-50%, -50%)',
+                      padding: 0,
+                      border: 0,
+                      background: 'transparent',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: right ? 'row-reverse' : 'row',
+                      alignItems: 'center',
+                      gap: 6,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <span
+                      aria-hidden
+                      style={{
+                        width: active ? 7 : 5,
+                        height: active ? 7 : 5,
+                        flex: '0 0 auto',
+                        borderRadius: '50%',
+                        background: active ? 'var(--warm-bright)' : 'var(--warm)',
+                        boxShadow: active
+                          ? '0 0 14px rgba(176,122,74,0.7)'
+                          : '0 0 8px rgba(176,122,74,0.45)',
+                        transition: 'all 360ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
+                    />
+                    <span
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        textAlign: right ? 'right' : 'left',
+                        lineHeight: 1.1,
+                      }}
+                    >
+                      <span
+                        className="hl-serif"
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 300,
+                          color: active ? 'var(--bone)' : 'var(--bone-dim)',
+                          transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        }}
+                      >
+                        {d.memory.location_name || d.memory.title}
+                      </span>
+                      <span
+                        className="hl-mono"
+                        style={{
+                          fontSize: 8,
+                          letterSpacing: '0.1em',
+                          color: 'var(--bone-faint)',
+                        }}
+                      >
+                        {Number.isFinite(year) ? year : ''}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
             </div>
+
+            {/* Quiet year-scale legend — mono, at the edge of the field. */}
+            {minYear !== null && maxYear !== null && (
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'baseline',
+                  borderTop: '1px solid var(--rule)',
+                  paddingTop: 10,
+                  marginBottom: 36,
+                }}
+              >
+                <span
+                  className="hl-mono"
+                  style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
+                >
+                  {minYear}
+                </span>
+                <span
+                  className="hl-mono"
+                  style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
+                >
+                  the years
+                </span>
+                <span
+                  className="hl-mono"
+                  style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
+                >
+                  {maxYear}
+                </span>
+              </div>
+            )}
 
             {/* Serif place name — the hero. Links into the place's reading view. */}
             {primaryPlace && (

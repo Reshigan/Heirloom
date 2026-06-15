@@ -3,10 +3,23 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { RoomSection } from '../loom/components/room';
+import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { memoriesApi, lettersApi, voiceApi, booksApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
 type BookStep = 'select' | 'customize' | 'preview' | 'order';
+
+// Page-layout templates (mockup 2 — the page-layout chooser folded into the
+// builder). Each is a thin-ruled selectable thumbnail; the active one carries
+// a warm border. The full set is kept even where the mockup shows a subset.
+type PageLayout = 'full-bleed' | 'photo-caption' | 'chapter-open' | 'two-column' | 'quote';
+const pageLayouts: { id: PageLayout; label: string }[] = [
+  { id: 'full-bleed', label: 'Full-bleed memory' },
+  { id: 'photo-caption', label: 'Text & portrait' },
+  { id: 'chapter-open', label: 'Chapter open' },
+  { id: 'two-column', label: 'Two columns' },
+  { id: 'quote', label: 'Quiet quote' },
+];
 
 interface BookConfig {
   title: string;
@@ -77,11 +90,64 @@ const emptyShipTo: ShipTo = {
   email: '',
 };
 
+/** placeholder marks inside a template thumbnail — serif/mono rules + a photo block */
+function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }) {
+  const ink = active ? 'var(--warm-dim, rgba(176,122,74,0.5))' : 'var(--rule)';
+  const photo: React.CSSProperties = {
+    background: active ? 'rgba(176,122,74,0.16)' : 'rgba(244,236,216,0.06)',
+    border: `1px solid ${ink}`,
+    borderRadius: 1,
+  };
+  const line = (w: string): React.CSSProperties => ({ height: 2, width: w, background: ink, borderRadius: 1 });
+  const lines = (n: number) => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 3, flex: 1, justifyContent: 'center' }}>
+      {Array.from({ length: n }).map((_, i) => (
+        <div key={i} style={line(i === n - 1 ? '62%' : '100%')} />
+      ))}
+    </div>
+  );
+  switch (layout) {
+    case 'full-bleed':
+      return <div style={{ ...photo, flex: 1 }} />;
+    case 'photo-caption':
+      return (
+        <>
+          <div style={{ ...photo, flex: 2 }} />
+          {lines(2)}
+        </>
+      );
+    case 'chapter-open':
+      return (
+        <>
+          <div style={{ ...line('40%'), height: 3, alignSelf: 'center', marginTop: 2 }} />
+          {lines(5)}
+        </>
+      );
+    case 'two-column':
+      return (
+        <div style={{ display: 'flex', gap: 6, flex: 1 }}>
+          {lines(5)}
+          {lines(5)}
+        </div>
+      );
+    case 'quote':
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, justifyContent: 'center', alignItems: 'center', padding: '0 6px' }}>
+          <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 18, color: ink, lineHeight: 1 }}>“</span>
+          <div style={line('70%')} />
+          <div style={line('84%')} />
+          <div style={line('50%')} />
+        </div>
+      );
+  }
+}
+
 export function BookBuilder() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const defaultThreadId = user?.defaultThreadId ?? undefined;
   const [step, setStep] = useState<BookStep>('select');
+  const [pageLayout, setPageLayout] = useState<PageLayout>('full-bleed');
   const [shipTo, setShipTo] = useState<ShipTo>(emptyShipTo);
   const [config, setConfig] = useState<BookConfig>({
     title: 'Our Family Memories',
@@ -198,27 +264,14 @@ export function BookBuilder() {
       {/* scrollable inner */}
       <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
-        {/* Header — centred, type-as-hero (mockup) */}
-        <header style={{ textAlign: 'center', marginBottom: 56 }}>
-          <p
-            className="hl-mono"
-            style={{ fontSize: 10, letterSpacing: '0.34em', textTransform: 'uppercase', color: 'var(--bone-faint)', margin: '0 0 22px' }}
-          >
-            The Book
-          </p>
-          <h1
-            className="hl-serif"
-            style={{ fontSize: 38, fontWeight: 300, color: 'var(--bone)', margin: 0, lineHeight: 1.05, letterSpacing: '-0.01em' }}
-          >
-            Bind your thread
-          </h1>
-          <p
-            className="hl-mono"
-            style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)', margin: '20px 0 0' }}
-          >
-            {currentStepIndex + 1} of {stepOrder.length} · {stepLabels[step]}
-          </p>
-        </header>
+        {/* Header — mono eyebrow + serif working title (mockup 1) */}
+        <CosmicHeader eyebrow="Bind the Book" title="Bind your thread" />
+        <p
+          className="hl-mono"
+          style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)', textAlign: 'center', margin: '-20px 0 56px' }}
+        >
+          {currentStepIndex + 1} of {stepOrder.length} · {stepLabels[step]}
+        </p>
 
         {/* Step progress — compact hairline rail (mockup rhythm) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 0, maxWidth: 640, margin: '0 auto 48px', borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)' }}>
@@ -270,53 +323,27 @@ export function BookBuilder() {
                 { key: 'voiceIds' as const, label: 'Voice recordings', list: voiceList },
               ]).map(({ key, label, list }) => (
                 <div key={key}>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 14 }}>
-                    <span className="hl-eyebrow">{label}</span>
-                    <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)' }}>
-                      {config[key].length} selected
+                  {/* chapter/section heading — mono label + mono count (mockup 1 left rail) */}
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 2 }}>
+                    <SectionLabel>{label}</SectionLabel>
+                    <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.1em', color: 'var(--warm)', marginLeft: 'auto' }}>
+                      {config[key].length} in book
                     </span>
-                    <hr className="hl-rule" style={{ flex: 1 }} />
                   </div>
-                  <div style={{ maxHeight: 180, overflowY: 'auto', display: 'grid', gap: 1 }}>
-                    {list.map((item: { id: string; title?: string; subject?: string }) => (
-                      <button
-                        key={item.id}
-                        type="button"
-                        onClick={() => toggleItem(key, item.id)}
-                        style={{
-                          background: config[key].includes(item.id) ? 'rgba(176,122,74,0.06)' : 'transparent',
-                          border: 0,
-                          borderBottom: '1px solid var(--rule)',
-                          padding: '12px 0',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          gap: 12,
-                        }}
-                      >
-                        <span
-                          className="hl-serif"
-                          style={{
-                            fontSize: 16,
-                            fontWeight: 300,
-                            color: config[key].includes(item.id) ? 'var(--warm)' : 'var(--bone)',
-                            transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-                          }}
-                        >
-                          {item.title || (item as { id: string; title?: string; subject?: string }).subject || 'Untitled'}
-                        </span>
-                        {config[key].includes(item.id) && (
-                          <span
-                            className="hl-mono"
-                            style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.2em', flexShrink: 0 }}
-                          >
-                            ·
-                          </span>
-                        )}
-                      </button>
-                    ))}
+                  <div style={{ maxHeight: 200, overflowY: 'auto' }}>
+                    {list.map((item: { id: string; title?: string; subject?: string }, i: number) => {
+                      const on = config[key].includes(item.id);
+                      return (
+                        <EntryRow
+                          key={item.id}
+                          title={item.title || (item as { id: string; title?: string; subject?: string }).subject || 'Untitled'}
+                          italic={on}
+                          filled={on}
+                          meta={on ? 'p. ' + String((i + 1) * 2).padStart(3, '0') : '—'}
+                          onClick={() => toggleItem(key, item.id)}
+                        />
+                      );
+                    })}
                     {list.length === 0 && (
                       <p
                         className="hl-serif"
@@ -401,6 +428,68 @@ export function BookBuilder() {
                       </p>
                     </button>
                   ))}
+                </div>
+              </RoomSection>
+              <RoomSection label="Page layout">
+                <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', fontStyle: 'italic', margin: '0 0 18px' }}>
+                  Choose how the current page is set.
+                </p>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(132px, 1fr))',
+                    gap: 16,
+                  }}
+                >
+                  {pageLayouts.map(({ id, label }) => {
+                    const active = pageLayout === id;
+                    return (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => setPageLayout(id)}
+                        style={{
+                          background: 'transparent',
+                          border: 0,
+                          padding: 0,
+                          cursor: 'pointer',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {/* thin-ruled framed thumbnail on warm-paper-on-ink */}
+                        <div
+                          style={{
+                            aspectRatio: '3 / 4',
+                            background: 'var(--paper, rgba(244,236,216,0.05))',
+                            border: `1px solid ${active ? 'var(--warm)' : 'var(--rule)'}`,
+                            borderRadius: 2,
+                            padding: 10,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 5,
+                            overflow: 'hidden',
+                            boxShadow: active ? '0 0 32px var(--warm-glow, rgba(176,122,74,0.18))' : 'none',
+                            transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), box-shadow 360ms cubic-bezier(0.16,1,0.3,1)',
+                          }}
+                        >
+                          <LayoutGlyph layout={id} active={active} />
+                        </div>
+                        <p
+                          className="hl-mono"
+                          style={{
+                            fontSize: 9,
+                            letterSpacing: '0.16em',
+                            textTransform: 'uppercase',
+                            color: active ? 'var(--warm)' : 'var(--bone-faint)',
+                            margin: '10px 0 0',
+                            transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                          }}
+                        >
+                          {label}
+                        </p>
+                      </button>
+                    );
+                  })}
                 </div>
               </RoomSection>
               <RoomSection label="What goes inside">
@@ -495,7 +584,7 @@ export function BookBuilder() {
                 <p className="hl-mono" style={{ fontSize: 9, letterSpacing: '0.14em', color: 'var(--warm)', textAlign: 'center', margin: '0 0 4px' }}>
                   {yearsLabel}
                 </p>
-                <p style={{ fontFamily: 'var(--serif)', fontSize: 13, color: 'var(--warm)', textAlign: 'center', margin: 0 }}>∞</p>
+                <WaxSeal size={13} />
 
                 {/* Wax seal mark — lower right (mockup) */}
                 <span
@@ -521,7 +610,7 @@ export function BookBuilder() {
               </div>
 
               <p className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.14em', margin: '0 0 16px', textTransform: 'capitalize' }}>
-                {totalItems} items · ~{estimatedPages} pages · full-colour {config.coverType}
+                {totalItems} items · ~{estimatedPages} pages · full-colour {config.coverType} · {pageLayouts.find((l) => l.id === pageLayout)?.label} layout
               </p>
               <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', margin: 0, maxWidth: 360, marginInline: 'auto', fontStyle: 'italic' }}>
                 Every entry is one thread, dyed to its kind. This is your cloth as it stands today.

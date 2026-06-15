@@ -109,40 +109,40 @@ export function ExportPage() {
         }}
       >
         {/* ── intro — mono eyebrow + serif title, generous space ── */}
-        <header style={{ marginBottom: 88 }}>
+        <header style={{ textAlign: 'center', marginBottom: 80 }}>
           <span
             className="hl-mono"
             style={{
               display: 'block',
-              fontSize: 10,
-              letterSpacing: '0.32em',
+              fontSize: 11,
+              letterSpacing: '0.28em',
               textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
-              marginBottom: 22,
+              color: 'var(--bone-dim)',
+              marginBottom: 14,
             }}
           >
-            your archive
+            take it with you
           </span>
           <h1
             className="hl-serif"
             style={{
-              fontSize: 40,
-              lineHeight: 1.08,
+              fontSize: 38,
+              lineHeight: 1.1,
               fontWeight: 400,
               color: 'var(--bone)',
               margin: 0,
               letterSpacing: '-0.01em',
             }}
           >
-            Take it with you.
+            Export the thread
           </h1>
         </header>
 
-        {/* ── what goes inside — the format/scope rows ── */}
-        <div style={{ marginBottom: 64 }}>
+        {/* ── what goes inside — the scope rows, selectable cosmic list ── */}
+        <div style={{ marginBottom: 72 }}>
           <ScopeRow
-            label="Memories"
-            meta="set in type"
+            label="The whole thread"
+            meta="memories"
             on={form.includeMemories}
             onToggle={() => setForm((f) => ({ ...f, includeMemories: !f.includeMemories }))}
           />
@@ -153,16 +153,16 @@ export function ExportPage() {
             onToggle={() => setForm((f) => ({ ...f, includeLetters: !f.includeLetters }))}
           />
           <ScopeRow
-            label="Voice transcripts"
-            meta="spoken word"
+            label="Voices"
+            meta="transcripts"
             on={form.includeVoiceTranscripts}
             onToggle={() =>
               setForm((f) => ({ ...f, includeVoiceTranscripts: !f.includeVoiceTranscripts }))
             }
           />
           <ScopeRow
-            label="Family tree"
-            meta="the bloodline"
+            label="The bloodline"
+            meta="family tree"
             on={form.includeFamilyTree}
             onToggle={() => setForm((f) => ({ ...f, includeFamilyTree: !f.includeFamilyTree }))}
           />
@@ -219,22 +219,27 @@ export function ExportPage() {
           </Field>
         </div>
 
-        {/* ── export action — the single warm, filled CTA ── */}
+        {/* ── export action — the single outlined amber pill ── */}
         <button
           type="button"
-          className="hl-btn"
           disabled={bind.isPending}
           onClick={() => bind.mutate()}
           style={{
             width: '100%',
-            padding: '18px 24px',
-            background: bind.isPending ? 'transparent' : 'var(--warm)',
-            color: bind.isPending ? 'var(--bone-faint)' : 'var(--ink)',
-            borderColor: bind.isPending ? 'var(--rule)' : 'var(--warm)',
-            letterSpacing: '0.22em',
+            padding: '16px 24px',
+            background: 'transparent',
+            color: bind.isPending ? 'var(--bone-faint)' : 'var(--warm)',
+            border: bind.isPending ? '1px solid var(--rule)' : '1px solid var(--warm)',
+            borderRadius: 999,
+            fontFamily: 'var(--mono)',
+            fontSize: 11,
+            letterSpacing: '0.28em',
+            textTransform: 'uppercase',
+            cursor: bind.isPending ? 'default' : 'pointer',
+            transition: 'color 360ms cubic-bezier(0.16,1,0.3,1), border-color 360ms cubic-bezier(0.16,1,0.3,1)',
           }}
         >
-          {bind.isPending ? 'binding…' : 'export'}
+          {bind.isPending ? 'preparing' : 'prepare export'}
         </button>
         {bind.isPending && (
           <div style={{ marginTop: 18 }}>
@@ -254,6 +259,22 @@ export function ExportPage() {
             the binding faltered. try again.
           </p>
         )}
+
+        {/* ── ownership / inheritance reassurance ── */}
+        <p
+          className="hl-mono"
+          style={{
+            marginTop: 24,
+            textAlign: 'center',
+            fontSize: 10,
+            lineHeight: 1.7,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+          }}
+        >
+          this archive is yours — it leaves with you, whole, to pass on.
+        </p>
 
         {/* ── past bindings ── */}
         <div style={{ marginTop: 80 }}>
@@ -326,6 +347,7 @@ function ScopeRow({
     <button
       type="button"
       onClick={onToggle}
+      aria-pressed={on}
       style={{
         display: 'flex',
         alignItems: 'baseline',
@@ -334,31 +356,35 @@ function ScopeRow({
         textAlign: 'left',
         background: 'transparent',
         border: 0,
-        borderBottom: '1px solid var(--rule)',
-        padding: '20px 0',
+        borderBottom: on ? '1px solid var(--warm)' : '1px solid var(--rule)',
+        padding: '22px 0',
         gap: 16,
         cursor: 'pointer',
+        transition: 'border-color 360ms cubic-bezier(0.16,1,0.3,1)',
       }}
     >
       <span
         className="hl-serif"
         style={{
-          fontSize: 19,
+          fontSize: 20,
           fontWeight: 400,
-          color: on ? 'var(--bone)' : 'var(--bone-faint)',
-          transition: 'color var(--dur-fast) var(--ease)',
+          color: on ? 'var(--bone)' : 'var(--bone-dim)',
+          transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
         }}
       >
         {label}
+        <span aria-hidden style={{ color: 'var(--bone-faint)', marginLeft: 10 }}>
+          —
+        </span>
       </span>
       <span
         className="hl-mono"
         style={{
           fontSize: 10,
-          letterSpacing: '0.16em',
+          letterSpacing: '0.2em',
           textTransform: 'uppercase',
-          color: on ? 'var(--warm-dim)' : 'var(--bone-faint)',
-          transition: 'color var(--dur-fast) var(--ease)',
+          color: on ? 'var(--warm)' : 'var(--bone-faint)',
+          transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
           whiteSpace: 'nowrap',
         }}
       >

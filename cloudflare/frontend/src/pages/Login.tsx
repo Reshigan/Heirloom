@@ -6,6 +6,7 @@ import { VaultModal } from '../components/VaultModal';
 import { encryptionService } from '../services/encryptionService';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
+import { ProgressHair } from '../loom/components/ProgressHair';
 
 // Login — a single calm centered column over the global filament backdrop.
 export function Login() {
@@ -59,37 +60,26 @@ export function Login() {
         padding: 'clamp(40px,9vh,120px) clamp(24px,6vw,48px)',
       }}>
         <div style={{ width: '100%', maxWidth: 360, textAlign: 'center' }}>
-          {/* ∞ — the product's only mark */}
-          <div style={{ marginBottom: 18, lineHeight: 1 }}>
-            <span
-              className="hl-infinity-3d"
-              style={{ fontSize: 'clamp(34px, 6vw, 48px)' }}
-              aria-hidden
-            >
-              ∞
-            </span>
+          {/* Mono eyebrow */}
+          <div className="hl-mono" style={{
+            marginBottom: 14,
+            fontSize: 10, letterSpacing: '0.34em', textTransform: 'uppercase',
+            color: 'var(--warm)',
+          }}>
+            welcome back
           </div>
 
           {/* Serif title — type is the hero */}
           <h1 className="hl-serif hl-tight" style={{
-            fontSize: 'clamp(34px, 8vw, 52px)',
-            fontWeight: 300, lineHeight: 1.0,
+            fontSize: 'clamp(30px, 7.5vw, 44px)',
+            fontWeight: 300, lineHeight: 1.04,
             letterSpacing: '-0.022em',
-            margin: '0 0 28px',
+            margin: sessionExpired ? '0 0 24px' : '0 0 48px',
             color: 'var(--bone)',
             fontVariationSettings: '"opsz" 40',
           }}>
-            Heirloom
+            Return to the thread
           </h1>
-
-          {/* Mono eyebrow */}
-          <div className="hl-mono" style={{
-            marginBottom: sessionExpired ? 24 : 48,
-            fontSize: 10, letterSpacing: '0.34em', textTransform: 'uppercase',
-            color: 'var(--bone-dim)',
-          }}>
-            enter the thread
-          </div>
 
           {sessionExpired ? (
             <div style={{
@@ -147,19 +137,30 @@ export function Login() {
               </p>
             ) : null}
 
-            {/* Warm primary action — the single accent */}
+            {/* Outlined amber pill — the single accent */}
             <button
               type="submit"
               disabled={isLoading || !email.trim() || !password.trim()}
-              className="hl-btn"
               style={{
                 width: '100%', marginTop: 14,
-                justifyContent: 'center',
-                opacity: isLoading || !email.trim() || !password.trim() ? 0.5 : 1,
+                padding: '13px 24px',
+                background: 'transparent',
+                border: '1px solid var(--warm)',
+                borderRadius: 999,
+                color: 'var(--warm)',
+                fontFamily: 'var(--mono)',
+                fontSize: 11, letterSpacing: '0.3em', textTransform: 'uppercase',
+                cursor: isLoading || !email.trim() || !password.trim() ? 'default' : 'pointer',
+                opacity: isLoading || !email.trim() || !password.trim() ? 0.45 : 1,
+                transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1), border-color 360ms cubic-bezier(0.16,1,0.3,1)',
               }}
             >
-              {isLoading ? 'entering…' : 'Continue'}
+              enter
             </button>
+
+            {isLoading ? (
+              <ProgressHair label="entering…" />
+            ) : null}
           </form>
 
           {/* Quiet secondary link */}
@@ -168,8 +169,9 @@ export function Login() {
             fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
             color: 'var(--bone-faint)',
           }}>
+            no thread yet?&nbsp;·&nbsp;
             <Link to="/signup" style={{ color: 'var(--bone-dim)', textDecoration: 'none' }}>
-              create a thread
+              start one
             </Link>
           </div>
         </div>

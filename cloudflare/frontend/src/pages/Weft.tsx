@@ -9,7 +9,8 @@ import { ViewToggle } from '../loom/components/ViewToggle';
 import { EmptyThread } from '../loom/components/EmptyThread';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { WeftCentury } from '../loom/components/WeftCentury';
-import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { dyeVar } from '../loom/dye';
 import { memoriesApi, lettersApi, voiceApi, threadsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeFromMetadata } from '../loom/dye';
@@ -34,13 +35,13 @@ type WeftMode = 'pull' | 'century' | 'empty';
 /** The author-assigned dye if it's a real palette stop, else undefined (kind default). */
 const dyeOf = (metadata: any): LoomDye | undefined => dyeFromMetadata(metadata) as LoomDye | undefined;
 
-/** Short lived-date for a row readout — "Oct 26, 2003". */
+/** Compact uppercase mono date for the right-aligned row readout — "OCT 1947". */
 function fmtRowDate(iso: string | undefined): string {
   if (!iso) return '';
   try {
     return new Date(iso).toLocaleDateString(undefined, {
-      month: 'short', day: 'numeric', year: 'numeric',
-    });
+      month: 'short', year: 'numeric',
+    }).toUpperCase();
   } catch { return ''; }
 }
 
@@ -217,9 +218,28 @@ export function Weft() {
     );
   }
 
-  // Threads mode — "The Thread": the recently woven list (cosmic-thread mockup).
-  // One chronological list, newest first, of every woven pick across feeds.
+  // Threads mode — "The Thread": the woven family thread (cosmic-thread mockup).
+  // One chronological list, newest first, with faint decade dividers between groups.
   const recent = [...allEntries].reverse();
+
+  // Eyebrow span — "THE THREAD · 1947–2026" from the archive's year range.
+  const years = allEntries.map((e) => e.year).filter((y) => Number.isFinite(y));
+  const spanLo = years.length ? Math.min(...years) : null;
+  const spanHi = years.length ? Math.max(...years) : null;
+  const eyebrow = spanLo != null && spanHi != null
+    ? `THE THREAD · ${spanLo}–${spanHi}`
+    : 'THE THREAD';
+
+  // Decade of a year, e.g. 1998 → "1990s" — drives the faint year-divider labels.
+  const decadeOf = (y: number) => `${Math.floor(y / 10) * 10}s`;
+
+  // One-line dim subtitle: recipient for letters, else the kind, sentence-cased.
+  const subOf = (entry: LoomEntry) => {
+    if (entry.kind === 'letter' && entry.recipient) return `Letter to ${entry.recipient}`;
+    if (entry.kind === 'letter') return 'A sealed letter';
+    if (entry.kind === 'voice') return 'A voice note';
+    return 'A woven memory';
+  };
 
   return (
     <ClothShell
@@ -244,33 +264,42 @@ export function Weft() {
           padding: '64px 24px 96px',
         }}
       >
-        <div style={{ width: '100%', maxWidth: 440 }}>
-          <CosmicHeader eyebrow="RECENTLY WOVEN" title="The Thread" />
+        <div style={{ width: '100%', maxWidth: 460 }}>
+          <CosmicHeader eyebrow={eyebrow} title="The Thread" align="left" />
 
-          {/* One date-sorted list — warm dot · italic-serif title · mono date sub. */}
+          {/* The woven thread — each row is a warm-amber left filament, serif title,
+              one-line dim subtitle, right-aligned mono date; faint decade dividers. */}
           <div>
-            {recent.map((entry) => (
-              <EntryRow
-                key={entry.id ?? `${entry.year}-${entry.month}-${entry.title}`}
-                italic
-                title={
-                  <>
-                    {entry.locked ? <span style={{ color: 'var(--warm)', marginRight: 6 }}>∞</span> : null}
-                    {entry.title || 'an entry'}
-                  </>
-                }
-                sub={
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-                    {fmtRowDate(entry.date)}
-                  </span>
-                }
-                onClick={() => handleSelectEntry(entry)}
-              />
-            ))}
+            {recent.map((entry, i) => {
+              const prev = recent[i - 1];
+              const showDecade = !prev || decadeOf(prev.year) !== decadeOf(entry.year);
+              // Per-member dye if the author set one, else the signature warm thread.
+              const thread = entry.dye ? dyeVar(entry.dye) : 'var(--warm)';
+              return (
+                <div key={entry.id ?? `${entry.year}-${entry.month}-${entry.title}`}>
+                  {showDecade && <SectionLabel>{decadeOf(entry.year)}</SectionLabel>}
+                  <div style={{ borderLeft: `3px solid ${thread}`, paddingLeft: 18 }}>
+                    <EntryRow
+                      italic={false}
+                      filled={false}
+                      title={
+                        <>
+                          {entry.locked ? <span style={{ color: 'var(--warm)', marginRight: 6 }}>∞</span> : null}
+                          {entry.title || 'an entry'}
+                        </>
+                      }
+                      sub={subOf(entry)}
+                      meta={fmtRowDate(entry.date)}
+                      onClick={() => handleSelectEntry(entry)}
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {/* The ∞ wax seal — the warm full-stop on the thread. */}
-          <div style={{ marginTop: 40 }}>
+          <div style={{ marginTop: 48, textAlign: 'right' }}>
             <WaxSeal />
           </div>
         </div>

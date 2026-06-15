@@ -2,9 +2,12 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { capsulesApi, threadsApi } from '../services/api';
 
 type CapsuleStatus = 'open' | 'sealed' | 'unlocked';
+
+const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
 /** Quiet banner linking to the thread compose flow when a thread exists. */
 function ThreadComposeBanner() {
@@ -120,7 +123,7 @@ function CapsuleRow({
         gridTemplateColumns: '1fr auto',
         gap: 24,
         alignItems: 'baseline',
-        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
+        transition: `background 180ms ${EASE}`,
       }}
     >
       {/* Serif title + warm dye dot */}
@@ -179,6 +182,40 @@ const COVER_STYLES = [
   { id: 'emerald', label: 'Emerald' },
 ];
 
+/** The lock types from the mockup. Each resolves to a concrete unlock_date the API accepts. */
+type LockType = 'date' | 'eighteen' | 'generation' | 'gone';
+
+const LOCK_TYPES: { id: LockType; label: string; descriptor: string }[] = [
+  { id: 'date', label: 'On a date', descriptor: 'Select a specific time and day.' },
+  { id: 'eighteen', label: 'When they turn 18', descriptor: 'Automatic unlocking on birthday.' },
+  { id: 'generation', label: 'A future generation', descriptor: 'Set a long-term reveal.' },
+  { id: 'gone', label: 'After I am gone', descriptor: 'Release upon my passing.' },
+];
+
+function isoDaysFromNow(days: number): string {
+  return new Date(Date.now() + days * 86400000).toISOString().split('T')[0];
+}
+
+/** Resolve a chosen lock type (+ explicit date / age) into the unlock_date string. */
+function resolveUnlockDate(lock: LockType, dateValue: string, ageValue: string): string {
+  switch (lock) {
+    case 'date':
+      return dateValue;
+    case 'eighteen': {
+      // years until the named person turns 18, from their current age
+      const age = Number(ageValue);
+      if (!Number.isFinite(age) || age < 0 || age >= 18) return '';
+      return isoDaysFromNow(Math.round((18 - age) * 365.25));
+    }
+    case 'generation':
+      return isoDaysFromNow(Math.round(25 * 365.25)); // a generation hence
+    case 'gone':
+      return isoDaysFromNow(Math.round(60 * 365.25)); // a lifetime horizon
+    default:
+      return '';
+  }
+}
+
 const inputStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
@@ -191,7 +228,7 @@ const inputStyle: React.CSSProperties = {
   lineHeight: 1.7,
   outline: 'none',
   boxSizing: 'border-box',
-  transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+  transition: `border-color 180ms ${EASE}`,
 };
 
 export function TimeCapsule() {
@@ -199,6 +236,8 @@ export function TimeCapsule() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedCapsule, setSelectedCapsule] = useState<string | null>(null);
   const [createError, setCreateError] = useState<string | null>(null);
+  const [lockType, setLockType] = useState<LockType>('date');
+  const [turnAge, setTurnAge] = useState('');
   const [newCapsule, setNewCapsule] = useState({
     title: '',
     description: '',
@@ -217,6 +256,8 @@ export function TimeCapsule() {
       queryClient.invalidateQueries({ queryKey: ['capsules'] });
       setShowCreateModal(false);
       setCreateError(null);
+      setLockType('date');
+      setTurnAge('');
       setNewCapsule({
         title: '',
         description: '',
@@ -226,6 +267,14 @@ export function TimeCapsule() {
     },
     onError: (e: any) => setCreateError(e?.response?.data?.error ?? 'could not create capsule'),
   });
+
+  const resolvedUnlock = resolveUnlockDate(lockType, newCapsule.unlock_date, turnAge);
+  const canSeal = Boolean(newCapsule.title) && Boolean(resolvedUnlock) && !createMutation.isPending;
+
+  function handleSeal() {
+    if (!canSeal) return;
+    createMutation.mutate({ ...newCapsule, unlock_date: resolvedUnlock });
+  }
 
   const backLink = (
     <Link
@@ -455,7 +504,7 @@ export function TimeCapsule() {
         )}
       </div>
 
-      {/* Create overlay */}
+      {/* Create overlay — the Sealed Note: "When should this open?" */}
       {showCreateModal && (
         <div
           style={{
@@ -475,220 +524,280 @@ export function TimeCapsule() {
             style={{
               width: '100%',
               maxWidth: 520,
-              padding: 40,
+              padding: '48px 44px 40px',
+              maxHeight: '92vh',
+              overflowY: 'auto',
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div
+            {/* Eyebrow + serif heading */}
+            <p
+              className="hl-mono"
               style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                justifyContent: 'space-between',
-                marginBottom: 28,
+                fontSize: 10,
+                letterSpacing: '0.32em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                margin: '0 0 16px',
               }}
             >
-              <h2
-                className="hl-serif"
-                style={{ fontSize: 22, fontWeight: 300, margin: 0, color: 'var(--bone)' }}
+              The Sealed Note
+            </p>
+            <h2
+              className="hl-serif"
+              style={{
+                fontSize: 30,
+                fontWeight: 300,
+                lineHeight: 1.08,
+                letterSpacing: '-0.01em',
+                margin: '0 0 40px',
+                color: 'var(--bone)',
+              }}
+            >
+              When should this open?
+            </h2>
+
+            {/* Capsule name */}
+            <div style={{ marginBottom: 28 }}>
+              <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                Capsule name
+              </label>
+              <input
+                type="text"
+                value={newCapsule.title}
+                onChange={(e) =>
+                  setNewCapsule((prev) => ({ ...prev, title: e.target.value }))
+                }
+                placeholder="Family Christmas 2025"
+                style={inputStyle}
+              />
+            </div>
+
+            {/* Lock-type rows — selectable dot + serif label + mono descriptor */}
+            <div style={{ borderTop: '1px solid var(--rule)' }}>
+              {LOCK_TYPES.map((lt) => {
+                const active = lockType === lt.id;
+                return (
+                  <div key={lt.id} style={{ borderBottom: '1px solid var(--rule)' }}>
+                    <button
+                      type="button"
+                      onClick={() => setLockType(lt.id)}
+                      aria-pressed={active}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: 18,
+                        background: 'none',
+                        border: 0,
+                        padding: '22px 0',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: `opacity 180ms ${EASE}`,
+                      }}
+                    >
+                      <span style={{ marginTop: 7, transition: `transform 180ms ${EASE}` }}>
+                        <WarmDot filled={active} size={9} />
+                      </span>
+                      <span style={{ flex: 1, minWidth: 0 }}>
+                        <span
+                          className="hl-serif"
+                          style={{
+                            display: 'block',
+                            fontSize: 20,
+                            fontWeight: 300,
+                            lineHeight: 1.2,
+                            color: active ? 'var(--bone)' : 'var(--bone-dim)',
+                          }}
+                        >
+                          {lt.label}
+                        </span>
+                        <span
+                          className="hl-mono"
+                          style={{
+                            display: 'block',
+                            marginTop: 6,
+                            fontSize: 11,
+                            letterSpacing: '0.04em',
+                            color: 'var(--bone-faint)',
+                          }}
+                        >
+                          {lt.descriptor}
+                        </span>
+                      </span>
+                    </button>
+
+                    {/* Per-lock config inputs, revealed when active */}
+                    {active && lt.id === 'date' && (
+                      <div style={{ padding: '0 0 22px 27px' }}>
+                        <input
+                          type="date"
+                          value={newCapsule.unlock_date}
+                          onChange={(e) =>
+                            setNewCapsule((prev) => ({ ...prev, unlock_date: e.target.value }))
+                          }
+                          min={isoDaysFromNow(1)}
+                          style={{ ...inputStyle, fontFamily: 'var(--mono)', fontSize: 13 }}
+                        />
+                      </div>
+                    )}
+                    {active && lt.id === 'eighteen' && (
+                      <div style={{ padding: '0 0 22px 27px' }}>
+                        <input
+                          type="number"
+                          min={0}
+                          max={17}
+                          value={turnAge}
+                          onChange={(e) => setTurnAge(e.target.value)}
+                          placeholder="Their age today"
+                          style={{ ...inputStyle, fontFamily: 'var(--mono)', fontSize: 13 }}
+                        />
+                      </div>
+                    )}
+                    {active && (lt.id === 'generation' || lt.id === 'gone') && (
+                      <p
+                        className="hl-mono"
+                        style={{
+                          margin: '0 0 22px 27px',
+                          fontSize: 10,
+                          letterSpacing: '0.14em',
+                          textTransform: 'uppercase',
+                          color: 'var(--bone-faint)',
+                        }}
+                      >
+                        opens {formatUnlockDate(resolvedUnlock)}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Description (optional) */}
+            <div style={{ marginTop: 28 }}>
+              <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                Description (optional)
+              </label>
+              <textarea
+                value={newCapsule.description}
+                onChange={(e) =>
+                  setNewCapsule((prev) => ({ ...prev, description: e.target.value }))
+                }
+                placeholder="A collection of memories from this special year…"
+                rows={3}
+                style={{ ...inputStyle, resize: 'none' }}
+              />
+            </div>
+
+            {/* Cover style */}
+            <div style={{ marginTop: 24 }}>
+              <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>
+                Cover style
+              </label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                {COVER_STYLES.map((style) => (
+                  <button
+                    key={style.id}
+                    type="button"
+                    onClick={() =>
+                      setNewCapsule((prev) => ({ ...prev, cover_style: style.id }))
+                    }
+                    style={{
+                      background:
+                        newCapsule.cover_style === style.id
+                          ? 'rgba(176,122,74,0.06)'
+                          : 'transparent',
+                      border: `1px solid ${
+                        newCapsule.cover_style === style.id ? 'var(--warm)' : 'var(--rule)'
+                      }`,
+                      borderRadius: 0,
+                      padding: '10px 14px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: `border-color 180ms ${EASE}`,
+                    }}
+                  >
+                    <span
+                      className="hl-serif"
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 300,
+                        color:
+                          newCapsule.cover_style === style.id ? 'var(--warm)' : 'var(--bone)',
+                      }}
+                    >
+                      {style.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {createError && (
+              <p
+                className="hl-mono"
+                style={{
+                  fontSize: 10,
+                  color: 'var(--danger)',
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  margin: '20px 0 0',
+                }}
               >
-                Create Time Capsule
-              </h2>
+                {createError}
+              </p>
+            )}
+
+            {/* SEAL IT pill + wax ∞ */}
+            <div
+              style={{
+                marginTop: 40,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 22,
+              }}
+            >
+              <button
+                type="button"
+                onClick={handleSeal}
+                disabled={!canSeal}
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.28em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  background: 'transparent',
+                  border: '1px solid var(--warm)',
+                  borderRadius: 999,
+                  padding: '14px 34px',
+                  cursor: canSeal ? 'pointer' : 'default',
+                  opacity: canSeal ? 1 : 0.45,
+                  transition: `opacity 180ms ${EASE}, background 360ms ${EASE}`,
+                }}
+              >
+                {createMutation.isPending ? 'sealing…' : 'Seal it'}
+              </button>
+              <WaxSeal size={26} />
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: 20 }}>
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                aria-label="Close"
                 style={{
                   background: 'transparent',
                   border: 0,
                   cursor: 'pointer',
                   color: 'var(--bone-faint)',
                   fontFamily: 'var(--mono)',
-                  fontSize: 11,
-                  letterSpacing: '0.12em',
-                  lineHeight: 1,
-                  padding: 4,
-                }}
-              >
-                close
-              </button>
-            </div>
-
-            <div style={{ display: 'grid', gap: 18 }}>
-              <div>
-                <label
-                  className="hl-eyebrow"
-                  style={{ display: 'block', marginBottom: 10 }}
-                >
-                  Capsule name
-                </label>
-                <input
-                  type="text"
-                  value={newCapsule.title}
-                  onChange={(e) =>
-                    setNewCapsule((prev) => ({ ...prev, title: e.target.value }))
-                  }
-                  placeholder="Family Christmas 2025"
-                  style={inputStyle}
-                />
-              </div>
-
-              <div>
-                <label
-                  className="hl-eyebrow"
-                  style={{ display: 'block', marginBottom: 10 }}
-                >
-                  Description (optional)
-                </label>
-                <textarea
-                  value={newCapsule.description}
-                  onChange={(e) =>
-                    setNewCapsule((prev) => ({
-                      ...prev,
-                      description: e.target.value,
-                    }))
-                  }
-                  placeholder="A collection of memories from this special year…"
-                  rows={3}
-                  style={{ ...inputStyle, resize: 'none' }}
-                />
-              </div>
-
-              <div>
-                <label
-                  className="hl-eyebrow"
-                  style={{ display: 'block', marginBottom: 10 }}
-                >
-                  Unlock date
-                </label>
-                <input
-                  type="date"
-                  value={newCapsule.unlock_date}
-                  onChange={(e) =>
-                    setNewCapsule((prev) => ({
-                      ...prev,
-                      unlock_date: e.target.value,
-                    }))
-                  }
-                  min={
-                    new Date(Date.now() + 86400000).toISOString().split('T')[0]
-                  }
-                  style={{
-                    ...inputStyle,
-                    fontFamily: 'var(--mono)',
-                    fontSize: 13,
-                  }}
-                />
-              </div>
-
-              <div>
-                <label
-                  className="hl-eyebrow"
-                  style={{ display: 'block', marginBottom: 12 }}
-                >
-                  Cover style
-                </label>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: 8,
-                  }}
-                >
-                  {COVER_STYLES.map((style) => (
-                    <button
-                      key={style.id}
-                      type="button"
-                      onClick={() =>
-                        setNewCapsule((prev) => ({
-                          ...prev,
-                          cover_style: style.id,
-                        }))
-                      }
-                      style={{
-                        background:
-                          newCapsule.cover_style === style.id
-                            ? 'rgba(176,122,74,0.06)'
-                            : 'transparent',
-                        border: `1px solid ${
-                          newCapsule.cover_style === style.id
-                            ? 'var(--warm)'
-                            : 'var(--rule)'
-                        }`,
-                        borderRadius: 0,
-                        padding: '10px 14px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        transition:
-                          'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
-                      }}
-                    >
-                      <span
-                        className="hl-serif"
-                        style={{
-                          fontSize: 14,
-                          fontWeight: 300,
-                          color:
-                            newCapsule.cover_style === style.id
-                              ? 'var(--warm)'
-                              : 'var(--bone)',
-                        }}
-                      >
-                        {style.label}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {createError && (
-              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '16px 0 0' }}>
-                {createError}
-              </p>
-            )}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: 12,
-                marginTop: 28,
-              }}
-            >
-              <button
-                type="button"
-                onClick={() => setShowCreateModal(false)}
-                className="hl-btn"
-                style={{
-                  background: 'transparent',
-                  color: 'var(--bone-dim)',
-                  border: '1px solid var(--rule)',
+                  fontSize: 10,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
                 }}
               >
                 cancel
-              </button>
-              <button
-                type="button"
-                onClick={() => createMutation.mutate(newCapsule)}
-                disabled={
-                  !newCapsule.title ||
-                  !newCapsule.unlock_date ||
-                  createMutation.isPending
-                }
-                className="hl-btn"
-                style={{
-                  opacity:
-                    !newCapsule.title ||
-                    !newCapsule.unlock_date ||
-                    createMutation.isPending
-                      ? 0.45
-                      : 1,
-                }}
-              >
-                {createMutation.isPending ? (
-                  <span style={{ fontStyle: 'italic' }}>creating…</span>
-                ) : (
-                  'create capsule'
-                )}
               </button>
             </div>
           </div>

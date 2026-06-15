@@ -60,6 +60,30 @@ export function Record() {
   const [scheduledDate, setScheduledDate] = useState('');
   const [transcribing, setTranscribing] = useState(false);
   const [showRefine, setShowRefine] = useState(false);
+  const [playing, setPlaying] = useState(false);
+
+  // Static amber waveform — deterministic bars derived from the recording so the
+  // shape is stable across re-renders (no audio-analyser dependency).
+  const waveBars = useState(() =>
+    Array.from({ length: 56 }, (_, i) => {
+      const s = Math.sin(i * 0.7) * Math.cos(i * 0.31) + Math.sin(i * 1.9) * 0.5;
+      return 0.18 + Math.abs(s) * 0.82;
+    }),
+  )[0];
+
+  const audioElRef = useRef<HTMLAudioElement | null>(null);
+
+  const togglePlay = () => {
+    const el = audioElRef.current;
+    if (!el) return;
+    if (el.paused) {
+      void el.play();
+      setPlaying(true);
+    } else {
+      el.pause();
+      setPlaying(false);
+    }
+  };
 
   // Family autosuggest — only fetch when authenticated to avoid 401s
   const { data: familyData } = useQuery({
@@ -211,6 +235,7 @@ export function Record() {
     setRecordingState('idle');
     setShowRefine(false);
     setTranscribing(false);
+    setPlaying(false);
   };
 
   const save = useMutation({
@@ -647,6 +672,147 @@ export function Record() {
           </div>
         ) : null}
 
+        {/* ── cosmic playback — amber waveform + outlined play ring ── */}
+        {recordingState === 'recorded' && audioUrl ? (
+          <div style={{ width: '100%', maxWidth: 420, marginTop: 8 }}>
+            {/* eyebrow */}
+            <div
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.3em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+                textAlign: 'center',
+                marginBottom: 56,
+              }}
+            >
+              what you said
+            </div>
+
+            {/* timecode */}
+            <div
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 54,
+                letterSpacing: '0.04em',
+                color: 'var(--bone)',
+                textAlign: 'center',
+                lineHeight: 1,
+                marginBottom: 32,
+              }}
+            >
+              {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}
+            </div>
+
+            {/* amber bar waveform */}
+            <div
+              aria-hidden
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 2,
+                height: 64,
+                width: '100%',
+                marginBottom: 56,
+                opacity: playing ? 1 : 0.85,
+                transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+            >
+              {waveBars.map((amp, i) => (
+                <span
+                  key={i}
+                  style={{
+                    flex: '1 1 0',
+                    height: `${amp * 100}%`,
+                    background: 'var(--warm)',
+                    transition: 'height 360ms cubic-bezier(0.16,1,0.3,1)',
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* outlined play / pause ring with CSS triangle */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 48 }}>
+              <button
+                type="button"
+                onClick={togglePlay}
+                aria-label={playing ? 'Pause playback' : 'Play recording'}
+                style={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: '50%',
+                  border: '1px solid var(--warm)',
+                  background: 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  padding: 0,
+                  transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                }}
+              >
+                {playing ? (
+                  <span
+                    aria-hidden
+                    style={{ display: 'flex', gap: 5 }}
+                  >
+                    <span style={{ width: 3, height: 16, background: 'var(--warm)', display: 'block' }} />
+                    <span style={{ width: 3, height: 16, background: 'var(--warm)', display: 'block' }} />
+                  </span>
+                ) : (
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 0,
+                      height: 0,
+                      marginLeft: 4,
+                      borderTop: '8px solid transparent',
+                      borderBottom: '8px solid transparent',
+                      borderLeft: '13px solid var(--warm)',
+                      display: 'block',
+                    }}
+                  />
+                )}
+              </button>
+            </div>
+
+            {/* hidden audio element drives playback */}
+            <audio
+              ref={audioElRef}
+              src={audioUrl}
+              onEnded={() => setPlaying(false)}
+              onPause={() => setPlaying(false)}
+              style={{ display: 'none' }}
+            />
+
+            {/* quiet uppercase mono link — find better words → AI refine */}
+            <div style={{ textAlign: 'center' }}>
+              <button
+                type="button"
+                onClick={() => setShowRefine(true)}
+                disabled={transcribing}
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  padding: '0 0 2px',
+                  cursor: transcribing ? 'default' : 'pointer',
+                  color: 'var(--warm-dim)',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  opacity: transcribing ? 0.5 : 1,
+                  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                }}
+              >
+                find better words
+              </button>
+            </div>
+          </div>
+        ) : null}
+
         {/* ── transcript (after recording stops) ────────────────── */}
         {recordingState === 'recorded' && transcribing ? (
           <div style={{ marginTop: 28, display: 'flex', justifyContent: 'center', width: '100%' }}>
@@ -699,10 +865,6 @@ export function Record() {
               justifyContent: 'center',
             }}
           >
-            {audioUrl ? (
-              <audio controls src={audioUrl} style={{ height: 32, opacity: 0.7 }} />
-            ) : null}
-
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
