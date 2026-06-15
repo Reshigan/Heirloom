@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { familyApi, engagementApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
@@ -8,7 +8,7 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { copyToClipboard } from '../utils/clipboard';
 import { type FamilyMember } from '../types';
 import { formatDate } from '../utils/date';
-import { RoomHeader, RoomSection, RoomRow } from '../loom/components/room';
+import { RoomHeader } from '../loom/components/room';
 
 interface PendingInvite {
   id: string;
@@ -21,7 +21,7 @@ interface PendingInvite {
 
 // Text-safe lightened dye variants for rendering member names on the ink
 // background — each brightened enough to pass contrast on #0e0e0c. The dye is
-// the member's identity signal: RoomRow paints the dot, the name carries the hue.
+// the member's identity signal: the 3px left thread carries the dye, the name carries the hue.
 const DYE_TEXT: Record<string, string> = {
   madder:    '#d97860',
   cochineal: '#c5607a',
@@ -213,10 +213,10 @@ export function Family() {
 
 
         {/* heading */}
-        <div style={{ marginBottom: 32 }}>
+        <div style={{ marginBottom: 40 }}>
           <RoomHeader
-            eyebrow={!isLoading && members.length > 0 ? `${members.length} ${members.length === 1 ? 'voice' : 'voices'}` : 'family'}
-            title="The people on this thread."
+            eyebrow="the bloodline"
+            title="Family"
           />
         </div>
 
@@ -498,29 +498,65 @@ export function Family() {
             </p>
           </div>
         ) : (
-          <RoomSection label="the bloodline">
+          <div style={{ display: 'grid', gap: 14 }}>
             {members.map((m) => {
               const dyeKey = m.dye?.toLowerCase() || undefined;
               const isEditing = editTarget?.id === m.id;
               const relMeta = [m.relationship, m.role].filter(Boolean).join(' · ');
+              const thread = dyeKey ? `var(--dye-${dyeKey}, var(--warm))` : 'var(--warm)';
+              const nameColor = dyeKey && DYE_TEXT[dyeKey] ? DYE_TEXT[dyeKey] : 'var(--bone)';
               return (
-                <div key={m.id}>
-                  <RoomRow
-                    dye={dyeKey}
-                    href={`/person/${m.id}`}
-                    title={
-                      dyeKey && DYE_TEXT[dyeKey]
-                        ? <span style={{ color: DYE_TEXT[dyeKey] }}>{m.name}</span>
-                        : m.name
-                    }
-                    meta={formatDate(m.createdAt)}
-                  />
-                  <div style={{ paddingTop: 6, paddingBottom: isEditing ? 8 : 14, display: 'grid', gap: 6 }}>
-                    {relMeta ? (
-                      <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-dim)', lineHeight: 1.2 }}>
+                <div
+                  key={m.id}
+                  style={{
+                    background: 'var(--ink-card)',
+                    borderLeft: `3px solid ${thread}`,
+                  }}
+                >
+                  {/* card row — serif name (dye) + mono relationship label */}
+                  <Link
+                    to={`/person/${m.id}`}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr auto',
+                      alignItems: 'baseline',
+                      columnGap: 16,
+                      textDecoration: 'none',
+                      padding: '20px 22px',
+                      minHeight: 44,
+                    }}
+                  >
+                    <span
+                      className="hl-serif"
+                      style={{
+                        fontWeight: 300,
+                        fontSize: 'clamp(18px, 5vw, 22px)',
+                        lineHeight: 1.2,
+                        color: nameColor,
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {m.name}
+                    </span>
+                    {relMeta && (
+                      <span
+                        className="hl-mono"
+                        style={{
+                          fontSize: 10,
+                          letterSpacing: '0.18em',
+                          textTransform: 'lowercase',
+                          color: 'var(--bone-dim)',
+                          textAlign: 'right',
+                        }}
+                      >
                         {relMeta}
-                      </div>
-                    ) : (
+                      </span>
+                    )}
+                  </Link>
+                  <div style={{ padding: isEditing ? '0 22px 4px' : '0 22px 16px', display: 'grid', gap: 8 }}>
+                    {!relMeta && (
                       <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-faint)', lineHeight: 1.2 }}>
                         relationship not set — edit to weave it in
                       </div>
@@ -611,7 +647,7 @@ export function Family() {
 
                   {/* Inline edit form */}
                   {isEditing && (
-                    <div style={{ paddingBottom: 20, paddingLeft: 24 }}>
+                    <div style={{ padding: '0 22px 20px' }}>
                       <input
                         value={editName}
                         onChange={(e) => { setEditName(e.target.value); setEditError(null); }}
@@ -664,7 +700,7 @@ export function Family() {
                 </div>
               );
             })}
-          </RoomSection>
+          </div>
         )}
       </div>
     </ClothShell>

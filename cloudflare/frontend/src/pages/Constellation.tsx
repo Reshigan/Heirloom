@@ -1,23 +1,23 @@
-import { Fragment, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { useAuthStore } from '../stores/authStore';
 import { familyApi, threadsApi, memoriesApi } from '../services/api';
+import { dyeColor } from '../loom/dye';
 
 /**
  * Screen 08 — The Constellation
  *
- * Kin as parallel life-threads, all set against a single 1890–2070
- * timeline. Each line is one life. Where lines overlap horizontally,
- * the two people knew each other. Where the AI has found a resonance
- * across generations, a warm vertical hairline crosses the lines.
- *
- * "you" is rendered in warm; the rest in bone. Past lives terminate
- * at their death year (no glow); living lives fade out toward 2070.
+ * The bloodline rendered as a calm vertical tree: kin stacked by the order
+ * they enter the line, connected by hairline threads. Each member is a serif
+ * name in their own dye hue with a small dye point — no avatars. "you" is the
+ * one warm thread. Where the loom finds a resonance across lives, the footer
+ * counts it. Lots of dark negative space; type is the hero.
  */
 
 type KinEntry = {
+  id: string;
   name: string;
   born: number;
   died: number | null;
@@ -31,7 +31,6 @@ export function Constellation() {
   const [hovered, setHovered] = useState<number | null>(null);
   const [resonances, setResonances] = useState<{ year: number; memberIds: string[] }[]>([]);
   const [error, setError] = useState(false);
-  const minYear = 1890;
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -97,6 +96,7 @@ export function Constellation() {
       setResonances(res);
 
       const mapped: KinEntry[] = members.map((m, i) => ({
+        id: m.id,
         name: m.name,
         born: m.born ?? 1980 + i * 10,
         died: m.died ?? null,
@@ -106,15 +106,15 @@ export function Constellation() {
       setKin(mapped);
     }).catch(() => { setError(true); });
   }, [isAuthenticated, user?.id, user?.defaultThreadId]);
-  const maxYear = 2070;
-  const today = new Date().getFullYear();
-  const xOf = (y: number) => ((y - minYear) / (maxYear - minYear)) * 100;
 
+  // Layout: kin sorted oldest → newest, the order they enter the bloodline.
+  const ordered = [...kin].sort((a, b) => a.born - b.born);
+  const youName = kin.find(k => k.you)?.name.split(' ').slice(-1)[0] ?? '';
   const familyName = kin.length > 0 && !kin.some(k => k.you)
-    ? 'your bloodline, woven'
-    : kin.length > 0
-      ? `${kin.find(k => k.you)?.name.split(' ').slice(-1)[0] ?? ''} line, woven`.trim()
-      : 'your bloodline';
+    ? 'Family Tree'
+    : kin.length > 0 && youName
+      ? `${youName} Line`
+      : 'Family Tree';
 
   return (
     <ClothShell
@@ -125,253 +125,245 @@ export function Constellation() {
         style={{
           position: 'absolute',
           inset: 0,
-          padding: '44px 80px 0',
-          display: 'grid',
-          gridTemplateRows: 'auto 1fr auto',
-          gap: 28,
+          overflowY: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
         }}
       >
-          <div>
-            <div className="loom-eyebrow">{`kin · ${kin.length} thread${kin.length !== 1 ? 's' : ''}`}</div>
-            <div
-              className="loom-h2"
-              style={{
-                fontSize: 44,
-                marginTop: 12,
-                fontWeight: 300,
-                letterSpacing: '-0.014em',
-              }}
-            >
-              {familyName}
-            </div>
-            <div
-              className="loom-body loom-dim"
-              style={{ fontSize: 15, fontStyle: 'italic', marginTop: 6, maxWidth: 700 }}
-            >
-              each line is one life. where the lines overlap, you knew them. where they meet
-              vertically, the loom found a resonance — a phrase, a place, a habit shared across
-              generations.
-            </div>
+        {/* Header — centered, type as hero, deep negative space above the line */}
+        <header
+          style={{
+            textAlign: 'center',
+            paddingTop: 'clamp(40px, 9vh, 96px)',
+            paddingBottom: 'clamp(36px, 7vh, 72px)',
+          }}
+        >
+          <div
+            className="loom-mono"
+            style={{
+              fontSize: 9,
+              letterSpacing: '0.42em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+            }}
+          >
+            the bloodline
           </div>
+          <h1
+            style={{
+              fontFamily: 'var(--serif)',
+              fontVariationSettings: "'opsz' 40",
+              fontWeight: 300,
+              fontSize: 'clamp(34px, 5.4vw, 52px)',
+              letterSpacing: '-0.018em',
+              color: 'var(--bone)',
+              margin: '14px 0 0',
+              lineHeight: 1.04,
+            }}
+          >
+            {familyName}
+          </h1>
+          <div
+            className="loom-mono"
+            style={{
+              fontSize: 9,
+              letterSpacing: '0.3em',
+              color: 'var(--warm)',
+              marginTop: 16,
+            }}
+          >
+            ∞
+          </div>
+        </header>
 
-          <div style={{ position: 'relative' }}>
+        {/* The tree — a single centered column of kin joined by hairline threads */}
+        <div
+          style={{
+            flex: '1 0 auto',
+            width: '100%',
+            maxWidth: 560,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            paddingBottom: 'clamp(40px, 8vh, 88px)',
+          }}
+        >
+          {!error && kin.length === 0 ? (
             <div
               style={{
-                position: 'absolute',
-                left: `${xOf(today)}%`,
-                top: 0,
-                bottom: 0,
-                width: 1,
-                background: 'var(--warm)',
-                opacity: 0.4,
-              }}
-            />
-            <div
-              className="loom-mono"
-              style={{
-                position: 'absolute',
-                left: `${xOf(today)}%`,
-                transform: 'translateX(-50%)',
-                top: -18,
-                fontSize: 10,
-                color: 'var(--warm)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 14,
+                paddingTop: 'clamp(24px, 6vh, 64px)',
               }}
             >
-              today
+              <div
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontSize: 17,
+                  fontStyle: 'italic',
+                  color: 'var(--bone-faint)',
+                }}
+              >
+                the bloodline has no threads yet.
+              </div>
+              <Link
+                to="/family"
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  textDecoration: 'none',
+                }}
+              >
+                invite family →
+              </Link>
             </div>
-
-            {[1900, 1920, 1940, 1960, 1980, 2000, 2020, 2040, 2060].map((y) => (
-              <Fragment key={y}>
+          ) : (
+            ordered.map((k, i) => {
+              const idx = kin.indexOf(k);
+              const isLit = hovered === idx || k.you;
+              const nameColor = k.you
+                ? 'var(--warm)'
+                : isLit
+                  ? 'var(--bone)'
+                  : 'var(--bone-dim)';
+              const dye = k.you ? 'var(--warm)' : dyeColor(k.id);
+              return (
                 <div
+                  key={k.id}
                   style={{
-                    position: 'absolute',
-                    left: `${xOf(y)}%`,
-                    top: 0,
-                    bottom: 0,
-                    width: 1,
-                    background: 'var(--rule)',
-                  }}
-                />
-                <div
-                  className="loom-mono"
-                  style={{
-                    position: 'absolute',
-                    left: `${xOf(y)}%`,
-                    transform: 'translateX(-50%)',
-                    bottom: -18,
-                    fontSize: 9,
-                    color: 'var(--bone-faint)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    width: '100%',
                   }}
                 >
-                  {y}
-                </div>
-              </Fragment>
-            ))}
-
-            {resonances.map((r) => (
-              <div
-                key={r.year}
-                style={{
-                  position: 'absolute',
-                  left: `${xOf(r.year)}%`,
-                  top: 0,
-                  bottom: 0,
-                  width: 1,
-                  background: 'var(--warm)',
-                  opacity: 0.22,
-                  pointerEvents: 'none',
-                  transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
-                }}
-              />
-            ))}
-
-            {!error && kin.length === 0 ? (
-              <div style={{
-                position: 'absolute', inset: 0, display: 'flex',
-                alignItems: 'center', justifyContent: 'center',
-                flexDirection: 'column', gap: 12,
-              }}>
-                <div style={{ fontFamily: 'var(--serif)', fontSize: 17, fontStyle: 'italic', color: 'var(--bone-faint)' }}>
-                  the bloodline has no threads yet.
-                </div>
-                <Link to="/family" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
-                  textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}>
-                  invite family →
-                </Link>
-              </div>
-            ) : (
-              kin.map((k, i) => {
-                const top = 22 + i * 64;
-                const dead = k.died != null;
-                const endYear = k.died ?? today;
-                const isLit = hovered === i || k.you;
-                return (
-                  <Fragment key={i}>
+                  {/* hairline connector descending into this node */}
+                  {i > 0 && (
                     <div
-                      tabIndex={0}
-                      role="img"
-                      aria-label={`${k.name}, born ${k.born}${k.died ? `, died ${k.died}` : ', living'}`}
-                      onMouseEnter={() => setHovered(i)}
-                      onMouseLeave={() => setHovered(null)}
+                      aria-hidden
                       style={{
-                        position: 'absolute',
-                        left: `${xOf(k.born)}%`,
-                        width: `${xOf(endYear) - xOf(k.born)}%`,
-                        top,
-                        height: k.you ? 3 : 2,
-                        background: k.you
-                          ? 'var(--warm)'
-                          : isLit
-                            ? 'var(--bone)'
-                            : 'var(--bone-dim)',
-                        cursor: 'pointer',
+                        width: 1,
+                        height: 'clamp(22px, 3.4vh, 38px)',
+                        background: isLit ? 'var(--warm-dim)' : 'var(--rule)',
                         transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     />
-                    {!dead ? (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          left: `${xOf(endYear)}%`,
-                          width: `${xOf(maxYear) - xOf(endYear)}%`,
-                          top,
-                          height: k.you ? 3 : 2,
-                          background: `linear-gradient(to right, ${
-                            k.you ? 'var(--warm)' : 'var(--bone-dim)'
-                          }, transparent)`,
-                          opacity: 0.4,
-                          pointerEvents: 'none',
-                        }}
-                      />
-                    ) : null}
-                    {k.picks.map((py, j) => (
-                      <div
-                        key={j}
-                        style={{
-                          position: 'absolute',
-                          left: `${xOf(py)}%`,
-                          top: top - 2,
-                          width: 4,
-                          height: 6,
-                          background: k.you ? 'var(--warm-bright)' : 'var(--bone)',
-                          transform: 'translateX(-50%)',
-                        }}
-                      />
-                    ))}
-                    <div
+                  )}
+
+                  {/* node — dye point + serif name + mono lifespan, no avatar */}
+                  <div
+                    tabIndex={0}
+                    role="img"
+                    aria-label={`${k.name}, born ${k.born}${k.died ? `, died ${k.died}` : ', living'}`}
+                    onMouseEnter={() => setHovered(idx)}
+                    onMouseLeave={() => setHovered(null)}
+                    onFocus={() => setHovered(idx)}
+                    onBlur={() => setHovered(null)}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: 6,
+                      cursor: 'default',
+                      padding: '4px 0',
+                    }}
+                  >
+                    {/* the dye point — the member's identity signal */}
+                    <span
+                      aria-hidden
                       style={{
-                        position: 'absolute',
-                        left: `${xOf(k.born)}%`,
-                        top: top - 26,
-                        transform: 'translateX(-2px)',
+                        width: 5,
+                        height: 5,
+                        borderRadius: 0,
+                        background: dye,
+                        transform: 'rotate(45deg)',
+                        opacity: isLit ? 1 : 0.7,
+                        transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
+                    />
+                    <span
+                      style={{
                         fontFamily: 'var(--serif)',
                         fontVariationSettings: "'opsz' 28",
-                        fontSize: 15,
+                        fontSize: 17,
                         fontWeight: 400,
-                        color: k.you
-                          ? 'var(--warm)'
-                          : isLit
-                            ? 'var(--bone)'
-                            : 'var(--bone-dim)',
                         fontStyle: k.you ? 'italic' : 'normal',
+                        letterSpacing: '0.01em',
+                        color: nameColor,
+                        transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
                         whiteSpace: 'nowrap',
                       }}
                     >
                       {k.name}
-                    </div>
-                    <div
+                    </span>
+                    <span
+                      className="loom-mono"
                       style={{
-                        position: 'absolute',
-                        left: `${xOf(k.born)}%`,
-                        top: top + 8,
-                        fontFamily: 'var(--mono)',
-                        fontSize: 9,
-                        letterSpacing: '0.04em',
+                        fontSize: 8.5,
+                        letterSpacing: '0.18em',
                         color: 'var(--bone-faint)',
                       }}
                     >
                       {k.born} — {k.died ?? '∞'}
-                    </div>
-                  </Fragment>
-                );
-              })
-            )}
-          </div>
-
-          {error && (
-            <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 12, margin: '8px 0 0' }}>
-              could not load constellation
-            </p>
+                      {k.picks.length > 0 && (
+                        <span style={{ color: 'var(--warm-dim)', marginLeft: 8 }}>
+                          ∞ {k.picks.length}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                </div>
+              );
+            })
           )}
+        </div>
 
-          <div
+        {error && (
+          <p
             style={{
+              color: 'var(--danger)',
+              fontFamily: 'var(--mono)',
+              fontSize: 12,
+              margin: '0 0 24px',
+            }}
+          >
+            could not load constellation
+          </p>
+        )}
+
+        {/* Footer — quiet legend + resonance count, hairline rule above */}
+        {kin.length > 0 && (
+          <footer
+            style={{
+              width: '100%',
+              maxWidth: 720,
               display: 'flex',
-              gap: 36,
-              paddingTop: 24,
-              borderTop: '1px solid var(--rule)',
+              gap: 28,
+              flexWrap: 'wrap',
               alignItems: 'baseline',
+              justifyContent: 'center',
+              padding: '22px 24px clamp(28px, 6vh, 56px)',
+              borderTop: '1px solid var(--rule)',
             }}
           >
             <LegendItem swatch="var(--warm)" label="you" italic />
-            <LegendItem swatch="var(--bone)" label="kin" />
-            <LegendItem
-              swatch="var(--bone-dim)"
-              label="recorded life — first-hand or remembered"
-            />
-            <LegendItem
-              swatch="rgba(244,236,216,0.18)"
-              label="thread continues, beyond the loom's edge"
-            />
-            <div style={{ marginLeft: 'auto' }} className="loom-mono">
-              <span style={{ color: 'var(--warm)', fontSize: 10 }}>∞</span>
-              <span style={{ fontSize: 10, color: 'var(--bone-faint)', marginLeft: 8 }}>
+            <LegendItem swatch="var(--bone-dim)" label="kin" />
+            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>
+              <span style={{ color: 'var(--warm)' }}>∞</span>
+              <span style={{ marginLeft: 8 }}>
                 {resonances.length > 0
                   ? `${resonances.length} resonance${resonances.length !== 1 ? 's' : ''} found`
                   : 'no resonances yet'}
               </span>
-            </div>
-          </div>
+            </span>
+          </footer>
+        )}
       </div>
     </ClothShell>
   );
@@ -387,12 +379,15 @@ function LegendItem({
   italic?: boolean;
 }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <div style={{ width: 18, height: 2, background: swatch }} />
+    <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+      <span
+        aria-hidden
+        style={{ width: 5, height: 5, background: swatch, transform: 'rotate(45deg)' }}
+      />
       <span
         className="loom-serif"
         style={{
-          fontSize: 13,
+          fontSize: 12,
           color: 'var(--bone-dim)',
           fontStyle: italic ? 'italic' : 'normal',
         }}

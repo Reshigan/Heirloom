@@ -4,7 +4,6 @@ import { useAuthStore } from '../stores/authStore';
 import { threadsApi, familyReferralsApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Tour } from '../loom/components/Tour';
-import { RoomHeader } from '../loom/components/room';
 
 // ── Types ─────────────────────────────────────────────────────────────────
 // The thread itself is created at signup (from the signup form), so onboarding
@@ -12,29 +11,81 @@ import { RoomHeader } from '../loom/components/room';
 // re-creates the thread.
 type Step = 'tour' | 'entry' | 'invite';
 const STEPS: Step[] = ['tour', 'entry', 'invite'];
+// Step labels track the full tour-led arc so the mono counter reads naturally.
+const TOTAL_STEPS = STEPS.length;
 
 // ── Styles ────────────────────────────────────────────────────────────────
+// Calm single-question layout: a mono step counter and hairline at the top,
+// the question centered in deep negative space, the action anchored low.
 
-const body: React.CSSProperties = {
+const stage: React.CSSProperties = {
   flex: 1,
-  padding: 'var(--page-pad-top) var(--page-pad-x)',
+  display: 'flex',
+  flexDirection: 'column',
+  padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-pad-x)',
   maxWidth: 'var(--page-max-focus)',
   width: '100%',
   margin: '0 auto',
+  boxSizing: 'border-box',
 };
 
+const stepLabel: React.CSSProperties = {
+  fontFamily: 'var(--mono)',
+  fontSize: 10,
+  letterSpacing: '0.32em',
+  textTransform: 'uppercase' as const,
+  color: 'var(--bone-faint)',
+  textAlign: 'center',
+  marginBottom: 14,
+};
+
+const eyebrowStyle: React.CSSProperties = {
+  fontFamily: 'var(--mono)',
+  fontSize: 10,
+  letterSpacing: '0.32em',
+  textTransform: 'uppercase' as const,
+  color: 'var(--warm)',
+  textAlign: 'center',
+  marginBottom: 28,
+};
+
+const questionStyle: React.CSSProperties = {
+  fontFamily: 'var(--serif)',
+  fontWeight: 300,
+  fontSize: 'clamp(30px, 7vw, 44px)',
+  lineHeight: 1.12,
+  letterSpacing: '-0.01em',
+  color: 'var(--bone)',
+  textAlign: 'center',
+  margin: 0,
+};
+
+const ledeStyle: React.CSSProperties = {
+  fontFamily: 'var(--serif)',
+  fontWeight: 300,
+  fontSize: 15,
+  lineHeight: 1.6,
+  color: 'var(--bone-dim)',
+  textAlign: 'center',
+  margin: '20px auto 0',
+  maxWidth: 360,
+};
+
+// Underlined input — no box, just a hairline rule under the text (mockup).
 const inputStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
-  border: '1px solid var(--rule)',
-  borderRadius: 2,
+  border: 0,
+  borderBottom: '1px solid var(--rule)',
+  borderRadius: 0,
   color: 'var(--bone)',
   caretColor: 'var(--warm)',
   fontFamily: 'var(--serif)',
   fontSize: 18,
   fontWeight: 300,
   lineHeight: 1.6,
-  padding: '14px 16px',
+  padding: '12px 2px',
+  textAlign: 'center',
   outline: 'none',
   boxSizing: 'border-box' as const,
   transition: 'border-color 180ms var(--ease)',
@@ -43,21 +94,25 @@ const inputStyle: React.CSSProperties = {
 const textareaStyle: React.CSSProperties = {
   ...inputStyle,
   resize: 'none' as const,
-  minHeight: 160,
-  fontSize: 16,
+  minHeight: 120,
+  fontSize: 17,
+  textAlign: 'center',
+  lineHeight: 1.55,
 };
 
 const actions: React.CSSProperties = {
-  marginTop: 40,
+  marginTop: 'auto',
+  paddingTop: 40,
   display: 'flex',
+  flexDirection: 'column',
   alignItems: 'center',
-  gap: 20,
+  gap: 18,
 };
 
 const skipStyle: React.CSSProperties = {
   background: 'transparent',
   border: 0,
-  padding: '10px 0',
+  padding: '8px 0',
   cursor: 'pointer',
   fontFamily: 'var(--mono)',
   fontSize: 10,
@@ -193,48 +248,49 @@ export function Onboarding() {
 
   // ── Screen content ───────────────────────────────────────────────────
   // The 'tour' step is rendered full-bleed (see below) and isn't in this map.
+  // Each screen is one calm question, centered in negative space.
   const screens: Record<'entry' | 'invite', React.ReactNode> = {
     entry: (
       <>
-        <div style={{ marginBottom: 40 }}>
-          <RoomHeader
-            eyebrow="first entry"
-            title="Write the first entry."
-            lede="A memory, a thought, a truth about right now. The cloth begins with this line."
+        <div style={eyebrowStyle}>first entry</div>
+        <h1 style={questionStyle}>Write the first entry</h1>
+        <p style={ledeStyle}>
+          A memory, a thought, a truth about right now. The cloth begins with this line.
+        </p>
+        <div style={{ marginTop: 44 }}>
+          <textarea
+            style={textareaStyle}
+            value={firstEntry}
+            onChange={(e) => setFirstEntry(e.target.value)}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            placeholder="The first line of a thousand-year thread"
+            autoFocus
           />
         </div>
-        <textarea
-          style={textareaStyle}
-          value={firstEntry}
-          onChange={(e) => setFirstEntry(e.target.value)}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          placeholder="Write anything. The first line of a thousand-year thread."
-          autoFocus
-        />
       </>
     ),
 
     invite: (
       <>
-        <div style={{ marginBottom: 40 }}>
-          <RoomHeader
-            eyebrow="family"
-            title="Who else tends this thread?"
-            lede="Invite one person — a partner, a parent, a grown child. They'll receive an invitation to join."
+        <div style={eyebrowStyle}>family</div>
+        <h1 style={questionStyle}>Who else tends this thread?</h1>
+        <p style={ledeStyle}>
+          Invite one person — a partner, a parent, a grown child. They'll receive an invitation to join.
+        </p>
+        <div style={{ marginTop: 44 }}>
+          <input
+            style={inputStyle}
+            type="email"
+            value={inviteEmail}
+            onChange={(e) => setInviteEmail(e.target.value)}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            onKeyDown={(e) => e.key === 'Enter' && handleNext()}
+            placeholder="name@example.com"
+            autoFocus
           />
         </div>
-        <input
-          style={inputStyle}
-          type="email"
-          value={inviteEmail}
-          onChange={(e) => setInviteEmail(e.target.value)}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          onKeyDown={(e) => e.key === 'Enter' && handleNext()}
-          placeholder="name@example.com"
-          autoFocus
-        />
       </>
     ),
   };
@@ -272,20 +328,27 @@ export function Onboarding() {
         />
       </div>
 
-      {/* Content */}
-      <div style={body}>
-        {screens[step]}
+      {/* Stage — one question, centered in negative space */}
+      <div style={stage}>
+        <div style={{ ...stepLabel, marginTop: 18 }}>
+          step {stepIndex + 1} of {TOTAL_STEPS}
+        </div>
 
-        {error && (
-          <p style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 12 }}>
-            {error}
-          </p>
-        )}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+          {screens[step]}
+
+          {error && (
+            <p style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 20, textAlign: 'center' }}>
+              {error}
+            </p>
+          )}
+        </div>
 
         <div style={actions}>
           <button
             type="button"
             className="hl-btn"
+            style={{ minWidth: 240 }}
             onClick={handleNext}
             disabled={busy || (step === 'entry' && !firstEntry.trim())}
           >

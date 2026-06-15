@@ -100,7 +100,7 @@ function ToField({
             }}
             onFocus={(e) => { setOpen(true); e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
             onBlur={(e) => { e.currentTarget.style.borderBottomColor = ''; setTimeout(() => setOpen(false), 200); }}
-            placeholder="name a recipient to send as a letter"
+            placeholder="e.g. Grandma — or leave empty"
             aria-label="Recipient name"
             style={{
               border: 0,
@@ -1197,21 +1197,54 @@ export function Compose() {
         }}
       >
         <div style={{ maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
-          {/* eyebrow */}
-          <p
+          {/* masthead — mono eyebrow over a large serif headline (mockup rhythm) */}
+          <header
             style={{
-              fontFamily: 'var(--mono)',
-              fontSize: 10,
-              letterSpacing: '0.28em',
-              textTransform: 'uppercase',
-              color: 'var(--warm)',
-              margin: '0 0 32px',
+              margin: '0 0 44px',
               opacity: writingFocused ? 0.4 : 1,
               transition: `opacity 720ms ${ease}`,
             }}
           >
-            ∞ &nbsp; {isLetter ? 'a sealed letter for the future' : 'a thread in your family cloth'}
-          </p>
+            <p
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.32em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+                margin: '0 0 14px',
+              }}
+            >
+              the composer
+            </p>
+            <h1
+              style={{
+                fontFamily: 'var(--serif)',
+                fontVariationSettings: "'opsz' 60",
+                fontWeight: 300,
+                fontSize: 'clamp(44px, 9vw, 72px)',
+                lineHeight: 0.96,
+                letterSpacing: '-0.015em',
+                color: 'var(--bone)',
+                textTransform: 'uppercase',
+                margin: 0,
+              }}
+            >
+              {isLetter ? 'Letter' : 'Write'}
+            </h1>
+            <p
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                margin: '16px 0 0',
+              }}
+            >
+              ∞ &nbsp; {isLetter ? 'a sealed letter for the future' : 'a thread in your family cloth'}
+            </p>
+          </header>
 
           {/* ── Step 1: Who is this for? ──────────────────────────────── */}
           <div style={{ opacity: writingFocused ? 0.5 : 1, transition: `opacity 720ms ${ease}` }}>
@@ -1302,7 +1335,7 @@ export function Compose() {
                   ? recipientName.trim()
                     ? `Dear ${recipientName},\n\nWrite your letter here…`
                     : 'Write your letter here…'
-                  : 'Write freely. The Listener will read alongside you.'
+                  : 'Share a family memory…'
               }
               style={{
                 width: '100%',
@@ -1607,17 +1640,24 @@ export function Compose() {
                 disabled={submitDisabled}
                 style={{
                   background: 'transparent',
-                  border: 0,
-                  padding: '8px 0',
+                  border: '1px solid var(--warm)',
+                  padding: '11px 26px',
                   minHeight: 44,
                   fontFamily: 'var(--mono)',
                   fontSize: 12,
-                  letterSpacing: '0.18em',
+                  letterSpacing: '0.22em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
                   cursor: submitDisabled ? 'default' : 'pointer',
-                  opacity: submitDisabled ? 0.45 : 1,
-                  transition: 'opacity 180ms var(--ease)',
+                  opacity: submitDisabled ? 0.4 : 1,
+                  transition: 'background 180ms var(--ease), color 180ms var(--ease), opacity 180ms var(--ease)',
+                }}
+                onMouseEnter={(e) => {
+                  if (submitDisabled) return;
+                  e.currentTarget.style.background = 'var(--warm-glow)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
                 }}
               >
                 {save.isPending ? (isLetter ? 'sealing…' : 'saving…') : submitLabel}

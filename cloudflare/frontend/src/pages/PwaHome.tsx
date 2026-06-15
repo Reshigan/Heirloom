@@ -10,7 +10,7 @@ import { memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
-import { RoomHeader, CapturePills, RoomRow } from '../loom/components/room';
+import { CapturePills } from '../loom/components/room';
 import type { UserRole } from '../hooks/useRole';
 import type { CanvasEntry } from '../loom/components/TapestryCanvas';
 
@@ -266,58 +266,87 @@ function AuthHome({
   ];
 
   return (
-    <div style={{ padding: `0 ${P}`, maxWidth: 600, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
-      {/* Listener hero — over the touchable cloth band. Fills the first view. */}
+    <div style={{ padding: `0 ${P}`, maxWidth: 540, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+      {/* Listener hero — centered over the touchable cloth filament band.
+          The global CosmicLoom filament reads through the empty top third;
+          the question and capture pills sit at the optical center. */}
       <div style={{
-        minHeight: 'clamp(340px, calc(100svh - 200px - env(safe-area-inset-top, 0px)), 640px)',
+        minHeight: 'clamp(420px, calc(100svh - 150px - env(safe-area-inset-top, 0px)), 720px)',
         display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-        gap: 22, paddingBottom: 8,
+        alignItems: 'center', textAlign: 'center',
+        gap: 28, paddingBottom: 4,
       }}>
-        <RoomHeader
-          eyebrow={
-            isReadOnly ? 'the cloth remembers' : (
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-                the listener asks
-                <button type="button" onClick={reroll} aria-label="another prompt" className="hl-mono"
-                  style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--warm)', fontSize: 12, lineHeight: 1, padding: 2 }}>
-                  ↻
-                </button>
-              </span>
-            )
-          }
-          title={
-            <span style={{ fontStyle: 'italic', textShadow: '0 0 50px var(--ink)' }}>
-              {isReadOnly ? 'The cloth remembers.' : prompt}
-            </span>
-          }
-        />
-        {isReadOnly ? (
-          <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* Eyebrow */}
+        <span className="hl-mono" style={{
+          fontSize: 10, letterSpacing: '0.34em', textTransform: 'uppercase',
+          color: 'var(--bone-faint)', display: 'inline-flex', alignItems: 'center', gap: 12,
+        }}>
+          {isReadOnly ? 'the cloth remembers' : (
+            <>
+              the listener asks
+              <button type="button" onClick={reroll} aria-label="another prompt" className="hl-mono"
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--warm)', fontSize: 12, lineHeight: 1, padding: 2 }}>
+                ↻
+              </button>
+            </>
+          )}
+        </span>
+
+        {/* The question */}
+        <h1 className="hl-serif hl-tight" style={{
+          margin: 0, fontWeight: 300,
+          fontSize: 'clamp(27px, 7.4vw, 40px)', lineHeight: 1.16,
+          color: 'var(--bone)', fontVariationSettings: '"opsz" 40',
+          fontStyle: 'italic', textShadow: '0 0 60px var(--ink)',
+          maxWidth: '16ch',
+        }}>
+          {isReadOnly ? 'The cloth remembers.' : prompt}
+        </h1>
+
+        {/* Capture — co-equal Write / Speak */}
+        <div style={{ marginTop: 4 }}>
+          {isReadOnly ? (
             <Link to="/loom" className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>open the thread →</Link>
-          </div>
-        ) : (
-          <CapturePills writeHref="/compose" speakHref="/record" />
-        )}
+          ) : (
+            <CapturePills writeHref="/compose" speakHref="/record" className="hl-home-pills" />
+          )}
+        </div>
       </div>
 
-      {/* Recently woven */}
+      {/* Recently woven — centered list under the hero */}
       {recent.length > 0 && (
-        <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 20, marginTop: 8 }}>
-          <div className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 12 }}>
+        <div style={{ marginTop: 12, textAlign: 'center' }}>
+          <div className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 16 }}>
             recently woven
           </div>
-          {recent.map((e, i) => (
-            <RoomRow key={`${e.n}-${i}`} dye={e.dye} href="/loom/weft"
-              title={`${e.title}${e.sealed ? ' ∞' : ''}`} meta={e.date.getFullYear()} />
-          ))}
-          <Link to="/memories" className="hl-mono" style={{ display: 'inline-block', marginTop: 14, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, maxWidth: 360, margin: '0 auto' }}>
+            {recent.map((e, i) => {
+              const dot = e.dye ? `var(--dye-${e.dye}, var(--warm))` : 'var(--warm)';
+              return (
+                <Link
+                  key={`${e.n}-${i}`}
+                  to="/loom/weft"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    gap: 10, padding: '8px 0', minHeight: 40, textDecoration: 'none',
+                  }}
+                >
+                  <span aria-hidden style={{ width: 6, height: 6, flexShrink: 0, background: dot, boxShadow: `0 0 8px ${dot}` }} />
+                  <span className="hl-serif" style={{ fontSize: 'clamp(15px, 4vw, 17px)', fontWeight: 300, color: 'var(--bone-dim)' }}>
+                    {e.title}{e.sealed ? ' ∞' : ''}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+          <Link to="/memories" className="hl-mono" style={{ display: 'inline-block', marginTop: 18, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}>
             see all {count} {count === 1 ? 'memory' : 'memories'} →
           </Link>
         </div>
       )}
 
-      {/* Quiet nav */}
-      <div style={{ borderTop: '1px solid var(--rule)', marginTop: 24, paddingTop: 18, display: 'flex', gap: 18, flexWrap: 'wrap' }}>
+      {/* Quiet nav — centered */}
+      <div style={{ marginTop: 36, paddingTop: 22, borderTop: '1px solid var(--rule)', display: 'flex', gap: 22, flexWrap: 'wrap', justifyContent: 'center' }}>
         {QUIET_NAV.map((n) => (
           <Link key={n.to} to={n.to} className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-dim)', textDecoration: 'none' }}>
             {n.label}
@@ -326,7 +355,7 @@ function AuthHome({
       </div>
 
       {/* One status line */}
-      <p className="hl-mono" style={{ marginTop: 22, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+      <p className="hl-mono" style={{ marginTop: 22, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textAlign: 'center' }}>
         since {firstYear} · <b style={{ color: 'var(--warm-dim)', fontWeight: 400 }}>{count}</b>{' '}
         {count === 1 ? 'memory' : 'memories'} woven · year {threadYear} of a thousand
         {stats && stats.members > 0 ? ` · ${stats.members} ${stats.members === 1 ? 'voice' : 'voices'}` : ''}

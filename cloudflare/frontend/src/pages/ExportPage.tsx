@@ -4,8 +4,6 @@ import { exportApi, type ExportJob } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { RoomHeader, RoomSection } from '../loom/components/room';
-
 /**
  * ExportPage — bind the bloodline into a single book.
  *
@@ -106,20 +104,72 @@ export function ExportPage() {
           padding: 'var(--page-pad-top) var(--page-pad-x)',
           paddingBottom: 'var(--page-clear)',
           overflowX: 'hidden',
-          maxWidth: 680,
+          maxWidth: 560,
           margin: '0 auto',
         }}
       >
-        {/* ── intro ── */}
-        <RoomHeader
-          eyebrow="the bloodline, bound"
-          title="Bind your bloodline into a book."
-          lede="Gather your family's thread into a single book — every memory, letter, and recorded voice, set in type and bound as one PDF you can hold or print."
-        />
+        {/* ── intro — mono eyebrow + serif title, generous space ── */}
+        <header style={{ marginBottom: 88 }}>
+          <span
+            className="hl-mono"
+            style={{
+              display: 'block',
+              fontSize: 10,
+              letterSpacing: '0.32em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              marginBottom: 22,
+            }}
+          >
+            your archive
+          </span>
+          <h1
+            className="hl-serif"
+            style={{
+              fontSize: 40,
+              lineHeight: 1.08,
+              fontWeight: 400,
+              color: 'var(--bone)',
+              margin: 0,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            Take it with you.
+          </h1>
+        </header>
 
-        {/* ── form ── */}
-        <RoomSection label="the book" flush>
-          <div style={{ display: 'grid', gap: 28 }}>
+        {/* ── what goes inside — the format/scope rows ── */}
+        <div style={{ marginBottom: 64 }}>
+          <ScopeRow
+            label="Memories"
+            meta="set in type"
+            on={form.includeMemories}
+            onToggle={() => setForm((f) => ({ ...f, includeMemories: !f.includeMemories }))}
+          />
+          <ScopeRow
+            label="Letters"
+            meta="sealed & open"
+            on={form.includeLetters}
+            onToggle={() => setForm((f) => ({ ...f, includeLetters: !f.includeLetters }))}
+          />
+          <ScopeRow
+            label="Voice transcripts"
+            meta="spoken word"
+            on={form.includeVoiceTranscripts}
+            onToggle={() =>
+              setForm((f) => ({ ...f, includeVoiceTranscripts: !f.includeVoiceTranscripts }))
+            }
+          />
+          <ScopeRow
+            label="Family tree"
+            meta="the bloodline"
+            on={form.includeFamilyTree}
+            onToggle={() => setForm((f) => ({ ...f, includeFamilyTree: !f.includeFamilyTree }))}
+          />
+        </div>
+
+        {/* ── the book — title, subtitle, dedication, cover ── */}
+        <div style={{ display: 'grid', gap: 30, marginBottom: 56 }}>
           <Field label="title">
             <input
               type="text"
@@ -150,7 +200,6 @@ export function ExportPage() {
             />
           </Field>
 
-          {/* cover style */}
           <Field label="cover style">
             <div style={{ display: 'flex', gap: 22, paddingTop: 8 }}>
               {COVER_STYLES.map((style) => (
@@ -168,71 +217,59 @@ export function ExportPage() {
               ))}
             </div>
           </Field>
-          </div>
-        </RoomSection>
+        </div>
 
-        {/* ── includes ── */}
-        <RoomSection label="what goes inside">
-          <div style={{ display: 'grid', gap: 0 }}>
-            <ToggleRow
-              label="include memories"
-              on={form.includeMemories}
-              onToggle={() => setForm((f) => ({ ...f, includeMemories: !f.includeMemories }))}
-            />
-            <ToggleRow
-              label="include letters"
-              on={form.includeLetters}
-              onToggle={() => setForm((f) => ({ ...f, includeLetters: !f.includeLetters }))}
-            />
-            <ToggleRow
-              label="include voice transcripts"
-              on={form.includeVoiceTranscripts}
-              onToggle={() =>
-                setForm((f) => ({ ...f, includeVoiceTranscripts: !f.includeVoiceTranscripts }))
-              }
-            />
-            <ToggleRow
-              label="include family tree"
-              on={form.includeFamilyTree}
-              onToggle={() => setForm((f) => ({ ...f, includeFamilyTree: !f.includeFamilyTree }))}
-            />
+        {/* ── export action — the single warm, filled CTA ── */}
+        <button
+          type="button"
+          className="hl-btn"
+          disabled={bind.isPending}
+          onClick={() => bind.mutate()}
+          style={{
+            width: '100%',
+            padding: '18px 24px',
+            background: bind.isPending ? 'transparent' : 'var(--warm)',
+            color: bind.isPending ? 'var(--bone-faint)' : 'var(--ink)',
+            borderColor: bind.isPending ? 'var(--rule)' : 'var(--warm)',
+            letterSpacing: '0.22em',
+          }}
+        >
+          {bind.isPending ? 'binding…' : 'export'}
+        </button>
+        {bind.isPending && (
+          <div style={{ marginTop: 18 }}>
+            <ProgressHair label="setting your family in type…" />
           </div>
-        </RoomSection>
-
-        {/* ── bind action — the single warm CTA ── */}
-        <RoomSection>
-          <div>
-            <button
-              type="button"
-              className="hl-btn"
-              disabled={bind.isPending}
-              onClick={() => bind.mutate()}
-            >
-              bind the book →
-            </button>
-            {bind.isPending && (
-              <div style={{ marginTop: 18 }}>
-                <ProgressHair label="setting your family in type…" />
-              </div>
-            )}
-            {bind.isError && (
-              <p
-                className="hl-mono"
-                style={{
-                  marginTop: 16,
-                  color: 'var(--warm)',
-                  fontSize: 11,
-                  letterSpacing: '0.12em',
-                }}
-              >
-                the binding faltered. try again.
-              </p>
-            )}
-          </div>
-        </RoomSection>
+        )}
+        {bind.isError && (
+          <p
+            className="hl-mono"
+            style={{
+              marginTop: 16,
+              color: 'var(--warm)',
+              fontSize: 11,
+              letterSpacing: '0.12em',
+            }}
+          >
+            the binding faltered. try again.
+          </p>
+        )}
 
         {/* ── past bindings ── */}
-        <RoomSection label="past bindings">
+        <div style={{ marginTop: 80 }}>
+          <span
+            className="hl-mono"
+            style={{
+              display: 'block',
+              fontSize: 10,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              marginBottom: 18,
+            }}
+          >
+            past bindings
+          </span>
           {historyQ.isLoading ? (
             <ProgressHair width={80} />
           ) : exports.length === 0 ? (
@@ -245,7 +282,7 @@ export function ExportPage() {
           ) : (
             exports.map((job) => <HistoryRow key={job.id} job={job} />)
           )}
-        </RoomSection>
+        </div>
       </div>
     </ClothShell>
   );
@@ -273,39 +310,61 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-/* ── include toggle row ─────────────────────────────────────────────────── */
-function ToggleRow({
+/* ── scope row — serif label left, mono meta/toggle right ───────────────── */
+function ScopeRow({
   label,
+  meta,
   on,
   onToggle,
 }: {
   label: string;
+  meta: string;
   on: boolean;
   onToggle: () => void;
 }) {
   return (
-    <div
+    <button
+      type="button"
+      onClick={onToggle}
       style={{
         display: 'flex',
         alignItems: 'baseline',
         justifyContent: 'space-between',
+        width: '100%',
+        textAlign: 'left',
+        background: 'transparent',
+        border: 0,
         borderBottom: '1px solid var(--rule)',
-        padding: '14px 0',
+        padding: '20px 0',
         gap: 16,
+        cursor: 'pointer',
       }}
     >
-      <span className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)' }}>
+      <span
+        className="hl-serif"
+        style={{
+          fontSize: 19,
+          fontWeight: 400,
+          color: on ? 'var(--bone)' : 'var(--bone-faint)',
+          transition: 'color var(--dur-fast) var(--ease)',
+        }}
+      >
         {label}
       </span>
-      <button
-        type="button"
-        className="hl-btn text"
-        onClick={onToggle}
-        style={{ color: on ? 'var(--warm)' : 'var(--bone-faint)' }}
+      <span
+        className="hl-mono"
+        style={{
+          fontSize: 10,
+          letterSpacing: '0.16em',
+          textTransform: 'uppercase',
+          color: on ? 'var(--warm-dim)' : 'var(--bone-faint)',
+          transition: 'color var(--dur-fast) var(--ease)',
+          whiteSpace: 'nowrap',
+        }}
       >
-        {on ? 'included' : 'left out'}
-      </button>
-    </div>
+        {on ? meta : 'left out'}
+      </span>
+    </button>
   );
 }
 

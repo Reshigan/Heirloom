@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
-import { Loom } from '../loom/components/Loom';
 import { useAuthStore } from '../stores/authStore';
 
 /**
@@ -54,94 +53,132 @@ export function Threshold() {
           inset: 0,
           display: 'grid',
           placeItems: 'center',
-          padding: 'clamp(24px, 5vh, 40px) clamp(20px, 8vw, 120px)',
+          padding: 'clamp(40px, 9vh, 96px) clamp(28px, 8vw, 120px)',
         }}
       >
         <div
           style={{
             textAlign: 'center',
             width: '100%',
-            maxWidth: 880,
+            maxWidth: 560,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
             opacity: revealed ? 1 : 0,
             transform: revealed ? 'translateY(0)' : 'translateY(8px)',
             transition:
               'opacity 1400ms cubic-bezier(0.16,1,0.3,1), transform 1400ms cubic-bezier(0.16,1,0.3,1)',
           }}
         >
-          <div className="loom-eyebrow" style={{ marginBottom: 32 }}>
-            a perpetual family loom · est. 2026
-          </div>
-          <div className="loom-display" style={{ fontSize: 'clamp(48px, 12vw, 96px)', marginBottom: 28 }}>
-            Heirloom
-          </div>
+          {/* wordmark eyebrow */}
           <div
-            className="loom-serif"
-            style={{
-              fontVariationSettings: "'opsz' 20",
-              fontStyle: 'italic',
-              fontSize: 22,
-              color: 'var(--bone-dim)',
-              maxWidth: 640,
-              margin: '0 auto',
-              lineHeight: 1.6,
-              fontWeight: 300,
-            }}
+            className="loom-eyebrow"
+            style={{ fontSize: 13, letterSpacing: '0.34em', color: 'var(--bone)' }}
           >
-            Every life is a single thread.
-            <br />
-            Yours runs through the ones before you,
-            <br />
-            and into the ones who come after.
+            The Threshold
           </div>
 
-          {/* a fragment of weft as the brand's signature device */}
+          {/* the single glowing mark — the only focal point */}
+          <div
+            aria-hidden
+            style={{
+              marginTop: 'clamp(48px, 11vh, 104px)',
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(96px, 26vw, 200px)',
+              lineHeight: 1,
+              fontWeight: 300,
+              color: 'var(--warm)',
+              textShadow:
+                '0 0 28px var(--warm-glow), 0 0 64px var(--warm-glow)',
+              opacity: revealed ? 1 : 0,
+              transition: 'opacity 1400ms cubic-bezier(0.16,1,0.3,1)',
+              transitionDelay: '360ms',
+            }}
+          >
+            ∞
+          </div>
+
+          {/* the thesis */}
+          <h1
+            className="loom-display"
+            style={{
+              marginTop: 'clamp(48px, 11vh, 104px)',
+              fontSize: 'clamp(32px, 7vw, 52px)',
+              lineHeight: 1.18,
+              fontWeight: 400,
+            }}
+          >
+            Start your family&rsquo;s
+            <br />
+            thousand-year thread.
+          </h1>
+          <p
+            className="loom-serif"
+            style={{
+              marginTop: 24,
+              fontStyle: 'italic',
+              fontSize: 17,
+              fontWeight: 300,
+              lineHeight: 1.6,
+              color: 'var(--bone-dim)',
+              maxWidth: 420,
+            }}
+          >
+            A perpetual archive owned by a bloodline.
+          </p>
+
+          {/* a single warm entry — the ceremony */}
           <div
             style={{
-              maxWidth: 720,
-              margin: '44px auto 0',
+              marginTop: 'clamp(56px, 12vh, 112px)',
+              width: '100%',
+              maxWidth: 360,
               opacity: revealed ? 1 : 0,
               transition: 'opacity 1400ms cubic-bezier(0.16,1,0.3,1)',
               transitionDelay: '720ms',
             }}
           >
-            <Loom
-              entries={[
-                { year: 1958, month: 4, lane: 1, kind: 'letter' },
-                { year: 1962, month: 7, lane: 2, kind: 'photo' },
-                { year: 1971, month: 1, lane: 3, kind: 'voice' },
-                { year: 1979, month: 9, lane: 0, kind: 'milestone' },
-                { year: 1984, month: 6, lane: 2, kind: 'letter' },
-                { year: 1991, month: 11, lane: 1, kind: 'photo' },
-                { year: 1998, month: 3, lane: 4, kind: 'letter' },
-                { year: 2004, month: 8, lane: 2, kind: 'memory' },
-                { year: 2011, month: 2, lane: 1, kind: 'voice' },
-                { year: 2018, month: 10, lane: 3, kind: 'photo' },
-                { year: 2024, month: 5, lane: 2, kind: 'letter' },
-                { year: 2026, month: 3, lane: 0, kind: 'milestone' },
-                { year: 2031, month: 6, lane: 2, kind: 'letter', locked: true },
-                { year: 2042, month: 1, lane: 3, kind: 'letter', locked: true },
-                { year: 2058, month: 11, lane: 1, kind: 'letter', locked: true },
-              ]}
-              ligatures={[
-                { from: 0, to: 6, show: revealed },
-                { from: 2, to: 8, show: revealed },
-                { from: 4, to: 10, show: revealed },
-                { from: 7, to: 13, show: revealed },
-              ]}
-              startYear={1955}
-              endYear={2065}
-              height={140}
-            />
-          </div>
-
-          <div
-            className="loom-eyebrow"
-            style={{ marginTop: 60, opacity: 0.7, display: 'flex', justifyContent: 'center', gap: 24 }}
-          >
-            <Link to={isAuthenticated ? '/loom/weft' : '/login?redirect=/loom/weft'} className="loom-btn" style={{ textDecoration: 'none' }}>
-              walk the loom
+            <div className="loom-eyebrow" style={{ marginBottom: 20, opacity: 0.7 }}>
+              Entry &middot; Ceremony
+            </div>
+            <Link
+              to={isAuthenticated ? '/loom/weft' : '/login?redirect=/loom/weft'}
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '18px 24px',
+                background: 'var(--warm)',
+                color: 'var(--ink)',
+                fontFamily: 'var(--mono)',
+                fontSize: 12,
+                letterSpacing: '0.28em',
+                textTransform: 'uppercase',
+                textAlign: 'center',
+                textDecoration: 'none',
+                border: '1px solid var(--warm)',
+                transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'var(--warm-bright)';
+                e.currentTarget.style.borderColor = 'var(--warm-bright)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'var(--warm)';
+                e.currentTarget.style.borderColor = 'var(--warm)';
+              }}
+            >
+              Enter
             </Link>
-            <Link to="/loom/marketing" className="loom-btn-ghost" style={{ textDecoration: 'none' }}>
+            <Link
+              to="/loom/marketing"
+              className="loom-eyebrow"
+              style={{
+                display: 'inline-block',
+                marginTop: 22,
+                color: 'var(--bone-faint)',
+                textDecoration: 'none',
+              }}
+            >
               read the thesis
             </Link>
           </div>

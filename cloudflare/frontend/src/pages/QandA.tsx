@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { searchApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader } from '../loom/components/room';
 
 /**
  * QandA — Loom 3 "ask the thread" (RAG, cited).
@@ -101,177 +100,51 @@ export function QandA() {
       topbarLeft={<Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>}
       topbarCenter="ask the thread"
     >
-      <style>{`
-        @media (max-width: 767px) {
-          .qanda-grid { grid-template-columns: 1fr !important; flex-direction: column; }
-        }
-      `}</style>
       <div
         style={{
           paddingTop: 'var(--page-pad-top)',
-          paddingBottom: 36,
+          paddingBottom: 80,
           paddingLeft: 'var(--page-pad-x)',
           paddingRight: 'var(--page-pad-x)',
         }}
       >
-        <div
-          className="qanda-grid"
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '1fr 320px',
-            gap: 56,
-            alignItems: 'start',
-          }}
-        >
-          {/* ── left: question + answer column ── */}
-          <div style={{ minWidth: 0 }}>
-            <RoomHeader
-              warmEyebrow
-              eyebrow="ask the bloodline"
-              title="ask the thread."
-              lede="Ask anything of the thread. The Listener finds the entries that answer it and cites each one."
-            />
+        <div style={{ maxWidth: 620, margin: '0 auto' }}>
+          {/* ── mono eyebrow ── */}
+          <p
+            className="hl-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              margin: '0 0 28px',
+            }}
+          >
+            ask the bloodline
+          </p>
 
-            {/* Current question heading — the active question / state echo */}
-            {state.phase !== 'idle' && (
-              <h2
-                className="hl-serif"
-                style={{
-                  fontSize: 30,
-                  fontWeight: 400,
-                  letterSpacing: '-0.014em',
-                  margin: '32px 0 0',
-                  color: 'var(--bone)',
-                }}
-              >
-                {state.phase === 'asking'
-                  ? 'thinking…'
-                  : (state as { question: string }).question}
-              </h2>
-            )}
+          {/* ── serif prompt — the hero ── */}
+          <h1
+            className="hl-serif"
+            style={{
+              fontSize: 'clamp(34px, 6vw, 52px)',
+              fontWeight: 400,
+              lineHeight: 1.08,
+              letterSpacing: '-0.02em',
+              color: 'var(--bone)',
+              margin: '0 0 36px',
+            }}
+          >
+            What do you<br />want to know
+          </h1>
 
-            {state.phase === 'asking' && (
-              <div style={{ marginTop: 16, marginBottom: 24 }}>
-                <p
-                  className="hl-mono"
-                  style={{
-                    fontSize: 12,
-                    fontStyle: 'italic',
-                    color: 'var(--bone-dim)',
-                    marginBottom: 12,
-                  }}
-                >
-                  thinking…
-                </p>
-                <Shuttle />
-              </div>
-            )}
-
-            {state.phase === 'error' && (
-              <p
-                className="hl-prose"
-                style={{
-                  fontSize: 18,
-                  marginTop: 16,
-                  marginBottom: 24,
-                  color: 'var(--bone-dim)',
-                  fontStyle: 'italic',
-                }}
-              >
-                The thread could not be reached. Try the question again.
-              </p>
-            )}
-
-            {state.phase === 'answered' && (
-              <>
-                <p
-                  className="hl-prose"
-                  style={{
-                    fontSize: 18,
-                    marginTop: 16,
-                    marginBottom: 24,
-                    color: 'var(--bone)',
-                    maxWidth: '62ch',
-                    lineHeight: 1.8,
-                  }}
-                >
-                  {state.sources.length > 0 ? (
-                    <>
-                      The thread holds{' '}
-                      <span style={{ color: 'var(--warm)' }}>
-                        {state.sources.length}{' '}
-                        {state.sources.length === 1 ? 'entry' : 'entries'}
-                      </span>{' '}
-                      that touch <em>"{state.question}"</em>. They are cited below, each
-                      opening to the entry it came from. The Listener shows only the true
-                      entries your question touches, never words it has invented.
-                    </>
-                  ) : (
-                    <>
-                      Nothing in the entries you can read speaks to{' '}
-                      <em>"{state.question}"</em> yet.
-                    </>
-                  )}
-                </p>
-
-                {/* Citations row */}
-                {state.sources.length > 0 && (
-                  <div
-                    className="hl-mono"
-                    style={{
-                      fontSize: 10,
-                      color: 'var(--bone-faint)',
-                      letterSpacing: '0.04em',
-                      marginBottom: 24,
-                      display: 'flex',
-                      gap: 16,
-                      flexWrap: 'wrap',
-                    }}
-                  >
-                    {state.sources.map((s, i) => (
-                      <Link
-                        key={s.id}
-                        to={sourceHref(s)}
-                        style={{
-                          color: 'var(--bone-faint)',
-                          textDecoration: 'none',
-                          borderBottom: '1px solid var(--rule)',
-                        }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.color = 'var(--bone)')
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.color = 'var(--bone-faint)')
-                        }
-                      >
-                        [{i + 1}]
-                      </Link>
-                    ))}
-                  </div>
-                )}
-
-                {/* Cited entries list */}
-                {state.sources.length > 0 && (
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                    {state.sources.map((s, i) => (
-                      <Citation key={s.id} index={i + 1} source={s} />
-                    ))}
-                  </ul>
-                )}
-              </>
-            )}
-
-            <hr
-              className="hl-rule"
-              style={{ marginTop: 32, marginBottom: 0, border: 0, borderTop: '1px solid var(--rule)' }}
-            />
-
-            {/* New question row */}
-            <form
-              onSubmit={onSubmit}
+          {/* ── underlined input ── */}
+          <form onSubmit={onSubmit} style={{ marginBottom: 8 }}>
+            <div
               style={{
                 display: 'flex',
-                borderBottom: '1px solid var(--rule)',
+                alignItems: 'baseline',
+                borderBottom: '1px solid var(--rule-strong)',
               }}
             >
               <input
@@ -279,13 +152,14 @@ export function QandA() {
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="ask something…"
                 className="hl-serif"
+                aria-label="Ask the thread"
                 style={{
                   flex: 1,
                   background: 'transparent',
                   border: 0,
                   outline: 'none',
                   color: 'var(--bone)',
-                  fontSize: 17,
+                  fontSize: 19,
                   fontWeight: 400,
                   fontStyle: 'italic',
                   padding: '14px 0',
@@ -307,22 +181,29 @@ export function QandA() {
                   fontFamily: 'var(--serif)',
                   color: 'var(--warm)',
                   letterSpacing: '-0.006em',
+                  transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
                 }}
               >
                 ask →
               </button>
-            </form>
-          </div>
+            </div>
+          </form>
 
-          {/* ── right 320px: suggested prompts ── */}
-          <aside className="qanda-aside" style={{ minWidth: 0 }}>
-            <p
-              className="hl-eyebrow"
-              style={{ marginBottom: 14 }}
-            >
-              suggested
-            </p>
-            <div>
+          {/* ── idle: suggested questions as quiet serif links ── */}
+          {state.phase === 'idle' && (
+            <div style={{ marginTop: 44 }}>
+              <p
+                className="hl-mono"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  margin: '0 0 10px',
+                }}
+              >
+                or ask
+              </p>
               {SUGGESTIONS.map((s) => (
                 <button
                   key={s}
@@ -336,9 +217,9 @@ export function QandA() {
                     background: 'transparent',
                     border: 0,
                     borderBottom: '1px solid var(--rule)',
-                    padding: '12px 0',
+                    padding: '13px 0',
                     color: 'var(--bone-dim)',
-                    fontSize: 14,
+                    fontSize: 15,
                     lineHeight: 1.55,
                     cursor: 'pointer',
                     transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
@@ -351,7 +232,137 @@ export function QandA() {
                 </button>
               ))}
             </div>
-          </aside>
+          )}
+
+          {/* ── asking ── */}
+          {state.phase === 'asking' && (
+            <div style={{ marginTop: 40 }}>
+              <p
+                className="hl-mono"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  marginBottom: 14,
+                }}
+              >
+                listening…
+              </p>
+              <Shuttle />
+            </div>
+          )}
+
+          {/* ── error ── */}
+          {state.phase === 'error' && (
+            <p
+              className="hl-prose"
+              style={{
+                fontSize: 18,
+                marginTop: 40,
+                color: 'var(--bone-dim)',
+                fontStyle: 'italic',
+                lineHeight: 1.8,
+              }}
+            >
+              The thread could not be reached. Try the question again.
+            </p>
+          )}
+
+          {/* ── answered: serif prose + cited sources ── */}
+          {state.phase === 'answered' && (
+            <div style={{ marginTop: 40 }}>
+              <p
+                className="hl-prose"
+                style={{
+                  fontSize: 18,
+                  margin: 0,
+                  color: 'var(--bone)',
+                  maxWidth: '58ch',
+                  lineHeight: 1.85,
+                }}
+              >
+                {state.sources.length > 0 ? (
+                  <>
+                    The thread holds{' '}
+                    <span style={{ color: 'var(--warm)' }}>
+                      {state.sources.length}{' '}
+                      {state.sources.length === 1 ? 'entry' : 'entries'}
+                    </span>{' '}
+                    that touch <em>"{state.question}"</em>. They are cited below, each
+                    opening to the entry it came from. The Listener shows only the true
+                    entries your question touches, never words it has invented.
+                  </>
+                ) : (
+                  <>
+                    Nothing in the entries you can read speaks to{' '}
+                    <em>"{state.question}"</em> yet.
+                  </>
+                )}
+              </p>
+
+              {/* Citations row */}
+              {state.sources.length > 0 && (
+                <div
+                  className="hl-mono"
+                  style={{
+                    fontSize: 10,
+                    color: 'var(--bone-faint)',
+                    letterSpacing: '0.04em',
+                    marginTop: 28,
+                    marginBottom: 8,
+                    display: 'flex',
+                    gap: 16,
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  {state.sources.map((s, i) => (
+                    <Link
+                      key={s.id}
+                      to={sourceHref(s)}
+                      style={{
+                        color: 'var(--bone-faint)',
+                        textDecoration: 'none',
+                        borderBottom: '1px solid var(--rule)',
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.color = 'var(--bone)')
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.color = 'var(--bone-faint)')
+                      }
+                    >
+                      [{i + 1}]
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              {/* Cited entries list */}
+              {state.sources.length > 0 && (
+                <ul style={{ listStyle: 'none', padding: 0, margin: '16px 0 0' }}>
+                  {state.sources.map((s, i) => (
+                    <Citation key={s.id} index={i + 1} source={s} />
+                  ))}
+                </ul>
+              )}
+
+              {/* ── archival footer label ── */}
+              <p
+                className="hl-mono"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  margin: '40px 0 0',
+                }}
+              >
+                woven from {state.sources.length}{' '}
+                {state.sources.length === 1 ? 'memory' : 'memories'}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </ClothShell>

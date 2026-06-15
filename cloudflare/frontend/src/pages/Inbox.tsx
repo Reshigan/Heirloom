@@ -1,10 +1,10 @@
+import type { CSSProperties, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { threadsApi, memoriesApi, type UpcomingUnlock, type ThreadLockType } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { RoomHeader } from '../loom/components/room';
 
 /**
  * Inbox — Loom 3 native "What is waiting."
@@ -101,178 +101,221 @@ export function Inbox() {
           padding: 'var(--page-pad-top) var(--page-pad-x)',
           paddingBottom: 'var(--page-clear)',
           overflowX: 'hidden',
-          maxWidth: 'min(100%, 720px)',
+          maxWidth: 'min(100%, 560px)',
           margin: '0 auto',
         }}
       >
-        <style>{`
-          .inbox-row { grid-template-columns: 14px minmax(0,56px) 1fr 1fr 1.1fr; }
-          @media (max-width: 600px) {
-            .inbox-row { grid-template-columns: 14px 1fr auto; }
-            .inbox-col-hide { display: none; }
-          }
-        `}</style>
-        <div style={{ marginBottom: 40 }}>
-          <RoomHeader eyebrow="the inbox" title="What is waiting." />
-        </div>
-
-        {/* ── for you ── */}
-        {received.length > 0 && (
-          <section style={{ marginBottom: 40 }}>
-            <p className="hl-eyebrow" style={{ marginBottom: 14, color: 'var(--warm)' }}>
-              for you
-            </p>
-            {received.map((m) => (
-              <Link
-                key={m.id}
-                to={`/loom/read?entry=${m.id}`}
-                style={{ textDecoration: 'none', display: 'block' }}
-              >
-                <div
-                  style={{
-                    borderBottom: '1px solid var(--rule)',
-                    borderLeft: '3px solid var(--warm)',
-                    padding: '14px 0 14px 12px',
-                    display: 'grid',
-                    gridTemplateColumns: '1fr auto',
-                    gap: 12,
-                    alignItems: 'baseline',
-                  }}
-                >
-                  <div>
-                    <div className="hl-serif" style={{ fontSize: 15, color: 'var(--warm)', fontWeight: 400 }}>
-                      {m.title}
-                    </div>
-                    <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em', marginTop: 3 }}>
-                      from {m.from || 'a family member'}
-                    </div>
-                  </div>
-                  <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.08em', whiteSpace: 'nowrap' }}>
-                    {new Date(m.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </section>
-        )}
+        {/* ── masthead ── */}
+        <header style={{ textAlign: 'center', marginBottom: 72 }}>
+          <p
+            className="hl-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: '0.42em',
+              color: 'var(--bone-faint)',
+              textTransform: 'uppercase',
+              marginBottom: 18,
+            }}
+          >
+            the inbox
+          </p>
+          <h1
+            className="hl-serif"
+            style={{
+              fontSize: 'clamp(40px, 11vw, 64px)',
+              fontWeight: 400,
+              lineHeight: 1,
+              color: 'var(--bone)',
+              margin: 0,
+            }}
+          >
+            Inbox
+          </h1>
+        </header>
 
         {hasError && (
-          <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 12, margin: '0 0 24px', letterSpacing: '0.12em' }}>
+          <p
+            className="hl-mono"
+            style={{ color: 'var(--danger)', fontSize: 11, margin: '0 0 28px', letterSpacing: '0.14em', textAlign: 'center' }}
+          >
             could not load inbox
           </p>
         )}
 
-        {loading ? (
-          <div style={{ marginTop: 40 }}>
+        {loading && received.length === 0 ? (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 40 }}>
             <ProgressHair width={80} />
           </div>
-        ) : sealed.length === 0 && opened.length === 0 ? (
+        ) : received.length === 0 && sealed.length === 0 && opened.length === 0 ? (
           <EmptyState />
         ) : (
-          <>
-            {/* ── already opened ── */}
-            {opened.length > 0 && (
-              <section>
-                <p className="hl-eyebrow" style={{ marginBottom: 14 }}>
-                  already opened
-                </p>
-                {opened.map((u) => (
-                  <OpenedRow key={u.unlock_id} item={u} />
-                ))}
-              </section>
-            )}
-
-            {opened.length > 0 && sealed.length > 0 && (
-              <hr
-                className="hl-rule"
-                style={{ margin: '32px 0', border: 0, borderTop: '1px solid var(--rule)' }}
-              />
-            )}
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0, borderTop: '1px solid var(--rule)' }}>
+            {/* ── for you (received) ── */}
+            {received.map((m) => (
+              <ReceivedRow key={m.id} item={m} />
+            ))}
 
             {/* ── still sealed ── */}
-            {sealed.length > 0 && (
-              <section>
-                <p className="hl-eyebrow" style={{ marginBottom: 14 }}>
-                  still sealed
-                </p>
-                {sealed.map((u) => (
-                  <SealedRow key={u.unlock_id} item={u} />
-                ))}
-              </section>
-            )}
-          </>
+            {sealed.map((u) => (
+              <SealedRow key={u.unlock_id} item={u} />
+            ))}
+
+            {/* ── already opened ── */}
+            {opened.map((u) => (
+              <OpenedRow key={u.unlock_id} item={u} />
+            ))}
+          </ul>
         )}
       </div>
     </ClothShell>
   );
 }
 
+/* ── Shared list-row shell ──────────────────────────────────────────────────
+ * A calm archival row: warm unread dot | (serif primary + dim secondary) | mono date.
+ */
+function InboxRow({
+  to,
+  unread,
+  dye,
+  primary,
+  primaryColor = 'var(--bone)',
+  primaryItalic = false,
+  secondary,
+  date,
+  dateColor = 'var(--bone-faint)',
+}: {
+  to?: string;
+  unread: boolean;
+  dye?: string | null;
+  primary: ReactNode;
+  primaryColor?: string;
+  primaryItalic?: boolean;
+  secondary?: ReactNode;
+  date: string;
+  dateColor?: string;
+}) {
+  const gridStyle: CSSProperties = {
+    display: 'grid',
+    gridTemplateColumns: '14px 1fr auto',
+    alignItems: 'baseline',
+    columnGap: 14,
+    padding: '20px 0',
+    textDecoration: 'none',
+  };
+  const body = (
+    <>
+        {/* col 1: unread dot + dye signal */}
+        <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, alignSelf: 'center' }}>
+          <span
+            aria-hidden
+            style={{
+              display: 'block',
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: unread ? 'var(--warm)' : 'transparent',
+              boxShadow: unread ? '0 0 8px var(--warm-glow)' : 'none',
+            }}
+          />
+          <DyeSwatch dye={dye} />
+        </span>
+
+        {/* col 2: primary serif line + dim secondary */}
+        <span style={{ minWidth: 0 }}>
+          <span
+            className="hl-serif"
+            style={{
+              display: 'block',
+              fontSize: 17,
+              fontWeight: 400,
+              lineHeight: 1.3,
+              color: primaryColor,
+              fontStyle: primaryItalic ? 'italic' : 'normal',
+            }}
+          >
+            {primary}
+          </span>
+          {secondary != null && (
+            <span
+              className="hl-serif"
+              style={{
+                display: 'block',
+                fontSize: 13.5,
+                lineHeight: 1.45,
+                color: 'var(--bone-dim)',
+                fontStyle: 'italic',
+                marginTop: 4,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {secondary}
+            </span>
+          )}
+        </span>
+
+        {/* col 3: mono date */}
+        <span
+          className="hl-mono"
+          style={{
+            fontSize: 10,
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            color: dateColor,
+            whiteSpace: 'nowrap',
+            alignSelf: 'center',
+          }}
+        >
+          {date}
+        </span>
+    </>
+  );
+
+  return (
+    <li style={{ borderBottom: '1px solid var(--rule)' }}>
+      {to ? (
+        <Link to={to} className="hl-link" style={gridStyle}>
+          {body}
+        </Link>
+      ) : (
+        <div style={gridStyle}>{body}</div>
+      )}
+    </li>
+  );
+}
+
+/* ── For-you (received) row ─────────────────────────────────────────────── */
+function ReceivedRow({
+  item,
+}: {
+  item: { id: string; title: string; type: string; createdAt: string; from: string; metadata: any };
+}) {
+  return (
+    <InboxRow
+      to={`/loom/read?entry=${item.id}`}
+      unread
+      primary={item.title}
+      primaryColor="var(--warm)"
+      secondary={`from ${item.from || 'a family member'}`}
+      date={formatDate(item.createdAt)}
+    />
+  );
+}
+
 /* ── Already-opened row ─────────────────────────────────────────────────── */
 function OpenedRow({ item }: { item: RecentUnlock }) {
+  const secondary = [item.thread_name, item.resolution_note].filter(Boolean).join(' · ');
   return (
-    <div
-      className="inbox-row"
-      style={{
-        display: 'grid',
-        alignItems: 'center',
-        borderBottom: '1px solid var(--rule)',
-        paddingTop: 14,
-        paddingBottom: 14,
-        gap: 0,
-      }}
-    >
-      {/* col 1: dye swatch */}
-      <DyeSwatch dye={item.dye} />
-
-      {/* col 2: entry title link (warm serif 15px) */}
-      <Link
-        to={`/loom/read?entry=${item.entry_id}`}
-        className="hl-serif hl-link warm"
-        style={{
-          fontSize: 15,
-          color: 'var(--warm)',
-          textDecoration: 'none',
-          paddingLeft: 0,
-          paddingRight: 12,
-        }}
-      >
-        {item.entry_title ?? 'An entry has opened'}
-      </Link>
-
-      {/* col 3: thread name */}
-      <span
-        className="hl-serif inbox-col-hide"
-        style={{ fontSize: 14, color: 'var(--bone-dim)', paddingRight: 12 }}
-      >
-        {item.thread_name}
-      </span>
-
-      {/* col 4: from / resolution note (italic dim) */}
-      <span
-        className="hl-serif inbox-col-hide"
-        style={{
-          fontSize: 14,
-          fontStyle: 'italic',
-          color: 'var(--bone-dim)',
-          paddingRight: 12,
-        }}
-      >
-        {item.resolution_note ?? '—'}
-      </span>
-
-      {/* col 5: resolved date (mono 10px bone-faint) */}
-      <span
-        className="hl-mono"
-        style={{
-          fontSize: 10,
-          letterSpacing: '0.06em',
-          color: 'var(--bone-faint)',
-          textAlign: 'right',
-        }}
-      >
-        {formatDate(item.resolved_at)}
-      </span>
-    </div>
+    <InboxRow
+      to={`/loom/read?entry=${item.entry_id}`}
+      unread={false}
+      dye={item.dye}
+      primary={item.entry_title ?? 'An entry has opened'}
+      secondary={secondary || undefined}
+      date={formatDate(item.resolved_at)}
+    />
   );
 }
 
@@ -280,79 +323,25 @@ function OpenedRow({ item }: { item: RecentUnlock }) {
 function SealedRow({ item }: { item: UpcomingUnlock }) {
   const itemWithDye = item as UpcomingUnlock & { dye?: string | null };
   const unlockLabel = sealedUntilLabel(item);
+  const secondary = [item.thread_name, item.target_name ?? lockKindLabel(item.lock_type)]
+    .filter(Boolean)
+    .join(' · ');
   return (
-    <div
-      className="inbox-row"
-      style={{
-        display: 'grid',
-        alignItems: 'center',
-        borderBottom: '1px solid var(--rule)',
-        paddingTop: 14,
-        paddingBottom: 14,
-        gap: 0,
-      }}
-    >
-      {/* col 1: dye swatch */}
-      <DyeSwatch dye={itemWithDye.dye} />
-
-      {/* col 2: ∞ warm 18px serif + sealed title dim */}
-      <span style={{ display: 'flex', flexDirection: 'column', paddingRight: 12, gap: 2 }}>
-        <span
-          aria-hidden
-          className="hl-serif"
-          style={{ color: 'var(--warm)', fontSize: 18, lineHeight: 1, fontWeight: 300 }}
-        >
-          ∞
-        </span>
-        {item.entry_title ? (
-          <span
-            className="hl-serif"
-            style={{
-              fontSize: 12,
-              color: 'var(--bone-dim)',
-              fontStyle: 'italic',
-              lineHeight: 1.3,
-            }}
-          >
-            {item.entry_title}
-          </span>
-        ) : null}
-      </span>
-
-      {/* col 3: thread name */}
-      <span
-        className="hl-serif inbox-col-hide"
-        style={{ fontSize: 14, color: 'var(--bone-dim)', paddingRight: 12 }}
-      >
-        {item.thread_name}
-      </span>
-
-      {/* col 4: from (target / lock kind) */}
-      <span
-        className="hl-serif inbox-col-hide"
-        style={{
-          fontSize: 14,
-          fontStyle: 'italic',
-          color: 'var(--bone-dim)',
-          paddingRight: 12,
-        }}
-      >
-        {item.target_name ?? lockKindLabel(item.lock_type)}
-      </span>
-
-      {/* col 5: "unlocks {date}" mono warm */}
-      <span
-        className="hl-mono"
-        style={{
-          fontSize: 10,
-          letterSpacing: '0.06em',
-          color: 'var(--warm)',
-          textAlign: 'right',
-        }}
-      >
-        unlocks {unlockLabel}
-      </span>
-    </div>
+    <InboxRow
+      unread={false}
+      dye={itemWithDye.dye}
+      primary={
+        <>
+          <span aria-hidden style={{ color: 'var(--warm)', fontWeight: 300, marginRight: 8 }}>∞</span>
+          {item.entry_title ?? 'A sealed note'}
+        </>
+      }
+      primaryColor="var(--bone-dim)"
+      primaryItalic={!!item.entry_title}
+      secondary={secondary || undefined}
+      date={`unlocks ${unlockLabel}`}
+      dateColor="var(--warm)"
+    />
   );
 }
 

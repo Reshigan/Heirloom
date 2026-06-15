@@ -34,8 +34,13 @@ interface UnlockLetter {
   writtenDate: string;   // formatted, when the letter was written
   sealedDate: string;    // formatted, when it was tied off
   openedDate: string;    // formatted, when it untied
+  sealedYear: string;    // year only, for the SEALED yyyy label
+  openedYear: string;    // year only, for the OPENED yyyy label
   years: number;         // whole years between sealed and opened
 }
+
+const fmtYear = (iso?: string | null): string =>
+  iso ? String(new Date(iso).getUTCFullYear()) : '';
 
 const fmtDate = (iso?: string | null): string =>
   iso ? new Date(iso).toISOString().slice(0, 10).replace(/-/g, '·') : '';
@@ -92,6 +97,8 @@ export function Unlock() {
           writtenDate: fmtDate(full.createdAt || head.createdAt),
           sealedDate: fmtDate(full.sealedAt || head.sealedAt),
           openedDate: fmtDate(full.scheduledDate || head.scheduledDate),
+          sealedYear: fmtYear(full.sealedAt || head.sealedAt),
+          openedYear: fmtYear(full.scheduledDate || head.scheduledDate),
           years: wholeYears(full.sealedAt || head.sealedAt, full.scheduledDate || head.scheduledDate),
         });
       } catch {
@@ -167,27 +174,14 @@ export function Unlock() {
             position: 'absolute',
             inset: 0,
             display: 'grid',
-            gridTemplateRows: 'auto 1fr auto',
-            padding: 'clamp(24px, 6vw, 44px) clamp(20px, 6vw, 80px)',
+            gridTemplateRows: '1fr auto',
+            padding: 'clamp(28px, 7vw, 72px) clamp(20px, 7vw, 96px)',
           }}
         >
-          {/* meta header — present for the ceremony, gone for the artifact */}
-          <div style={{ opacity: phase < 3 ? 1 : 0, transition: VEIL }}>
-            <div className="hl-eyebrow" style={{ color: 'var(--warm)' }}>
-              ∞ &nbsp; the loom · unlock
-            </div>
-            <div
-              className="hl-mono"
-              style={{ fontSize: 11, color: 'var(--bone-faint)', marginTop: 8 }}
-            >
-              tied off {letter.sealedDate} &nbsp;·&nbsp; untied {letter.openedDate} &nbsp;·&nbsp; for {letter.recipient}
-            </div>
-          </div>
-
           {/* center stage — the 720ms typographic dissolve */}
           <div style={{ display: 'grid', placeItems: 'center', position: 'relative' }}>
-            <div style={{ position: 'relative', maxWidth: 640, width: '100%', minHeight: 420 }}>
-              {/* THE SEAL — ∞ + sealed date, dissolving out */}
+            <div style={{ position: 'relative', maxWidth: 600, width: '100%', minHeight: 460 }}>
+              {/* THE SEAL — wax ∞ + sealed date, dissolving out */}
               <div
                 style={{
                   position: 'absolute',
@@ -201,18 +195,7 @@ export function Unlock() {
                 }}
               >
                 <div>
-                  <div
-                    style={{
-                      fontFamily: "'Source Serif 4', serif",
-                      fontVariationSettings: "'opsz' 72",
-                      fontSize: 132,
-                      fontWeight: 300,
-                      lineHeight: 1,
-                      color: 'var(--warm)',
-                    }}
-                  >
-                    ∞
-                  </div>
+                  <WaxSeal size={64} />
                   <div
                     className="loom-mono"
                     style={{
@@ -220,7 +203,7 @@ export function Unlock() {
                       color: 'var(--bone-faint)',
                       letterSpacing: '0.16em',
                       textTransform: 'uppercase',
-                      marginTop: 22,
+                      marginTop: 28,
                     }}
                   >
                     sealed · {letter.years === 1 ? 'one year' : `${letter.years} years`}
@@ -240,40 +223,67 @@ export function Unlock() {
                   pointerEvents: phase >= 1 && phase < 3 ? 'auto' : 'none',
                 }}
               >
-                <div style={{ maxWidth: 560, textAlign: 'left', maxHeight: 360, overflowY: 'auto' }}>
+                <div
+                  style={{
+                    maxWidth: 540,
+                    width: '100%',
+                    textAlign: 'left',
+                    maxHeight: '100%',
+                    overflowY: 'auto',
+                  }}
+                >
+                  {/* small glowing wax-sealed ∞, near top-center */}
+                  <div style={{ textAlign: 'center', marginBottom: 26 }}>
+                    <WaxSeal size={30} />
+                  </div>
+
+                  {/* SEALED yyyy   OPENED yyyy */}
                   <div
                     className="loom-mono"
                     style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      gap: 28,
                       fontSize: 10,
-                      color: 'var(--warm)',
-                      letterSpacing: '0.04em',
-                      paddingBottom: 14,
+                      color: 'var(--bone-faint)',
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
+                      paddingBottom: 30,
+                      marginBottom: 34,
                       borderBottom: '1px solid var(--rule)',
-                      marginBottom: 22,
                     }}
                   >
-                    written {letter.writtenDate}
+                    <span>sealed&nbsp;&nbsp;{letter.sealedYear}</span>
+                    <span>opened&nbsp;&nbsp;{letter.openedYear}</span>
                   </div>
+
+                  {/* large serif salutation */}
                   <div
                     className="loom-serif"
                     style={{
-                      fontSize: 28,
-                      fontStyle: 'italic',
-                      marginBottom: 18,
+                      fontFamily: "'Source Serif 4', serif",
+                      fontVariationSettings: "'opsz' 60",
+                      fontSize: 'clamp(34px, 6vw, 46px)',
+                      lineHeight: 1.05,
+                      marginBottom: 34,
                       fontWeight: 300,
-                      color: 'var(--warm)',
+                      color: 'var(--bone)',
+                      letterSpacing: '-0.018em',
                     }}
                   >
                     {letter.salutation}
                   </div>
+
+                  {/* warm-tinted serif prose */}
                   <div
                     className="loom-body"
                     style={{
+                      fontFamily: "'Source Serif 4', serif",
                       fontSize: 17,
-                      color: 'var(--bone)',
-                      lineHeight: 1.85,
+                      color: 'var(--warm-bright)',
+                      lineHeight: 1.95,
                       textWrap: 'pretty',
-                      fontVariationSettings: "'opsz' 14",
+                      fontVariationSettings: "'opsz' 16",
                       whiteSpace: 'pre-wrap',
                     }}
                   >
@@ -282,7 +292,7 @@ export function Unlock() {
                   {letter.signature && (
                     <div
                       style={{
-                        marginTop: 24,
+                        marginTop: 30,
                         fontFamily: "'Source Serif 4', serif",
                         fontVariationSettings: "'opsz' 28",
                         fontSize: 22,
@@ -295,7 +305,7 @@ export function Unlock() {
                     </div>
                   )}
                   {continueVisible && !continueClicked && (
-                    <div style={{ marginTop: 28, textAlign: 'right' }}>
+                    <div style={{ marginTop: 36, textAlign: 'right' }}>
                       <button
                         type="button"
                         onClick={() => setContinueClicked(true)}
@@ -338,28 +348,81 @@ export function Unlock() {
             </div>
           </div>
 
-          {/* phase indicator */}
-          <div style={{ display: 'flex', justifyContent: 'center', opacity: 0.7 }}>
-            {['sealed', 'the dissolve', 'the letter', 'the artifact'].map((label, i) => (
-              <div
-                key={label}
-                style={{
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: 9,
-                  letterSpacing: '0.16em',
-                  textTransform: 'uppercase',
-                  color: phase === i ? 'var(--warm)' : 'var(--bone-faint)',
-                  padding: '4px 14px',
-                  borderRight: i < 3 ? '1px solid var(--rule)' : 'none',
-                  transition: 'color var(--loom-dur-shift) var(--loom-ease)',
-                }}
-              >
-                {String(i + 1).padStart(2, '0')} {label}
-              </div>
-            ))}
+          {/* footer rule — ceremony status left, archival mark right */}
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'baseline',
+              borderTop: '1px solid var(--rule)',
+              paddingTop: 18,
+            }}
+          >
+            <span
+              className="loom-mono"
+              style={{
+                fontSize: 9,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: phase >= 2 ? 'var(--warm)' : 'var(--bone-faint)',
+                transition: 'color var(--loom-dur-shift) var(--loom-ease)',
+              }}
+            >
+              {phase >= 3
+                ? 'the artifact'
+                : phase >= 2
+                  ? 'ceremony complete'
+                  : phase >= 1
+                    ? 'the dissolve'
+                    : 'sealed'}
+            </span>
+            <span
+              className="loom-mono"
+              style={{
+                fontSize: 9,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+              }}
+            >
+              JetBrains Mono
+            </span>
           </div>
       </div>
     </ClothShell>
+  );
+}
+
+/* ─── The wax seal — a small warm disc carrying the ∞ mark. The product's one
+   warm accent, lit by --warm-glow. No gradient mesh, no blur, no drop shadow —
+   a single ring-lit disc, the ∞ glyph engraved in ink. ──────────────────── */
+function WaxSeal({ size = 30 }: { size?: number }) {
+  return (
+    <span
+      aria-hidden
+      style={{
+        display: 'inline-grid',
+        placeItems: 'center',
+        width: size,
+        height: size,
+        borderRadius: '50%',
+        background: 'var(--warm)',
+        boxShadow: '0 0 0 1px var(--warm-bright), 0 0 18px var(--warm-glow)',
+      }}
+    >
+      <span
+        style={{
+          fontFamily: "'Source Serif 4', serif",
+          fontVariationSettings: "'opsz' 48",
+          fontSize: size * 0.5,
+          fontWeight: 400,
+          lineHeight: 1,
+          color: 'var(--ink)',
+        }}
+      >
+        ∞
+      </span>
+    </span>
   );
 }
 

@@ -4,7 +4,7 @@ import { searchApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { RoomHeader, RoomSection, RoomRow } from '../loom/components/room';
+import { RoomSection, RoomRow } from '../loom/components/room';
 
 /**
  * SearchPage — Loom native "Find a thread."
@@ -87,34 +87,52 @@ export function SearchPage() {
           overflowX: 'hidden',
         }}
       >
-        <RoomHeader
-          eyebrow="find a thread"
-          title="Search the thread."
-          className="hl-mb-search"
-        />
-        <style>{`.hl-mb-search { margin-bottom: 28px; }`}</style>
+        {/* ── header: serif "Search the family archive." ── */}
+        <h1
+          className="hl-serif hl-tight"
+          style={{
+            margin: '0 0 36px',
+            fontWeight: 300,
+            fontSize: 'clamp(24px, 6vw, 34px)',
+            lineHeight: 1.15,
+            color: 'var(--bone)',
+            fontVariationSettings: '"opsz" 32',
+          }}
+        >
+          Search <span style={{ color: 'var(--bone-dim)' }}>the family archive.</span>
+        </h1>
 
-        {/* ── search input ── */}
+        {/* ── search input: underlined field, mono micro-label placeholder ── */}
         <input
           autoFocus
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="search your family's thread…"
+          placeholder="SEARCH THE THREAD"
           aria-label="search"
+          className="hl-search-field"
           style={{
             width: '100%',
             background: 'transparent',
             border: 0,
             borderBottom: '1px solid var(--rule)',
             color: 'var(--bone)',
-            fontFamily: 'var(--serif)',
-            fontSize: 'clamp(22px, 5vw, 32px)',
-            fontWeight: 300,
+            fontFamily: 'var(--mono)',
+            fontSize: 13,
+            letterSpacing: '0.16em',
+            textTransform: 'uppercase',
             padding: '0 0 14px',
-            margin: '0 0 24px',
+            margin: '0 0 40px',
             outline: 'none',
           }}
         />
+        <style>{`
+          .hl-search-field::placeholder {
+            color: var(--bone-faint);
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+          }
+          .hl-search-field:focus { border-bottom-color: var(--rule-strong); }
+        `}</style>
 
         {/* ── type filter row ── */}
         <div style={{ display: 'flex', gap: 22, marginBottom: 40 }}>
@@ -130,7 +148,7 @@ export function SearchPage() {
                   fontSize: 11,
                   letterSpacing: '0.16em',
                   textTransform: 'uppercase',
-                  color: active ? 'var(--warm)' : 'var(--bone-dim)',
+                  color: active ? 'var(--warm)' : 'var(--bone-faint)',
                   padding: 0,
                 }}
               >
@@ -233,7 +251,7 @@ export function SearchPage() {
                             r.title
                           )
                         }
-                        meta={`${r.type} · ${formatDate(r.created_at)}`}
+                        meta={formatDate(r.created_at)}
                         href={ROW_LINK[r.type]}
                       />
                     ))}

@@ -4,14 +4,11 @@ import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
 import { VaultModal } from '../components/VaultModal';
 import { threadsApi } from '../services/api';
-import { HLogo } from '../loom/components/HLogo';
-import { ClothShell } from '../loom/components/ClothShell';
-import { CosmicLoom } from '../loom/components/CosmicLoom';
 
-// Signup — Loom 3 three-step inline parchment flow (heirloom-auth.jsx §Signup).
-// step one · the thread's name   — what the family calls itself
-// step two · you                 — name + birth year + email + passphrase
-// step three · how to begin      — Free / Family / Founder (Family pre-selected)
+// Signup — Loom 3 single calm centered column (matches cosmic-signin mockup,
+// adapted for CREATE ACCOUNT). Underlined fields, mono micro-labels, one warm
+// primary action, quiet "sign in" link. All data/auth/validation logic preserved.
+// step one · the thread's name · step two · you · step three · how to begin
 
 export const SIGNUP_INTENT_KEY = 'heirloom_signup_intent';
 
@@ -47,6 +44,8 @@ const TIERS: {
   { id: 'family', name: 'Family', price: '$6.99', sub: '/ month', body: 'unlimited · all members · voice · sealed notes' },
   { id: 'founder', name: 'Founder', price: '$249', sub: 'once · lifetime', body: 'family forever · name in continuity record' },
 ];
+
+const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
 export function Signup() {
   usePageMeta('Start your thread', "Begin your family's thousand-year thread. Free to start.");
@@ -143,260 +142,341 @@ export function Signup() {
   };
 
   return (
-    <ClothShell
-      topbarLeft={<HLogo />}
-      topbarCenter="begin a thread"
-      topbarRight={
-        <Link to="/login" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>
-          sign in →
-        </Link>
-      }
+    <div
+      style={{
+        minHeight: '100dvh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+        padding: 'clamp(40px,8vh,96px) clamp(20px,6vw,40px) 80px',
+      }}
     >
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))',
-        minHeight: '100%',
-      }}>
-      <main style={{ padding: 'clamp(24px,5vw,48px)', overflow: 'auto' }}>
-        <div style={{ maxWidth: 980, margin: '0 auto' }}>
-          <div className="hl-eyebrow dark" style={{ marginBottom: 18 }}>
-            begin · this takes about 90 seconds
+      <div style={{ width: '100%', maxWidth: 440, margin: '0 auto' }}>
+        {/* Wordmark — infinity mark over serif name */}
+        <div style={{ textAlign: 'center', marginBottom: 'clamp(40px,7vh,72px)' }}>
+          <div
+            aria-hidden
+            className="hl-serif"
+            style={{
+              fontSize: 26,
+              color: 'var(--bone)',
+              lineHeight: 1,
+              marginBottom: 18,
+              fontWeight: 300,
+            }}
+          >
+            ∞
           </div>
-          <h1 className="hl-serif hl-tight" style={{
-            fontSize: 'var(--type-display)',
-            fontWeight: 300, lineHeight: 1.06, letterSpacing: '-0.022em',
-            margin: 0, maxWidth: '16ch',
-            color: 'var(--bone)',
-            fontVariationSettings: '"opsz" 40',
-          }}>
-            Name your thread.{' '}
-            <span className="hl-italic" style={{ color: 'var(--warm)' }}>Name yourself.</span>
+          <h1
+            className="hl-serif"
+            style={{
+              fontSize: 'clamp(34px,8vw,44px)',
+              fontWeight: 300,
+              letterSpacing: '-0.02em',
+              lineHeight: 1,
+              margin: 0,
+              color: 'var(--bone)',
+              fontVariationSettings: '"opsz" 40',
+            }}
+          >
+            Heirloom
           </h1>
-
-          <form onSubmit={handleSubmit}>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
-              gap: 56, marginTop: 56,
-            }}>
-              {/* step one */}
-              <section>
-                <StepEyebrow>step one · the thread's name</StepEyebrow>
-                <FieldLabel htmlFor="s-thread">what does your family call itself?</FieldLabel>
-                <PInput
-                  id="s-thread" value={form.threadName}
-                  onChange={(v) => set({ threadName: v })}
-                  placeholder="The Vance-Okonkwo Thread" serif
-                />
-                {errors.threadName ? <FieldError>{errors.threadName}</FieldError> : null}
-                <Helper>
-                  Hyphenate, combine, invent. It can be changed later. The thread takes your name
-                  unless you give it its own.
-                </Helper>
-              </section>
-
-              {/* step two */}
-              <section>
-                <StepEyebrow>step two · you</StepEyebrow>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 24 }}>
-                  <div>
-                    <FieldLabel htmlFor="s-first">your name</FieldLabel>
-                    <PInput id="s-first" value={form.firstName} onChange={(v) => set({ firstName: v })} autoComplete="given-name" />
-                    {errors.firstName ? <FieldError>{errors.firstName}</FieldError> : null}
-                  </div>
-                  <div>
-                    <FieldLabel htmlFor="s-birth">year you were born</FieldLabel>
-                    <PInput id="s-birth" value={form.birthYear} onChange={(v) => set({ birthYear: v })} placeholder="1978" inputMode="numeric" maxLength={4} />
-                    {errors.birthYear ? <FieldError>{errors.birthYear}</FieldError> : null}
-                  </div>
-                </div>
-                <div style={{ marginTop: 24 }}>
-                  <FieldLabel htmlFor="s-last">last name</FieldLabel>
-                  <PInput id="s-last" value={form.lastName} onChange={(v) => set({ lastName: v })} autoComplete="family-name" />
-                  {errors.lastName ? <FieldError>{errors.lastName}</FieldError> : null}
-                </div>
-                <div style={{ marginTop: 24 }}>
-                  <FieldLabel htmlFor="s-email">email</FieldLabel>
-                  <PInput id="s-email" type="email" value={form.email} onChange={(v) => set({ email: v })} autoComplete="email" />
-                  {errors.email ? <FieldError>{errors.email}</FieldError> : null}
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 20, marginTop: 20 }}>
-                  <div>
-                    <FieldLabel htmlFor="s-pw">password</FieldLabel>
-                    <PInput id="s-pw" type="password" value={form.password} onChange={(v) => set({ password: v })} autoComplete="new-password" />
-                    {errors.password ? <FieldError>{errors.password}</FieldError> : null}
-                  </div>
-                  <div>
-                    <FieldLabel htmlFor="s-pw2">confirm</FieldLabel>
-                    <PInput id="s-pw2" type="password" value={form.confirmPassword} onChange={(v) => set({ confirmPassword: v })} autoComplete="new-password" />
-                    {errors.confirmPassword ? <FieldError>{errors.confirmPassword}</FieldError> : null}
-                  </div>
-                </div>
-              </section>
-            </div>
-
-            {/* step three — tier */}
-            <div style={{ marginTop: 64, maxWidth: 980 }}>
-              <StepEyebrow>step three · how to begin</StepEyebrow>
-              {/* billing cycle toggle */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
-                <button
-                  type="button"
-                  onClick={() => setCycle('monthly')}
-                  style={{
-                    background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
-                    fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
-                    color: cycle !== 'annual' ? 'var(--bone)' : 'var(--bone-faint)',
-                    borderBottom: cycle !== 'annual' ? '1px solid var(--bone)' : '1px solid transparent',
-                  }}
-                >
-                  monthly
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setCycle('annual')}
-                  style={{
-                    background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
-                    fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
-                    color: cycle === 'annual' ? 'var(--bone)' : 'var(--bone-faint)',
-                    borderBottom: cycle === 'annual' ? '1px solid var(--warm)' : '1px solid transparent',
-                  }}
-                >
-                  annually · 2 months free
-                </button>
-              </div>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
-                borderTop: '1px solid var(--rule)',
-                borderBottom: '1px solid var(--rule)',
-              }}>
-                {TIERS.map((t, i) => {
-                  const selected = tier === t.id;
-                  return (
-                    <button
-                      type="button" key={t.id}
-                      onClick={() => setTier(t.id)}
-                      aria-pressed={selected}
-                      style={{
-                        textAlign: 'left', cursor: 'pointer',
-                        padding: '24px 24px 22px',
-                        borderRight: i < TIERS.length - 1 ? '1px solid var(--rule)' : 0,
-                        borderTop: 0, borderBottom: 0, borderLeft: 0,
-                        background: selected ? 'var(--ink)' : 'transparent',
-                        color: selected ? 'var(--bone)' : 'var(--bone)',
-                        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
-                      }}
-                    >
-                      <div className="hl-mono" style={{
-                        fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
-                        color: selected ? 'var(--bone-faint)' : 'var(--bone-faint)',
-                      }}>
-                        {t.name}
-                        {selected && <span style={{ color: 'var(--warm)' }}> · chosen</span>}
-                      </div>
-                      <div className="hl-serif" style={{
-                        fontSize: 36, fontWeight: 300, marginTop: 12,
-                        letterSpacing: '-0.018em', lineHeight: 1,
-                      }}>
-                        {t.id === 'family' && cycle === 'annual' ? '$99' : t.price}
-                      </div>
-                      <div className="hl-mono" style={{
-                        fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
-                        color: selected ? 'var(--bone-faint)' : 'var(--bone-faint)', marginTop: 6,
-                      }}>
-                        {t.id === 'family' && cycle === 'annual' ? '/ year · 2 months free' : t.sub}
-                      </div>
-                      <div className="hl-serif" style={{
-                        fontSize: 13.5, lineHeight: 1.55,
-                        color: selected ? 'var(--bone-dim)' : 'var(--bone-dim)',
-                        marginTop: 12, fontWeight: 400,
-                      }}>
-                        {t.body}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* terms */}
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', marginTop: 28 }}>
-              <input
-                type="checkbox" checked={form.acceptedTerms}
-                onChange={(e) => set({ acceptedTerms: e.target.checked })}
-                style={{ accentColor: 'var(--warm)', marginTop: 4 }}
-              />
-              <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', lineHeight: 1.6, fontWeight: 400 }}>
-                I accept the{' '}
-                <Link to="/terms" style={{ color: 'var(--warm)', textDecoration: 'none', borderBottom: '1px solid currentColor' }}>terms</Link>
-                {' '}and the{' '}
-                <Link to="/privacy" style={{ color: 'var(--warm)', textDecoration: 'none', borderBottom: '1px solid currentColor' }}>privacy notice</Link>.
-              </span>
-            </label>
-            {errors.acceptedTerms ? <FieldError>{errors.acceptedTerms}</FieldError> : null}
-
-            <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', marginTop: 14 }}>
-              <input
-                type="checkbox" checked={form.marketingConsent}
-                onChange={(e) => set({ marketingConsent: e.target.checked })}
-                style={{ accentColor: 'var(--warm)', marginTop: 4 }}
-              />
-              <span className="hl-serif" style={{ fontSize: 13, color: 'var(--bone-dim)', lineHeight: 1.6, fontWeight: 400 }}>
-                I'm happy to receive occasional updates and prompts from Heirloom (optional).
-              </span>
-            </label>
-
-            {errors.submit ? <FieldError>{errors.submit}</FieldError> : null}
-            {threadError && (
-              <p className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.16em', margin: '16px 0 0', textTransform: 'uppercase' }}>
-                {threadError}
-              </p>
-            )}
-
-            <div style={{ marginTop: 36, display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap' }}>
-              <button type="submit" disabled={isLoading} className="hl-btn" style={{ opacity: isLoading ? 0.5 : 1 }}>
-                {isLoading
-                  ? 'beginning…'
-                  : tier === 'family'
-                    ? 'Begin · 30-day trial of Family'
-                    : 'begin your thread →'}
-              </button>
-              <span className="hl-italic" style={{ fontSize: 14, color: 'var(--bone-dim)', fontWeight: 400 }}>
-                no card on file · switches to free if not upgraded
-              </span>
-            </div>
-          </form>
-
-          <div className="hl-mono" style={{
-            marginTop: 48, fontSize: 10, letterSpacing: '0.2em',
-            textTransform: 'uppercase', color: 'var(--bone-faint)',
-          }}>
-            ∞ &nbsp; encrypted in browser · key escrow · 2 of 3 contacts
+          <div
+            className="hl-mono"
+            style={{
+              marginTop: 22,
+              fontSize: 10,
+              letterSpacing: '0.34em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+            }}
+          >
+            begin a thread
           </div>
         </div>
-      </main>
 
-        {/* Right: 3D cloth canvas on ink */}
-        <aside
-          aria-hidden
+        <form onSubmit={handleSubmit}>
+          {/* step one · the thread's name */}
+          <StepEyebrow>step one · the thread's name</StepEyebrow>
+          <Field
+            label="what does your family call itself?"
+            id="s-thread"
+            value={form.threadName}
+            onChange={(v) => set({ threadName: v })}
+            placeholder="The Vance-Okonkwo Thread"
+            error={errors.threadName}
+          />
+          <Helper>It can be changed later. The thread takes your name unless you give it its own.</Helper>
+
+          {/* step two · you */}
+          <div style={{ marginTop: 44 }}>
+            <StepEyebrow>step two · you</StepEyebrow>
+            <Row>
+              <Field
+                label="your name"
+                id="s-first"
+                value={form.firstName}
+                onChange={(v) => set({ firstName: v })}
+                autoComplete="given-name"
+                error={errors.firstName}
+              />
+              <Field
+                label="last name"
+                id="s-last"
+                value={form.lastName}
+                onChange={(v) => set({ lastName: v })}
+                autoComplete="family-name"
+                error={errors.lastName}
+              />
+            </Row>
+            <div style={{ marginTop: 28 }}>
+              <Field
+                label="year you were born"
+                id="s-birth"
+                value={form.birthYear}
+                onChange={(v) => set({ birthYear: v })}
+                placeholder="1978"
+                inputMode="numeric"
+                maxLength={4}
+                error={errors.birthYear}
+              />
+            </div>
+            <div style={{ marginTop: 28 }}>
+              <Field
+                label="email"
+                id="s-email"
+                type="email"
+                value={form.email}
+                onChange={(v) => set({ email: v })}
+                autoComplete="email"
+                error={errors.email}
+              />
+            </div>
+            <Row style={{ marginTop: 28 }}>
+              <Field
+                label="password"
+                id="s-pw"
+                type="password"
+                value={form.password}
+                onChange={(v) => set({ password: v })}
+                autoComplete="new-password"
+                error={errors.password}
+              />
+              <Field
+                label="confirm"
+                id="s-pw2"
+                type="password"
+                value={form.confirmPassword}
+                onChange={(v) => set({ confirmPassword: v })}
+                autoComplete="new-password"
+                error={errors.confirmPassword}
+              />
+            </Row>
+          </div>
+
+          {/* step three · how to begin */}
+          <div style={{ marginTop: 44 }}>
+            <StepEyebrow>step three · how to begin</StepEyebrow>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 18 }}>
+              <CycleTab active={cycle !== 'annual'} warm={false} onClick={() => setCycle('monthly')}>
+                monthly
+              </CycleTab>
+              <CycleTab active={cycle === 'annual'} warm onClick={() => setCycle('annual')}>
+                annually · 2 months free
+              </CycleTab>
+            </div>
+            <div
+              role="radiogroup"
+              aria-label="how to begin"
+              style={{ display: 'flex', flexDirection: 'column', borderTop: '1px solid var(--rule)' }}
+            >
+              {TIERS.map((t) => {
+                const selected = tier === t.id;
+                return (
+                  <button
+                    type="button"
+                    key={t.id}
+                    onClick={() => setTier(t.id)}
+                    role="radio"
+                    aria-checked={selected}
+                    style={{
+                      textAlign: 'left',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'baseline',
+                      justifyContent: 'space-between',
+                      gap: 16,
+                      padding: '18px 0',
+                      background: 'transparent',
+                      border: 0,
+                      borderBottom: '1px solid var(--rule)',
+                      borderLeft: selected ? '2px solid var(--warm)' : '2px solid transparent',
+                      paddingLeft: 14,
+                      transition: `border-color 180ms ${EASE}`,
+                      color: 'var(--bone)',
+                    }}
+                  >
+                    <div style={{ minWidth: 0 }}>
+                      <div
+                        className="hl-mono"
+                        style={{
+                          fontSize: 10,
+                          letterSpacing: '0.3em',
+                          textTransform: 'uppercase',
+                          color: selected ? 'var(--warm)' : 'var(--bone-faint)',
+                          transition: `color 180ms ${EASE}`,
+                        }}
+                      >
+                        {t.name}
+                        {selected ? ' · chosen' : ''}
+                      </div>
+                      <div
+                        className="hl-serif"
+                        style={{
+                          fontSize: 13.5,
+                          lineHeight: 1.5,
+                          color: 'var(--bone-dim)',
+                          marginTop: 7,
+                          fontWeight: 400,
+                        }}
+                      >
+                        {t.body}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div
+                        className="hl-serif"
+                        style={{ fontSize: 26, fontWeight: 300, letterSpacing: '-0.018em', lineHeight: 1, color: 'var(--bone)' }}
+                      >
+                        {t.id === 'family' && cycle === 'annual' ? '$99' : t.price}
+                      </div>
+                      <div
+                        className="hl-mono"
+                        style={{
+                          fontSize: 9,
+                          letterSpacing: '0.16em',
+                          textTransform: 'uppercase',
+                          color: 'var(--bone-faint)',
+                          marginTop: 6,
+                        }}
+                      >
+                        {t.id === 'family' && cycle === 'annual' ? '/ year · 2 mo free' : t.sub}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* terms */}
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', marginTop: 32 }}>
+            <input
+              type="checkbox"
+              checked={form.acceptedTerms}
+              onChange={(e) => set({ acceptedTerms: e.target.checked })}
+              style={{ accentColor: 'var(--warm)', marginTop: 4 }}
+            />
+            <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', lineHeight: 1.6, fontWeight: 400 }}>
+              I accept the{' '}
+              <Link to="/terms" style={{ color: 'var(--warm)', textDecoration: 'none', borderBottom: '1px solid currentColor' }}>terms</Link>
+              {' '}and the{' '}
+              <Link to="/privacy" style={{ color: 'var(--warm)', textDecoration: 'none', borderBottom: '1px solid currentColor' }}>privacy notice</Link>.
+            </span>
+          </label>
+          {errors.acceptedTerms ? <FieldError>{errors.acceptedTerms}</FieldError> : null}
+
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', marginTop: 14 }}>
+            <input
+              type="checkbox"
+              checked={form.marketingConsent}
+              onChange={(e) => set({ marketingConsent: e.target.checked })}
+              style={{ accentColor: 'var(--warm)', marginTop: 4 }}
+            />
+            <span className="hl-serif" style={{ fontSize: 13, color: 'var(--bone-dim)', lineHeight: 1.6, fontWeight: 400 }}>
+              I'm happy to receive occasional updates and prompts from Heirloom (optional).
+            </span>
+          </label>
+
+          {errors.submit ? <FieldError>{errors.submit}</FieldError> : null}
+          {threadError && (
+            <p
+              className="hl-mono"
+              style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.16em', margin: '16px 0 0', textTransform: 'uppercase' }}
+            >
+              {threadError}
+            </p>
+          )}
+
+          {/* warm primary action — full-width, mirrors CONTINUE in mockup */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            style={{
+              marginTop: 36,
+              width: '100%',
+              cursor: isLoading ? 'default' : 'pointer',
+              background: 'var(--warm)',
+              border: 0,
+              color: 'var(--ink)',
+              padding: '16px 24px',
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.24em',
+              textTransform: 'uppercase',
+              opacity: isLoading ? 0.5 : 1,
+              transition: `opacity 180ms ${EASE}, background 180ms ${EASE}`,
+            }}
+            onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.background = 'var(--warm-bright)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--warm)'; }}
+          >
+            {isLoading
+              ? 'beginning…'
+              : tier === 'family'
+                ? 'continue · 30-day trial of family'
+                : 'begin your thread'}
+          </button>
+          <p
+            className="hl-italic"
+            style={{ textAlign: 'center', fontSize: 13, color: 'var(--bone-faint)', marginTop: 16, fontWeight: 400 }}
+          >
+            no card on file · switches to free if not upgraded
+          </p>
+        </form>
+
+        {/* quiet secondary link — "sign in" in place of "create a thread" */}
+        <div style={{ textAlign: 'center', marginTop: 'clamp(40px,7vh,64px)' }}>
+          <Link
+            to="/login"
+            className="hl-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: '0.26em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              textDecoration: 'none',
+              borderBottom: '1px solid var(--rule-strong)',
+              paddingBottom: 4,
+            }}
+          >
+            sign in
+          </Link>
+        </div>
+
+        <div
+          className="hl-mono"
           style={{
-            background: 'var(--ink)',
-            position: 'relative',
-            overflow: 'hidden',
-            minHeight: 'min(360px, 40vh)',
+            marginTop: 40,
+            textAlign: 'center',
+            fontSize: 9,
+            letterSpacing: '0.2em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
           }}
         >
-          <CosmicLoom />
-          <div className="hl-mono" style={{
-            position: 'absolute', left: 24, bottom: 24,
-            fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
-            pointerEvents: 'none',
-          }}>
-            specimen · 70 years · 4,318 entries
-          </div>
-        </aside>
+          ∞ &nbsp; encrypted in browser · key escrow · 2 of 3 contacts
+        </div>
       </div>
 
       {showVaultSetup ? (
@@ -415,39 +495,48 @@ export function Signup() {
           }}
         />
       ) : null}
-    </ClothShell>
+    </div>
   );
 }
 
 function StepEyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <div className="hl-mono" style={{
-      fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
-      color: 'var(--bone-faint)', marginBottom: 22,
-    }}>
+    <div
+      className="hl-mono"
+      style={{
+        fontSize: 10,
+        letterSpacing: '0.32em',
+        textTransform: 'uppercase',
+        color: 'var(--bone-faint)',
+        marginBottom: 22,
+      }}
+    >
       {children}
     </div>
   );
 }
 
-function FieldLabel({ htmlFor, children }: { htmlFor: string; children: React.ReactNode }) {
+function Row({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
   return (
-    <label htmlFor={htmlFor} className="hl-mono" style={{
-      display: 'block', fontSize: 10,
-      letterSpacing: '0.22em', textTransform: 'uppercase',
-      color: 'var(--bone-faint)', marginBottom: 8,
-    }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 170px), 1fr))',
+        gap: 28,
+        ...style,
+      }}
+    >
       {children}
-    </label>
+    </div>
   );
 }
 
 function Helper({ children }: { children: React.ReactNode }) {
   return (
-    <p className="hl-italic" style={{
-      fontSize: 13.5, color: 'var(--bone-faint)', marginTop: 12,
-      lineHeight: 1.55, fontWeight: 400, maxWidth: '46ch',
-    }}>
+    <p
+      className="hl-italic"
+      style={{ fontSize: 13, color: 'var(--bone-faint)', marginTop: 12, lineHeight: 1.55, fontWeight: 400 }}
+    >
       {children}
     </p>
   );
@@ -455,30 +544,112 @@ function Helper({ children }: { children: React.ReactNode }) {
 
 function FieldError({ children }: { children: React.ReactNode }) {
   return (
-    <p role="alert" className="hl-italic" style={{
-      margin: '8px 0 0', fontSize: 13, color: 'var(--danger)',
-    }}>
+    <p role="alert" className="hl-italic" style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--danger)' }}>
       {children}
     </p>
   );
 }
 
-function PInput({
-  id, value, onChange, type = 'text',
-  placeholder, autoComplete, inputMode, maxLength,
+function CycleTab({
+  active,
+  warm,
+  onClick,
+  children,
 }: {
-  id: string; value: string; onChange: (v: string) => void;
-  type?: string; placeholder?: string; autoComplete?: string;
-  inputMode?: 'numeric'; maxLength?: number; serif?: boolean;
+  active: boolean;
+  warm: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
 }) {
   return (
-    <input
-      id={id} type={type} value={value}
-      placeholder={placeholder} autoComplete={autoComplete}
-      inputMode={inputMode} maxLength={maxLength}
-      onChange={(e) => onChange(e.target.value)}
-      className="hl-input"
-    />
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        background: 'transparent',
+        border: 0,
+        cursor: 'pointer',
+        padding: '4px 0',
+        fontFamily: 'var(--mono)',
+        fontSize: 10,
+        letterSpacing: '0.2em',
+        textTransform: 'uppercase',
+        color: active ? 'var(--bone)' : 'var(--bone-faint)',
+        borderBottom: active ? `1px solid ${warm ? 'var(--warm)' : 'var(--bone)'}` : '1px solid transparent',
+        transition: `color 180ms ${EASE}`,
+      }}
+    >
+      {children}
+    </button>
   );
 }
 
+// Underlined field with mono micro-label — the mockup's core field idiom.
+function Field({
+  label,
+  id,
+  value,
+  onChange,
+  type = 'text',
+  placeholder,
+  autoComplete,
+  inputMode,
+  maxLength,
+  error,
+}: {
+  label: string;
+  id: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  placeholder?: string;
+  autoComplete?: string;
+  inputMode?: 'numeric';
+  maxLength?: number;
+  error?: string;
+}) {
+  return (
+    <div>
+      <label
+        htmlFor={id}
+        className="hl-mono"
+        style={{
+          display: 'block',
+          fontSize: 9,
+          letterSpacing: '0.26em',
+          textTransform: 'uppercase',
+          color: 'var(--bone-faint)',
+          marginBottom: 10,
+        }}
+      >
+        {label}
+      </label>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        autoComplete={autoComplete}
+        inputMode={inputMode}
+        maxLength={maxLength}
+        onChange={(e) => onChange(e.target.value)}
+        style={{
+          width: '100%',
+          background: 'transparent',
+          border: 0,
+          borderBottom: `1px solid ${error ? 'var(--danger)' : 'var(--rule-strong)'}`,
+          padding: '8px 0',
+          color: 'var(--bone)',
+          fontFamily: 'var(--serif)',
+          fontSize: 17,
+          outline: 'none',
+          borderRadius: 0,
+          transition: `border-color 180ms ${EASE}`,
+        }}
+        onFocus={(e) => { if (!error) e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+        onBlur={(e) => { if (!error) e.currentTarget.style.borderBottomColor = 'var(--rule-strong)'; }}
+      />
+      {error ? <FieldError>{error}</FieldError> : null}
+    </div>
+  );
+}

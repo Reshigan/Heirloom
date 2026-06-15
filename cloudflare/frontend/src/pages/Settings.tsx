@@ -6,28 +6,50 @@ import { settingsApi, exportApi, deadmanApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { usePageMeta } from '../lib/usePageMeta';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { RoomHeader } from '../loom/components/room';
 
 const RESPONSIVE_CSS = `
 .hl-setting-row {
   display: grid;
   grid-template-columns: 160px 1fr;
   gap: 8px 20px;
-  padding: 14px 0;
+  padding: 18px 0;
   border-top: 1px solid var(--rule);
   align-items: baseline;
 }
 @media (max-width: 639px) {
-  .hl-setting-row { grid-template-columns: 1fr; gap: 4px; padding: 12px 0; }
+  .hl-setting-row { grid-template-columns: 1fr; gap: 4px; padding: 15px 0; }
 }
 .hl-notif-row {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 12px;
-  padding: 12px 0;
+  padding: 16px 0;
   border-top: 1px solid var(--rule);
   align-items: center;
 }
+.hl-section-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--warm);
+}
+.hl-signout {
+  display: block;
+  width: 100%;
+  text-align: center;
+  background: transparent;
+  border: 0;
+  padding: 22px 0;
+  margin: 64px 0 0;
+  cursor: pointer;
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 400;
+  color: var(--warm);
+  transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
+}
+.hl-signout:hover { color: var(--warm-bright); }
 `;
 
 function Row({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
@@ -208,8 +230,13 @@ export function Settings() {
       <style>{RESPONSIVE_CSS}</style>
         <div style={{ maxWidth: 'var(--page-max-prose)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
-          <div style={{ marginBottom: 28 }}>
-            <RoomHeader eyebrow="your thread" title="Settings" />
+          <div style={{ textAlign: 'center', margin: '0 0 56px' }}>
+            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.34em', textTransform: 'uppercase', marginBottom: 14 }}>
+              your thread
+            </div>
+            <h1 className="hl-serif" style={{ fontSize: 'clamp(34px, 8vw, 46px)', fontWeight: 400, color: 'var(--bone)', margin: 0, lineHeight: 1.05, letterSpacing: '-0.01em' }}>
+              Settings
+            </h1>
           </div>
 
           {profileLoadError && !profileData && (
@@ -662,6 +689,15 @@ export function Settings() {
               </div>
             )}
           </div>
+
+          {/* ── Sign out ─────────────────────────────────── */}
+          <button
+            type="button"
+            className="hl-signout"
+            onClick={() => { void logout().then(() => navigate('/', { replace: true })); }}
+          >
+            Sign out
+          </button>
 
         </div>
     </ClothShell>

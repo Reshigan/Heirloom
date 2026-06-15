@@ -8,11 +8,10 @@ import { type LoomEntry, type LoomDye } from '../loom/components/Loom';
 import { ViewToggle } from '../loom/components/ViewToggle';
 import { EmptyThread } from '../loom/components/EmptyThread';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { WeftPull } from '../loom/components/WeftPull';
 import { WeftCentury } from '../loom/components/WeftCentury';
 import { memoriesApi, lettersApi, voiceApi, threadsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
-import { dyeFromMetadata } from '../loom/dye';
+import { dyeFromMetadata, dyeVar, dyeColor } from '../loom/dye';
 
 /**
  * Screen 02 — The Weft
@@ -33,6 +32,16 @@ type WeftMode = 'pull' | 'century' | 'empty';
 
 /** The author-assigned dye if it's a real palette stop, else undefined (kind default). */
 const dyeOf = (metadata: any): LoomDye | undefined => dyeFromMetadata(metadata) as LoomDye | undefined;
+
+/** Short lived-date for a row readout — "Oct 26, 2003". */
+function fmtRowDate(iso: string | undefined): string {
+  if (!iso) return '';
+  try {
+    return new Date(iso).toLocaleDateString(undefined, {
+      month: 'short', day: 'numeric', year: 'numeric',
+    });
+  } catch { return ''; }
+}
 
 /** First recipient name on a letter, for the highlight readout. */
 function recipientOf(l: any): string | undefined {
@@ -207,7 +216,9 @@ export function Weft() {
     );
   }
 
-  // Threads mode (formerly pull)
+  // Threads mode — "The Thread": the recently woven list (mockup layout).
+  const recent = [...allEntries].reverse();
+
   return (
     <ClothShell
       topbarLeft={<HLogo size="sm" wordmark />}
@@ -221,7 +232,143 @@ export function Weft() {
       }
       backdropOpacity={0.3}
     >
-      <WeftPull entries={allEntries} onSelectEntry={handleSelectEntry} />
+      <div
+        style={{
+          minHeight: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          background: 'transparent',
+          padding: '64px 24px 96px',
+        }}
+      >
+        <div style={{ width: '100%', maxWidth: 520 }}>
+          {/* Header — mono eyebrow + serif title */}
+          <header style={{ marginBottom: 56, textAlign: 'center' }}>
+            <p
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.34em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+                margin: 0,
+              }}
+            >
+              Recently Woven
+            </p>
+            <h1
+              style={{
+                fontFamily: 'var(--serif)',
+                fontWeight: 400,
+                fontSize: 42,
+                lineHeight: 1.1,
+                color: 'var(--bone)',
+                margin: '14px 0 0',
+              }}
+            >
+              The Thread
+            </h1>
+          </header>
+
+          {/* The woven entries — dye dot · italic-serif title · mono date */}
+          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {recent.map((entry) => {
+              const dot = entry.dye
+                ? dyeVar(entry.dye)
+                : entry.id
+                ? dyeColor(entry.id)
+                : 'var(--bone-faint)';
+              return (
+                <li key={entry.id ?? `${entry.year}-${entry.month}-${entry.title}`}>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectEntry(entry)}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 16,
+                      padding: '18px 0',
+                      background: 'transparent',
+                      border: 'none',
+                      borderBottom: '1px solid var(--rule)',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'opacity 180ms var(--ease)',
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.62'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
+                  >
+                    <span
+                      aria-hidden
+                      style={{
+                        flex: '0 0 auto',
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        background: dot,
+                      }}
+                    />
+                    <span
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                        fontFamily: 'var(--serif)',
+                        fontStyle: 'italic',
+                        fontWeight: 400,
+                        fontSize: 19,
+                        lineHeight: 1.3,
+                        color: 'var(--bone)',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {entry.locked ? <span style={{ color: 'var(--warm)', marginRight: 6 }}>∞</span> : null}
+                      {entry.title || 'an entry'}
+                    </span>
+                    <span
+                      style={{
+                        flex: '0 0 auto',
+                        fontFamily: 'var(--mono)',
+                        fontSize: 10,
+                        letterSpacing: '0.16em',
+                        textTransform: 'uppercase',
+                        color: 'var(--bone-faint)',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {fmtRowDate(entry.date)}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* Sealing-wax mark — the warm full-stop on the thread. */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 56 }}>
+            <button
+              type="button"
+              aria-label="weave a new entry"
+              onClick={() => navigate('/compose')}
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: '50%',
+                background: 'var(--warm)',
+                border: 'none',
+                boxShadow: '0 0 18px var(--warm-glow)',
+                cursor: 'pointer',
+                transition: 'transform 360ms var(--ease)',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.12)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
+            />
+          </div>
+        </div>
+      </div>
     </ClothShell>
   );
 }

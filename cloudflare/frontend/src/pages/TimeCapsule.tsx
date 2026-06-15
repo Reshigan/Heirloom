@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { capsulesApi, threadsApi } from '../services/api';
-import { RoomHeader } from '../loom/components/room';
 
 type CapsuleStatus = 'open' | 'sealed' | 'unlocked';
 
@@ -106,87 +105,70 @@ function CapsuleRow({
     : 'open';
 
   return (
-    <>
-      <button
-        type="button"
-        onClick={onClick}
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        width: '100%',
+        background: isSelected ? 'rgba(176,122,74,0.04)' : 'transparent',
+        border: 0,
+        borderBottom: '1px solid var(--rule)',
+        padding: '24px 0',
+        cursor: 'pointer',
+        textAlign: 'left',
+        display: 'grid',
+        gridTemplateColumns: '1fr auto',
+        gap: 24,
+        alignItems: 'baseline',
+        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
+      }}
+    >
+      {/* Serif title + warm dye dot */}
+      <span
+        className="hl-serif"
         style={{
-          width: '100%',
-          background: isSelected ? 'rgba(176,122,74,0.04)' : 'transparent',
-          border: 0,
-          borderBottom: '1px solid var(--rule)',
-          padding: '22px 0',
-          cursor: 'pointer',
-          textAlign: 'left',
-          display: 'grid',
-          gridTemplateColumns: '10px 1fr',
-          gap: 16,
+          fontSize: 'var(--type-subhead)',
+          fontWeight: 300,
+          color: 'var(--bone)',
+          lineHeight: 1.3,
+          minWidth: 0,
+          display: 'inline-flex',
           alignItems: 'baseline',
-          transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
+          gap: 12,
         }}
       >
-        {/* Left — dye square */}
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {capsule.title}
+        </span>
         <span
           aria-hidden
           style={{
-            width: 8,
-            height: 8,
-            background: 'var(--warm)',
-            display: 'block',
+            width: 6,
+            height: 6,
+            borderRadius: 0,
+            background: status === 'unlocked' ? 'var(--bone-faint)' : 'var(--warm)',
+            display: 'inline-block',
             flexShrink: 0,
-            transform: 'translateY(4px)',
+            transform: 'translateY(-2px)',
           }}
         />
+      </span>
 
-        {/* Title + meta */}
-        <div style={{ minWidth: 0 }}>
-          <p
-            className="hl-serif"
-            style={{
-              fontSize: 'var(--type-subhead)',
-              fontWeight: 300,
-              color: 'var(--bone)',
-              margin: 0,
-              lineHeight: 1.3,
-            }}
-          >
-            {capsule.title}
-          </p>
-          <span
-            className="hl-mono"
-            style={{
-              display: 'block',
-              marginTop: 6,
-              fontSize: 10,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color: status === 'unlocked' ? 'var(--bone-faint)' : 'var(--warm)',
-            }}
-          >
-            {status === 'unlocked'
-              ? 'unlocked'
-              : `unlocks ${formatUnlockDate(capsule.unlock_date)}`}
-          </span>
-          {capsule.description && (
-            <p
-              className="hl-serif hl-italic"
-              style={{
-                fontSize: 13,
-                color: 'var(--bone-dim)',
-                margin: '6px 0 0',
-                lineHeight: 1.5,
-                overflow: 'hidden',
-                display: '-webkit-box',
-                WebkitLineClamp: 1,
-                WebkitBoxOrient: 'vertical',
-              }}
-            >
-              {capsule.description}
-            </p>
-          )}
-        </div>
-      </button>
-    </>
+      {/* Mono unseal date — right aligned */}
+      <span
+        className="hl-mono"
+        style={{
+          fontSize: 10,
+          letterSpacing: '0.18em',
+          textTransform: 'uppercase',
+          whiteSpace: 'nowrap',
+          textAlign: 'right',
+          color: status === 'unlocked' ? 'var(--bone-faint)' : 'var(--bone-dim)',
+        }}
+      >
+        {status === 'unlocked' ? 'unlocked' : formatUnlockDate(capsule.unlock_date)}
+      </span>
+    </button>
   );
 }
 
@@ -272,28 +254,33 @@ export function TimeCapsule() {
       >
         <ThreadComposeBanner />
 
-        {/* Header */}
-        <header style={{ marginBottom: 48, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-          <RoomHeader eyebrow="time capsules" title="Entries sealed for the future." />
-          <button
-            onClick={() => setShowCreateModal(true)}
+        {/* Header — eyebrow + big serif title */}
+        <header style={{ marginBottom: 64 }}>
+          <p
+            className="hl-mono"
             style={{
-              fontFamily: 'var(--mono)',
-              fontSize: 9,
-              letterSpacing: '0.22em',
+              fontSize: 10,
+              letterSpacing: '0.28em',
               textTransform: 'uppercase',
               color: 'var(--bone-faint)',
-              background: 'none',
-              border: 'none',
-              borderBottom: '1px solid var(--rule)',
-              cursor: 'pointer',
-              paddingBottom: 2,
-              flexShrink: 0,
-              alignSelf: 'flex-start',
+              margin: '0 0 18px',
             }}
           >
-            create capsule →
-          </button>
+            sealed until
+          </p>
+          <h1
+            className="hl-serif"
+            style={{
+              fontSize: 'var(--type-display, 40px)',
+              fontWeight: 300,
+              color: 'var(--bone)',
+              margin: 0,
+              lineHeight: 1.05,
+              letterSpacing: '-0.01em',
+            }}
+          >
+            Time Capsules
+          </h1>
         </header>
 
         {/* Capsule list */}
@@ -314,26 +301,64 @@ export function TimeCapsule() {
             />
           </div>
         ) : !capsules?.length ? (
-          <div style={{ paddingTop: 40 }}>
+          <div style={{ paddingTop: 24, borderTop: '1px solid var(--rule)' }}>
             <p
               className="hl-serif hl-italic"
               style={{
-                fontSize: 17,
+                fontSize: 19,
                 fontWeight: 300,
                 color: 'var(--bone-dim)',
-                margin: '0 0 32px',
+                margin: '40px 0 40px',
                 lineHeight: 1.5,
               }}
             >
               Nothing sealed yet. The cloth is waiting.
             </p>
-            <Link to="/compose" className="hl-btn">
-              seal a note →
-            </Link>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                justifyContent: 'space-between',
+                gap: 16,
+                flexWrap: 'wrap',
+              }}
+            >
+              <p
+                className="hl-mono"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: '0.28em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  margin: 0,
+                }}
+              >
+                preserve your legacy
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(true)}
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 9,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: '1px solid var(--rule-strong, var(--rule))',
+                  cursor: 'pointer',
+                  paddingBottom: 3,
+                  flexShrink: 0,
+                }}
+              >
+                seal a new capsule →
+              </button>
+            </div>
           </div>
         ) : (
           <>
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 40px' }}>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, borderTop: '1px solid var(--rule)' }}>
               {capsules.map((capsule: Capsule) => (
                 <li key={capsule.id}>
                   <CapsuleRow
@@ -346,7 +371,7 @@ export function TimeCapsule() {
                   {selectedCapsule === capsule.id && (
                     <div
                       style={{
-                        padding: '14px 0 20px 26px',
+                        padding: '14px 0 22px',
                         borderBottom: '1px solid var(--rule)',
                         marginTop: -1,
                       }}
@@ -357,7 +382,7 @@ export function TimeCapsule() {
                           style={{
                             fontSize: 14,
                             color: 'var(--bone-dim)',
-                            margin: '0 0 12px',
+                            margin: '0 0 14px',
                             lineHeight: 1.6,
                           }}
                         >
@@ -382,9 +407,50 @@ export function TimeCapsule() {
                 </li>
               ))}
             </ul>
-            <Link to="/compose" className="hl-btn">
-              seal a note →
-            </Link>
+
+            {/* Footer — reverent label + create action */}
+            <div
+              style={{
+                marginTop: 56,
+                display: 'flex',
+                alignItems: 'baseline',
+                justifyContent: 'space-between',
+                gap: 16,
+                flexWrap: 'wrap',
+              }}
+            >
+              <p
+                className="hl-mono"
+                style={{
+                  fontSize: 10,
+                  letterSpacing: '0.28em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  margin: 0,
+                }}
+              >
+                preserve your legacy
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(true)}
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 9,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  background: 'none',
+                  border: 'none',
+                  borderBottom: '1px solid var(--rule-strong, var(--rule))',
+                  cursor: 'pointer',
+                  paddingBottom: 3,
+                  flexShrink: 0,
+                }}
+              >
+                seal a new capsule →
+              </button>
+            </div>
           </>
         )}
       </div>

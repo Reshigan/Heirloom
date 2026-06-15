@@ -4,7 +4,6 @@ import { billingApi } from '../services/api';
 import { PLAN_FEATURES } from '../lib/plans';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
-import { RoomHeader } from '../loom/components/room';
 import { usePageMeta } from '../lib/usePageMeta';
 
 interface PricingData {
@@ -86,21 +85,44 @@ export function Pricing() {
 
   return (
     <ClothShell topbarLeft={<HLogo />} topbarCenter="pricing">
-      <div style={{ maxWidth: 900, margin: '0 auto', padding: 'clamp(24px,5vw,48px)' }}>
-        <RoomHeader
-          eyebrow="pricing"
-          title="One price for the whole family."
-          className="hl-room-header"
-        />
+      <div
+        style={{
+          maxWidth: 540,
+          margin: '0 auto',
+          padding: 'clamp(48px,9vh,96px) clamp(24px,6vw,40px)',
+          textAlign: 'center',
+        }}
+      >
+        {/* Eyebrow — the mockup's "CHOOSE YOUR THREAD" */}
+        <p
+          className="hl-mono"
+          style={{
+            fontSize: 11,
+            letterSpacing: '0.32em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-dim)',
+            margin: 0,
+          }}
+        >
+          Choose your thread
+        </p>
 
         {/* Billing cycle toggle */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '40px 0' }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 24,
+            margin: 'clamp(48px,10vh,88px) 0 clamp(40px,8vh,72px)',
+          }}
+        >
           <button
             type="button"
             onClick={() => setAnnual(false)}
             style={{
               background: 'transparent', border: 0, cursor: 'pointer', padding: '6px 0',
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
               color: !annual ? 'var(--bone)' : 'var(--bone-faint)',
               borderBottom: !annual ? '1px solid var(--bone)' : '1px solid transparent',
             }}
@@ -112,7 +134,7 @@ export function Pricing() {
             onClick={() => setAnnual(true)}
             style={{
               background: 'transparent', border: 0, cursor: 'pointer', padding: '6px 0',
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
               color: annual ? 'var(--bone)' : 'var(--bone-faint)',
               borderBottom: annual ? '1px solid var(--warm)' : '1px solid transparent',
             }}
@@ -121,38 +143,65 @@ export function Pricing() {
           </button>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: 0, borderTop: '1px solid var(--rule)' }}>
+        {/* Tiers — stacked vertically, Family highlighted with a warm border */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(40px,8vh,72px)' }}>
           {tiers.map((tier) => (
             <div
               key={tier.id}
               style={{
-                padding: '40px 32px',
-                borderRight: '1px solid var(--rule)',
-                borderBottom: '1px solid var(--rule)',
+                width: '100%',
+                padding: tier.warm ? 'clamp(32px,6vh,48px) clamp(24px,5vw,40px)' : 0,
+                border: tier.warm ? '1px solid var(--warm)' : '0',
+                boxShadow: tier.warm ? '0 0 48px var(--warm-glow)' : 'none',
+                transition: 'border-color 360ms var(--ease)',
               }}
             >
-              <h2 className="hl-eyebrow dark" style={{ marginBottom: 16, margin: 0, padding: 0, font: 'inherit' }}>{tier.name}</h2>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 8 }}>
-                <span className="hl-serif" style={{ fontSize: 40, fontWeight: 300, color: 'var(--bone)' }}>
-                  {showAnnual && tier.priceBilledAnnually ? tier.priceBilledAnnually : tier.price}
-                </span>
-                <span className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.08em' }}>
-                  {showAnnual && tier.subAnnual ? tier.subAnnual : tier.sub}
-                </span>
+              <h2
+                className="hl-serif"
+                style={{
+                  fontSize: 'clamp(30px,7vw,40px)',
+                  fontWeight: 300,
+                  color: 'var(--bone)',
+                  margin: 0,
+                  lineHeight: 1.05,
+                }}
+              >
+                {tier.name}
+              </h2>
+
+              <div
+                className="hl-mono"
+                style={{
+                  fontSize: 12,
+                  letterSpacing: '0.12em',
+                  color: tier.warm ? 'var(--warm-bright)' : 'var(--bone-dim)',
+                  marginTop: 14,
+                }}
+              >
+                {showAnnual && tier.priceBilledAnnually ? tier.priceBilledAnnually : tier.price}
+                {'  ·  '}
+                {showAnnual && tier.subAnnual ? tier.subAnnual : tier.sub}
               </div>
 
-              <hr className="hl-rule" style={{ margin: '24px 0' }} />
+              <hr className="hl-rule" style={{ margin: 'clamp(20px,4vh,28px) auto', width: 40 }} />
 
               <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
                 {tier.features.map((f) => (
-                  <li key={f} style={{ fontFamily: 'var(--serif)', fontSize: 14, lineHeight: 1.7, color: 'var(--bone-dim)', paddingLeft: 16, position: 'relative' }}>
-                    <span style={{ position: 'absolute', left: 0, color: 'var(--bone-faint)' }}>·</span>
+                  <li
+                    key={f}
+                    style={{
+                      fontFamily: 'var(--serif)',
+                      fontSize: 14,
+                      lineHeight: 1.9,
+                      color: 'var(--bone-dim)',
+                    }}
+                  >
                     {f}
                   </li>
                 ))}
               </ul>
 
-              <div style={{ marginTop: 40 }}>
+              <div style={{ marginTop: 'clamp(24px,5vh,36px)' }}>
                 <Link
                   to={showAnnual && tier.id === 'FAMILY' ? '/signup?tier=FAMILY&cycle=annual' : tier.to}
                   className={tier.warm ? 'hl-btn' : 'hl-btn ghost'}
@@ -165,7 +214,16 @@ export function Pricing() {
           ))}
         </div>
 
-        <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 40, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        <p
+          className="hl-mono"
+          style={{
+            fontSize: 10,
+            color: 'var(--bone-faint)',
+            marginTop: 'clamp(48px,9vh,80px)',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+          }}
+        >
           All plans include IPFS pinning + family export. No lock-in.
         </p>
       </div>

@@ -16,7 +16,20 @@ function parseDate(entry: any): Date {
   return new Date(iso);
 }
 
-interface Entry { kind: 'memory' | 'letter' | 'voice'; date: Date; emotion?: string | null }
+interface Entry { kind: 'memory' | 'letter' | 'voice'; date: Date; emotion?: string | null; words?: number; durationSec?: number }
+
+function countWords(raw: any): number {
+  const text: string =
+    raw?.content ?? raw?.body ?? raw?.text ?? raw?.description ?? raw?.metadata?.description ?? '';
+  if (typeof text !== 'string' || !text.trim()) return 0;
+  return text.trim().split(/\s+/).length;
+}
+
+function durationSeconds(raw: any): number {
+  const d = raw?.duration ?? raw?.durationSec ?? raw?.duration_seconds ?? raw?.metadata?.duration ?? 0;
+  const n = typeof d === 'number' ? d : parseFloat(d);
+  return isNaN(n) ? 0 : n;
+}
 
 const EMOTION_COPY: Record<string, string> = {
   joy: 'joy', love: 'love', nostalgia: 'nostalgia', gratitude: 'gratitude',
@@ -85,26 +98,82 @@ function buildStats(entries: Entry[], year: number) {
   }
   const busiestDay = Object.entries(dayCounts).sort((a, b) => b[1] - a[1])[0] ?? null;
 
-  return { thisYear, monthlyCounts, peakMonthIdx, activeMonths, weekdayCounts, peakWeekday, kindCounts, dominantKind, maxStreak, topEmotions, dominantEmotion, firstEntry, busiestDay };
+  // Longest entry (by word count) + total voice duration
+  const longestWords = thisYear.reduce((m, e) => Math.max(m, e.words ?? 0), 0) || null;
+  const voiceSeconds = thisYear.reduce((s, e) => s + (e.kind === 'voice' ? (e.durationSec ?? 0) : 0), 0);
+  const voiceHours = Math.round((voiceSeconds / 3600) * 10) / 10;
+
+  return { thisYear, monthlyCounts, peakMonthIdx, activeMonths, weekdayCounts, peakWeekday, kindCounts, dominantKind, maxStreak, topEmotions, dominantEmotion, firstEntry, busiestDay, longestWords, voiceHours };
 }
 
 // ── Chapter components ────────────────────────────────────────────────────────
 
-function ChapterOverview({ total, year, name }: { total: number; year: number; name: string }) {
+function StatLine({ label, value }: { label: string; value: string }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%', padding: '0 clamp(32px,8vw,120px)' }}>
-      <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--warm)', marginBottom: 24 }}>
-        {year} · heirloom wrapped
+    <div style={{
+      display: 'flex', alignItems: 'baseline', justifyContent: 'space-between',
+      borderTop: '1px solid var(--rule)', padding: '16px 0',
+    }}>
+      <span style={{ fontFamily: 'var(--serif)', fontSize: 'clamp(15px,2.2vw,18px)', fontWeight: 400, color: 'var(--bone)' }}>
+        {label}
+      </span>
+      <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+        ({value})
+      </span>
+    </div>
+  );
+}
+
+function ChapterOverview({
+  total, yearNumber, peakMonthIdx, longestWords, voiceHours, onShare, copied,
+}: {
+  total: number;
+  yearNumber: number;
+  peakMonthIdx: number;
+  longestWords: number | null;
+  voiceHours: number;
+  onShare: () => void;
+  copied: boolean;
+}) {
+  return (
+    <div style={{
+      display: 'flex', flexDirection: 'column', justifyContent: 'center',
+      height: '100%', padding: '0 clamp(28px,7vw,96px)',
+      maxWidth: 640, marginInline: 'auto', width: '100%', boxSizing: 'border-box',
+    }}>
+      <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.34em', textTransform: 'uppercase', color: 'var(--warm)', marginBottom: 'clamp(36px,7vh,72px)' }}>
+        Year {yearNumber} of a thousand
       </div>
-      <h1 style={{ fontFamily: 'var(--display)', fontSize: 'clamp(52px,9vw,104px)', fontWeight: 300, fontStyle: 'italic', color: 'var(--bone)', margin: 0, lineHeight: 1.02 }}>
-        {name
-          ? <>{name}<br />wove {total}<br />threads.</>
-          : <>You wove<br />{total} threads.</>
-        }
-      </h1>
-      <p style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginTop: 40 }}>
-        scroll to see your year →
-      </p>
+
+      <div style={{ fontFamily: 'var(--display)', fontSize: 'clamp(96px,22vw,168px)', fontWeight: 300, color: 'var(--bone)', lineHeight: 0.9, margin: 0, letterSpacing: '-0.02em' }}>
+        {total}
+      </div>
+      <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 'clamp(22px,4.5vw,32px)', fontWeight: 300, color: 'var(--bone-dim)', marginTop: 12, marginBottom: 'clamp(40px,8vh,80px)' }}>
+        memories woven
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column' }}>
+        <StatLine label="Most Active Month" value={MONTH_ABBR[peakMonthIdx]} />
+        <StatLine label="Longest Entry" value={longestWords != null ? `${longestWords} words` : '—'} />
+        <StatLine label="Voices Recorded" value={`${voiceHours} hours`} />
+      </div>
+
+      <button
+        type="button"
+        onClick={onShare}
+        style={{
+          marginTop: 'clamp(40px,8vh,80px)',
+          background: 'var(--warm)', border: 0, cursor: 'pointer',
+          padding: '15px 24px', alignSelf: 'stretch',
+          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.28em',
+          textTransform: 'uppercase', color: 'var(--ink)',
+          transition: `background 180ms ${EASE}`,
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--warm-bright)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--warm)'; }}
+      >
+        {copied ? 'Link copied' : 'Share the year'}
+      </button>
     </div>
   );
 }
@@ -383,7 +452,7 @@ type Chapter = typeof CHAPTERS[number];
 export default function Wrapped() {
   const { year: yearParam } = useParams<{ year?: string }>();
   const YEAR = yearParam ? parseInt(yearParam, 10) : new Date().getFullYear();
-  const { user, isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [chapter, setChapter] = useState<Chapter>('overview');
   const [copied, setCopied] = useState(false);
 
@@ -414,14 +483,16 @@ export default function Wrapped() {
     const lets = Array.isArray(lettersData) ? lettersData : [];
     const vox  = Array.isArray(voiceData)   ? voiceData   : [];
     return [
-      ...mems.map((m: any) => ({ kind: 'memory' as const, date: parseDate(m), emotion: m.emotion ?? null })),
-      ...lets.map((l: any) => ({ kind: 'letter' as const, date: parseDate(l), emotion: null })),
-      ...vox.map((v: any)  => ({ kind: 'voice'  as const, date: parseDate(v), emotion: null })),
+      ...mems.map((m: any) => ({ kind: 'memory' as const, date: parseDate(m), emotion: m.emotion ?? null, words: countWords(m) })),
+      ...lets.map((l: any) => ({ kind: 'letter' as const, date: parseDate(l), emotion: null, words: countWords(l) })),
+      ...vox.map((v: any)  => ({ kind: 'voice'  as const, date: parseDate(v), emotion: null, durationSec: durationSeconds(v) })),
     ].filter((e) => !isNaN(e.date.getTime()));
   }, [memoriesData, lettersData, voiceData]);
 
   const stats = useMemo(() => buildStats(allEntries, YEAR), [allEntries, YEAR]);
-  const firstName = user?.firstName?.trim() || '';
+  // "Year N of a thousand" — counts from Heirloom's founding year (2025 = year 1).
+  const FOUNDING_YEAR = 2025;
+  const yearNumber = Math.max(1, YEAR - FOUNDING_YEAR + 1);
   const chapterIdx = CHAPTERS.indexOf(chapter);
 
   const go = (dir: 1 | -1) => {
@@ -455,7 +526,7 @@ export default function Wrapped() {
 
   const content = (() => {
     switch (chapter) {
-      case 'overview':   return <ChapterOverview total={stats.thisYear.length} year={YEAR} name={firstName} />;
+      case 'overview':   return <ChapterOverview total={stats.thisYear.length} yearNumber={yearNumber} peakMonthIdx={stats.peakMonthIdx} longestWords={stats.longestWords} voiceHours={stats.voiceHours} onShare={handleShare} copied={copied} />;
       case 'highlights': return <ChapterHighlights firstEntry={stats.firstEntry} busiestDay={stats.busiestDay} total={stats.thisYear.length} />;
       case 'months':     return <ChapterMonths monthlyCounts={stats.monthlyCounts} peakMonthIdx={stats.peakMonthIdx} />;
       case 'emotions':   return stats.topEmotions.length > 0 ? <ChapterEmotions topEmotions={stats.topEmotions} dominantEmotion={stats.dominantEmotion} /> : null;

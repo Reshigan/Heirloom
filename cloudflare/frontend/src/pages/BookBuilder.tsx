@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader, RoomSection } from '../loom/components/room';
+import { RoomSection } from '../loom/components/room';
 import { memoriesApi, lettersApi, voiceApi, booksApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -198,31 +198,36 @@ export function BookBuilder() {
       {/* scrollable inner */}
       <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
-        {/* Header */}
-        <RoomHeader
-          eyebrow={`step ${currentStepIndex + 1} of ${stepOrder.length} · ${stepLabels[step]}`}
-          title="Your living book."
-          className="hl-bookbuilder-head"
-        />
+        {/* Header — centred, type-as-hero (mockup) */}
+        <header style={{ textAlign: 'center', marginBottom: 56 }}>
+          <p
+            className="hl-mono"
+            style={{ fontSize: 10, letterSpacing: '0.34em', textTransform: 'uppercase', color: 'var(--bone-faint)', margin: '0 0 22px' }}
+          >
+            The Book
+          </p>
+          <h1
+            className="hl-serif"
+            style={{ fontSize: 38, fontWeight: 300, color: 'var(--bone)', margin: 0, lineHeight: 1.05, letterSpacing: '-0.01em' }}
+          >
+            Bind your thread
+          </h1>
+          <p
+            className="hl-mono"
+            style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)', margin: '20px 0 0' }}
+          >
+            {currentStepIndex + 1} of {stepOrder.length} · {stepLabels[step]}
+          </p>
+        </header>
 
-        {/* Step progress — hairline track */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 0,
-            marginTop: 28,
-            marginBottom: 48,
-            borderBottom: '1px solid var(--rule)',
-            paddingBottom: 0,
-          }}
-        >
+        {/* Step progress — compact hairline rail (mockup rhythm) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 0, maxWidth: 640, margin: '0 auto 48px', borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)' }}>
           {stepOrder.map((s, i) => (
-            <div key={s} style={{ display: 'flex', alignItems: 'baseline', flex: 1, position: 'relative' }}>
+            <div key={s} style={{ flex: 1, position: 'relative', padding: '14px 0', textAlign: 'center' }}>
               <div
                 style={{
                   position: 'absolute',
-                  bottom: -1,
+                  top: -1,
                   left: 0,
                   width: '100%',
                   height: 1,
@@ -233,22 +238,21 @@ export function BookBuilder() {
               <span
                 className="hl-mono"
                 style={{
-                  fontSize: 10,
+                  fontSize: 9,
                   letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: i <= currentStepIndex ? 'var(--warm)' : 'var(--bone-faint)',
-                  padding: '0 0 12px',
                   transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
                 }}
               >
-                {i + 1} — {stepLabels[s]}
+                {stepLabels[s]}
               </span>
             </div>
           ))}
         </div>
 
         {/* Step content */}
-        <div style={{ maxWidth: 640 }}>
+        <div style={{ maxWidth: 640, margin: '0 auto' }}>
 
           {/* ── Select ── */}
           {step === 'select' && (
@@ -431,16 +435,17 @@ export function BookBuilder() {
                   printed full-colour cover. */}
               <div
                 style={{
+                  position: 'relative',
                   width: 232,
                   height: 320,
                   margin: '0 auto 32px',
-                  background: 'var(--ink)',
+                  background: 'var(--ink-card)',
                   border: '1px solid var(--warm)',
                   display: 'flex',
                   flexDirection: 'column',
                   padding: 16,
-                  borderRadius: 0,
-                  borderBottom: '1px solid var(--warm)',
+                  borderRadius: 2,
+                  boxShadow: '0 0 56px var(--warm-glow)',
                 }}
               >
                 {/* Brand eyebrow */}
@@ -491,6 +496,28 @@ export function BookBuilder() {
                   {yearsLabel}
                 </p>
                 <p style={{ fontFamily: 'var(--serif)', fontSize: 13, color: 'var(--warm)', textAlign: 'center', margin: 0 }}>∞</p>
+
+                {/* Wax seal mark — lower right (mockup) */}
+                <span
+                  className="hl-mono"
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    right: 18,
+                    bottom: 64,
+                    width: 26,
+                    height: 26,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid var(--warm)',
+                    borderRadius: 2,
+                    color: 'var(--warm)',
+                    fontSize: 13,
+                  }}
+                >
+                  ∞
+                </span>
               </div>
 
               <p className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.14em', margin: '0 0 16px', textTransform: 'capitalize' }}>
@@ -718,17 +745,43 @@ export function BookBuilder() {
           )}
         </div>
 
-        {/* Navigation */}
+        {/* Navigation — centred outlined action over a quiet back link (mockup) */}
         <div
           style={{
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'space-between',
-            marginTop: 56,
-            paddingTop: 20,
+            gap: 22,
+            maxWidth: 640,
+            margin: '64px auto 0',
+            paddingTop: 36,
             borderTop: '1px solid var(--rule)',
           }}
         >
+          {step !== 'order' && (
+            <button
+              type="button"
+              onClick={() => setStep(stepOrder[currentStepIndex + 1])}
+              disabled={step === 'select' && totalItems === 0}
+              className="hl-mono"
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--warm)',
+                borderRadius: 2,
+                padding: '15px 56px',
+                cursor: step === 'select' && totalItems === 0 ? 'default' : 'pointer',
+                fontSize: 11,
+                letterSpacing: '0.26em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                opacity: step === 'select' && totalItems === 0 ? 0.4 : 1,
+                transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+            >
+              {step === 'customize' ? 'Preview' : 'Continue'}
+            </button>
+          )}
+
           <button
             type="button"
             onClick={() => {
@@ -745,25 +798,10 @@ export function BookBuilder() {
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
               color: 'var(--bone-faint)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
             }}
           >
             ← {currentStepIndex === 0 ? 'Cancel' : 'Back'}
           </button>
-
-          {step !== 'order' && (
-            <button
-              type="button"
-              onClick={() => setStep(stepOrder[currentStepIndex + 1])}
-              disabled={step === 'select' && totalItems === 0}
-              className="hl-btn"
-              style={{ opacity: step === 'select' && totalItems === 0 ? 0.45 : 1 }}
-            >
-              Continue
-            </button>
-          )}
         </div>
       </div>
     </ClothShell>

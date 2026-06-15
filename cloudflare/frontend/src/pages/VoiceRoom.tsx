@@ -33,9 +33,9 @@ function formatTime(s: number): string {
 function getWaveformHeights(seed: string): number[] {
   let h = 0;
   for (let i = 0; i < seed.length; i++) h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0;
-  return Array.from({ length: 12 }, (_, i) => {
+  return Array.from({ length: 56 }, (_, i) => {
     h = (Math.imul(31, h) + i) | 0;
-    return 6 + Math.abs(h % 18);
+    return 4 + Math.abs(h % 40);
   });
 }
 
@@ -150,23 +150,23 @@ export function VoiceRoom() {
 
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
         <RoomHeader
-          eyebrow="the voices"
+          eyebrow="speak it"
           title="Voices waiting to be heard."
           className="hl-room-header"
         />
-        <style>{`.hl-room-header { margin-bottom: 32px; }`}</style>
+        <style>{`.hl-room-header { margin-bottom: 40px; } @media (hover:hover){ .hl-voice-card:hover .hl-voice-stop{ color: var(--warm); } }`}</style>
 
         {/* CTA */}
         <Link
           to="/record"
           style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            borderLeft: '3px solid var(--warm)', padding: '10px 14px',
-            marginBottom: 28, textDecoration: 'none',
+            borderLeft: '3px solid var(--warm)', padding: '12px 16px',
+            marginBottom: 56, textDecoration: 'none',
           }}
         >
           <span style={{
-            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
+            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
             textTransform: 'uppercase', color: 'var(--warm)',
           }}>
             record a voice thread
@@ -206,35 +206,35 @@ export function VoiceRoom() {
           </div>
         )}
 
-        {/* Voice list */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
+        {/* Voice list — each recording as a focused "speak it" panel */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 72 }}>
           {recordings.map((entry) => {
             const dye = dyeColor(entry.id, entry.metadata);
             const isPlaying = playingId === entry.id;
             const duration = formatDuration(entry.duration);
             const waveformHeights = getWaveformHeights(entry.id);
+            const isEditing = editingId === entry.id;
 
             return (
-              <div
+              <article
                 key={entry.id}
                 id={`voice-${entry.id}`}
+                className="hl-voice-card"
                 style={{
                   borderLeft: `3px solid ${dye}`,
-                  borderBottom: '1px solid var(--rule)',
-                  padding: '10px 14px',
-                  transition: `background 180ms ${EASE}`,
+                  paddingLeft: 20,
                 }}
               >
-                {/* Header row */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                {/* Eyebrow row — VOICE · 0:42 + edit/delete */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 28 }}>
                   <span style={{
-                    fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.18em',
+                    fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
                     textTransform: 'uppercase', color: 'var(--bone-faint)',
                   }}>
                     {duration ? `voice · ${duration}` : 'voice'}
                   </span>
-                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                    {editingId !== entry.id && (
+                  <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                    {!isEditing && (
                       <button
                         type="button"
                         onClick={() => {
@@ -246,23 +246,21 @@ export function VoiceRoom() {
                         style={{
                           background: 'transparent', border: 0,
                           fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em',
-                          textTransform: 'uppercase', color: 'rgba(176,122,74,0.7)',
-                          borderBottom: '1px solid rgba(176,122,74,0.25)',
-                          padding: '12px 6px', minHeight: 44,
-                          display: 'inline-flex', alignItems: 'center', cursor: 'pointer',
+                          textTransform: 'uppercase', color: 'var(--bone-low)',
+                          padding: '4px 0', cursor: 'pointer',
                         }}
                       >
                         edit
                       </button>
                     )}
                     {confirmDeleteId === entry.id ? (
-                      <span style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <span style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
                         <button
                           type="button"
                           onClick={() => deleteVoice.mutate(entry.id)}
                           disabled={deleteVoice.isPending}
                           style={{
-                            background: 'transparent', border: 0, padding: '12px 4px', minHeight: 44,
+                            background: 'transparent', border: 0, padding: '4px 0',
                             cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9,
                             letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--danger)',
                           }}
@@ -273,7 +271,7 @@ export function VoiceRoom() {
                           type="button"
                           onClick={() => setConfirmDeleteId(null)}
                           style={{
-                            background: 'transparent', border: 0, padding: '12px 4px', minHeight: 44,
+                            background: 'transparent', border: 0, padding: '4px 0',
                             cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9,
                             letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)',
                           }}
@@ -286,7 +284,7 @@ export function VoiceRoom() {
                         type="button"
                         onClick={() => setConfirmDeleteId(entry.id)}
                         style={{
-                          background: 'transparent', border: 0, padding: '12px 4px', minHeight: 44,
+                          background: 'transparent', border: 0, padding: '4px 0',
                           cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9,
                           letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-low)',
                         }}
@@ -296,153 +294,83 @@ export function VoiceRoom() {
                         delete
                       </button>
                     )}
-                    <button
-                      type="button"
-                      aria-label={isPlaying ? 'Stop voice recording' : 'Play voice recording'}
-                      aria-expanded={isPlaying}
-                      aria-controls={`audio-${entry.id}`}
-                      onClick={() => handlePlay(entry.id)}
-                      style={{
-                        background: 'transparent', border: 0,
-                        padding: '10px 8px', minHeight: 44,
-                        display: 'inline-flex', alignItems: 'center',
-                        cursor: 'pointer',
-                        fontFamily: 'var(--mono)', fontSize: 13,
-                        color: 'var(--bone-dim)',
-                        lineHeight: 1,
-                      }}
-                    >
-                      {isPlaying ? '■' : '▶'}
-                    </button>
                   </div>
                 </div>
 
-                {/* Inline edit form */}
-                {editingId === entry.id ? (
-                  <div style={{ marginTop: 8 }}>
-                    <input
-                      value={editTitle}
-                      onChange={(e) => { setEditTitle(e.target.value); setEditError(null); }}
-                      placeholder="title — optional"
-                      aria-label="Title"
-                      autoFocus
-                      style={{ ...FIELD_STYLE, marginBottom: 8 }}
-                    />
-                    <textarea
-                      value={editDesc}
-                      onChange={(e) => { setEditDesc(e.target.value); setEditError(null); }}
-                      placeholder="description — optional"
-                      aria-label="Description"
-                      rows={2}
-                      style={{ ...FIELD_STYLE, resize: 'none' }}
-                    />
-                    {editError && (
-                      <p style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--danger)', margin: '4px 0 0', letterSpacing: '0.1em' }}>
-                        {editError}
-                      </p>
-                    )}
-                    <div style={{ marginTop: 12 }}>
-                      <VoiceRefine
-                        kind="memory"
-                        onPick={(text) => { setEditDesc((prev) => (prev.trim() ? `${prev.trim()}\n\n${text}` : text)); setEditError(null); }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', gap: 14, marginTop: 10, alignItems: 'center' }}>
-                      <button
-                        type="button"
-                        onClick={() => updateVoice.mutate({ id: entry.id, title: editTitle, description: editDesc })}
-                        disabled={updateVoice.isPending}
-                        style={{
-                          background: 'transparent', border: '1px solid var(--warm)', padding: '5px 12px',
-                          cursor: updateVoice.isPending ? 'wait' : 'pointer',
-                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em',
-                          textTransform: 'uppercase', color: 'var(--warm)',
-                          opacity: updateVoice.isPending ? 0.6 : 1,
-                        }}
-                      >
-                        {updateVoice.isPending ? 'saving…' : 'save →'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => { setEditingId(null); setEditError(null); }}
-                        style={{
-                          background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em',
-                          textTransform: 'uppercase', color: 'var(--bone-faint)',
-                        }}
-                      >
-                        cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  /* Title */
-                  entry.title && (
-                    <p className="hl-serif hl-italic" style={{
-                      fontSize: 13,
-                      fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.5, margin: '4px 0 0',
-                    }}>
-                      {entry.title}
-                    </p>
-                  )
+                {/* Optional title — serif, italic */}
+                {!isEditing && entry.title && (
+                  <p className="hl-serif hl-italic" style={{
+                    fontSize: 16,
+                    fontWeight: 300, color: 'var(--bone)', lineHeight: 1.4, margin: '0 0 24px',
+                  }}>
+                    {entry.title}
+                  </p>
                 )}
 
-                {/* Abstract waveform */}
+                {/* Waveform — the one warm gesture, centered */}
                 <div
                   aria-hidden
                   style={{
-                    display: 'flex', alignItems: 'flex-end', gap: 2,
-                    marginTop: 8, height: 28,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 2,
+                    height: 56, marginBottom: 20,
                   }}
                 >
                   {waveformHeights.map((h, i) => (
                     <div
                       key={i}
                       style={{
-                        width: 1, height: h,
+                        width: 1.5, height: h,
                         background: 'var(--warm)',
-                        opacity: isPlaying ? 0.8 : 0.45,
+                        opacity: isPlaying ? 0.85 : 0.42,
                         flexShrink: 0,
-                        transition: `opacity 360ms ${EASE}`,
+                        transition: `opacity 720ms ${EASE}`,
                       }}
                     />
                   ))}
                 </div>
 
-                {/* Expanded audio player */}
-                {isPlaying && entry.fileUrl && (
-                  <div
-                    id={`audio-${entry.id}`}
+                {/* Timer — mono, centered, large */}
+                <div style={{
+                  textAlign: 'center',
+                  fontFamily: 'var(--mono)', fontSize: 22, letterSpacing: '0.08em',
+                  color: 'var(--bone-dim)', marginBottom: 24,
+                }}>
+                  {isPlaying && audioDuration > 0 ? formatTime(currentTime) : (duration || '0:00')}
+                </div>
+
+                {/* Stop / play control — square, centered */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 40 }}>
+                  <button
+                    type="button"
+                    aria-label={isPlaying ? 'Stop voice recording' : 'Play voice recording'}
+                    aria-expanded={isPlaying}
+                    aria-controls={`audio-${entry.id}`}
+                    onClick={() => handlePlay(entry.id)}
+                    className="hl-voice-stop"
                     style={{
-                      marginTop: 8,
-                      animation: `hl-fade 360ms ${EASE}`,
+                      background: 'transparent',
+                      border: '1px solid var(--rule-strong)',
+                      width: 52, height: 52,
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      cursor: 'pointer',
+                      fontFamily: 'var(--mono)', fontSize: 16,
+                      color: isPlaying ? 'var(--warm)' : 'var(--bone-dim)',
+                      lineHeight: 1,
+                      transition: `color 180ms ${EASE}, border-color 180ms ${EASE}`,
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
-                      <button
-                        onClick={() => {
-                          if (audioRef.current) {
-                            if (audioRef.current.paused) {
-                              audioRef.current.play();
-                            } else {
-                              audioRef.current.pause();
-                              audioRef.current.currentTime = 0;
-                              setPlayingId(null);
-                              setCurrentTime(0);
-                              setAudioDuration(0);
-                            }
-                          }
-                        }}
-                        style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', background: 'none', border: 'none', cursor: 'pointer', letterSpacing: '0.1em' }}
-                      >
-                        {currentTime > 0 && audioDuration > 0 && currentTime < audioDuration ? '■ stop' : '▶ play'}
-                      </button>
-                      <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--bone-faint)', opacity: 0.6 }}>
-                        {formatTime(currentTime)} / {formatTime(audioDuration)}
-                      </span>
-                      <div style={{ flex: 1, height: 1, background: 'var(--rule)', position: 'relative' }}>
-                        <div style={{ position: 'absolute', left: 0, top: 0, height: 1, background: 'var(--warm)', width: `${audioDuration ? (currentTime / audioDuration) * 100 : 0}%`, transition: 'width 360ms cubic-bezier(0.16,1,0.3,1)' }} />
-                      </div>
+                    {isPlaying ? '■' : '▶'}
+                  </button>
+                </div>
+
+                {/* Hidden audio element + scrub progress when playing */}
+                {isPlaying && entry.fileUrl && (
+                  <div id={`audio-${entry.id}`} style={{ animation: `hl-fade 360ms ${EASE}`, marginBottom: 36 }}>
+                    <div style={{ height: 1, background: 'var(--rule)', position: 'relative' }}>
+                      <div style={{ position: 'absolute', left: 0, top: 0, height: 1, background: 'var(--warm)', width: `${audioDuration ? (currentTime / audioDuration) * 100 : 0}%`, transition: `width 360ms ${EASE}` }} />
+                    </div>
+                    <div style={{ textAlign: 'center', marginTop: 8, fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.1em', color: 'var(--bone-faint)' }}>
+                      {formatTime(currentTime)} / {formatTime(audioDuration)}
                     </div>
                     <audio
                       ref={(el) => { audioRef.current = el; }}
@@ -457,14 +385,110 @@ export function VoiceRoom() {
                         setAudioDuration(0);
                       }}
                     />
-                    {entry.transcript && (
-                      <p style={{ fontFamily: 'var(--serif)', fontSize: 13, color: 'var(--bone-faint)', fontStyle: 'italic', marginTop: 12, lineHeight: 1.6 }}>
-                        {entry.transcript}
-                      </p>
-                    )}
                   </div>
                 )}
-              </div>
+
+                {/* WHAT YOU SAID — transcript */}
+                {!isEditing && entry.transcript && (
+                  <div>
+                    <span style={{
+                      display: 'block',
+                      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                      textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 16,
+                    }}>
+                      what you said
+                    </span>
+                    <p className="hl-serif" style={{
+                      fontFamily: 'var(--serif)', fontSize: 16, fontWeight: 300,
+                      color: 'var(--bone-dim)', lineHeight: 1.72, margin: 0,
+                    }}>
+                      {entry.transcript}
+                    </p>
+                  </div>
+                )}
+
+                {/* FIND BETTER WORDS — refine entry point */}
+                {!isEditing && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingId(entry.id);
+                      setEditTitle(entry.title ?? '');
+                      setEditDesc(entry.description ?? entry.transcript ?? '');
+                      setEditError(null);
+                    }}
+                    style={{
+                      background: 'transparent', border: 0, padding: '4px 0',
+                      marginTop: entry.transcript ? 28 : 0,
+                      cursor: 'pointer',
+                      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                      textTransform: 'uppercase', color: 'var(--warm)',
+                    }}
+                  >
+                    find better words
+                  </button>
+                )}
+
+                {/* Inline edit / refine form */}
+                {isEditing && (
+                  <div style={{ marginTop: 8 }}>
+                    <input
+                      value={editTitle}
+                      onChange={(e) => { setEditTitle(e.target.value); setEditError(null); }}
+                      placeholder="title — optional"
+                      aria-label="Title"
+                      autoFocus
+                      style={{ ...FIELD_STYLE, marginBottom: 12 }}
+                    />
+                    <textarea
+                      value={editDesc}
+                      onChange={(e) => { setEditDesc(e.target.value); setEditError(null); }}
+                      placeholder="description — optional"
+                      aria-label="Description"
+                      rows={3}
+                      style={{ ...FIELD_STYLE, resize: 'none' }}
+                    />
+                    {editError && (
+                      <p style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--danger)', margin: '4px 0 0', letterSpacing: '0.1em' }}>
+                        {editError}
+                      </p>
+                    )}
+                    <div style={{ marginTop: 16 }}>
+                      <VoiceRefine
+                        kind="memory"
+                        onPick={(text) => { setEditDesc((prev) => (prev.trim() ? `${prev.trim()}\n\n${text}` : text)); setEditError(null); }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', gap: 16, marginTop: 20, alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => updateVoice.mutate({ id: entry.id, title: editTitle, description: editDesc })}
+                        disabled={updateVoice.isPending}
+                        style={{
+                          background: 'transparent', border: '1px solid var(--warm)', padding: '8px 16px',
+                          cursor: updateVoice.isPending ? 'wait' : 'pointer',
+                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
+                          textTransform: 'uppercase', color: 'var(--warm)',
+                          opacity: updateVoice.isPending ? 0.6 : 1,
+                        }}
+                      >
+                        {updateVoice.isPending ? 'saving…' : 'save →'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setEditingId(null); setEditError(null); }}
+                        style={{
+                          background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
+                          textTransform: 'uppercase', color: 'var(--bone-faint)',
+                        }}
+                      >
+                        cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </article>
             );
           })}
         </div>

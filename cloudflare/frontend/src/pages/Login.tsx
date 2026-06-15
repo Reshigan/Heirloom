@@ -6,9 +6,8 @@ import { VaultModal } from '../components/VaultModal';
 import { encryptionService } from '../services/encryptionService';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
-import { CosmicLoom } from '../loom/components/CosmicLoom';
 
-// Login — animated cloth weaving hero on the right, form on the left.
+// Login — a single calm centered column over the global filament backdrop.
 export function Login() {
   usePageMeta('Sign in', 'Sign in to your Heirloom family thread.');
   const navigate = useNavigate();
@@ -52,139 +51,128 @@ export function Login() {
         </Link>
       }
     >
+      {/* A single calm centered column — vast negative space, the global filament backdrop behind. */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))',
+        placeItems: 'center',
         minHeight: '100%',
+        padding: 'clamp(40px,9vh,120px) clamp(24px,6vw,48px)',
       }}>
-        {/* Left: form */}
-        <div style={{ display: 'grid', placeItems: 'center', padding: 'clamp(24px,5vw,48px)', minWidth: 0 }}>
-          <div style={{ width: '100%', maxWidth: 380 }}>
-            {/* ∞ — 3D floating mark, the product's only symbol */}
-            <div style={{ marginBottom: 32, lineHeight: 1 }}>
-              <span
-                className="hl-infinity-3d"
-                style={{ fontSize: 'clamp(48px, 8vw, 80px)' }}
-                aria-hidden
-              >
-                ∞
-              </span>
-            </div>
-            <div className="hl-eyebrow dark" style={{ marginBottom: 22 }}>welcome back</div>
-            <h1 className="hl-serif hl-tight" style={{
-              fontSize: 'var(--type-display)',
-              fontWeight: 300, lineHeight: 1.06,
-              letterSpacing: '-0.022em',
-              margin: '0 0 40px', maxWidth: '13ch',
-              color: 'var(--bone)',
-              fontVariationSettings: '"opsz" 40',
+        <div style={{ width: '100%', maxWidth: 360, textAlign: 'center' }}>
+          {/* ∞ — the product's only mark */}
+          <div style={{ marginBottom: 18, lineHeight: 1 }}>
+            <span
+              className="hl-infinity-3d"
+              style={{ fontSize: 'clamp(34px, 6vw, 48px)' }}
+              aria-hidden
+            >
+              ∞
+            </span>
+          </div>
+
+          {/* Serif title — type is the hero */}
+          <h1 className="hl-serif hl-tight" style={{
+            fontSize: 'clamp(34px, 8vw, 52px)',
+            fontWeight: 300, lineHeight: 1.0,
+            letterSpacing: '-0.022em',
+            margin: '0 0 28px',
+            color: 'var(--bone)',
+            fontVariationSettings: '"opsz" 40',
+          }}>
+            Heirloom
+          </h1>
+
+          {/* Mono eyebrow */}
+          <div className="hl-mono" style={{
+            marginBottom: sessionExpired ? 24 : 48,
+            fontSize: 10, letterSpacing: '0.34em', textTransform: 'uppercase',
+            color: 'var(--bone-dim)',
+          }}>
+            enter the thread
+          </div>
+
+          {sessionExpired ? (
+            <div style={{
+              marginBottom: 40, padding: '12px 0',
+              borderTop: '1px solid var(--warm-dim)',
+              borderBottom: '1px solid var(--warm-dim)',
+              fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)',
+              letterSpacing: '0.04em',
             }}>
-              Enter{' '}
-              <span className="hl-italic" style={{ color: 'var(--warm)' }}>the cloth.</span>
-            </h1>
+              ∞ &nbsp; your session ended. sign in again.
+            </div>
+          ) : null}
 
-            {sessionExpired ? (
-              <div style={{
-                marginBottom: 28, padding: '12px 0',
-                borderTop: '1px solid var(--warm-dim)',
-                borderBottom: '1px solid var(--warm-dim)',
-                fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)',
-                letterSpacing: '0.04em',
+          <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 34, textAlign: 'left' }}>
+            <div>
+              <label htmlFor="l-email" className="hl-mono" style={{
+                display: 'block', marginBottom: 8,
+                fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
               }}>
-                ∞ &nbsp; your session ended. sign in again.
-              </div>
-            ) : null}
+                email
+              </label>
+              <input
+                id="l-email" type="email" required autoComplete="email"
+                value={email} onChange={(e) => setEmail(e.target.value)}
+                className="hl-input"
+              />
+            </div>
 
-            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 32 }}>
-              <div>
-                <label htmlFor="l-email" className="hl-mono" style={{
-                  display: 'block', marginBottom: 6,
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 8 }}>
+                <label htmlFor="l-pw" className="hl-mono" style={{
                   fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                 }}>
-                  email
+                  password
                 </label>
-                <input
-                  id="l-email" type="email" required autoComplete="email"
-                  value={email} onChange={(e) => setEmail(e.target.value)}
-                  className="hl-input"
-                />
+                <Link to="/forgot-password" className="hl-mono" style={{
+                  fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase',
+                  color: 'var(--bone-dim)', textDecoration: 'none',
+                }}>
+                  forgot?
+                </Link>
               </div>
-
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 6 }}>
-                  <label htmlFor="l-pw" className="hl-mono" style={{
-                    fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
-                    color: 'var(--bone-faint)',
-                  }}>
-                    passphrase
-                  </label>
-                  <Link to="/forgot-password" className="hl-mono" style={{
-                    fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase',
-                    color: 'var(--bone-dim)', textDecoration: 'none',
-                  }}>
-                    forgot?
-                  </Link>
-                </div>
-                <input
-                  id="l-pw" type="password" required autoComplete="current-password"
-                  value={password} onChange={(e) => setPassword(e.target.value)}
-                  className="hl-input"
-                />
-              </div>
-
-              {error ? (
-                <p role="alert" className="hl-italic" style={{ color: 'var(--danger)', fontSize: 14, margin: 0 }}>
-                  {error}
-                </p>
-              ) : null}
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: 24, marginTop: 8 }}>
-                <button
-                  type="submit"
-                  disabled={isLoading || !email.trim() || !password.trim()}
-                  className="hl-btn"
-                  style={{ opacity: isLoading || !email.trim() || !password.trim() ? 0.5 : 1 }}
-                >
-                  {isLoading ? 'entering…' : 'Enter the cloth →'}
-                </button>
-              </div>
-            </form>
-
-            <div className="hl-mono" style={{
-              marginTop: 48, paddingTop: 22,
-              borderTop: '1px solid var(--rule)',
-              fontSize: 10, letterSpacing: '0.20em', textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
-            }}>
-              new here?{' '}
-              <Link to="/signup" style={{ color: 'var(--warm)', textDecoration: 'none' }}>
-                begin a thread →
-              </Link>
+              <input
+                id="l-pw" type="password" required autoComplete="current-password"
+                value={password} onChange={(e) => setPassword(e.target.value)}
+                className="hl-input"
+              />
             </div>
-          </div>
-        </div>
 
-        {/* Right: 3D cloth canvas on ink */}
-        <aside
-          aria-hidden
-          style={{
-            background: 'var(--ink)',
-            position: 'relative',
-            overflow: 'hidden',
-            minHeight: 'min(360px, 40vh)',
-          }}
-        >
-          <CosmicLoom />
+            {error ? (
+              <p role="alert" className="hl-italic" style={{ color: 'var(--danger)', fontSize: 14, margin: 0 }}>
+                {error}
+              </p>
+            ) : null}
+
+            {/* Warm primary action — the single accent */}
+            <button
+              type="submit"
+              disabled={isLoading || !email.trim() || !password.trim()}
+              className="hl-btn"
+              style={{
+                width: '100%', marginTop: 14,
+                justifyContent: 'center',
+                opacity: isLoading || !email.trim() || !password.trim() ? 0.5 : 1,
+              }}
+            >
+              {isLoading ? 'entering…' : 'Continue'}
+            </button>
+          </form>
+
+          {/* Quiet secondary link */}
           <div className="hl-mono" style={{
-            position: 'absolute', left: 24, bottom: 24,
+            marginTop: 56,
             fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
             color: 'var(--bone-faint)',
-            pointerEvents: 'none',
           }}>
-            specimen · 70 years · 4,318 entries
+            <Link to="/signup" style={{ color: 'var(--bone-dim)', textDecoration: 'none' }}>
+              create a thread
+            </Link>
           </div>
-        </aside>
+        </div>
       </div>
 
       {showVaultUnlock ? (

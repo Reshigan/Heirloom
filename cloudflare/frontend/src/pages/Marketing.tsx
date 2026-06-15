@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
 import { SecurityDot } from '../loom/components/Frame';
-import { CosmicLoom } from '../loom/components/CosmicLoom';
 import {
   getDeferredPrompt, isIOS, isStandalone,
   onInstallStateChange, promptInstall, wasInstalled,
@@ -69,17 +68,22 @@ export function Marketing() {
   }, []);
 
   return (
-    <main style={{ background: 'var(--ink)', color: 'var(--bone)', overflowX: 'hidden' }}>
+    <main style={{ color: 'var(--bone)', overflowX: 'hidden' }}>
 
       {/* ════════════════════════════════════════════════════════════
-          HERO — the cloth IS the hero. Full viewport. No above-fold
-          text. The cloth speaks first. The headline arrives at 800ms.
+          HERO — type is the hero, set high. The global ClothBackdrop
+          filament shows through (transparent section) and resolves at
+          the bottom, exactly as the specimen. Headline arrives at 800ms.
           ════════════════════════════════════════════════════════════ */}
-      <section style={{ position: 'relative', height: vpH, minHeight: 520, overflow: 'hidden' }}>
+      <section style={{
+        position: 'relative', height: vpH, minHeight: 560, overflow: 'hidden',
+        background: 'transparent',
+        display: 'flex', flexDirection: 'column',
+      }}>
 
         {/* Nav — minimal, barely there */}
         <nav style={{
-          position: 'absolute', top: 0, left: 0, right: 0, zIndex: 20,
+          position: 'relative', zIndex: 20,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: 'calc(clamp(14px, 2.5vh, 20px) + env(safe-area-inset-top, 0px)) clamp(20px, 5vw, 56px) clamp(14px, 2.5vh, 20px)',
         }}>
@@ -96,54 +100,62 @@ export function Marketing() {
           </span>
         </nav>
 
-        {/* ── The cloth — fills the entire hero ── */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 1 }}>
-          <CosmicLoom />
-          {/* Gradient so headline is legible over cloth */}
-          <div style={{
-            position: 'absolute', bottom: 0, left: 0, right: 0, height: '58%',
-            background: 'linear-gradient(to bottom, transparent 0%, rgba(14,14,12,0.65) 50%, rgba(14,14,12,0.97) 100%)',
-            pointerEvents: 'none',
-          }} />
-        </div>
-
-        {/* ── The single intention statement — arrives at 800ms ── */}
+        {/* ── The intention — set high, top-aligned per the specimen ── */}
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 10,
-          padding: '0 clamp(24px, 6vw, 80px) clamp(52px, 8vh, 80px)',
+          position: 'relative', zIndex: 10,
+          padding: 'clamp(20px, 5vh, 64px) clamp(24px, 6vw, 80px) 0',
         }}>
           <h1 style={{
             fontFamily: 'var(--serif)',
-            fontSize: 'clamp(28px, 4.6vw, 66px)',
+            fontSize: 'clamp(38px, 8.5vw, 84px)',
             fontWeight: 300,
-            lineHeight: 1.07,
+            lineHeight: 1.04,
+            letterSpacing: '-0.012em',
             fontVariationSettings: '"opsz" 72',
-            color: 'rgba(244,236,216,0.94)',
+            color: 'rgba(244,236,216,0.95)',
             margin: '0 0 clamp(22px, 3.5vh, 36px)',
-            maxWidth: '13ch',
+            maxWidth: '16ch',
             opacity: taglineIn ? 1 : 0,
             transform: taglineIn ? 'translateY(0)' : 'translateY(24px)',
             transition: `opacity 1400ms ${ease}, transform 1400ms ${ease}`,
           }}>
-            Write to someone<br />who hasn't been<br />born yet.
+            Start your family's thousand-year thread.
           </h1>
+
+          <p style={{
+            fontFamily: 'var(--serif)',
+            fontSize: 'clamp(16px, 2vw, 21px)',
+            fontWeight: 300,
+            lineHeight: 1.6,
+            margin: '0 0 clamp(30px, 4.5vh, 44px)',
+            maxWidth: '32ch',
+            color: 'rgba(244,236,216,0.55)',
+            opacity: taglineIn ? 1 : 0,
+            transition: `opacity 1400ms ${ease}`,
+            transitionDelay: '220ms',
+          }}>
+            A journal of shared history, preserved for generations.
+          </p>
 
           <div style={{
             display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap',
             opacity: taglineIn ? 1 : 0,
             transition: `opacity 1400ms ${ease}`,
-            transitionDelay: '220ms',
+            transitionDelay: '360ms',
           }}>
             <Link
               to="/signup"
-              className="hl-btn"
               style={{
-                display: 'inline-block', padding: '12px 28px',
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                display: 'inline-block', padding: '13px 38px',
+                border: '1px solid var(--warm)',
+                color: 'var(--warm-bright, var(--warm))',
+                background: 'transparent',
+                fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.30em',
                 textTransform: 'uppercase', textDecoration: 'none',
+                transition: `background 360ms ${ease}, color 360ms ${ease}`,
               }}
             >
-              begin the thread →
+              begin
             </Link>
 
             {install.mode === 'prompt' && (
@@ -151,10 +163,10 @@ export function Marketing() {
                 type="button"
                 onClick={() => promptInstall()}
                 style={{
-                  background: 'transparent', border: '1px solid rgba(244,236,216,0.25)',
-                  color: 'rgba(244,236,216,0.60)', fontFamily: 'var(--mono)', fontSize: 10,
-                  letterSpacing: '0.22em', textTransform: 'uppercase',
-                  cursor: 'pointer', padding: '11px 24px',
+                  background: 'transparent', border: '1px solid rgba(244,236,216,0.20)',
+                  color: 'rgba(244,236,216,0.55)', fontFamily: 'var(--mono)', fontSize: 10,
+                  letterSpacing: '0.24em', textTransform: 'uppercase',
+                  cursor: 'pointer', padding: '12px 26px',
                 }}
               >
                 ↓ install
@@ -170,24 +182,30 @@ export function Marketing() {
               </span>
             )}
           </div>
-
-          <p style={{
-            marginTop: 20,
-            fontFamily: 'var(--mono)', fontSize: 9,
-            letterSpacing: '0.24em', textTransform: 'uppercase',
-            color: 'rgba(244,236,216,0.18)',
-            opacity: taglineIn ? 1 : 0,
-            transition: `opacity 1400ms ${ease}`,
-            transitionDelay: '480ms',
-          }}>
-            scroll ↓
-          </p>
         </div>
+
+        {/* Negative space — the filament resolves below, via the global
+            ClothBackdrop. Scroll cue sits at the foot of the specimen. */}
+        <div style={{ flex: 1 }} />
+
+        <p style={{
+          position: 'relative', zIndex: 10,
+          padding: '0 clamp(24px, 6vw, 80px) clamp(28px, 5vh, 44px)',
+          margin: 0,
+          fontFamily: 'var(--mono)', fontSize: 9,
+          letterSpacing: '0.24em', textTransform: 'uppercase',
+          color: 'rgba(244,236,216,0.20)',
+          opacity: taglineIn ? 1 : 0,
+          transition: `opacity 1400ms ${ease}`,
+          transitionDelay: '600ms',
+        }}>
+          scroll ↓
+        </p>
 
         {/* Specimen label — vertical, far right */}
         <div style={{
           position: 'absolute',
-          top: 'calc(clamp(14px, 2.5vh, 20px) + env(safe-area-inset-top, 0px) + 48px)',
+          top: 'calc(clamp(14px, 2.5vh, 20px) + env(safe-area-inset-top, 0px) + 56px)',
           right: 'clamp(20px, 5vw, 56px)',
           zIndex: 5,
           fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.26em',
@@ -200,6 +218,9 @@ export function Marketing() {
           specimen · the Okonkwo thread · 1952 – today
         </div>
       </section>
+
+      {/* Below the fold rests on solid ink — the filament is the hero only. */}
+      <div style={{ position: 'relative', zIndex: 2, background: 'var(--ink)' }}>
 
       {/* ════════════════════════════════════════════════════════════
           THREE EDITORIAL PILLARS
@@ -521,6 +542,8 @@ export function Marketing() {
         </span>
         <span>heirloom.blue · est. 2025 · running until ∞</span>
       </footer>
+
+      </div>
 
       <style>{`
         .mkt-nav-hide-sm { display: inline; }

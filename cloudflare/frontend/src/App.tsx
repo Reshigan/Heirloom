@@ -115,7 +115,6 @@ const LoomConstellation = lazy(() => import('./pages/Constellation').then(m => (
 const LoomMarketing = lazy(() => import('./pages/Marketing').then(m => ({ default: m.Marketing })));
 const LoomLetterRoom = lazy(() => import('./pages/LetterRoom').then(m => ({ default: m.LetterRoom })));
 const LoomVoiceRoom = lazy(() => import('./pages/VoiceRoom').then(m => ({ default: m.VoiceRoom })));
-const LoomComposeLetter = lazy(() => import('./pages/ComposeLetter').then(m => ({ default: m.ComposeLetter })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -603,7 +602,8 @@ export default function App() {
           <Route path="/loom/marketing" element={<LoomMarketing />} />
           <Route path="/loom/letter" element={<ProtectedRoute><LoomLetterRoom /></ProtectedRoute>} />
           <Route path="/loom/voice" element={<ProtectedRoute><LoomVoiceRoom /></ProtectedRoute>} />
-          <Route path="/loom/compose-letter" element={<ProtectedRoute><LoomComposeLetter /></ProtectedRoute>} />
+          {/* Legacy letter editor folded into the unified composer (one composer, choose delivery) */}
+          <Route path="/loom/compose-letter" element={<Navigate to="/compose" replace />} />
 
           {/* Catch all - 404 page */}
           <Route path="*" element={<NotFound />} />
