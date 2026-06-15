@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { searchApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { RoomHeader, RoomSection, RoomRow } from '../loom/components/room';
 
 /**
  * SearchPage — Loom native "Find a thread."
@@ -42,6 +42,13 @@ const ROW_LINK: Record<SearchResult['type'], string> = {
   letter: '/letters',
 };
 
+/** Section grouping — ordered, with the mono group label per kind. */
+const GROUPS: { type: SearchResult['type']; label: string }[] = [
+  { type: 'memory', label: 'Memories' },
+  { type: 'letter', label: 'Letters' },
+  { type: 'voice',  label: 'Voices' },
+];
+
 export function SearchPage() {
   const [input, setInput] = useState('');
   const [query, setQuery] = useState('');
@@ -78,6 +85,13 @@ export function SearchPage() {
           overflowX: 'hidden',
         }}
       >
+        <RoomHeader
+          eyebrow="find a thread"
+          title="Search the thread."
+          className="hl-mb-search"
+        />
+        <style>{`.hl-mb-search { margin-bottom: 28px; }`}</style>
+
         {/* ── search input ── */}
         <input
           autoFocus
@@ -180,47 +194,27 @@ export function SearchPage() {
             >
               {total} {total === 1 ? 'thread' : 'threads'}
             </p>
-            {results.map((r) => (
-              <Link
-                key={r.id}
-                to={ROW_LINK[r.type]}
-                style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
-              >
-                <div style={{ borderBottom: '1px solid var(--rule)', padding: '14px 0' }}>
-                  <div
-                    className="hl-mono"
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: '0.14em',
-                      textTransform: 'uppercase',
-                      color: 'var(--bone-faint)',
-                      marginBottom: 6,
-                    }}
-                  >
-                    {r.type} · {formatDate(r.created_at)}
-                  </div>
-                  <div
-                    className="hl-serif"
-                    style={{ fontSize: 16, color: 'var(--bone)', fontWeight: 400 }}
-                  >
-                    {r.title}
-                  </div>
-                  {r.snippet ? (
-                    <div
-                      className="hl-serif"
-                      style={{
-                        fontSize: 14,
-                        fontStyle: 'italic',
-                        color: 'var(--bone-dim)',
-                        marginTop: 4,
-                      }}
-                    >
-                      {r.snippet}
-                    </div>
-                  ) : null}
-                </div>
-              </Link>
-            ))}
+            {(() => {
+              let firstRendered = true;
+              return GROUPS.map(({ type, label }) => {
+                const hits = results.filter((r) => r.type === type);
+                if (hits.length === 0) return null;
+                const flush = firstRendered;
+                firstRendered = false;
+                return (
+                  <RoomSection key={type} label={label} flush={flush}>
+                    {hits.map((r) => (
+                      <RoomRow
+                        key={r.id}
+                        title={r.title}
+                        meta={`${r.type} · ${formatDate(r.created_at)}`}
+                        href={ROW_LINK[r.type]}
+                      />
+                    ))}
+                  </RoomSection>
+                );
+              });
+            })()}
           </>
         )}
       </div>

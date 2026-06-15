@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { ClothShell } from '../loom/components/ClothShell';
 import { memoriesApi } from '../services/api';
+import { RoomHeader, RoomSection } from '../loom/components/room';
 
 interface MapMemory {
   id: string;
@@ -80,19 +81,12 @@ export function MemoryMap() {
           padding: '48px 32px 80px',
         }}
       >
-        {/* H1 */}
-        <h1
-          className="hl-serif"
-          style={{
-            fontSize: 36,
-            fontWeight: 300,
-            color: 'var(--bone)',
-            margin: '0 0 28px',
-            lineHeight: 1.15,
-          }}
-        >
-          Where the stories live.
-        </h1>
+        <RoomHeader
+          eyebrow="places"
+          title="Where the stories live."
+          className="hl-mb-map"
+        />
+        <style>{`.hl-mb-map { margin-bottom: 28px; }`}</style>
 
         {/* Filter row */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 40 }}>
@@ -180,48 +174,41 @@ export function MemoryMap() {
           </div>
         ) : (
           <>
-            {/* Section label */}
-            <p
-              className="hl-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: '0.28em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-dim)',
-                margin: '0 0 24px',
-              }}
-            >
-              memories by place
-            </p>
-
-            {/* Location list */}
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              {locations.map(({ name, count }) => {
-                const firstMatch = memories.find((m) => (m.location_name || 'Unknown') === name) ?? null;
-                return (
-                  <li key={name}>
-                    <Link
-                      to={`/loom/read?location=${encodeURIComponent(name)}`}
-                      onClick={(e) => { if (firstMatch) { e.preventDefault(); setSelectedMemory(firstMatch); } }}
-                      style={{ textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', borderBottom: '1px solid var(--rule)', paddingTop: 14, paddingBottom: 14 }}
-                    >
-                      <span
-                        className="hl-serif"
-                        style={{ fontSize: 15, fontWeight: 300, color: 'var(--bone)' }}
+            {/* Location list — RoomSection group, hairline place rows.
+                Rows keep their Link+onClick (selects a memory) verbatim. */}
+            <RoomSection label="memories by place" flush>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {locations.map(({ name, count }) => {
+                  const firstMatch = memories.find((m) => (m.location_name || 'Unknown') === name) ?? null;
+                  return (
+                    <li key={name}>
+                      <Link
+                        to={`/loom/read?location=${encodeURIComponent(name)}`}
+                        onClick={(e) => { if (firstMatch) { e.preventDefault(); setSelectedMemory(firstMatch); } }}
+                        style={{ textDecoration: 'none', display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'baseline', columnGap: 12, borderBottom: '1px solid var(--rule)', minHeight: 44, paddingTop: 11, paddingBottom: 11 }}
                       >
-                        {name}
-                      </span>
-                      <span
-                        className="hl-mono"
-                        style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em' }}
-                      >
-                        {count}
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
+                        <span
+                          aria-hidden
+                          style={{ width: 8, height: 8, alignSelf: 'center', background: 'var(--warm)', boxShadow: '0 0 8px var(--warm)' }}
+                        />
+                        <span
+                          className="hl-serif"
+                          style={{ fontSize: 'clamp(15px, 4vw, 17px)', fontWeight: 300, color: 'var(--bone)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
+                        >
+                          {name}
+                        </span>
+                        <span
+                          className="hl-mono"
+                          style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.16em', textTransform: 'uppercase', textAlign: 'right' }}
+                        >
+                          {count}
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </RoomSection>
 
             {/* Footer note */}
             <p
@@ -241,8 +228,8 @@ export function MemoryMap() {
               <div
                 style={{
                   marginTop: 40,
-                  border: '1px solid var(--rule)',
-                  padding: '24px 28px',
+                  borderTop: '1px solid var(--rule)',
+                  paddingTop: 24,
                 }}
               >
                 <div
