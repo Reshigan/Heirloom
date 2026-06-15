@@ -190,11 +190,13 @@ export function Constellation() {
               </Link>
             </div>
           ) : (
-            rows.map((row, rowIdx) => {
-              const rowLit = row.some(k => hovered === kin.indexOf(k) || k.you);
+            (() => {
+              const kinIndex = new Map(kin.map((k, i) => [k.id, i]));
+              return rows.map((row, rowIdx) => {
+              const rowLit = row.some(k => hovered === kinIndex.get(k.id) || k.you);
               return (
                 <div
-                  key={rowIdx}
+                  key={row.map(k => k.id).join('-')}
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -241,7 +243,7 @@ export function Constellation() {
                     }}
                   >
                     {row.map(k => {
-                      const idx = kin.indexOf(k);
+                      const idx = kinIndex.get(k.id);
                       const isLit = hovered === idx || k.you;
                       const nameColor = k.you
                         ? 'var(--warm)'
@@ -256,9 +258,9 @@ export function Constellation() {
                           tabIndex={0}
                           role="img"
                           aria-label={`${k.name}, born ${k.born}${k.died ? `, died ${k.died}` : ', living'}`}
-                          onMouseEnter={() => setHovered(idx)}
+                          onMouseEnter={() => setHovered(idx ?? null)}
                           onMouseLeave={() => setHovered(null)}
-                          onFocus={() => setHovered(idx)}
+                          onFocus={() => setHovered(idx ?? null)}
                           onBlur={() => setHovered(null)}
                           style={{
                             display: 'flex',
@@ -319,7 +321,8 @@ export function Constellation() {
                   </div>
                 </div>
               );
-            })
+            });
+            })()
           )}
         </div>
 
