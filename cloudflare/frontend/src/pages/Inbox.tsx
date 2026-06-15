@@ -61,7 +61,7 @@ export function Inbox() {
   const sealed = upcomingQ.data ?? [];
   const opened = recentQ.data ?? [];
   const received: { id: string; title: string; type: string; createdAt: string; from: string; metadata: any }[] = receivedQ.data ?? [];
-  const loading = upcomingQ.isLoading || recentQ.isLoading;
+  const loading = upcomingQ.isLoading || recentQ.isLoading || receivedQ.isLoading;
   const hasError = upcomingQ.isError || recentQ.isError || receivedQ.isError;
 
   const isEmpty = received.length === 0 && sealed.length === 0 && opened.length === 0;
