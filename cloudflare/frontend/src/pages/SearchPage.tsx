@@ -28,13 +28,15 @@ interface SearchBody {
   total: number;
 }
 
-type TypeFilter = undefined | 'memories' | 'voice' | 'letters';
+// Server-side filter values must match the worker's singular type names
+// ('memory'|'voice'|'letter'|'all') — labels stay plural for display only.
+type TypeFilter = undefined | 'memory' | 'voice' | 'letter';
 
 const FILTERS: { label: string; value: TypeFilter }[] = [
   { label: 'all',      value: undefined },
-  { label: 'memories', value: 'memories' },
+  { label: 'memories', value: 'memory' },
   { label: 'voice',    value: 'voice' },
-  { label: 'letters',  value: 'letters' },
+  { label: 'letters',  value: 'letter' },
 ];
 
 const ROW_LINK: Record<SearchResult['type'], string> = {

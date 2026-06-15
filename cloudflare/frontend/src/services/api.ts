@@ -361,7 +361,7 @@ export const aiApi = {
 
 // Search API
 export const searchApi = {
-  search: (query: string, type?: 'all' | 'memories' | 'voice' | 'letters', limit?: number) =>
+  search: (query: string, type?: 'all' | 'memory' | 'voice' | 'letter', limit?: number) =>
     api.get('/memories/search', { params: { q: query, type, limit } }),
 };
 
