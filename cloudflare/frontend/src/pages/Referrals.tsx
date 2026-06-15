@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 import { familyReferralsApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -91,20 +92,9 @@ export function Referrals() {
         }}
       >
         {/* Header */}
-        <header style={{ marginBottom: 52 }}>
-          <h1
-            className="hl-serif hl-tight"
-            style={{
-              fontSize: 'var(--type-display)',
-              fontWeight: 300,
-              color: 'var(--bone)',
-              margin: '0 0 28px',
-              lineHeight: 1.2,
-            }}
-          >
-            Invite someone to begin their thread.
-          </h1>
-        </header>
+        <div style={{ marginBottom: 52 }}>
+          <RoomHeader eyebrow="referrals" title="Invite someone to begin their thread." />
+        </div>
 
         {isLoading ? (
           <div

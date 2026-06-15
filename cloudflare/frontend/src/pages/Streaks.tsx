@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 import { streaksApi, challengesApi } from '../services/api';
 
 // Dye names in rotation for activity grid cells
@@ -112,21 +113,9 @@ export function Streaks() {
         }}
       >
         {/* ── Kicker + H1 ── */}
-        <p className="hl-eyebrow" style={{ margin: '0 0 22px', color: 'var(--bone-faint)', display: 'flex', alignItems: 'center', gap: 9 }}>
-          <span aria-hidden style={{ width: 5, height: 5, borderRadius: 0, background: 'var(--warm)', display: 'inline-block' }} />
-          Continuity
-        </p>
-        <h1
-          className="hl-serif hl-tight"
-          style={{
-            fontSize: 'var(--type-display)',
-            fontWeight: 300,
-            color: 'var(--bone)',
-            margin: '0 0 28px',
-          }}
-        >
-          The thread unbroken.
-        </h1>
+        <div style={{ marginBottom: 28 }}>
+          <RoomHeader eyebrow="Continuity" title="The thread unbroken." />
+        </div>
 
         {streakLoading ? (
           <p

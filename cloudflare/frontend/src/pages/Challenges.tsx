@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { challengesApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
+import { RoomHeader } from '../loom/components/room';
 
 export function Challenges() {
   const queryClient = useQueryClient();
@@ -119,12 +120,7 @@ export function Challenges() {
 
         {/* Page header */}
         <header style={{ marginBottom: 40, padding: '0 clamp(16px, 4vw, 40px)' }}>
-          <h1
-            className="hl-serif hl-tight"
-            style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 28px', color: 'var(--bone)' }}
-          >
-            Your challenges.
-          </h1>
+          <RoomHeader eyebrow="challenges" title="Your challenges." />
         </header>
 
         {isLoading ? (

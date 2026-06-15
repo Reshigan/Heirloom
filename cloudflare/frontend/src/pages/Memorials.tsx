@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { RoomHeader } from '../loom/components/room';
 import { memorialsApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -104,18 +105,7 @@ export function Memorials() {
 
         {/* Page header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, marginBottom: 64 }}>
-          <h1
-            className="hl-serif hl-tight"
-            style={{
-              fontSize: 'var(--type-display)',
-              fontWeight: 300,
-              margin: 0,
-              marginBottom: 40,
-              color: 'var(--bone)',
-            }}
-          >
-            In memory of.
-          </h1>
+          <RoomHeader eyebrow="memorials" title="In memory of." />
           <button
             type="button"
             onClick={() => setShowCreateModal(true)}

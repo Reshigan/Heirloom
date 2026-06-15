@@ -6,6 +6,7 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import api, { memoriesApi, voiceApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 import { type Memory, type VoiceRecording } from '../types';
+import { RoomHeader } from '../loom/components/room';
 
 // Quick Create wizard templates
 const STORY_TEMPLATES = [
@@ -259,20 +260,12 @@ export function StoryArtifact() {
       >
         {/* Page header */}
         <header style={{ marginBottom: 48 }}>
-          <h1
-            className="hl-serif"
-            style={{ fontSize: 36, fontWeight: 300, margin: '0 0 28px', lineHeight: 1.15 }}
-          >
-            A piece of the cloth.
-          </h1>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', flexWrap: 'wrap', gap: 20 }}>
-            <p
-              className="hl-prose"
-              style={{ fontSize: 15, color: 'var(--bone-dim)', margin: 0, maxWidth: 400, lineHeight: 1.6 }}
-            >
-              A story artifact takes the cloth you've woven and plays it forward — a micro-documentary
-              from your thread.
-            </p>
+          <RoomHeader
+            eyebrow="story artifacts"
+            title="A piece of the cloth."
+            lede="A story artifact takes the cloth you've woven and plays it forward — a micro-documentary from your thread."
+          />
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
             <button type="button" onClick={() => setShowCreate(true)} className="hl-btn">
               Create story
             </button>

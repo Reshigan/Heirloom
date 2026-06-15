@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { memoryCardsApi, aiApi } from '../services/api';
+import { RoomHeader } from '../loom/components/room';
 
 // ── Dye swatch colours (10-stop natural-dye palette) ─────────────────────────
 const DYE_VARS = [
@@ -88,21 +89,7 @@ export function OnThisDay() {
         }}
       >
         {/* ── Header ───────────────────────────────────────────────────── */}
-        <p className="hl-eyebrow" style={{ margin: '0 0 22px', color: 'var(--bone-faint)', display: 'flex', alignItems: 'center', gap: 9 }}>
-          <span aria-hidden style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--warm)', display: 'inline-block' }} />
-          On this day
-        </p>
-        <h1
-          className="hl-serif hl-tight"
-          style={{
-            fontSize: 'var(--type-display)',
-            fontWeight: 300,
-            color: 'var(--bone)',
-            margin: '0 0 8px',
-          }}
-        >
-          On this day.
-        </h1>
+        <RoomHeader eyebrow="On this day" title="On this day." />
 
         <p
           className="hl-mono"

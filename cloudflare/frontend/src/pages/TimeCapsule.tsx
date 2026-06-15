@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { capsulesApi, threadsApi } from '../services/api';
+import { RoomHeader } from '../loom/components/room';
 
 type CapsuleStatus = 'open' | 'sealed' | 'unlocked';
 
@@ -273,17 +274,7 @@ export function TimeCapsule() {
 
         {/* Header */}
         <header style={{ marginBottom: 48, display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-          <h1
-            className="hl-serif hl-tight"
-            style={{
-              fontSize: 'var(--type-display)',
-              fontWeight: 300,
-              color: 'var(--bone)',
-              margin: '0 0 28px',
-            }}
-          >
-            Entries sealed for the future.
-          </h1>
+          <RoomHeader eyebrow="time capsules" title="Entries sealed for the future." />
           <button
             onClick={() => setShowCreateModal(true)}
             style={{
