@@ -138,6 +138,35 @@ function drawText(
   return { y, overflow: [] };
 }
 
+/**
+ * The Heirloom mark, drawn as vector — eight bone filaments converging on one
+ * warm node. The smallest honest picture of the product: a family's many
+ * threads, held by one warm point. Mirrors the HLogo SVG used across the web
+ * app, so the printed book carries the same mark as every screen.
+ */
+function drawBrandMark(page: PDFPage, cx: number, cy: number, r: number): void {
+  const d = r * 0.7071; // 45° offset
+  const arms: [number, number, number, number][] = [
+    [cx - r, cy, cx + r, cy],         // horizontal
+    [cx, cy - r, cx, cy + r],         // vertical
+    [cx - d, cy - d, cx + d, cy + d], // diagonal ↘
+    [cx - d, cy + d, cx + d, cy - d], // diagonal ↗
+  ];
+  for (const [x1, y1, x2, y2] of arms) {
+    page.drawLine({
+      start: { x: x1, y: y1 },
+      end: { x: x2, y: y2 },
+      thickness: Math.max(0.6, r * 0.06),
+      color: BONE,
+      opacity: 0.5,
+      lineCap: 1, // round
+    });
+  }
+  // The one warm point — soft halo then core.
+  page.drawCircle({ x: cx, y: cy, size: r * 0.34, color: WARM, opacity: 0.22 });
+  page.drawCircle({ x: cx, y: cy, size: r * 0.16, color: WARM });
+}
+
 // ---------------------------------------------------------------------------
 // Page builders
 // ---------------------------------------------------------------------------
@@ -155,6 +184,9 @@ async function buildTitlePage(
 
   // Top warm rule
   page.drawRectangle({ x: MARGIN_X, y: H - 48, width: CONTENT_W, height: 1, color: WARM });
+
+  // The mark — eight filaments on one warm node, same as every screen.
+  drawBrandMark(page, W / 2, H - 110, 20);
 
   // Title — centered large
   const titleSize = 36;
@@ -367,19 +399,22 @@ async function buildCoverPdf(
   // Full-bleed ink ground.
   page.drawRectangle({ x: 0, y: 0, width: W, height: H, color: INK });
 
-  // ── Brand eyebrow ──────────────────────────────────────────────────────
+  // ── Brand mark + eyebrow ─────────────────────────────────────────────────
+  // The mark sits above the wordmark — same eight filaments and warm node as
+  // every screen, so the printed object is unmistakably the same product.
+  drawBrandMark(page, W / 2, H - 56, 13);
   const eyebrow = 'HEIRLOOM';
   const ebSize = 11;
   const ebW = mono.widthOfTextAtSize(eyebrow, ebSize);
-  page.drawText(eyebrow, { x: (W - ebW) / 2, y: H - 64, size: ebSize, font: mono, color: WARM });
-  page.drawRectangle({ x: W / 2 - 18, y: H - 80, width: 36, height: 1, color: WARM });
+  page.drawText(eyebrow, { x: (W - ebW) / 2, y: H - 88, size: ebSize, font: mono, color: WARM });
+  page.drawRectangle({ x: W / 2 - 18, y: H - 104, width: 36, height: 1, color: WARM });
 
   // ── The woven cloth panel ────────────────────────────────────────────────
   // One weft thread per entry, dyed by type. The panel sits in the upper
   // two-thirds; the title block reads beneath it on clean ink.
   const panelX = MARGIN_X;
   const panelW = CONTENT_W;
-  const panelTop = H - 104;
+  const panelTop = H - 128;
   const panelBottom = 296;
   const panelH = panelTop - panelBottom;
 
