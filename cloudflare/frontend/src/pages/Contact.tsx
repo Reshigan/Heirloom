@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
+import { RoomHeader } from '../loom/components/room';
 import { usePageMeta } from '../lib/usePageMeta';
 
 export function Contact() {
@@ -95,20 +96,14 @@ export function Contact() {
           </div>
         ) : (
           <>
-            <h1
-              className="hl-serif hl-tight"
-              style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 20px', color: 'var(--bone)' }}
-            >
-              Write to us.
-            </h1>
-            <p
-              className="hl-prose"
-              style={{ fontSize: 17, color: 'var(--bone-dim)', margin: '0 0 40px', lineHeight: 1.6 }}
-            >
-              We respond within two business days.
-            </p>
+            <RoomHeader
+              eyebrow="contact"
+              title="Write to us."
+              lede="We respond within two business days."
+              className="hl-room-header"
+            />
 
-            <form onSubmit={handleSubmit} aria-label="Contact form" noValidate>
+            <form onSubmit={handleSubmit} aria-label="Contact form" noValidate style={{ marginTop: 40 }}>
               <div style={{ marginBottom: 18 }}>
                 <input
                   id="c-name"

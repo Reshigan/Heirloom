@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 import { UserMenu } from '../loom/components/Frame';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import api from '../services/api';
@@ -173,17 +174,13 @@ export function LegacyPlan() {
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
 
         {/* H1 */}
-        <h1
-          className="hl-serif hl-tight"
-          style={{
-            fontSize: 'var(--type-display)',
-            fontWeight: 300,
-            margin: '0 0 40px',
-            color: 'var(--bone)',
-          }}
-        >
-          The thread continues.
-        </h1>
+        <RoomHeader
+          eyebrow="legacy plan"
+          title="The thread continues."
+          lede="Name your successors, arm the check-in, and keep an exportable copy — so the bloodline outlives any one author."
+          className="hl-room-header"
+        />
+        <div style={{ height: 40 }} />
 
         {/* ── Section: Succession ─────────────────────────────────────────── */}
         <section

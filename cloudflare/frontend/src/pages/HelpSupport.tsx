@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
+import { RoomHeader } from '../loom/components/room';
 import { settingsApi } from '../services/api';
 
 /**
@@ -140,7 +141,13 @@ export function HelpSupport() {
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
 
         {/* ── In-system help ─────────────────────────────────────────────── */}
-        <div className="hl-eyebrow" style={{ marginBottom: 18 }}>
+        <RoomHeader
+          eyebrow="help & support"
+          title="The questions families ask first."
+          lede="Plain answers about the cloth, sealed letters, and inheritance — and an assistant for anything else."
+          className="hl-room-header"
+        />
+        <div className="hl-eyebrow" style={{ margin: '48px 0 18px' }}>
           the basics
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 56 }}>
