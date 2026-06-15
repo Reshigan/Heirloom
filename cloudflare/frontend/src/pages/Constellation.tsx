@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { CosmicHeader } from '../loom/cosmic/CosmicUI';
 import { useAuthStore } from '../stores/authStore';
 import { familyApi, threadsApi, memoriesApi } from '../services/api';
 import { dyeColor } from '../loom/dye';
@@ -107,14 +108,22 @@ export function Constellation() {
     }).catch(() => { setError(true); });
   }, [isAuthenticated, user?.id, user?.defaultThreadId]);
 
-  // Layout: kin sorted oldest → newest, the order they enter the bloodline.
+  // Layout: group kin into generation rows. No explicit generation field on
+  // the data, so we derive one — banding by birth into ~25-year cohorts gives a
+  // stable genealogical stack (root ancestor → descendants) that matches the
+  // cosmic-tree mockup. Sort oldest → newest first, then bucket by cohort.
   const ordered = [...kin].sort((a, b) => a.born - b.born);
-  const youName = kin.find(k => k.you)?.name.split(' ').slice(-1)[0] ?? '';
-  const familyName = kin.length > 0 && !kin.some(k => k.you)
-    ? 'Family Tree'
-    : kin.length > 0 && youName
-      ? `${youName} Line`
-      : 'Family Tree';
+  const thisYear = new Date().getFullYear();
+  const generations: KinEntry[][] = [];
+  if (ordered.length > 0) {
+    const base = ordered[0].born;
+    for (const k of ordered) {
+      const gen = Math.floor((k.born - base) / 25);
+      (generations[gen] ??= []).push(k);
+    }
+  }
+  // Collapse the sparse array (empty cohorts) into contiguous rows.
+  const rows = generations.filter(Boolean);
 
   return (
     <ClothShell
@@ -129,64 +138,21 @@ export function Constellation() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          padding: 'clamp(40px, 9vh, 96px) 24px clamp(40px, 8vh, 88px)',
         }}
       >
-        {/* Header — centered, type as hero, deep negative space above the line */}
-        <header
-          style={{
-            textAlign: 'center',
-            paddingTop: 'clamp(40px, 9vh, 96px)',
-            paddingBottom: 'clamp(36px, 7vh, 72px)',
-          }}
-        >
-          <div
-            className="loom-mono"
-            style={{
-              fontSize: 9,
-              letterSpacing: '0.42em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
-            }}
-          >
-            the bloodline
-          </div>
-          <h1
-            style={{
-              fontFamily: 'var(--serif)',
-              fontVariationSettings: "'opsz' 40",
-              fontWeight: 300,
-              fontSize: 'clamp(34px, 5.4vw, 52px)',
-              letterSpacing: '-0.018em',
-              color: 'var(--bone)',
-              margin: '14px 0 0',
-              lineHeight: 1.04,
-            }}
-          >
-            {familyName}
-          </h1>
-          <div
-            className="loom-mono"
-            style={{
-              fontSize: 9,
-              letterSpacing: '0.3em',
-              color: 'var(--warm)',
-              marginTop: 16,
-            }}
-          >
-            ∞
-          </div>
-        </header>
+        <CosmicHeader eyebrow="THE BLOODLINE" title="Family Tree" />
 
-        {/* The tree — a single centered column of kin joined by hairline threads */}
+        {/* The tree — generation rows stacked vertically, joined by hairline
+            CSS-border connectors. Siblings sit side-by-side in a row; a centered
+            vertical rule descends from each generation into the next. */}
         <div
           style={{
-            flex: '1 0 auto',
             width: '100%',
-            maxWidth: 560,
+            maxWidth: 720,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            paddingBottom: 'clamp(40px, 8vh, 88px)',
           }}
         >
           {!error && kin.length === 0 ? (
@@ -224,18 +190,11 @@ export function Constellation() {
               </Link>
             </div>
           ) : (
-            ordered.map((k, i) => {
-              const idx = kin.indexOf(k);
-              const isLit = hovered === idx || k.you;
-              const nameColor = k.you
-                ? 'var(--warm)'
-                : isLit
-                  ? 'var(--bone)'
-                  : 'var(--bone-dim)';
-              const dye = k.you ? 'var(--warm)' : dyeColor(k.id);
+            rows.map((row, rowIdx) => {
+              const rowLit = row.some(k => hovered === kin.indexOf(k) || k.you);
               return (
                 <div
-                  key={k.id}
+                  key={rowIdx}
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -243,80 +202,120 @@ export function Constellation() {
                     width: '100%',
                   }}
                 >
-                  {/* hairline connector descending into this node */}
-                  {i > 0 && (
+                  {/* vertical connector descending from the prior generation */}
+                  {rowIdx > 0 && (
                     <div
                       aria-hidden
                       style={{
-                        width: 1,
-                        height: 'clamp(22px, 3.4vh, 38px)',
-                        background: isLit ? 'var(--warm-dim)' : 'var(--rule)',
-                        transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
+                        width: 0,
+                        height: 'clamp(26px, 4vh, 44px)',
+                        borderLeft: '1px solid',
+                        borderColor: rowLit ? 'var(--warm-dim)' : 'var(--rule)',
+                        transition: 'border-color 360ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     />
                   )}
 
-                  {/* node — dye point + serif name + mono lifespan, no avatar */}
-                  <div
-                    tabIndex={0}
-                    role="img"
-                    aria-label={`${k.name}, born ${k.born}${k.died ? `, died ${k.died}` : ', living'}`}
-                    onMouseEnter={() => setHovered(idx)}
-                    onMouseLeave={() => setHovered(null)}
-                    onFocus={() => setHovered(idx)}
-                    onBlur={() => setHovered(null)}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: 6,
-                      cursor: 'default',
-                      padding: '4px 0',
-                    }}
-                  >
-                    {/* the dye point — the member's identity signal */}
-                    <span
+                  {/* horizontal sibling rule — spans the row when >1 member */}
+                  {rowIdx > 0 && row.length > 1 && (
+                    <div
                       aria-hidden
                       style={{
-                        width: 5,
-                        height: 5,
-                        borderRadius: 0,
-                        background: dye,
-                        transform: 'rotate(45deg)',
-                        opacity: isLit ? 1 : 0.7,
-                        transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
+                        width: 'min(86%, 460px)',
+                        height: 0,
+                        borderTop: '1px solid var(--rule)',
+                        marginBottom: 'clamp(14px, 2vh, 22px)',
                       }}
                     />
-                    <span
-                      style={{
-                        fontFamily: 'var(--serif)',
-                        fontVariationSettings: "'opsz' 28",
-                        fontSize: 17,
-                        fontWeight: 400,
-                        fontStyle: k.you ? 'italic' : 'normal',
-                        letterSpacing: '0.01em',
-                        color: nameColor,
-                        transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {k.name}
-                    </span>
-                    <span
-                      className="loom-mono"
-                      style={{
-                        fontSize: 8.5,
-                        letterSpacing: '0.18em',
-                        color: 'var(--bone-faint)',
-                      }}
-                    >
-                      {k.born} — {k.died ?? '∞'}
-                      {k.picks.length > 0 && (
-                        <span style={{ color: 'var(--warm-dim)', marginLeft: 8 }}>
-                          ∞ {k.picks.length}
-                        </span>
-                      )}
-                    </span>
+                  )}
+
+                  {/* the generation row — siblings side by side */}
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      justifyContent: 'center',
+                      alignItems: 'flex-start',
+                      gap: 'clamp(28px, 6vw, 64px)',
+                      width: '100%',
+                    }}
+                  >
+                    {row.map(k => {
+                      const idx = kin.indexOf(k);
+                      const isLit = hovered === idx || k.you;
+                      const nameColor = k.you
+                        ? 'var(--warm)'
+                        : isLit
+                          ? 'var(--bone)'
+                          : 'var(--bone-dim)';
+                      const dye = k.you ? 'var(--warm)' : dyeColor(k.id);
+                      const age = (k.died ?? thisYear) - k.born;
+                      return (
+                        <div
+                          key={k.id}
+                          tabIndex={0}
+                          role="img"
+                          aria-label={`${k.name}, born ${k.born}${k.died ? `, died ${k.died}` : ', living'}`}
+                          onMouseEnter={() => setHovered(idx)}
+                          onMouseLeave={() => setHovered(null)}
+                          onFocus={() => setHovered(idx)}
+                          onBlur={() => setHovered(null)}
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 6,
+                            cursor: 'default',
+                            padding: '4px 0',
+                          }}
+                        >
+                          {/* the dye point — the member's identity signal */}
+                          <span
+                            aria-hidden
+                            style={{
+                              width: 5,
+                              height: 5,
+                              borderRadius: 0,
+                              background: dye,
+                              transform: 'rotate(45deg)',
+                              opacity: isLit ? 1 : 0.7,
+                              transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
+                            }}
+                          />
+                          <span
+                            style={{
+                              fontFamily: 'var(--serif)',
+                              fontVariationSettings: "'opsz' 28",
+                              fontSize: 17,
+                              fontWeight: 400,
+                              fontStyle: k.you ? 'italic' : 'normal',
+                              letterSpacing: '0.01em',
+                              color: nameColor,
+                              transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
+                              whiteSpace: 'nowrap',
+                              textAlign: 'center',
+                            }}
+                          >
+                            {k.name}
+                          </span>
+                          <span
+                            className="loom-mono"
+                            style={{
+                              fontSize: 8.5,
+                              letterSpacing: '0.18em',
+                              color: 'var(--bone-faint)',
+                            }}
+                          >
+                            {k.died ? `${k.born} — ${k.died}` : `AGE ${age}`}
+                            {k.picks.length > 0 && (
+                              <span style={{ color: 'var(--warm-dim)', marginLeft: 8 }}>
+                                ∞ {k.picks.length}
+                              </span>
+                            )}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );
@@ -330,70 +329,33 @@ export function Constellation() {
               color: 'var(--danger)',
               fontFamily: 'var(--mono)',
               fontSize: 12,
-              margin: '0 0 24px',
+              margin: '24px 0 0',
             }}
           >
             could not load constellation
           </p>
         )}
 
-        {/* Footer — quiet legend + resonance count, hairline rule above */}
+        {/* quiet resonance count — the only footer line, no legend chrome */}
         {kin.length > 0 && (
-          <footer
+          <div
+            className="loom-mono"
             style={{
-              width: '100%',
-              maxWidth: 720,
-              display: 'flex',
-              gap: 28,
-              flexWrap: 'wrap',
-              alignItems: 'baseline',
-              justifyContent: 'center',
-              padding: '22px 24px clamp(28px, 6vh, 56px)',
-              borderTop: '1px solid var(--rule)',
+              fontSize: 10,
+              letterSpacing: '0.1em',
+              color: 'var(--bone-faint)',
+              marginTop: 'clamp(40px, 8vh, 80px)',
             }}
           >
-            <LegendItem swatch="var(--warm)" label="you" italic />
-            <LegendItem swatch="var(--bone-dim)" label="kin" />
-            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>
-              <span style={{ color: 'var(--warm)' }}>∞</span>
-              <span style={{ marginLeft: 8 }}>
-                {resonances.length > 0
-                  ? `${resonances.length} resonance${resonances.length !== 1 ? 's' : ''} found`
-                  : 'no resonances yet'}
-              </span>
+            <span style={{ color: 'var(--warm)' }}>∞</span>
+            <span style={{ marginLeft: 8 }}>
+              {resonances.length > 0
+                ? `${resonances.length} resonance${resonances.length !== 1 ? 's' : ''} found`
+                : 'no resonances yet'}
             </span>
-          </footer>
+          </div>
         )}
       </div>
     </ClothShell>
-  );
-}
-
-function LegendItem({
-  swatch,
-  label,
-  italic,
-}: {
-  swatch: string;
-  label: string;
-  italic?: boolean;
-}) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-      <span
-        aria-hidden
-        style={{ width: 5, height: 5, background: swatch, transform: 'rotate(45deg)' }}
-      />
-      <span
-        className="loom-serif"
-        style={{
-          fontSize: 12,
-          color: 'var(--bone-dim)',
-          fontStyle: italic ? 'italic' : 'normal',
-        }}
-      >
-        {label}
-      </span>
-    </div>
   );
 }
