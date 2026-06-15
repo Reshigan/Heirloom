@@ -47,7 +47,6 @@ export async function checkPermissions(): Promise<'prompt' | 'granted' | 'denied
 
 export async function requestPermissions(): Promise<boolean> {
   if (!isPushSupported()) {
-    console.log('Push notifications not supported on this platform');
     return false;
   }
   
@@ -63,13 +62,11 @@ export async function requestPermissions(): Promise<boolean> {
 
 export async function registerForPushNotifications(): Promise<boolean> {
   if (!isPushSupported()) {
-    console.log('Push notifications not supported on this platform');
     return false;
   }
-  
+
   const hasPermission = await requestPermissions();
   if (!hasPermission) {
-    console.log('Push notification permission denied');
     return false;
   }
   
@@ -103,7 +100,6 @@ export function setupPushNotificationListeners(): void {
   }
   
   PushNotifications.addListener('registration', async (token: Token) => {
-    console.log('Push registration success, token:', token.value);
     state.token = token.value;
     state.isRegistered = true;
     
@@ -115,7 +111,6 @@ export function setupPushNotificationListeners(): void {
         deviceName: `${platform} device`,
         appVersion: '1.1.0',
       });
-      console.log('Device token registered with server');
     } catch (error) {
       console.error('Failed to register device token with server:', error);
     }
@@ -127,14 +122,12 @@ export function setupPushNotificationListeners(): void {
   });
   
   PushNotifications.addListener('pushNotificationReceived', (notification: PushNotificationSchema) => {
-    console.log('Push notification received:', notification);
     if (notificationReceivedHandler) {
       notificationReceivedHandler(notification);
     }
   });
   
   PushNotifications.addListener('pushNotificationActionPerformed', (action: ActionPerformed) => {
-    console.log('Push notification action performed:', action);
     if (notificationActionHandler) {
       notificationActionHandler(action);
     }
@@ -242,7 +235,6 @@ export function getState(): PushNotificationState {
 
 export async function initializePushNotifications(): Promise<void> {
   if (!isPushSupported()) {
-    console.log('Push notifications not supported on this platform');
     return;
   }
   
