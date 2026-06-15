@@ -9,9 +9,10 @@ import { ViewToggle } from '../loom/components/ViewToggle';
 import { EmptyThread } from '../loom/components/EmptyThread';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { WeftCentury } from '../loom/components/WeftCentury';
+import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { memoriesApi, lettersApi, voiceApi, threadsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
-import { dyeFromMetadata, dyeVar, dyeColor } from '../loom/dye';
+import { dyeFromMetadata } from '../loom/dye';
 
 /**
  * Screen 02 — The Weft
@@ -87,7 +88,7 @@ function toEntries(
 }
 
 export function Weft() {
-  const [mode, setMode] = useState<WeftMode>('century');
+  const [mode, setMode] = useState<WeftMode>('pull');
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -216,7 +217,8 @@ export function Weft() {
     );
   }
 
-  // Threads mode — "The Thread": the recently woven list (mockup layout).
+  // Threads mode — "The Thread": the recently woven list (cosmic-thread mockup).
+  // One chronological list, newest first, of every woven pick across feeds.
   const recent = [...allEntries].reverse();
 
   return (
@@ -242,130 +244,34 @@ export function Weft() {
           padding: '64px 24px 96px',
         }}
       >
-        <div style={{ width: '100%', maxWidth: 520 }}>
-          {/* Header — mono eyebrow + serif title */}
-          <header style={{ marginBottom: 56, textAlign: 'center' }}>
-            <p
-              style={{
-                fontFamily: 'var(--mono)',
-                fontSize: 10,
-                letterSpacing: '0.34em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
-                margin: 0,
-              }}
-            >
-              Recently Woven
-            </p>
-            <h1
-              style={{
-                fontFamily: 'var(--serif)',
-                fontWeight: 400,
-                fontSize: 42,
-                lineHeight: 1.1,
-                color: 'var(--bone)',
-                margin: '14px 0 0',
-              }}
-            >
-              The Thread
-            </h1>
-          </header>
+        <div style={{ width: '100%', maxWidth: 440 }}>
+          <CosmicHeader eyebrow="RECENTLY WOVEN" title="The Thread" />
 
-          {/* The woven entries — dye dot · italic-serif title · mono date */}
-          <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {recent.map((entry) => {
-              const dot = entry.dye
-                ? dyeVar(entry.dye)
-                : entry.id
-                ? dyeColor(entry.id)
-                : 'var(--bone-faint)';
-              return (
-                <li key={entry.id ?? `${entry.year}-${entry.month}-${entry.title}`}>
-                  <button
-                    type="button"
-                    onClick={() => handleSelectEntry(entry)}
-                    style={{
-                      width: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 16,
-                      padding: '18px 0',
-                      background: 'transparent',
-                      border: 'none',
-                      borderBottom: '1px solid var(--rule)',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'opacity 180ms var(--ease)',
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.opacity = '0.62'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}
-                  >
-                    <span
-                      aria-hidden
-                      style={{
-                        flex: '0 0 auto',
-                        width: 8,
-                        height: 8,
-                        borderRadius: '50%',
-                        background: dot,
-                      }}
-                    />
-                    <span
-                      style={{
-                        flex: 1,
-                        minWidth: 0,
-                        fontFamily: 'var(--serif)',
-                        fontStyle: 'italic',
-                        fontWeight: 400,
-                        fontSize: 19,
-                        lineHeight: 1.3,
-                        color: 'var(--bone)',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {entry.locked ? <span style={{ color: 'var(--warm)', marginRight: 6 }}>∞</span> : null}
-                      {entry.title || 'an entry'}
-                    </span>
-                    <span
-                      style={{
-                        flex: '0 0 auto',
-                        fontFamily: 'var(--mono)',
-                        fontSize: 10,
-                        letterSpacing: '0.16em',
-                        textTransform: 'uppercase',
-                        color: 'var(--bone-faint)',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {fmtRowDate(entry.date)}
-                    </span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+          {/* One date-sorted list — warm dot · italic-serif title · mono date sub. */}
+          <div>
+            {recent.map((entry) => (
+              <EntryRow
+                key={entry.id ?? `${entry.year}-${entry.month}-${entry.title}`}
+                italic
+                title={
+                  <>
+                    {entry.locked ? <span style={{ color: 'var(--warm)', marginRight: 6 }}>∞</span> : null}
+                    {entry.title || 'an entry'}
+                  </>
+                }
+                sub={
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                    {fmtRowDate(entry.date)}
+                  </span>
+                }
+                onClick={() => handleSelectEntry(entry)}
+              />
+            ))}
+          </div>
 
-          {/* Sealing-wax mark — the warm full-stop on the thread. */}
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 56 }}>
-            <button
-              type="button"
-              aria-label="weave a new entry"
-              onClick={() => navigate('/compose')}
-              style={{
-                width: 22,
-                height: 22,
-                borderRadius: '50%',
-                background: 'var(--warm)',
-                border: 'none',
-                boxShadow: '0 0 18px var(--warm-glow)',
-                cursor: 'pointer',
-                transition: 'transform 360ms var(--ease)',
-              }}
-              onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.12)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
-            />
+          {/* The ∞ wax seal — the warm full-stop on the thread. */}
+          <div style={{ marginTop: 40 }}>
+            <WaxSeal />
           </div>
         </div>
       </div>
