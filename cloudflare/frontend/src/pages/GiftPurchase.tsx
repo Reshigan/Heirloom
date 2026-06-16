@@ -563,7 +563,7 @@ export function GiftPurchase() {
               style={{
                 fontSize: 10,
                 letterSpacing: '0.12em',
-                color: 'var(--danger)',
+                color: 'var(--warm)',
                 marginTop: 12,
                 marginBottom: 0,
               }}

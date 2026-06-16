@@ -290,7 +290,7 @@ export function LegacyPlan() {
                   copy
                 </button>
                 {copyError && (
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--danger)', letterSpacing: '0.1em' }}>{copyError}</span>
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--warm)', letterSpacing: '0.1em' }}>{copyError}</span>
                 )}
               </div>
             )}
@@ -436,7 +436,7 @@ export function LegacyPlan() {
                               textTransform: 'uppercase',
                               transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
                             }}
-                            onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
+                            onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm)')}
                             onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
                           >
                             remove

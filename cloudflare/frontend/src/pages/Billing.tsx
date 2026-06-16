@@ -122,12 +122,12 @@ export function Billing() {
       <div style={{ maxWidth: '46rem', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
         {subscriptionError && (
-          <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--danger)', letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+          <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)', letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 16px' }}>
             could not load subscription — try refreshing
           </p>
         )}
         {billingError && (
-          <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--danger)', letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+          <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)', letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 16px' }}>
             {billingError}
           </p>
         )}
