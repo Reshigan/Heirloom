@@ -483,6 +483,7 @@ export function ReadingRoom() {
   const handleSelect = (i: number) => {
     if (i === active) return;
     setNavOpen(false);
+    setSelvedgeOpen(false);
     setClothOpen(false);
     setTimeout(() => { setActive(i); setClothOpen(true); }, 380);
   };
@@ -654,6 +655,21 @@ export function ReadingRoom() {
         </button>
       )}
       <style>{`.selvedge-toggle { display: none !important; } @media (max-width: 640px) { .selvedge-toggle { display: block !important; } .reading-topmeta { display: none !important; } }`}</style>
+
+      {/* Backdrop scrim for the mobile selvedge drawer. The drawer only
+          covers the left 260px of a phone viewport, so without this the
+          ClothPage bled through the uncovered right half. Tap to close.
+          Gated on selvedgeOpen (toggle-only) so desktop hover stays scrimless. */}
+      {selvedgeOpen && (
+        <div
+          onClick={() => setSelvedgeOpen(false)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 14,
+            background: 'rgba(14,14,12,0.6)',
+            transition: `opacity 360ms ${EASE}`,
+          }}
+        />
+      )}
 
       {/* Layer 2: Selvedge nav */}
       {entries.length > 0 && (
