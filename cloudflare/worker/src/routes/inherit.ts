@@ -6,6 +6,7 @@
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { readDescription } from '../lib/legacyArchive';
+import { AI_TEXT_MODEL } from '../lib/aiModels';
 
 export const inheritRoutes = new Hono<AppEnv>();
 
@@ -377,7 +378,7 @@ Important:
 - If you can't find relevant information, say so gently
 - Keep your answer concise but meaningful (2-4 sentences)`;
 
-    const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+    const response = await c.env.AI.run(AI_TEXT_MODEL, {
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: query }

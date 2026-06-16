@@ -5,6 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
+import { AI_TEXT_MODEL } from '../lib/aiModels';
 
 export const supportRoutes = new Hono<AppEnv>();
 
@@ -180,7 +181,7 @@ supportRoutes.post('/chat', async (c) => {
 
   let reply = '';
   try {
-    const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+    const response = await c.env.AI.run(AI_TEXT_MODEL, {
       messages: [
         { role: 'system', content: SUPPORT_SYSTEM_PROMPT },
         ...history.map((m) => ({ role: m.role, content: m.content.slice(0, 2000) })),

@@ -6,6 +6,7 @@
 import { Hono } from 'hono';
 import type { Env, Variables } from '../index';
 import { readDescription } from '../lib/legacyArchive';
+import { AI_TEXT_MODEL } from '../lib/aiModels';
 
 export const aiRoutes = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -154,7 +155,7 @@ Rules:
 ${personaLines ? `\n${personaLines}` : ''}
 ${existingContent ? `\nThe user has already captured memories about: ${existingContent.slice(0, 500)}. Generate something DIFFERENT.` : ''}`;
 
-    const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+    const response = await c.env.AI.run(AI_TEXT_MODEL, {
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: 'Generate one memory prompt.' }
@@ -280,7 +281,7 @@ async function generateAndCachePrompts(env: Env, count: number = 50): Promise<Ar
       const category = PROMPT_CATEGORIES[categoryIndex];
       
       try {
-        const response = await env.AI.run('@cf/meta/llama-3-8b-instruct', {
+        const response = await env.AI.run(AI_TEXT_MODEL, {
           messages: [
             { 
               role: 'system', 
@@ -428,7 +429,7 @@ ${hopes ? `Their hopes: ${hopes}` : ''}
 ${fears ? `Their fears: ${fears}` : ''}
 ${lovedOnes ? `People they love: ${lovedOnes}` : ''}`;
 
-    const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+    const response = await c.env.AI.run(AI_TEXT_MODEL, {
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: `Write a letter from 85-year-old ${firstName} to ${currentAge}-year-old ${firstName}.` }
@@ -701,7 +702,7 @@ Rules:
 ${existingContent ? `\nThey have already recorded content about: ${existingContent.slice(0, 300)}. Generate DIFFERENT prompts.` : ''}`;
 
       try {
-        const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+        const response = await c.env.AI.run(AI_TEXT_MODEL, {
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: `Generate 3 prompts for messages to ${name} (${relationship}).` }
@@ -800,7 +801,7 @@ aiRoutes.post('/suggest-dye', async (c) => {
     .join('\n');
 
   try {
-    const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+    const response = await c.env.AI.run(AI_TEXT_MODEL, {
       messages: [
         {
           role: 'system',
@@ -867,7 +868,7 @@ aiRoutes.post('/suggest-emotion', async (c) => {
   }
 
   try {
-    const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+    const response = await c.env.AI.run(AI_TEXT_MODEL, {
       messages: [
         {
           role: 'system',
@@ -949,7 +950,7 @@ Rules:
       'Generate one follow-up question.',
     ].filter(Boolean).join('\n');
 
-    const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+    const response = await c.env.AI.run(AI_TEXT_MODEL, {
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userContent },
@@ -1105,7 +1106,7 @@ aiRoutes.post('/refine', async (c) => {
     const instr = NUDGE_INSTRUCTIONS[nudge];
     if (!instr) return c.json({ error: 'Unknown nudge' }, 400);
     try {
-      const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+      const response = await c.env.AI.run(AI_TEXT_MODEL, {
         messages: [
           {
             role: 'system',
@@ -1126,7 +1127,7 @@ aiRoutes.post('/refine', async (c) => {
 
   const settled = await Promise.allSettled(
     REFINE_VARIANTS.map(async (v) => {
-      const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+      const response = await c.env.AI.run(AI_TEXT_MODEL, {
         messages: [
           {
             role: 'system',
@@ -1200,7 +1201,7 @@ aiRoutes.post('/on-this-day-narration', async (c) => {
   }).join('\n');
 
   try {
-    const response = await c.env.AI.run('@cf/meta/llama-3-8b-instruct', {
+    const response = await c.env.AI.run(AI_TEXT_MODEL, {
       messages: [
         {
           role: 'system',
