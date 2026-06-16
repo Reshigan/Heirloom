@@ -413,7 +413,7 @@ voiceRoutes.post('/', async (c) => {
     await c.env.DB.prepare(`
       INSERT INTO voice_recordings (id, user_id, title, description, file_url, file_key, duration, file_size, transcript, emotion, mutable_until, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(id, userId, title, description || null, fileUrl || null, fileKey || null, duration || null, fileSize || null, transcript || null, emotion || null, mutableUntil, createdAt, now).run();
+    `).bind(id, userId, title, description || null, fileUrl ?? '', fileKey ?? '', duration ?? 0, fileSize ?? 0, transcript || null, emotion || null, mutableUntil, createdAt, now).run();
 
   // Dual-write into the Family Thread.
   await mirrorIntoDefaultThread(c.env, userId, {
