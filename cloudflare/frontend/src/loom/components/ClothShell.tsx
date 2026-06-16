@@ -37,7 +37,7 @@ export function ClothShell({
             position: 'absolute', top: 0, left: 0, right: 0,
             height: 'calc(56px + env(safe-area-inset-top, 0px))',
             zIndex: 20,
-            display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
+            display: 'flex', alignItems: 'flex-end',
             padding: '0 24px',
             paddingTop: 'env(safe-area-inset-top, 0px)',
             // Floats over the filament web: a translucent ink scrim (no blur —
@@ -47,13 +47,20 @@ export function ClothShell({
             borderBottom: '1px solid var(--filament)',
           }}
         >
-          <div style={{ minWidth: 120 }}>
+          {/* Three collision-proof columns. The side columns share width
+              equally (flex 1 1 0) so the center title stays truly centered, and
+              both clip overflow (min-width:0 + overflow hidden) so a wide
+              breadcrumb can never collide with the title on a narrow PWA
+              viewport. The breadcrumb's last (current-page) crumb duplicates the
+              centered title, so when space is tight it clips first — leaving the
+              parent trail and the centered page name, no overlap, no info lost. */}
+          <div style={{ flex: '1 1 0', minWidth: 0, overflow: 'hidden' }}>
             {topbarLeft}
           </div>
-          <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textTransform: 'uppercase' }}>
+          <div style={{ flex: '0 1 auto', minWidth: 0, padding: '0 12px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textTransform: 'uppercase' }}>
             {topbarCenter}
           </div>
-          <div style={{ minWidth: 120, display: 'flex', justifyContent: 'flex-end' }}>
+          <div style={{ flex: '1 1 0', minWidth: 0, overflow: 'hidden', display: 'flex', justifyContent: 'flex-end' }}>
             {topbarRight}
           </div>
         </header>
