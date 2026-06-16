@@ -209,17 +209,34 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
       }
       return pts;
     }
+    // The Heirloom mark as light — a dense woven ∞ of fine crossing strands with
+    // a bright node where they all converge at centre. Matches the Higgsfield
+    // reference: not one bold loop but ~20 hair-thin lemniscates at jittered
+    // scale + phase, so additive blending builds the glow where strands cross
+    // and the bundle reads as woven, not drawn.
     function infinityPaths(rnd: () => number): { pts: number[][]; a: number; w: number }[] {
       const out: { pts: number[][]; a: number; w: number }[] = [];
       const cx = W / 2;
       const cy = H * 0.34;
-      const scale = Math.min(W * 0.3, H * 0.2);
-      const passes = 7;
+      const scale = Math.min(W * 0.32, H * 0.22);
+      const passes = 20;
       for (let i = 0; i < passes; i++) {
+        const t = i / (passes - 1);
+        // nested scales fan the bundle out; small rnd keeps each strand distinct
+        const mul = 0.8 + t * 0.4 + (rnd() - 0.5) * 0.04;
         out.push({
-          pts: lemniscate(cx, cy, scale * (0.86 + i * 0.045), 2 + rnd() * 3, rnd() * Math.PI * 2),
-          a: 0.2 + (i / passes) * 0.45,
-          w: 0.7 + rnd() * 0.9,
+          pts: lemniscate(cx, cy, scale * mul, 1.4 + rnd() * 3.2, rnd() * Math.PI * 2),
+          // faint per-strand — the crossing density carries the brightness
+          a: 0.1 + (1 - Math.abs(t - 0.5) * 2) * 0.16,
+          w: 0.5 + rnd() * 0.7,
+        });
+      }
+      // two tight bright inner loops anchor the centre node as a hard knot of light
+      for (let i = 0; i < 2; i++) {
+        out.push({
+          pts: lemniscate(cx, cy, scale * (0.7 + i * 0.05), 0.6, rnd() * Math.PI * 2),
+          a: 0.4,
+          w: 0.6 + i * 0.3,
         });
       }
       return out;
@@ -268,30 +285,46 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
       return out;
     }
 
-    // A centred glowing audio waveform — symmetric mirrored bars woven from a
-    // soft envelope, brightest at the middle. Voice / record / interview rooms.
+    // A centred glowing audio waveform — symmetric mirrored bars under a
+    // multi-lobe speech envelope (clusters that swell and ebb like a spoken
+    // sentence), riding a bright baseline. Voice / record / interview rooms.
+    // Encoded from the Higgsfield reference render.
     function waveformPaths(rnd: () => number): { pts: number[][]; a: number; w: number }[] {
       const out: { pts: number[][]; a: number; w: number }[] = [];
       const cy = H * 0.42;
-      const span = Math.min(W * 0.78, 720);
+      const span = Math.min(W * 0.82, 760);
       const x0 = (W - span) / 2;
-      const bars = 56;
-      const seedAmps = Array.from({ length: bars }, (_, i) => {
-        const t = i / (bars - 1);
-        const env = Math.sin(t * Math.PI); // taper at the ends
-        return env * (0.18 + 0.82 * Math.abs(Math.sin(i * 1.7 + rnd() * 6) * Math.cos(i * 0.6)));
-      });
-      const maxH = H * 0.15;
+      const bars = 74;
+      // a spoken sentence: several amplitude lobes, tallest near the middle,
+      // tapering smoothly to silence at both ends.
+      const lobes = [
+        { c: 0.16, w: 0.085, h: 0.5 },
+        { c: 0.31, w: 0.06, h: 0.72 },
+        { c: 0.43, w: 0.05, h: 0.92 },
+        { c: 0.5, w: 0.085, h: 1.0 },
+        { c: 0.59, w: 0.05, h: 0.86 },
+        { c: 0.71, w: 0.065, h: 0.66 },
+        { c: 0.85, w: 0.08, h: 0.46 },
+      ];
+      const taper = (t: number) => Math.pow(Math.sin(Math.min(1, Math.max(0, t)) * Math.PI), 0.55);
+      const env = (t: number) => {
+        let s = 0;
+        for (const l of lobes) s += l.h * Math.exp(-((t - l.c) * (t - l.c)) / (2 * l.w * l.w));
+        return Math.min(1, s) * taper(t);
+      };
+      const maxH = H * 0.16;
       for (let i = 0; i < bars; i++) {
-        const x = x0 + (i / (bars - 1)) * span;
-        const h = maxH * seedAmps[i];
-        // each bar is a tiny vertical filament mirrored around the baseline
-        out.push({ pts: [[x, cy - h], [x, cy + h]], a: 0.22 + seedAmps[i] * 0.5, w: 1.1 + seedAmps[i] * 1.4 });
+        const t = i / (bars - 1);
+        const x = x0 + t * span;
+        // fine per-bar grain so neighbouring bars differ like real samples
+        const grain = 0.62 + 0.38 * Math.abs(Math.sin(i * 1.9 + rnd() * 6) * Math.cos(i * 0.7 + rnd()));
+        const h = Math.max(1.5, maxH * env(t) * grain);
+        out.push({ pts: [[x, cy - h], [x, cy + h]], a: 0.24 + env(t) * 0.5, w: 1.0 + env(t) * 1.3 });
       }
-      // a faint baseline thread the bars sit on
+      // bright baseline thread the bars stand on, brightest through the middle
       const base: number[][] = [];
-      for (let x = x0 - 10; x <= x0 + span + 10; x += 8) base.push([x, cy + Math.sin(x * 0.02) * 1.5]);
-      out.push({ pts: base, a: 0.16, w: 0.7 });
+      for (let x = x0 - 12; x <= x0 + span + 12; x += 7) base.push([x, cy]);
+      out.push({ pts: base, a: 0.42, w: 1.1 });
       return out;
     }
 
