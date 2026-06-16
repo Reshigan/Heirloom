@@ -52,9 +52,10 @@ const MemoryRoom = lazy(() => import('./pages/MemoryRoom').then(m => ({ default:
 const StoryView = lazy(() => import('./pages/StoryView').then(m => ({ default: m.StoryView })));
 const PersonPage = lazy(() => import('./pages/PersonPage').then(m => ({ default: m.PersonPage })));
 const QuickWizard = lazy(() => import('./pages/QuickWizard').then(m => ({ default: m.QuickWizard })));
-const Streaks = lazy(() => import('./pages/Streaks').then(m => ({ default: m.Streaks })));
+// Streaks + Referrals — RETIRED from the live surface (no reference screen in the
+// golive set). Page files (pages/Streaks.tsx, pages/Referrals.tsx) and their api.ts
+// methods are kept dormant for a clean revival; only the routes are removed.
 const Challenges = lazy(() => import('./pages/Challenges').then(m => ({ default: m.Challenges })));
-const Referrals = lazy(() => import('./pages/Referrals').then(m => ({ default: m.Referrals })));
 const GiftSubscriptions = lazy(() => import('./pages/GiftSubscriptions').then(m => ({ default: m.GiftSubscriptions })));
 const Memorials = lazy(() => import('./pages/Memorials').then(m => ({ default: m.Memorials })));
 const MemorialPublic = lazy(() => import('./pages/MemorialPublic').then(m => ({ default: m.MemorialPublic })));
@@ -110,7 +111,6 @@ const LoomThreshold = lazy(() => import('./pages/Threshold').then(m => ({ defaul
 const LoomWeft = lazy(() => import('./pages/Weft').then(m => ({ default: m.Weft })));
 const LoomTiedOff = lazy(() => import('./pages/TiedOff').then(m => ({ default: m.TiedOff })));
 const LoomUnlock = lazy(() => import('./pages/Unlock').then(m => ({ default: m.Unlock })));
-const LoomEcho = lazy(() => import('./pages/Echo').then(m => ({ default: m.Echo })));
 const LoomReadingRoom = lazy(() => import('./pages/ReadingRoom').then(m => ({ default: m.ReadingRoom })));
 const LoomConstellation = lazy(() => import('./pages/Constellation').then(m => ({ default: m.Constellation })));
 const LoomMarketing = lazy(() => import('./pages/Marketing').then(m => ({ default: m.Marketing })));
@@ -503,28 +503,12 @@ export default function App() {
                                                                                                                                                                   }
                                                                                                                                                                 />
 
-                                                                                                    {/* Q4 2025 Features */}
-                                                                                                    <Route
-                                                                                                      path="/streaks"
-                                                                                                      element={
-                                                                                                        <ProtectedRoute>
-                                                                                                          <Streaks />
-                                                                                                        </ProtectedRoute>
-                                                                                                      }
-                                                                                                    />
+                                                                                                    {/* Q4 2025 Features ( /streaks + /referrals retired — no golive screen ) */}
                                                                                                     <Route
                                                                                                       path="/challenges"
                                                                                                       element={
                                                                                                         <ProtectedRoute>
                                                                                                           <Challenges />
-                                                                                                        </ProtectedRoute>
-                                                                                                      }
-                                                                                                    />
-                                                                                                    <Route
-                                                                                                      path="/referrals"
-                                                                                                      element={
-                                                                                                        <ProtectedRoute>
-                                                                                                          <Referrals />
                                                                                                         </ProtectedRoute>
                                                                                                       }
                                                                                                     />
@@ -595,7 +579,6 @@ export default function App() {
           <Route path="/loom/compose" element={<Navigate to="/compose" replace />} />
           <Route path="/loom/tied" element={<ProtectedRoute><LoomTiedOff /></ProtectedRoute>} />
           <Route path="/loom/unlock" element={<ProtectedRoute><LoomUnlock /></ProtectedRoute>} />
-          <Route path="/loom/echo" element={<ProtectedRoute><LoomEcho /></ProtectedRoute>} />
           <Route path="/loom/read" element={<ProtectedRoute><LoomReadingRoom /></ProtectedRoute>} />
           <Route path="/loom/kin" element={<ProtectedRoute><LoomConstellation /></ProtectedRoute>} />
           <Route path="/loom/marketing" element={<LoomMarketing />} />
