@@ -203,7 +203,9 @@ function ReadingContent({
       position: 'absolute', inset: 0,
       overflowY: 'auto',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
-      padding: 'clamp(72px, 14vh, 132px) 28px 56px',
+      // Bottom padding must clear the global BottomNav (76px + safe-area) so the
+      // in-page time pager never renders behind the tab bar (the ghost-pager bug).
+      padding: 'clamp(72px, 14vh, 132px) 28px calc(104px + env(safe-area-inset-bottom, 0px))',
     }}>
       {/* Reading column — a left dye thread runs its full height; prose clears it */}
       <div style={{
@@ -526,7 +528,7 @@ export function ReadingRoom() {
       }}>
         <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'reading' }]} />
 
-        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span className="reading-topmeta" style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
           <span style={{ fontFamily: 'var(--serif)', fontWeight: 300, fontSize: 15 }}>∞</span>
           {t ? (
             <>
@@ -642,7 +644,7 @@ export function ReadingRoom() {
       >
         entries
       </button>
-      <style>{`.selvedge-toggle { display: none !important; } @media (max-width: 640px) { .selvedge-toggle { display: block !important; } }`}</style>
+      <style>{`.selvedge-toggle { display: none !important; } @media (max-width: 640px) { .selvedge-toggle { display: block !important; } .reading-topmeta { display: none !important; } }`}</style>
 
       {/* Layer 2: Selvedge nav */}
       <div

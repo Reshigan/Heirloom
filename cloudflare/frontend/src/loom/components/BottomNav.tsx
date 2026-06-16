@@ -51,7 +51,9 @@ export function BottomNav() {
         right: 0,
         height: 'calc(76px + env(safe-area-inset-bottom, 0px))',
         zIndex: 30,
-        background: 'var(--ink-translucent)',
+        // Solid ink (not translucent) so scrolling content never bleeds through
+        // the bar and reads as a collision — and no glass/blur, per §2.6.
+        background: 'var(--ink)',
         backdropFilter: 'none',
         borderTop: '1px solid var(--rule)',
         display: 'flex',

@@ -155,6 +155,16 @@ const RESPONSIVE_CSS = `
   padding: 2px 0 4px;
 }
 
+/* Email/long-string ledger value: allow the column to shrink so the value
+   truncates with an ellipsis instead of overflowing the viewport. */
+.hl-ledgerrow-value--free { white-space: normal; flex-shrink: 1; min-width: 0; }
+
+/* Date field — suppress the UA calendar-picker glyph (no non-Heirloom icons,
+   §2.6); the field still opens the native picker on click via showPicker(). */
+.hl-datefield::-webkit-calendar-picker-indicator { display: none; -webkit-appearance: none; }
+.hl-datefield::-webkit-inner-spin-button { display: none; }
+.hl-datefield::-webkit-clear-button { display: none; }
+
 .hl-signout {
   display: block;
   margin: 56px auto 40px;
@@ -198,14 +208,14 @@ function StateToggle({ checked, onChange, ariaLabel }: { checked: boolean; onCha
  * `hint` sets an italic serif sub-line under the label; `value` is the right
  * column (a static mono string, a warm action, a toggle — anything).
  */
-function LedgerRow({ label, hint, value }: { label: React.ReactNode; hint?: React.ReactNode; value: React.ReactNode }) {
+function LedgerRow({ label, hint, value, valueClassName }: { label: React.ReactNode; hint?: React.ReactNode; value: React.ReactNode; valueClassName?: string }) {
   return (
     <div className="hl-ledgerrow">
       <span className="hl-ledgerrow-label">
         {label}
         {hint && <span className="hl-ledgerrow-hint">{hint}</span>}
       </span>
-      <span className="hl-ledgerrow-value">{value}</span>
+      <span className={valueClassName ? `hl-ledgerrow-value ${valueClassName}` : 'hl-ledgerrow-value'}>{value}</span>
     </div>
   );
 }
@@ -417,10 +427,12 @@ export function Settings() {
             <div className="hl-field-label">date of birth</div>
             <input
               type="date"
+              className="hl-datefield"
               aria-label="Date of birth"
               value={birthDate}
               max={new Date().toISOString().slice(0, 10)}
               onChange={(e) => { setBirthDate(e.target.value); setSavedFlash(false); }}
+              onClick={(e) => { try { (e.currentTarget as any).showPicker?.(); } catch {} }}
               style={{ ...FIELD_INPUT_STYLE, colorScheme: 'dark' }}
             />
           </div>
@@ -454,11 +466,12 @@ export function Settings() {
             <LedgerRow
               label="Email"
               hint="primary identifier"
+              valueClassName="hl-ledgerrow-value--free"
               value={
-                <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 16 }}>
-                  <span className="hl-wordvalue">{user?.email ?? '—'}</span>
-                  <button type="button" className="hl-wordaction hl-wordaction--warm" onClick={() => { setEmailStage('form'); setEmailFlash(false); }}>Change</button>
-                  {emailFlash && <span className="hl-wordvalue" style={{ color: 'var(--warm)' }}>∞ updated</span>}
+                <span style={{ display: 'flex', alignItems: 'baseline', gap: 16, minWidth: 0, maxWidth: '100%' }}>
+                  <span className="hl-wordvalue" title={user?.email ?? undefined} style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email ?? '—'}</span>
+                  <button type="button" className="hl-wordaction hl-wordaction--warm" style={{ flexShrink: 0 }} onClick={() => { setEmailStage('form'); setEmailFlash(false); }}>Change</button>
+                  {emailFlash && <span className="hl-wordvalue" style={{ color: 'var(--warm)', flexShrink: 0 }}>∞ updated</span>}
                 </span>
               }
             />

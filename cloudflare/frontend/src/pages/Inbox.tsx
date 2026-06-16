@@ -180,8 +180,9 @@ export function Inbox() {
             </>
           )}
 
-          {/* ── foot ── */}
-          {!loading && (
+          {/* ── foot ── (EmptyState carries its own seal, so skip it here to
+              avoid a stacked/duplicate ∞ in the empty body) */}
+          {!loading && !isEmpty && (
             <div style={{ marginTop: 80 }}>
               <WaxSeal size={28} />
             </div>
