@@ -639,11 +639,18 @@ memorialRoutes.post('/', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   const now = new Date().toISOString();
-  
+
+  // name is the only required field (mirrors the modal's submit guard).
+  const name = typeof body.name === 'string' ? body.name.trim() : '';
+  if (!name) return c.json({ error: 'A name is required.' }, 400);
+
   const id = crypto.randomUUID();
   const qrCode = `MEM-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
   const shortUrl = `hlm.blue/m/${qrCode}`;
-  
+
+  // D1 .bind() rejects `undefined` ("Type 'undefined' not supported") — the
+  // modal never sends familyMemberId and may omit optional fields, so coerce
+  // every nullable column to `null`. Empty strings stay as-is (valid TEXT).
   await c.env.DB.prepare(`
     INSERT INTO qr_memorial_codes (
       id, user_id, family_member_id, memorial_name, memorial_description,
@@ -651,9 +658,9 @@ memorialRoutes.post('/', async (c) => {
       location, epitaph, created_at, updated_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
-    id, userId, body.familyMemberId, body.name, body.description,
+    id, userId, body.familyMemberId ?? null, name, body.description ?? null,
     qrCode, shortUrl, body.style || 'classic', body.isPublic ? 1 : 0,
-    body.birthDate, body.deathDate, body.location, body.epitaph, now, now
+    body.birthDate ?? null, body.deathDate ?? null, body.location ?? null, body.epitaph ?? null, now, now
   ).run();
   
   return c.json({
