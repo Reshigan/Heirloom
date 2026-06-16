@@ -291,7 +291,9 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
     // Encoded from the Higgsfield reference render.
     function waveformPaths(rnd: () => number): { pts: number[][]; a: number; w: number }[] {
       const out: { pts: number[][]; a: number; w: number }[] = [];
-      const cy = H * 0.42;
+      // ride the lower negative-space band, clear of the page's heading + CTA +
+      // body copy (which fill the top ~half) so the gesture stays backdrop.
+      const cy = H * 0.62;
       const span = Math.min(W * 0.82, 760);
       const x0 = (W - span) / 2;
       const bars = 74;
@@ -473,7 +475,7 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
           case 'wave':     return { cx: W / 2,        cy: H * 0.82, r: Math.min(W * 0.6, H * 0.45),  a: 0.09 };
           case 'scurve':   return { cx: W * 0.52,     cy: H * 0.5,  r: Math.max(W, H) * 0.5,         a: 0.05 };
           case 'tree':     return { cx: W / 2,        cy: H * 0.3,  r: Math.min(W * 0.5, H * 0.4),   a: 0.08 };
-          case 'waveform': return { cx: W / 2,        cy: H * 0.42, r: Math.min(W * 0.5, 380),       a: 0.15 };
+          case 'waveform': return { cx: W / 2,        cy: H * 0.62, r: Math.min(W * 0.5, 380),       a: 0.15 };
           case 'book':     return { cx: W / 2,        cy: H * 0.46, r: Math.min(W * 0.45, 340),      a: 0.13 };
           case 'seal':     return { cx: W / 2,        cy: H * 0.4,  r: Math.min(W * 0.24, 170),      a: 0.2  };
           case 'map':      return { cx: W / 2,        cy: H * 0.45, r: Math.max(W, H) * 0.55,        a: 0.05 };
