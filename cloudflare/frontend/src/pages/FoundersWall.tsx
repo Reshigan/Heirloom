@@ -3,13 +3,16 @@ import { Link } from 'react-router-dom';
 import { foundersApi, type FounderCount } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 /**
- * FoundersWall — §Pass-3 moment 04 — Loom 3 rewrite.
+ * FoundersWall — §Pass-3 moment 04 — cosmic LEDGER re-skin.
  *
  * Marketing/public parchment surface. The backend exposes only a founder COUNT
  * (foundersApi.count). No roster endpoint exists — names will be published once
- * the successor non-profit is incorporated and pledges are confirmed.
+ * the successor non-profit is incorporated and pledges are confirmed. The page
+ * reads as the family's continuity record: a count eyebrow over a serif headline,
+ * the live figures as hairline-ruled ledger rows, then the ∞ wax seal at the foot.
  */
 
 // ── helpers ─────────────────────────────────────────────────────────────────
@@ -69,6 +72,25 @@ export function FoundersWall() {
         ? 'The record opens with no names — yet.'
         : `${cap(numberToWords(engraved))} ${engraved === 1 ? 'name' : 'names'}, so far.`;
 
+  // The live count, expressed as ledger rows — title (serif) left, figure (mono) right.
+  const ledger = [
+    {
+      title: 'Names engraved',
+      sub: engraved === null ? 'loading' : 'paid in full',
+      meta: engraved === null ? '—' : String(engraved),
+    },
+    {
+      title: 'Seats remaining',
+      sub: `of ${capValue}, ever`,
+      meta: remaining === null ? '—' : String(remaining),
+    },
+    {
+      title: 'The pledge',
+      sub: 'one-time · lifetime',
+      meta: `$${amount}`,
+    },
+  ];
+
   return (
     <ClothShell
       topbarLeft={<HLogo />}
@@ -76,297 +98,153 @@ export function FoundersWall() {
       topbarRight={<Link to="/founder">pledge →</Link>}
     >
       <div style={{ maxWidth: 700, margin: '0 auto', padding: 'clamp(24px,5vw,48px)' }}>
-        {/* ── hero ──────────────────────────────────────────────────────────── */}
-        <div
-          className="hl-eyebrow dark"
-          style={{ marginBottom: 18, color: 'var(--bone-faint)' }}
-        >
-          the continuity record · public
+        {/* ── ledger header ─────────────────────────────────────────────────── */}
+        <CosmicHeader
+          eyebrow={
+            engraved === null
+              ? 'the continuity record · public'
+              : `${engraved} engraved · ${remaining === null ? capValue : remaining} of ${capValue} remaining`
+          }
+          title={headline}
+          sub={
+            <>
+              Founders pay ${amount} once. The money funds the successor non-profit. The name is
+              engraved in the continuity record — the only public list this product ever keeps.
+              Read in 2076, and read in 2176.
+            </>
+          }
+        />
+
+        {/* ── the record ──────────────────────────────────────────────────────── */}
+        <SectionLabel>the record</SectionLabel>
+
+        {ledger.map((row) => (
+          <EntryRow key={row.title} title={row.title} sub={row.sub} meta={row.meta} />
+        ))}
+
+        {/* roster — waiting for confirmed pledges */}
+        <div style={{ padding: '44px 0 8px', textAlign: 'center' }}>
+          <p
+            style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 17,
+              fontStyle: 'italic',
+              color: 'var(--bone-dim)',
+              margin: 0,
+              lineHeight: 1.7,
+            }}
+          >
+            The first hundred families to begin their thread. Their names will
+            appear here when they do.
+          </p>
+          <p
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 10,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              marginTop: 14,
+            }}
+          >
+            The count above is live · the record opens when pledges are confirmed
+          </p>
         </div>
 
-        <h1
-          className="hl-serif hl-tight"
-          style={{
-            fontSize: 56,
-            fontWeight: 300,
-            margin: 0,
-            color: 'var(--bone)',
-            letterSpacing: '-0.022em',
-            maxWidth: '22ch',
-          }}
-        >
-          {headline}
-        </h1>
-
-        <p
-          className="hl-prose"
-          style={{
-            fontSize: 17,
-            color: 'var(--bone-dim)',
-            marginTop: 20,
-            maxWidth: '60ch',
-            lineHeight: 1.65,
-            fontWeight: 400,
-          }}
-        >
-          Founders pay ${amount} once. The money funds the successor non-profit. The name is
-          engraved in the continuity record — the only public list this product ever keeps.
-          Read in 2076, and read in 2176.
-        </p>
-
-        {/* live count strip */}
+        {/* roster note + CTA */}
         <div
           style={{
+            marginTop: 32,
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 140px), 1fr))',
-            justifyContent: 'start',
-            marginTop: 40,
-            border: '1px solid var(--rule)',
+            gridTemplateColumns: 'minmax(0, 1fr) auto',
+            gap: 56,
+            alignItems: 'flex-end',
+            borderTop: '1px solid var(--rule)',
+            paddingTop: 28,
           }}
         >
-          {[
-            {
-              label: 'names engraved',
-              value: engraved === null ? '—' : String(engraved),
-              sub:   engraved === null ? 'loading' : 'paid in full',
-            },
-            {
-              label: 'seats remaining',
-              value: remaining === null ? '—' : String(remaining),
-              sub:   `of ${capValue}, ever`,
-            },
-            {
-              label: 'the pledge',
-              value: `$${amount}`,
-              sub:   'one-time · lifetime',
-            },
-          ].map((s, i) => (
-            <div
-              key={s.label}
-              style={{
-                padding: '20px 28px',
-                borderRight: i < 2 ? '1px solid var(--rule)' : undefined,
-              }}
-            >
-              <div
-                className="hl-mono"
-                style={{
-                  fontSize: 9.5,
-                  color: 'var(--bone-faint)',
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                {s.label}
-              </div>
-              <div
-                className="hl-serif"
-                style={{
-                  fontSize: 40,
-                  fontWeight: 300,
-                  color: 'var(--bone)',
-                  letterSpacing: '-0.022em',
-                  marginTop: 10,
-                  lineHeight: 1,
-                }}
-              >
-                {s.value}
-              </div>
-              <div
-                className="hl-mono"
-                style={{
-                  fontSize: 10,
-                  color: 'var(--bone-dim)',
-                  marginTop: 8,
-                  letterSpacing: '0.06em',
-                }}
-              >
-                {s.sub}
-              </div>
-            </div>
-          ))}
+          <p
+            style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 14,
+              lineHeight: 1.7,
+              fontStyle: 'italic',
+              color: 'var(--bone-dim)',
+              maxWidth: '64ch',
+              margin: 0,
+              fontWeight: 400,
+            }}
+          >
+            The full roster is published only once the successor non-profit is incorporated, and
+            only with each family's consent — a name in a thousand-year record is not given
+            lightly. Until then, the count above is live and exact. There are{' '}
+            {remaining === null ? 'a limited number of' : remaining}{' '}
+            {remaining === 1 ? 'seat' : 'seats'} left.
+          </p>
+          <Link
+            to="/founder"
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.26em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
+              textDecoration: 'none',
+              whiteSpace: 'nowrap',
+              padding: '12px 0',
+            }}
+          >
+            put your name in the record →
+          </Link>
         </div>
 
-        {/* ── table ─────────────────────────────────────────────────────────── */}
-        <div style={{ marginTop: 28 }}>
+        {/* ── wax seal ──────────────────────────────────────────────────────── */}
+        <div style={{ marginTop: 56 }}>
+          <WaxSeal />
+        </div>
 
-          {/* column headers */}
-          <div
+        {/* footer */}
+        <div
+          style={{
+            borderTop: '1px solid var(--rule)',
+            marginTop: 40,
+            paddingTop: 24,
+            display: 'flex',
+            gap: 24,
+            alignItems: 'center',
+          }}
+        >
+          <span
             style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'baseline',
-              borderTop: '1px solid var(--rule)',
-              borderBottom: '1px solid var(--rule)',
-              padding: '14px 0',
+              fontFamily: 'var(--mono)',
+              fontSize: 10,
+              color: 'var(--bone-faint)',
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              marginRight: 'auto',
             }}
           >
-            <span
-              className="hl-mono"
-              style={{
-                width: 80,
-                fontSize: 10,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
-              }}
-            >
-              pledge
-            </span>
-            <span
-              className="hl-mono"
-              style={{
-                flex: 1,
-                paddingLeft: 24,
-                fontSize: 10,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
-              }}
-            >
-              name
-            </span>
-            <span
-              className="hl-mono"
-              style={{
-                width: 130,
-                fontSize: 10,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
-              }}
-            >
-              engraved
-            </span>
-            <span
-              className="hl-mono"
-              style={{
-                width: 200,
-                fontSize: 10,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
-                textAlign: 'right',
-              }}
-            >
-              origin
-            </span>
-          </div>
-
-          {/* rows — waiting for confirmed pledges */}
-          <div style={{ padding: '48px 0 32px', textAlign: 'center' }}>
-            <p
-              className="hl-serif"
-              style={{
-                fontSize: 17,
-                fontStyle: 'italic',
-                color: 'var(--bone-dim)',
-                margin: 0,
-                lineHeight: 1.7,
-              }}
-            >
-              The first hundred families to begin their thread. Their names will
-              appear here when they do.
-            </p>
-            <p
-              className="hl-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
-                marginTop: 14,
-              }}
-            >
-              The count above is live · the record opens when pledges are confirmed
-            </p>
-          </div>
-
-          {/* roster note + CTA */}
-          <div
-            style={{
-              marginTop: 40,
-              display: 'grid',
-              gridTemplateColumns: 'minmax(0, 1fr) auto',
-              gap: 56,
-              alignItems: 'flex-end',
-              borderTop: '1px solid var(--rule)',
-              paddingTop: 28,
-            }}
-          >
-            <p
-              className="hl-serif"
-              style={{
-                fontSize: 14,
-                lineHeight: 1.7,
-                fontStyle: 'italic',
-                color: 'var(--bone-dim)',
-                maxWidth: '64ch',
-                margin: 0,
-                fontWeight: 400,
-              }}
-            >
-              The full roster is published only once the successor non-profit is incorporated, and
-              only with each family's consent — a name in a thousand-year record is not given
-              lightly. Until then, the count above is live and exact. There are{' '}
-              {remaining === null ? 'a limited number of' : remaining}{' '}
-              {remaining === 1 ? 'seat' : 'seats'} left.
-            </p>
+            heirloom.blue · the family thread
+          </span>
+          {[
+            { to: '/',        label: 'home'   },
+            { to: '/founder', label: 'pledge' },
+          ].map(({ to, label }) => (
             <Link
-              to="/founder"
-              className="hl-btn"
+              key={to}
+              to={to}
               style={{
-                textDecoration: 'none',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              put your name in the record
-            </Link>
-          </div>
-
-          {/* footer */}
-          <div
-            style={{
-              borderTop: '1px solid var(--rule)',
-              marginTop: 56,
-              paddingTop: 24,
-              display: 'flex',
-              gap: 24,
-              alignItems: 'center',
-            }}
-          >
-            <span
-              className="hl-mono"
-              style={{
+                fontFamily: 'var(--mono)',
                 fontSize: 10,
                 color: 'var(--bone-faint)',
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
-                marginRight: 'auto',
+                textDecoration: 'none',
               }}
             >
-              heirloom.blue · the family thread
-            </span>
-            {[
-              { to: '/',         label: 'home'   },
-              { to: '/founder', label: 'pledge' },
-            ].map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                className="hl-mono"
-                style={{
-                  fontSize: 10,
-                  color: 'var(--bone-faint)',
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  textDecoration: 'none',
-                }}
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
+              {label}
+            </Link>
+          ))}
         </div>
       </div>
     </ClothShell>

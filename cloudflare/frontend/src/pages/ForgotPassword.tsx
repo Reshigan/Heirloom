@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 export function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -47,158 +47,237 @@ export function ForgotPassword() {
     <ClothShell
       topbarLeft={<HLogo />}
       topbarCenter="forgot password"
-      topbarRight={<Link to="/login" className="hl-mono" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>sign in →</Link>}
-    >
-      <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
-        <div
-          aria-hidden
-          className="hl-serif"
-          style={{ fontSize: 'clamp(40px, 6vw, 56px)', fontWeight: 200, color: 'var(--warm)', opacity: 0.7, lineHeight: 1, marginBottom: 30 }}
+      topbarRight={
+        <Link
+          to="/login"
+          style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 9,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+            textDecoration: 'none',
+          }}
         >
-          ∞
-        </div>
-        {success ? (
-          <div role="status">
-            <RoomHeader
-              eyebrow="reset"
-              title="Check your inbox."
-              lede={
-                <>
-                  If a thread exists for{' '}
-                  <span style={{ color: 'var(--warm)' }}>{email}</span>, a reset
-                  link will arrive shortly.
-                </>
-              }
-            />
-            <div style={{ marginBottom: 28 }} />
-
-            {resendFlash ? (
-              <p
-                className="hl-mono"
-                style={{
-                  fontSize: 10,
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  color: 'var(--warm)',
-                  margin: '0 0 16px',
-                }}
-              >
-                sent again
-              </p>
-            ) : (
-              <button
-                type="button"
-                onClick={handleResend}
-                disabled={isLoading}
-                className="hl-mono"
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  padding: 0,
-                  cursor: 'pointer',
-                  fontSize: 10,
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  color: 'var(--bone-faint)',
-                  display: 'block',
-                  marginBottom: 16,
-                  opacity: isLoading ? 0.5 : 1,
-                }}
-              >
-                didn't get it? resend →
-              </button>
-            )}
-
-            <Link
-              to="/login"
-              className="hl-mono"
-              style={{
-                display: 'inline-block',
-                marginTop: 0,
-                fontSize: 10,
-                letterSpacing: '0.32em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-dim)',
-                textDecoration: 'none',
-              }}
-            >
-              ← back to sign in
-            </Link>
-          </div>
-        ) : (
-          <>
-            <RoomHeader
-              eyebrow="reset"
-              title="Reset your password."
-              lede="We'll email you a reset link."
-            />
-            <div style={{ marginBottom: 28 }} />
-
-            <form onSubmit={handleSubmit}>
-              <label
-                htmlFor="fp-email"
-                className="hl-mono"
-                style={{ display: 'block', marginBottom: 4, fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
-              >
-                email
-              </label>
-              <input
-                id="fp-email"
-                type="email"
-                required
-                autoComplete="email"
-                placeholder="your@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="hl-input"
-                style={{ marginBottom: 24 }}
+          sign in →
+        </Link>
+      }
+    >
+      {/* FORM archetype: centered column, vast air, underline-only inputs */}
+      <div
+        style={{
+          minHeight: '70vh',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '60px 24px 120px',
+        }}
+      >
+        <div style={{ width: '100%', maxWidth: 360 }}>
+          {success ? (
+            /* ── Success branch ── */
+            <div role="status" style={{ textAlign: 'center' }}>
+              <CosmicHeader
+                eyebrow="reset link sent"
+                title="Check your inbox."
+                sub={
+                  <>
+                    If a thread exists for{' '}
+                    <span style={{ color: 'var(--warm)', fontStyle: 'normal' }}>{email}</span>
+                    , a reset link will arrive shortly.
+                  </>
+                }
+                align="center"
               />
 
-              {error ? (
-                <p
-                  role="alert"
-                  className="hl-mono"
+              <div style={{ marginTop: 36, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16 }}>
+                {resendFlash ? (
+                  <p
+                    role="status"
+                    style={{
+                      fontFamily: 'var(--mono)',
+                      fontSize: 10,
+                      letterSpacing: '0.22em',
+                      textTransform: 'uppercase',
+                      color: 'var(--warm)',
+                      margin: 0,
+                    }}
+                  >
+                    sent again
+                  </p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={isLoading}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      padding: '12px 0',
+                      cursor: isLoading ? 'not-allowed' : 'pointer',
+                      fontFamily: 'var(--mono)',
+                      fontSize: 10,
+                      letterSpacing: '0.22em',
+                      textTransform: 'uppercase',
+                      color: 'var(--bone-faint)',
+                      opacity: isLoading ? 0.4 : 1,
+                      transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                      minHeight: 44,
+                    }}
+                  >
+                    didn't get it? resend →
+                  </button>
+                )}
+
+                <Link
+                  to="/login"
                   style={{
-                    fontSize: 11,
-                    color: 'var(--danger)',
-                    margin: '0 0 16px',
-                    letterSpacing: '0.04em',
+                    fontFamily: 'var(--mono)',
+                    fontSize: 10,
+                    letterSpacing: '0.32em',
+                    textTransform: 'uppercase',
+                    color: 'var(--bone-dim)',
+                    textDecoration: 'none',
+                    padding: '12px 0',
+                    minHeight: 44,
+                    display: 'inline-flex',
+                    alignItems: 'center',
                   }}
                 >
-                  {error}
-                </p>
-              ) : null}
+                  ← back to sign in
+                </Link>
+              </div>
 
-              <button
-                type="submit"
-                disabled={isLoading || !email.trim()}
-                className="hl-btn text"
-                style={{
-                  letterSpacing: '0.06em',
-                  opacity: isLoading || !email.trim() ? 0.5 : 1,
-                }}
-              >
-                {isLoading ? 'sending…' : 'send reset →'}
-              </button>
-            </form>
+              <div style={{ marginTop: 64, display: 'flex', justifyContent: 'center' }}>
+                <WaxSeal />
+              </div>
+            </div>
+          ) : (
+            /* ── Form branch ── */
+            <>
+              <CosmicHeader
+                eyebrow="password reset"
+                title={
+                  <span style={{ fontSize: 'clamp(40px,9vw,72px)', lineHeight: 1.05 }}>
+                    Reset your password.
+                  </span>
+                }
+                sub="We'll email you a reset link."
+                align="center"
+              />
 
-            <Link
-              to="/login"
-              className="hl-mono"
-              style={{
-                display: 'inline-block',
-                marginTop: 16,
-                fontSize: 10,
-                letterSpacing: '0.32em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-dim)',
-                textDecoration: 'none',
-              }}
-            >
-              ← back to sign in
-            </Link>
-          </>
-        )}
+              <form onSubmit={handleSubmit} style={{ marginTop: 40 }}>
+                <label
+                  htmlFor="fp-email"
+                  style={{
+                    display: 'block',
+                    marginBottom: 8,
+                    fontFamily: 'var(--mono)',
+                    fontSize: 10,
+                    letterSpacing: '0.32em',
+                    textTransform: 'uppercase',
+                    color: 'var(--bone-faint)',
+                  }}
+                >
+                  email
+                </label>
+                <input
+                  id="fp-email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    background: 'transparent',
+                    border: 0,
+                    borderBottom: '1px solid var(--rule)',
+                    outline: 'none',
+                    color: 'var(--bone)',
+                    caretColor: 'var(--warm)',
+                    fontFamily: 'var(--sans)',
+                    fontSize: 18,
+                    padding: '10px 0 12px',
+                    marginBottom: 32,
+                    textAlign: 'center',
+                    boxSizing: 'border-box',
+                    transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                  }}
+                  onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+                  onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
+                />
+
+                {error ? (
+                  <p
+                    role="alert"
+                    style={{
+                      fontFamily: 'var(--mono)',
+                      fontSize: 11,
+                      letterSpacing: '0.04em',
+                      color: 'var(--warm)',
+                      margin: '0 0 20px',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {error}
+                  </p>
+                ) : null}
+
+                <button
+                  type="submit"
+                  disabled={isLoading || !email.trim()}
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    background: 'none',
+                    border: 'none',
+                    padding: '14px 0',
+                    minHeight: 44,
+                    cursor: isLoading || !email.trim() ? 'not-allowed' : 'pointer',
+                    fontFamily: 'var(--mono)',
+                    fontSize: 12,
+                    letterSpacing: '0.26em',
+                    textTransform: 'uppercase',
+                    color: 'var(--warm)',
+                    opacity: isLoading || !email.trim() ? 0.4 : 1,
+                    transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                    textAlign: 'center',
+                  }}
+                >
+                  {isLoading ? 'sending…' : 'send reset →'}
+                </button>
+              </form>
+
+              <div style={{ marginTop: 24, textAlign: 'center' }}>
+                <Link
+                  to="/login"
+                  style={{
+                    fontFamily: 'var(--mono)',
+                    fontSize: 10,
+                    letterSpacing: '0.32em',
+                    textTransform: 'uppercase',
+                    color: 'var(--bone-dim)',
+                    textDecoration: 'none',
+                    padding: '12px 0',
+                    minHeight: 44,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  ← back to sign in
+                </Link>
+              </div>
+
+              <div style={{ marginTop: 80, display: 'flex', justifyContent: 'center' }}>
+                <WaxSeal />
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </ClothShell>
   );

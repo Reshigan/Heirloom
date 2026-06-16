@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 interface ScenarioProps {
   eyebrow: string;
@@ -10,7 +11,21 @@ interface ScenarioProps {
   ctaLabel?: string;
 }
 
-function ScenarioPage({ eyebrow, headline, subhead, sealedLabel, sealedTo, sealedTrigger, ctaLabel = 'Write this letter now →' }: ScenarioProps) {
+const HOW_IT_WORKS: [string, string][] = [
+  ['write it today', 'Write the letter now, while you know what you want to say. Seal it.'],
+  ['set the trigger', 'Choose when it opens: a date, a milestone, your death, or a named event.'],
+  ['it finds them', 'When the moment arrives — years or decades from now — the letter is delivered. No account required on their end.'],
+];
+
+function ScenarioPage({
+  eyebrow,
+  headline,
+  subhead,
+  sealedLabel,
+  sealedTo,
+  sealedTrigger,
+  ctaLabel = 'Write this letter now →',
+}: ScenarioProps) {
   return (
     <div style={{
       minHeight: '100dvh',
@@ -51,75 +66,70 @@ function ScenarioPage({ eyebrow, headline, subhead, sealedLabel, sealedTo, seale
         </Link>
       </div>
 
-      {/* Hero */}
+      {/* Ledger body */}
       <div style={{
         flex: 1,
         padding: 'clamp(52px, 10vw, 96px) clamp(20px, 6vw, 64px)',
         maxWidth: 680,
       }}>
-        <div className="hl-eyebrow" style={{ marginBottom: 20, color: 'var(--warm)' }}>
-          {eyebrow}
-        </div>
+        {/* CosmicHeader — mono eyebrow + giant serif headline */}
+        <CosmicHeader
+          eyebrow={eyebrow}
+          title={headline}
+          sub={subhead}
+        />
 
-        <h1 className="hl-serif hl-tight" style={{
-          fontSize: 'clamp(26px, 4.5vw, 52px)',
-          fontWeight: 300,
-          lineHeight: 1.1,
-          margin: '0 0 22px',
-          color: 'var(--bone)',
-          fontVariationSettings: '"opsz" 44',
-          letterSpacing: '-0.016em',
-        }}>
-          {headline}
-        </h1>
+        {/* Sealed entry row */}
+        <SectionLabel>the sealed letter</SectionLabel>
 
-        <p className="hl-serif" style={{
-          fontSize: 'clamp(15px, 1.8vw, 19px)',
-          fontWeight: 300,
-          color: 'var(--bone-dim)',
-          lineHeight: 1.68,
-          margin: '0 0 40px',
-          maxWidth: '46ch',
-        }}>
-          {subhead}
-        </p>
-
-        {/* Sealed letter preview */}
+        {/* Sealed letter preview as a ledger entry row (static, no onClick) */}
         <div style={{
           display: 'flex',
-          flexDirection: 'column',
-          gap: 8,
-          padding: '14px 18px 14px 20px',
-          border: '1px solid rgba(244,236,216,0.10)',
-          borderLeft: '2px solid rgba(176,122,74,0.55)',
-          marginBottom: 36,
-          maxWidth: 420,
+          alignItems: 'baseline',
+          gap: 20,
+          width: '100%',
+          padding: '15px 0',
+          borderBottom: '1px solid var(--rule)',
         }}>
-          <div className="hl-mono" style={{
-            fontSize: 8.5,
-            letterSpacing: '0.26em',
-            textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
-          }}>
-            {sealedLabel}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span className="hl-serif" style={{ fontSize: 22, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>∞</span>
-            <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{
+              fontFamily: 'var(--serif)',
+              fontStyle: 'italic',
+              fontWeight: 400,
+              fontSize: 19,
+              lineHeight: 1.3,
+              color: 'var(--bone)',
+              display: 'block',
+            }}>
               a letter {sealedTo}
             </span>
-          </div>
-          <div className="hl-mono" style={{
+            <span style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 9,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'rgba(176,122,74,0.65)',
+              display: 'block',
+              marginTop: 5,
+            }}>
+              {sealedTrigger}
+            </span>
+          </span>
+          <span style={{
+            fontFamily: 'var(--mono)',
             fontSize: 9,
-            letterSpacing: '0.18em',
+            letterSpacing: '0.22em',
             textTransform: 'uppercase',
-            color: 'rgba(176,122,74,0.65)',
+            color: 'var(--bone-faint)',
+            whiteSpace: 'nowrap',
+            flex: '0 0 auto',
           }}>
-            {sealedTrigger}
-          </div>
+            {sealedLabel}
+          </span>
         </div>
 
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', marginBottom: 64 }}>
+        {/* CTA row */}
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', margin: '36px 0 64px' }}>
           <Link to="/signup" className="hl-btn">{ctaLabel}</Link>
           <Link to="/login" style={{
             fontFamily: 'var(--mono)',
@@ -135,44 +145,44 @@ function ScenarioPage({ eyebrow, headline, subhead, sealedLabel, sealedTo, seale
           </Link>
         </div>
 
-        {/* How it works */}
-        <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 36 }}>
-          <div className="hl-eyebrow" style={{ marginBottom: 20 }}>how it works</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-            {[
-              ['write it today', 'Write the letter now, while you know what you want to say. Seal it.'],
-              ['set the trigger', 'Choose when it opens: a date, a milestone, your death, or a named event.'],
-              ['it finds them', 'When the moment arrives — years or decades from now — the letter is delivered. No account required on their end.'],
-            ].map(([step, desc], i) => (
-              <div key={i} style={{
-                display: 'flex',
-                gap: 20,
-                padding: '14px 0',
-                borderBottom: i < 2 ? '1px solid var(--rule)' : 'none',
-              }}>
-                <div className="hl-mono" style={{
-                  fontSize: 9,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: 'var(--warm)',
-                  flexShrink: 0,
-                  paddingTop: 2,
-                  minWidth: 90,
-                }}>
-                  {step}
-                </div>
-                <p className="hl-serif" style={{
-                  fontSize: 14,
-                  fontWeight: 300,
-                  color: 'var(--bone-dim)',
-                  lineHeight: 1.65,
-                  margin: 0,
-                }}>
-                  {desc}
-                </p>
-              </div>
-            ))}
+        {/* How it works — SectionLabel + ledger rows */}
+        <SectionLabel>how it works</SectionLabel>
+
+        {HOW_IT_WORKS.map(([step, desc], i) => (
+          <div key={i} style={{
+            display: 'flex',
+            gap: 20,
+            padding: '15px 0',
+            borderBottom: i < HOW_IT_WORKS.length - 1 ? '1px solid var(--rule)' : 'none',
+          }}>
+            <span style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 9,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
+              flexShrink: 0,
+              paddingTop: 3,
+              minWidth: 90,
+            }}>
+              {step}
+            </span>
+            <p style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 14,
+              fontWeight: 300,
+              color: 'var(--bone-dim)',
+              lineHeight: 1.65,
+              margin: 0,
+            }}>
+              {desc}
+            </p>
           </div>
+        ))}
+
+        {/* WaxSeal foot */}
+        <div style={{ paddingTop: 64 }}>
+          <WaxSeal />
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { ClothShell } from '../loom/components/ClothShell';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { memoriesApi } from '../services/api';
 
 interface MapMemory {
@@ -55,7 +56,6 @@ export function MemoryMap() {
   };
 
   const locations = groupByLocation(memories);
-  const primaryPlace = locations[0] ?? null;
 
   /** Project real lat/lng into a 0–100 equirectangular field. Each point carries a tiny
       serif label + mono year, placed beside the warm point as in the mockup. */
@@ -90,6 +90,11 @@ export function MemoryMap() {
     </Link>
   );
 
+  const placeCount = locations.length;
+  const eyebrow = `${memories.length} ${memories.length === 1 ? 'PLACE WOVEN' : 'MEMORIES'}${
+    placeCount ? ` · ${placeCount} ${placeCount === 1 ? 'PLACE' : 'PLACES'}` : ''
+  }`;
+
   return (
     <ClothShell topbarLeft={backLink} topbarCenter="places">
       {/* content wrapper */}
@@ -100,22 +105,15 @@ export function MemoryMap() {
           padding: '40px 28px 96px',
         }}
       >
-        {/* Mono eyebrow — "WHERE IT HAPPENED" */}
-        <p
-          className="hl-mono"
-          style={{
-            fontSize: 10,
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
-            margin: '0 0 28px',
-          }}
-        >
-          where it happened
-        </p>
+        {/* Cosmic ledger header — mono eyebrow (count + kind) + giant serif title */}
+        <CosmicHeader
+          eyebrow={memories.length ? eyebrow : 'WHERE IT HAPPENED'}
+          title="Places"
+          sub="Every memory anchored to the ground it happened on."
+        />
 
-        {/* Filter row — restrained, mono micro-labels */}
-        <div style={{ display: 'flex', gap: 18, marginBottom: 28 }}>
+        {/* Filter row — restrained, mono micro-labels (text affordances, not icons) */}
+        <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginBottom: 28 }}>
           {FILTERS.map((f) => (
             <button
               key={f}
@@ -125,15 +123,15 @@ export function MemoryMap() {
                 background: 'transparent',
                 border: 0,
                 borderRadius: 0,
-                padding: 0,
+                padding: '4px 0',
+                minHeight: 44,
                 cursor: 'pointer',
                 fontFamily: 'var(--mono)',
                 fontSize: 9,
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
                 color: filter === f ? 'var(--warm)' : 'var(--bone-faint)',
-                transition:
-                  'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
               }}
             >
               {f === 'all' ? 'All' : f === 'memory' ? 'Memories' : f + 's'}
@@ -142,7 +140,7 @@ export function MemoryMap() {
         </div>
 
         {isError && (
-          <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 12, margin: '0 0 24px' }}>
+          <p style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 24px' }}>
             could not load places
           </p>
         )}
@@ -152,28 +150,21 @@ export function MemoryMap() {
             <ProgressHair label="loading…" width={200} />
           </div>
         ) : !memories.length ? (
-          /* Empty state */
+          /* Empty state — centered serif-italic line + a quiet prompt */
           <div
             style={{
-              border: '1px solid var(--rule)',
-              padding: '72px 32px',
+              padding: '72px 8px',
               textAlign: 'center',
             }}
           >
-            <p
-              className="hl-serif"
-              style={{ fontSize: 28, color: 'var(--warm)', marginBottom: 16 }}
-            >
-              ∞
-            </p>
             <h3
               className="hl-serif"
               style={{
                 fontSize: 22,
                 fontWeight: 300,
                 fontStyle: 'italic',
-                color: 'var(--bone)',
-                margin: '0 0 12px',
+                color: 'var(--bone-dim)',
+                margin: '0 0 14px',
               }}
             >
               No memories on the map yet.
@@ -182,6 +173,7 @@ export function MemoryMap() {
               className="hl-serif"
               style={{
                 fontSize: 15,
+                fontStyle: 'italic',
                 color: 'var(--bone-dim)',
                 margin: '0 auto 28px',
                 maxWidth: 420,
@@ -193,16 +185,28 @@ export function MemoryMap() {
             <button
               type="button"
               onClick={() => navigate('/loom/index')}
-              className="hl-btn"
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: '12px 0',
+                minHeight: 44,
+                cursor: 'pointer',
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+              }}
             >
-              Add a memory
+              Add a memory →
             </button>
           </div>
         ) : (
           <>
             {/* The Map — a vast dark field with a faint continent outline. Memories sit
                 as restrained warm points placed by lat/lng, each tagged with a tiny serif
-                label + mono year, exactly as the mockup reads. Select-on-click preserved. */}
+                label + mono year, exactly as the mockup reads. Select-on-click preserved.
+                PRESERVED VERBATIM — this is the real spatial rendering. */}
             <div
               style={{
                 position: 'relative',
@@ -325,7 +329,7 @@ export function MemoryMap() {
                   alignItems: 'baseline',
                   borderTop: '1px solid var(--rule)',
                   paddingTop: 10,
-                  marginBottom: 36,
+                  marginBottom: 24,
                 }}
               >
                 <span
@@ -349,79 +353,38 @@ export function MemoryMap() {
               </div>
             )}
 
-            {/* Serif place name — the hero. Links into the place's reading view. */}
-            {primaryPlace && (
-              <Link
-                to={`/loom/read?location=${encodeURIComponent(primaryPlace.name)}`}
-                onClick={(e) => {
-                  const firstMatch = memories.find((m) => (m.location_name || 'Unknown') === primaryPlace.name) ?? null;
-                  if (firstMatch) { e.preventDefault(); setSelectedMemory(firstMatch); }
-                }}
-                className="hl-serif"
-                style={{
-                  display: 'block',
-                  textDecoration: 'none',
-                  fontSize: 'clamp(34px, 9vw, 44px)',
-                  fontWeight: 300,
-                  lineHeight: 1.04,
-                  color: 'var(--bone)',
-                  margin: '0 0 18px',
-                }}
-              >
-                {primaryPlace.name}
-              </Link>
-            )}
-
-            {/* Count + place tally — mono, quiet. */}
-            <p
-              className="hl-mono"
-              style={{
-                fontSize: 10,
-                color: 'var(--bone-faint)',
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                margin: 0,
-              }}
-            >
-              {primaryPlace
-                ? `${primaryPlace.count} ${primaryPlace.count === 1 ? 'memory' : 'memories'}`
-                : `${memories.length} ${memories.length === 1 ? 'memory' : 'memories'}`}
-            </p>
-
-            {/* Other places — hairline rows beneath the hero. Behavior preserved verbatim. */}
-            {locations.length > 1 && (
-              <ul style={{ listStyle: 'none', padding: 0, margin: '40px 0 0' }}>
-                {locations.slice(1).map(({ name, count }) => {
-                  const firstMatch = memories.find((m) => (m.location_name || 'Unknown') === name) ?? null;
-                  return (
-                    <li key={name}>
-                      <Link
-                        to={`/loom/read?location=${encodeURIComponent(name)}`}
-                        onClick={(e) => { if (firstMatch) { e.preventDefault(); setSelectedMemory(firstMatch); } }}
-                        style={{ textDecoration: 'none', display: 'grid', gridTemplateColumns: 'auto 1fr auto', alignItems: 'baseline', columnGap: 14, borderTop: '1px solid var(--rule)', minHeight: 48, paddingTop: 13, paddingBottom: 13 }}
-                      >
-                        <span
-                          aria-hidden
-                          style={{ width: 7, height: 7, alignSelf: 'center', borderRadius: '50%', background: 'var(--warm)', boxShadow: '0 0 8px var(--warm)' }}
-                        />
-                        <span
-                          className="hl-serif"
-                          style={{ fontSize: 'clamp(16px, 4vw, 18px)', fontWeight: 300, color: 'var(--bone)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-                        >
-                          {name}
-                        </span>
-                        <span
-                          className="hl-mono"
-                          style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.16em', textTransform: 'uppercase', textAlign: 'right' }}
-                        >
-                          {count}
-                        </span>
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
+            {/* The places ledger — every located place as a hairline-ruled EntryRow.
+                Serif place name left; mono right cluster = memory count. Click-through
+                preserved verbatim (selects the first memory at that place; href intact
+                for middle-click / open-in-new). */}
+            <SectionLabel>The places</SectionLabel>
+            <div>
+              {locations.map(({ name, count }) => {
+                const firstMatch = memories.find((m) => (m.location_name || 'Unknown') === name) ?? null;
+                const href = `/loom/read?location=${encodeURIComponent(name)}`;
+                return (
+                  <Link
+                    key={name}
+                    to={href}
+                    onClick={(e) => {
+                      if (firstMatch) {
+                        e.preventDefault();
+                        setSelectedMemory(firstMatch);
+                      }
+                    }}
+                    style={{ textDecoration: 'none', display: 'block' }}
+                  >
+                    <EntryRow
+                      title={name}
+                      year={`${count} ${count === 1 ? 'memory' : 'memories'}`}
+                      onClick={() => {
+                        if (firstMatch) setSelectedMemory(firstMatch);
+                      }}
+                    />
+                  </Link>
+                );
+              })}
+            </div>
 
             {/* Detail sidebar (selected memory) — preserved from v1 */}
             {selectedMemory && (
@@ -502,6 +465,11 @@ export function MemoryMap() {
                   onClick={() => setSelectedMemory(memory)}
                 />
               ))}
+            </div>
+
+            {/* The ∞ wax seal — rests warm at the foot of the ledger. */}
+            <div style={{ marginTop: 64 }}>
+              <WaxSeal />
             </div>
           </>
         )}

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { HLogo } from '../loom/components/HLogo';
 import api from '../services/api';
+import { WaxSeal, WarmDot } from '../loom/cosmic/CosmicUI';
+import { dyeColor } from '../loom/dye';
 
 /* ── Types ─────────────────────────────────────────────────────────── */
 
@@ -29,7 +30,7 @@ function useGiftToken(): string | null {
   return routeToken ?? searchParams.get('token');
 }
 
-/* ── Loading state — hairline progress bar ─────────────────────────── */
+/* ── Loading state — hairline progress bar (no spinner) ────────────── */
 
 function LoadingBar() {
   return (
@@ -43,11 +44,20 @@ function LoadingBar() {
         height: 1,
         background: 'var(--warm)',
         opacity: 0.7,
-        animation: 'none',
       }}
     />
   );
 }
+
+/* ── Mono eyebrow / meta line (READING subline language) ───────────── */
+
+const monoMeta: React.CSSProperties = {
+  fontFamily: 'var(--mono)',
+  fontSize: 11,
+  letterSpacing: '0.26em',
+  textTransform: 'uppercase',
+  margin: 0,
+};
 
 /* ── Main component ────────────────────────────────────────────────── */
 
@@ -68,7 +78,18 @@ export function RecipientExperience() {
 
   const thread = data?.thread;
 
-  /* ── Topbar (parchment variant) ─────────────────────────────────── */
+  /* ── Screen wrapper ─────────────────────────────────────────────── */
+  const screenStyle: React.CSSProperties = {
+    position: 'absolute',
+    inset: 0,
+    background: 'var(--ink)',
+    color: 'var(--bone)',
+    overflow: 'hidden auto',
+    fontFamily: 'var(--sans)',
+    boxSizing: 'border-box',
+  };
+
+  /* ── Topbar: kind eyebrow · sender/count · create account ───────── */
   const topbar = (
     <div
       style={{
@@ -76,56 +97,59 @@ export function RecipientExperience() {
         top: 0,
         left: 0,
         right: 0,
-        padding: '20px 56px',
+        padding: '20px clamp(20px, 6vw, 56px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        gap: 16,
         zIndex: 5,
       }}
     >
       {/* Left: "your gift" */}
       <span
-        className="hl-mono"
         style={{
+          fontFamily: 'var(--mono)',
           fontSize: 10.5,
           letterSpacing: '0.32em',
           textTransform: 'uppercase',
-          color: 'var(--parchment-faint)',
+          color: 'var(--bone-faint)',
         }}
       >
         your gift
       </span>
 
-      {/* Center: thread info */}
+      {/* Center: sender · entry count */}
       <span
-        className="hl-mono"
         style={{
           position: 'absolute',
           left: '50%',
           transform: 'translateX(-50%)',
+          fontFamily: 'var(--mono)',
           fontSize: 10.5,
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
-          color: 'var(--parchment-faint)',
+          color: 'var(--bone-faint)',
           whiteSpace: 'nowrap',
         }}
       >
         {thread ? (
           <>
-            <span style={{ color: 'var(--parchment-dim)' }}>{thread.senderName}</span>
+            <span style={{ color: 'var(--bone-dim)' }}>{thread.senderName}</span>
             {' · '}
-            <span>{thread.entryCount} {thread.entryCount === 1 ? 'entry' : 'entries'}</span>
+            <span>
+              {thread.entryCount} {thread.entryCount === 1 ? 'entry' : 'entries'}
+            </span>
           </>
         ) : (
-          <span>heirloom</span>
+          <span>∞ heirloom</span>
         )}
       </span>
 
       {/* Right: "create account →" warm */}
       <Link
         to="/signup"
-        className="hl-mono"
         style={{
+          fontFamily: 'var(--mono)',
           fontSize: 10.5,
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
@@ -133,24 +157,17 @@ export function RecipientExperience() {
           textDecoration: 'none',
           transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
         }}
-        onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.opacity = '0.75'; }}
-        onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.opacity = '1'; }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLAnchorElement).style.opacity = '0.75';
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLAnchorElement).style.opacity = '1';
+        }}
       >
         create account →
       </Link>
     </div>
   );
-
-  /* ── Screen wrapper (parchment) ────────────────────────────────── */
-  const screenStyle: React.CSSProperties = {
-    position: 'absolute',
-    inset: 0,
-    background: 'var(--parchment)',
-    color: 'var(--parchment-ink)',
-    overflow: 'hidden auto',
-    fontFamily: 'var(--sans)',
-    boxSizing: 'border-box',
-  };
 
   /* ── Loading ────────────────────────────────────────────────────── */
   if (isLoading || !token) {
@@ -158,6 +175,11 @@ export function RecipientExperience() {
       <div style={screenStyle}>
         <LoadingBar />
         {topbar}
+        <div style={{ padding: '120px clamp(20px, 6vw, 56px)' }}>
+          <p style={{ ...monoMeta, color: 'var(--bone-faint)' }}>
+            unsealing your gift…
+          </p>
+        </div>
       </div>
     );
   }
@@ -167,90 +189,124 @@ export function RecipientExperience() {
     return (
       <div style={screenStyle}>
         {topbar}
-        <div style={{ padding: '84px 56px' }}>
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 18,
-              marginBottom: 48,
-            }}
-          >
-            <HLogo size={20} mono color="var(--parchment-faint)" />
+        <div
+          style={{
+            maxWidth: 620,
+            margin: '0 auto',
+            padding: '120px clamp(20px, 6vw, 56px) 80px',
+          }}
+        >
+          <div style={{ borderLeft: '1px solid var(--rule)', paddingLeft: 24 }}>
+            <p style={{ ...monoMeta, color: 'var(--warm)', marginBottom: 22 }}>
+              this link has closed
+            </p>
+            <h1
+              style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 'clamp(30px, 6vw, 44px)',
+                fontWeight: 400,
+                lineHeight: 1.08,
+                color: 'var(--bone)',
+                margin: '0 0 22px',
+              }}
+            >
+              This link has expired.
+            </h1>
+            <p
+              style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 18,
+                lineHeight: 1.75,
+                color: 'var(--bone-dim)',
+                margin: '0 0 36px',
+                maxWidth: '52ch',
+              }}
+            >
+              The gift link you followed is no longer valid. It may have already been
+              claimed, or the sender may have updated their settings.
+            </p>
+            <Link
+              to="/"
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 12,
+                letterSpacing: '0.26em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                textDecoration: 'none',
+              }}
+            >
+              return home →
+            </Link>
           </div>
-          <h1
-            className="hl-serif hl-tight"
-            style={{
-              fontSize: 48,
-              fontWeight: 300,
-              color: 'var(--parchment-ink)',
-              margin: '0 0 20px',
-            }}
-          >
-            This link has expired.
-          </h1>
-          <p
-            className="hl-prose"
-            style={{
-              fontSize: 'var(--type-body)',
-              color: 'var(--parchment-dim)',
-              margin: '0 0 32px',
-              maxWidth: '52ch',
-            }}
-          >
-            The gift link you followed is no longer valid. It may have already been claimed
-            or the sender may have updated their settings.
-          </p>
-          <Link
-            to="/"
-            className="hl-btn"
-            style={{ display: 'inline-flex' }}
-          >
-            Return home
-          </Link>
+          <div style={{ marginTop: 72 }}>
+            <WaxSeal size={28} />
+          </div>
         </div>
       </div>
     );
   }
 
-  /* ── Gift reveal ────────────────────────────────────────────────── */
+  /* ── Gift reveal (READING) ──────────────────────────────────────── */
+  const dye = dyeColor(thread.id);
+  const year = new Date(thread.createdAt).getFullYear();
+  const bodyShown = opened
+    ? thread.body
+    : thread.body.length > 280
+    ? thread.body.slice(0, 280).trimEnd() + '…'
+    : thread.body;
+  const paragraphs = bodyShown.split(/\n{2,}/).filter((p) => p.trim().length > 0);
+  const remaining = thread.entryCount - 1;
+
   return (
     <div style={screenStyle}>
       {topbar}
 
-      <div style={{ padding: '84px 56px' }}>
-        {/* Logo lockup */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 18,
-            marginBottom: 48,
-          }}
-        >
-          <HLogo size={20} mono color="var(--parchment-faint)" />
+      <article
+        style={{
+          maxWidth: 620,
+          margin: '0 auto',
+          padding: '120px clamp(20px, 6vw, 56px) 80px',
+        }}
+      >
+        {/* Dye margin thread + headline column */}
+        <div style={{ borderLeft: `3px solid ${dye}`, paddingLeft: 24 }}>
+          {/* Headline */}
+          <h1
+            style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(30px, 6vw, 44px)',
+              fontWeight: 400,
+              lineHeight: 1.08,
+              color: 'var(--bone)',
+              margin: '0 0 16px',
+            }}
+          >
+            {thread.title?.trim() || 'Something was left for you.'}
+          </h1>
+
+          {/* Mono warm subline — A MEMORY BY <AUTHOR> · <YEAR> (+ for recipient) */}
+          <p style={{ ...monoMeta, color: 'var(--warm)', display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap' }}>
+            <span>a thread by {thread.senderName} · {year}</span>
+            {thread.recipientName ? (
+              <>
+                <WarmDot color={dye} size={5} />
+                <span style={{ color: 'var(--bone-dim)' }}>for {thread.recipientName}</span>
+              </>
+            ) : null}
+          </p>
         </div>
 
-        {/* Headline */}
-        <h1
-          className="hl-serif hl-tight"
-          style={{
-            fontSize: 'var(--type-display)',
-            fontWeight: 300,
-            color: 'var(--parchment-ink)',
-            margin: '0 0 20px',
-          }}
-        >
-          Something was left for you.
-        </h1>
-
-        {/* Sub-copy */}
+        {/* Sender intent — serif prose */}
         <p
-          className="hl-prose"
           style={{
-            fontSize: 'var(--type-body)',
-            color: 'var(--parchment-dim)',
-            margin: '0 0 32px',
+            fontFamily: 'var(--serif)',
+            fontStyle: 'italic',
+            fontSize: 18,
+            lineHeight: 1.75,
+            color: 'var(--bone-dim)',
+            margin: '40px 0 0',
+            paddingLeft: 24,
             maxWidth: '52ch',
           }}
         >
@@ -258,92 +314,70 @@ export function RecipientExperience() {
           they wanted you to carry forward. It will unfold at its own pace.
         </p>
 
-        {/* Inner letter card — parchment-deep */}
+        {/* Letter body — serif 18/1.75 justified, paragraph breaks preserved */}
         <div
           style={{
-            background: 'var(--parchment-deep)',
-            padding: '40px 48px',
-            maxWidth: 540,
-            marginBottom: 32,
+            margin: '48px 0 0',
+            paddingLeft: 24,
+            maxWidth: '62ch',
           }}
         >
-          {/* Sender line */}
-          <p
-            className="hl-mono"
-            style={{
-              fontSize: 10,
-              letterSpacing: '0.26em',
-              textTransform: 'uppercase',
-              color: 'var(--parchment-faint)',
-              margin: '0 0 24px',
-            }}
-          >
-            from {thread.senderName}
-            {thread.recipientName ? (
-              <> · for {thread.recipientName}</>
-            ) : null}
-          </p>
-
-          {/* Hairline separator */}
-          <div
-            style={{
-              height: 1,
-              background: 'var(--parchment-rule)',
-              margin: '0 0 24px',
-            }}
-          />
-
-          {/* Letter body */}
-          <p
-            className="hl-prose"
-            style={{
-              fontSize: 'var(--type-body-lg)',
-              color: 'var(--parchment-ink)',
-              margin: 0,
-              maxWidth: 'none',
-              lineHeight: 1.85,
-            }}
-          >
-            {opened
-              ? thread.body
-              : thread.body.length > 280
-              ? thread.body.slice(0, 280).trimEnd() + '…'
-              : thread.body}
-          </p>
-
-          {/* Thread entry count note */}
-          {thread.entryCount > 1 && !opened && (
+          {paragraphs.map((para, i) => (
             <p
-              className="hl-mono"
+              key={i}
               style={{
-                fontSize: 10,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: 'var(--parchment-faint)',
-                margin: '20px 0 0',
+                fontFamily: 'var(--serif)',
+                fontSize: 18,
+                lineHeight: 1.75,
+                color: 'var(--bone)',
+                textAlign: 'justify',
+                margin: i === 0 ? 0 : '20px 0 0',
               }}
             >
-              +{thread.entryCount - 1} more {thread.entryCount - 1 === 1 ? 'entry' : 'entries'} in the thread
+              {para}
+            </p>
+          ))}
+
+          {/* Thread entry-count note */}
+          {remaining >= 1 && !opened && (
+            <p style={{ ...monoMeta, color: 'var(--bone-faint)', marginTop: 28, letterSpacing: '0.18em' }}>
+              +{remaining} more {remaining === 1 ? 'entry' : 'entries'} in the thread
             </p>
           )}
 
-          {/* Open → button */}
-          <div style={{ marginTop: 24 }}>
+          {/* Open → / Claim → — quiet mono affordance, same onClick */}
+          <div style={{ marginTop: 32 }}>
             {opened ? (
               <a
                 href={`/signup?token=${token}`}
-                className="hl-btn"
-                style={{ display: 'inline-flex' }}
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 12,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  textDecoration: 'none',
+                }}
               >
-                Claim your thread →
+                claim your thread →
               </a>
             ) : (
               <button
                 type="button"
-                className="hl-btn"
                 onClick={() => setOpened(true)}
+                style={{
+                  background: 'none',
+                  border: 0,
+                  padding: 0,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 12,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                }}
               >
-                Open →
+                open →
               </button>
             )}
           </div>
@@ -351,20 +385,25 @@ export function RecipientExperience() {
 
         {/* Footer note */}
         <p
-          className="hl-mono"
           style={{
-            fontSize: 10,
+            ...monoMeta,
+            color: 'var(--bone-faint)',
             letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            color: 'var(--parchment-faint)',
+            lineHeight: 1.9,
+            margin: '64px 0 0',
+            paddingLeft: 24,
             maxWidth: '52ch',
-            lineHeight: 1.8,
           }}
         >
           To read the full thread and receive future entries, create a free Heirloom
           account. Your thread is waiting.
         </p>
-      </div>
+
+        {/* Wax seal foot */}
+        <div style={{ marginTop: 72 }}>
+          <WaxSeal size={30} />
+        </div>
+      </article>
     </div>
   );
 }

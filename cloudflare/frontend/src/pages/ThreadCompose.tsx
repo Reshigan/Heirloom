@@ -4,7 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { TapestryEdge } from '../loom/components/Frame';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
-import { RoomHeader, RoomSection } from '../loom/components/room';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { threadsApi, type ThreadVisibility, type ThreadLockType } from '../services/api';
 
 /**
@@ -18,28 +18,41 @@ import { threadsApi, type ThreadVisibility, type ThreadLockType } from '../servi
  * encryption envelope arrives in a later phase). The worker accepts this.
  */
 
-const inputStyle: React.CSSProperties = {
+const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+
+/** Mono uppercase eyebrow / field label. */
+const labelStyle: React.CSSProperties = {
+  display: 'block',
+  fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+  fontSize: 10,
+  letterSpacing: '0.26em',
+  textTransform: 'uppercase',
+  color: 'var(--bone-faint)',
+  marginBottom: 12,
+};
+
+/** Underline-only mono field (dates / numbers / text inside the lock panel). */
+const fieldStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
   border: 0,
   borderBottom: '1px solid var(--rule)',
   color: 'var(--bone)',
   caretColor: 'var(--warm)',
-  fontFamily: "var(--serif, 'Source Serif 4', serif)",
-  fontSize: 16,
-  fontWeight: 300,
+  fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+  fontSize: 13,
+  letterSpacing: '0.04em',
+  fontWeight: 400,
   padding: '8px 0',
   outline: 'none',
   boxSizing: 'border-box',
   borderRadius: 0,
-  transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+  transition: `border-color 180ms ${EASE}`,
 };
 
+/** Underline-only mono select — same skin, native dropdown caret. */
 const selectStyle: React.CSSProperties = {
-  ...inputStyle,
-  fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
-  fontSize: 11,
-  letterSpacing: '0.04em',
+  ...fieldStyle,
   appearance: 'none',
   cursor: 'pointer',
   paddingRight: 24,
@@ -48,6 +61,29 @@ const selectStyle: React.CSSProperties = {
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'right 4px center',
 };
+
+/** A bottom-bar pill: mono, uppercase, hairline-bordered. */
+function pillStyle(warm: boolean, disabled = false): React.CSSProperties {
+  return {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 8,
+    background: 'transparent',
+    border: `1px solid ${warm ? 'var(--warm)' : 'var(--rule)'}`,
+    borderRadius: 999,
+    padding: '0 22px',
+    minHeight: 44,
+    cursor: disabled ? 'default' : 'pointer',
+    fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+    fontSize: 12,
+    letterSpacing: '0.22em',
+    textTransform: 'uppercase',
+    color: warm ? 'var(--warm)' : 'var(--bone-dim)',
+    textDecoration: 'none',
+    opacity: disabled ? 0.4 : 1,
+    transition: `opacity 180ms ${EASE}, border-color 180ms ${EASE}`,
+  };
+}
 
 export function ThreadCompose() {
   const { id } = useParams<{ id: string }>();
@@ -148,8 +184,10 @@ export function ThreadCompose() {
     create.mutate();
   };
 
-    const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toISOString().slice(0, 10);
   const thread = detail?.thread;
+  const busy = create.isPending;
+  const canSave = !!body.trim() && !busy;
 
   const topbarLeftContent = (
     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
@@ -177,22 +215,22 @@ export function ThreadCompose() {
     <button
       type="button"
       onClick={handleSave}
-      disabled={create.isPending || !body.trim()}
+      disabled={!canSave}
       style={{
         background: 'transparent',
         border: 0,
         padding: 0,
-        cursor: create.isPending || !body.trim() ? 'default' : 'pointer',
+        cursor: canSave ? 'pointer' : 'default',
         fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
         fontSize: 11,
-        letterSpacing: '0.18em',
+        letterSpacing: '0.22em',
         textTransform: 'uppercase',
         color: 'var(--warm)',
-        opacity: create.isPending || !body.trim() ? 0.4 : 1,
-        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+        opacity: canSave ? 1 : 0.4,
+        transition: `opacity 180ms ${EASE}`,
       }}
     >
-      {create.isPending ? 'saving…' : 'save →'}
+      {busy ? 'weaving…' : 'weave →'}
     </button>
   );
 
@@ -221,17 +259,56 @@ export function ThreadCompose() {
             padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           }}
         >
-          <RoomHeader
-            eyebrow="add to the thread"
-            title={<>A new <span className="hl-italic" style={{ fontStyle: 'italic', color: 'var(--warm)' }}>entry</span></>}
-            lede="Write to your descendants. What you weave here cannot be altered once it is woven."
-          />
+          {/* Mono eyebrow + giant serif prompt (COMPOSER head) */}
+          <header style={{ marginBottom: 40, maxWidth: '16em' }}>
+            <div
+              style={{
+                fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+                fontSize: 11,
+                letterSpacing: '0.28em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+                marginBottom: 18,
+              }}
+            >
+              weave a new entry
+            </div>
+            <h1
+              style={{
+                fontFamily: "var(--serif, 'Source Serif 4', serif)",
+                fontSize: 'clamp(30px, 5vw, 44px)',
+                lineHeight: 1.06,
+                letterSpacing: '-0.012em',
+                color: 'var(--bone)',
+                margin: 0,
+                fontWeight: 380,
+                fontVariationSettings: '"opsz" 40',
+              }}
+            >
+              What will you tell{' '}
+              <span style={{ fontStyle: 'italic', color: 'var(--warm)' }}>them</span>?
+            </h1>
+            <p
+              style={{
+                fontFamily: "var(--serif, 'Source Serif 4', serif)",
+                fontStyle: 'italic',
+                fontWeight: 300,
+                fontSize: 17,
+                lineHeight: 1.55,
+                color: 'var(--bone-dim)',
+                margin: '20px 0 0',
+                maxWidth: '30em',
+              }}
+            >
+              Write to your descendants. What you weave here cannot be altered once it is woven.
+            </p>
+          </header>
 
           <form
             onSubmit={(e) => { e.preventDefault(); handleSave(); }}
-            style={{ display: 'grid', gap: 28, marginTop: 28 }}
+            style={{ display: 'grid', gap: 28 }}
           >
-            {/* Title input */}
+            {/* Flat transparent serif title input — no box, warm caret */}
             <input
               id="t-title"
               aria-label="Thread title"
@@ -243,23 +320,22 @@ export function ThreadCompose() {
                 width: '100%',
                 background: 'transparent',
                 border: 0,
-                borderBottom: '1px solid var(--rule)',
                 color: 'var(--bone)',
                 caretColor: 'var(--warm)',
                 fontFamily: "var(--serif, 'Source Serif 4', serif)",
-                fontVariationSettings: "'opsz' 28",
-                fontStyle: 'italic',
-                fontSize: 28,
-                fontWeight: 300,
-                padding: '8px 0',
+                fontVariationSettings: "'opsz' 40",
+                fontSize: 'clamp(30px, 5vw, 44px)',
+                fontWeight: 380,
+                lineHeight: 1.1,
+                letterSpacing: '-0.012em',
+                padding: 0,
                 outline: 'none',
                 boxSizing: 'border-box',
                 borderRadius: 0,
-                marginBottom: 20,
               }}
             />
 
-            {/* Body textarea */}
+            {/* Serif body textarea — 18px / 1.75 prose */}
             <textarea
               id="t-body"
               aria-label="Thread body"
@@ -277,18 +353,21 @@ export function ThreadCompose() {
                 fontVariationSettings: "'opsz' 14",
                 fontSize: 18,
                 fontWeight: 300,
-                lineHeight: 1.85,
+                lineHeight: 1.75,
                 padding: 0,
                 outline: 'none',
                 resize: 'none',
-                minHeight: 280,
+                minHeight: 300,
                 boxSizing: 'border-box',
                 borderRadius: 0,
               }}
             />
 
-            {/* Visibility selector */}
-            <RoomSection label="who can read this">
+            {/* Visibility — mono label + underline select */}
+            <div>
+              <label htmlFor="t-vis" style={labelStyle}>
+                who can read this
+              </label>
               <select
                 id="t-vis"
                 aria-label="Who can read this"
@@ -300,10 +379,11 @@ export function ThreadCompose() {
                 <option value="DESCENDANTS">Descendants only — generations after yours</option>
                 <option value="PRIVATE">Private — for a specific recipient (future feature)</option>
               </select>
-            </RoomSection>
+            </div>
 
-            {/* Time-lock section */}
-            <RoomSection label="when it opens">
+            {/* Time-lock — mono label + checkbox row */}
+            <div>
+              <span style={labelStyle}>when it opens</span>
               <label
                 style={{ display: 'flex', alignItems: 'flex-start', gap: 14, cursor: 'pointer' }}
               >
@@ -316,7 +396,7 @@ export function ThreadCompose() {
                 <div>
                   <p
                     className="hl-serif"
-                    style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 300, color: 'var(--bone)' }}
+                    style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 300, color: 'var(--bone)', fontFamily: "var(--serif, 'Source Serif 4', serif)" }}
                   >
                     Seal this entry
                   </p>
@@ -339,11 +419,7 @@ export function ThreadCompose() {
               {enableLock ? (
                 <div style={{ marginTop: 24, paddingLeft: 28, display: 'grid', gap: 20 }}>
                   <div>
-                    <label
-                      htmlFor="t-lock-type"
-                      className="hl-eyebrow"
-                      style={{ display: 'block', marginBottom: 10, color: 'var(--bone-dim)' }}
-                    >
+                    <label htmlFor="t-lock-type" style={labelStyle}>
                       Lock type
                     </label>
                     <select
@@ -365,11 +441,7 @@ export function ThreadCompose() {
 
                   {lockType === 'DATE' ? (
                     <div>
-                      <label
-                        htmlFor="t-lock-date"
-                        className="hl-eyebrow"
-                        style={{ display: 'block', marginBottom: 10, color: 'var(--bone-dim)' }}
-                      >
+                      <label htmlFor="t-lock-date" style={labelStyle}>
                         Open on
                       </label>
                       <input
@@ -378,7 +450,7 @@ export function ThreadCompose() {
                         min={today}
                         value={lockDate}
                         onChange={(e) => setLockDate(e.target.value)}
-                        style={{ ...inputStyle, maxWidth: 200, fontFamily: "var(--mono, 'JetBrains Mono', monospace)", fontSize: 16 }}
+                        style={{ ...fieldStyle, maxWidth: 200 }}
                       />
                     </div>
                   ) : null}
@@ -393,11 +465,7 @@ export function ThreadCompose() {
                       }}
                     >
                       <div>
-                        <label
-                          htmlFor="t-lock-member"
-                          className="hl-eyebrow"
-                          style={{ display: 'block', marginBottom: 10, color: 'var(--bone-dim)' }}
-                        >
+                        <label htmlFor="t-lock-member" style={labelStyle}>
                           Recipient
                         </label>
                         <select
@@ -416,11 +484,7 @@ export function ThreadCompose() {
                         </select>
                       </div>
                       <div>
-                        <label
-                          htmlFor="t-lock-age"
-                          className="hl-eyebrow"
-                          style={{ display: 'block', marginBottom: 10, color: 'var(--bone-dim)' }}
-                        >
+                        <label htmlFor="t-lock-age" style={labelStyle}>
                           Open at age
                         </label>
                         <input
@@ -434,7 +498,7 @@ export function ThreadCompose() {
                               e.target.value === '' ? '' : parseInt(e.target.value, 10)
                             )
                           }
-                          style={inputStyle}
+                          style={fieldStyle}
                         />
                       </div>
                     </div>
@@ -450,11 +514,7 @@ export function ThreadCompose() {
                       }}
                     >
                       <div>
-                        <label
-                          htmlFor="t-lock-event-member"
-                          className="hl-eyebrow"
-                          style={{ display: 'block', marginBottom: 10, color: 'var(--bone-dim)' }}
-                        >
+                        <label htmlFor="t-lock-event-member" style={labelStyle}>
                           Recipient
                         </label>
                         <select
@@ -473,11 +533,7 @@ export function ThreadCompose() {
                         </select>
                       </div>
                       <div>
-                        <label
-                          htmlFor="t-lock-event"
-                          className="hl-eyebrow"
-                          style={{ display: 'block', marginBottom: 10, color: 'var(--bone-dim)' }}
-                        >
+                        <label htmlFor="t-lock-event" style={labelStyle}>
                           Event
                         </label>
                         <input
@@ -486,7 +542,7 @@ export function ThreadCompose() {
                           value={lockEventLabel}
                           onChange={(e) => setLockEventLabel(e.target.value)}
                           placeholder="wedding, first_child, graduation"
-                          style={inputStyle}
+                          style={fieldStyle}
                         />
                       </div>
                     </div>
@@ -494,11 +550,7 @@ export function ThreadCompose() {
 
                   {lockType === 'GENERATION' ? (
                     <div>
-                      <label
-                        htmlFor="t-lock-gen"
-                        className="hl-eyebrow"
-                        style={{ display: 'block', marginBottom: 10, color: 'var(--bone-dim)' }}
-                      >
+                      <label htmlFor="t-lock-gen" style={labelStyle}>
                         Open once a member of generation N exists
                       </label>
                       <input
@@ -512,7 +564,7 @@ export function ThreadCompose() {
                             e.target.value === '' ? '' : parseInt(e.target.value, 10)
                           )
                         }
-                        style={{ ...inputStyle, maxWidth: 120 }}
+                        style={{ ...fieldStyle, maxWidth: 120 }}
                       />
                       <p
                         className="hl-mono"
@@ -521,6 +573,7 @@ export function ThreadCompose() {
                           fontSize: 10,
                           color: 'var(--bone-faint)',
                           letterSpacing: '0.06em',
+                          fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
                         }}
                       >
                         +1 = your children · +2 = grandchildren · +3 = great-grandchildren
@@ -529,9 +582,9 @@ export function ThreadCompose() {
                   ) : null}
                 </div>
               ) : null}
-            </RoomSection>
+            </div>
 
-            {/* Inline error */}
+            {/* Inline mono/serif error — warm, never red, never toast */}
             {error ? (
               <p
                 role="alert"
@@ -540,7 +593,7 @@ export function ThreadCompose() {
                   fontFamily: "var(--serif, 'Source Serif 4', serif)",
                   fontStyle: 'italic',
                   fontSize: 14,
-                  color: 'var(--danger)',
+                  color: 'var(--warm)',
                   fontWeight: 300,
                 }}
               >
@@ -548,72 +601,87 @@ export function ThreadCompose() {
               </p>
             ) : null}
 
-            {/* Hairline footer — append-only notice left, text-link actions right */}
+            {/* ── Bottom action bar — WEAVE pill + lock-state pill + cancel ── */}
             <div
               style={{
-                paddingTop: 18,
+                marginTop: 8,
+                paddingTop: 22,
                 borderTop: '1px solid var(--rule)',
                 display: 'flex',
-                alignItems: 'baseline',
-                justifyContent: 'space-between',
+                alignItems: 'center',
                 gap: 16,
                 flexWrap: 'wrap',
               }}
             >
-              <span
-                className="hl-mono"
+              <button
+                type="submit"
+                disabled={!canSave}
+                onClick={handleSave}
+                style={pillStyle(true, !canSave)}
+              >
+                {busy ? 'weaving…' : 'weave →'}
+              </button>
+
+              {/* Secondary: seal / lock state pill (mirrors the time-lock toggle) */}
+              <button
+                type="button"
+                onClick={() => setEnableLock((v) => !v)}
+                style={pillStyle(false)}
+              >
+                {enableLock ? 'sealed ·' : 'seal entry'}
+                {enableLock && (
+                  <span style={{ color: 'var(--warm)', letterSpacing: '0.14em' }}>
+                    {lockType === 'DATE'
+                      ? lockDate || 'date'
+                      : lockType === 'AGE'
+                        ? 'age'
+                        : lockType === 'RECIPIENT_EVENT'
+                          ? 'event'
+                          : 'generation'}
+                  </span>
+                )}
+              </button>
+
+              <Link
+                to={`/threads/${threadId}`}
                 style={{
-                  fontSize: 10,
-                  letterSpacing: '0.18em',
+                  fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+                  fontSize: 11,
+                  letterSpacing: '0.22em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
+                  textDecoration: 'none',
+                  marginLeft: 'auto',
+                  transition: `color 180ms ${EASE}`,
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone-dim)';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone-faint)';
                 }}
               >
-                {create.isPending ? 'weaving…' : 'append-only · cannot be altered once woven'}
-              </span>
-              <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 24 }}>
-                <Link
-                  to={`/threads/${threadId}`}
-                  style={{
-                    fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
-                    fontSize: 11,
-                    letterSpacing: '0.18em',
-                    textTransform: 'uppercase',
-                    color: 'var(--bone-faint)',
-                    textDecoration: 'none',
-                    transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone-dim)';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLAnchorElement).style.color = 'var(--bone-faint)';
-                  }}
-                >
-                  cancel
-                </Link>
-                <button
-                  type="submit"
-                  disabled={create.isPending || !body.trim()}
-                  onClick={handleSave}
-                  style={{
-                    background: 'transparent',
-                    border: 0,
-                    padding: '8px 0',
-                    minHeight: 44,
-                    cursor: create.isPending || !body.trim() ? 'default' : 'pointer',
-                    fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
-                    fontSize: 12,
-                    letterSpacing: '0.18em',
-                    textTransform: 'uppercase',
-                    color: 'var(--warm)',
-                    opacity: create.isPending || !body.trim() ? 0.4 : 1,
-                    transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
-                  }}
-                >
-                  {create.isPending ? 'saving…' : 'save entry →'}
-                </button>
-              </span>
+                cancel
+              </Link>
+            </div>
+
+            {/* Append-only notice, then the resting ∞ */}
+            <p
+              className="hl-mono"
+              style={{
+                margin: '4px 0 0',
+                fontSize: 10,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+                fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+              }}
+            >
+              {busy ? 'weaving…' : 'append-only · cannot be altered once woven'}
+            </p>
+
+            <div style={{ marginTop: 40 }}>
+              <WaxSeal />
             </div>
           </form>
         </div>

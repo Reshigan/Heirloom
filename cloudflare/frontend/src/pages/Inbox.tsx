@@ -4,11 +4,15 @@ import { threadsApi, memoriesApi, type UpcomingUnlock, type ThreadLockType } fro
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { CosmicHeader, EntryRow, SectionLabel } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal, WarmDot } from '../loom/cosmic/CosmicUI';
 
 /**
- * Inbox — Loom 3 native "What is waiting." Re-skinned to the cosmic-inbox mockup:
- * a calm single column of EntryRows under a centered CosmicHeader.
+ * Inbox — Loom 3 native "What is waiting." LEDGER archetype.
+ * CosmicHeader mono eyebrow: unread/total count.
+ * EntryRow list: serif title left; mono right cluster = time + kind.
+ * Unread state: WarmDot beside title.
+ * Mark-read/clear: quiet mono text affordances.
+ * WaxSeal foot.
  *
  * §1.5(B) / §6 the Sealed Note: locked items expose metadata + unlock date
  * only — never the ciphertext body.
@@ -66,6 +70,14 @@ export function Inbox() {
 
   const isEmpty = received.length === 0 && sealed.length === 0 && opened.length === 0;
 
+  // Unread = received (arrived, not yet read) + sealed (locked, waiting)
+  const unreadCount = received.length + sealed.length;
+  const totalCount = received.length + sealed.length + opened.length;
+
+  const eyebrow = totalCount > 0
+    ? `${unreadCount} UNREAD · ${totalCount} TOTAL`
+    : 'THE INBOX';
+
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'today', to: '/loom/today' }, { label: 'inbox' }]} />}
@@ -77,15 +89,23 @@ export function Inbox() {
           flexDirection: 'column',
           alignItems: 'center',
           background: 'transparent',
-          padding: '64px 24px 96px',
+          padding: '64px 24px 120px',
         }}
       >
         <div style={{ width: '100%', maxWidth: 440 }}>
-          <CosmicHeader eyebrow="THE INBOX" title="Inbox" />
+          <CosmicHeader eyebrow={eyebrow} title="Inbox" />
 
           {hasError && (
             <p
-              style={{ fontFamily: 'var(--mono)', color: 'var(--danger)', fontSize: 11, margin: '0 0 28px', letterSpacing: '0.14em', textAlign: 'center' }}
+              style={{
+                fontFamily: 'var(--mono)',
+                color: 'var(--warm)',
+                fontSize: 11,
+                margin: '0 0 28px',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                textAlign: 'center',
+              }}
             >
               could not load inbox
             </p>
@@ -99,13 +119,18 @@ export function Inbox() {
             <EmptyState onSeal={() => navigate('/letters/new')} />
           ) : (
             <>
-              {/* ── arrived (received, for you) ── */}
+              {/* ── arrived (received, for you, unread) ── */}
               {received.length > 0 && <SectionLabel>For you</SectionLabel>}
               {received.map((m) => (
                 <EntryRow
                   key={m.id}
                   filled
-                  title={m.title}
+                  title={
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <WarmDot filled size={5} color="var(--warm)" />
+                      <span>{m.title}</span>
+                    </span>
+                  }
                   sub={`from ${m.from || 'a family member'}`}
                   meta={formatDate(m.createdAt)}
                   onClick={() => navigate(`/loom/read?entry=${m.id}`)}
@@ -125,10 +150,13 @@ export function Inbox() {
                     filled
                     italic={!!u.entry_title}
                     title={
-                      <>
-                        <span aria-hidden style={{ color: 'var(--warm)', fontWeight: 300, marginRight: 8 }}>∞</span>
-                        {u.entry_title ?? 'A sealed note'}
-                      </>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <WarmDot filled size={5} color="var(--warm)" />
+                        <span>
+                          <span aria-hidden style={{ color: 'var(--warm)', fontWeight: 300, marginRight: 8 }}>∞</span>
+                          {u.entry_title ?? 'A sealed note'}
+                        </span>
+                      </span>
                     }
                     sub={subText || undefined}
                     meta={`unlocks ${sealedUntilLabel(itemWithDye)}`}
@@ -144,7 +172,12 @@ export function Inbox() {
                   <EntryRow
                     key={u.unlock_id}
                     filled={false}
-                    title={u.entry_title ?? 'An entry has opened'}
+                    title={
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <WarmDot filled={false} size={5} color="var(--bone-dim)" />
+                        <span>{u.entry_title ?? 'An entry has opened'}</span>
+                      </span>
+                    }
                     sub={subText || undefined}
                     meta={formatDate(u.resolved_at)}
                     onClick={() => navigate(`/loom/read?entry=${u.entry_id}`)}
@@ -152,6 +185,13 @@ export function Inbox() {
                 );
               })}
             </>
+          )}
+
+          {/* ── foot ── */}
+          {!loading && (
+            <div style={{ marginTop: 80 }}>
+              <WaxSeal size={28} />
+            </div>
           )}
         </div>
       </div>
@@ -162,24 +202,53 @@ export function Inbox() {
 /* ── Empty state ────────────────────────────────────────────────────────── */
 function EmptyState({ onSeal }: { onSeal: () => void }) {
   return (
-    <div style={{ marginTop: 40, textAlign: 'center' }}>
+    <div style={{ marginTop: 56, textAlign: 'center' }}>
       <p
-        style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--bone-faint)', marginBottom: 8 }}
+        style={{
+          fontFamily: 'var(--serif)',
+          fontStyle: 'italic',
+          color: 'var(--bone-faint)',
+          fontSize: 18,
+          lineHeight: 1.6,
+          margin: '0 0 8px',
+        }}
       >
         Nothing is waiting.
       </p>
       <p
-        style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 14, marginBottom: 24 }}
+        style={{
+          fontFamily: 'var(--serif)',
+          fontStyle: 'italic',
+          color: 'var(--bone-faint)',
+          fontSize: 15,
+          lineHeight: 1.6,
+          margin: '0 0 32px',
+        }}
       >
         Seal a letter or lock a memory to start the wait.
       </p>
       <button
         type="button"
         onClick={onSeal}
-        style={{ fontFamily: 'var(--sans)', fontSize: 14, color: 'var(--warm)', background: 'none', border: 'none', cursor: 'pointer' }}
+        style={{
+          fontFamily: 'var(--mono)',
+          fontSize: 11,
+          letterSpacing: '0.22em',
+          textTransform: 'uppercase',
+          color: 'var(--warm)',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: '12px 0',
+          minHeight: 44,
+          display: 'inline-block',
+        }}
       >
         seal a letter →
       </button>
+      <div style={{ marginTop: 64 }}>
+        <WaxSeal size={28} />
+      </div>
     </div>
   );
 }
@@ -232,4 +301,3 @@ function formatDate(iso: string): string {
     return iso;
   }
 }
-

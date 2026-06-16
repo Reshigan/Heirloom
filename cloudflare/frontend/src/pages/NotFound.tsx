@@ -3,6 +3,7 @@ import { HLogo } from '../loom/components/HLogo';
 import { TapestryEdge } from '../loom/components/Frame';
 import { useAuthStore } from '../stores/authStore';
 import { ClothShell } from '../loom/components/ClothShell';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 export function NotFound() {
   const { isAuthenticated } = useAuthStore();
@@ -13,52 +14,55 @@ export function NotFound() {
       topbarCenter="not found"
       topbarRight={<Link to={home} className="hl-link warm">the cloth →</Link>}
     >
-      <div style={{ maxWidth: 480, margin: '0 auto', padding: 'clamp(24px,5vw,48px)', textAlign: 'center' }}>
-        <p
-          className="hl-mono"
-          style={{
-            fontSize: 10,
-            color: 'var(--bone-faint)',
-            letterSpacing: '0.32em',
-            textTransform: 'uppercase',
-            marginBottom: 18,
-          }}
-        >
-          404 · thread not found
-        </p>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '60vh',
+          padding: 'clamp(40px,8vw,96px) clamp(24px,5vw,48px)',
+          textAlign: 'center',
+          gap: 0,
+        }}
+      >
+        <WaxSeal size={42} />
 
-        <p
+        <h1
           className="hl-serif"
           style={{
-            fontSize: 64,
-            fontWeight: 300,
-            letterSpacing: '-0.022em',
+            fontSize: 'clamp(26px,5vw,36px)',
+            fontWeight: 400,
             color: 'var(--bone)',
-            margin: '0 0 16px',
-            lineHeight: 1,
+            margin: '28px 0 14px',
+            lineHeight: 1.1,
           }}
         >
-          ∞
-        </p>
+          This thread does not exist.
+        </h1>
 
         <p
           className="hl-serif hl-italic"
           style={{
-            fontSize: 17,
+            fontSize: 16,
             color: 'var(--bone-dim)',
-            margin: '0 0 28px',
+            margin: '0 0 36px',
+            lineHeight: 1.6,
           }}
         >
-          This thread does not exist.
+          The page you followed has come unwoven.
         </p>
 
         <Link
           to={home}
           className="hl-link warm hl-mono"
           style={{
-            fontSize: 10.5,
+            fontSize: 11,
             textTransform: 'uppercase',
-            letterSpacing: '0.18em',
+            letterSpacing: '0.22em',
+            minHeight: 44,
+            display: 'inline-flex',
+            alignItems: 'center',
           }}
         >
           return to the cloth →

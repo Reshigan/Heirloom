@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { settingsApi } from '../services/api';
 
 /**
@@ -10,7 +10,8 @@ import { settingsApi } from '../services/api';
  *   • the support assistant — an AI chatbot grounded in Heirloom, with one-tap
  *     escalation to a person (which opens a ticket, emails the team + the user
  *     a reference number, and keeps the conversation history).
- * No icons, no cards — hairlines and type, per STITCH_BRIEF §2.
+ * LABEL-VALUE archetype: SectionLabel groups, quiet expandable serif rows,
+ * mono uppercase warm affordances, WaxSeal foot.
  */
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
@@ -52,7 +53,7 @@ const HELP_TOPICS: Array<{ q: string; a: string }> = [
   },
   {
     q: 'Can I use Heirloom offline / install it?',
-    a: 'Yes. Heirloom is an installable app (PWA). Use your browser’s install prompt to add it to your home screen; it keeps working offline and syncs when you reconnect.',
+    a: "Yes. Heirloom is an installable app (PWA). Use your browser’s install prompt to add it to your home screen; it keeps working offline and syncs when you reconnect.",
   },
   {
     q: 'How do plans and billing work?',
@@ -118,10 +119,10 @@ export function HelpSupport() {
       setReference(data.ticketNumber);
       setMessages((m) => [...m, {
         role: 'assistant',
-        content: `I’ve passed this to a person. Your reference is ${data.ticketNumber} — we’ve emailed you a copy and the team will reply to your email.`,
+        content: `I've passed this to a person. Your reference is ${data.ticketNumber} — we've emailed you a copy and the team will reply to your email.`,
       }]);
     } catch {
-      setMessages((m) => [...m, { role: 'assistant', content: 'I couldn’t escalate just now. Please try again in a moment.' }]);
+      setMessages((m) => [...m, { role: 'assistant', content: "I couldn't escalate just now. Please try again in a moment." }]);
     } finally {
       setEscalating(false);
     }
@@ -138,19 +139,23 @@ export function HelpSupport() {
 
   return (
     <ClothShell topbarLeft={topbarLeft} topbarCenter="help & support">
-      <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
+      <div style={{
+        padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+        maxWidth: 'var(--page-max-prose)',
+        margin: '0 auto',
+      }}>
 
-        {/* ── In-system help ─────────────────────────────────────────────── */}
-        <RoomHeader
+        {/* ── Page header ─────────────────────────────────────────────────── */}
+        <CosmicHeader
           eyebrow="help & support"
           title="The questions families ask first."
-          lede="Plain answers about the cloth, sealed letters, and inheritance — and an assistant for anything else."
-          className="hl-room-header"
+          sub="Plain answers about the cloth, sealed letters, and inheritance — and an assistant for anything else."
         />
-        <div className="hl-eyebrow" style={{ margin: '48px 0 18px' }}>
-          the basics
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 56 }}>
+
+        {/* ── FAQ accordion ───────────────────────────────────────────────── */}
+        <SectionLabel>the basics</SectionLabel>
+
+        <div style={{ display: 'flex', flexDirection: 'column', marginBottom: 64 }}>
           {HELP_TOPICS.map((t, i) => {
             const open = openTopic === i;
             return (
@@ -160,22 +165,49 @@ export function HelpSupport() {
                   aria-expanded={open}
                   onClick={() => setOpenTopic(open ? null : i)}
                   style={{
-                    width: '100%', textAlign: 'left', background: 'transparent', border: 0,
-                    padding: '16px 0', cursor: 'pointer', display: 'flex',
-                    justifyContent: 'space-between', alignItems: 'baseline', gap: 16,
+                    width: '100%',
+                    textAlign: 'left',
+                    background: 'transparent',
+                    border: 0,
+                    padding: '16px 0',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'baseline',
+                    gap: 16,
+                    minHeight: 44,
                   }}
                 >
-                  <span style={{ fontFamily: 'var(--serif)', fontSize: 17, fontWeight: 300, color: 'var(--bone)', lineHeight: 1.4 }}>
+                  <span style={{
+                    fontFamily: 'var(--serif)',
+                    fontSize: 'clamp(15px, 2vw, 17px)',
+                    fontWeight: 300,
+                    color: 'var(--bone)',
+                    lineHeight: 1.4,
+                  }}>
                     {t.q}
                   </span>
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--warm)', flexShrink: 0 }}>
-                    {open ? '–' : '+'}
+                  <span style={{
+                    fontFamily: 'var(--mono)',
+                    fontSize: 11,
+                    letterSpacing: '0.22em',
+                    textTransform: 'uppercase',
+                    color: open ? 'var(--warm)' : 'var(--bone-faint)',
+                    flexShrink: 0,
+                    transition: `color 180ms ${EASE}`,
+                  }}>
+                    {open ? 'close' : 'open'}
                   </span>
                 </button>
                 {open && (
                   <p style={{
-                    fontFamily: 'var(--serif)', fontSize: 15, fontWeight: 300,
-                    lineHeight: 1.75, color: 'var(--bone-dim)', margin: '0 0 18px', maxWidth: '60ch',
+                    fontFamily: 'var(--serif)',
+                    fontSize: 'clamp(14px, 2vw, 15px)',
+                    fontWeight: 300,
+                    lineHeight: 1.75,
+                    color: 'var(--bone-dim)',
+                    margin: '0 0 18px',
+                    maxWidth: '60ch',
                     animation: `hl-fade 360ms ${EASE}`,
                   }}>
                     {t.a}
@@ -186,11 +218,18 @@ export function HelpSupport() {
           })}
         </div>
 
-        {/* ── The support assistant ──────────────────────────────────────── */}
-        <div className="hl-eyebrow" style={{ marginBottom: 8 }}>
-          ask the assistant
-        </div>
-        <p style={{ fontFamily: 'var(--serif)', fontSize: 14, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-faint)', margin: '0 0 18px', lineHeight: 1.6 }}>
+        {/* ── Support assistant ────────────────────────────────────────────── */}
+        <SectionLabel>ask the assistant</SectionLabel>
+
+        <p style={{
+          fontFamily: 'var(--serif)',
+          fontSize: 14,
+          fontWeight: 300,
+          fontStyle: 'italic',
+          color: 'var(--bone-faint)',
+          margin: '0 0 18px',
+          lineHeight: 1.6,
+        }}>
           Answers about using Heirloom. For anything a person needs to handle — a bug, billing, lost access — pass it to the team.
         </p>
 
@@ -198,34 +237,63 @@ export function HelpSupport() {
         <div
           ref={threadRef}
           style={{
-            border: '1px solid var(--rule)', minHeight: 160, maxHeight: 380, overflowY: 'auto',
-            padding: 16, display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 12,
+            borderTop: '1px solid var(--rule)',
+            borderBottom: '1px solid var(--rule)',
+            minHeight: 160,
+            maxHeight: 380,
+            overflowY: 'auto',
+            padding: '16px 0',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 14,
+            marginBottom: 12,
           }}
         >
           {messages.length === 0 && !sending && (
-            <p style={{ fontFamily: 'var(--serif)', fontSize: 15, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-faint)', margin: 0, lineHeight: 1.7 }}>
+            <p style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 15,
+              fontWeight: 300,
+              fontStyle: 'italic',
+              color: 'var(--bone-faint)',
+              margin: 0,
+              lineHeight: 1.7,
+            }}>
               Ask anything — "how do I seal a letter?", "how do I invite my mum?", "how does inheritance work?"
             </p>
           )}
-          {messages.map((m, i) => (
-            <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+          {messages.map((m, idx) => (
+            <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               <span style={{
-                fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.18em', textTransform: 'uppercase',
+                fontFamily: 'var(--mono)',
+                fontSize: 9,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
                 color: m.role === 'user' ? 'var(--warm)' : 'var(--bone-faint)',
               }}>
                 {m.role === 'user' ? 'you' : 'assistant'}
               </span>
               <p style={{
-                fontFamily: 'var(--serif)', fontSize: 15, fontWeight: 300, lineHeight: 1.7,
+                fontFamily: 'var(--serif)',
+                fontSize: 15,
+                fontWeight: 300,
+                lineHeight: 1.7,
                 color: m.role === 'user' ? 'var(--bone)' : 'var(--bone-dim)',
-                margin: 0, whiteSpace: 'pre-wrap',
+                margin: 0,
+                whiteSpace: 'pre-wrap',
               }}>
                 {m.content}
               </p>
             </div>
           ))}
           {sending && (
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+            <span style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 9,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+            }}>
               thinking…
             </span>
           )}
@@ -240,46 +308,87 @@ export function HelpSupport() {
             placeholder="Type your question…"
             rows={1}
             style={{
-              flex: 1, background: 'transparent', border: '1px solid var(--rule)', borderRadius: 2,
-              color: 'var(--bone)', caretColor: 'var(--warm)', fontFamily: 'var(--serif)',
-              fontSize: 16, fontWeight: 300, lineHeight: 1.6, padding: '12px 14px',
-              outline: 'none', resize: 'none', boxSizing: 'border-box',
+              flex: 1,
+              background: 'transparent',
+              border: 0,
+              borderBottom: '1px solid var(--rule)',
+              color: 'var(--bone)',
+              caretColor: 'var(--warm)',
+              fontFamily: 'var(--serif)',
+              fontSize: 16,
+              fontWeight: 300,
+              lineHeight: 1.6,
+              padding: '10px 0',
+              outline: 'none',
+              resize: 'none',
+              boxSizing: 'border-box',
             }}
           />
-          <button type="button" className="hl-btn" onClick={send} disabled={sending || !input.trim()}>
+          <button
+            type="button"
+            onClick={send}
+            disabled={sending || !input.trim()}
+            style={{
+              background: 'transparent',
+              border: 0,
+              fontFamily: 'var(--mono)',
+              fontSize: 10,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: sending || !input.trim() ? 'var(--bone-faint)' : 'var(--warm)',
+              cursor: sending || !input.trim() ? 'default' : 'pointer',
+              padding: '10px 0 10px 14px',
+              flexShrink: 0,
+              minHeight: 44,
+              transition: `color 180ms ${EASE}`,
+            }}
+          >
             send →
           </button>
         </div>
 
-        {/* escalation */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
+        {/* escalation row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 24, flexWrap: 'wrap', paddingTop: 4 }}>
           <button
             type="button"
             onClick={escalate}
             disabled={escalating || messages.length === 0}
             style={{
-              background: 'transparent', border: 0, borderLeft: '3px solid var(--warm)',
-              padding: '8px 14px', cursor: messages.length === 0 ? 'default' : 'pointer',
-              opacity: messages.length === 0 ? 0.4 : 1,
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
-              textTransform: 'uppercase', color: 'var(--warm)', touchAction: 'manipulation',
+              background: 'transparent',
+              border: 0,
+              borderLeft: '2px solid var(--warm)',
+              padding: '6px 14px',
+              cursor: messages.length === 0 ? 'default' : 'pointer',
+              opacity: messages.length === 0 ? 0.35 : 1,
+              fontFamily: 'var(--mono)',
+              fontSize: 10,
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
+              touchAction: 'manipulation',
+              minHeight: 44,
+              transition: `opacity 180ms ${EASE}`,
             }}
           >
             {escalating ? 'passing to a person…' : 'talk to a human →'}
           </button>
           {reference && (
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em', color: 'var(--bone-dim)' }}>
+            <span style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 10,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-dim)',
+            }}>
               reference {reference}
             </span>
           )}
         </div>
 
-        {/* ── Conversation history ───────────────────────────────────────── */}
+        {/* ── Past conversations ───────────────────────────────────────────── */}
         {past.length > 0 && (
-          <div style={{ marginTop: 56 }}>
-            <div className="hl-eyebrow" style={{ marginBottom: 14 }}>
-              your past conversations
-            </div>
+          <div style={{ marginTop: 64 }}>
+            <SectionLabel>your past conversations</SectionLabel>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
               {past.map((c) => {
                 const open = openPast === c.id;
@@ -290,26 +399,67 @@ export function HelpSupport() {
                       aria-expanded={open}
                       onClick={() => setOpenPast(open ? null : c.id)}
                       style={{
-                        width: '100%', textAlign: 'left', background: 'transparent', border: 0,
-                        padding: '14px 0', cursor: 'pointer', display: 'flex',
-                        justifyContent: 'space-between', alignItems: 'baseline', gap: 16,
+                        width: '100%',
+                        textAlign: 'left',
+                        background: 'transparent',
+                        border: 0,
+                        padding: '14px 0',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'baseline',
+                        gap: 16,
+                        minHeight: 44,
                       }}
                     >
-                      <span style={{ fontFamily: 'var(--serif)', fontSize: 15, fontWeight: 300, color: 'var(--bone)', lineHeight: 1.4 }}>
+                      <span style={{
+                        fontFamily: 'var(--serif)',
+                        fontSize: 'clamp(14px, 2vw, 15px)',
+                        fontWeight: 300,
+                        color: 'var(--bone)',
+                        lineHeight: 1.4,
+                      }}>
                         {c.title || 'Support conversation'}
                       </span>
-                      <span style={{ fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.16em', textTransform: 'uppercase', color: c.ticket_number ? 'var(--warm)' : 'var(--bone-faint)', flexShrink: 0 }}>
+                      <span style={{
+                        fontFamily: 'var(--mono)',
+                        fontSize: 9,
+                        letterSpacing: '0.2em',
+                        textTransform: 'uppercase',
+                        color: c.ticket_number ? 'var(--warm)' : 'var(--bone-faint)',
+                        flexShrink: 0,
+                      }}>
                         {c.ticket_number ? `ref ${c.ticket_number}` : c.status.toLowerCase()}
                       </span>
                     </button>
                     {open && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '0 0 18px', animation: `hl-fade 360ms ${EASE}` }}>
-                        {c.messages.map((m, i) => (
-                          <div key={i}>
-                            <span style={{ fontFamily: 'var(--mono)', fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', color: m.role === 'user' ? 'var(--warm)' : 'var(--bone-faint)' }}>
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 10,
+                        padding: '0 0 18px',
+                        animation: `hl-fade 360ms ${EASE}`,
+                      }}>
+                        {c.messages.map((m, idx) => (
+                          <div key={idx}>
+                            <span style={{
+                              fontFamily: 'var(--mono)',
+                              fontSize: 8,
+                              letterSpacing: '0.22em',
+                              textTransform: 'uppercase',
+                              color: m.role === 'user' ? 'var(--warm)' : 'var(--bone-faint)',
+                            }}>
                               {m.role === 'user' ? 'you' : 'assistant'}
                             </span>
-                            <p style={{ fontFamily: 'var(--serif)', fontSize: 14, fontWeight: 300, lineHeight: 1.65, color: 'var(--bone-dim)', margin: '2px 0 0', whiteSpace: 'pre-wrap' }}>
+                            <p style={{
+                              fontFamily: 'var(--serif)',
+                              fontSize: 14,
+                              fontWeight: 300,
+                              lineHeight: 1.65,
+                              color: 'var(--bone-dim)',
+                              margin: '2px 0 0',
+                              whiteSpace: 'pre-wrap',
+                            }}>
                               {m.content}
                             </p>
                           </div>
@@ -322,6 +472,12 @@ export function HelpSupport() {
             </div>
           </div>
         )}
+
+        {/* ── Foot ────────────────────────────────────────────────────────── */}
+        <div style={{ marginTop: 80, paddingBottom: 40 }}>
+          <WaxSeal size={28} />
+        </div>
+
       </div>
     </ClothShell>
   );

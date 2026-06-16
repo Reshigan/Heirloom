@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader } from '../loom/components/room';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { usePageMeta } from '../lib/usePageMeta';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -95,6 +95,9 @@ export function GiftPurchase() {
   const selectedPricing = pricing?.tiers.find((t) => t.id === selectedTier);
   const price = selectedPricing?.[billingCycle];
 
+  // Ceremony meta: a gift addressed to the recipient (name → email → the unnamed).
+  const giftFor = formData.recipientName.trim() || formData.recipientEmail.trim();
+
   return (
     <ClothShell
       topbarLeft={<HLogo />}
@@ -104,20 +107,69 @@ export function GiftPurchase() {
       {/* Content */}
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
         <form onSubmit={(e) => { e.preventDefault(); handlePurchase(); }}>
-        <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
+        <div style={{ maxWidth: 540, margin: '0 auto' }}>
 
-          <RoomHeader
-            eyebrow="gift a thread"
-            title={'Give a thread that outlives you.'}
-            lede="Give someone the gift of a family thread."
-          />
+          {/* Ceremony header — glowing ∞, serif title, mono warm address */}
+          <header style={{ textAlign: 'center', marginBottom: 48 }}>
+            <div
+              aria-hidden
+              style={{
+                color: 'var(--warm)',
+                fontSize: 'clamp(40px, 10vw, 64px)',
+                lineHeight: 1,
+                textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
+                marginBottom: 24,
+              }}
+            >
+              ∞
+            </div>
+            <h1
+              className="hl-serif hl-tight"
+              style={{
+                fontSize: 'clamp(24px, 5vw, 34px)',
+                fontWeight: 400,
+                lineHeight: 1.12,
+                color: 'var(--bone)',
+                margin: 0,
+              }}
+            >
+              Give a thread that outlives you.
+            </h1>
+            <div
+              className="hl-mono"
+              style={{
+                fontSize: 11,
+                letterSpacing: '0.26em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                marginTop: 18,
+              }}
+            >
+              {giftFor ? `A GIFT FOR ${giftFor}` : 'A GIFT OF A FAMILY THREAD'}
+            </div>
+            <p
+              className="hl-serif"
+              style={{
+                fontStyle: 'italic',
+                fontWeight: 300,
+                fontSize: 16,
+                lineHeight: 1.55,
+                color: 'var(--bone-dim)',
+                margin: '16px auto 0',
+                maxWidth: '28em',
+              }}
+            >
+              Give someone the gift of a family thread.
+            </p>
+          </header>
 
           {/* Billing cycle toggle */}
           <div
             style={{
               display: 'flex',
               gap: 0,
-              margin: '40px 0 28px',
+              justifyContent: 'center',
+              margin: '0 0 28px',
               borderBottom: '1px solid var(--rule)',
             }}
           >
@@ -520,39 +572,42 @@ export function GiftPurchase() {
             </p>
           )}
 
-          {/* CTA — amber mono text-link */}
-          <button
-            type="submit"
-            disabled={isLoading || !formData.purchaserEmail}
-            className="hl-mono"
-            style={{
-              marginTop: 28,
-              background: 'transparent',
-              border: 0,
-              padding: 0,
-              fontSize: 11,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
-              color: 'var(--warm)',
-              opacity: isLoading || !formData.purchaserEmail ? 0.45 : 1,
-              cursor: isLoading || !formData.purchaserEmail ? 'default' : 'pointer',
-              transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
-            }}
-          >
-            {isLoading ? 'preparing checkout…' : 'complete the gift →'}
-          </button>
+          {/* CTA — amber mono ceremony verb, centered */}
+          <div style={{ textAlign: 'center', marginTop: 32 }}>
+            <button
+              type="submit"
+              disabled={isLoading || !formData.purchaserEmail}
+              className="hl-mono"
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: 0,
+                fontSize: 11,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                opacity: isLoading || !formData.purchaserEmail ? 0.45 : 1,
+                cursor: isLoading || !formData.purchaserEmail ? 'default' : 'pointer',
+                transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+            >
+              {isLoading ? 'preparing checkout…' : 'seal the gift →'}
+            </button>
 
-          <p
-            className="hl-mono"
-            style={{
-              fontSize: 9,
-              letterSpacing: '0.18em',
-              color: 'var(--bone-faint)',
-              marginTop: 16,
-            }}
-          >
-            secure payment via stripe · voucher valid 1 year
-          </p>
+            <p
+              className="hl-mono"
+              style={{
+                fontSize: 9,
+                letterSpacing: '0.18em',
+                color: 'var(--bone-faint)',
+                margin: '16px 0 36px',
+              }}
+            >
+              secure payment via stripe · voucher valid 1 year
+            </p>
+
+            <WaxSeal size={26} />
+          </div>
 
         </div>
         </form>

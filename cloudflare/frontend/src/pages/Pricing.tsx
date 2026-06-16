@@ -4,7 +4,7 @@ import { billingApi } from '../services/api';
 import { PLAN_FEATURES } from '../lib/plans';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
-import { WaxSeal, WarmDot } from '../loom/cosmic/CosmicUI';
+import { WaxSeal, WarmDot, CosmicHeader, SectionLabel } from '../loom/cosmic/CosmicUI';
 import { usePageMeta } from '../lib/usePageMeta';
 
 interface PricingData {
@@ -89,27 +89,20 @@ export function Pricing() {
 
   return (
     <ClothShell topbarLeft={<HLogo />} topbarCenter="pricing">
-      <style>{`
-        .hl-pricing-cols {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          align-items: stretch;
-        }
-        @media (max-width: 720px) {
-          .hl-pricing-cols { grid-template-columns: 1fr; }
-        }
-      `}</style>
       <div
         style={{
-          maxWidth: 1080,
+          maxWidth: 760,
           margin: '0 auto',
           padding: 'clamp(48px,11vh,120px) clamp(24px,6vw,56px)',
         }}
       >
-        {/* Top ∞ */}
-        <div style={{ marginBottom: 'clamp(48px,10vh,104px)' }}>
-          <WaxSeal size={19} />
-        </div>
+        {/* The hero — centred serif headline, mono eyebrow, serif-italic sub */}
+        <CosmicHeader
+          align="center"
+          eyebrow="Plans & Pricing"
+          title={<>Start your family&rsquo;s thousand-year thread.</>}
+          sub={<>Begin free. Upgrade when the thread is ready to outlive you. One bloodline, one archive &mdash; never billed for what you&rsquo;ve already woven.</>}
+        />
 
         {/* Billing cycle toggle — preserved */}
         <div
@@ -118,7 +111,7 @@ export function Pricing() {
             justifyContent: 'center',
             alignItems: 'center',
             gap: 24,
-            marginBottom: 'clamp(40px,9vh,88px)',
+            margin: 'clamp(32px,7vh,64px) 0 clamp(40px,9vh,80px)',
           }}
         >
           <button
@@ -151,70 +144,62 @@ export function Pricing() {
           </button>
         </div>
 
-        {/* Three columns — FREE | FAMILY | FOUNDER */}
-        <div className="hl-pricing-cols">
+        {/* The tiers — quiet hairline-ruled ledger blocks (FREE | FAMILY | FOUNDER), not cards */}
+        <div>
           {tiers.map((tier) => {
             const price = showAnnual && tier.priceAnnual ? tier.priceAnnual : tier.price;
             const cadence = showAnnual && tier.cadenceAnnual ? tier.cadenceAnnual : tier.cadence;
             const to = showAnnual ? tier.toAnnual : tier.to;
             return (
-              <div
+              <section
                 key={tier.id}
                 style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  padding: 'clamp(28px,4vw,48px) clamp(24px,3vw,40px) clamp(32px,5vh,52px)',
-                  borderLeft: tier.emphasized ? '1px solid var(--rule)' : '1px solid transparent',
-                  borderRight: tier.emphasized ? '1px solid var(--rule)' : '1px solid transparent',
-                  borderTop: tier.emphasized ? '2px solid var(--warm)' : '2px solid transparent',
+                  padding: 'clamp(28px,5vh,44px) 0',
+                  borderTop: '1px solid var(--rule)',
+                  borderLeft: tier.emphasized ? '2px solid var(--warm)' : '2px solid transparent',
+                  paddingLeft: tier.emphasized ? 'clamp(18px,3vw,28px)' : 0,
                 }}
               >
-                {/* Plan name */}
+                {/* Tier name + price line — serif price, mono cadence */}
                 <div
                   style={{
-                    fontFamily: 'var(--mono)',
-                    fontSize: 11,
-                    letterSpacing: '0.28em',
-                    textTransform: 'uppercase',
-                    color: 'var(--bone-dim)',
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    justifyContent: 'space-between',
+                    gap: 20,
+                    flexWrap: 'wrap',
                   }}
                 >
-                  {tier.name}
+                  <SectionLabel>{tier.name}</SectionLabel>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+                    <span
+                      style={{
+                        fontFamily: 'var(--serif)',
+                        fontSize: 'clamp(30px,6vw,46px)',
+                        fontWeight: 400,
+                        lineHeight: 1,
+                        color: 'var(--bone)',
+                      }}
+                    >
+                      {price}
+                    </span>
+                    <span
+                      style={{
+                        fontFamily: 'var(--mono)',
+                        fontSize: 10,
+                        letterSpacing: '0.24em',
+                        textTransform: 'uppercase',
+                        color: 'var(--bone-faint)',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {cadence}
+                    </span>
+                  </div>
                 </div>
-
-                {/* Price */}
-                <div
-                  style={{
-                    fontFamily: 'var(--serif)',
-                    fontSize: 'clamp(32px,6vw,50px)',
-                    fontWeight: 400,
-                    lineHeight: 1,
-                    color: 'var(--bone)',
-                    margin: '18px 0 0',
-                  }}
-                >
-                  {price}
-                </div>
-
-                {/* Cadence */}
-                <div
-                  style={{
-                    fontFamily: 'var(--mono)',
-                    fontSize: 10,
-                    letterSpacing: '0.24em',
-                    textTransform: 'uppercase',
-                    color: 'var(--bone-faint)',
-                    marginTop: 12,
-                  }}
-                >
-                  {cadence}
-                </div>
-
-                {/* Hairline rule */}
-                <div style={{ height: 1, background: 'var(--rule)', margin: 'clamp(24px,4vh,36px) 0 clamp(24px,4vh,36px)' }} />
 
                 {/* Feature list */}
-                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 14, flex: 1 }}>
+                <ul style={{ listStyle: 'none', margin: '20px 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {tier.features.map((f) => (
                     <li key={f} style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
                       <span style={{ position: 'relative', top: 1, flex: '0 0 auto' }}>
@@ -227,8 +212,8 @@ export function Pricing() {
                   ))}
                 </ul>
 
-                {/* CTA at the column foot */}
-                <div style={{ marginTop: 'clamp(28px,5vh,44px)' }}>
+                {/* CTA — mono warm text affordance */}
+                <div style={{ marginTop: 'clamp(22px,4vh,32px)' }}>
                   <Link
                     to={to}
                     style={{
@@ -241,10 +226,10 @@ export function Pricing() {
                       transition: 'color 180ms var(--ease)',
                     }}
                   >
-                    {tier.cta}
+                    {tier.cta} →
                   </Link>
                 </div>
-              </div>
+              </section>
             );
           })}
         </div>

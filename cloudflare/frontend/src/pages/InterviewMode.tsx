@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { voiceApi, aiApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader, RoomSection } from '../loom/components/room';
+import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 const SILENCE_THRESHOLD = 0.01;
 
@@ -285,7 +285,7 @@ export function InterviewMode() {
             display: 'inline-block',
             width: 4,
             height: 4,
-            background: 'var(--danger)',
+            background: 'var(--warm)',
             borderRadius: 0,
             animation: 'hl-blink 1400ms steps(1) infinite',
           }}
@@ -294,6 +294,10 @@ export function InterviewMode() {
       {formatTime(duration)}
     </span>
   );
+
+  // Step progress — count of questions the listener has asked so far.
+  const askedCount = transcript.filter((s) => s.isQuestion).length;
+  const stepCount = Math.max(askedCount, 1);
 
   const endLink = (
     <Link
@@ -321,24 +325,19 @@ export function InterviewMode() {
             padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           }}
         >
-          {/* Question display */}
-          <RoomHeader
+          {/* The listener's question — mono eyebrow + giant serif prompt */}
+          <CosmicHeader
             key={currentQuestion}
-            eyebrow="the listener"
-            warmEyebrow
-            title={
-              <span style={{ fontStyle: 'italic', color: 'var(--bone-dim)' }}>
-                {currentQuestion}
-              </span>
-            }
+            eyebrow="the listener asks"
+            title={<span style={{ fontWeight: 400 }}>{currentQuestion}</span>}
           />
 
-          {/* Answer area — faint amber left thread */}
+          {/* Answer area — faint amber left thread, serif body */}
           <div
             style={{
-              marginTop: 28,
+              marginTop: 4,
               borderLeft: '3px solid color-mix(in srgb, var(--warm) 32%, transparent)',
-              paddingLeft: 20,
+              paddingLeft: 24,
             }}
           >
             <textarea
@@ -354,17 +353,18 @@ export function InterviewMode() {
                 border: 'none',
                 outline: 'none',
                 resize: 'none',
-                minHeight: 160,
+                minHeight: 180,
                 color: 'var(--bone)',
                 caretColor: 'var(--warm)',
-                lineHeight: 1.85,
+                lineHeight: 1.75,
               }}
             />
           </div>
 
-          {/* Follow-up suggestions */}
+          {/* Follow-up suggestions — the listener offers other threads to pull */}
           {followUpQuestions.length > 0 && (
-            <RoomSection label="follow-up questions">
+            <div>
+              <SectionLabel>follow-up questions</SectionLabel>
               <div>
                 {followUpQuestions.map((q, i) => (
                   <button
@@ -373,7 +373,7 @@ export function InterviewMode() {
                     style={{
                       display: 'block',
                       width: '100%',
-                      padding: '12px 0',
+                      padding: '14px 0',
                       background: 'none',
                       border: 'none',
                       borderBottom: '1px solid var(--rule)',
@@ -385,8 +385,9 @@ export function InterviewMode() {
                       className="hl-serif"
                       style={{
                         fontStyle: 'italic',
-                        fontSize: 15,
+                        fontSize: 16,
                         color: 'var(--bone-dim)',
+                        lineHeight: 1.4,
                       }}
                     >
                       {q}
@@ -394,11 +395,99 @@ export function InterviewMode() {
                   </button>
                 ))}
               </div>
-            </RoomSection>
+            </div>
           )}
 
-          {/* Next question link */}
-          <div style={{ marginTop: 22 }}>
+          {/* Inline status — silence hint, recording errors, save errors (mono, never red) */}
+          {silenceTimer > 1500 && isRecording && !isPaused && (
+            <p
+              className="hl-serif"
+              style={{
+                marginTop: 22,
+                color: 'var(--bone-faint)',
+                fontStyle: 'italic',
+                fontSize: 15,
+                lineHeight: 1.5,
+              }}
+            >
+              Take your time — or ask for a follow-up.
+            </p>
+          )}
+
+          {recordingError && (
+            <p style={{ color: 'var(--warm)', fontSize: 12, marginTop: 22, fontFamily: 'var(--mono)', letterSpacing: '0.08em' }}>
+              {recordingError}
+            </p>
+          )}
+
+          {saveError && (
+            <p style={{ color: 'var(--warm)', fontSize: 12, marginTop: 22, fontFamily: 'var(--mono)', letterSpacing: '0.08em' }}>
+              {saveError}
+            </p>
+          )}
+
+          {/* Waveform — 1px hairline bars while recording */}
+          {isRecording && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                height: 32,
+                marginTop: 22,
+              }}
+            >
+              {waveformBars.map((h, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 1,
+                    height: `${h * 32}px`,
+                    background: isPaused ? 'var(--bone-faint)' : 'var(--warm)',
+                    opacity: 0.7,
+                    transition: 'height 180ms cubic-bezier(0.16,1,0.3,1)',
+                    borderRadius: 0,
+                  }}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Step progress — hairline bar, never a spinner */}
+          <div style={{ marginTop: 40 }}>
+            <progress
+              value={askedCount}
+              max={stepCount}
+              aria-label="Interview progress"
+              style={{ width: '100%', height: 1, display: 'block', appearance: 'none', border: 'none', background: 'var(--rule)' }}
+            />
+            <div
+              style={{
+                marginTop: 8,
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+              }}
+            >
+              {askedCount} {askedCount === 1 ? 'question' : 'questions'} asked
+            </div>
+          </div>
+
+          {/* Bottom action bar — mono warm affordances, no icons */}
+          <div
+            style={{
+              marginTop: 18,
+              paddingTop: 18,
+              borderTop: '1px solid var(--rule)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 24,
+              flexWrap: 'wrap',
+            }}
+          >
+            {/* NEXT — ask the listener for a follow-up question */}
             <button
               onClick={generateFollowUp}
               disabled={isGeneratingQuestion}
@@ -408,131 +497,109 @@ export function InterviewMode() {
                 padding: 0,
                 cursor: isGeneratingQuestion ? 'wait' : 'pointer',
                 fontFamily: 'var(--mono)',
-                fontSize: 10,
-                letterSpacing: '0.18em',
+                fontSize: 11,
+                letterSpacing: '0.22em',
                 textTransform: 'uppercase',
                 color: isGeneratingQuestion ? 'var(--bone-faint)' : 'var(--warm)',
                 opacity: isGeneratingQuestion ? 0.5 : 1,
                 transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                minHeight: 44,
               }}
             >
               {isGeneratingQuestion ? 'thinking…' : 'next question →'}
             </button>
-          </div>
 
-          {/* Voice recording option */}
-          <div style={{ marginTop: 40 }}>
-            <hr className="hl-rule" />
-            <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', gap: 16 }}>
-              {!isRecording ? (
-                <button
-                  onClick={startRecording}
-                  className="hl-btn"
-                  style={{ fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', padding: '10px 20px' }}
-                  aria-label="Start voice recording"
-                >
-                  record voice
-                </button>
-              ) : (
-                <>
-                  <button
-                    onClick={isPaused ? resumeRecording : pauseRecording}
-                    className="hl-btn ghost"
-                    aria-label={isPaused ? 'Resume recording' : 'Pause recording'}
-                    style={{ fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', padding: '10px 20px' }}
-                  >
-                    {isPaused ? 'resume' : 'pause'}
-                  </button>
-
-                  <button
-                    onClick={stopAndSave}
-                    disabled={isSaving}
-                    className="hl-btn"
-                    aria-label={isSaving ? 'Saving' : 'Stop and save recording'}
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: '0.16em',
-                      textTransform: 'uppercase',
-                      padding: '10px 20px',
-                      opacity: isSaving ? 0.5 : 1,
-                    }}
-                  >
-                    {isSaving ? 'saving…' : 'stop & save'}
-                  </button>
-                </>
-              )}
-            </div>
-
-            {recordingError && (
-              <p style={{ color: 'var(--danger)', fontSize: 13, marginTop: 8, fontFamily: 'var(--mono)' }}>{recordingError}</p>
-            )}
-
-            {/* Waveform — 1px hairline bars while recording */}
-            {isRecording && (
-              <div
+            {/* RECORD / PAUSE / SAVE — the voice path */}
+            {!isRecording ? (
+              <button
+                onClick={startRecording}
+                aria-label="Start voice recording"
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 2,
-                  height: 32,
-                  marginTop: 16,
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-dim)',
+                  minHeight: 44,
                 }}
               >
-                {waveformBars.map((h, i) => (
-                  <div
-                    key={i}
-                    style={{
-                      width: 1,
-                      height: `${h * 32}px`,
-                      background: isPaused ? 'var(--bone-faint)' : 'var(--warm)',
-                      opacity: 0.7,
-                      transition: 'height 180ms cubic-bezier(0.16,1,0.3,1)',
-                      borderRadius: 0,
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-
-            {/* Save written answers — shown when there's text and recording is not active */}
-            {textAnswer.trim().length > 0 && !isRecording && (
-              <div style={{ marginTop: 16 }}>
+                record voice
+              </button>
+            ) : (
+              <>
                 <button
-                  onClick={saveTextOnly}
-                  disabled={isSaving}
-                  className="hl-btn ghost"
+                  onClick={isPaused ? resumeRecording : pauseRecording}
+                  aria-label={isPaused ? 'Resume recording' : 'Pause recording'}
                   style={{
-                    fontSize: 10,
-                    letterSpacing: '0.16em',
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
+                    fontFamily: 'var(--mono)',
+                    fontSize: 11,
+                    letterSpacing: '0.22em',
                     textTransform: 'uppercase',
-                    padding: '10px 20px',
-                    opacity: isSaving ? 0.5 : 1,
+                    color: 'var(--bone-dim)',
+                    minHeight: 44,
                   }}
                 >
-                  {isSaving ? 'saving…' : 'save written answers'}
+                  {isPaused ? 'resume' : 'pause'}
                 </button>
-              </div>
+
+                <button
+                  onClick={stopAndSave}
+                  disabled={isSaving}
+                  aria-label={isSaving ? 'Saving' : 'Stop and save recording'}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    cursor: isSaving ? 'wait' : 'pointer',
+                    fontFamily: 'var(--mono)',
+                    fontSize: 11,
+                    letterSpacing: '0.22em',
+                    textTransform: 'uppercase',
+                    color: 'var(--warm)',
+                    opacity: isSaving ? 0.5 : 1,
+                    minHeight: 44,
+                  }}
+                >
+                  {isSaving ? 'saving…' : 'stop & save →'}
+                </button>
+              </>
             )}
 
-            {saveError && (
-              <p style={{ color: 'var(--danger)', fontSize: 13, marginTop: 8, fontFamily: 'var(--mono)' }}>{saveError}</p>
-            )}
-
-            {/* Silence hint */}
-            {silenceTimer > 1500 && isRecording && !isPaused && (
-              <p
-                className="hl-serif"
+            {/* SAVE written answers — when there is text and no active recording */}
+            {textAnswer.trim().length > 0 && !isRecording && (
+              <button
+                onClick={saveTextOnly}
+                disabled={isSaving}
                 style={{
-                  marginTop: 16,
-                  color: 'var(--bone-faint)',
-                  fontStyle: 'italic',
-                  fontSize: 14,
-                  lineHeight: 1.5,
+                  marginLeft: 'auto',
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  cursor: isSaving ? 'wait' : 'pointer',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  opacity: isSaving ? 0.5 : 1,
+                  minHeight: 44,
                 }}
               >
-                Take your time — or press next question for a follow-up.
-              </p>
+                {isSaving ? 'saving…' : 'save written →'}
+              </button>
             )}
+          </div>
+
+          <div style={{ marginTop: 56 }}>
+            <WaxSeal />
           </div>
         </div>
       </div>
@@ -542,6 +609,10 @@ export function InterviewMode() {
           0%, 100% { opacity: 1; }
           50%       { opacity: 0; }
         }
+        progress { color: var(--warm); }
+        progress::-webkit-progress-bar { background: var(--rule); }
+        progress::-webkit-progress-value { background: var(--warm); }
+        progress::-moz-progress-bar { background: var(--warm); }
       `}</style>
     </ClothShell>
   );

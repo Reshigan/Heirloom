@@ -6,7 +6,8 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import api, { memoriesApi, voiceApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 import { type Memory, type VoiceRecording } from '../types';
-import { RoomHeader } from '../loom/components/room';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { dyeForId } from '../loom/dye';
 
 // Quick Create wizard templates
 const STORY_TEMPLATES = [
@@ -65,19 +66,34 @@ const _MUSIC_TRACKS = [
 ];
 void _MUSIC_TRACKS;
 
-const inputStyle: React.CSSProperties = {
+// Underline-only flat input — no box, warm caret, bone text
+const flatInputStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
-  border: '1px solid var(--rule)',
-  borderRadius: 2,
-  padding: '10px 14px',
+  border: 0,
+  borderBottom: '1px solid var(--rule)',
+  padding: '10px 0',
   color: 'var(--bone)',
   fontFamily: 'var(--serif)',
-  fontSize: 16,
+  fontSize: 17,
   lineHeight: 1.7,
   outline: 'none',
   boxSizing: 'border-box',
+  caretColor: 'var(--warm)',
   transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+};
+
+// Mono affordance button — quiet text, no border, no background
+const monoAffordance: React.CSSProperties = {
+  background: 'transparent',
+  border: 0,
+  padding: 0,
+  cursor: 'pointer',
+  fontFamily: 'var(--mono)',
+  fontSize: 10,
+  letterSpacing: '0.28em',
+  textTransform: 'uppercase',
+  lineHeight: 1,
 };
 
 export function StoryArtifact() {
@@ -242,12 +258,28 @@ export function StoryArtifact() {
 
   return (
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'story artifacts' }]} />} topbarCenter="story artifacts" topbarRight={<UserMenu />}>
-      {/* Loading bar */}
+      {/* ProgressHair — 1px hairline while loading, no spinner */}
       {isLoading && (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'var(--warm)', opacity: 0.6 }} />
+        <progress
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            width: '100%',
+            height: 1,
+            appearance: 'none',
+            WebkitAppearance: 'none',
+            border: 0,
+            background: 'transparent',
+            accentColor: 'var(--warm)',
+            opacity: 0.7,
+          }}
+        />
       )}
 
-      {/* Content container */}
+      {/* Reading column */}
       <div
         style={{
           background: 'var(--ink)',
@@ -258,152 +290,184 @@ export function StoryArtifact() {
           boxSizing: 'border-box',
         }}
       >
-        {/* Page header */}
-        <header style={{ marginBottom: 48 }}>
-          <RoomHeader
-            eyebrow="story artifacts"
-            title="A piece of the cloth."
-            lede="A story artifact takes the cloth you've woven and plays it forward — a micro-documentary from your thread."
-          />
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
-            <button type="button" onClick={() => setShowCreate(true)} className="hl-btn">
-              Create story
-            </button>
+        {/* Page header — READING eyebrow + serif headline */}
+        <header style={{ marginBottom: 56 }}>
+          <div
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 10,
+              letterSpacing: '0.28em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              marginBottom: 20,
+            }}
+          >
+            Story Artifacts
           </div>
+          <h1
+            style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(30px, 6vw, 44px)',
+              fontWeight: 400,
+              lineHeight: 1.1,
+              letterSpacing: '-0.01em',
+              color: 'var(--bone)',
+              margin: '0 0 14px',
+            }}
+          >
+            A piece of the cloth.
+          </h1>
+          <p
+            style={{
+              fontFamily: 'var(--serif)',
+              fontStyle: 'italic',
+              fontWeight: 300,
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: 'var(--bone-dim)',
+              margin: '0 0 32px',
+              maxWidth: '38em',
+            }}
+          >
+            A story artifact takes the cloth you've woven and plays it forward — a micro-documentary from your thread.
+          </p>
+          {/* Create affordance — quiet mono warm text */}
+          <button
+            type="button"
+            onClick={() => setShowCreate(true)}
+            style={{ ...monoAffordance, color: 'var(--warm)', fontSize: 10 }}
+          >
+            Create story →
+          </button>
         </header>
 
-        <hr className="hl-rule" style={{ margin: '0 0 36px' }} />
+        <hr style={{ border: 0, borderTop: '1px solid var(--rule)', margin: '0 0 40px' }} />
 
-        {/* Artifacts list */}
+        {/* Artifact list — READING archetype: each story as a reading article with dye margin thread */}
         {artifactList.length > 0 ? (
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
             {artifactList.map((artifact) => {
-              const dyeColor = (DYE_SWATCHES as unknown as Record<string, string>)[artifact.theme] ?? DYE_SWATCHES['default'];
+              // Resolve dye from theme mapping, fall back to id-hash dye
+              const themeDye = (DYE_SWATCHES as unknown as Record<string, string>)[artifact.theme] ?? DYE_SWATCHES['default'];
+              const idDyeColor = `var(--dye-${dyeForId(artifact.id)})`;
+              const marginColor = themeDye || idDyeColor;
+              const year = new Date(artifact.created_at).getFullYear();
+              let memCount = 0;
+              try { memCount = (JSON.parse(artifact.selected_memories || '[]') as unknown[]).length; } catch { memCount = 0; }
+
               return (
-                <li key={artifact.id} style={{ padding: '28px 0', borderBottom: '1px solid var(--rule)' }}>
-                  {/* Dye swatch */}
-                  <div
-                    aria-hidden
-                    style={{
-                      width: 24,
-                      height: 3,
-                      background: dyeColor,
-                      marginBottom: 16,
-                    }}
-                  />
+                <li key={artifact.id} style={{ marginBottom: 56 }}>
+                  {/* READING dye margin thread — 3px left border, paddingLeft 24 */}
                   <article
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr auto',
-                      gap: 24,
-                      alignItems: 'baseline',
+                      borderLeft: `3px solid ${marginColor}`,
+                      paddingLeft: 24,
                     }}
                   >
-                    <div>
-                      {/* Status + date rail */}
-                      <div style={{ display: 'flex', gap: 16, marginBottom: 8, alignItems: 'baseline' }}>
-                        <span
-                          className="hl-mono"
-                          style={{
-                            fontSize: 10,
-                            letterSpacing: '0.18em',
-                            textTransform: 'uppercase',
-                            color: artifact.status === 'READY' ? 'var(--warm)' : 'var(--bone-faint)',
-                          }}
-                        >
-                          {artifact.status.toLowerCase()}
-                        </span>
-                        <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}>
-                          {(() => { let mems = []; try { mems = JSON.parse(artifact.selected_memories || '[]'); } catch { mems = []; } return mems.length; })()} photos · {artifact.view_count} views
-                        </span>
-                      </div>
-                      <h3
-                        className="hl-serif"
-                        style={{ fontSize: 28, fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px', lineHeight: 1.2 }}
-                      >
-                        {artifact.title}
-                      </h3>
-                      {artifact.description && (
-                        <p
-                          className="hl-prose"
-                          style={{ fontSize: 18, color: 'var(--bone-dim)', margin: '16px 0 0', lineHeight: 1.65, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}
-                        >
-                          {artifact.description}
-                        </p>
-                      )}
-                      {/* Author / date lines */}
+                    {/* Mono warm subline: "A STORY BY YOUR BLOODLINE · <YEAR>" */}
+                    <p
+                      style={{
+                        fontFamily: 'var(--mono)',
+                        fontSize: 10,
+                        letterSpacing: '0.26em',
+                        textTransform: 'uppercase',
+                        color: 'var(--warm)',
+                        margin: '0 0 14px',
+                      }}
+                    >
+                      A Story by Your Bloodline · {year}
+                    </p>
+
+                    {/* Serif headline — clamp(30,6vw,44) */}
+                    <h2
+                      style={{
+                        fontFamily: 'var(--serif)',
+                        fontSize: 'clamp(30px, 6vw, 44px)',
+                        fontWeight: 400,
+                        lineHeight: 1.1,
+                        letterSpacing: '-0.01em',
+                        color: 'var(--bone)',
+                        margin: '0 0 10px',
+                      }}
+                    >
+                      {artifact.title}
+                    </h2>
+
+                    {/* Status meta rail */}
+                    <p
+                      style={{
+                        fontFamily: 'var(--mono)',
+                        fontSize: 10,
+                        letterSpacing: '0.18em',
+                        textTransform: 'uppercase',
+                        color: artifact.status === 'READY' ? 'var(--warm)' : 'var(--bone-faint)',
+                        margin: '0 0 18px',
+                      }}
+                    >
+                      {artifact.status.toLowerCase()}
+                      <span style={{ color: 'var(--bone-faint)', marginLeft: 16 }}>
+                        {memCount} photos · {artifact.view_count} views
+                      </span>
+                    </p>
+
+                    {/* Body — serif 18px/1.75 justified ~62ch — shows description as reading body */}
+                    {artifact.description && (
                       <p
-                        className="hl-serif hl-italic"
-                        style={{ fontSize: 16, color: 'var(--bone-dim)', margin: '20px 0 0', fontStyle: 'italic' }}
+                        style={{
+                          fontFamily: 'var(--serif)',
+                          fontSize: 18,
+                          lineHeight: 1.75,
+                          color: 'var(--bone)',
+                          textAlign: 'justify',
+                          maxWidth: '62ch',
+                          margin: '0 0 24px',
+                        }}
                       >
-                        your bloodline
+                        {artifact.description}
                       </p>
-                      <p
-                        className="hl-mono"
-                        style={{ fontSize: 10, color: 'var(--bone-faint)', margin: '8px 0 0', letterSpacing: '0.06em' }}
-                      >
-                        {new Date(artifact.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
-                      </p>
-                      {/* Download / share */}
-                      <div style={{ marginTop: 28, display: 'flex', gap: 24, alignItems: 'baseline' }}>
-                        {artifact.status === 'DRAFT' && (
-                          <button
-                            type="button"
-                            onClick={() => generateMutation.mutate(artifact.id)}
-                            disabled={generateMutation.isPending}
-                            style={{
-                              background: 'transparent',
-                              border: 0,
-                              padding: 0,
-                              cursor: 'pointer',
-                              fontFamily: 'var(--mono)',
-                              fontSize: 10,
-                              letterSpacing: '0.32em',
-                              textTransform: 'uppercase',
-                              color: 'var(--warm)',
-                              opacity: generateMutation.isPending ? 0.45 : 1,
-                            }}
-                          >
-                            generate →
-                          </button>
-                        )}
-                        {artifact.status === 'READY' && (
-                          <button
-                            type="button"
-                            onClick={() => shareMutation.mutate(artifact.id)}
-                            className="hl-link warm"
-                            style={{
-                              background: 'transparent',
-                              border: 0,
-                              padding: 0,
-                              cursor: 'pointer',
-                              fontFamily: 'var(--mono)',
-                              fontSize: 10,
-                              letterSpacing: '0.32em',
-                              textTransform: 'uppercase',
-                            }}
-                          >
-                            share →
-                          </button>
-                        )}
+                    )}
+
+                    {/* Date as italic serif dim byline */}
+                    <p
+                      style={{
+                        fontFamily: 'var(--serif)',
+                        fontStyle: 'italic',
+                        fontSize: 15,
+                        color: 'var(--bone-dim)',
+                        margin: '0 0 24px',
+                      }}
+                    >
+                      {new Date(artifact.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </p>
+
+                    {/* Quiet mono affordances below — same onClick wired */}
+                    <div style={{ display: 'flex', gap: 28, alignItems: 'baseline' }}>
+                      {artifact.status === 'DRAFT' && (
                         <button
                           type="button"
-                          onClick={() => deleteMutation.mutate(artifact.id)}
-                          style={{
-                            background: 'transparent',
-                            border: 0,
-                            padding: 0,
-                            cursor: 'pointer',
-                            fontFamily: 'var(--mono)',
-                            fontSize: 10,
-                            letterSpacing: '0.32em',
-                            textTransform: 'uppercase',
-                            color: 'var(--bone-faint)',
-                          }}
+                          onClick={() => generateMutation.mutate(artifact.id)}
+                          disabled={generateMutation.isPending}
+                          style={{ ...monoAffordance, color: 'var(--warm)', opacity: generateMutation.isPending ? 0.45 : 1 }}
                         >
-                          delete
+                          generate →
                         </button>
-                      </div>
+                      )}
+                      {artifact.status === 'READY' && (
+                        <button
+                          type="button"
+                          onClick={() => shareMutation.mutate(artifact.id)}
+                          style={{ ...monoAffordance, color: 'var(--warm)' }}
+                        >
+                          share →
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => deleteMutation.mutate(artifact.id)}
+                        style={{ ...monoAffordance, color: 'var(--bone-faint)' }}
+                      >
+                        delete
+                      </button>
                     </div>
                   </article>
                 </li>
@@ -411,28 +475,54 @@ export function StoryArtifact() {
             })}
           </ul>
         ) : !isLoading ? (
-          <div style={{ border: '1px solid var(--rule)', padding: '72px 36px', textAlign: 'center' }}>
-            <p className="hl-serif" style={{ fontSize: 28, color: 'var(--bone-faint)', marginBottom: 20 }}>∞</p>
-            <h3 className="hl-serif" style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone)', margin: '0 0 12px' }}>
+          /* Empty state — centered serif italic + mono create prompt */
+          <div style={{ paddingTop: 72, paddingBottom: 72, textAlign: 'center' }}>
+            <p
+              style={{
+                fontFamily: 'var(--serif)',
+                fontStyle: 'italic',
+                fontSize: 22,
+                fontWeight: 300,
+                color: 'var(--bone-dim)',
+                margin: '0 0 28px',
+              }}
+            >
               No stories yet.
-            </h3>
-            <p className="hl-prose" style={{ fontSize: 15, color: 'var(--bone-dim)', margin: '0 auto 28px', maxWidth: 400 }}>
+            </p>
+            <p
+              style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 16,
+                color: 'var(--bone-faint)',
+                fontStyle: 'italic',
+                margin: '0 0 32px',
+              }}
+            >
               Create your first micro-documentary from your memories.
             </p>
-            <button type="button" onClick={() => setShowCreate(true)} className="hl-btn">
-              Create your first story
+            <button
+              type="button"
+              onClick={() => setShowCreate(true)}
+              style={{ ...monoAffordance, color: 'var(--warm)', fontSize: 10 }}
+            >
+              Create your first story →
             </button>
           </div>
         ) : null}
+
+        {/* WaxSeal foot */}
+        <div style={{ marginTop: 80, marginBottom: 24 }}>
+          <WaxSeal size={28} />
+        </div>
       </div>
 
-      {/* Share URL overlay */}
+      {/* ── Share URL overlay ── */}
       {shareUrl && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(14,14,12,0.82)',
+            background: 'rgba(14,14,12,0.88)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -442,65 +532,73 @@ export function StoryArtifact() {
           onClick={() => setShareUrl(null)}
         >
           <div
-            className="cosmic-panel cosmic-panel--solid"
             style={{
-              padding: 40,
+              background: 'var(--ink)',
+              border: '1px solid var(--rule)',
+              padding: '48px 40px',
               maxWidth: 500,
               width: '100%',
+              boxSizing: 'border-box',
             }}
             onClick={e => e.stopPropagation()}
           >
-            <h3 className="hl-serif" style={{ fontSize: 22, fontWeight: 300, margin: '0 0 8px' }}>
+            {/* Mono eyebrow */}
+            <p style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--warm)', margin: '0 0 16px' }}>
               Share your story
-            </h3>
-            <p className="hl-prose" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 20px' }}>
-              Anyone with this link can view your story for 7 days.
             </p>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+            {/* Serif headline */}
+            <h3 style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 400, color: 'var(--bone)', margin: '0 0 8px' }}>
+              Live for 7 days.
+            </h3>
+            <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--bone-dim)', margin: '0 0 28px' }}>
+              Anyone with this link can view your story.
+            </p>
+            {/* Share URL — mono read-only input + copy affordance */}
+            <div style={{ display: 'flex', gap: 12, marginBottom: 24, alignItems: 'baseline' }}>
               <input
                 type="text"
                 value={shareUrl}
                 readOnly
-                style={{ ...inputStyle, flex: 1, fontFamily: 'var(--mono)', fontSize: 16 }}
+                style={{
+                  flex: 1,
+                  background: 'transparent',
+                  border: 0,
+                  borderBottom: '1px solid var(--rule)',
+                  padding: '8px 0',
+                  color: 'var(--bone-dim)',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.04em',
+                  outline: 'none',
+                  minWidth: 0,
+                }}
               />
               <button
                 type="button"
                 onClick={() => copyToClipboard(shareUrl).catch(() => {})}
-                className="hl-btn"
-                style={{ padding: '10px 18px', flexShrink: 0 }}
+                style={{ ...monoAffordance, color: 'var(--warm)', flexShrink: 0 }}
               >
-                Copy
+                copy →
               </button>
             </div>
             <button
               type="button"
               onClick={() => setShareUrl(null)}
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: '1px solid var(--rule)',
-                padding: '10px 0',
-                color: 'var(--bone-dim)',
-                fontFamily: 'var(--mono)',
-                fontSize: 10,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-              }}
+              style={{ ...monoAffordance, color: 'var(--bone-faint)', fontSize: 10 }}
             >
-              Done
+              done
             </button>
           </div>
         </div>
       )}
 
-      {/* Create wizard overlay */}
+      {/* ── Create wizard overlay ── */}
       {showCreate && (
         <div
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(14,14,12,0.82)',
+            background: 'rgba(14,14,12,0.88)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -511,62 +609,46 @@ export function StoryArtifact() {
           onClick={() => resetForm()}
         >
           <div
-            className="cosmic-panel cosmic-panel--solid"
             style={{
-              padding: 40,
+              background: 'var(--ink)',
+              border: '1px solid var(--rule)',
+              padding: '48px 40px',
               maxWidth: 580,
               width: '100%',
               margin: '32px auto',
+              boxSizing: 'border-box',
             }}
             onClick={e => e.stopPropagation()}
           >
-            {/* Wizard header */}
-            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 32 }}>
+            {/* Wizard header — mono eyebrow + step label + close */}
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 36 }}>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 16 }}>
                 {wizardStep > 1 && (
                   <button
                     type="button"
                     onClick={() => setWizardStep(wizardStep - 1)}
-                    style={{
-                      background: 'transparent',
-                      border: 0,
-                      cursor: 'pointer',
-                      color: 'var(--bone-faint)',
-                      fontSize: 16,
-                      padding: 0,
-                    }}
                     aria-label="Back"
+                    style={{ ...monoAffordance, color: 'var(--bone-faint)', fontSize: 14 }}
                   >
                     ←
                   </button>
                 )}
                 <div>
-                  <h3 className="hl-serif" style={{ fontSize: 22, fontWeight: 300, margin: 0 }}>
+                  <h3 style={{ fontFamily: 'var(--serif)', fontSize: 24, fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px', lineHeight: 1.1 }}>
                     {wizardStep === 1 && 'What kind of story?'}
                     {wizardStep === 2 && 'Select your photos'}
                     {wizardStep === 3 && 'Review and create'}
                   </h3>
-                  <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', marginTop: 4 }}>
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
                     Step {wizardStep} of 3
-                  </p>
+                  </span>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => resetForm()}
                 aria-label="Close"
-                className="hl-mono"
-                style={{
-                  background: 'transparent',
-                  border: 0,
-                  cursor: 'pointer',
-                  color: 'var(--bone-faint)',
-                  fontSize: 10,
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  lineHeight: 1,
-                  padding: 4,
-                }}
+                style={{ ...monoAffordance, color: 'var(--bone-faint)', fontSize: 10 }}
               >
                 close
               </button>
@@ -574,51 +656,42 @@ export function StoryArtifact() {
 
             {/* Step 1 — template selection */}
             {wizardStep === 1 && (
-              <div style={{ display: 'grid', gap: 1 }}>
+              <div>
                 {STORY_TEMPLATES.map((template) => (
                   <button
                     key={template.id}
                     type="button"
                     onClick={() => handleTemplateSelect(template)}
                     style={{
-                      background: 'transparent',
-                      border: 0,
-                      borderBottom: '1px solid var(--rule)',
-                      padding: '16px 0',
-                      cursor: 'pointer',
-                      textAlign: 'left',
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'baseline',
                       gap: 16,
+                      width: '100%',
+                      background: 'transparent',
+                      border: 0,
+                      borderBottom: '1px solid var(--rule)',
+                      padding: '18px 0',
+                      cursor: 'pointer',
+                      textAlign: 'left',
                     }}
                   >
                     <div>
-                      <p className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)', margin: '0 0 4px' }}>
+                      <p style={{ fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 400, color: 'var(--bone)', margin: '0 0 4px' }}>
                         {template.title}
                       </p>
-                      <p className="hl-prose" style={{ fontSize: 13, color: 'var(--bone-dim)', margin: 0 }}>
+                      <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--bone-dim)', margin: 0 }}>
                         {template.description}
                       </p>
                     </div>
-                    <span style={{ color: 'var(--bone-faint)', fontSize: 16 }}>→</span>
+                    <span style={{ color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 12 }}>→</span>
                   </button>
                 ))}
-                <div style={{ paddingTop: 16 }}>
+                <div style={{ paddingTop: 18 }}>
                   <button
                     type="button"
                     onClick={() => { setWizardStep(2); setSelectedTemplate(null); }}
-                    style={{
-                      background: 'transparent',
-                      border: 0,
-                      cursor: 'pointer',
-                      fontFamily: 'var(--mono)',
-                      fontSize: 10,
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      color: 'var(--bone-faint)',
-                      padding: '10px 0',
-                    }}
+                    style={{ ...monoAffordance, color: 'var(--bone-faint)', fontSize: 10, padding: '10px 0' }}
                   >
                     Or create a custom story…
                   </button>
@@ -630,22 +703,14 @@ export function StoryArtifact() {
             {wizardStep === 2 && (
               <div style={{ display: 'grid', gap: 20 }}>
                 {/* Quick actions */}
-                <div style={{ display: 'flex', gap: 8 }}>
+                <div style={{ display: 'flex', gap: 16, alignItems: 'baseline' }}>
                   <button
                     type="button"
                     onClick={handleAutoSelectPhotos}
                     disabled={memories.filter(m => m.type === 'PHOTO').length === 0}
                     style={{
-                      flex: 1,
-                      background: 'transparent',
-                      border: '1px solid var(--rule)',
-                      padding: '9px 14px',
-                      color: 'var(--bone-dim)',
-                      fontFamily: 'var(--mono)',
-                      fontSize: 10,
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      cursor: 'pointer',
+                      ...monoAffordance,
+                      color: memories.filter(m => m.type === 'PHOTO').length === 0 ? 'var(--bone-faint)' : 'var(--bone-dim)',
                       opacity: memories.filter(m => m.type === 'PHOTO').length === 0 ? 0.4 : 1,
                     }}
                   >
@@ -655,18 +720,7 @@ export function StoryArtifact() {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading}
-                    style={{
-                      background: 'transparent',
-                      border: '1px solid var(--rule)',
-                      padding: '9px 14px',
-                      color: 'var(--bone-dim)',
-                      fontFamily: 'var(--mono)',
-                      fontSize: 10,
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      cursor: 'pointer',
-                      opacity: isUploading ? 0.4 : 1,
-                    }}
+                    style={{ ...monoAffordance, color: 'var(--bone-dim)', opacity: isUploading ? 0.4 : 1 }}
                   >
                     {isUploading ? 'Uploading…' : 'Upload'}
                   </button>
@@ -680,20 +734,14 @@ export function StoryArtifact() {
                   />
                 </div>
 
-                <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}>
+                <p style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', margin: 0 }}>
                   {selectedMemories.length}/10 photos selected
                 </p>
 
                 {uploadError && (
                   <p
                     role="alert"
-                    style={{
-                      margin: 0,
-                      fontFamily: 'var(--mono)',
-                      fontSize: 11,
-                      color: 'var(--danger)',
-                      letterSpacing: '0.06em',
-                    }}
+                    style={{ margin: 0, fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)', letterSpacing: '0.06em' }}
                   >
                     {uploadError}
                   </p>
@@ -742,23 +790,22 @@ export function StoryArtifact() {
                             justifyContent: 'center',
                           }}
                         >
-                          <span className="hl-mono" style={{ color: 'var(--bone)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' }}>selected</span>
+                          <span style={{ fontFamily: 'var(--mono)', color: 'var(--bone)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' }}>selected</span>
                         </div>
                       )}
                     </button>
                   ))}
                   {memories.filter(m => m.type === 'PHOTO').length === 0 && (
                     <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '32px 0' }}>
-                      <p className="hl-prose" style={{ fontSize: 14, color: 'var(--bone-faint)', fontStyle: 'italic', marginBottom: 14 }}>
+                      <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15, color: 'var(--bone-faint)', marginBottom: 18 }}>
                         No photos yet.
                       </p>
                       <button
                         type="button"
                         onClick={() => fileInputRef.current?.click()}
-                        className="hl-btn"
-                        style={{ fontSize: 11, padding: '8px 18px' }}
+                        style={{ ...monoAffordance, color: 'var(--warm)', fontSize: 10 }}
                       >
-                        Upload your first photo
+                        Upload your first photo →
                       </button>
                     </div>
                   )}
@@ -768,30 +815,39 @@ export function StoryArtifact() {
                   type="button"
                   onClick={() => setWizardStep(3)}
                   disabled={selectedMemories.length === 0}
-                  className="hl-btn"
-                  style={{ opacity: selectedMemories.length === 0 ? 0.45 : 1 }}
+                  style={{
+                    ...monoAffordance,
+                    color: 'var(--warm)',
+                    fontSize: 10,
+                    opacity: selectedMemories.length === 0 ? 0.45 : 1,
+                    paddingTop: 12,
+                    paddingBottom: 12,
+                    borderTop: '1px solid var(--rule)',
+                    width: '100%',
+                    textAlign: 'left',
+                  }}
                 >
-                  Continue with {selectedMemories.length} photos
+                  Continue with {selectedMemories.length} photos →
                 </button>
               </div>
             )}
 
             {/* Step 3 — review and create */}
             {wizardStep === 3 && (
-              <div style={{ display: 'grid', gap: 20 }}>
-                {/* Summary */}
-                <div style={{ padding: '14px 18px', border: '1px solid var(--rule)', borderLeft: '3px solid var(--warm)' }}>
-                  <p className="hl-serif" style={{ fontSize: 15, fontWeight: 300, color: 'var(--bone)', margin: '0 0 4px' }}>
+              <div style={{ display: 'grid', gap: 24 }}>
+                {/* Summary — left dye border note */}
+                <div style={{ borderLeft: '3px solid var(--warm)', paddingLeft: 16 }}>
+                  <p style={{ fontFamily: 'var(--serif)', fontSize: 16, fontWeight: 400, color: 'var(--bone)', margin: '0 0 4px' }}>
                     Ready to create
                   </p>
-                  <p className="hl-mono" style={{ fontSize: 11, color: 'var(--warm)', margin: 0, letterSpacing: '0.1em' }}>
+                  <p style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm)', margin: 0 }}>
                     {selectedTemplate ? `"${selectedTemplate.title}"` : 'Custom story'} · {selectedMemories.length} photos
                   </p>
                 </div>
 
-                {/* Title */}
+                {/* Title — flat underline input */}
                 <div>
-                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                  <label style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', display: 'block', marginBottom: 10 }}>
                     Story title
                   </label>
                   <input
@@ -799,13 +855,13 @@ export function StoryArtifact() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Give your story a name…"
-                    style={inputStyle}
+                    style={{ ...flatInputStyle }}
                   />
                 </div>
 
-                {/* Description */}
+                {/* Description — flat underline textarea */}
                 <div>
-                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                  <label style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', display: 'block', marginBottom: 10 }}>
                     Description (optional)
                   </label>
                   <textarea
@@ -813,14 +869,14 @@ export function StoryArtifact() {
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder="Add a description…"
                     rows={2}
-                    style={{ ...inputStyle, resize: 'none' }}
+                    style={{ ...flatInputStyle, resize: 'none' }}
                   />
                 </div>
 
-                {/* Voice narration */}
+                {/* Voice narration — shown only when voiceRecordings exist */}
                 {voiceRecordings.length > 0 && (
                   <div>
-                    <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
+                    <label style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', display: 'block', marginBottom: 10 }}>
                       Add voice narration (optional)
                     </label>
                     <div style={{ display: 'grid', gap: 4, maxHeight: 96, overflowY: 'auto' }}>
@@ -831,13 +887,14 @@ export function StoryArtifact() {
                           onClick={() => setSelectedVoice(selectedVoice === recording.id ? null : recording.id)}
                           style={{
                             background: 'transparent',
-                            border: `1px solid ${selectedVoice === recording.id ? 'var(--warm)' : 'var(--rule)'}`,
-                            padding: '8px 12px',
+                            border: 0,
+                            borderBottom: `1px solid ${selectedVoice === recording.id ? 'var(--warm)' : 'var(--rule)'}`,
+                            padding: '10px 0',
                             cursor: 'pointer',
                             textAlign: 'left',
                             color: selectedVoice === recording.id ? 'var(--warm)' : 'var(--bone-dim)',
                             fontFamily: 'var(--serif)',
-                            fontSize: 14,
+                            fontSize: 15,
                           }}
                         >
                           {recording.title}
@@ -847,29 +904,34 @@ export function StoryArtifact() {
                   </div>
                 )}
 
+                {/* Mutation error — inline mono, warm (not danger/red) */}
                 {mutationError && (
                   <p
                     role="alert"
-                    style={{
-                      margin: 0,
-                      fontFamily: 'var(--mono)',
-                      fontSize: 11,
-                      color: 'var(--danger)',
-                      letterSpacing: '0.06em',
-                    }}
+                    style={{ margin: 0, fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)', letterSpacing: '0.06em' }}
                   >
                     {mutationError}
                   </p>
                 )}
 
+                {/* Primary create affordance */}
                 <button
                   type="button"
                   onClick={handleQuickCreate}
                   disabled={!title.trim() || selectedMemories.length === 0 || createMutation.isPending}
-                  className="hl-btn"
-                  style={{ opacity: !title.trim() || selectedMemories.length === 0 || createMutation.isPending ? 0.45 : 1 }}
+                  style={{
+                    ...monoAffordance,
+                    color: 'var(--warm)',
+                    fontSize: 11,
+                    paddingTop: 14,
+                    paddingBottom: 14,
+                    borderTop: '1px solid var(--rule)',
+                    width: '100%',
+                    textAlign: 'left',
+                    opacity: !title.trim() || selectedMemories.length === 0 || createMutation.isPending ? 0.45 : 1,
+                  }}
                 >
-                  {createMutation.isPending ? 'Creating…' : 'Create story'}
+                  {createMutation.isPending ? 'Creating…' : 'Create story →'}
                 </button>
               </div>
             )}

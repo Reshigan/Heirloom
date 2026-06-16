@@ -4,6 +4,8 @@ import { exportApi, type ExportJob } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+
 /**
  * ExportPage — bind the bloodline into a single book.
  *
@@ -49,6 +51,7 @@ const inputStyle: React.CSSProperties = {
   padding: '6px 0',
   width: '100%',
   boxSizing: 'border-box',
+  caretColor: 'var(--warm)',
 };
 
 async function saveBlob(exportId: string): Promise<void> {
@@ -108,164 +111,154 @@ export function ExportPage() {
           margin: '0 auto',
         }}
       >
-        {/* ── intro — mono eyebrow + serif title, generous space ── */}
-        <header style={{ textAlign: 'center', marginBottom: 80 }}>
-          <span
-            className="hl-mono"
+        {/* ── header ── */}
+        <CosmicHeader
+          eyebrow="take it with you"
+          title="Export the thread"
+        />
+
+        {/* ── scope — what goes inside ── */}
+        <SectionLabel>what to include</SectionLabel>
+
+        <ScopeRow
+          label="The whole thread"
+          meta="memories"
+          on={form.includeMemories}
+          onToggle={() => setForm((f) => ({ ...f, includeMemories: !f.includeMemories }))}
+        />
+        <ScopeRow
+          label="Letters"
+          meta="sealed & open"
+          on={form.includeLetters}
+          onToggle={() => setForm((f) => ({ ...f, includeLetters: !f.includeLetters }))}
+        />
+        <ScopeRow
+          label="Voices"
+          meta="transcripts"
+          on={form.includeVoiceTranscripts}
+          onToggle={() =>
+            setForm((f) => ({ ...f, includeVoiceTranscripts: !f.includeVoiceTranscripts }))
+          }
+        />
+        <ScopeRow
+          label="The bloodline"
+          meta="family tree"
+          on={form.includeFamilyTree}
+          onToggle={() => setForm((f) => ({ ...f, includeFamilyTree: !f.includeFamilyTree }))}
+        />
+
+        {/* ── the book ── title, subtitle, dedication, cover style ── */}
+        <SectionLabel>the book</SectionLabel>
+
+        <LabelRow label="title">
+          <input
+            type="text"
+            style={inputStyle}
+            placeholder="Our Family Story"
+            value={form.title}
+            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+          />
+        </LabelRow>
+
+        <LabelRow label="subtitle">
+          <input
+            type="text"
+            style={inputStyle}
+            placeholder="a subtitle — optional"
+            value={form.subtitle}
+            onChange={(e) => setForm((f) => ({ ...f, subtitle: e.target.value }))}
+          />
+        </LabelRow>
+
+        <LabelRow label="dedication">
+          <textarea
+            rows={3}
+            style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
+            placeholder="a dedication — optional"
+            value={form.dedication}
+            onChange={(e) => setForm((f) => ({ ...f, dedication: e.target.value }))}
+          />
+        </LabelRow>
+
+        <LabelRow label="cover style">
+          <div style={{ display: 'flex', gap: 22, paddingTop: 8 }}>
+            {COVER_STYLES.map((style) => (
+              <button
+                key={style}
+                type="button"
+                className="hl-btn text"
+                onClick={() => setForm((f) => ({ ...f, coverStyle: style }))}
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  background: 'transparent',
+                  border: 0,
+                  cursor: 'pointer',
+                  padding: 0,
+                  color: form.coverStyle === style ? 'var(--warm)' : 'var(--bone-dim)',
+                  transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
+                }}
+              >
+                {style}
+              </button>
+            ))}
+          </div>
+        </LabelRow>
+
+        {/* ── export action ── */}
+        <div style={{ marginTop: 56, marginBottom: 8 }}>
+          <button
+            type="button"
+            disabled={bind.isPending}
+            onClick={() => bind.mutate()}
             style={{
-              display: 'block',
+              width: '100%',
+              padding: '16px 24px',
+              background: 'transparent',
+              color: bind.isPending ? 'var(--bone-faint)' : 'var(--warm)',
+              border: bind.isPending ? '1px solid var(--rule)' : '1px solid var(--warm)',
+              borderRadius: 999,
+              fontFamily: 'var(--mono)',
               fontSize: 11,
               letterSpacing: '0.28em',
               textTransform: 'uppercase',
-              color: 'var(--bone-dim)',
-              marginBottom: 14,
+              cursor: bind.isPending ? 'default' : 'pointer',
+              transition: 'color 360ms cubic-bezier(0.16,1,0.3,1), border-color 360ms cubic-bezier(0.16,1,0.3,1)',
             }}
           >
-            take it with you
-          </span>
-          <h1
-            className="hl-serif"
-            style={{
-              fontSize: 38,
-              lineHeight: 1.1,
-              fontWeight: 400,
-              color: 'var(--bone)',
-              margin: 0,
-              letterSpacing: '-0.01em',
-            }}
-          >
-            Export the thread
-          </h1>
-        </header>
+            {bind.isPending ? 'preparing' : 'prepare export'}
+          </button>
 
-        {/* ── what goes inside — the scope rows, selectable cosmic list ── */}
-        <div style={{ marginBottom: 72 }}>
-          <ScopeRow
-            label="The whole thread"
-            meta="memories"
-            on={form.includeMemories}
-            onToggle={() => setForm((f) => ({ ...f, includeMemories: !f.includeMemories }))}
-          />
-          <ScopeRow
-            label="Letters"
-            meta="sealed & open"
-            on={form.includeLetters}
-            onToggle={() => setForm((f) => ({ ...f, includeLetters: !f.includeLetters }))}
-          />
-          <ScopeRow
-            label="Voices"
-            meta="transcripts"
-            on={form.includeVoiceTranscripts}
-            onToggle={() =>
-              setForm((f) => ({ ...f, includeVoiceTranscripts: !f.includeVoiceTranscripts }))
-            }
-          />
-          <ScopeRow
-            label="The bloodline"
-            meta="family tree"
-            on={form.includeFamilyTree}
-            onToggle={() => setForm((f) => ({ ...f, includeFamilyTree: !f.includeFamilyTree }))}
-          />
-        </div>
-
-        {/* ── the book — title, subtitle, dedication, cover ── */}
-        <div style={{ display: 'grid', gap: 30, marginBottom: 56 }}>
-          <Field label="title">
-            <input
-              type="text"
-              style={inputStyle}
-              placeholder="Our Family Story"
-              value={form.title}
-              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-            />
-          </Field>
-
-          <Field label="subtitle">
-            <input
-              type="text"
-              style={inputStyle}
-              placeholder="a subtitle — optional"
-              value={form.subtitle}
-              onChange={(e) => setForm((f) => ({ ...f, subtitle: e.target.value }))}
-            />
-          </Field>
-
-          <Field label="dedication">
-            <textarea
-              rows={3}
-              style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
-              placeholder="a dedication — optional"
-              value={form.dedication}
-              onChange={(e) => setForm((f) => ({ ...f, dedication: e.target.value }))}
-            />
-          </Field>
-
-          <Field label="cover style">
-            <div style={{ display: 'flex', gap: 22, paddingTop: 8 }}>
-              {COVER_STYLES.map((style) => (
-                <button
-                  key={style}
-                  type="button"
-                  className="hl-btn text"
-                  onClick={() => setForm((f) => ({ ...f, coverStyle: style }))}
-                  style={{
-                    color: form.coverStyle === style ? 'var(--warm)' : 'var(--bone-dim)',
-                  }}
-                >
-                  {style}
-                </button>
-              ))}
+          {bind.isPending && (
+            <div style={{ marginTop: 18 }}>
+              <ProgressHair label="setting your family in type…" />
             </div>
-          </Field>
+          )}
+
+          {bind.isError && (
+            <p
+              className="hl-mono"
+              style={{
+                marginTop: 16,
+                color: 'var(--warm)',
+                fontSize: 11,
+                letterSpacing: '0.12em',
+                fontFamily: 'var(--mono)',
+              }}
+            >
+              the binding faltered. try again.
+            </p>
+          )}
         </div>
 
-        {/* ── export action — the single outlined amber pill ── */}
-        <button
-          type="button"
-          disabled={bind.isPending}
-          onClick={() => bind.mutate()}
-          style={{
-            width: '100%',
-            padding: '16px 24px',
-            background: 'transparent',
-            color: bind.isPending ? 'var(--bone-faint)' : 'var(--warm)',
-            border: bind.isPending ? '1px solid var(--rule)' : '1px solid var(--warm)',
-            borderRadius: 999,
-            fontFamily: 'var(--mono)',
-            fontSize: 11,
-            letterSpacing: '0.28em',
-            textTransform: 'uppercase',
-            cursor: bind.isPending ? 'default' : 'pointer',
-            transition: 'color 360ms cubic-bezier(0.16,1,0.3,1), border-color 360ms cubic-bezier(0.16,1,0.3,1)',
-          }}
-        >
-          {bind.isPending ? 'preparing' : 'prepare export'}
-        </button>
-        {bind.isPending && (
-          <div style={{ marginTop: 18 }}>
-            <ProgressHair label="setting your family in type…" />
-          </div>
-        )}
-        {bind.isError && (
-          <p
-            className="hl-mono"
-            style={{
-              marginTop: 16,
-              color: 'var(--warm)',
-              fontSize: 11,
-              letterSpacing: '0.12em',
-            }}
-          >
-            the binding faltered. try again.
-          </p>
-        )}
-
-        {/* ── ownership / inheritance reassurance ── */}
+        {/* ── ownership reassurance ── */}
         <p
-          className="hl-mono"
           style={{
             marginTop: 24,
             textAlign: 'center',
+            fontFamily: 'var(--mono)',
             fontSize: 10,
             lineHeight: 1.7,
             letterSpacing: '0.12em',
@@ -277,57 +270,66 @@ export function ExportPage() {
         </p>
 
         {/* ── past bindings ── */}
-        <div style={{ marginTop: 80 }}>
-          <span
-            className="hl-mono"
+        <SectionLabel>past bindings</SectionLabel>
+
+        {historyQ.isLoading ? (
+          <div style={{ paddingTop: 8 }}>
+            <ProgressHair width={80} />
+          </div>
+        ) : exports.length === 0 ? (
+          <p
             style={{
-              display: 'block',
-              fontSize: 10,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
+              fontFamily: 'var(--serif)',
+              fontStyle: 'italic',
               color: 'var(--bone-faint)',
-              marginBottom: 18,
+              fontSize: 14,
+              margin: '12px 0 0',
             }}
           >
-            past bindings
-          </span>
-          {historyQ.isLoading ? (
-            <ProgressHair width={80} />
-          ) : exports.length === 0 ? (
-            <p
-              className="hl-serif"
-              style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 14 }}
-            >
-              no bindings yet.
-            </p>
-          ) : (
-            exports.map((job) => <HistoryRow key={job.id} job={job} />)
-          )}
+            no bindings yet.
+          </p>
+        ) : (
+          exports.map((job) => <HistoryRow key={job.id} job={job} />)
+        )}
+
+        {/* ── wax seal foot ── */}
+        <div style={{ marginTop: 96 }}>
+          <WaxSeal size={28} />
         </div>
       </div>
     </ClothShell>
   );
 }
 
-/* ── form field wrapper ─────────────────────────────────────────────────── */
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+/* ── label-value row wrapper ────────────────────────────────────────────────── */
+function LabelRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label style={{ display: 'block' }}>
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        padding: '14px 0',
+        borderBottom: '1px solid var(--rule)',
+        gap: 24,
+      }}
+    >
       <span
-        className="hl-mono"
         style={{
-          display: 'block',
+          fontFamily: 'var(--mono)',
           fontSize: 10,
           letterSpacing: '0.18em',
           textTransform: 'uppercase',
           color: 'var(--bone-faint)',
-          marginBottom: 6,
+          paddingTop: 8,
+          flex: '0 0 auto',
+          minWidth: 80,
         }}
       >
         {label}
       </span>
-      {children}
-    </label>
+      <div style={{ flex: 1 }}>{children}</div>
+    </div>
   );
 }
 
@@ -364,8 +366,8 @@ function ScopeRow({
       }}
     >
       <span
-        className="hl-serif"
         style={{
+          fontFamily: 'var(--serif)',
           fontSize: 20,
           fontWeight: 400,
           color: on ? 'var(--bone)' : 'var(--bone-dim)',
@@ -378,8 +380,8 @@ function ScopeRow({
         </span>
       </span>
       <span
-        className="hl-mono"
         style={{
+          fontFamily: 'var(--mono)',
           fontSize: 10,
           letterSpacing: '0.2em',
           textTransform: 'uppercase',
@@ -409,12 +411,12 @@ function HistoryRow({ job }: { job: ExportJob }) {
       }}
     >
       <div>
-        <div className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)', fontWeight: 400 }}>
+        <div style={{ fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400 }}>
           {labelForType(job.type)}
         </div>
         <div
-          className="hl-mono"
           style={{
+            fontFamily: 'var(--mono)',
             fontSize: 10,
             letterSpacing: '0.12em',
             color: 'var(--bone-faint)',
@@ -425,7 +427,22 @@ function HistoryRow({ job }: { job: ExportJob }) {
         </div>
       </div>
       {done && (
-        <button type="button" className="hl-btn text" onClick={() => void saveBlob(job.id)}>
+        <button
+          type="button"
+          onClick={() => void saveBlob(job.id)}
+          style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 10,
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            color: 'var(--warm)',
+            background: 'transparent',
+            border: 0,
+            cursor: 'pointer',
+            padding: 0,
+            whiteSpace: 'nowrap',
+          }}
+        >
           download →
         </button>
       )}

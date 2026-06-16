@@ -4,6 +4,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { memorialsApi } from '../services/api';
+import { WaxSeal, SectionLabel } from '../loom/cosmic/CosmicUI';
 
 interface MemorialPageData {
   memorial_name: string;
@@ -46,6 +47,7 @@ export function MemorialPublic() {
       }
       topbarCenter={<HLogo size={22} />}
     >
+      {/* scroll container */}
       <div
         style={{
           position: 'absolute',
@@ -54,137 +56,156 @@ export function MemorialPublic() {
           left: 0,
           right: 0,
           overflowY: 'auto',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        <div style={{ maxWidth: 'var(--page-max-focus)', width: '100%', textAlign: 'center' }}>
-          {isLoading && (
-            <ProgressHair label="loading memorial…" />
-          )}
+        <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto', width: '100%' }}>
 
+          {/* ── LOADING ── */}
+          {isLoading && <ProgressHair label="loading memorial…" />}
+
+          {/* ── ERROR / NOT FOUND ── */}
           {!isLoading && (isError || !data) && (
             <p
               className="hl-serif hl-italic"
               style={{
                 fontSize: 'var(--type-subhead)',
-                color: 'var(--bone-faint)',
+                color: 'var(--bone-dim)',
                 lineHeight: 1.7,
-                margin: 0,
+                margin: '80px 0 0',
+                fontFamily: 'var(--mono)',
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
               }}
             >
               this memorial could not be found
             </p>
           )}
 
+          {/* ── SUCCESS ── */}
           {!isLoading && data && (
             <>
-              {/* Infinity mark */}
+              {/*
+               * READING archetype:
+               * dye left-margin thread (3px warm solid) + paddingLeft: 24
+               * gives the reading column its identity signal.
+               * No avatar circle, no borderRadius:'50%'.
+               */}
               <div
-                aria-hidden
-                className="hl-serif"
                 style={{
-                  fontSize: 18,
-                  color: 'var(--warm)',
-                  opacity: 0.55,
-                  margin: '0 0 44px',
-                  lineHeight: 1,
+                  borderLeft: '3px solid var(--warm)',
+                  paddingLeft: 24,
+                  marginTop: 8,
                 }}
               >
-                ∞
-              </div>
+                {/* Name — serif headline */}
+                <h1
+                  className="hl-serif"
+                  style={{
+                    fontFamily: 'var(--serif)',
+                    fontSize: 'clamp(30px, 6vw, 44px)',
+                    fontWeight: 400,
+                    fontVariationSettings: '"opsz" 32',
+                    letterSpacing: '-0.01em',
+                    color: 'var(--bone)',
+                    margin: '0 0 12px',
+                    lineHeight: 1.1,
+                  }}
+                >
+                  {data.memorial_name}
+                </h1>
 
-              {/* Name */}
-              <h1
-                className="hl-serif"
-                style={{
-                  fontVariationSettings: "'opsz' 32",
-                  fontSize: 'var(--type-display)',
-                  fontWeight: 200,
-                  letterSpacing: '0.04em',
-                  color: 'var(--bone)',
-                  margin: '0 0 20px',
-                }}
-              >
-                {data.memorial_name}
-              </h1>
-
-              {/* Years */}
-              {(birthYear || deathYear) && (
+                {/* Years + IN MEMORY — mono warm subline */}
                 <p
                   className="hl-mono"
                   style={{
-                    fontSize: 13,
-                    letterSpacing: '0.24em',
-                    color: 'var(--bone-dim)',
-                    margin: '0 0 28px',
+                    fontFamily: 'var(--mono)',
+                    fontSize: 12,
+                    letterSpacing: '0.26em',
+                    textTransform: 'uppercase',
+                    color: 'var(--warm)',
+                    margin: '0 0 32px',
+                    lineHeight: 1,
                   }}
                 >
-                  {birthYear ?? '—'} — {deathYear ?? '—'}
+                  {(birthYear || deathYear)
+                    ? `${birthYear ?? '—'} — ${deathYear ?? '—'}`
+                    : 'IN MEMORY'}
                 </p>
-              )}
 
-              {/* Epitaph */}
-              {data.epitaph && (
-                <p
-                  className="hl-serif hl-italic"
-                  style={{
-                    fontSize: 'var(--type-body-lg)',
-                    color: 'var(--bone-dim)',
-                    lineHeight: 1.7,
-                    margin: '0 auto 44px',
-                    maxWidth: '34ch',
-                  }}
-                >
-                  {data.epitaph}
-                </p>
-              )}
-
-              {/* Hairline rule */}
-              <hr
-                className="hl-rule"
-                style={{ width: 120, margin: '0 auto 44px', border: 0, height: 1 }}
-              />
-
-              {/* Description / biography */}
-              {data.memorial_description && (
-                <p
-                  className="hl-serif"
-                  style={{
-                    fontSize: 'var(--type-body)',
-                    color: 'var(--bone-dim)',
-                    lineHeight: 1.9,
-                    margin: '0 auto 44px',
-                    maxWidth: '46ch',
-                  }}
-                >
-                  {data.memorial_description}
-                </p>
-              )}
-
-              {/* Remembered moments */}
-              {data.tributes && data.tributes.length > 0 && (
-                <>
-                  <div
-                    className="hl-eyebrow"
-                    style={{ marginBottom: 28, color: 'var(--bone-faint)' }}
+                {/* Epitaph — serif italic dim */}
+                {data.epitaph && (
+                  <p
+                    className="hl-serif hl-italic"
+                    style={{
+                      fontFamily: 'var(--serif)',
+                      fontStyle: 'italic',
+                      fontWeight: 300,
+                      fontSize: 'var(--type-body-lg)',
+                      color: 'var(--bone-dim)',
+                      lineHeight: 1.75,
+                      margin: '0 0 36px',
+                      maxWidth: '38ch',
+                      textAlign: 'justify',
+                    }}
                   >
-                    remembered moments
-                  </div>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 auto', maxWidth: '40ch' }}>
+                    {data.epitaph}
+                  </p>
+                )}
+
+                {/* Hairline rule */}
+                <div
+                  style={{
+                    height: 1,
+                    background: 'var(--rule)',
+                    margin: '0 0 36px',
+                    maxWidth: 120,
+                  }}
+                />
+
+                {/* Description / biography — serif reading block */}
+                {data.memorial_description && (
+                  <p
+                    className="hl-serif"
+                    style={{
+                      fontFamily: 'var(--serif)',
+                      fontSize: 18,
+                      color: 'var(--bone)',
+                      lineHeight: 1.75,
+                      margin: '0 0 48px',
+                      maxWidth: '62ch',
+                      textAlign: 'justify',
+                    }}
+                  >
+                    {data.memorial_description}
+                  </p>
+                )}
+              </div>
+
+              {/* ── Tributes — hairline-ruled list ── */}
+              {data.tributes && data.tributes.length > 0 && (
+                <div style={{ marginTop: 48 }}>
+                  <SectionLabel>remembered moments</SectionLabel>
+
+                  <div style={{ marginTop: 8 }}>
                     {data.tributes.map((t) => (
-                      <li key={t.id} style={{ margin: '0 0 26px' }}>
+                      <div
+                        key={t.id}
+                        style={{
+                          padding: '18px 0',
+                          borderBottom: '1px solid var(--rule)',
+                        }}
+                      >
                         {t.name && (
                           <p
                             className="hl-mono"
                             style={{
-                              fontSize: 11,
-                              letterSpacing: '0.18em',
+                              fontFamily: 'var(--mono)',
+                              fontSize: 10,
+                              letterSpacing: '0.22em',
                               textTransform: 'uppercase',
                               color: 'var(--bone-faint)',
-                              margin: '0 0 6px',
+                              margin: '0 0 8px',
                             }}
                           >
                             {t.name}
@@ -193,19 +214,27 @@ export function MemorialPublic() {
                         <p
                           className="hl-serif"
                           style={{
+                            fontFamily: 'var(--serif)',
                             fontSize: 'var(--type-body)',
                             color: 'var(--bone-dim)',
-                            lineHeight: 1.7,
+                            lineHeight: 1.75,
                             margin: 0,
+                            textAlign: 'justify',
+                            maxWidth: '62ch',
                           }}
                         >
                           {t.message}
                         </p>
-                      </li>
+                      </div>
                     ))}
-                  </ul>
-                </>
+                  </div>
+                </div>
               )}
+
+              {/* WaxSeal foot */}
+              <div style={{ marginTop: 72, paddingBottom: 24 }}>
+                <WaxSeal size={28} />
+              </div>
             </>
           )}
         </div>

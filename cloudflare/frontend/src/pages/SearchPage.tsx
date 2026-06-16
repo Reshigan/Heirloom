@@ -5,7 +5,7 @@ import { searchApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { EntryRow, SectionLabel } from '../loom/cosmic/CosmicUI';
+import { EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 /**
  * SearchPage — Loom native "Find a thread."
@@ -45,6 +45,12 @@ const ROW_LINK: Record<SearchResult['type'], string> = {
   letter: '/letters',
 };
 
+const KIND_LABEL: Record<SearchResult['type'], string> = {
+  memory: 'memory',
+  voice:  'voice',
+  letter: 'letter',
+};
+
 /** Section grouping — ordered, with the mono group label per kind. */
 const GROUPS: { type: SearchResult['type']; label: string }[] = [
   { type: 'memory', label: 'Memories' },
@@ -78,10 +84,36 @@ export function SearchPage() {
   const results = searchQ.data?.results ?? [];
   const total = searchQ.data?.total ?? 0;
 
+  // Eyebrow: result count when results are available, otherwise a quiet label
+  const eyebrow = ready && !searchQ.isLoading && !searchQ.isError && results.length > 0
+    ? `${total} ${total === 1 ? 'thread' : 'threads'} found`
+    : 'the family archive';
+
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'today', to: '/loom/today' }, { label: 'search' }]} />}
     >
+      <style>{`
+        .hl-search-flat::placeholder {
+          color: var(--bone-faint);
+        }
+        .hl-search-flat:focus {
+          border-bottom-color: var(--warm);
+          outline: none;
+        }
+        .hl-filter-btn {
+          background: none;
+          border: 0;
+          padding: 0;
+          cursor: pointer;
+          font-family: var(--mono);
+          font-size: 11px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          transition: color 180ms cubic-bezier(0.16,1,0.3,1);
+        }
+      `}</style>
+
       <div
         style={{
           padding: 'var(--page-pad-top) var(--page-pad-x)',
@@ -91,70 +123,72 @@ export function SearchPage() {
           overflowX: 'hidden',
         }}
       >
-        {/* ── header: serif "Search the family archive." ── */}
-        <h1
-          className="hl-serif hl-tight"
-          style={{
-            margin: '0 0 36px',
-            fontWeight: 300,
-            fontSize: 'clamp(24px, 6vw, 34px)',
-            lineHeight: 1.15,
-            color: 'var(--bone)',
-            fontVariationSettings: '"opsz" 32',
-          }}
-        >
-          SEARCH <span style={{ color: 'var(--bone-dim)' }}>the family archive.</span>
-        </h1>
+        {/* ── LEDGER header: mono eyebrow + giant serif title ── */}
+        <header style={{ marginBottom: 48 }}>
+          <div
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.28em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              marginBottom: 18,
+            }}
+          >
+            {eyebrow}
+          </div>
+          <h1
+            style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(34px, 7vw, 58px)',
+              lineHeight: 1.04,
+              letterSpacing: '-0.012em',
+              color: 'var(--bone)',
+              margin: 0,
+              fontWeight: 380,
+              fontVariationSettings: '"opsz" 40',
+            }}
+          >
+            Find a thread.
+          </h1>
+        </header>
 
-        {/* ── search input: underlined field, mono micro-label placeholder ── */}
+        {/* ── flat serif search input: transparent, warm caret, underline only ── */}
         <input
           autoFocus
+          className="hl-search-flat"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="SEARCH THE THREAD"
+          placeholder="Search the thread…"
           aria-label="search"
-          className="hl-search-field"
           style={{
+            display: 'block',
             width: '100%',
             background: 'transparent',
             border: 0,
             borderBottom: '1px solid var(--rule)',
             color: 'var(--bone)',
-            fontFamily: 'var(--mono)',
-            fontSize: 13,
-            letterSpacing: '0.16em',
-            textTransform: 'uppercase',
-            padding: '0 0 14px',
-            margin: '0 0 40px',
-            outline: 'none',
+            fontFamily: 'var(--serif)',
+            fontSize: 'clamp(22px, 4vw, 30px)',
+            fontWeight: 300,
+            fontVariationSettings: '"opsz" 28',
+            caretColor: 'var(--warm)',
+            padding: '0 0 16px',
+            margin: '0 0 44px',
+            transition: 'border-bottom-color 180ms cubic-bezier(0.16,1,0.3,1)',
           }}
         />
-        <style>{`
-          .hl-search-field::placeholder {
-            color: var(--bone-faint);
-            text-transform: uppercase;
-            letter-spacing: 0.16em;
-          }
-          .hl-search-field:focus { border-bottom-color: var(--rule-strong); }
-        `}</style>
 
-        {/* ── type filter row ── */}
-        <div style={{ display: 'flex', gap: 22, marginBottom: 40 }}>
+        {/* ── type filter bar: quiet mono text affordances ── */}
+        <div style={{ display: 'flex', gap: 24, marginBottom: 48 }}>
           {FILTERS.map((f) => {
             const active = typeFilter === f.value;
             return (
               <button
                 key={f.label}
-                className="hl-btn text"
+                className="hl-filter-btn"
                 onClick={() => setTypeFilter(f.value)}
-                style={{
-                  fontFamily: 'var(--mono)',
-                  fontSize: 11,
-                  letterSpacing: '0.16em',
-                  textTransform: 'uppercase',
-                  color: active ? 'var(--warm)' : 'var(--bone-faint)',
-                  padding: 0,
-                }}
+                style={{ color: active ? 'var(--warm)' : 'var(--bone-faint)' }}
               >
                 {f.label}
               </button>
@@ -165,17 +199,18 @@ export function SearchPage() {
         {/* ── states ── */}
         {!ready ? (
           <p
-            className="hl-mono"
             style={{
               textAlign: 'center',
-              fontSize: 11,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
+              fontFamily: 'var(--serif)',
+              fontStyle: 'italic',
+              fontWeight: 300,
+              fontSize: 17,
               color: 'var(--bone-faint)',
-              marginTop: 64,
+              marginTop: 72,
+              lineHeight: 1.6,
             }}
           >
-            type at least two letters
+            type at least two letters to search the archive.
           </p>
         ) : searchQ.isLoading ? (
           <div style={{ marginTop: 40 }}>
@@ -183,10 +218,11 @@ export function SearchPage() {
           </div>
         ) : searchQ.isError ? (
           <p
-            className="hl-mono"
             style={{
+              fontFamily: 'var(--mono)',
               fontSize: 12,
-              letterSpacing: '0.12em',
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
               color: 'var(--warm)',
               marginTop: 24,
             }}
@@ -195,29 +231,21 @@ export function SearchPage() {
           </p>
         ) : results.length === 0 ? (
           <p
-            className="hl-serif"
             style={{
+              textAlign: 'center',
+              fontFamily: 'var(--serif)',
               fontStyle: 'italic',
+              fontWeight: 300,
+              fontSize: 17,
               color: 'var(--bone-faint)',
-              marginTop: 48,
+              marginTop: 72,
+              lineHeight: 1.6,
             }}
           >
             nothing in the thread matches that — yet.
           </p>
         ) : (
           <>
-            <p
-              className="hl-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
-                marginBottom: 14,
-              }}
-            >
-              {total} {total === 1 ? 'thread' : 'threads'}
-            </p>
             {GROUPS.map(({ type, label }) => {
               const hits = results.filter((r) => r.type === type);
               if (hits.length === 0) return null;
@@ -246,7 +274,8 @@ export function SearchPage() {
                           </span>
                         ) : undefined
                       }
-                      meta={formatDate(r.created_at)}
+                      year={formatYear(r.created_at)}
+                      meta={KIND_LABEL[r.type].toUpperCase()}
                       onClick={() => navigate(ROW_LINK[r.type])}
                     />
                   ))}
@@ -255,20 +284,19 @@ export function SearchPage() {
             })}
           </>
         )}
+
+        {/* ── WaxSeal foot ── */}
+        <div style={{ marginTop: 96, marginBottom: 24 }}>
+          <WaxSeal size={28} />
+        </div>
       </div>
     </ClothShell>
   );
 }
 
-function formatDate(iso: string): string {
+function formatYear(iso: string): string {
   try {
-    return new Date(iso)
-      .toLocaleDateString(undefined, {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-      })
-      .toUpperCase();
+    return String(new Date(iso).getFullYear());
   } catch {
     return iso;
   }

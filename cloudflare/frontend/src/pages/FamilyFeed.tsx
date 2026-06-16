@@ -1,12 +1,14 @@
 // FamilyFeed — Loom 3 native.
 // §A Tapestry-is-the-interface: hairline list of family thread additions.
 // No avatars, no reactions, no social chrome.
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { engagementApi } from '../services/api';
-import { RoomHeader, RoomSection, RoomRow } from '../loom/components/room';
+import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+import type { Dye } from '../loom/dye';
 
 interface FeedItem {
   id: string;
@@ -26,13 +28,13 @@ const typeVerb: Record<string, string> = {
 };
 
 // 10-stop natural-dye palette cycled by type + id hash
-const dyeByType: Record<string, string> = {
+const dyeByType: Record<string, Dye> = {
   memory: 'madder',
   voice: 'woad',
   letter: 'walnut',
 };
 
-function itemDye(item: FeedItem): string {
+function itemDye(item: FeedItem): Dye {
   return dyeByType[item.type] ?? 'oakgall';
 }
 
@@ -42,24 +44,30 @@ function itemTo(item: FeedItem): string {
   return `/loom/read?entry=${item.id}`;
 }
 
-function fmtDate(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+function fmtYear(iso: string): string {
+  return new Date(iso).getFullYear().toString();
 }
 
 export function FamilyFeed() {
+  const navigate = useNavigate();
   const { data: feedData, isLoading, isError } = useQuery({
     queryKey: ['family-feed'],
     queryFn: () => engagementApi.getFamilyFeed().then((r) => r.data),
   });
 
   const items: FeedItem[] = feedData?.items || [];
+  const eyebrow = items.length ? `${items.length} ENTRIES` : 'THE THREAD';
 
   return (
-    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'family feed' }]} />} topbarCenter="family feed" topbarRight={<UserMenu />}>
+    <ClothShell
+      topbarLeft={
+        <Breadcrumbs
+          trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'family feed' }]}
+        />
+      }
+      topbarCenter="family feed"
+      topbarRight={<UserMenu />}
+    >
       <div
         style={{
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
@@ -67,35 +75,73 @@ export function FamilyFeed() {
           margin: '0 auto',
         }}
       >
-        <RoomHeader eyebrow="the thread" title="What your family wrote." />
+        <CosmicHeader
+          eyebrow={eyebrow}
+          title="What your family wrote."
+        />
 
         {/* list */}
         {isError ? (
-          <RoomSection flush><p style={{ color: 'var(--danger)' }}>could not load feed</p></RoomSection>
+          <p
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 12,
+              letterSpacing: '0.12em',
+              color: 'var(--warm)',
+              margin: '24px 0',
+            }}
+          >
+            could not load feed
+          </p>
         ) : isLoading ? (
-          <div className="hl-progress" style={{ margin: '28px 0' }} />
+          <progress
+            aria-label="Loading feed"
+            style={{
+              display: 'block',
+              width: '100%',
+              height: 1,
+              margin: '28px 0',
+              appearance: 'none',
+              border: 'none',
+              background: 'var(--rule)',
+              color: 'var(--warm)',
+            }}
+          />
         ) : !items.length ? (
-          <RoomSection flush>
-            <p
-              className="hl-serif hl-italic"
-              style={{ padding: '8px 0', color: 'var(--bone-faint)', fontSize: 15 }}
-            >
-              The cloth holds nothing from this week. Weave the first entry.
-            </p>
-          </RoomSection>
+          <p
+            style={{
+              fontFamily: 'var(--serif)',
+              fontStyle: 'italic',
+              fontWeight: 300,
+              fontSize: 17,
+              lineHeight: 1.6,
+              color: 'var(--bone-dim)',
+              textAlign: 'center',
+              padding: '48px 0',
+              margin: 0,
+            }}
+          >
+            The cloth holds nothing from this week. Weave the first entry.
+          </p>
         ) : (
-          <RoomSection flush>
+          <div style={{ borderTop: '1px solid var(--rule)' }}>
             {items.map((item) => (
-              <RoomRow
+              <EntryRow
                 key={item.id}
-                href={itemTo(item)}
-                dye={itemDye(item)}
                 title={item.title || (typeVerb[item.type] ?? 'added an entry')}
-                meta={`${fmtDate(item.created_at)} · ${item.author_name}`}
+                sub={item.preview || undefined}
+                year={fmtYear(item.created_at)}
+                author={item.author_name}
+                dye={itemDye(item)}
+                onClick={() => navigate(itemTo(item))}
               />
             ))}
-          </RoomSection>
+          </div>
         )}
+
+        <div style={{ marginTop: 64 }}>
+          <WaxSeal />
+        </div>
       </div>
     </ClothShell>
   );

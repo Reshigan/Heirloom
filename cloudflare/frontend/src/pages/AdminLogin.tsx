@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { adminApi } from '../services/api';
-import { HLogo } from '../loom/components/HLogo';
 import { TapestryEdge } from '../loom/components/Frame';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 export function AdminLogin() {
   const navigate = useNavigate();
@@ -29,124 +29,163 @@ export function AdminLogin() {
     loginMutation.mutate();
   };
 
+  const inputStyle: React.CSSProperties = {
+    display: 'block',
+    width: '100%',
+    boxSizing: 'border-box',
+    background: 'transparent',
+    border: 0,
+    borderBottom: '1px solid var(--rule)',
+    color: 'var(--bone)',
+    fontFamily: 'var(--serif)',
+    fontSize: 18,
+    padding: '10px 0',
+    marginBottom: 28,
+    outline: 'none',
+    caretColor: 'var(--warm)',
+    borderRadius: 0,
+    textAlign: 'center',
+  };
+
   return (
     <div
-      className="hl-screen"
       style={{
+        minHeight: '100dvh',
         background: 'var(--ink)',
         color: 'var(--bone)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '0 24px',
+        position: 'relative',
       }}
     >
-      {/* Topbar */}
-      <header className="hl-topbar">
-        <HLogo size={18} wordmark />
-      </header>
-
-      {/* Centred content */}
+      {/* Mono eyebrow */}
       <div
         style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '0 24px',
+          fontFamily: 'var(--mono)',
+          fontSize: 11,
+          letterSpacing: '0.28em',
+          textTransform: 'uppercase',
+          color: 'var(--bone-faint)',
+          marginBottom: 20,
+          textAlign: 'center',
         }}
       >
-        <div style={{ maxWidth: 400, width: '100%' }}>
-          <h1
-            className="hl-serif"
+        Restricted Access
+      </div>
+
+      {/* Giant serif headline */}
+      <h1
+        style={{
+          fontFamily: 'var(--serif)',
+          fontSize: 'clamp(40px, 9vw, 72px)',
+          fontWeight: 380,
+          lineHeight: 1.05,
+          letterSpacing: '-0.015em',
+          color: 'var(--bone)',
+          margin: '0 0 48px',
+          textAlign: 'center',
+        }}
+      >
+        Admin
+      </h1>
+
+      {/* Form */}
+      <form
+        onSubmit={handleSubmit}
+        style={{ width: '100%', maxWidth: 360 }}
+      >
+        <input
+          type="email"
+          required
+          autoComplete="email"
+          placeholder="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          style={{
+            ...inputStyle,
+            // focus style applied via CSS pseudo-class via inline workaround:
+            // we rely on :focus-within at parent level; use data-focused for warm border
+          }}
+          onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+          onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
+        />
+
+        <input
+          type="password"
+          required
+          autoComplete="current-password"
+          placeholder="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          style={inputStyle}
+          onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+          onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
+        />
+
+        {/* Error — inline mono in warm, role=alert, never a toast */}
+        {error && (
+          <p
+            role="alert"
             style={{
-              fontSize: 40,
-              fontWeight: 300,
-              letterSpacing: '-0.02em',
-              margin: '0 0 28px',
-              color: 'var(--bone)',
+              fontFamily: 'var(--mono)',
+              fontSize: 10,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
+              margin: '0 0 20px',
+              textAlign: 'center',
             }}
           >
-            Admin.
-          </h1>
+            {error}
+          </p>
+        )}
 
-          <form onSubmit={handleSubmit}>
-            {/* Username / email input */}
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              placeholder="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="hl-serif"
-              style={{
-                display: 'block',
-                width: '100%',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '1px solid var(--rule)',
-                color: 'var(--bone)',
-                fontSize: 17,
-                padding: '8px 0',
-                marginBottom: 18,
-                outline: 'none',
-                caretColor: 'var(--warm)',
-                borderRadius: 0,
-              }}
-            />
+        {/* Primary CTA — mono uppercase warm pill */}
+        <button
+          type="submit"
+          disabled={loginMutation.isPending || !email.trim() || !password.trim()}
+          style={{
+            display: 'block',
+            width: '100%',
+            background: 'transparent',
+            border: '1px solid var(--warm)',
+            borderRadius: 999,
+            color: 'var(--warm)',
+            fontFamily: 'var(--mono)',
+            fontSize: 11,
+            letterSpacing: '0.26em',
+            textTransform: 'uppercase',
+            padding: '14px 0',
+            minHeight: 44,
+            cursor: loginMutation.isPending ? 'wait' : 'pointer',
+            opacity: loginMutation.isPending || !email.trim() || !password.trim() ? 0.4 : 1,
+            transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+          }}
+        >
+          {loginMutation.isPending ? 'Signing in…' : 'Sign in →'}
+        </button>
+      </form>
 
-            {/* Password input */}
-            <input
-              type="password"
-              required
-              autoComplete="current-password"
-              placeholder="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="hl-serif"
-              style={{
-                display: 'block',
-                width: '100%',
-                background: 'transparent',
-                border: 'none',
-                borderBottom: '1px solid var(--rule)',
-                color: 'var(--bone)',
-                fontSize: 17,
-                padding: '8px 0',
-                marginBottom: 24,
-                outline: 'none',
-                caretColor: 'var(--warm)',
-                borderRadius: 0,
-              }}
-            />
+      {/* Serif-italic sub in bone-dim */}
+      <p
+        style={{
+          fontFamily: 'var(--serif)',
+          fontStyle: 'italic',
+          fontSize: 15,
+          color: 'var(--bone-dim)',
+          marginTop: 40,
+          textAlign: 'center',
+        }}
+      >
+        For bloodline stewards only.
+      </p>
 
-            <button
-              type="submit"
-              disabled={loginMutation.isPending || !email.trim() || !password.trim()}
-              className="hl-btn"
-              style={{
-                width: '100%',
-                opacity: loginMutation.isPending || !email.trim() || !password.trim() ? 0.5 : 1,
-                cursor: loginMutation.isPending ? 'wait' : 'pointer',
-              }}
-            >
-              {loginMutation.isPending ? 'Signing in…' : 'Sign in →'}
-            </button>
-
-            {error && (
-              <p
-                role="alert"
-                className="hl-mono"
-                style={{
-                  fontSize: 10,
-                  color: 'var(--warm)',
-                  margin: '12px 0 0',
-                  letterSpacing: '0.04em',
-                }}
-              >
-                {error}
-              </p>
-            )}
-          </form>
-        </div>
+      {/* Ceremony foot */}
+      <div style={{ marginTop: 56 }}>
+        <WaxSeal size={28} />
       </div>
 
       <TapestryEdge />

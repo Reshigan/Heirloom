@@ -2,6 +2,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 export function GiftSuccess() {
   const [searchParams] = useSearchParams();
@@ -23,72 +24,101 @@ export function GiftSuccess() {
           justifyContent: 'center',
         }}
       >
-        <div style={{ textAlign: 'center', maxWidth: 'var(--page-max-focus)', padding: '0 var(--page-pad-x)' }}>
-          {/* ∞ mark — faint amber */}
+        <div
+          style={{
+            textAlign: 'center',
+            maxWidth: 'var(--page-max-focus)',
+            padding: '0 var(--page-pad-x)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 0,
+          }}
+        >
+          {/* Glowing warm ∞ — CEREMONY archetype mark */}
           <div
-            className="hl-serif"
+            aria-hidden
             style={{
-              fontSize: 44,
-              fontWeight: 200,
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(40px, 10vw, 64px)',
               lineHeight: 1,
               color: 'var(--warm)',
-              opacity: 0.7,
-              marginBottom: 28,
+              textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
+              marginBottom: 32,
             }}
           >
             ∞
           </div>
 
-          <p
-            className="hl-mono"
+          {/* Mono warm meta — "SENT" */}
+          <div
             style={{
-              fontSize: 10,
-              letterSpacing: '0.32em',
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.26em',
               textTransform: 'uppercase',
-              color: 'var(--bone-dim)',
-              margin: '0 0 22px',
+              color: 'var(--warm)',
+              marginBottom: 20,
             }}
           >
-            gift sent
-          </p>
+            SENT
+          </div>
 
+          {/* Serif title */}
           <h1
-            className="hl-serif hl-tight"
             style={{
-              fontSize: 'var(--type-display)',
-              fontWeight: 200,
-              margin: '0 0 18px',
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(24px, 5vw, 34px)',
+              fontWeight: 400,
+              lineHeight: 1.2,
+              letterSpacing: '-0.01em',
               color: 'var(--bone)',
+              margin: '0 0 20px',
             }}
           >
             The gift is on its way.
           </h1>
 
+          {/* Serif-italic dim byline */}
           <p
-            className="hl-serif"
             style={{
-              fontSize: 'var(--type-body)',
+              fontFamily: 'var(--serif)',
+              fontStyle: 'italic',
+              fontWeight: 300,
+              fontSize: 17,
+              lineHeight: 1.65,
               color: 'var(--bone-dim)',
-              lineHeight: 1.7,
-              margin: '0 0 36px',
+              margin: '0 0 48px',
+              maxWidth: '30em',
             }}
           >
             You'll receive confirmation by email.
           </p>
 
+          {/* Mono warm CTA back to cloth */}
           <Link
             to="/loom"
-            className="hl-mono"
             style={{
+              fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.18em',
+              letterSpacing: '0.26em',
               textTransform: 'uppercase',
               color: 'var(--warm)',
               textDecoration: 'none',
+              display: 'inline-block',
+              minHeight: 44,
+              lineHeight: '44px',
+              padding: '0 4px',
+              transition: 'opacity 180ms var(--ease)',
             }}
           >
-            return to the cloth →
+            RETURN TO THE CLOTH →
           </Link>
+
+          {/* WaxSeal foot mark */}
+          <div style={{ marginTop: 64 }}>
+            <WaxSeal size={28} />
+          </div>
         </div>
       </div>
     </ClothShell>

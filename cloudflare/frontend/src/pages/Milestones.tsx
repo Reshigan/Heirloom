@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { dyeForId } from '../loom/dye';
 import { milestonesApi } from '../services/api';
 
 const milestoneTypes = [
@@ -40,8 +41,23 @@ const labelStyle: React.CSSProperties = {
   marginBottom: 10,
 };
 
+// quiet mono text affordance — replaces every icon/button chrome on a row
+const monoAffordance: React.CSSProperties = {
+  background: 'none',
+  border: 0,
+  padding: 0,
+  cursor: 'pointer',
+  fontFamily: 'var(--mono)',
+  fontSize: 10,
+  letterSpacing: '0.22em',
+  textTransform: 'uppercase',
+  color: 'var(--bone-faint)',
+  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+};
+
 export function Milestones() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [formData, setFormData] = useState({
     type: 'birthday',
@@ -115,55 +131,30 @@ export function Milestones() {
     <Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>
   );
 
+  const countEyebrow = `${milestoneList.length} ${milestoneList.length === 1 ? 'date held' : 'dates held'} in the thread`;
+
   return (
     <ClothShell topbarLeft={backLink} topbarCenter="milestones">
       <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
-        {/* Page header */}
-        <header style={{ marginBottom: 52, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
-          <div>
-            <RoomHeader eyebrow="Milestones" title="Your milestones." lede="Dates in the thread" />
-          </div>
-          <div style={{ display: 'flex', gap: 10, flexShrink: 0, paddingTop: 6 }}>
+        {/* Ledger header — mono eyebrow states the count, giant serif title */}
+        <header style={{ marginBottom: 44, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
+          <CosmicHeader eyebrow={countEyebrow} title="Milestones." sub="Dates the thread keeps." />
+          <div style={{ display: 'flex', gap: 22, flexShrink: 0, paddingTop: 8, fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase' }}>
             <button
               onClick={() => autoDetectMutation.mutate()}
               disabled={autoDetectMutation.isPending}
-              className="hl-btn"
-              style={{
-                background: 'transparent',
-                border: '1px solid var(--rule)',
-                color: 'var(--bone-dim)',
-                fontFamily: 'var(--mono)',
-                fontSize: 10,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                padding: '8px 16px',
-                cursor: 'pointer',
-                borderRadius: 0,
-                transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--warm)'; e.currentTarget.style.color = 'var(--warm)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--rule)'; e.currentTarget.style.color = 'var(--bone-dim)'; }}
+              style={{ ...monoAffordance, color: 'var(--bone-dim)' }}
+              onMouseEnter={e => { if (!autoDetectMutation.isPending) e.currentTarget.style.color = 'var(--warm)'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = 'var(--bone-dim)'; }}
             >
               {autoDetectMutation.isPending ? 'detecting…' : 'auto-detect'}
             </button>
             <button
               onClick={() => { setShowCreateModal(true); setAutoDetectMsg(null); }}
-              className="hl-btn"
-              style={{
-                background: 'var(--warm)',
-                border: '1px solid var(--warm)',
-                color: 'var(--ink)',
-                fontFamily: 'var(--mono)',
-                fontSize: 10,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                padding: '8px 16px',
-                cursor: 'pointer',
-                borderRadius: 0,
-              }}
+              style={{ ...monoAffordance, color: 'var(--warm)' }}
             >
-              add date
+              add date →
             </button>
           </div>
         </header>
@@ -175,7 +166,7 @@ export function Milestones() {
         )}
 
         {error && (
-          <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+          <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
             {error}
           </p>
         )}
@@ -188,140 +179,39 @@ export function Milestones() {
             Loading…
           </p>
         ) : (
-          <div style={{ display: 'grid', gap: 56 }}>
+          <div style={{ display: 'grid', gap: 48 }}>
 
-            {/* One large stat parked in negative space */}
-            <div>
-              <span
-                className="hl-serif"
-                style={{
-                  display: 'block',
-                  fontSize: 'clamp(56px, 9vw, 96px)',
-                  fontWeight: 200,
-                  lineHeight: 1,
-                  letterSpacing: '-0.022em',
-                  color: 'var(--bone)',
-                }}
-              >
-                {milestoneList.length}
-              </span>
-              <span
-                className="hl-mono"
-                style={{
-                  display: 'block',
-                  marginTop: 12,
-                  fontSize: 10,
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  color: 'var(--bone-faint)',
-                }}
-              >
-                {milestoneList.length === 1 ? 'date held in the thread' : 'dates held in the thread'}
-              </span>
-            </div>
-
-            {/* Coming up */}
+            {/* Coming up — next 30 days */}
             <section>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 24 }}>
-                <span className="hl-eyebrow">Coming up · next 30 days</span>
-                <hr className="hl-rule" style={{ flex: 1, margin: 0 }} />
-                <span
-                  className="hl-mono"
-                  style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em' }}
-                >
-                  {upcomingList.length} {upcomingList.length === 1 ? 'date' : 'dates'}
-                </span>
-              </div>
+              <SectionLabel>
+                Coming up · next 30 days · {upcomingList.length} {upcomingList.length === 1 ? 'date' : 'dates'}
+              </SectionLabel>
 
               {upcomingList.length > 0 ? (
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <div>
                   {upcomingList.map((milestone: any) => {
                     const typeInfo = getTypeInfo(milestone.milestone_type);
                     const daysUntil = getDaysUntil(milestone.milestone_date, milestone.recurring);
+                    const when = new Date(milestone.milestone_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                    const dueLabel = daysUntil === 0 ? 'today' : daysUntil === 1 ? 'tomorrow' : `${daysUntil} days`;
                     return (
-                      <li
+                      <EntryRow
                         key={milestone.id}
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: '80px 1fr auto auto',
-                          gap: 24,
-                          alignItems: 'baseline',
-                          padding: '18px 0',
-                          borderBottom: '1px solid var(--rule)',
-                        }}
-                      >
-                        {/* date col */}
-                        <div>
-                          <p
-                            className="hl-mono"
-                            style={{ margin: 0, fontSize: 10, color: 'var(--warm)', letterSpacing: '0.04em' }}
-                          >
-                            {new Date(milestone.milestone_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                          </p>
-                          <p
-                            className="hl-mono"
-                            style={{ margin: '3px 0 0', fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.2em', textTransform: 'uppercase' }}
-                          >
-                            {typeInfo.name}
-                          </p>
-                        </div>
-                        {/* title + description col */}
-                        <div>
-                          <p
-                            className="hl-serif"
-                            style={{ margin: '0 0 2px', fontSize: 16, fontWeight: 300, color: 'var(--bone)', lineHeight: 1.25 }}
-                          >
-                            {milestone.milestone_name}
-                          </p>
-                          {(milestone.family_member_name || milestone.prompt_suggestion) && (
-                            <p
-                              className="hl-serif hl-italic"
-                              style={{ margin: 0, fontSize: 14, color: 'var(--bone-dim)', lineHeight: 1.5 }}
-                            >
-                              {milestone.family_member_name || milestone.prompt_suggestion}
-                            </p>
-                          )}
-                        </div>
-                        {/* days col */}
-                        <p
-                          className="hl-mono"
-                          style={{
-                            margin: 0,
-                            fontSize: 9.5,
-                            letterSpacing: '0.22em',
-                            textTransform: 'uppercase',
-                            color: 'var(--bone-faint)',
-                            textAlign: 'right',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {daysUntil === 0 ? 'today' : daysUntil === 1 ? 'tomorrow' : `${daysUntil} days`}
-                        </p>
-                        {/* write CTA col */}
-                        <Link
-                          to="/compose"
-                          onClick={() => setAutoDetectMsg(null)}
-                          style={{
-                            fontFamily: 'var(--mono)',
-                            fontSize: 9,
-                            letterSpacing: '0.15em',
-                            textTransform: 'uppercase',
-                            color: 'var(--bone-faint)',
-                            textDecoration: 'none',
-                            borderBottom: '1px solid var(--rule)',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          write →
-                        </Link>
-                      </li>
+                        title={milestone.milestone_name}
+                        sub={milestone.family_member_name || milestone.prompt_suggestion || undefined}
+                        italic={!milestone.family_member_name && !!milestone.prompt_suggestion}
+                        year={`${when} · ${dueLabel}`}
+                        author={typeInfo.name}
+                        dye={dyeForId(milestone.id)}
+                        onClick={() => { setAutoDetectMsg(null); navigate('/compose'); }}
+                      />
                     );
                   })}
-                </ul>
+                </div>
               ) : (
                 <p
                   className="hl-serif hl-italic"
-                  style={{ fontSize: 16, color: 'var(--bone-dim)', margin: 0 }}
+                  style={{ fontSize: 16, color: 'var(--bone-dim)', margin: '12px 0 0' }}
                 >
                   Nothing approaching in the next 30 days.
                 </p>
@@ -330,105 +220,38 @@ export function Milestones() {
 
             {/* All dates */}
             <section>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 24 }}>
-                <span className="hl-eyebrow">All dates</span>
-                <hr className="hl-rule" style={{ flex: 1, margin: 0 }} />
-                <span
-                  className="hl-mono"
-                  style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em' }}
-                >
-                  {milestoneList.length} total
-                </span>
-              </div>
+              <SectionLabel>All dates · {milestoneList.length} total</SectionLabel>
 
               {milestoneList.length > 0 ? (
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <div>
                   {milestoneList.map((milestone: any) => {
+                    const typeInfo = getTypeInfo(milestone.milestone_type);
+                    const when = new Date(milestone.milestone_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
                     return (
-                      <li
-                        key={milestone.id}
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: '80px 1fr auto',
-                          gap: 24,
-                          alignItems: 'baseline',
-                          padding: '18px 0',
-                          borderBottom: '1px solid var(--rule)',
-                        }}
-                      >
-                        {/* date col */}
-                        <p
-                          className="hl-mono"
-                          style={{ margin: 0, fontSize: 10, color: 'var(--warm)', letterSpacing: '0.04em' }}
-                        >
-                          {new Date(milestone.milestone_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </p>
-                        {/* title + description col */}
-                        <div>
-                          <p
-                            className="hl-serif"
-                            style={{ margin: '0 0 2px', fontSize: 16, fontWeight: 300, color: 'var(--bone)', lineHeight: 1.25 }}
-                          >
-                            {milestone.milestone_name}
-                          </p>
-                          {milestone.family_member_name && (
-                            <p
-                              className="hl-serif hl-italic"
-                              style={{ margin: 0, fontSize: 14, color: 'var(--bone-dim)', lineHeight: 1.5 }}
-                            >
-                              {milestone.family_member_name}
-                            </p>
-                          )}
+                      <div key={milestone.id} style={{ borderBottom: '1px solid var(--rule)' }}>
+                        <div style={{ borderBottom: 0, marginBottom: -1 }}>
+                          <EntryRow
+                            title={milestone.milestone_name}
+                            sub={milestone.family_member_name || undefined}
+                            year={`${when} · ${milestone.recurring ? 'yearly' : 'once'}`}
+                            author={typeInfo.name}
+                            dye={dyeForId(milestone.id)}
+                          />
                         </div>
-                        {/* status col */}
-                        <p
-                          className="hl-mono"
-                          style={{
-                            margin: 0,
-                            fontSize: 9.5,
-                            letterSpacing: '0.22em',
-                            textTransform: 'uppercase',
-                            color: 'var(--bone-faint)',
-                            textAlign: 'right',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {milestone.recurring ? 'yearly' : 'once'}
-                          {' · '}
+                        {/* quiet mono affordances under the row — same delete flow, no icon buttons */}
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 18, padding: '0 0 12px' }}>
                           {confirmDeleteId === milestone.id ? (
                             <>
                               <button
                                 onClick={() => { deleteMutation.mutate(milestone.id); setConfirmDeleteId(null); }}
-                                style={{
-                                  background: 'none',
-                                  border: 0,
-                                  padding: 0,
-                                  cursor: 'pointer',
-                                  fontFamily: 'var(--mono)',
-                                  fontSize: 9.5,
-                                  letterSpacing: '0.22em',
-                                  textTransform: 'uppercase',
-                                  color: 'var(--warm)',
-                                }}
+                                style={{ ...monoAffordance, color: 'var(--warm)' }}
                                 aria-label="Confirm remove date"
                               >
                                 confirm
                               </button>
-                              {' · '}
                               <button
                                 onClick={() => setConfirmDeleteId(null)}
-                                style={{
-                                  background: 'none',
-                                  border: 0,
-                                  padding: 0,
-                                  cursor: 'pointer',
-                                  fontFamily: 'var(--mono)',
-                                  fontSize: 9.5,
-                                  letterSpacing: '0.22em',
-                                  textTransform: 'uppercase',
-                                  color: 'var(--bone-faint)',
-                                  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-                                }}
+                                style={monoAffordance}
                                 onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone)')}
                                 onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
                                 aria-label="Cancel remove"
@@ -439,18 +262,7 @@ export function Milestones() {
                           ) : (
                             <button
                               onClick={() => { setConfirmDeleteId(milestone.id); setAutoDetectMsg(null); }}
-                              style={{
-                                background: 'none',
-                                border: 0,
-                                padding: 0,
-                                cursor: 'pointer',
-                                fontFamily: 'var(--mono)',
-                                fontSize: 9.5,
-                                letterSpacing: '0.22em',
-                                textTransform: 'uppercase',
-                                color: 'var(--bone-faint)',
-                                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-                              }}
+                              style={monoAffordance}
                               onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm)')}
                               onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
                               aria-label="Remove date"
@@ -458,20 +270,22 @@ export function Milestones() {
                               remove
                             </button>
                           )}
-                        </p>
-                      </li>
+                        </div>
+                      </div>
                     );
                   })}
-                </ul>
+                </div>
               ) : (
                 <p
                   className="hl-serif hl-italic"
-                  style={{ fontSize: 16, color: 'var(--bone-dim)', margin: 0 }}
+                  style={{ fontSize: 16, color: 'var(--bone-dim)', margin: '12px 0 0' }}
                 >
                   No dates recorded yet.
                 </p>
               )}
             </section>
+
+            <WaxSeal />
 
           </div>
         )}

@@ -5,6 +5,8 @@ import { useAuthStore } from '../stores/authStore';
 import { aiApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { dyeColor } from '../loom/dye';
 
 /**
  * Screen 06 — The Listener (Echo)
@@ -55,6 +57,11 @@ export function Echo() {
     }
   }
 
+  // The reading column's left margin thread is dyed by the prompt's identity
+  // (stable per prompt id); without an id we fall back to a hairline rule.
+  const thread = promptId ? dyeColor(promptId) : 'var(--rule)';
+  const year = new Date().getFullYear();
+
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'the listener' }]} />}
@@ -63,48 +70,67 @@ export function Echo() {
     >
       <div style={{
         minHeight: '100%',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+        paddingTop: 56,
         paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))',
         paddingLeft: 24,
         paddingRight: 24,
-        animation: prefersReduced ? undefined : 'hl-echo-breath 1400ms cubic-bezier(0.16,1,0.3,1) infinite alternate',
       }}>
-        <div
-          style={{ textAlign: 'center', maxWidth: '52ch', width: '100%', cursor: promptId ? 'pointer' : 'default' }}
-          onClick={handlePromptInteract}
-        >
-          <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 20, color: 'var(--bone-faint)' }}>
-            the listener asks
-          </span>
-          <p
-            className="hl-serif"
+        <article style={{ width: '100%', maxWidth: '62ch' }}>
+          <div
             style={{
-              fontSize: 'clamp(18px, 4vw, 24px)',
-              lineHeight: 1.6,
-              fontWeight: 400,
-              fontStyle: 'italic',
-              color: 'var(--bone)',
-              margin: 0,
-              fontVariationSettings: '"opsz" 18',
+              borderLeft: `3px solid ${thread}`,
+              paddingLeft: 24,
+              cursor: promptId ? 'pointer' : 'default',
+              animation: prefersReduced ? undefined : 'hl-echo-breath 1400ms cubic-bezier(0.16,1,0.3,1) infinite alternate',
             }}
+            onClick={handlePromptInteract}
           >
-            {prompt.split(' ').map((word, i) => (
-              <span
-                key={`${revealKey}-${i}`}
-                style={{
-                  display: 'inline-block',
-                  opacity: revealed ? 1 : 0,
-                  transform: revealed ? 'translateY(0)' : 'translateY(6px)',
-                  transition: `opacity 360ms cubic-bezier(0.16,1,0.3,1) ${80 + i * 65}ms, transform 360ms cubic-bezier(0.16,1,0.3,1) ${80 + i * 65}ms`,
-                  marginRight: '0.28em',
-                }}
-              >
-                {word}
-              </span>
-            ))}
-          </p>
+            <h1
+              className="hl-serif"
+              style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 'clamp(30px, 6vw, 44px)',
+                lineHeight: 1.1,
+                fontWeight: 400,
+                fontStyle: 'italic',
+                color: 'var(--bone)',
+                margin: 0,
+                fontVariationSettings: '"opsz" 40',
+              }}
+            >
+              {prompt.split(' ').map((word, i) => (
+                <span
+                  key={`${revealKey}-${i}`}
+                  style={{
+                    display: 'inline-block',
+                    opacity: revealed ? 1 : 0,
+                    transform: revealed ? 'translateY(0)' : 'translateY(6px)',
+                    transition: `opacity 360ms cubic-bezier(0.16,1,0.3,1) ${80 + i * 65}ms, transform 360ms cubic-bezier(0.16,1,0.3,1) ${80 + i * 65}ms`,
+                    marginRight: '0.28em',
+                  }}
+                >
+                  {word}
+                </span>
+              ))}
+            </h1>
+            <div
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.26em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                marginTop: 22,
+              }}
+            >
+              A QUESTION FROM THE LISTENER · {year}
+            </div>
+          </div>
+
           <div style={{
-            marginTop: 28,
+            marginTop: 40,
+            paddingLeft: 24,
             opacity: showWriteNudge ? 1 : 0,
             transform: showWriteNudge ? 'translateY(0)' : 'translateY(8px)',
             transition: 'opacity 720ms cubic-bezier(0.16,1,0.3,1), transform 720ms cubic-bezier(0.16,1,0.3,1)',
@@ -114,20 +140,24 @@ export function Echo() {
               to="/compose"
               style={{
                 fontFamily: 'var(--mono)',
-                fontSize: 10,
-                letterSpacing: '0.16em',
+                fontSize: 11,
+                letterSpacing: '0.18em',
                 textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
+                color: 'var(--warm)',
                 textDecoration: 'none',
                 transition: 'color 180ms',
               }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone-dim)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm-bright)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--warm)')}
             >
               write about this →
             </Link>
           </div>
-        </div>
+
+          <div style={{ marginTop: 64 }}>
+            <WaxSeal />
+          </div>
+        </article>
       </div>
     </ClothShell>
   );

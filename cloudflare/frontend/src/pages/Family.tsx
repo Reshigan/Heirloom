@@ -8,7 +8,7 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { copyToClipboard } from '../utils/clipboard';
 import { type FamilyMember } from '../types';
 import { formatDate } from '../utils/date';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, SectionLabel, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 interface PendingInvite {
   id: string;
@@ -212,13 +212,11 @@ export function Family() {
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x)', paddingBottom: 'var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
 
 
-        {/* heading */}
-        <div style={{ marginBottom: 40 }}>
-          <RoomHeader
-            eyebrow="the bloodline"
-            title="Who holds the thread"
-          />
-        </div>
+        {/* heading — ledger headline; mono eyebrow states the count + kind */}
+        <CosmicHeader
+          eyebrow={`${members.length} ${members.length === 1 ? 'HAND' : 'HANDS'} · THE BLOODLINE`}
+          title="Who holds the thread"
+        />
 
         {/* primary CTA row */}
         {!showForm && (
@@ -296,7 +294,7 @@ export function Family() {
                 <InputField label="email — optional" value={addForm.email} onChange={(v) => setAddForm({ ...addForm, email: v })} type="email" placeholder="name@example.com" />
                 <InputField label="birthday — optional" value={addForm.birthDate} onChange={(v) => setAddForm({ ...addForm, birthDate: v })} type="date" placeholder="" />
                 {error && (
-                  <p role="alert" className="hl-serif" style={{ gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--danger)', fontSize: 14, margin: 0 }}>
+                  <p role="alert" className="hl-mono" style={{ gridColumn: '1 / -1', fontSize: 12, letterSpacing: '0.14em', color: 'var(--warm)', margin: 0, lineHeight: 1.5 }}>
                     {error}
                   </p>
                 )}
@@ -316,7 +314,7 @@ export function Family() {
                 <InputField label="their name — optional" value={inviteForm.name} onChange={(v) => setInviteForm({ ...inviteForm, name: v })} placeholder="first name" />
                 <InputField label="email" value={inviteForm.email} onChange={(v) => setInviteForm({ ...inviteForm, email: v })} type="email" placeholder="name@example.com" />
                 {error && (
-                  <p role="alert" className="hl-serif" style={{ gridColumn: '1 / -1', fontStyle: 'italic', color: 'var(--danger)', fontSize: 14, margin: 0 }}>
+                  <p role="alert" className="hl-mono" style={{ gridColumn: '1 / -1', fontSize: 12, letterSpacing: '0.14em', color: 'var(--warm)', margin: 0, lineHeight: 1.5 }}>
                     {error}
                   </p>
                 )}
@@ -378,11 +376,7 @@ export function Family() {
         {/* pending deletion members — grace window */}
         {pendingDeletion.length > 0 && (
           <div style={{ marginBottom: 40 }}>
-            <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 20, marginBottom: 16 }}>
-              <span className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--danger)' }}>
-                pending removal
-              </span>
-            </div>
+            <SectionLabel>pending removal</SectionLabel>
             {pendingDeletion.map((m) => (
               <div
                 key={m.id}
@@ -401,7 +395,7 @@ export function Family() {
                   <div className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', textDecoration: 'line-through', lineHeight: 1.3 }}>
                     {m.name}
                   </div>
-                  <div className="hl-mono" style={{ fontSize: 12, color: 'var(--danger)', marginTop: 3 }}>
+                  <div className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm)', marginTop: 4 }}>
                     {daysUntilExpiry(m.deletedAt!)} day{daysUntilExpiry(m.deletedAt!) !== 1 ? 's' : ''} left to undo
                   </div>
                 </div>
@@ -428,11 +422,7 @@ export function Family() {
         {/* pending invites */}
         {pendingInvites.length > 0 && (
           <div style={{ marginBottom: 40 }}>
-            <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 20, marginBottom: 16 }}>
-              <span className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>
-                pending invites
-              </span>
-            </div>
+            <SectionLabel>pending invites</SectionLabel>
             {pendingInvites.map((inv) => (
               <div
                 key={inv.id}
@@ -471,7 +461,7 @@ export function Family() {
                       textTransform: 'uppercase', color: 'var(--bone-faint)',
                       transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
                   >
                     cancel
@@ -483,21 +473,23 @@ export function Family() {
         )}
 
         {deleteError && (
-          <p role="alert" className="hl-mono" style={{ fontSize: 12, color: 'var(--danger)', letterSpacing: '0.14em', margin: '0 0 16px' }}>
+          <p role="alert" className="hl-mono" style={{ fontSize: 12, color: 'var(--warm)', letterSpacing: '0.14em', margin: '0 0 16px' }}>
             {deleteError}
           </p>
         )}
 
-        {/* member list */}
+        {/* member list — the ledger of the bloodline */}
         {isLoading ? (
           <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.4, marginTop: 8 }} />
         ) : members.length === 0 ? (
           <div style={{ paddingTop: 8 }}>
-            <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 16, margin: 0, lineHeight: 1.7 }}>
+            <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-dim)', fontSize: 18, margin: 0, lineHeight: 1.7 }}>
               No one else is on this thread yet. Add the first name above.
             </p>
           </div>
         ) : (
+          <>
+          <SectionLabel>the roster</SectionLabel>
           <div style={{ display: 'grid', gap: 0 }}>
             {members.map((m) => {
               const dyeKey = m.dye?.toLowerCase() || undefined;
@@ -510,39 +502,33 @@ export function Family() {
                   key={m.id}
                   style={{
                     borderBottom: '1px solid var(--rule)',
+                    borderLeft: `3px solid ${thread}`,
                   }}
                 >
-                  {/* roster row — dye swatch + serif name (dye) + mono relation, right-aligned */}
+                  {/* roster ledger row — left dye margin thread carries identity; serif
+                      name tinted by dye on the left, mono cluster (dye dot + relation)
+                      on the right. No avatar circle, no swatch chip. */}
                   <Link
                     to={`/person/${m.id}`}
                     style={{
-                      display: 'grid',
-                      gridTemplateColumns: 'auto 1fr auto',
-                      alignItems: 'center',
-                      columnGap: 18,
+                      display: 'flex',
+                      alignItems: 'baseline',
+                      justifyContent: 'space-between',
+                      gap: 18,
                       textDecoration: 'none',
-                      padding: '22px 4px',
+                      padding: '20px 16px',
                       minHeight: 44,
                     }}
                   >
-                    {/* dye thread — the only identity mark (square swatch, never an avatar circle) */}
-                    <span
-                      aria-hidden
-                      style={{
-                        width: 34,
-                        height: 34,
-                        background: thread,
-                        flex: '0 0 auto',
-                        boxShadow: `0 0 0 1px var(--rule)`,
-                      }}
-                    />
                     <span
                       className="hl-serif"
                       style={{
                         fontWeight: 400,
                         fontSize: 'clamp(18px, 5vw, 22px)',
-                        lineHeight: 1.2,
+                        lineHeight: 1.25,
                         color: nameColor,
+                        flex: 1,
+                        minWidth: 0,
                         whiteSpace: 'nowrap',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
@@ -552,21 +538,30 @@ export function Family() {
                     </span>
                     {relMeta && (
                       <span
-                        className="hl-mono"
                         style={{
-                          fontSize: 10,
-                          letterSpacing: '0.22em',
-                          textTransform: 'uppercase',
-                          color: 'var(--bone-dim)',
-                          textAlign: 'right',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 9,
+                          flex: '0 0 auto',
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        {relMeta}
+                        <WarmDot color={thread} size={5} />
+                        <span
+                          className="hl-mono"
+                          style={{
+                            fontSize: 10,
+                            letterSpacing: '0.22em',
+                            textTransform: 'uppercase',
+                            color: 'var(--bone-dim)',
+                          }}
+                        >
+                          {relMeta}
+                        </span>
                       </span>
                     )}
                   </Link>
-                  <div style={{ padding: isEditing ? '0 4px 8px 56px' : '0 4px 18px 56px', display: 'grid', gap: 8 }}>
+                  <div style={{ padding: isEditing ? '0 16px 8px 16px' : '0 16px 18px 16px', display: 'grid', gap: 8 }}>
                     {!relMeta && (
                       <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-faint)', lineHeight: 1.2 }}>
                         relationship not set — edit to weave it in
@@ -645,7 +640,7 @@ export function Family() {
                               letterSpacing: '0.18em', textTransform: 'uppercase',
                               transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                             }}
-                            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
                             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
                             aria-label={`remove ${m.name}`}
                           >
@@ -658,7 +653,7 @@ export function Family() {
 
                   {/* Inline edit form */}
                   {isEditing && (
-                    <div style={{ padding: '0 4px 22px 56px' }}>
+                    <div style={{ padding: '0 16px 22px 16px' }}>
                       <input
                         value={editName}
                         onChange={(e) => { setEditName(e.target.value); setEditError(null); }}
@@ -686,7 +681,7 @@ export function Family() {
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--mono)', fontSize: 13, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
                       />
                       {editError && (
-                        <p className="hl-mono" style={{ fontSize: 12, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{editError}</p>
+                        <p className="hl-mono" style={{ fontSize: 12, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{editError}</p>
                       )}
                       <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginTop: 4 }}>
                         <button
@@ -712,6 +707,7 @@ export function Family() {
               );
             })}
           </div>
+          </>
         )}
 
         {/* invite pill — the single warm call at the foot of the roster */}
@@ -742,6 +738,11 @@ export function Family() {
             </button>
           </div>
         )}
+
+        {/* the ∞ wax seal rests warm at the foot of the ledger */}
+        <div style={{ marginTop: 72 }}>
+          <WaxSeal />
+        </div>
       </div>
     </ClothShell>
   );

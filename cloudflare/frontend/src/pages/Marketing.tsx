@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
 import { SecurityDot } from '../loom/components/Frame';
+import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import {
   getDeferredPrompt, isIOS, isStandalone,
   onInstallStateChange, promptInstall, wasInstalled,
@@ -54,6 +55,7 @@ export function Marketing() {
   const bookSect = useReveal(0.08);
   const finalCta = useReveal(0.1);
   const ease = 'cubic-bezier(0.16,1,0.3,1)';
+  const narrow = vpW < 680;
 
   useEffect(() => {
     const sync = () => { setVpH(window.innerHeight); setVpW(window.innerWidth); };
@@ -71,9 +73,9 @@ export function Marketing() {
     <main style={{ color: 'var(--bone)', overflowX: 'hidden' }}>
 
       {/* ════════════════════════════════════════════════════════════
-          HERO — type is the hero, set high. The global ClothBackdrop
-          filament shows through (transparent section) and resolves at
-          the bottom, exactly as the specimen. Headline arrives at 800ms.
+          HERO — serif hero set high, mono eyebrow + serif-italic sub +
+          mono warm CTA. The global ClothBackdrop filament shows through
+          (transparent section). Headline arrives at 800ms.
           ════════════════════════════════════════════════════════════ */}
       <section style={{
         position: 'relative', height: vpH, minHeight: 560, overflow: 'hidden',
@@ -91,7 +93,7 @@ export function Marketing() {
           <span style={{
             display: 'flex', gap: 'clamp(18px, 3vw, 32px)', alignItems: 'center',
             fontFamily: 'var(--mono)', fontSize: 11.5, letterSpacing: '0.22em',
-            textTransform: 'uppercase', color: 'rgba(244,236,216,0.52)',
+            textTransform: 'uppercase', color: 'var(--bone-faint)',
           }}>
             <Link to="/pricing"  style={{ color: 'inherit', textDecoration: 'none' }} className="mkt-nav-hide-sm">pricing</Link>
             <Link to="/founder"  style={{ color: 'inherit', textDecoration: 'none' }} className="mkt-nav-hide-sm">founder</Link>
@@ -100,19 +102,30 @@ export function Marketing() {
           </span>
         </nav>
 
-        {/* ── The intention — set high, top-aligned per the specimen ── */}
+        {/* ── The intention — serif hero set high, top-aligned ── */}
         <div style={{
           position: 'relative', zIndex: 10,
           padding: 'clamp(20px, 5vh, 64px) clamp(24px, 6vw, 80px) 0',
         }}>
+          <div style={{
+            fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.28em',
+            textTransform: 'uppercase', color: 'var(--bone-faint)',
+            margin: '0 0 clamp(16px, 2.5vh, 24px)',
+            opacity: taglineIn ? 1 : 0,
+            transform: taglineIn ? 'translateY(0)' : 'translateY(16px)',
+            transition: `opacity 1400ms ${ease}, transform 1400ms ${ease}`,
+          }}>
+            the family thread · est. 2025
+          </div>
+
           <h1 style={{
             fontFamily: 'var(--serif)',
-            fontSize: 'clamp(38px, 8.5vw, 84px)',
-            fontWeight: 300,
+            fontSize: 'clamp(40px, 8vw, 64px)',
+            fontWeight: 380,
             lineHeight: 1.04,
             letterSpacing: '-0.012em',
-            fontVariationSettings: '"opsz" 72',
-            color: 'rgba(244,236,216,0.95)',
+            fontVariationSettings: '"opsz" 64',
+            color: 'var(--bone)',
             margin: '0 0 clamp(22px, 3.5vh, 36px)',
             maxWidth: '16ch',
             opacity: taglineIn ? 1 : 0,
@@ -124,12 +137,13 @@ export function Marketing() {
 
           <p style={{
             fontFamily: 'var(--serif)',
+            fontStyle: 'italic',
             fontSize: 'clamp(16px, 2vw, 21px)',
             fontWeight: 300,
             lineHeight: 1.6,
             margin: '0 0 clamp(30px, 4.5vh, 44px)',
             maxWidth: '32ch',
-            color: 'rgba(244,236,216,0.55)',
+            color: 'var(--bone-dim)',
             opacity: taglineIn ? 1 : 0,
             transition: `opacity 1400ms ${ease}`,
             transitionDelay: '220ms',
@@ -146,7 +160,7 @@ export function Marketing() {
             <Link
               to="/signup"
               style={{
-                display: 'inline-block', padding: '13px 38px',
+                display: 'inline-block', padding: '13px 38px', minHeight: 44, boxSizing: 'border-box',
                 border: '1px solid var(--warm)',
                 color: 'var(--warm-bright, var(--warm))',
                 background: 'transparent',
@@ -163,10 +177,10 @@ export function Marketing() {
                 type="button"
                 onClick={() => promptInstall()}
                 style={{
-                  background: 'transparent', border: '1px solid rgba(244,236,216,0.20)',
-                  color: 'rgba(244,236,216,0.55)', fontFamily: 'var(--mono)', fontSize: 10,
+                  background: 'transparent', border: '1px solid var(--rule)',
+                  color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 10,
                   letterSpacing: '0.24em', textTransform: 'uppercase',
-                  cursor: 'pointer', padding: '12px 26px',
+                  cursor: 'pointer', padding: '12px 26px', minHeight: 44, boxSizing: 'border-box',
                 }}
               >
                 ↓ install
@@ -175,8 +189,8 @@ export function Marketing() {
             {install.mode === 'ios' && (
               <span style={{
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em',
-                textTransform: 'uppercase', color: 'rgba(244,236,216,0.35)',
-                borderBottom: '1px dashed rgba(244,236,216,0.20)',
+                textTransform: 'uppercase', color: 'var(--bone-faint)',
+                borderBottom: '1px dashed var(--rule)',
               }}>
                 Share → Add to Home Screen
               </span>
@@ -185,7 +199,7 @@ export function Marketing() {
         </div>
 
         {/* Negative space — the filament resolves below, via the global
-            ClothBackdrop. Scroll cue sits at the foot of the specimen. */}
+            ClothBackdrop. Scroll cue sits at the foot. */}
         <div style={{ flex: 1 }} />
 
         <p style={{
@@ -194,7 +208,7 @@ export function Marketing() {
           margin: 0,
           fontFamily: 'var(--mono)', fontSize: 9,
           letterSpacing: '0.24em', textTransform: 'uppercase',
-          color: 'rgba(244,236,216,0.20)',
+          color: 'var(--bone-faint)',
           opacity: taglineIn ? 1 : 0,
           transition: `opacity 1400ms ${ease}`,
           transitionDelay: '600ms',
@@ -209,7 +223,7 @@ export function Marketing() {
           right: 'clamp(20px, 5vw, 56px)',
           zIndex: 5,
           fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.26em',
-          textTransform: 'uppercase', color: 'rgba(244,236,216,0.15)',
+          textTransform: 'uppercase', color: 'var(--bone-faint)',
           writingMode: 'vertical-rl',
           opacity: taglineIn ? 1 : 0,
           transition: `opacity 1400ms ${ease}`,
@@ -223,73 +237,67 @@ export function Marketing() {
       <div style={{ position: 'relative', zIndex: 2, background: 'var(--ink)' }}>
 
       {/* ════════════════════════════════════════════════════════════
-          THREE EDITORIAL PILLARS
+          THREE EDITORIAL PILLARS — SectionLabel + ledger-ruled rows
           ════════════════════════════════════════════════════════════ */}
       <section
         ref={pillars.ref}
         style={{
           padding: 'clamp(72px, 10vh, 120px) clamp(24px, 6vw, 80px)',
-          borderTop: '1px solid rgba(244,236,216,0.07)',
+          borderTop: '1px solid var(--rule)',
         }}
       >
-        {([
-          ['Write now. Let it arrive then.',
-           'Seal a letter for a date, a milestone, or a death. Time-locked by design — cryptographic commitment, permanent delivery. It holds safe and finds them exactly when you intended.'],
-          ['A thousand-year horizon.',
-           'Not a season. Not a subscription cycle. An archive that outlives its founders and holds the record of a bloodline — perpetually, structurally, by design.'],
-          ['Entries only append.',
-           'No silent edits. No deletion. Future generations read exactly what you wrote, exactly when you wrote it. The past is sealed the moment you weave it in.'],
-        ] as const).map(([title, body], i) => (
-          <div key={i} style={{
-            borderTop: '1px solid rgba(244,236,216,0.10)',
-            padding: 'clamp(36px, 5.5vh, 60px) 0',
-            display: 'grid',
-            gridTemplateColumns: vpW < 680 ? '1fr' : '5fr 4fr',
-            gap: vpW < 680 ? '18px' : 'clamp(40px, 8vw, 120px)',
-            opacity: pillars.visible ? 1 : 0,
-            transform: pillars.visible ? 'translateY(0)' : 'translateY(20px)',
-            transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
-            transitionDelay: `${i * 160}ms`,
-          }}>
-            <h2 style={{
-              fontFamily: 'var(--serif)',
-              fontSize: 'clamp(22px, 3.4vw, 48px)',
-              fontWeight: 300, lineHeight: 1.08, margin: 0,
-              fontVariationSettings: '"opsz" 48',
-              color: 'rgba(244,236,216,0.92)',
-            }}>{title}</h2>
-            <p style={{
-              fontFamily: 'var(--serif)',
-              fontSize: 'clamp(16px, 1.5vw, 19px)',
-              lineHeight: 1.74, margin: 0,
-              color: 'rgba(244,236,216,0.62)',
-              paddingTop: vpW < 680 ? 0 : 'clamp(4px, 0.6vh, 8px)',
-            }}>{body}</p>
-          </div>
-        ))}
-        <div style={{ borderTop: '1px solid rgba(244,236,216,0.10)' }} />
+        <SectionLabel>the design</SectionLabel>
+        <div style={{ marginTop: 'clamp(24px, 4vh, 44px)', borderTop: '1px solid var(--rule)' }}>
+          {([
+            ['Write now. Let it arrive then.',
+             'Seal a letter for a date, a milestone, or a death. Time-locked by design — cryptographic commitment, permanent delivery. It holds safe and finds them exactly when you intended.'],
+            ['A thousand-year horizon.',
+             'Not a season. Not a subscription cycle. An archive that outlives its founders and holds the record of a bloodline — perpetually, structurally, by design.'],
+            ['Entries only append.',
+             'No silent edits. No deletion. Future generations read exactly what you wrote, exactly when you wrote it. The past is sealed the moment you weave it in.'],
+          ] as const).map(([title, body], i) => (
+            <div key={i} style={{
+              borderBottom: '1px solid var(--rule)',
+              padding: 'clamp(36px, 5.5vh, 60px) 0',
+              display: 'grid',
+              gridTemplateColumns: narrow ? '1fr' : '5fr 4fr',
+              gap: narrow ? '18px' : 'clamp(40px, 8vw, 120px)',
+              opacity: pillars.visible ? 1 : 0,
+              transform: pillars.visible ? 'translateY(0)' : 'translateY(20px)',
+              transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
+              transitionDelay: `${i * 160}ms`,
+            }}>
+              <h2 style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 'clamp(22px, 3.4vw, 48px)',
+                fontWeight: 380, lineHeight: 1.08, margin: 0,
+                fontVariationSettings: '"opsz" 48',
+                color: 'var(--bone)',
+              }}>{title}</h2>
+              <p style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 'clamp(16px, 1.5vw, 19px)',
+                lineHeight: 1.74, margin: 0,
+                color: 'var(--bone-dim)',
+                paddingTop: narrow ? 0 : 'clamp(4px, 0.6vh, 8px)',
+              }}>{body}</p>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* ════════════════════════════════════════════════════════════
-          THE ARC — write → seal → read. Three editorial plates. The
-          headline type is set inside each plate (same serif/mono), so
-          no caption is repeated — the image IS the specimen.
+          THE ARC — write → seal → read. Three editorial plates.
           ════════════════════════════════════════════════════════════ */}
       <section
         ref={arc.ref}
         style={{
           padding: 'clamp(72px, 10vh, 120px) clamp(24px, 6vw, 80px)',
-          borderTop: '1px solid rgba(244,236,216,0.07)',
+          borderTop: '1px solid var(--rule)',
         }}
       >
-        <div style={{
-          fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.32em',
-          textTransform: 'uppercase', color: 'rgba(244,236,216,0.26)',
-          marginBottom: 'clamp(40px, 6vh, 60px)',
-        }}>
-          the arc
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(28px, 5vh, 56px)' }}>
+        <SectionLabel>the arc</SectionLabel>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(28px, 5vh, 56px)', marginTop: 'clamp(24px, 4vh, 44px)' }}>
           {([
             ['/marketing/write.png',  'Write today — the story begins when you decide to.'],
             ['/marketing/sealed.png', 'Sealed for descendants — locked until they are ready to read it.'],
@@ -308,7 +316,7 @@ export function Marketing() {
                 loading="lazy"
                 style={{
                   width: '100%', height: 'auto', display: 'block',
-                  border: '1px solid rgba(244,236,216,0.07)',
+                  border: '1px solid var(--rule)',
                 }}
               />
             </figure>
@@ -323,22 +331,17 @@ export function Marketing() {
         ref={permSect.ref}
         style={{
           padding: 'clamp(72px, 10vh, 120px) clamp(24px, 6vw, 80px)',
-          borderTop: '1px solid rgba(244,236,216,0.07)',
+          borderTop: '1px solid var(--rule)',
           opacity: permSect.visible ? 1 : 0,
           transform: permSect.visible ? 'translateY(0)' : 'translateY(24px)',
           transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
         }}
       >
+        <SectionLabel>permanence</SectionLabel>
         <div style={{
-          fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.32em',
-          textTransform: 'uppercase', color: 'rgba(244,236,216,0.26)',
-          marginBottom: 'clamp(40px, 6vh, 60px)',
-        }}>
-          permanence
-        </div>
-        <div style={{
+          marginTop: 'clamp(24px, 4vh, 44px)',
           display: 'grid',
-          gridTemplateColumns: vpW < 680 ? '1fr' : 'repeat(2, 1fr)',
+          gridTemplateColumns: narrow ? '1fr' : 'repeat(2, 1fr)',
           gap: 'clamp(32px, 5vh, 52px) clamp(40px, 6vw, 80px)',
         }}>
           {PERMANENCE.map(([q, a], i) => (
@@ -346,16 +349,16 @@ export function Marketing() {
               <p style={{
                 fontFamily: 'var(--serif)',
                 fontSize: 'clamp(16px, 1.8vw, 22px)',
-                fontWeight: 300, lineHeight: 1.2,
+                fontWeight: 380, lineHeight: 1.2,
                 margin: '0 0 14px',
                 fontVariationSettings: '"opsz" 24',
-                color: 'rgba(244,236,216,0.88)',
+                color: 'var(--bone)',
               }}>{q}</p>
               <p style={{
                 fontFamily: 'var(--serif)',
                 fontSize: 'clamp(15px, 1.4vw, 17px)',
                 lineHeight: 1.74, margin: 0,
-                color: 'rgba(244,236,216,0.58)',
+                color: 'var(--bone-dim)',
               }}>{a}</p>
             </div>
           ))}
@@ -363,26 +366,26 @@ export function Marketing() {
       </section>
 
       {/* ════════════════════════════════════════════════════════════
-          THE BOOK — proof of permanence
+          THE BOOK — proof of permanence. Left prose, right ledger rows.
           ════════════════════════════════════════════════════════════ */}
       <section
         ref={bookSect.ref}
         style={{
           padding: 'clamp(72px, 10vh, 120px) clamp(24px, 6vw, 80px)',
-          borderTop: '1px solid rgba(244,236,216,0.07)',
+          borderTop: '1px solid var(--rule)',
           opacity: bookSect.visible ? 1 : 0,
           transform: bookSect.visible ? 'translateY(0)' : 'translateY(24px)',
           transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
           display: 'grid',
-          gridTemplateColumns: vpW < 680 ? '1fr' : '1fr 1fr',
+          gridTemplateColumns: narrow ? '1fr' : '1fr 1fr',
           gap: 'clamp(40px, 6vw, 80px)',
           alignItems: 'center',
         }}
       >
         <div>
           <div style={{
-            fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.32em',
-            textTransform: 'uppercase', color: 'rgba(176,122,74,0.7)',
+            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em',
+            textTransform: 'uppercase', color: 'var(--warm)',
             marginBottom: 28,
           }}>
             proof of permanence
@@ -390,11 +393,11 @@ export function Marketing() {
           <h2 style={{
             fontFamily: 'var(--serif)',
             fontSize: 'clamp(22px, 2.8vw, 40px)',
-            fontWeight: 300, lineHeight: 1.15,
+            fontWeight: 380, lineHeight: 1.15,
             margin: '0 0 20px',
             fontVariationSettings: '"opsz" 44',
             letterSpacing: '-0.016em',
-            color: 'rgba(244,236,216,0.92)',
+            color: 'var(--bone)',
           }}>
             The thread becomes a book.
           </h2>
@@ -402,7 +405,7 @@ export function Marketing() {
             fontFamily: 'var(--serif)',
             fontSize: 'clamp(15px, 1.5vw, 18px)',
             lineHeight: 1.74, margin: '0 0 32px',
-            color: 'rgba(244,236,216,0.58)',
+            color: 'var(--bone-dim)',
             maxWidth: '44ch',
           }}>
             Every entry your family has ever written — memories, letters, voice transcripts, milestones — bound into a letterpress-quality heirloom book. Not a photo album. Not a scrapbook. A record. Physical. Permanent. Something to hold.
@@ -412,7 +415,7 @@ export function Marketing() {
             fontSize: 'clamp(13px, 1.2vw, 15px)',
             fontStyle: 'italic',
             lineHeight: 1.65, margin: '0 0 36px',
-            color: 'rgba(244,236,216,0.30)',
+            color: 'var(--bone-faint)',
           }}>
             Digital is ephemeral. Servers go down. Platforms close. A book outlasts all of it.
           </p>
@@ -420,7 +423,7 @@ export function Marketing() {
             to="/book-builder"
             className="hl-btn ghost"
             style={{
-              display: 'inline-block', padding: '11px 28px',
+              display: 'inline-block', padding: '11px 28px', minHeight: 44, boxSizing: 'border-box',
               color: 'var(--warm)',
               fontFamily: 'var(--mono)', fontSize: 10,
               letterSpacing: '0.22em', textTransform: 'uppercase',
@@ -430,109 +433,78 @@ export function Marketing() {
             build the book →
           </Link>
         </div>
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 0,
-          borderLeft: '3px solid rgba(176,122,74,0.22)',
-          paddingLeft: 'clamp(20px, 3vw, 40px)',
-        }}>
+        <div>
           {[
             ['letterpress quality', 'Archival paper. Sewn binding. The same craft used for family bibles.'],
             ['every entry included', 'Memories, letters, voice transcripts, milestones. The complete record.'],
             ['ordered by thread', 'Not chronological. Ordered by the cloth — the way your family wove it.'],
             ['ships anywhere', 'Printed and bound. Arrives in four to six weeks.'],
-          ].map(([label, detail], i, arr) => (
-            <div key={i} style={{
-              padding: 'clamp(16px, 2.5vh, 22px) 0',
-              borderBottom: i < arr.length - 1 ? '1px solid rgba(244,236,216,0.07)' : 'none',
-            }}>
-              <div style={{
-                fontFamily: 'var(--mono)', fontSize: 9,
-                letterSpacing: '0.22em', textTransform: 'uppercase',
-                color: 'rgba(176,122,74,0.55)', marginBottom: 8,
-              }}>{label}</div>
-              <p style={{
-                fontFamily: 'var(--serif)',
-                fontSize: 'clamp(13px, 1.2vw, 15px)',
-                lineHeight: 1.65, margin: 0,
-                color: 'rgba(244,236,216,0.38)',
-              }}>{detail}</p>
-            </div>
+          ].map(([label, detail]) => (
+            <EntryRow
+              key={label}
+              title={detail}
+              meta={label}
+            />
           ))}
         </div>
       </section>
 
       {/* ════════════════════════════════════════════════════════════
-          FINAL CTA — the cloth waits
+          FINAL CTA — the cloth waits. WaxSeal + serif hero + mono warm CTA.
           ════════════════════════════════════════════════════════════ */}
       <section
         ref={finalCta.ref}
         style={{
           padding: 'clamp(80px, 12vh, 140px) clamp(24px, 6vw, 80px)',
-          borderTop: '1px solid rgba(244,236,216,0.07)',
-          textAlign: 'center',
+          borderTop: '1px solid var(--rule)',
           opacity: finalCta.visible ? 1 : 0,
           transform: finalCta.visible ? 'translateY(0)' : 'translateY(24px)',
           transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
         }}
       >
-        <p style={{
-          fontFamily: 'var(--serif)',
-          fontSize: 'clamp(24px, 3.5vw, 52px)',
-          fontWeight: 300, lineHeight: 1.1,
-          margin: '0 0 clamp(32px, 5vh, 48px)',
-          fontVariationSettings: '"opsz" 48',
-          color: 'rgba(244,236,216,0.90)',
-          maxWidth: '18ch', marginLeft: 'auto', marginRight: 'auto',
-        }}>
-          The cloth waits.<br />Start your thread.
-        </p>
-        <p
-          aria-hidden
-          style={{
-            fontFamily: 'var(--font-hand)',
-            fontSize: 'clamp(30px, 4vw, 46px)',
-            lineHeight: 1,
-            color: 'var(--warm)',
-            margin: '0 0 clamp(32px, 5vh, 48px)',
-          }}
-        >
-          — for the ones who come after
-        </p>
-        <Link
-          to="/signup"
-          className="hl-btn"
-          style={{
-            display: 'inline-block', padding: '14px 36px',
-            fontFamily: 'var(--mono)', fontSize: 11,
-            letterSpacing: '0.22em', textTransform: 'uppercase',
-            textDecoration: 'none',
-          }}
-        >
-          begin the thousand-year thread →
-        </Link>
-        <p style={{
-          marginTop: 24,
-          fontFamily: 'var(--mono)', fontSize: 9.5,
-          letterSpacing: '0.20em', textTransform: 'uppercase',
-          color: 'rgba(244,236,216,0.20)',
-        }}>
-          free to start ·{' '}
-          <Link to="/pricing" style={{ color: 'inherit', textDecoration: 'none', borderBottom: '1px solid rgba(244,236,216,0.18)' }}>
-            see pricing
+        <div style={{ marginBottom: 'clamp(28px, 4.5vh, 44px)' }}>
+          <WaxSeal size={36} />
+        </div>
+        <CosmicHeader
+          align="center"
+          title={<>The cloth waits.<br />Start your thread.</>}
+          sub="For the ones who come after."
+        />
+        <div style={{ textAlign: 'center', marginTop: 'clamp(28px, 4.5vh, 44px)' }}>
+          <Link
+            to="/signup"
+            className="hl-btn"
+            style={{
+              display: 'inline-block', padding: '14px 36px', minHeight: 44, boxSizing: 'border-box',
+              fontFamily: 'var(--mono)', fontSize: 11,
+              letterSpacing: '0.22em', textTransform: 'uppercase',
+              textDecoration: 'none',
+            }}
+          >
+            begin the thousand-year thread →
           </Link>
-        </p>
+          <p style={{
+            marginTop: 24,
+            fontFamily: 'var(--mono)', fontSize: 9.5,
+            letterSpacing: '0.20em', textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+          }}>
+            free to start ·{' '}
+            <Link to="/pricing" style={{ color: 'var(--warm)', textDecoration: 'none', borderBottom: '1px solid var(--rule)' }}>
+              see pricing
+            </Link>
+          </p>
+        </div>
       </section>
 
       {/* Footer */}
       <footer style={{
         padding: 'clamp(32px, 4vh, 48px) clamp(24px, 6vw, 80px)',
-        borderTop: '1px solid rgba(244,236,216,0.07)',
+        borderTop: '1px solid var(--rule)',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         flexWrap: 'wrap', gap: 16,
         fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.18em',
-        textTransform: 'uppercase', color: 'rgba(244,236,216,0.20)',
+        textTransform: 'uppercase', color: 'var(--bone-faint)',
       }}>
         <HLogo size="sm" wordmark />
         <span style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
@@ -552,4 +524,3 @@ export function Marketing() {
     </main>
   );
 }
-

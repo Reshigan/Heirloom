@@ -4,7 +4,7 @@ import { emailVerificationApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 export function VerifyEmail() {
   const [searchParams] = useSearchParams();
@@ -70,70 +70,74 @@ export function VerifyEmail() {
       topbarLeft={<HLogo />}
       topbarCenter="verify email"
     >
-      <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', textAlign: 'center' }}>
+      <div
+        style={{
+          maxWidth: 480,
+          margin: '0 auto',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 0,
+        }}
+      >
 
         {/* ── Pending ── */}
         {status === 'loading' && (
-          <div role="status">
-            <div
-              aria-hidden
-              className="hl-serif"
+          <div role="status" style={{ width: '100%' }}>
+            <CosmicHeader
+              align="center"
+              eyebrow="verifying"
+              title="Confirming your address."
+              sub="One moment — checking your link."
+            />
+            <progress
+              aria-label="Verifying email address"
               style={{
-                fontSize: 'clamp(40px, 6vw, 56px)',
-                fontWeight: 200,
+                display: 'block',
+                width: '100%',
+                maxWidth: 240,
+                margin: '0 auto',
+                height: 1,
+                border: 0,
+                appearance: 'none',
+                WebkitAppearance: 'none',
+                background: 'var(--rule)',
                 color: 'var(--warm)',
                 opacity: 0.7,
-                lineHeight: 1,
-                marginBottom: 30,
               }}
-            >
-              ∞
-            </div>
-            <p
-              className="hl-mono"
-              style={{
-                fontSize: 11,
-                color: 'var(--bone-faint)',
-                margin: 0,
-                letterSpacing: '0.08em',
-              }}
-            >
-              Verifying…
-            </p>
+            />
           </div>
         )}
 
         {/* ── Success ── */}
         {status === 'success' && (
-          <div role="status">
-            <div
-              aria-hidden
-              className="hl-serif"
-              style={{
-                fontSize: 'clamp(40px, 6vw, 56px)',
-                fontWeight: 200,
-                color: 'var(--warm)',
-                opacity: 0.7,
-                lineHeight: 1,
-                marginBottom: 30,
-              }}
-            >
-              ∞
-            </div>
-            <RoomHeader eyebrow="verified" title="Your account is confirmed." />
-            <div style={{ marginTop: 24 }}>
+          <div role="status" style={{ width: '100%' }}>
+            <CosmicHeader
+              align="center"
+              eyebrow="verified"
+              title="Your account is confirmed."
+              sub={message}
+            />
+            <div style={{ marginTop: 32 }}>
               <Link
                 to="/loom"
                 className="hl-mono"
                 style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  minHeight: 44,
                   color: 'var(--warm)',
                   textDecoration: 'none',
                   fontSize: 13,
-                  letterSpacing: '0.08em',
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
                   borderBottom: '1px solid var(--warm)',
-                  paddingBottom: 1,
+                  paddingBottom: 2,
+                  transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
                 }}
-                onMouseEnter={e => (e.currentTarget.style.opacity = '0.75')}
+                onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
                 onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
               >
                 begin your thread →
@@ -144,32 +148,15 @@ export function VerifyEmail() {
 
         {/* ── Error ── */}
         {status === 'error' && (
-          <div role="status">
-            <p
-              className="hl-serif hl-italic"
-              style={{
-                fontSize: 17,
-                color: 'var(--bone-dim)',
-                margin: '0 0 24px',
-                lineHeight: 1.5,
-              }}
-            >
-              Something went wrong.
-            </p>
-            <p
-              className="hl-mono"
-              style={{
-                fontSize: 11,
-                color: 'var(--bone-faint)',
-                margin: '0 0 32px',
-                letterSpacing: '0.06em',
-                lineHeight: 1.7,
-              }}
-            >
-              {message}
-            </p>
+          <div role="status" style={{ width: '100%' }}>
+            <CosmicHeader
+              align="center"
+              eyebrow="not verified"
+              title="Something went wrong."
+              sub={message}
+            />
 
-            <div style={{ display: 'grid', gap: 16 }}>
+            <div style={{ display: 'grid', gap: 20, marginTop: 8 }}>
               <button
                 type="button"
                 onClick={handleResendVerification}
@@ -178,14 +165,16 @@ export function VerifyEmail() {
                 style={{
                   background: 'transparent',
                   border: 0,
-                  padding: 0,
+                  borderBottom: '1px solid var(--warm)',
+                  paddingBottom: 2,
                   cursor: isResending ? 'default' : 'pointer',
                   color: 'var(--warm)',
                   fontSize: 13,
-                  letterSpacing: '0.08em',
-                  borderBottom: '1px solid var(--warm)',
-                  paddingBottom: 1,
-                  display: 'inline-block',
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  minHeight: 44,
                   opacity: isResending ? 0.5 : 1,
                   transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
                 }}
@@ -202,7 +191,8 @@ export function VerifyEmail() {
                   style={{
                     fontSize: 11,
                     color: 'var(--warm)',
-                    letterSpacing: '0.06em',
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
                     margin: 0,
                   }}
                 >
@@ -212,10 +202,16 @@ export function VerifyEmail() {
               {resendStatus === 'error' && (
                 <p
                   role="alert"
-                  className="hl-serif hl-italic"
-                  style={{ fontSize: 14, color: 'var(--bone-dim)', margin: 0 }}
+                  className="hl-mono"
+                  style={{
+                    fontSize: 11,
+                    color: 'var(--warm)',
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                    margin: 0,
+                  }}
                 >
-                  Failed to send email. Please try again.
+                  Failed to send. Please try again.
                 </p>
               )}
 
@@ -228,8 +224,10 @@ export function VerifyEmail() {
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                   textDecoration: 'none',
-                  marginTop: 8,
-                  display: 'inline-block',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  minHeight: 44,
+                  justifyContent: 'center',
                 }}
               >
                 ← back to sign in
@@ -240,29 +238,15 @@ export function VerifyEmail() {
 
         {/* ── No token ── */}
         {status === 'no-token' && (
-          <div role="status">
-            <div
-              aria-hidden
-              className="hl-serif"
-              style={{
-                fontSize: 'clamp(40px, 6vw, 56px)',
-                fontWeight: 200,
-                color: 'var(--warm)',
-                opacity: 0.7,
-                lineHeight: 1,
-                marginBottom: 30,
-              }}
-            >
-              ∞
-            </div>
-            <RoomHeader
+          <div role="status" style={{ width: '100%' }}>
+            <CosmicHeader
+              align="center"
               eyebrow="verify"
               title="Verify your email."
-              lede="Check your inbox for a verification link, or request a new one below."
+              sub="Check your inbox for a verification link, or request a new one below."
             />
-            <div style={{ marginBottom: 32 }} />
 
-            <div style={{ display: 'grid', gap: 16 }}>
+            <div style={{ display: 'grid', gap: 20, marginTop: 8 }}>
               <button
                 type="button"
                 onClick={handleResendVerification}
@@ -271,14 +255,16 @@ export function VerifyEmail() {
                 style={{
                   background: 'transparent',
                   border: 0,
-                  padding: 0,
+                  borderBottom: '1px solid var(--warm)',
+                  paddingBottom: 2,
                   cursor: isResending ? 'default' : 'pointer',
                   color: 'var(--warm)',
                   fontSize: 13,
-                  letterSpacing: '0.08em',
-                  borderBottom: '1px solid var(--warm)',
-                  paddingBottom: 1,
-                  display: 'inline-block',
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  minHeight: 44,
                   opacity: isResending ? 0.5 : 1,
                   transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
                 }}
@@ -295,7 +281,8 @@ export function VerifyEmail() {
                   style={{
                     fontSize: 11,
                     color: 'var(--warm)',
-                    letterSpacing: '0.06em',
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
                     margin: 0,
                   }}
                 >
@@ -305,10 +292,16 @@ export function VerifyEmail() {
               {resendStatus === 'error' && (
                 <p
                   role="alert"
-                  className="hl-serif hl-italic"
-                  style={{ fontSize: 14, color: 'var(--bone-dim)', margin: 0 }}
+                  className="hl-mono"
+                  style={{
+                    fontSize: 11,
+                    color: 'var(--warm)',
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                    margin: 0,
+                  }}
                 >
-                  Failed to send email. Please log in first.
+                  Failed to send. Please log in first.
                 </p>
               )}
 
@@ -321,8 +314,10 @@ export function VerifyEmail() {
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                   textDecoration: 'none',
-                  marginTop: 8,
-                  display: 'inline-block',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  minHeight: 44,
+                  justifyContent: 'center',
                 }}
               >
                 ← back to sign in
@@ -331,19 +326,11 @@ export function VerifyEmail() {
           </div>
         )}
 
-        {/* Footer mark */}
-        <div
-          className="hl-mono"
-          style={{
-            marginTop: 72,
-            fontSize: 10,
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
-          }}
-        >
-          ∞ &nbsp; encrypted in browser · since 2026
+        {/* Foot seal */}
+        <div style={{ marginTop: 80 }}>
+          <WaxSeal size={28} />
         </div>
+
       </div>
     </ClothShell>
   );

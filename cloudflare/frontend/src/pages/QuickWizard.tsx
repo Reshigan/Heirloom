@@ -7,7 +7,7 @@ import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
 import { familyApi } from '../services/api';
 import api from '../services/api';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 // ── Template options ────────────────────────────────────────────────────────
 const TEMPLATES = [
@@ -59,35 +59,40 @@ const STEP_NUMBER: Record<WizardStep, number> = {
 
 const TOTAL_STEPS = 5;
 
-// ── Step config (question + description) ───────────────────────────────────
+// ── Step config (eyebrow + question + description) ─────────────────────────
 function stepConfig(
   step: WizardStep,
   selectedPerson: FamilyMember | null,
-): { question: string; description: string } {
+): { eyebrow: string; question: string; description: string } {
   switch (step) {
     case 'person':
       return {
+        eyebrow: 'who it is for',
         question: 'Who is this for?',
         description: 'Choose the person you want to leave a thread for.',
       };
     case 'template':
       return {
+        eyebrow: 'the opening',
         question: 'What would you like to say?',
         description: `Pick a thread to get started quickly${selectedPerson ? ` for ${selectedPerson.name}` : ''}.`,
       };
     case 'type':
       return {
+        eyebrow: 'the medium',
         question: 'How do you want to weave it?',
         description: 'Choose your medium.',
       };
     case 'prompt':
       return {
+        eyebrow: 'the first line',
         question: 'Where to begin?',
         description: 'Pick a suggested beginning or write your own.',
       };
     case 'preview':
     case 'create':
       return {
+        eyebrow: 'the review',
         question: 'Your thread is ready.',
         description: selectedPerson
           ? `Here is what ${selectedPerson.name} will receive.`
@@ -116,7 +121,60 @@ function VoiceRings() {
   );
 }
 
-// ── Hairline loading bar ────────────────────────────────────────────────────
+// ── Hairline step progress (no spinner; mono caption optional) ──────────────
+function StepProgress({ current, total, label }: { current: number; total: number; label?: string }) {
+  const pct = Math.max(0, Math.min(1, current / total)) * 100;
+  return (
+    <div style={{ marginBottom: 26 }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 16,
+          marginBottom: 10,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+          {Array.from({ length: total }).map((_, i) => (
+            <WarmDot
+              key={i}
+              size={5}
+              filled={i < current}
+              color={i < current ? 'var(--warm)' : 'var(--bone-faint)'}
+            />
+          ))}
+        </div>
+        <span
+          style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 10,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+          }}
+        >
+          {label ?? `step ${current} of ${total}`}
+        </span>
+      </div>
+      <div style={{ height: 1, background: 'var(--rule)', position: 'relative', overflow: 'hidden' }}>
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            height: '100%',
+            width: `${pct}%`,
+            background: 'var(--warm)',
+            transition: 'width 360ms cubic-bezier(0.16,1,0.3,1)',
+          }}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ── Hairline indeterminate bar (loading; never a spinner) ───────────────────
 function LoadingBar({ label }: { label?: string }) {
   return (
     <div style={{ paddingTop: 28 }}>
@@ -153,7 +211,7 @@ function LoadingBar({ label }: { label?: string }) {
   );
 }
 
-// ── Selection row ───────────────────────────────────────────────────────────
+// ── Selection row (composer idiom — flat, hairline-ruled, serif label) ──────
 function SelectRow({
   label,
   sub,
@@ -174,7 +232,8 @@ function SelectRow({
         alignItems: 'baseline',
         justifyContent: 'space-between',
         width: '100%',
-        padding: '14px 0',
+        padding: '15px 0',
+        minHeight: 44,
         background: 'none',
         border: 'none',
         borderBottom: '1px solid var(--rule)',
@@ -185,9 +244,10 @@ function SelectRow({
     >
       <span>
         <span
-          className="hl-serif"
           style={{
-            fontSize: 16,
+            fontFamily: 'var(--serif)',
+            fontSize: 19,
+            lineHeight: 1.3,
             color: selected ? 'var(--warm)' : 'var(--bone)',
             display: 'block',
             fontWeight: 400,
@@ -197,13 +257,13 @@ function SelectRow({
         </span>
         {sub && (
           <span
-            className="hl-mono"
             style={{
-              fontSize: 10,
+              fontFamily: 'var(--sans)',
+              fontSize: 13,
               color: 'var(--bone-dim)',
-              letterSpacing: '0.06em',
               display: 'block',
-              marginTop: 3,
+              marginTop: 4,
+              lineHeight: 1.5,
             }}
           >
             {sub}
@@ -212,8 +272,14 @@ function SelectRow({
       </span>
       {selected && (
         <span
-          className="hl-mono"
-          style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.16em', flexShrink: 0 }}
+          style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 10,
+            color: 'var(--warm)',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+            flexShrink: 0,
+          }}
         >
           selected
         </span>
@@ -239,6 +305,57 @@ function SummaryRow({ label, value }: { label: string; value: React.ReactNode })
       </div>
       <hr className="hl-rule" />
     </>
+  );
+}
+
+// ── Mono warm pill / mono text action (composer action bar) ─────────────────
+function ActionPill({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        fontFamily: 'var(--mono)',
+        fontSize: 11,
+        letterSpacing: '0.22em',
+        textTransform: 'uppercase',
+        color: 'var(--ink)',
+        background: 'var(--warm)',
+        border: 'none',
+        borderRadius: 999,
+        padding: '13px 26px',
+        minHeight: 44,
+        cursor: 'pointer',
+        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function MonoTextAction({ label, onClick, color = 'var(--bone-faint)' }: { label: string; onClick: () => void; color?: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        fontFamily: 'var(--mono)',
+        fontSize: 10,
+        letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+        color,
+        background: 'none',
+        border: 'none',
+        padding: 0,
+        minHeight: 44,
+        display: 'inline-flex',
+        alignItems: 'center',
+        cursor: 'pointer',
+      }}
+    >
+      {label}
+    </button>
   );
 }
 
@@ -365,9 +482,10 @@ export function QuickWizard() {
   };
 
   const currentStep = STEP_NUMBER[step];
-  const { question, description } = stepConfig(step, selectedPerson);
+  const { eyebrow, question, description } = stepConfig(step, selectedPerson);
   const familyMembers = Array.isArray(family) ? family : [];
   const canGoBack = step !== 'person';
+  const isReview = step === 'preview' || step === 'create';
 
   return (
     <ClothShell
@@ -389,15 +507,14 @@ export function QuickWizard() {
       >
         <div style={{ maxWidth: 'var(--page-max-focus)', width: '100%' }}>
 
-          {/* Step prompt — step indicator is the progress mechanism (eyebrow) */}
-          <RoomHeader
-            eyebrow={`step ${currentStep} of ${TOTAL_STEPS}`}
-            title={question}
-            lede={description}
-          />
+          {/* Hairline step progress — the wizard's only progress mechanism */}
+          <StepProgress current={currentStep} total={TOTAL_STEPS} />
+
+          {/* Step prompt — mono eyebrow (step context) + giant serif prompt */}
+          <CosmicHeader eyebrow={eyebrow} title={question} sub={description} />
 
           {/* ── Input area ─────────────────────────────────────────────── */}
-          <div style={{ marginTop: 28 }}>
+          <div style={{ marginTop: 4 }}>
 
             {/* Step 1: person */}
             {step === 'person' && (
@@ -407,14 +524,18 @@ export function QuickWizard() {
                 ) : familyMembers.length === 0 ? (
                   <div style={{ paddingTop: 20 }}>
                     <p
-                      className="hl-prose"
-                      style={{ fontSize: 14.5, color: 'var(--bone-dim)', marginBottom: 22 }}
+                      style={{
+                        fontFamily: 'var(--serif)',
+                        fontStyle: 'italic',
+                        fontSize: 16,
+                        color: 'var(--bone-dim)',
+                        marginBottom: 22,
+                        lineHeight: 1.55,
+                      }}
                     >
                       No bloodline members yet.
                     </p>
-                    <button type="button" onClick={() => navigate('/family')} className="hl-btn">
-                      add family member
-                    </button>
+                    <ActionPill label="add family member →" onClick={() => navigate('/family')} />
                   </div>
                 ) : (
                   <div style={{ textAlign: 'left' }}>
@@ -470,13 +591,13 @@ export function QuickWizard() {
                   <LoadingBar label="the Listener is thinking…" />
                 ) : (
                   <>
-                    {/* Prompt fetch error */}
+                    {/* Prompt fetch error — inline mono line, never red/toast */}
                     {promptError && (
                       <p
                         className="hl-mono"
                         style={{
                           fontSize: 10,
-                          color: 'var(--danger)',
+                          color: 'var(--warm)',
                           letterSpacing: '0.1em',
                           marginBottom: 16,
                           fontStyle: 'italic',
@@ -493,25 +614,26 @@ export function QuickWizard() {
                       </div>
                     )}
 
-                    {/* Text input for custom prompt (letter type) */}
+                    {/* Flat serif input for custom prompt (letter type) */}
                     {contentType === 'letter' && (
                       <input
                         type="text"
                         value={customPrompt}
                         onChange={(e) => setCustomPrompt(e.target.value)}
                         placeholder="write your own beginning…"
-                        className="hl-serif"
                         style={{
                           width: '100%',
                           background: 'transparent',
                           border: 'none',
                           borderBottom: '1px solid var(--rule)',
                           outline: 'none',
-                          fontSize: 20,
+                          fontSize: 'clamp(20px, 3.4vw, 26px)',
                           fontWeight: 400,
                           color: 'var(--bone)',
-                          padding: '8px 0',
+                          caretColor: 'var(--warm)',
+                          padding: '10px 0',
                           fontFamily: 'var(--serif)',
+                          lineHeight: 1.3,
                         }}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && customPrompt.trim()) {
@@ -521,12 +643,12 @@ export function QuickWizard() {
                       />
                     )}
 
-                    {/* Progress bar placeholder */}
+                    {/* Suggested beginnings */}
                     {prompts.length > 0 && (
                       <div style={{ marginTop: 24, textAlign: 'left' }}>
                         <p
                           className="hl-mono"
-                          style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', marginBottom: 8 }}
+                          style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', marginBottom: 8, textTransform: 'uppercase' }}
                         >
                           suggested beginnings
                         </p>
@@ -539,6 +661,7 @@ export function QuickWizard() {
                               display: 'block',
                               width: '100%',
                               padding: '14px 0',
+                              minHeight: 44,
                               background: 'none',
                               border: 'none',
                               borderBottom: '1px solid var(--rule)',
@@ -547,10 +670,9 @@ export function QuickWizard() {
                             }}
                           >
                             <span
-                              className="hl-serif"
-                              style={{ fontStyle: 'italic', color: 'var(--bone-dim)', fontSize: 15, fontWeight: 400 }}
+                              style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', color: 'var(--bone-dim)', fontSize: 17, fontWeight: 400, lineHeight: 1.45 }}
                             >
-                              "{prompt.prompt}"
+                              “{prompt.prompt}”
                             </span>
                             <span
                               className="hl-mono"
@@ -575,6 +697,7 @@ export function QuickWizard() {
                             display: 'block',
                             width: '100%',
                             padding: '14px 0',
+                            minHeight: 44,
                             background: 'none',
                             border: 'none',
                             cursor: 'pointer',
@@ -582,8 +705,7 @@ export function QuickWizard() {
                           }}
                         >
                           <span
-                            className="hl-serif"
-                            style={{ color: 'var(--bone-faint)', fontSize: 15, fontWeight: 400 }}
+                            style={{ fontFamily: 'var(--serif)', color: 'var(--bone-faint)', fontSize: 17, fontWeight: 400 }}
                           >
                             I'll write my own thread
                           </span>
@@ -591,36 +713,26 @@ export function QuickWizard() {
                       </div>
                     )}
 
-                    {/* Next button for custom prompt (letter) */}
+                    {/* Action bar: NEXT for custom prompt (letter) */}
                     {contentType === 'letter' && customPrompt.trim() && (
-                      <button
-                        type="button"
-                        onClick={() => handlePromptSelect(customPrompt.trim())}
-                        className="hl-btn"
-                        style={{ marginTop: 22 }}
-                      >
-                        next →
-                      </button>
+                      <div style={{ marginTop: 26 }}>
+                        <ActionPill label="next →" onClick={() => handlePromptSelect(customPrompt.trim())} />
+                      </div>
                     )}
 
-                    {/* Voice: proceed without custom text */}
+                    {/* Action bar: NEXT for voice (proceed without custom text) */}
                     {contentType === 'voice' && (
-                      <button
-                        type="button"
-                        onClick={() => handlePromptSelect('')}
-                        className="hl-btn"
-                        style={{ marginTop: 22 }}
-                      >
-                        next →
-                      </button>
+                      <div style={{ marginTop: 26 }}>
+                        <ActionPill label="next →" onClick={() => handlePromptSelect('')} />
+                      </div>
                     )}
                   </>
                 )}
               </>
             )}
 
-            {/* Step 5: preview */}
-            {(step === 'preview' || step === 'create') && (
+            {/* Step 5: review / preview */}
+            {isReview && (
               <div style={{ textAlign: 'left' }}>
                 <hr className="hl-rule" />
                 {selectedPerson && (
@@ -647,7 +759,7 @@ export function QuickWizard() {
                     label="prompt"
                     value={
                       <span style={{ fontStyle: 'italic', color: 'var(--bone-dim)' }}>
-                        "{selectedPrompt}"
+                        “{selectedPrompt}”
                       </span>
                     }
                   />
@@ -663,56 +775,36 @@ export function QuickWizard() {
                   />
                 )}
 
-                <button type="button" onClick={handleCreate} className="hl-btn" style={{ marginTop: 22 }}>
-                  {contentType === 'voice' ? 'start recording →' : 'start writing →'}
-                </button>
+                {/* Action bar: FINISH → record / write */}
+                <div style={{ marginTop: 26 }}>
+                  <ActionPill
+                    label={contentType === 'voice' ? 'start recording →' : 'start writing →'}
+                    onClick={handleCreate}
+                  />
+                </div>
 
-                <div style={{ marginTop: 14 }}>
-                  <button
-                    type="button"
+                <div style={{ marginTop: 16 }}>
+                  <MonoTextAction
+                    label="schedule for a milestone instead →"
                     onClick={() => navigate('/life-events')}
-                    className="hl-mono"
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      color: 'var(--bone-faint)',
-                      fontSize: 10,
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      padding: 0,
-                    }}
-                  >
-                    schedule for a milestone instead →
-                  </button>
+                  />
                 </div>
               </div>
             )}
           </div>
 
-          {/* ── Back link ────────────────────────────────────────────────── */}
+          {/* ── Bottom action bar: BACK (mono text) ──────────────────────── */}
           {canGoBack && (
-            <button
-              type="button"
-              onClick={goBack}
-              className="hl-mono"
-              style={{
-                marginTop: 14,
-                fontSize: 10,
-                color: 'var(--bone-faint)',
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                cursor: 'pointer',
-                background: 'none',
-                border: 'none',
-                padding: 0,
-                minHeight: 44,
-                display: 'inline-flex',
-                alignItems: 'center',
-              }}
-            >
-              ← back
-            </button>
+            <div style={{ marginTop: 22 }}>
+              <MonoTextAction label="← back" onClick={goBack} />
+            </div>
+          )}
+
+          {/* The ∞ rests warm at the foot of the review page */}
+          {isReview && (
+            <div style={{ marginTop: 44 }}>
+              <WaxSeal size={26} />
+            </div>
           )}
         </div>
       </div>

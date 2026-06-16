@@ -5,6 +5,8 @@ import api from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { dyeForId } from '../loom/dye';
 
 async function fetchInheritance(token: string) {
   // Validate the token and get recipient/owner info from the worker inherit route.
@@ -28,6 +30,9 @@ export function InheritanceCard() {
 
   const [unlocked, setUnlocked] = useState(false);
 
+  // Deterministic dye from token for the margin thread
+  const threadColor = token ? `var(--dye-${dyeForId(token)})` : 'var(--rule)';
+
   const topbar = <HLogo size={18} wordmark mono color="var(--bone-dim)" wordColor="var(--bone-dim)" glow={false} />;
 
   if (isLoading) {
@@ -44,8 +49,8 @@ export function InheritanceCard() {
     return (
       <ClothShell topbarLeft={topbar} topbarCenter="inheritance">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-          <p className="hl-serif" style={{ fontSize: 16, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
-            This inheritance link is invalid or has expired.
+          <p style={{ fontFamily: 'var(--mono)', fontSize: 13, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm)', margin: 0 }}>
+            this inheritance link is invalid or has expired
           </p>
         </div>
       </ClothShell>
@@ -54,41 +59,150 @@ export function InheritanceCard() {
 
   return (
     <ClothShell topbarLeft={topbar} topbarCenter="inheritance">
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100%', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
-        <div style={{ maxWidth: 'var(--page-max-focus)', width: '100%', textAlign: 'center' }}>
-          <h1 className="hl-serif hl-tight" style={{ fontSize: 'var(--type-title)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 16px' }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          minHeight: '100%',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+        }}
+      >
+        {/* Reading column with left dye margin thread */}
+        <div
+          style={{
+            maxWidth: '62ch',
+            width: '100%',
+            borderLeft: `3px solid ${threadColor}`,
+            paddingLeft: 24,
+          }}
+        >
+          {/* Mono warm subline eyebrow */}
+          <div
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.26em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
+              marginBottom: 14,
+            }}
+          >
+            {data?.recipientName
+              ? `FOR ${data.recipientName}${data.relationship ? ` · ${data.relationship.toUpperCase()}` : ''}`
+              : 'AN INHERITANCE'}
+          </div>
+
+          {/* Serif headline — the owner's name */}
+          <h1
+            style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(30px, 6vw, 44px)',
+              fontWeight: 400,
+              lineHeight: 1.1,
+              letterSpacing: '-0.01em',
+              color: 'var(--bone)',
+              margin: '0 0 12px',
+            }}
+          >
             {data?.ownerName}
           </h1>
 
-          {data?.recipientName && (
-            <p className="hl-serif" style={{ fontSize: 16, color: 'var(--bone-dim)', lineHeight: 1.6, margin: '0 0 8px' }}>
-              for {data.recipientName}
-              {data.relationship ? ` · ${data.relationship}` : ''}
-            </p>
-          )}
+          {/* Mono warm subline — "AN INHERITANCE" label */}
+          <div
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.26em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-dim)',
+              marginBottom: 48,
+            }}
+          >
+            AN INHERITANCE
+          </div>
 
-          <hr className="hl-rule" style={{ margin: '0 0 48px' }} />
-
+          {/* Body / action area */}
           {!unlocked ? (
-            <button
-              type="button"
-              className="hl-btn"
-              onClick={() => setUnlocked(true)}
-              style={{ fontSize: 16, padding: '18px 40px' }}
-            >
-              ∞ open the thread
-            </button>
+            <div style={{ marginBottom: 64 }}>
+              <p
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontSize: 18,
+                  lineHeight: 1.75,
+                  color: 'var(--bone)',
+                  textAlign: 'justify',
+                  margin: '0 0 36px',
+                }}
+              >
+                A thread has been woven for you — generations of memory, voice, and story passed down through the bloodline. To read and contribute, open the thread.
+              </p>
+              <button
+                type="button"
+                onClick={() => setUnlocked(true)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: 0,
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  minHeight: 44,
+                }}
+              >
+                ∞ open the thread
+              </button>
+            </div>
           ) : (
-            <div style={{ animation: 'hl-fadeIn var(--dur-slow) var(--ease) forwards' }}>
+            <div
+              style={{
+                animation: 'hl-fadeIn var(--dur-slow) var(--ease) forwards',
+                marginBottom: 64,
+              }}
+            >
               <style>{`@keyframes hl-fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }`}</style>
-              <p className="hl-serif" style={{ fontSize: 18, color: 'var(--bone)', lineHeight: 1.7 }}>
+              <p
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontSize: 18,
+                  lineHeight: 1.75,
+                  color: 'var(--bone)',
+                  textAlign: 'justify',
+                  margin: '0 0 36px',
+                }}
+              >
                 The thread is open. Create your account to read and contribute.
               </p>
-              <Link to={`/signup?inheritToken=${data?.sessionToken}&source=inheritance`} className="hl-btn" style={{ display: 'inline-block', marginTop: 24 }}>
-                Join the thread →
+              <Link
+                to={`/signup?inheritToken=${data?.sessionToken}&source=inheritance`}
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  minHeight: 44,
+                }}
+              >
+                JOIN THE THREAD →
               </Link>
             </div>
           )}
+        </div>
+
+        {/* WaxSeal foot */}
+        <div style={{ marginTop: 'auto', paddingTop: 56 }}>
+          <WaxSeal size={28} />
         </div>
       </div>
     </ClothShell>

@@ -6,7 +6,8 @@ import { type FamilyMember } from '../types';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { dyeForId } from '../loom/dye';
 
 // Quick Create wizard templates
 const QUICK_TEMPLATES = [
@@ -323,157 +324,145 @@ export function LifeEvents() {
     );
   }
 
+  const events = triggers?.triggers ?? [];
+  const eventCount = events.length;
+
   return (
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />} topbarCenter="life events" topbarRight={<UserMenu />}>
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
 
-        {/* Page header */}
-        <header style={{ marginBottom: 48, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24 }}>
-          <RoomHeader eyebrow="Life events" title="The moments that shaped the cloth." />
+        {/* Page header — ledger eyebrow stating the count */}
+        <CosmicHeader
+          eyebrow={`${eventCount} ${eventCount === 1 ? 'moment' : 'moments'}`}
+          title="The moments that shaped the cloth."
+        />
+
+        {/* Add-event affordance — quiet mono control bar above the list */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
           <button
             onClick={() => setShowCreate(true)}
-            className="hl-btn"
-            style={{ flexShrink: 0 }}
+            style={{
+              background: 'none', border: 0, padding: '8px 0', cursor: 'pointer',
+              fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.22em',
+              textTransform: 'uppercase', color: 'var(--warm)',
+            }}
           >
             add event
           </button>
-        </header>
+        </div>
 
-        {/* Timeline list */}
-        {triggers?.triggers && triggers.triggers.length > 0 ? (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {triggers.triggers.map((trigger) => {
-              const statusConfig = STATUS_CONFIG[trigger.status as TriggerStatus] || STATUS_CONFIG.PENDING;
-              const dateStr = trigger.scheduled_date
-                ? new Date(trigger.scheduled_date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-                : trigger.created_at
-                  ? new Date(trigger.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
-                  : '—';
-              return (
-                <li
-                  key={trigger.id}
-                  style={{
-                    padding: '22px 0',
-                    borderBottom: '1px solid var(--rule)',
-                    display: 'grid',
-                    gridTemplateColumns: 'clamp(72px, 15vw, 120px) 1fr auto',
-                    gap: 'clamp(12px, 2vw, 24px)',
-                    alignItems: 'start',
-                  }}
-                >
-                  {/* Date column */}
-                  <span
-                    className="hl-mono"
-                    style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.06em', paddingTop: 3 }}
-                  >
-                    {dateStr}
-                  </span>
-
-                  {/* Event content column */}
-                  <div>
-                    <p
-                      className="hl-serif"
-                      style={{ fontSize: 16, fontWeight: 300, color: 'var(--bone)', margin: '0 0 4px' }}
-                    >
-                      {trigger.event_name}
-                    </p>
-                    {trigger.event_description && (
-                      <p
-                        className="hl-serif"
-                        style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 6px', lineHeight: 1.6 }}
-                      >
-                        {trigger.event_description}
-                      </p>
-                    )}
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 4 }}>
-                      {(trigger.recipient_name || trigger.family_member_name) && (
-                        <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}>
-                          {trigger.recipient_name || trigger.family_member_name}
-                        </span>
-                      )}
-                      {trigger.recipient_email && (
-                        <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}>
-                          {trigger.recipient_email}
-                        </span>
-                      )}
-                      <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}>
-                        {JSON.parse(trigger.content_items || '[]').length} items attached
-                      </span>
+        {/* Timeline — ledger rows ordered by date */}
+        {eventCount > 0 ? (
+          <>
+            <div style={{ borderTop: '1px solid var(--rule)' }}>
+              {[...events]
+                .sort((a, b) => {
+                  const da = new Date(a.scheduled_date || a.created_at || 0).getTime();
+                  const db = new Date(b.scheduled_date || b.created_at || 0).getTime();
+                  return db - da;
+                })
+                .map((trigger) => {
+                  const statusConfig = STATUS_CONFIG[trigger.status as TriggerStatus] || STATUS_CONFIG.PENDING;
+                  const when = trigger.scheduled_date || trigger.created_at;
+                  const year = when ? new Date(when).getFullYear() : '—';
+                  const author = trigger.recipient_name || trigger.family_member_name || undefined;
+                  const itemCount = JSON.parse(trigger.content_items || '[]').length;
+                  const subBits = [
+                    statusConfig.label,
+                    trigger.recipient_email || null,
+                    `${itemCount} ${itemCount === 1 ? 'item' : 'items'}`,
+                  ].filter(Boolean);
+                  return (
+                    <div key={trigger.id} style={{ position: 'relative' }}>
+                      <EntryRow
+                        title={trigger.event_name}
+                        sub={
+                          <>
+                            {trigger.event_description && (
+                              <span style={{ display: 'block', fontFamily: 'var(--serif)', color: 'var(--bone-dim)' }}>
+                                {trigger.event_description}
+                              </span>
+                            )}
+                            <span style={{ display: 'block', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginTop: 4 }}>
+                              {subBits.join('  ·  ')}
+                            </span>
+                          </>
+                        }
+                        year={year}
+                        author={author}
+                        dye={dyeForId(trigger.id)}
+                      />
+                      {/* Row actions — quiet mono affordances, never icon buttons */}
+                      <div style={{ display: 'flex', gap: 18, alignItems: 'center', padding: '0 0 12px', marginTop: -4 }}>
+                        {trigger.status === 'PENDING' && (
+                          <>
+                            <button
+                              onClick={() => triggerMutation.mutate(trigger.id)}
+                              disabled={triggerMutation.isPending}
+                              style={{
+                                background: 'none', border: 0, padding: 0, cursor: 'pointer',
+                                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em',
+                                textTransform: 'uppercase', color: 'var(--warm)',
+                              }}
+                            >
+                              deliver now
+                            </button>
+                            <button
+                              onClick={() => cancelMutation.mutate(trigger.id)}
+                              style={{
+                                background: 'none', border: 0, padding: 0, cursor: 'pointer',
+                                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em',
+                                textTransform: 'uppercase', color: 'var(--bone-faint)',
+                                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                              }}
+                              onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone-dim)')}
+                              onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
+                            >
+                              cancel
+                            </button>
+                          </>
+                        )}
+                        <button
+                          onClick={() => deleteMutation.mutate(trigger.id)}
+                          style={{
+                            background: 'none', border: 0, padding: 0, cursor: 'pointer',
+                            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em',
+                            textTransform: 'uppercase', color: 'var(--bone-faint)',
+                            transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                          }}
+                          onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm)')}
+                          onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
+                        >
+                          remove
+                        </button>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Category / status + actions column */}
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 10 }}>
-                    <span
-                      className="hl-mono"
-                      style={{ fontSize: 9.5, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
-                    >
-                      {statusConfig.label}
-                    </span>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      {trigger.status === 'PENDING' && (
-                        <>
-                          <button
-                            onClick={() => triggerMutation.mutate(trigger.id)}
-                            disabled={triggerMutation.isPending}
-                            className="hl-btn"
-                            style={{ padding: '6px 14px', fontSize: 10 }}
-                          >
-                            deliver now
-                          </button>
-                          <button
-                            onClick={() => cancelMutation.mutate(trigger.id)}
-                            style={{
-                              background: 'none',
-                              border: '1px solid var(--rule)',
-                              borderRadius: 0,
-                              padding: '6px 14px',
-                              cursor: 'pointer',
-                              fontFamily: 'var(--mono)',
-                              fontSize: 10,
-                              letterSpacing: '0.06em',
-                              color: 'var(--bone-faint)',
-                              transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
-                            }}
-                            onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--warm)')}
-                            onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--rule)')}
-                          >
-                            cancel
-                          </button>
-                        </>
-                      )}
-                      <button
-                        onClick={() => deleteMutation.mutate(trigger.id)}
-                        style={{
-                          background: 'none',
-                          border: 0,
-                          padding: '6px 4px',
-                          cursor: 'pointer',
-                          fontFamily: 'var(--mono)',
-                          fontSize: 10,
-                          letterSpacing: '0.06em',
-                          color: 'var(--bone-faint)',
-                          transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-                        }}
-                        onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
-                        onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
-                      >
-                        remove
-                      </button>
-                    </div>
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
+                  );
+                })}
+            </div>
+            {error && (
+              <p role="alert" style={{ margin: '20px 0 0', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.06em', color: 'var(--warm)' }}>
+                {error}
+              </p>
+            )}
+            <div style={{ marginTop: 64 }}>
+              <WaxSeal />
+            </div>
+          </>
         ) : (
-          <div style={{ padding: 'clamp(24px, 5vw, 60px) clamp(16px, 3vw, 36px)', border: '1px solid var(--rule)', textAlign: 'center' }}>
+          <div style={{ padding: 'clamp(40px, 8vw, 96px) 0', textAlign: 'center' }}>
             <p
               className="hl-serif hl-italic"
-              style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone-faint)', margin: 0 }}
+              style={{ fontSize: 20, fontWeight: 300, color: 'var(--bone-dim)', fontStyle: 'italic', margin: '0 0 28px' }}
             >
-              No life events yet.
+              No moments woven yet.
             </p>
+            {error && (
+              <p role="alert" style={{ margin: '0 0 28px', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.06em', color: 'var(--warm)' }}>
+                {error}
+              </p>
+            )}
+            <WaxSeal />
           </div>
         )}
       </div>
@@ -770,7 +759,7 @@ export function LifeEvents() {
                       margin: 0,
                       fontFamily: 'var(--mono)',
                       fontSize: 11,
-                      color: 'var(--danger)',
+                      color: 'var(--warm)',
                       letterSpacing: '0.06em',
                     }}
                   >

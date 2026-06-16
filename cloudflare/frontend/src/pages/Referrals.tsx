@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { familyReferralsApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -12,6 +12,7 @@ export function Referrals() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRelationship, setInviteRelationship] = useState('');
   const [copied, setCopied] = useState(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   const { data: referralData, isLoading } = useQuery({
     queryKey: ['referrals'],
@@ -31,7 +32,11 @@ export function Referrals() {
 
   const copyInviteLink = (code: string) => {
     copyToClipboard(`${window.location.origin}/signup?ref=${code}`)
-      .then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); })
+      .then(() => {
+        setCopied(true);
+        setCopiedCode(code);
+        setTimeout(() => { setCopied(false); setCopiedCode(null); }, 2000);
+      })
       .catch(() => {});
   };
 
@@ -79,6 +84,10 @@ export function Referrals() {
     marginBottom: 10,
   };
 
+  const eyebrow = isLoading
+    ? 'REFERRALS'
+    : `${totalInvites} INVITED · ${accepted} JOINED`;
+
   return (
     <ClothShell
       topbarLeft={<Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>}
@@ -91,10 +100,10 @@ export function Referrals() {
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        {/* Header */}
-        <div style={{ marginBottom: 52 }}>
-          <RoomHeader eyebrow="referrals" title="Invite someone to begin their thread." />
-        </div>
+        <CosmicHeader
+          eyebrow={eyebrow}
+          title="Invite someone to begin their thread."
+        />
 
         {isLoading ? (
           <div
@@ -104,6 +113,7 @@ export function Referrals() {
               position: 'relative',
               overflow: 'hidden',
               maxWidth: 320,
+              marginTop: 40,
             }}
           >
             <div
@@ -120,32 +130,30 @@ export function Referrals() {
             />
           </div>
         ) : (
-          <div style={{ display: 'grid', gap: 56 }}>
+          <div style={{ display: 'grid', gap: 56, marginTop: 40 }}>
 
-            {/* Referral link */}
+            {/* Referral code — flat mono value with a quiet COPY affordance */}
             {referralData?.referralCode && (
               <section>
-                <p
-                  className="hl-eyebrow"
-                  style={{ marginBottom: 12 }}
-                >
-                  Your invite link
-                </p>
+                <SectionLabel>Your invite link</SectionLabel>
                 <div
                   style={{
-                    background: 'var(--ink)',
-                    padding: '18px 22px',
                     display: 'flex',
-                    alignItems: 'center',
+                    alignItems: 'baseline',
+                    flexWrap: 'wrap',
                     gap: 16,
+                    padding: '8px 0',
+                    borderBottom: '1px solid var(--rule)',
                   }}
                 >
                   <span
-                    className="hl-mono"
                     style={{
+                      fontFamily: 'var(--mono)',
                       fontSize: 14,
+                      letterSpacing: '0.04em',
                       color: 'var(--bone)',
                       flex: 1,
+                      minWidth: 0,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
@@ -156,366 +164,296 @@ export function Referrals() {
                   <button
                     type="button"
                     onClick={() => copyInviteLink(referralData.referralCode)}
-                    className="hl-link warm"
                     style={{
                       background: 'none',
                       border: 0,
                       padding: 0,
                       cursor: 'pointer',
+                      fontFamily: 'var(--mono)',
+                      fontSize: 11,
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
+                      color: 'var(--warm)',
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    copy →
+                    {copied && copiedCode === referralData.referralCode ? 'copied' : 'copy'}
                   </button>
                 </div>
-                {copied && (
-                  <p
-                    className="hl-mono"
-                    style={{
-                      fontSize: 10,
-                      letterSpacing: '0.06em',
-                      color: 'var(--warm)',
-                      margin: '8px 0 0',
-                    }}
-                    role="status"
-                  >
-                    Copied.
-                  </p>
-                )}
               </section>
             )}
 
-            {/* Count stat */}
+            {/* Ledger summary + milestones */}
             <section>
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'baseline',
-                  gap: 20,
-                  marginBottom: 32,
+                  gap: 28,
+                  flexWrap: 'wrap',
+                  marginBottom: 28,
                 }}
               >
-                <p
-                  className="hl-serif"
-                  style={{
-                    fontSize: 38,
-                    fontWeight: 300,
-                    color: 'var(--warm)',
-                    margin: 0,
-                    lineHeight: 1,
-                  }}
-                >
-                  {totalInvites}
-                </p>
-                <span
-                  className="hl-mono"
-                  style={{
-                    fontSize: 12,
-                    letterSpacing: '0.12em',
-                    color: 'var(--bone-dim)',
-                  }}
-                >
-                  people invited
+                <span style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+                  <span style={{ fontFamily: 'var(--serif)', fontSize: 38, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>
+                    {accepted}
+                  </span>
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>
+                    joined
+                  </span>
                 </span>
+                <span style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+                  <span style={{ fontFamily: 'var(--serif)', fontSize: 38, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>
+                    +{bonusMB}
+                  </span>
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>
+                    MB earned
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowInviteModal(true)}
+                  className="hl-btn"
+                  style={{ marginLeft: 'auto' }}
+                >
+                  invite a family member
+                </button>
               </div>
 
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr',
-                  gap: 40,
-                }}
-              >
-                <div style={{ display: 'grid', gap: 16 }}>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
-                    <p
-                      className="hl-serif"
-                      style={{
-                        fontSize: 28,
-                        fontWeight: 300,
-                        color: 'var(--warm)',
-                        margin: 0,
-                        lineHeight: 1,
-                      }}
+              <SectionLabel>When they join</SectionLabel>
+              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                {inviteMarks.map((mark) => {
+                  const reached = accepted >= mark.count;
+                  const progress = Math.min(100, (accepted / mark.count) * 100);
+                  return (
+                    <li
+                      key={mark.count}
+                      style={{ padding: '12px 0', borderBottom: '1px solid var(--rule)' }}
                     >
-                      {accepted}
-                    </p>
-                    <span
-                      className="hl-mono"
-                      style={{ fontSize: 10, letterSpacing: '0.1em', color: 'var(--bone-dim)' }}
-                    >
-                      joined
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
-                    <p
-                      className="hl-serif"
-                      style={{
-                        fontSize: 28,
-                        fontWeight: 300,
-                        color: 'var(--warm)',
-                        margin: 0,
-                        lineHeight: 1,
-                      }}
-                    >
-                      +{bonusMB}
-                    </p>
-                    <span
-                      className="hl-mono"
-                      style={{ fontSize: 10, letterSpacing: '0.1em', color: 'var(--bone-dim)' }}
-                    >
-                      MB storage earned
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowInviteModal(true)}
-                    className="hl-btn"
-                    style={{ marginTop: 8, alignSelf: 'start' }}
-                  >
-                    invite a family member
-                  </button>
-                </div>
-
-                {/* Invite milestones */}
-                <div style={{ borderLeft: '1px solid var(--rule)', paddingLeft: 32 }}>
-                  <p className="hl-eyebrow" style={{ marginBottom: 14 }}>When they join</p>
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                    {inviteMarks.map((mark) => {
-                      const reached = accepted >= mark.count;
-                      const progress = Math.min(100, (accepted / mark.count) * 100);
-                      return (
-                        <li
-                          key={mark.count}
-                          style={{ padding: '10px 0', borderBottom: '1px solid var(--rule)' }}
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'baseline',
+                          justifyContent: 'space-between',
+                          gap: 16,
+                          marginBottom: reached ? 0 : 7,
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontFamily: 'var(--serif)',
+                            fontSize: 16,
+                            color: reached ? 'var(--bone)' : 'var(--bone-dim)',
+                          }}
+                        >
+                          {reached ? '∞ ' : ''}{mark.reward}
+                        </span>
+                        <span
+                          style={{
+                            fontFamily: 'var(--mono)',
+                            fontSize: 10,
+                            letterSpacing: '0.16em',
+                            textTransform: 'uppercase',
+                            color: reached ? 'var(--warm)' : 'var(--bone-faint)',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {mark.count} members
+                        </span>
+                      </div>
+                      {!reached && (
+                        <div
+                          style={{
+                            height: 1,
+                            background: 'var(--rule)',
+                            position: 'relative',
+                            overflow: 'hidden',
+                          }}
                         >
                           <div
                             style={{
-                              display: 'flex',
-                              alignItems: 'baseline',
-                              justifyContent: 'space-between',
-                              marginBottom: reached ? 0 : 6,
+                              position: 'absolute',
+                              left: 0,
+                              top: 0,
+                              bottom: 0,
+                              width: `${progress}%`,
+                              background: 'var(--warm)',
+                              transition: 'width 360ms cubic-bezier(0.16,1,0.3,1)',
                             }}
-                          >
-                            <span
-                              className="hl-mono"
-                              style={{
-                                fontSize: 11,
-                                color: reached ? 'var(--warm)' : 'var(--bone-dim)',
-                                letterSpacing: '0.04em',
-                              }}
-                            >
-                              {reached ? '∞ ' : ''}{mark.reward}
-                            </span>
-                            <span
-                              className="hl-mono"
-                              style={{ fontSize: 10, color: 'var(--bone-faint)' }}
-                            >
-                              {mark.count} members
-                            </span>
-                          </div>
-                          {!reached && (
-                            <div
-                              style={{
-                                height: 1,
-                                background: 'var(--rule)',
-                                position: 'relative',
-                                overflow: 'hidden',
-                              }}
-                            >
-                              <div
-                                style={{
-                                  position: 'absolute',
-                                  left: 0,
-                                  top: 0,
-                                  bottom: 0,
-                                  width: `${progress}%`,
-                                  background: 'var(--warm)',
-                                  transition: 'width 360ms cubic-bezier(0.16,1,0.3,1)',
-                                }}
-                              />
-                            </div>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-              </div>
+                          />
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
             </section>
 
             {/* Family branches */}
             <section>
-              <div
-                style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 20 }}
-              >
-                <p className="hl-eyebrow">Family branches</p>
-                <hr className="hl-rule" style={{ flex: 1, margin: 0 }} />
-              </div>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))',
-                  border: '1px solid var(--rule)',
-                }}
-              >
-                {familyBranches.map((branch, i) => {
-                  const branchReferrals: any[] = referralData?.referrals?.filter(
-                    (r: any) => r.family_branch === branch.id
-                  ) || [];
-                  return (
-                    <div
-                      key={branch.id}
-                      style={{
-                        padding: '20px 18px',
-                        borderRight: i < familyBranches.length - 1
-                          ? '1px solid var(--rule)'
-                          : undefined,
-                      }}
-                    >
-                      <p className="hl-eyebrow" style={{ marginBottom: 8 }}>{branch.label}</p>
-                      <p
-                        className="hl-mono"
-                        style={{ fontSize: 11, color: 'var(--bone-dim)', margin: '0 0 14px' }}
+              <SectionLabel>Family branches</SectionLabel>
+              {familyBranches.map((branch) => {
+                const branchReferrals: any[] = referralData?.referrals?.filter(
+                  (r: any) => r.family_branch === branch.id
+                ) || [];
+                const branchJoined = branchReferrals.filter(
+                  (r: any) => r.status === 'accepted'
+                ).length;
+                return (
+                  <div key={branch.id}>
+                    {branchReferrals.length > 0 ? (
+                      <>
+                        {branchReferrals.slice(0, 3).map((ref: any) => (
+                          <EntryRow
+                            key={ref.id}
+                            title={ref.referred_email}
+                            meta={`${branch.label.toUpperCase()} · ${ref.status === 'accepted' ? 'JOINED' : 'PENDING'}`}
+                          />
+                        ))}
+                        {branchReferrals.length > 3 && (
+                          <p
+                            style={{
+                              fontFamily: 'var(--mono)',
+                              fontSize: 10,
+                              letterSpacing: '0.16em',
+                              textTransform: 'uppercase',
+                              color: 'var(--bone-faint)',
+                              margin: '10px 0 0',
+                            }}
+                          >
+                            +{branchReferrals.length - 3} more in {branch.label}
+                            {branchJoined > 0 ? ` · ${branchJoined} joined` : ''}
+                          </p>
+                        )}
+                      </>
+                    ) : (
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'baseline',
+                          justifyContent: 'space-between',
+                          gap: 20,
+                          padding: '15px 0',
+                          borderBottom: '1px solid var(--rule)',
+                        }}
                       >
-                        {branchReferrals.length}{' '}
-                        {branchReferrals.length === 1 ? 'member' : 'members'}
-                      </p>
-                      {branchReferrals.length > 0 ? (
-                        <div style={{ display: 'grid', gap: 6 }}>
-                          {branchReferrals.slice(0, 3).map((ref: any) => (
-                            <div
-                              key={ref.id}
-                              style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}
-                            >
-                              <span
-                                className="hl-mono"
-                                style={{
-                                  fontSize: 10,
-                                  color:
-                                    ref.status === 'accepted'
-                                      ? 'var(--warm)'
-                                      : 'var(--bone-faint)',
-                                }}
-                              >
-                                {ref.status === 'accepted' ? '∞' : '·'}
-                              </span>
-                              <span
-                                className="hl-serif"
-                                style={{
-                                  fontSize: 13,
-                                  color: 'var(--bone-dim)',
-                                  overflow: 'hidden',
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap',
-                                }}
-                              >
-                                {ref.referred_email}
-                              </span>
-                            </div>
-                          ))}
-                          {branchReferrals.length > 3 && (
-                            <p
-                              className="hl-mono"
-                              style={{ margin: 0, fontSize: 10, color: 'var(--bone-faint)' }}
-                            >
-                              +{branchReferrals.length - 3} more
-                            </p>
-                          )}
-                        </div>
-                      ) : (
+                        <span style={{ fontFamily: 'var(--serif)', fontSize: 19, color: 'var(--bone-dim)' }}>
+                          {branch.label}
+                        </span>
                         <button
                           type="button"
                           onClick={() => setShowInviteModal(true)}
-                          className="hl-link warm"
-                          style={{ background: 'none', border: 0, padding: 0, cursor: 'pointer' }}
+                          style={{
+                            background: 'none',
+                            border: 0,
+                            padding: 0,
+                            cursor: 'pointer',
+                            fontFamily: 'var(--mono)',
+                            fontSize: 11,
+                            letterSpacing: '0.2em',
+                            textTransform: 'uppercase',
+                            color: 'var(--warm)',
+                            whiteSpace: 'nowrap',
+                          }}
                         >
                           invite →
                         </button>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </section>
 
-            {/* All invites */}
+            {/* All invites — vertical EntryRow list */}
             {referralData?.referrals && referralData.referrals.length > 0 && (
               <section>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'baseline',
-                    gap: 16,
-                    marginBottom: 20,
-                  }}
-                >
-                  <p className="hl-eyebrow">All invites</p>
-                  <hr className="hl-rule" style={{ flex: 1, margin: 0 }} />
-                </div>
+                <SectionLabel>All invites</SectionLabel>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                  {referralData.referrals.map((ref: any) => (
-                    <li
-                      key={ref.id}
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 120px 80px 80px 80px',
-                        gap: 20,
-                        alignItems: 'baseline',
-                        padding: '14px 0',
-                        borderBottom: '1px solid var(--rule)',
-                      }}
-                    >
-                      <span className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)' }}>
-                        {ref.referred_email}
-                      </span>
-                      <span
-                        className="hl-mono"
+                  {referralData.referrals.map((ref: any) => {
+                    const isAccepted = ref.status === 'accepted';
+                    const statusColor = isAccepted ? 'var(--warm)' : 'var(--bone-faint)';
+                    const date = new Date(ref.created_at).toLocaleDateString();
+                    return (
+                      <li
+                        key={ref.id}
                         style={{
-                          fontSize: 10,
-                          color: 'var(--bone-faint)',
-                          letterSpacing: '0.06em',
+                          display: 'flex',
+                          alignItems: 'baseline',
+                          gap: 20,
+                          flexWrap: 'wrap',
+                          padding: '15px 0',
+                          borderBottom: '1px solid var(--rule)',
                         }}
                       >
-                        {ref.relationship || '—'}
-                      </span>
-                      <span
-                        className="hl-mono"
-                        style={{
-                          fontSize: 10,
-                          letterSpacing: '0.06em',
-                          color:
-                            ref.status === 'accepted'
-                              ? 'var(--warm)'
-                              : ref.status === 'expired'
-                              ? 'var(--danger)'
-                              : 'var(--bone-faint)',
-                        }}
-                      >
-                        {ref.status}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => copyInviteLink(ref.invite_code)}
-                        className="hl-link warm"
-                        style={{
-                          background: 'none',
-                          border: 0,
-                          padding: 0,
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                        }}
-                      >
-                        copy link
-                      </button>
-                      <span
-                        className="hl-mono"
-                        style={{ fontSize: 10, color: 'var(--bone-faint)' }}
-                      >
-                        {new Date(ref.created_at).toLocaleDateString()}
-                      </span>
-                    </li>
-                  ))}
+                        <span style={{ flex: 1, minWidth: 0 }}>
+                          <span
+                            style={{
+                              fontFamily: 'var(--serif)',
+                              fontSize: 19,
+                              lineHeight: 1.3,
+                              color: 'var(--bone)',
+                              display: 'block',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {ref.referred_email}
+                          </span>
+                          {ref.relationship && (
+                            <span
+                              style={{
+                                fontFamily: 'var(--mono)',
+                                fontSize: 10,
+                                letterSpacing: '0.16em',
+                                textTransform: 'uppercase',
+                                color: 'var(--bone-faint)',
+                                display: 'block',
+                                marginTop: 4,
+                              }}
+                            >
+                              {ref.relationship}
+                            </span>
+                          )}
+                        </span>
+                        <span
+                          style={{
+                            display: 'flex',
+                            alignItems: 'baseline',
+                            gap: 16,
+                            whiteSpace: 'nowrap',
+                            fontFamily: 'var(--mono)',
+                            fontSize: 11,
+                            letterSpacing: '0.14em',
+                            flex: '0 0 auto',
+                          }}
+                        >
+                          <span style={{ textTransform: 'uppercase', letterSpacing: '0.16em', color: statusColor }}>
+                            {ref.status}
+                          </span>
+                          <span style={{ color: 'var(--bone-faint)' }}>{date}</span>
+                          <button
+                            type="button"
+                            onClick={() => copyInviteLink(ref.invite_code)}
+                            style={{
+                              background: 'none',
+                              border: 0,
+                              padding: 0,
+                              cursor: 'pointer',
+                              fontFamily: 'var(--mono)',
+                              fontSize: 11,
+                              letterSpacing: '0.2em',
+                              textTransform: 'uppercase',
+                              color: 'var(--warm)',
+                            }}
+                          >
+                            {copied && copiedCode === ref.invite_code ? 'copied' : 'copy link'}
+                          </button>
+                        </span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </section>
             )}
@@ -523,57 +461,53 @@ export function Referrals() {
             {/* Rewards earned */}
             {referralData?.rewards && referralData.rewards.length > 0 && (
               <section>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'baseline',
-                    gap: 16,
-                    marginBottom: 20,
-                  }}
-                >
-                  <p className="hl-eyebrow">Storage earned</p>
-                  <hr className="hl-rule" style={{ flex: 1, margin: 0 }} />
-                </div>
+                <SectionLabel>Storage earned</SectionLabel>
                 <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
                   {referralData.rewards.map((reward: any) => (
                     <li
                       key={reward.id}
                       style={{
-                        display: 'grid',
-                        gridTemplateColumns: '1fr 1fr auto',
-                        gap: 24,
+                        display: 'flex',
                         alignItems: 'baseline',
-                        padding: '14px 0',
+                        gap: 20,
+                        flexWrap: 'wrap',
+                        padding: '15px 0',
                         borderBottom: '1px solid var(--rule)',
                       }}
                     >
+                      <span style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ fontFamily: 'var(--serif)', fontSize: 19, lineHeight: 1.3, color: 'var(--bone)', display: 'block' }}>
+                          {reward.milestone}
+                        </span>
+                      </span>
                       <span
-                        className="hl-mono"
                         style={{
-                          fontSize: 12,
-                          color: 'var(--warm)',
-                          letterSpacing: '0.04em',
+                          display: 'flex',
+                          alignItems: 'baseline',
+                          gap: 16,
+                          whiteSpace: 'nowrap',
+                          fontFamily: 'var(--mono)',
+                          fontSize: 11,
+                          letterSpacing: '0.14em',
+                          flex: '0 0 auto',
                         }}
                       >
-                        {reward.reward_value}
-                      </span>
-                      <span
-                        className="hl-serif"
-                        style={{ fontSize: 14, color: 'var(--bone-dim)' }}
-                      >
-                        {reward.milestone}
-                      </span>
-                      <span
-                        className="hl-mono"
-                        style={{ fontSize: 10, color: 'var(--bone-faint)' }}
-                      >
-                        {new Date(reward.claimed_at).toLocaleDateString()}
+                        <span style={{ color: 'var(--warm)', letterSpacing: '0.1em' }}>
+                          {reward.reward_value}
+                        </span>
+                        <span style={{ color: 'var(--bone-faint)' }}>
+                          {new Date(reward.claimed_at).toLocaleDateString()}
+                        </span>
                       </span>
                     </li>
                   ))}
                 </ul>
               </section>
             )}
+
+            <div style={{ paddingTop: 16 }}>
+              <WaxSeal />
+            </div>
 
           </div>
         )}
@@ -661,6 +595,22 @@ export function Referrals() {
                   <option value="other">Other</option>
                 </select>
               </div>
+
+              {inviteMutation.isError && (
+                <p
+                  style={{
+                    fontFamily: 'var(--mono)',
+                    fontSize: 10,
+                    letterSpacing: '0.16em',
+                    textTransform: 'uppercase',
+                    color: 'var(--warm)',
+                    margin: 0,
+                  }}
+                  role="status"
+                >
+                  Could not send invite. Try again.
+                </p>
+              )}
 
               <div style={{ display: 'flex', gap: 10, paddingTop: 4 }}>
                 <button

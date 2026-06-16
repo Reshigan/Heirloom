@@ -5,6 +5,7 @@ import { adminApi } from '../services/api';
 import { MarketingTab } from './MarketingTab';
 import { SocialCalendarTab } from './SocialCalendarTab';
 import { AppFrame } from '../loom/components/AppFrame';
+import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 // Admin auth check
 const useAdminAuth = () => {
@@ -241,6 +242,17 @@ export function AdminDashboard() {
       {/* Admin topbar — "admin · {section}" + zero-knowledge assurance */}
       <AdminBar section={activeSection} email={admin.email} role={admin.role} onLogout={handleLogout} />
 
+      {/* Giant serif console title — the LABEL-VALUE page head; eyebrow carries live counts */}
+      <CosmicHeader
+        eyebrow={
+          overview?.users?.total != null
+            ? `${overview.users.total.toLocaleString()} ACCOUNTS · ${(revenue?.mrr != null ? `MRR $${revenue.mrr.toFixed(2)}` : 'THE LOOM-KEEPER’S CONSOLE')}`
+            : 'THE LOOM-KEEPER’S CONSOLE'
+        }
+        title="Admin"
+        sub="Operations, members, and the ledger’s reverse. Zero-knowledge — entries cannot be read."
+      />
+
       {/* Tab strip — lowercase mono section nav */}
       <nav style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--rule)', marginBottom: 36, overflowX: 'auto', paddingBottom: 0 }}>
         {tabs.map(({ id, label }) => (
@@ -293,9 +305,7 @@ export function AdminDashboard() {
         {/* Legacy · Incidents — mock kill-switches + pins */}
         {activeTab === 'legacy' && legacySub === 'incidents' && (
           <div>
-            <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 24 }}>
-              Kill-switches + pins
-            </p>
+            <SectionLabel>Kill-switches + pins</SectionLabel>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid var(--rule)' }}>
               <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone)' }}>Composer disabled</span>
               <button type="button" className="hl-tag" style={{ cursor: 'pointer' }}>off</button>
@@ -368,7 +378,7 @@ export function AdminDashboard() {
         {/* Usage Analytics Tab */}
         {activeTab === 'legacy' && legacySub === 'usage' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-            <p className="loom-eyebrow" style={{ marginBottom: -16 }}>Usage Analytics</p>
+            <SectionLabel>Usage Analytics</SectionLabel>
 
             {/* Engagement Overview */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--rule)' }}>
@@ -517,7 +527,7 @@ export function AdminDashboard() {
         {/* Encryption Tab */}
         {activeTab === 'encryption' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
-            <p className="loom-eyebrow" style={{ marginBottom: -16 }}>Encryption Adoption</p>
+            <SectionLabel>Encryption Adoption</SectionLabel>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 1, border: '1px solid var(--rule)' }}>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
@@ -961,7 +971,7 @@ export function AdminDashboard() {
         {/* Audit Logs Tab */}
         {activeTab === 'legacy' && legacySub === 'audit' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <p className="loom-eyebrow">Audit Logs</p>
+            <SectionLabel>Audit Logs</SectionLabel>
             <Panel>
               <LedgerTable cols={['Action', 'Admin', 'Details', 'Time']} empty="No audit logs">
                 {auditLogs?.data?.map((log: any) => (
@@ -1003,7 +1013,7 @@ export function AdminDashboard() {
         {/* Emails Tab */}
         {activeTab === 'legacy' && legacySub === 'emails' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <p className="loom-eyebrow">Email Management</p>
+            <SectionLabel>Email Management</SectionLabel>
             <Panel>
               <LedgerTable cols={['To', 'Subject', 'Status', 'Sent', 'Actions']} empty="No email logs">
                 {emailLogs?.data?.map((email: any) => (
@@ -1030,7 +1040,7 @@ export function AdminDashboard() {
         {/* Reports Tab */}
         {activeTab === 'legacy' && legacySub === 'reports' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
-            <p className="loom-eyebrow">Reports & Analytics</p>
+            <SectionLabel>Reports & Analytics</SectionLabel>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
               <Panel title="Revenue Report">
@@ -1118,6 +1128,11 @@ export function AdminDashboard() {
       {selectedTicket && (
         <TicketDetailModal ticketId={selectedTicket} onClose={() => setSelectedTicket(null)} />
       )}
+
+      {/* The ∞ rests warm at the page foot */}
+      <div style={{ marginTop: 56 }}>
+        <WaxSeal size={28} />
+      </div>
 
       {/* Persistent ledger band — the loom-keeper's reverse */}
       <LedgerBand overview={overview} revenue={revenue} />

@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { memoryCardsApi, memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { dyeForId } from '../loom/dye';
 
 interface CardStyle {
   id: string;
@@ -42,24 +43,6 @@ interface OnThisDayMemory {
   year: string;
   type: 'memory_date' | 'created';
   date: string;
-}
-
-// Dye palette — 10 natural stops, cycles deterministically by index
-const DYE_VARS = [
-  'var(--dye-madder)',
-  'var(--dye-cochineal)',
-  'var(--dye-kermes)',
-  'var(--dye-saffron)',
-  'var(--dye-weld)',
-  'var(--dye-walnut)',
-  'var(--dye-oakgall)',
-  'var(--dye-woad)',
-  'var(--dye-indigo)',
-  'var(--dye-iron)',
-];
-
-function dyeFor(index: number): string {
-  return DYE_VARS[index % DYE_VARS.length];
 }
 
 const TABS: { value: 'create' | 'gallery' | 'onthisday'; label: string }[] = [
@@ -176,9 +159,10 @@ export function MemoryCards() {
         }}
       >
         {/* H1 */}
-        <div style={{ marginBottom: 28 }}>
-          <RoomHeader eyebrow="memory cards" title="Cards from the cloth." />
-        </div>
+        <CosmicHeader
+          eyebrow={`${cards.length} ${cards.length === 1 ? 'card' : 'cards'} woven`}
+          title="Cards from the cloth."
+        />
 
         {/* Tab row */}
         <div
@@ -424,7 +408,7 @@ export function MemoryCards() {
             {/* Right — preview */}
             <div>
               {genError && (
-                <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 11, margin: '8px 0' }}>
+                <p style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '8px 0' }}>
                   {genError}
                 </p>
               )}
@@ -580,55 +564,29 @@ export function MemoryCards() {
                 </button>
               </div>
             ) : (
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {cards.map((card: any, i: number) => (
-                  <li
-                    key={card.id}
-                    style={{
-                      borderBottom: '1px solid var(--rule)',
-                      padding: '22px 0',
-                      display: 'grid',
-                      gridTemplateColumns: '10px 1fr',
-                      gap: 16,
-                      alignItems: 'baseline',
-                    }}
-                  >
-                    {/* Dye square */}
-                    <span
-                      aria-hidden
-                      style={{ width: 8, height: 8, background: dyeFor(i), display: 'block', flexShrink: 0, transform: 'translateY(4px)' }}
+              <div>
+                {cards.map((card: any) => (
+                  <div key={card.id}>
+                    <EntryRow
+                      title={card.quote || card.memoryTitle || 'Untitled'}
+                      year={card.memoryDate || undefined}
+                      author={card.authorName || undefined}
+                      dye={dyeForId(card.id)}
+                      onClick={() => window.open(card.shareUrl, '_blank', 'noopener,noreferrer')}
                     />
-                    <div style={{ minWidth: 0 }}>
-                      {/* Entry */}
-                      <p
-                        className="hl-serif"
-                        style={{ fontSize: 'var(--type-subhead)', fontWeight: 300, color: 'var(--bone)', margin: 0, lineHeight: 1.3 }}
-                      >
-                        {card.quote || card.memoryTitle || 'Untitled'}
-                      </p>
-                      {/* Date · Author */}
-                      {(card.memoryDate || card.authorName) && (
-                        <p
-                          className="hl-mono"
-                          style={{ margin: '6px 0 0', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
-                        >
-                          {[card.memoryDate, card.authorName].filter(Boolean).join(' · ')}
-                        </p>
-                      )}
-                      {/* Print / share */}
-                      <a
-                        href={card.shareUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="hl-link warm"
-                        style={{ display: 'inline-block', marginTop: 10, fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase' }}
-                      >
-                        print / share →
-                      </a>
-                    </div>
-                  </li>
+                    {/* Print / share — quiet mono affordance, same target as row click */}
+                    <a
+                      href={card.shareUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hl-link warm"
+                      style={{ display: 'inline-block', margin: '8px 0 4px', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase' }}
+                    >
+                      print / share →
+                    </a>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
         )}
@@ -665,63 +623,19 @@ export function MemoryCards() {
               <div style={{ display: 'grid', gap: 48 }}>
                 {onThisDay.memoriesFromThisDay.length > 0 && (
                   <section>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 20 }}>
-                      <span className="hl-eyebrow">From this day</span>
-                      <hr
-                        style={{
-                          flex: 1,
-                          border: 0,
-                          borderTop: '1px solid var(--rule)',
-                          margin: 0,
-                        }}
-                      />
-                    </div>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                      {onThisDay.memoriesFromThisDay.map((memory: OnThisDayMemory, i: number) => (
-                        <li
-                          key={memory.id}
-                          style={{
-                            borderBottom: '1px solid var(--rule)',
-                            padding: '22px 0',
-                            display: 'grid',
-                            gridTemplateColumns: '10px 1fr',
-                            gap: 16,
-                            alignItems: 'baseline',
-                          }}
-                        >
-                          {/* Dye square */}
-                          <span
-                            aria-hidden
-                            style={{ width: 8, height: 8, background: dyeFor(i), display: 'block', flexShrink: 0, transform: 'translateY(4px)' }}
+                    <SectionLabel>From this day</SectionLabel>
+                    <div>
+                      {onThisDay.memoriesFromThisDay.map((memory: OnThisDayMemory) => (
+                        <div key={memory.id}>
+                          <EntryRow
+                            title={memory.title || 'Untitled Memory'}
+                            sub={memory.description || undefined}
+                            year={`${memory.year} · ${memory.yearsAgo}y ago`}
+                            dye={dyeForId(memory.id)}
+                            onClick={() => navigate(`/loom/read?entry=${memory.id}`)}
                           />
-                          <div style={{ minWidth: 0 }}>
-                          {/* Entry */}
-                          <p
-                            className="hl-serif"
-                            style={{ fontSize: 'var(--type-subhead)', fontWeight: 300, color: 'var(--bone)', margin: 0, lineHeight: 1.3 }}
-                          >
-                            {memory.title || 'Untitled Memory'}
-                          </p>
-                          {/* Date */}
-                          <span
-                            className="hl-mono"
-                            style={{ display: 'block', marginTop: 6, fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
-                          >
-                            {memory.year} — {memory.yearsAgo}y ago
-                          </span>
-                          {/* Author / description as dim mono */}
-                          {memory.description && (
-                            <span
-                              className="hl-mono"
-                              style={{ display: 'block', marginTop: 4, fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}
-                            >
-                              {memory.description}
-                            </span>
-                          )}
                           {memory.photoUrl && (
-                            <div
-                              style={{ border: '1px solid var(--rule)', overflow: 'hidden', marginTop: 10 }}
-                            >
+                            <div style={{ border: '1px solid var(--rule)', overflow: 'hidden', margin: '12px 0 4px' }}>
                               <img
                                 src={memory.photoUrl}
                                 alt={memory.title}
@@ -730,8 +644,8 @@ export function MemoryCards() {
                               />
                             </div>
                           )}
-                          {/* Print / share */}
-                          <div style={{ display: 'flex', gap: 24, marginTop: 10 }}>
+                          {/* Quiet mono affordances */}
+                          <div style={{ display: 'flex', gap: 28, margin: '8px 0 4px' }}>
                             <button
                               type="button"
                               onClick={() => { setSelectedMemory(memory.id); setActiveTab('create'); }}
@@ -741,6 +655,7 @@ export function MemoryCards() {
                                 border: 0,
                                 padding: 0,
                                 cursor: 'pointer',
+                                fontFamily: 'var(--mono)',
                                 fontSize: 11,
                                 letterSpacing: '0.14em',
                                 textTransform: 'uppercase',
@@ -757,6 +672,7 @@ export function MemoryCards() {
                                 border: 0,
                                 padding: 0,
                                 cursor: 'pointer',
+                                fontFamily: 'var(--mono)',
                                 fontSize: 11,
                                 letterSpacing: '0.14em',
                                 textTransform: 'uppercase',
@@ -765,78 +681,38 @@ export function MemoryCards() {
                               view memory →
                             </button>
                           </div>
-                          </div>
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                   </section>
                 )}
 
                 {onThisDay.createdOnThisDay.length > 0 && (
                   <section>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 20 }}>
-                      <span className="hl-eyebrow">Created on this day</span>
-                      <hr
-                        style={{
-                          flex: 1,
-                          border: 0,
-                          borderTop: '1px solid var(--rule)',
-                          margin: 0,
-                        }}
-                      />
-                    </div>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                      {onThisDay.createdOnThisDay.map((memory: OnThisDayMemory, i: number) => (
-                        <li
+                    <SectionLabel>Created on this day</SectionLabel>
+                    <div>
+                      {onThisDay.createdOnThisDay.map((memory: OnThisDayMemory) => (
+                        <EntryRow
                           key={memory.id}
-                          style={{
-                            borderBottom: '1px solid var(--rule)',
-                            padding: '22px 0',
-                            display: 'grid',
-                            gridTemplateColumns: '10px 1fr',
-                            gap: 16,
-                            alignItems: 'baseline',
-                          }}
-                        >
-                          {/* Dye square */}
-                          <span
-                            aria-hidden
-                            style={{ width: 8, height: 8, background: dyeFor(i + 5), display: 'block', flexShrink: 0, transform: 'translateY(4px)' }}
-                          />
-                          <div style={{ minWidth: 0 }}>
-                          {/* Entry */}
-                          <p
-                            className="hl-serif"
-                            style={{ fontSize: 'var(--type-subhead)', fontWeight: 300, color: 'var(--bone)', margin: 0, lineHeight: 1.3 }}
-                          >
-                            {memory.title || 'Untitled Memory'}
-                          </p>
-                          {/* Date */}
-                          <span
-                            className="hl-mono"
-                            style={{ display: 'block', marginTop: 6, fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
-                          >
-                            {memory.year} — {memory.yearsAgo}y ago
-                          </span>
-                          {/* Description */}
-                          {memory.description && (
-                            <span
-                              className="hl-mono"
-                              style={{ display: 'block', marginTop: 4, fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}
-                            >
-                              {memory.description}
-                            </span>
-                          )}
-                          </div>
-                        </li>
+                          title={memory.title || 'Untitled Memory'}
+                          sub={memory.description || undefined}
+                          year={`${memory.year} · ${memory.yearsAgo}y ago`}
+                          dye={dyeForId(memory.id)}
+                          onClick={() => navigate(`/loom/read?entry=${memory.id}`)}
+                        />
                       ))}
-                    </ul>
+                    </div>
                   </section>
                 )}
               </div>
             )}
           </div>
         )}
+
+        {/* The seal at the foot of the page */}
+        <div style={{ marginTop: 72 }}>
+          <WaxSeal />
+        </div>
       </div>
     </ClothShell>
   );

@@ -1,12 +1,15 @@
 /**
  * Social Calendar Tab - Admin panel for managing the Social Posting Engine
- * Shows scheduled/published/failed posts with pause/retry/skip controls
+ * Shows scheduled/published/failed posts with pause/retry/skip controls.
+ * Re-skinned as a LEDGER: a CosmicHeader stating the stats, each post a
+ * hairline-ruled entry row, controls as quiet mono text affordances, WaxSeal foot.
  */
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { socialApi } from '../services/api';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 interface SocialPost {
   id: string;
@@ -39,7 +42,7 @@ const PLATFORM_LABELS: Record<string, string> = {
   threads: 'Threads',
 };
 
-interface StatusToken { border: string; color: string; label: string }
+interface StatusToken { color: string; label: string }
 interface StatusTokenMap {
   scheduled: StatusToken;
   publishing: StatusToken;
@@ -48,25 +51,35 @@ interface StatusTokenMap {
   skipped: StatusToken;
 }
 
+// Status reads as mono signal text — warm for active states, bone-dim/faint
+// for quiet ones. A failed post is warm (the ONE accent), never red.
 const STATUS_TOKENS: StatusTokenMap = {
-  scheduled: { border: 'var(--rule)', color: 'var(--bone-dim)', label: 'Scheduled' },
-  publishing: { border: 'var(--rule-warm)', color: 'var(--warm)', label: 'Publishing' },
-  published:  { border: 'var(--rule-warm)', color: 'var(--warm)', label: 'Published' },
-  failed:     { border: 'rgba(194,90,90,0.35)', color: 'var(--danger)', label: 'Failed' },
-  skipped:    { border: 'var(--rule)', color: 'var(--bone-faint)', label: 'Skipped' },
+  scheduled: { color: 'var(--bone-dim)', label: 'Scheduled' },
+  publishing: { color: 'var(--warm)', label: 'Publishing' },
+  published:  { color: 'var(--warm)', label: 'Published' },
+  failed:     { color: 'var(--warm)', label: 'Failed' },
+  skipped:    { color: 'var(--bone-faint)', label: 'Skipped' },
 };
 
 const selectStyle: React.CSSProperties = {
   background: 'transparent',
   border: '1px solid var(--rule)',
   color: 'var(--bone)',
-  fontFamily: "'JetBrains Mono', monospace",
+  fontFamily: 'var(--mono)',
   fontSize: 11,
   letterSpacing: '0.04em',
   padding: '6px 10px',
   outline: 'none',
   borderRadius: 0,
   cursor: 'pointer',
+};
+
+const filterLabelStyle: React.CSSProperties = {
+  fontFamily: 'var(--mono)',
+  fontSize: 10,
+  letterSpacing: '0.18em',
+  textTransform: 'uppercase',
+  color: 'var(--bone-faint)',
 };
 
 export function SocialCalendarTab() {
@@ -113,21 +126,19 @@ export function SocialCalendarTab() {
   const posts: SocialPost[] = calendar?.posts || [];
   const socialStats: SocialStats = stats || { total: 0, published: 0, scheduled: 0, failed: 0, skipped: 0 };
 
+  // Mono eyebrow states the ledger at a glance.
+  const eyebrow =
+    `${socialStats.total} POSTS · ${socialStats.published} PUBLISHED · ` +
+    `${socialStats.scheduled} SCHEDULED · ${socialStats.failed} FAILED · ${socialStats.skipped} SKIPPED`;
+
   return (
     <div style={{ color: 'var(--bone)' }}>
-      {/* Stats strip */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 1, marginBottom: 32 }}>
-        <StatCell label="Total" value={socialStats.total} />
-        <StatCell label="Published" value={socialStats.published} warm />
-        <StatCell label="Scheduled" value={socialStats.scheduled} />
-        <StatCell label="Failed" value={socialStats.failed} error />
-        <StatCell label="Skipped" value={socialStats.skipped} />
-      </div>
+      <CosmicHeader eyebrow={eyebrow} title="The Posting Engine" />
 
-      {/* Filters */}
-      <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
+      {/* Filter control bar — quiet mono */}
+      <div style={{ display: 'flex', gap: 20, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>Week</span>
+          <span style={filterLabelStyle}>Week</span>
           <select
             value={selectedWeek || ''}
             onChange={(e) => setSelectedWeek(e.target.value ? parseInt(e.target.value) : undefined)}
@@ -141,7 +152,7 @@ export function SocialCalendarTab() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>Status</span>
+          <span style={filterLabelStyle}>Status</span>
           <select
             value={statusFilter || ''}
             onChange={(e) => setStatusFilter(e.target.value || undefined)}
@@ -156,16 +167,20 @@ export function SocialCalendarTab() {
         </div>
       </div>
 
-      {/* Posts list */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+      <SectionLabel>The Calendar</SectionLabel>
+
+      {/* Posts ledger */}
+      <div style={{ borderTop: '1px solid var(--rule)' }}>
         {isLoading ? (
           <div style={{ padding: '40px 0' }}>
             <ProgressHair label="Loading posts…" />
           </div>
         ) : posts.length === 0 ? (
-          <div className="cosmic-panel" style={{ padding: '48px 24px', textAlign: 'center' }}>
-            <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', marginBottom: 6 }}>No posts found.</p>
-            <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>Use the bulk-load API to add content for a week.</p>
+          <div style={{ padding: '64px 24px', textAlign: 'center' }}>
+            <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 18, color: 'var(--bone-dim)', margin: '0 0 10px' }}>
+              No posts found.
+            </p>
+            <p style={filterLabelStyle}>Use the bulk-load API to add content for a week.</p>
           </div>
         ) : (
           posts.map((post) => (
@@ -179,22 +194,43 @@ export function SocialCalendarTab() {
           ))
         )}
       </div>
+
+      <div style={{ marginTop: 56 }}>
+        <WaxSeal />
+      </div>
     </div>
   );
 }
 
-/* ── StatCell ───────────────────────────────────────────────────── */
-function StatCell({ label, value, warm, error }: { label: string; value: number; warm?: boolean; error?: boolean }) {
-  const valColor = error ? 'var(--danger)' : warm ? 'var(--warm)' : 'var(--bone)';
+/* ── RowAction — quiet mono text affordance (never an icon button) ── */
+function RowAction({ label, onClick, danger }: { label: string; onClick: () => void; danger?: boolean }) {
+  const base = danger ? 'var(--bone-faint)' : 'var(--bone-dim)';
   return (
-    <div style={{ border: '1px solid var(--rule)', padding: '20px 16px', textAlign: 'center' }}>
-      <div className="loom-mono" style={{ fontSize: 28, fontWeight: 300, color: valColor, lineHeight: 1, marginBottom: 8 }}>{value}</div>
-      <div className="loom-eyebrow" style={{ fontSize: 9 }}>{label}</div>
-    </div>
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      style={{
+        background: 'none',
+        border: 'none',
+        padding: '2px 4px',
+        fontFamily: 'var(--mono)',
+        fontSize: 10,
+        letterSpacing: '0.16em',
+        textTransform: 'uppercase',
+        color: base,
+        cursor: 'pointer',
+        transition: 'color 180ms var(--ease)',
+      }}
+      onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm)')}
+      onMouseLeave={e => (e.currentTarget.style.color = base)}
+    >
+      {label}
+    </button>
   );
 }
 
-/* ── PostRow ────────────────────────────────────────────────────── */
+/* ── PostRow — a ledger entry: serif content left, mono meta + actions right ── */
 function PostRow({ post, onPause, onRetry, onDelete }: {
   post: SocialPost;
   onPause: () => void;
@@ -204,88 +240,90 @@ function PostRow({ post, onPause, onRetry, onDelete }: {
   const statusKey = post.status as keyof StatusTokenMap;
   const tok = (statusKey in STATUS_TOKENS ? STATUS_TOKENS[statusKey] : undefined) || STATUS_TOKENS.scheduled;
   const contentText = post.content?.text || post.content?.hook || 'No content';
+  const platformLine = post.platforms.map((p) => PLATFORM_LABELS[p] || p).join(' · ');
+  const scheduleLine = post.published_at
+    ? `Published ${new Date(post.published_at).toLocaleString()}`
+    : `Scheduled ${new Date(post.scheduled_at).toLocaleString()}`;
 
   return (
-    <div style={{ border: '1px solid var(--rule)', padding: '16px 20px', display: 'flex', gap: 20, alignItems: 'flex-start' }}>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        {/* Status / pillar / week */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-          <span className="loom-mono" style={{ fontSize: 10, padding: '2px 7px', border: `1px solid ${tok.border}`, color: tok.color }}>
-            {tok.label}
-          </span>
-          {post.pillar && (
-            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{post.pillar}</span>
-          )}
-          {post.campaign_week && (
-            <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>Week {post.campaign_week}</span>
-          )}
-        </div>
-
-        {/* Content preview */}
-        <p style={{ color: 'var(--bone)', fontSize: 14, lineHeight: 1.6, marginBottom: 10, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+    <div
+      style={{
+        display: 'flex',
+        gap: 24,
+        alignItems: 'baseline',
+        padding: '18px 0',
+        borderBottom: '1px solid var(--rule)',
+        flexWrap: 'wrap',
+      }}
+    >
+      {/* Left — serif content title + mono sub-meta */}
+      <div style={{ flex: 1, minWidth: 240 }}>
+        <p
+          style={{
+            fontFamily: 'var(--serif)',
+            fontSize: 19,
+            fontWeight: 400,
+            lineHeight: 1.35,
+            color: 'var(--bone)',
+            margin: '0 0 8px',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+          }}
+        >
           {contentText}
         </p>
 
-        {/* Platforms */}
-        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 8 }}>
-          {post.platforms.map((p) => (
-            <span key={p} className="loom-mono" style={{ fontSize: 9, padding: '2px 6px', border: '1px solid var(--rule)', color: 'var(--bone-faint)' }}>
-              {PLATFORM_LABELS[p] || p}
-            </span>
-          ))}
+        {/* Platforms + schedule as a quiet mono meta line */}
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em', color: 'var(--bone-faint)', lineHeight: 1.7 }}>
+          {platformLine && <span>{platformLine}</span>}
+          {platformLine && <span style={{ opacity: 0.5 }}>{'  ·  '}</span>}
+          <span>{scheduleLine}</span>
         </div>
 
-        {/* Schedule time */}
-        <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>
-          {post.published_at
-            ? `Published ${new Date(post.published_at).toLocaleString()}`
-            : `Scheduled ${new Date(post.scheduled_at).toLocaleString()}`}
-        </div>
-
-        {/* Error */}
+        {/* Error — inline mono, warm (never red) */}
         {post.error && (
-          <div className="loom-mono" style={{ marginTop: 8, padding: '8px 10px', border: '1px solid rgba(194,90,90,0.35)', color: 'var(--danger)', fontSize: 11 }}>
+          <div
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.04em',
+              color: 'var(--warm)',
+              marginTop: 8,
+              paddingLeft: 12,
+              borderLeft: '1px solid var(--rule-warm)',
+              lineHeight: 1.5,
+            }}
+          >
             {post.error}
           </div>
         )}
       </div>
 
-      {/* Actions */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
-        {post.status === 'scheduled' && (
-          <button
-            onClick={onPause}
-            aria-label="Skip this post"
-            className="loom-btn-ghost"
-            style={{ fontSize: 10, padding: '4px 10px' }}
-          >
-            Skip
-          </button>
-        )}
-        {(post.status === 'failed' || post.status === 'skipped') && (
-          <button
-            onClick={onRetry}
-            aria-label="Retry or reschedule post"
-            className="loom-btn-ghost"
-            style={{ fontSize: 10, padding: '4px 10px' }}
-          >
-            Retry
-          </button>
-        )}
-        {post.status !== 'published' && (
-          <button
-            onClick={onDelete}
-            aria-label="Delete post"
-            style={{ background: 'none', border: 'none', fontFamily: "'JetBrains Mono', monospace", fontSize: 10, letterSpacing: '0.04em', color: 'var(--bone-faint)', cursor: 'pointer', padding: '4px 10px', transition: 'color 180ms var(--loom-ease)' }}
-            onMouseEnter={e => (e.currentTarget.style.color = 'var(--danger)')}
-            onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
-          >
-            Delete
-          </button>
-        )}
-        {post.status === 'published' && (
-          <span className="loom-mono" style={{ fontSize: 10, color: 'var(--warm)', padding: '4px 10px' }}>Live</span>
-        )}
+      {/* Right — mono cluster: pillar/week meta, status, then actions */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8, flex: '0 0 auto', textAlign: 'right' }}>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', display: 'flex', gap: 12, alignItems: 'baseline', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          {post.pillar && <span style={{ color: 'var(--bone-faint)' }}>{post.pillar}</span>}
+          {post.campaign_week ? <span style={{ color: 'var(--bone-faint)' }}>Week {post.campaign_week}</span> : null}
+          <span style={{ color: tok.color }}>{tok.label}</span>
+        </div>
+
+        {/* Action affordances */}
+        <div style={{ display: 'flex', gap: 14, alignItems: 'baseline' }}>
+          {post.status === 'scheduled' && (
+            <RowAction label="Skip" onClick={onPause} />
+          )}
+          {(post.status === 'failed' || post.status === 'skipped') && (
+            <RowAction label="Retry" onClick={onRetry} />
+          )}
+          {post.status !== 'published' && (
+            <RowAction label="Delete" onClick={onDelete} danger />
+          )}
+          {post.status === 'published' && (
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm)' }}>Live</span>
+          )}
+        </div>
       </div>
     </div>
   );

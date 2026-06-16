@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { giftSubscriptionsApi, settingsApi } from '../services/api';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -154,12 +154,11 @@ export function GiftSubscriptions() {
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-reading)', margin: '0 auto' }}>
 
         {/* Page header */}
-        <RoomHeader
-          className="hl-room-header-gap"
-          eyebrow="gift a thread"
+        <CosmicHeader
+          eyebrow={`step ${String(step).padStart(2, '0')} · gift a thread`}
           title={<span style={{ whiteSpace: 'pre-line' }}>{'Give the gift of\na thousand years.'}</span>}
         />
-        <div style={{ height: 40 }} />
+        <div style={{ height: 8 }} />
 
         {/* Step indicator */}
         <div style={{ display: 'flex', gap: 32, marginBottom: 48 }}>
@@ -202,19 +201,8 @@ export function GiftSubscriptions() {
         {/* ── Step 1: Choose Plan ── */}
         {step === 1 && (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
-              <p
-                className="hl-mono"
-                style={{
-                  fontSize: 10,
-                  letterSpacing: '0.28em',
-                  textTransform: 'uppercase',
-                  color: 'var(--bone-dim)',
-                  margin: 0,
-                }}
-              >
-                choose a plan
-              </p>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 4 }}>
+              <SectionLabel>choose a plan</SectionLabel>
 
               {/* Billing period toggle */}
               <div style={{ display: 'flex' }}>
@@ -234,6 +222,7 @@ export function GiftSubscriptions() {
                       letterSpacing: '0.24em',
                       textTransform: 'uppercase',
                       cursor: 'pointer',
+                      minHeight: 44,
                       position: 'relative',
                     }}
                   >
@@ -260,236 +249,132 @@ export function GiftSubscriptions() {
               </div>
             </div>
 
-            {/* Three tier cards */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: 16,
-                marginBottom: 48,
-              }}
-            >
-              {tiers.map((tier: any, idx: number) => {
-                const isFamily  = tier.id === 'FAMILY';
+            {/* Plan ledger — each tier is a quiet row */}
+            <div style={{ marginBottom: 48 }}>
+              {tiers.map((tier: any) => {
                 const isFree    = tier.id === 'STARTER';
-                const isFirst   = idx === 0;
                 const selected  = selectedTier === tier.id;
                 const bullets   = TIER_BULLETS[tier.id] ?? [];
                 const pp        = tierPeriodPrice(tier);
 
+                const forLine =
+                  tier.id === 'STARTER'
+                    ? 'for a single thread'
+                    : tier.id === 'FAMILY'
+                    ? 'for the whole bloodline'
+                    : 'for every generation';
+
+                const subLabel = isFree
+                  ? 'free, forever'
+                  : tier.id === 'LEGACY'
+                  ? 'once · lifetime'
+                  : billingPeriod === 'monthly'
+                  ? 'per month'
+                  : 'per year · 2 months free';
+
                 return (
                   <button
                     key={tier.id}
+                    type="button"
                     onClick={() => { if (!isFree) setSelectedTier(tier.id); }}
+                    aria-pressed={selected}
                     style={{
-                      display:         'flex',
-                      flexDirection:   'column',
-                      textAlign:       'left',
-                      padding:         '36px 32px',
-                      background:      isFamily ? 'color-mix(in srgb, var(--bone) 4%, transparent)' : 'transparent',
-                      color:           isFamily ? 'var(--bone)' : 'var(--bone)',
-                      opacity:         isFree ? 0.55 : 1,
-                      borderTop:       (isFamily || selected) && !isFree
-                        ? '1px solid var(--warm)'
-                        : '1px solid var(--rule)',
-                      borderBottom:    '1px solid var(--rule)',
-                      borderRight:     '1px solid var(--rule)',
-                      borderLeft:      isFirst ? '1px solid var(--rule)' : 'none',
-                      cursor:          isFree ? 'default' : 'pointer',
-                      outline:         'none',
+                      display:        'flex',
+                      alignItems:     'baseline',
+                      gap:            20,
+                      width:          '100%',
+                      textAlign:      'left',
+                      padding:        '20px 0',
+                      paddingLeft:    16,
+                      background:     'none',
+                      borderWidth:    0,
+                      borderLeft:     selected ? '3px solid var(--warm)' : '3px solid transparent',
+                      borderBottom:   '1px solid var(--rule)',
+                      opacity:        isFree ? 0.55 : 1,
+                      cursor:         isFree ? 'default' : 'pointer',
+                      transition:     'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
                     }}
                   >
-                    {/* Tier name */}
-                    <span
-                      className="hl-mono"
-                      style={{
-                        fontSize:      10,
-                        letterSpacing: '0.28em',
-                        textTransform: 'uppercase',
-                        color:         isFamily ? 'var(--bone-dim)' : 'var(--bone-dim)',
-                        marginBottom:  12,
-                      }}
-                    >
-                      {tier.name}
-                    </span>
-
-                    {/* "for" line */}
-                    <span
-                      className="hl-serif"
-                      style={{
-                        fontStyle:   'italic',
-                        fontSize:    14,
-                        color:       isFamily ? 'var(--bone-dim)' : 'var(--bone-dim)',
-                        marginBottom: 16,
-                      }}
-                    >
-                      {tier.id === 'STARTER'
-                        ? 'for a single thread'
-                        : tier.id === 'FAMILY'
-                        ? 'for the whole bloodline'
-                        : 'for every generation'}
-                    </span>
-
-                    {/* Gift price */}
-                    <span
-                      className="hl-serif hl-tight"
-                      style={{
-                        fontSize:    56,
-                        fontWeight:  300,
-                        lineHeight:  1,
-                        color:       isFamily ? 'var(--bone)' : isFree ? 'var(--bone-dim)' : 'var(--warm)',
-                        marginBottom: 6,
-                        display:      'flex',
-                        alignItems:   'baseline',
-                        gap:          12,
-                      }}
-                    >
-                      {pp?.display ?? `$${pp?.amount ?? 0}`}
-                      {!isFree && pp?.listDisplay && (
+                    {/* Left: name + for-line + bullets */}
+                    <span style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+                        <span
+                          className="hl-serif"
+                          style={{ fontSize: 22, fontWeight: 400, lineHeight: 1.2, color: 'var(--bone)' }}
+                        >
+                          {tier.name}
+                        </span>
                         <span
                           className="hl-mono"
-                          style={{
-                            fontSize:       16,
-                            letterSpacing:  '0.02em',
-                            color:          'var(--bone-faint)',
-                            textDecoration: 'line-through',
-                          }}
+                          style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: selected ? 'var(--warm)' : 'var(--bone-faint)' }}
                         >
-                          {pp.listDisplay}
+                          {isFree ? 'free' : selected ? 'selected' : 'select'}
+                        </span>
+                      </span>
+                      <span
+                        className="hl-serif"
+                        style={{ display: 'block', fontStyle: 'italic', fontSize: 14, color: 'var(--bone-dim)', marginTop: 4 }}
+                      >
+                        {forLine}
+                      </span>
+                      {/* Bullets — quiet mono line */}
+                      <span
+                        className="hl-mono"
+                        style={{ display: 'block', fontSize: 10, letterSpacing: '0.06em', color: 'var(--bone-faint)', marginTop: 8, lineHeight: 1.7 }}
+                      >
+                        {bullets.join(' · ')}
+                      </span>
+                      {isFree && (
+                        <span
+                          className="hl-serif"
+                          style={{ display: 'block', fontStyle: 'italic', fontSize: 12, color: 'var(--bone-faint)', marginTop: 6 }}
+                        >
+                          anyone can begin free — no gift needed
                         </span>
                       )}
                     </span>
 
-                    {/* Gift discount micro-line */}
-                    {!isFree && pp?.giftDiscount && (
+                    {/* Right: price cluster */}
+                    <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flex: '0 0 auto', whiteSpace: 'nowrap' }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 10 }}>
+                        <span
+                          className="hl-serif hl-tight"
+                          style={{ fontSize: 30, fontWeight: 300, lineHeight: 1, color: isFree ? 'var(--bone-dim)' : 'var(--warm)' }}
+                        >
+                          {pp?.display ?? `$${pp?.amount ?? 0}`}
+                        </span>
+                        {!isFree && pp?.listDisplay && (
+                          <span
+                            className="hl-mono"
+                            style={{ fontSize: 12, letterSpacing: '0.02em', color: 'var(--bone-faint)', textDecoration: 'line-through' }}
+                          >
+                            {pp.listDisplay}
+                          </span>
+                        )}
+                      </span>
                       <span
                         className="hl-mono"
-                        style={{
-                          fontSize:      9,
-                          letterSpacing: '0.18em',
-                          textTransform: 'uppercase',
-                          color:         'var(--warm)',
-                          marginBottom:  4,
-                        }}
+                        style={{ fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-dim)', marginTop: 6 }}
                       >
-                        10% gift discount
+                        {subLabel}
                       </span>
-                    )}
-
-                    {/* Sub label */}
-                    <span
-                      className="hl-mono"
-                      style={{
-                        fontSize:      10,
-                        letterSpacing: '0.24em',
-                        textTransform: 'uppercase',
-                        color:         isFamily ? 'var(--bone-dim)' : 'var(--bone-dim)',
-                        marginBottom:  28,
-                      }}
-                    >
-                      {isFree
-                        ? 'free, forever'
-                        : tier.id === 'LEGACY'
-                        ? 'once · lifetime'
-                        : billingPeriod === 'monthly'
-                        ? 'per month'
-                        : 'per year · 2 months free'}
-                    </span>
-
-                    {/* Free note */}
-                    {isFree && (
-                      <span
-                        className="hl-serif"
-                        style={{
-                          fontStyle:   'italic',
-                          fontSize:    12,
-                          color:       'var(--bone-faint)',
-                          marginTop:   -20,
-                          marginBottom: 24,
-                        }}
-                      >
-                        anyone can begin free — no gift needed
-                      </span>
-                    )}
-
-                    {/* Bullets */}
-                    <ul
-                      style={{
-                        listStyle: 'none',
-                        margin:    0,
-                        padding:   0,
-                        display:   'flex',
-                        flexDirection: 'column',
-                        gap: 10,
-                        flexGrow: 1,
-                      }}
-                    >
-                      {bullets.map((b) => (
-                        <li
-                          key={b}
-                          style={{
-                            display:    'flex',
-                            alignItems: 'baseline',
-                            gap:        10,
-                            fontFamily: 'var(--mono)',
-                            fontSize:   11,
-                            color:      isFamily ? 'var(--bone-dim)' : 'var(--bone-dim)',
-                          }}
+                      {!isFree && pp?.giftDiscount && (
+                        <span
+                          className="hl-mono"
+                          style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', marginTop: 4 }}
                         >
-                          <span
-                            style={{
-                              display:         'inline-block',
-                              width:           6,
-                              height:          1,
-                              background:      isFamily ? 'var(--bone-faint)' : 'var(--rule)',
-                              flexShrink:      0,
-                              alignSelf:       'center',
-                            }}
-                          />
-                          {b}
-                        </li>
-                      ))}
-                    </ul>
-
-                    {/* CTA */}
-                    <div style={{ marginTop: 32 }}>
-                      <span
-                        className="hl-btn"
-                        style={{
-                          display:       'inline-block',
-                          background:    isFree ? 'transparent' : selected ? 'var(--warm)' : isFamily ? 'var(--warm)' : 'transparent',
-                          color:         isFree ? 'var(--bone-faint)' : selected || isFamily ? 'var(--ink)' : 'var(--bone)',
-                          border:        isFree ? '1px solid var(--rule)' : selected || isFamily ? 'none' : '1px solid var(--rule)',
-                          padding:       '12px 20px',
-                          fontFamily:    'var(--mono)',
-                          fontSize:      10,
-                          letterSpacing: '0.22em',
-                          textTransform: 'uppercase',
-                          pointerEvents: 'none',
-                        }}
-                      >
-                        {isFree ? 'free' : selected ? 'selected' : 'select'}
-                      </span>
-                    </div>
+                          10% gift discount
+                        </span>
+                      )}
+                    </span>
                   </button>
                 );
               })}
             </div>
 
             {/* Occasion */}
-            <p
-              className="hl-mono"
-              style={{
-                fontSize:      10,
-                letterSpacing: '0.28em',
-                textTransform: 'uppercase',
-                color:         'var(--bone-dim)',
-                marginBottom:  16,
-              }}
-            >
-              occasion
-            </p>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <SectionLabel>occasion</SectionLabel>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
               {OCCASION_STYLES.map((style) => (
                 <button
                   key={style.id}
@@ -503,6 +388,7 @@ export function GiftSubscriptions() {
                         ? '1px solid var(--warm)'
                         : '1px solid var(--rule)',
                     padding:       '7px 14px',
+                    minHeight:     44,
                     fontSize:      10,
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase',
@@ -523,19 +409,8 @@ export function GiftSubscriptions() {
         {/* ── Step 2: Recipient ── */}
         {step === 2 && (
           <div style={{ maxWidth: 520 }}>
-            <p
-              className="hl-mono"
-              style={{
-                fontSize:      10,
-                letterSpacing: '0.28em',
-                textTransform: 'uppercase',
-                color:         'var(--bone-dim)',
-                marginBottom:  28,
-              }}
-            >
-              who's receiving this?
-            </p>
-            <div style={{ display: 'grid', gap: 28 }}>
+            <SectionLabel>who's receiving this?</SectionLabel>
+            <div style={{ display: 'grid', gap: 28, marginTop: 28 }}>
               <div>
                 <label
                   className="hl-mono"
@@ -637,19 +512,8 @@ export function GiftSubscriptions() {
         {/* ── Step 3: Your Details ── */}
         {step === 3 && (
           <div style={{ maxWidth: 520 }}>
-            <p
-              className="hl-mono"
-              style={{
-                fontSize:      10,
-                letterSpacing: '0.28em',
-                textTransform: 'uppercase',
-                color:         'var(--bone-dim)',
-                marginBottom:  28,
-              }}
-            >
-              your details
-            </p>
-            <div style={{ display: 'grid', gap: 28 }}>
+            <SectionLabel>your details</SectionLabel>
+            <div style={{ display: 'grid', gap: 28, marginTop: 28 }}>
               <div>
                 <label
                   className="hl-mono"
@@ -699,23 +563,13 @@ export function GiftSubscriptions() {
         {/* ── Step 4: Review ── */}
         {step === 4 && (
           <div style={{ maxWidth: 520 }}>
-            <p
-              className="hl-mono"
-              style={{
-                fontSize:      10,
-                letterSpacing: '0.28em',
-                textTransform: 'uppercase',
-                color:         'var(--bone-dim)',
-                marginBottom:  28,
-              }}
-            >
-              review your gift
-            </p>
+            <SectionLabel>review your gift</SectionLabel>
             <div
               style={{
-                border:       '1px solid var(--rule)',
-                padding:      '24px',
-                marginBottom: 24,
+                borderTop:    '1px solid var(--rule)',
+                borderBottom: '1px solid var(--rule)',
+                padding:      '24px 0',
+                margin:       '28px 0 24px',
               }}
             >
               <div
@@ -884,15 +738,16 @@ export function GiftSubscriptions() {
             {purchaseMutation.isError && (
               <p
                 role="alert"
-                className="hl-serif"
+                className="hl-mono"
                 style={{
-                  fontStyle:    'italic',
-                  color:        'var(--danger)',
-                  fontSize:     13,
-                  marginBottom: 16,
+                  fontSize:      11,
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  color:         'var(--warm)',
+                  marginBottom:  16,
                 }}
               >
-                Purchase failed. Please try again.
+                purchase failed · please try again
               </p>
             )}
 
@@ -902,16 +757,18 @@ export function GiftSubscriptions() {
               disabled={purchaseMutation.isPending}
               className="hl-mono"
               style={{
-                background: 'transparent',
-                border: 0,
-                padding: 0,
-                fontSize: 11,
+                background:    'var(--warm)',
+                color:         'var(--ink)',
+                border:        0,
+                borderRadius:  999,
+                padding:       '13px 28px',
+                minHeight:     44,
+                fontSize:      11,
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
-                color: 'var(--warm)',
-                opacity: purchaseMutation.isPending ? 0.5 : 1,
-                cursor: purchaseMutation.isPending ? 'default' : 'pointer',
-                transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                opacity:       purchaseMutation.isPending ? 0.5 : 1,
+                cursor:        purchaseMutation.isPending ? 'default' : 'pointer',
+                transition:    'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
               }}
             >
               {purchaseMutation.isPending ? 'processing…' : 'complete the gift →'}
@@ -960,82 +817,83 @@ export function GiftSubscriptions() {
         {/* ── Gift History ── */}
         {purchasedGifts && purchasedGifts.length > 0 && (
           <div style={{ maxWidth: 640, marginTop: 72 }}>
-            <hr
+            <div
               style={{
-                height:     1,
-                border:     0,
-                background: 'var(--rule)',
-                marginBottom: 32,
-              }}
-            />
-            <p
-              className="hl-mono"
-              style={{
+                fontFamily:    'var(--mono)',
                 fontSize:      10,
-                letterSpacing: '0.28em',
+                letterSpacing: '0.3em',
                 textTransform: 'uppercase',
-                color:         'var(--bone-dim)',
-                marginBottom:  24,
+                color:         'var(--bone-faint)',
+                paddingTop:    32,
+                borderTop:     '1px solid var(--rule)',
+                marginBottom:  4,
               }}
             >
-              previous gifts
-            </p>
-            <div style={{ display: 'grid' }}>
+              {purchasedGifts.length} {purchasedGifts.length === 1 ? 'gift' : 'gifts'} given
+            </div>
+            <SectionLabel>previous gifts</SectionLabel>
+            <div style={{ display: 'grid', marginTop: 8 }}>
               {purchasedGifts.map((gift: any) => (
                 <div
                   key={gift.id}
                   style={{
                     display:        'flex',
-                    justifyContent: 'space-between',
                     alignItems:     'baseline',
-                    padding:        '14px 0',
+                    gap:            20,
+                    padding:        '15px 0',
                     borderBottom:   '1px solid var(--rule)',
                   }}
                 >
-                  <div>
-                    <p
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span
                       className="hl-serif"
                       style={{
-                        fontStyle: 'italic',
-                        fontSize:  15,
-                        margin:    '0 0 2px',
-                        color:     'var(--bone)',
+                        display:    'block',
+                        fontWeight: 400,
+                        fontSize:   19,
+                        lineHeight: 1.3,
+                        color:      'var(--bone)',
                       }}
                     >
                       {gift.recipient_name}
-                    </p>
-                    <p
+                    </span>
+                    <span
                       className="hl-mono"
-                      style={{ fontSize: 9, color: 'var(--bone-faint)', margin: 0 }}
+                      style={{ display: 'block', fontSize: 11, letterSpacing: '0.06em', color: 'var(--bone-dim)', marginTop: 4 }}
                     >
                       {gift.tier} plan
-                    </p>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <p
-                      className="hl-mono"
-                      style={{
-                        fontSize:      9,
-                        letterSpacing: '0.2em',
-                        textTransform: 'uppercase',
-                        color:         'var(--bone-faint)',
-                        margin:        '0 0 2px',
-                      }}
-                    >
+                    </span>
+                  </span>
+                  <span
+                    style={{
+                      display:       'flex',
+                      flexDirection: 'column',
+                      alignItems:    'flex-end',
+                      gap:           4,
+                      flex:          '0 0 auto',
+                      whiteSpace:    'nowrap',
+                      fontFamily:    'var(--mono)',
+                      fontSize:      11,
+                      letterSpacing: '0.14em',
+                    }}
+                  >
+                    <span style={{ textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--warm)' }}>
                       {gift.status}
-                    </p>
-                    <p
-                      className="hl-mono"
-                      style={{ fontSize: 9, color: 'var(--bone-faint)', margin: 0 }}
-                    >
+                    </span>
+                    <span style={{ color: 'var(--bone-faint)' }}>
                       {new Date(gift.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
+                    </span>
+                  </span>
                 </div>
               ))}
             </div>
           </div>
         )}
+
+        {/* The ∞ rests at the foot of the ledger */}
+        <div style={{ marginTop: 80 }}>
+          <WaxSeal />
+        </div>
       </div>
 
       {/* ── Success overlay ── */}
@@ -1060,19 +918,9 @@ export function GiftSubscriptions() {
               textAlign:  'center',
             }}
           >
-            {/* ∞ mark — faint amber */}
-            <div
-              className="hl-serif"
-              style={{
-                fontSize:   44,
-                fontWeight: 200,
-                lineHeight: 1,
-                color:      'var(--warm)',
-                opacity:    0.7,
-                marginBottom: 28,
-              }}
-            >
-              ∞
+            {/* ∞ mark — the wax seal, glowing warm */}
+            <div style={{ marginBottom: 28 }}>
+              <WaxSeal size={44} />
             </div>
             <p
               className="hl-mono"

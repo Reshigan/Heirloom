@@ -4,11 +4,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { RoomHeader } from '../loom/components/room';
 import { voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeColor } from '../loom/dye';
 import { VoiceRefine } from '../loom/components/VoiceRefine';
+import { CosmicHeader, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 const FIELD_STYLE: React.CSSProperties = {
   display: 'block', width: '100%', background: 'transparent',
@@ -30,15 +30,6 @@ function formatTime(s: number): string {
   return `${m}:${sec.toString().padStart(2, '0')}`;
 }
 
-function getWaveformHeights(seed: string): number[] {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0;
-  return Array.from({ length: 56 }, (_, i) => {
-    h = (Math.imul(31, h) + i) | 0;
-    return 4 + Math.abs(h % 40);
-  });
-}
-
 interface VoiceEntry {
   id: string;
   title: string | null;
@@ -53,7 +44,7 @@ interface VoiceEntry {
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
 export function VoiceRoom() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const [searchParams] = useSearchParams();
   const wantId = searchParams.get('id');
   const [playingId, setPlayingId] = useState<string | null>(null);
@@ -136,6 +127,12 @@ export function VoiceRoom() {
     <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'voice' }]} />
   );
 
+  const author = (user?.firstName ?? '').trim();
+  const count = recordings.length;
+  const eyebrow = isLoading
+    ? 'voices'
+    : `${count} ${count === 1 ? 'voice' : 'voices'}`;
+
   return (
     <ClothShell topbarLeft={topbarLeft} topbarRight={<UserMenu />}>
       {/* Hairline loading bar */}
@@ -149,12 +146,16 @@ export function VoiceRoom() {
       />
 
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
-        <RoomHeader
-          eyebrow="speak it"
+        <CosmicHeader
+          eyebrow={eyebrow}
           title="Voices waiting to be heard."
-          className="hl-room-header"
         />
-        <style>{`.hl-room-header { margin-bottom: 40px; } @media (hover:hover){ .hl-voice-stop:hover{ border-color: var(--warm) !important; color: var(--warm-bright) !important; } }`}</style>
+        <style>{`
+          @media (hover:hover){
+            .hl-voice-play:hover{ color: var(--warm-bright) !important; }
+            .hl-voice-row:hover .hl-voice-title{ color: var(--warm-bright) !important; }
+          }
+        `}</style>
 
         {/* CTA */}
         <Link
@@ -162,7 +163,7 @@ export function VoiceRoom() {
           style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             borderLeft: '3px solid var(--warm)', padding: '12px 16px',
-            marginBottom: 56, textDecoration: 'none',
+            marginBottom: 48, textDecoration: 'none',
           }}
         >
           <span style={{
@@ -176,64 +177,141 @@ export function VoiceRoom() {
 
         {/* Error state */}
         {isError && (
-          <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 24 }}>
+          <p style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 24 }}>
             could not load recordings — try refreshing
           </p>
         )}
 
         {/* Empty state */}
         {!isLoading && !isError && recordings.length === 0 && (
-          <div style={{ paddingTop: 40 }}>
+          <div style={{ paddingTop: 24, textAlign: 'center' }}>
             <p className="hl-serif hl-italic" style={{
+              fontFamily: 'var(--serif)', fontStyle: 'italic',
               fontSize: 'var(--type-body-lg)',
-              fontWeight: 300, color: 'var(--bone-faint)', lineHeight: 1.7, margin: '0 0 4px',
+              fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.7, margin: '0 0 4px',
             }}>
               Record your voice.
             </p>
             <p className="hl-serif hl-italic" style={{
+              fontFamily: 'var(--serif)', fontStyle: 'italic',
               fontSize: 'var(--type-body-lg)',
-              fontWeight: 300, color: 'var(--bone-faint)', lineHeight: 1.7, margin: 0,
+              fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.7, margin: 0,
             }}>
               Your family will hear it long after you're gone.
             </p>
             <Link
               to="/record"
-              className="hl-btn"
-              style={{ textDecoration: 'none', display: 'inline-block', marginTop: 20 }}
+              style={{
+                textDecoration: 'none', display: 'inline-block', marginTop: 24,
+                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.24em',
+                textTransform: 'uppercase', color: 'var(--warm)',
+              }}
             >
               record →
             </Link>
           </div>
         )}
 
-        {/* Voice list — each recording as a focused "speak it" panel */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 72 }}>
-          {recordings.map((entry) => {
-            const dye = dyeColor(entry.id, entry.metadata);
-            const isPlaying = playingId === entry.id;
-            const duration = formatDuration(entry.duration);
-            const waveformHeights = getWaveformHeights(entry.id);
-            const isEditing = editingId === entry.id;
+        {/* Voice ledger — recordings as a vertical row list */}
+        {recordings.length > 0 && (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {recordings.map((entry) => {
+              const dye = dyeColor(entry.id, entry.metadata);
+              const isPlaying = playingId === entry.id;
+              const duration = formatDuration(entry.duration);
+              const isEditing = editingId === entry.id;
+              const year = new Date(entry.createdAt).getFullYear();
+              const titleText = entry.title || 'Untitled recording';
 
-            return (
-              <article
-                key={entry.id}
-                id={`voice-${entry.id}`}
-                className="hl-voice-card"
-                style={{
-                  borderLeft: `3px solid ${dye}`,
-                  paddingLeft: 20,
-                }}
-              >
-                {/* Eyebrow row — VOICE · 0:42 + edit/delete */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 28 }}>
-                  <span style={{
-                    fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
-                    textTransform: 'uppercase', color: 'var(--bone-faint)',
+              return (
+                <article
+                  key={entry.id}
+                  id={`voice-${entry.id}`}
+                  className="hl-voice-row"
+                  style={{
+                    borderLeft: `3px solid ${dye}`,
+                    paddingLeft: 18,
+                    borderBottom: '1px solid var(--rule)',
+                  }}
+                >
+                  {/* Ledger row — serif title left; mono right cluster */}
+                  <div
+                    style={{
+                      display: 'flex', alignItems: 'baseline', gap: 16, flexWrap: 'wrap',
+                      padding: '16px 0',
+                    }}
+                  >
+                    {/* Title — serif, click-through toggles playback */}
+                    <button
+                      type="button"
+                      aria-label={isPlaying ? 'Stop voice recording' : 'Play voice recording'}
+                      aria-expanded={isPlaying}
+                      aria-controls={`audio-${entry.id}`}
+                      onClick={() => handlePlay(entry.id)}
+                      style={{
+                        flex: '1 1 240px', minWidth: 0, textAlign: 'left',
+                        background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                      }}
+                    >
+                      <span
+                        className="hl-voice-title"
+                        style={{
+                          fontFamily: 'var(--serif)',
+                          fontStyle: entry.title ? 'normal' : 'italic',
+                          fontWeight: 400, fontSize: 19, lineHeight: 1.3,
+                          color: 'var(--bone)', display: 'block',
+                          transition: `color 180ms ${EASE}`,
+                        }}
+                      >
+                        {titleText}
+                      </span>
+                    </button>
+
+                    {/* Right cluster — year · dye dot · author · duration */}
+                    <span style={{
+                      display: 'flex', alignItems: 'center', gap: 9, whiteSpace: 'nowrap',
+                      fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em',
+                      flex: '0 0 auto',
+                    }}>
+                      <span style={{ color: 'var(--bone-faint)' }}>{year}</span>
+                      <WarmDot color={dye} size={5} />
+                      {author && (
+                        <span style={{ color: dye, textTransform: 'uppercase', letterSpacing: '0.16em' }}>
+                          {author}
+                        </span>
+                      )}
+                      {duration && <span style={{ color: 'var(--bone-faint)' }}>{duration}</span>}
+                    </span>
+                  </div>
+
+                  {/* Quiet mono affordance row — PLAY/PAUSE + edit / delete */}
+                  <div style={{
+                    display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap',
+                    paddingBottom: 16,
                   }}>
-                    {duration ? `voice · ${duration}` : 'voice'}
-                  </span>
-                  <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
+                    <button
+                      type="button"
+                      aria-label={isPlaying ? 'Stop voice recording' : 'Play voice recording'}
+                      aria-expanded={isPlaying}
+                      aria-controls={`audio-${entry.id}`}
+                      onClick={() => handlePlay(entry.id)}
+                      className="hl-voice-play"
+                      disabled={!entry.fileUrl}
+                      style={{
+                        background: 'transparent', border: 0, padding: 0,
+                        cursor: entry.fileUrl ? 'pointer' : 'default',
+                        fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                        textTransform: 'uppercase',
+                        color: isPlaying ? 'var(--warm-bright)' : 'var(--warm)',
+                        opacity: entry.fileUrl ? 1 : 0.4,
+                        transition: `color 180ms ${EASE}`,
+                      }}
+                    >
+                      {isPlaying
+                        ? `pause${audioDuration > 0 ? ` · ${formatTime(currentTime)}` : ''}`
+                        : 'play'}
+                    </button>
+
                     {!isEditing && (
                       <button
                         type="button"
@@ -244,25 +322,25 @@ export function VoiceRoom() {
                           setEditError(null);
                         }}
                         style={{
-                          background: 'transparent', border: 0,
+                          background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                           fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em',
-                          textTransform: 'uppercase', color: 'var(--bone-low)',
-                          padding: '4px 0', cursor: 'pointer',
+                          textTransform: 'uppercase', color: 'var(--bone-dim)',
                         }}
                       >
                         edit
                       </button>
                     )}
+
                     {confirmDeleteId === entry.id ? (
-                      <span style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                      <span style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                         <button
                           type="button"
                           onClick={() => deleteVoice.mutate(entry.id)}
                           disabled={deleteVoice.isPending}
                           style={{
-                            background: 'transparent', border: 0, padding: '4px 0',
+                            background: 'transparent', border: 0, padding: 0,
                             cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9,
-                            letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--danger)',
+                            letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)',
                           }}
                         >
                           {deleteVoice.isPending ? '…' : 'yes →'}
@@ -271,7 +349,7 @@ export function VoiceRoom() {
                           type="button"
                           onClick={() => setConfirmDeleteId(null)}
                           style={{
-                            background: 'transparent', border: 0, padding: '4px 0',
+                            background: 'transparent', border: 0, padding: 0,
                             cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9,
                             letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)',
                           }}
@@ -284,220 +362,152 @@ export function VoiceRoom() {
                         type="button"
                         onClick={() => setConfirmDeleteId(entry.id)}
                         style={{
-                          background: 'transparent', border: 0, padding: '4px 0',
+                          background: 'transparent', border: 0, padding: 0,
                           cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9,
-                          letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-low)',
+                          letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-dim)',
                         }}
-                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; }}
-                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-low)'; }}
                       >
                         delete
                       </button>
                     )}
                   </div>
-                </div>
 
-                {/* Optional title — serif, italic */}
-                {!isEditing && entry.title && (
-                  <p className="hl-serif hl-italic" style={{
-                    fontSize: 16,
-                    fontWeight: 300, color: 'var(--bone)', lineHeight: 1.4, margin: '0 0 24px',
-                  }}>
-                    {entry.title}
-                  </p>
-                )}
-
-                {/* Waveform — the one warm gesture, full-width row of thin bars */}
-                <div
-                  aria-hidden
-                  style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    height: 64, marginBottom: 28,
-                  }}
-                >
-                  {waveformHeights.map((h, i) => {
-                    // When playing, light the bars up to the current playback position.
-                    const progress = isPlaying && audioDuration > 0 ? currentTime / audioDuration : 0;
-                    const played = isPlaying && i / waveformHeights.length <= progress;
-                    return (
-                      <div
-                        key={i}
-                        style={{
-                          width: 2, height: h,
-                          background: 'var(--warm)',
-                          opacity: played ? 0.95 : isPlaying ? 0.5 : 0.55,
-                          flexShrink: 0,
-                          transition: `opacity 360ms ${EASE}`,
+                  {/* Playing — hairline scrub progress + hidden audio element */}
+                  {isPlaying && entry.fileUrl && (
+                    <div id={`audio-${entry.id}`} style={{ animation: `hl-fade 360ms ${EASE}`, paddingBottom: 18 }}>
+                      <div style={{ height: 1, background: 'var(--rule)', position: 'relative' }}>
+                        <div style={{ position: 'absolute', left: 0, top: 0, height: 1, background: 'var(--warm)', width: `${audioDuration ? (currentTime / audioDuration) * 100 : 0}%`, transition: `width 360ms ${EASE}` }} />
+                      </div>
+                      <div style={{ marginTop: 8, fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.1em', color: 'var(--bone-faint)' }}>
+                        {formatTime(currentTime)} / {formatTime(audioDuration)}
+                      </div>
+                      <audio
+                        ref={(el) => { audioRef.current = el; }}
+                        src={entry.fileUrl}
+                        autoPlay
+                        style={{ display: 'none' }}
+                        onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
+                        onLoadedMetadata={(e) => setAudioDuration(e.currentTarget.duration)}
+                        onEnded={() => {
+                          setPlayingId(null);
+                          setCurrentTime(0);
+                          setAudioDuration(0);
                         }}
                       />
-                    );
-                  })}
-                </div>
-
-                {/* Timecode — mono, centered, large */}
-                <div style={{
-                  textAlign: 'center',
-                  fontFamily: 'var(--mono)', fontSize: 22, letterSpacing: '0.08em',
-                  color: 'var(--bone)', marginBottom: 28,
-                }}>
-                  {isPlaying && audioDuration > 0 ? formatTime(currentTime) : (duration || '0:00')}
-                </div>
-
-                {/* Play / stop control — warm circular, centered */}
-                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 48 }}>
-                  <button
-                    type="button"
-                    aria-label={isPlaying ? 'Stop voice recording' : 'Play voice recording'}
-                    aria-expanded={isPlaying}
-                    aria-controls={`audio-${entry.id}`}
-                    onClick={() => handlePlay(entry.id)}
-                    className="hl-voice-stop"
-                    style={{
-                      background: 'transparent',
-                      border: `1px solid ${isPlaying ? 'var(--warm)' : 'var(--warm-dim)'}`,
-                      borderRadius: '50%',
-                      width: 60, height: 60,
-                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                      cursor: 'pointer',
-                      fontFamily: 'var(--mono)', fontSize: 15,
-                      color: 'var(--warm)',
-                      lineHeight: 1,
-                      transition: `color 180ms ${EASE}, border-color 180ms ${EASE}`,
-                    }}
-                  >
-                    {isPlaying ? '■' : '▶'}
-                  </button>
-                </div>
-
-                {/* Hidden audio element + scrub progress when playing */}
-                {isPlaying && entry.fileUrl && (
-                  <div id={`audio-${entry.id}`} style={{ animation: `hl-fade 360ms ${EASE}`, marginBottom: 36 }}>
-                    <div style={{ height: 1, background: 'var(--rule)', position: 'relative' }}>
-                      <div style={{ position: 'absolute', left: 0, top: 0, height: 1, background: 'var(--warm)', width: `${audioDuration ? (currentTime / audioDuration) * 100 : 0}%`, transition: `width 360ms ${EASE}` }} />
                     </div>
-                    <div style={{ textAlign: 'center', marginTop: 8, fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.1em', color: 'var(--bone-faint)' }}>
-                      {formatTime(currentTime)} / {formatTime(audioDuration)}
-                    </div>
-                    <audio
-                      ref={(el) => { audioRef.current = el; }}
-                      src={entry.fileUrl}
-                      autoPlay
-                      style={{ display: 'none' }}
-                      onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-                      onLoadedMetadata={(e) => setAudioDuration(e.currentTarget.duration)}
-                      onEnded={() => {
-                        setPlayingId(null);
-                        setCurrentTime(0);
-                        setAudioDuration(0);
-                      }}
-                    />
-                  </div>
-                )}
+                  )}
 
-                {/* WHAT YOU SAID — serif heading + transcript prose */}
-                {!isEditing && entry.transcript && (
-                  <div>
-                    <h2 className="hl-serif" style={{
-                      fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 400,
-                      letterSpacing: '0.04em', textTransform: 'uppercase',
-                      color: 'var(--bone)', lineHeight: 1.1, margin: '0 0 22px',
-                    }}>
-                      What you said
-                    </h2>
-                    <p className="hl-serif" style={{
-                      fontFamily: 'var(--serif)', fontSize: 16, fontWeight: 300,
-                      color: 'var(--bone-dim)', lineHeight: 1.72, margin: 0,
-                    }}>
-                      {entry.transcript}
-                    </p>
-                  </div>
-                )}
-
-                {/* FIND BETTER WORDS — refine entry point */}
-                {!isEditing && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEditingId(entry.id);
-                      setEditTitle(entry.title ?? '');
-                      setEditDesc(entry.description ?? entry.transcript ?? '');
-                      setEditError(null);
-                    }}
-                    style={{
-                      background: 'transparent', border: 0, padding: '4px 0',
-                      marginTop: entry.transcript ? 28 : 0,
-                      cursor: 'pointer',
-                      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
-                      textTransform: 'uppercase', color: 'var(--warm)',
-                    }}
-                  >
-                    find better words
-                  </button>
-                )}
-
-                {/* Inline edit / refine form */}
-                {isEditing && (
-                  <div style={{ marginTop: 8 }}>
-                    <input
-                      value={editTitle}
-                      onChange={(e) => { setEditTitle(e.target.value); setEditError(null); }}
-                      placeholder="title — optional"
-                      aria-label="Title"
-                      autoFocus
-                      style={{ ...FIELD_STYLE, marginBottom: 12 }}
-                    />
-                    <textarea
-                      value={editDesc}
-                      onChange={(e) => { setEditDesc(e.target.value); setEditError(null); }}
-                      placeholder="description — optional"
-                      aria-label="Description"
-                      rows={3}
-                      style={{ ...FIELD_STYLE, resize: 'none' }}
-                    />
-                    {editError && (
-                      <p style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--danger)', margin: '4px 0 0', letterSpacing: '0.1em' }}>
-                        {editError}
+                  {/* Transcript — serif prose */}
+                  {!isEditing && entry.transcript && (
+                    <div style={{ paddingBottom: 18, maxWidth: '52ch' }}>
+                      <div style={{
+                        fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.24em',
+                        textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 12,
+                      }}>
+                        what you said
+                      </div>
+                      <p className="hl-serif" style={{
+                        fontFamily: 'var(--serif)', fontSize: 16, fontWeight: 300,
+                        color: 'var(--bone-dim)', lineHeight: 1.72, margin: 0,
+                      }}>
+                        {entry.transcript}
                       </p>
-                    )}
-                    <div style={{ marginTop: 16 }}>
-                      <VoiceRefine
-                        kind="memory"
-                        onPick={(text) => { setEditDesc((prev) => (prev.trim() ? `${prev.trim()}\n\n${text}` : text)); setEditError(null); }}
+                    </div>
+                  )}
+
+                  {/* FIND BETTER WORDS — refine entry point */}
+                  {!isEditing && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingId(entry.id);
+                        setEditTitle(entry.title ?? '');
+                        setEditDesc(entry.description ?? entry.transcript ?? '');
+                        setEditError(null);
+                      }}
+                      style={{
+                        background: 'transparent', border: 0, padding: 0,
+                        marginBottom: 18,
+                        cursor: 'pointer',
+                        fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                        textTransform: 'uppercase', color: 'var(--warm)',
+                      }}
+                    >
+                      find better words
+                    </button>
+                  )}
+
+                  {/* Inline edit / refine form */}
+                  {isEditing && (
+                    <div style={{ paddingBottom: 24 }}>
+                      <input
+                        value={editTitle}
+                        onChange={(e) => { setEditTitle(e.target.value); setEditError(null); }}
+                        placeholder="title — optional"
+                        aria-label="Title"
+                        autoFocus
+                        style={{ ...FIELD_STYLE, marginBottom: 12 }}
                       />
+                      <textarea
+                        value={editDesc}
+                        onChange={(e) => { setEditDesc(e.target.value); setEditError(null); }}
+                        placeholder="description — optional"
+                        aria-label="Description"
+                        rows={3}
+                        style={{ ...FIELD_STYLE, resize: 'none' }}
+                      />
+                      {editError && (
+                        <p style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--warm)', margin: '4px 0 0', letterSpacing: '0.1em' }}>
+                          {editError}
+                        </p>
+                      )}
+                      <div style={{ marginTop: 16 }}>
+                        <VoiceRefine
+                          kind="memory"
+                          onPick={(text) => { setEditDesc((prev) => (prev.trim() ? `${prev.trim()}\n\n${text}` : text)); setEditError(null); }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', gap: 16, marginTop: 20, alignItems: 'center' }}>
+                        <button
+                          type="button"
+                          onClick={() => updateVoice.mutate({ id: entry.id, title: editTitle, description: editDesc })}
+                          disabled={updateVoice.isPending}
+                          style={{
+                            background: 'transparent', border: '1px solid var(--warm)', padding: '8px 16px',
+                            cursor: updateVoice.isPending ? 'wait' : 'pointer',
+                            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
+                            textTransform: 'uppercase', color: 'var(--warm)',
+                            opacity: updateVoice.isPending ? 0.6 : 1,
+                          }}
+                        >
+                          {updateVoice.isPending ? 'saving…' : 'save →'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setEditingId(null); setEditError(null); }}
+                          style={{
+                            background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
+                            textTransform: 'uppercase', color: 'var(--bone-faint)',
+                          }}
+                        >
+                          cancel
+                        </button>
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 16, marginTop: 20, alignItems: 'center' }}>
-                      <button
-                        type="button"
-                        onClick={() => updateVoice.mutate({ id: entry.id, title: editTitle, description: editDesc })}
-                        disabled={updateVoice.isPending}
-                        style={{
-                          background: 'transparent', border: '1px solid var(--warm)', padding: '8px 16px',
-                          cursor: updateVoice.isPending ? 'wait' : 'pointer',
-                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
-                          textTransform: 'uppercase', color: 'var(--warm)',
-                          opacity: updateVoice.isPending ? 0.6 : 1,
-                        }}
-                      >
-                        {updateVoice.isPending ? 'saving…' : 'save →'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => { setEditingId(null); setEditError(null); }}
-                        style={{
-                          background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
-                          textTransform: 'uppercase', color: 'var(--bone-faint)',
-                        }}
-                      >
-                        cancel
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </article>
-            );
-          })}
-        </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        )}
+
+        {/* The ∞ resting warm at the foot of the ledger */}
+        {!isLoading && !isError && recordings.length > 0 && (
+          <div style={{ marginTop: 72 }}>
+            <WaxSeal />
+          </div>
+        )}
       </div>
     </ClothShell>
   );

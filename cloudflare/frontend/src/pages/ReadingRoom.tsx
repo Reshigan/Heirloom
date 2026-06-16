@@ -590,10 +590,10 @@ export function ReadingRoom() {
                   fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
                   textTransform: 'uppercase', color: 'rgba(244,236,216,0.25)',
                 }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--danger)'; }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(244,236,216,0.25)'; }}
               >
-                delete
+                unweave
               </button>
             </>
           )}
@@ -609,10 +609,10 @@ export function ReadingRoom() {
                 style={{
                   background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                   fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
-                  textTransform: 'uppercase', color: 'var(--danger)',
+                  textTransform: 'uppercase', color: 'var(--warm)',
                 }}
               >
-                {deleteEntry.isPending ? 'removing…' : 'yes, remove →'}
+                {deleteEntry.isPending ? 'unweaving…' : 'yes, unweave →'}
               </button>
               <button
                 type="button"

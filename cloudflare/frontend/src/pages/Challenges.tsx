@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { challengesApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 export function Challenges() {
   const queryClient = useQueryClient();
@@ -98,6 +98,30 @@ export function Challenges() {
     resize: 'none',
   };
 
+  // A quiet mono text affordance — the only kind of action this ledger carries.
+  const affordance: React.CSSProperties = {
+    fontFamily: 'var(--mono)',
+    fontSize: 11,
+    letterSpacing: '0.18em',
+    textTransform: 'uppercase',
+    color: 'var(--warm)',
+    background: 'none',
+    border: 0,
+    padding: 0,
+    cursor: 'pointer',
+  };
+  const affordanceQuiet: React.CSSProperties = {
+    ...affordance,
+    color: 'var(--bone-dim)',
+  };
+
+  const metaText: React.CSSProperties = {
+    fontFamily: 'var(--mono)',
+    fontSize: 11,
+    letterSpacing: '0.14em',
+    textTransform: 'uppercase',
+  };
+
   const backLink = (
     <Link
       to="/loom/index"
@@ -114,287 +138,177 @@ export function Challenges() {
     </Link>
   );
 
+  const upcoming = challenges
+    ? (challenges as any[]).filter((c: any) => new Date(c.start_date) > new Date())
+    : [];
+
+  // Ledger eyebrow states the count + kind, like "47 WOVEN".
+  const eyebrow = isLoading
+    ? 'CHALLENGES'
+    : currentChallenge
+    ? `1 ACTIVE · ${upcoming.length} COMING`
+    : upcoming.length > 0
+    ? `${upcoming.length} COMING`
+    : 'NO ACTIVE THREAD';
+
   return (
     <ClothShell topbarLeft={backLink} topbarCenter="challenges">
-      <div style={{ padding: '40px 0' }}>
+      <div style={{ maxWidth: 760, margin: '0 auto', padding: '40px clamp(16px, 4vw, 40px) 80px' }}>
 
-        {/* Page header */}
-        <header style={{ marginBottom: 40, padding: '0 clamp(16px, 4vw, 40px)' }}>
-          <RoomHeader eyebrow="challenges" title="Your challenges." />
-        </header>
+        <CosmicHeader eyebrow={eyebrow} title="The weaving challenges." />
 
         {isLoading ? (
           <p
             className="hl-serif hl-italic"
-            style={{ color: 'var(--bone-faint)', padding: '0 clamp(16px, 4vw, 40px)' }}
+            style={{ color: 'var(--bone-faint)', fontSize: 16 }}
           >
             Loading…
           </p>
         ) : (
-          <div style={{ display: 'grid', gap: 0 }}>
-
-            {/* Current challenge */}
+          <>
+            {/* Active challenge — the prompt as a ledger entry, its meta on the right */}
             {currentChallenge ? (
-              <section
-                style={{
-                  borderTop: '1px solid var(--rule)',
-                  padding: '20px clamp(16px, 4vw, 40px)',
-                }}
-              >
-                <p className="hl-eyebrow" style={{ marginBottom: 20 }}>This week</p>
+              <section>
+                <SectionLabel>This week</SectionLabel>
 
-                <style>{`
-                  .challenges-current { grid-template-columns: 1fr 1fr; }
-                  .challenges-how { grid-template-columns: repeat(3, 1fr); }
-                  .challenges-upcoming { grid-template-columns: 140px 1fr; }
-                  @media (max-width: 680px) {
-                    .challenges-current { grid-template-columns: 1fr; }
-                    .challenges-how { grid-template-columns: 1fr; }
-                    .challenges-upcoming { grid-template-columns: 1fr; }
-                    .challenges-upcoming-date { margin-bottom: 4px; }
-                  }
-                `}</style>
-                <div className="challenges-current" style={{ display: 'grid', gap: 48 }}>
-                  <div>
+                <div style={{ borderBottom: '1px solid var(--rule)', padding: '15px 0' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 20, flexWrap: 'wrap' }}>
                     <h2
                       className="hl-serif"
-                      style={{ fontSize: 28, fontWeight: 300, margin: '0 0 12px', lineHeight: 1.2, color: 'var(--bone)' }}
+                      style={{ flex: 1, minWidth: 0, fontSize: 22, fontWeight: 400, margin: 0, lineHeight: 1.25, color: 'var(--bone)' }}
                     >
                       {currentChallenge.title}
                     </h2>
-                    <p
-                      className="hl-prose"
-                      style={{ fontSize: 15, color: 'var(--bone-dim)', margin: '0 0 20px', lineHeight: 1.7 }}
-                    >
-                      {currentChallenge.description}
-                    </p>
-
-                    <div
-                      style={{
-                        borderLeft: '1px solid var(--rule)',
-                        paddingLeft: 16,
-                        marginBottom: 24,
-                      }}
-                    >
-                      <p className="hl-eyebrow" style={{ marginBottom: 6 }}>This week's prompt</p>
-                      <p
-                        className="hl-serif hl-italic"
-                        style={{ fontSize: 15, color: 'var(--bone)', margin: 0 }}
-                      >
-                        "{currentChallenge.prompt}"
-                      </p>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: 24, marginBottom: 24 }}>
-                      <span
-                        className="hl-mono"
-                        style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.06em' }}
-                      >
-                        {currentChallenge.hashtag}
-                      </span>
-                      <span
-                        className="hl-mono"
-                        style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}
-                      >
-                        {getDaysRemaining(currentChallenge.end_date)} days remaining
-                      </span>
-                      <span
-                        className="hl-mono"
-                        style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}
-                      >
-                        {currentChallenge.submissionCount || 0} entries
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                      <button
-                        type="button"
-                        onClick={() => setShowSubmitModal(true)}
-                        className="hl-btn"
-                      >
-                        add to thread
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleShare('twitter')}
-                        className="hl-btn ghost"
-                      >
-                        share · X
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleShare('instagram')}
-                        className="hl-btn ghost"
-                      >
-                        {copiedPlatform === 'instagram' ? 'copied' : 'share · Instagram'}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleShare('facebook')}
-                        className="hl-btn ghost"
-                      >
-                        share · Facebook
-                      </button>
-                    </div>
+                    <span style={{ ...metaText, color: 'var(--bone-faint)', whiteSpace: 'nowrap', flex: '0 0 auto' }}>
+                      {getDaysRemaining(currentChallenge.end_date)} days · {currentChallenge.submissionCount || 0} entries
+                    </span>
                   </div>
 
-                  <div style={{ borderLeft: '1px solid var(--rule)', paddingLeft: 32 }}>
-                    <p className="hl-eyebrow" style={{ marginBottom: 16 }}>Recent entries</p>
-                    {submissions && (submissions as any[]).length > 0 ? (
-                      <div style={{ display: 'grid', gap: 16 }}>
-                        {(submissions as any[]).slice(0, 5).map((sub: any) => (
-                          <div key={sub.id} style={{ paddingBottom: 16, borderBottom: '1px solid var(--rule)' }}>
-                            <p
-                              className="hl-mono"
-                              style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.06em', margin: '0 0 4px' }}
-                            >
-                              {sub.first_name}{sub.last_name ? ` ${sub.last_name[0]}.` : ''}
-                            </p>
-                            <p
-                              className="hl-prose"
-                              style={{
-                                fontSize: 14,
-                                color: 'var(--bone-dim)',
-                                margin: 0,
-                                lineHeight: 1.6,
-                                display: '-webkit-box',
-                                WebkitLineClamp: 2,
-                                WebkitBoxOrient: 'vertical',
-                                overflow: 'hidden',
-                              }}
-                            >
-                              {sub.content}
-                            </p>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div style={{ paddingTop: 24, textAlign: 'center' }}>
-                        <p className="hl-mono" style={{ fontSize: 22, color: 'var(--warm)', marginBottom: 8 }}>∞</p>
-                        <p
-                          className="hl-serif hl-italic"
-                          style={{ fontSize: 14, color: 'var(--bone-faint)', margin: 0 }}
-                        >
-                          No entries yet. Be the first to weave this thread.
-                        </p>
-                      </div>
-                    )}
+                  <p
+                    className="hl-prose"
+                    style={{ fontSize: 15, color: 'var(--bone-dim)', margin: '10px 0 0', lineHeight: 1.7 }}
+                  >
+                    {currentChallenge.description}
+                  </p>
+
+                  <p
+                    className="hl-serif hl-italic"
+                    style={{ fontSize: 16, color: 'var(--bone)', margin: '16px 0 0', lineHeight: 1.5 }}
+                  >
+                    "{currentChallenge.prompt}"
+                  </p>
+
+                  <p style={{ ...metaText, color: 'var(--warm)', margin: '14px 0 0' }}>
+                    {currentChallenge.hashtag}
+                  </p>
+
+                  <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap', marginTop: 20, alignItems: 'baseline' }}>
+                    <button type="button" onClick={() => setShowSubmitModal(true)} style={affordance}>
+                      add to thread →
+                    </button>
+                    <button type="button" onClick={() => handleShare('twitter')} style={affordanceQuiet}>
+                      share · X
+                    </button>
+                    <button type="button" onClick={() => handleShare('instagram')} style={affordanceQuiet}>
+                      {copiedPlatform === 'instagram' ? 'copied' : 'share · Instagram'}
+                    </button>
+                    <button type="button" onClick={() => handleShare('facebook')} style={affordanceQuiet}>
+                      share · Facebook
+                    </button>
                   </div>
                 </div>
+
+                {/* Recent entries — a quiet sub-ledger */}
+                <SectionLabel>Recent entries</SectionLabel>
+                {submissions && (submissions as any[]).length > 0 ? (
+                  <div>
+                    {(submissions as any[]).slice(0, 5).map((sub: any) => (
+                      <div key={sub.id} style={{ borderBottom: '1px solid var(--rule)', padding: '14px 0' }}>
+                        <span style={{ ...metaText, color: 'var(--warm)' }}>
+                          {sub.first_name}{sub.last_name ? ` ${sub.last_name[0]}.` : ''}
+                        </span>
+                        <p
+                          className="hl-serif hl-italic"
+                          style={{
+                            fontSize: 15,
+                            color: 'var(--bone-dim)',
+                            margin: '6px 0 0',
+                            lineHeight: 1.55,
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          {sub.content}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p
+                    className="hl-serif hl-italic"
+                    style={{ fontSize: 15, color: 'var(--bone-dim)', textAlign: 'center', padding: '24px 0', margin: 0 }}
+                  >
+                    No entries yet. Be the first to weave this thread.
+                  </p>
+                )}
               </section>
             ) : (
-              <div
-                style={{
-                  borderTop: '1px solid var(--rule)',
-                  padding: 'clamp(24px, 5vw, 60px) clamp(16px, 4vw, 40px)',
-                  textAlign: 'center',
-                }}
+              <p
+                className="hl-serif hl-italic"
+                style={{ fontSize: 17, color: 'var(--bone-dim)', textAlign: 'center', padding: '40px 0', margin: 0, lineHeight: 1.6 }}
               >
-                <p className="hl-mono" style={{ fontSize: 22, color: 'var(--warm)', marginBottom: 12 }}>∞</p>
-                <h2
-                  className="hl-serif hl-italic"
-                  style={{ fontSize: 24, fontWeight: 300, margin: '0 0 8px', color: 'var(--bone)' }}
-                >
-                  No active challenge.
-                </h2>
-                <p
-                  className="hl-serif hl-italic"
-                  style={{ fontSize: 15, color: 'var(--bone-faint)', margin: 0 }}
-                >
-                  Check back soon for the next weekly theme.
-                </p>
-              </div>
+                No active challenge.<br />
+                <span style={{ fontSize: 15, color: 'var(--bone-faint)' }}>Check back soon for the next weekly theme.</span>
+              </p>
             )}
 
-            {/* Upcoming challenges */}
-            {challenges && (challenges as any[]).filter((c: any) => new Date(c.start_date) > new Date()).length > 0 && (
-              <section style={{ borderTop: '1px solid var(--rule)', padding: '20px clamp(16px, 4vw, 40px)' }}>
-                <p className="hl-eyebrow" style={{ marginBottom: 20 }}>Coming threads</p>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                  {(challenges as any[])
-                    .filter((c: any) => new Date(c.start_date) > new Date())
-                    .slice(0, 6)
-                    .map((challenge: any) => (
-                      <li
-                        key={challenge.id}
-                        role="button"
-                        tabIndex={0}
-                        style={{
-                          borderTop: '1px solid var(--rule)',
-                          padding: '20px 0',
-                          cursor: 'pointer',
-                        }}
-                        onClick={() => setSelectedChallenge(challenge)}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedChallenge(challenge); } }}
-                      >
-                        <article className="challenges-upcoming" style={{ display: 'grid', gap: 32, alignItems: 'baseline' }}>
-                          <p
-                            className="hl-mono"
-                            style={{ margin: 0, fontSize: 10, letterSpacing: '0.04em', color: 'var(--warm)' }}
-                          >
-                            {new Date(challenge.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                          </p>
-                          <div>
-                            <h3
-                              className="hl-serif"
-                              style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)', margin: '0 0 8px', lineHeight: 1.3 }}
-                            >
-                              {challenge.title}
-                            </h3>
-                            <p
-                              className="hl-prose"
-                              style={{ fontSize: 15, color: 'var(--bone-dim)', margin: 0, lineHeight: 1.6 }}
-                            >
-                              {challenge.description}
-                            </p>
-                            <p
-                              className="hl-mono"
-                              style={{ margin: '8px 0 0', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em' }}
-                            >
-                              {challenge.hashtag}
-                            </p>
-                          </div>
-                        </article>
-                      </li>
-                    ))}
-                </ul>
+            {/* Coming threads — EntryRow list, prompt left, start date right */}
+            {upcoming.length > 0 && (
+              <section>
+                <SectionLabel>Coming threads</SectionLabel>
+                {upcoming.slice(0, 6).map((challenge: any) => (
+                  <EntryRow
+                    key={challenge.id}
+                    title={challenge.title}
+                    sub={challenge.description}
+                    meta={new Date(challenge.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    onClick={() => setSelectedChallenge(challenge)}
+                  />
+                ))}
               </section>
             )}
 
-            {/* How it works */}
-            <section style={{ borderTop: '1px solid var(--rule)', padding: '20px clamp(16px, 4vw, 40px)' }}>
-              <p className="hl-eyebrow" style={{ marginBottom: 32 }}>How challenges work</p>
-              <div className="challenges-how" style={{ display: 'grid', gap: 40 }}>
-                {[
-                  { n: '01', h: 'A theme arrives.', b: 'Each week a new prompt surfaces — something to bring from memory into the thread.' },
-                  { n: '02', h: 'You write into it.', b: 'Add an entry, a voice note, or a letter. The prompt is the door; what you bring is the thread.' },
-                  { n: '03', h: 'The thread continues.', b: 'Share with your bloodline or across platforms. The weaving never stops.' },
-                ].map(({ n, h, b }) => (
-                  <div key={n}>
-                    <p
-                      className="hl-mono"
-                      style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.06em', margin: '0 0 10px' }}
-                    >
-                      {n}
-                    </p>
-                    <h3
-                      className="hl-serif"
-                      style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)', margin: '0 0 8px' }}
-                    >
+            {/* How it works — numbered ledger rows */}
+            <section>
+              <SectionLabel>How challenges work</SectionLabel>
+              {[
+                { n: '01', h: 'A theme arrives.', b: 'Each week a new prompt surfaces — something to bring from memory into the thread.' },
+                { n: '02', h: 'You write into it.', b: 'Add an entry, a voice note, or a letter. The prompt is the door; what you bring is the thread.' },
+                { n: '03', h: 'The thread continues.', b: 'Share with your bloodline or across platforms. The weaving never stops.' },
+              ].map(({ n, h, b }) => (
+                <div
+                  key={n}
+                  style={{ display: 'flex', alignItems: 'baseline', gap: 20, borderBottom: '1px solid var(--rule)', padding: '15px 0' }}
+                >
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span className="hl-serif" style={{ fontSize: 18, fontWeight: 400, color: 'var(--bone)', display: 'block', lineHeight: 1.3 }}>
                       {h}
-                    </h3>
-                    <p
-                      className="hl-prose"
-                      style={{ fontSize: 14, color: 'var(--bone-faint)', margin: 0, lineHeight: 1.7 }}
-                    >
+                    </span>
+                    <span className="hl-prose" style={{ fontSize: 14, color: 'var(--bone-faint)', display: 'block', marginTop: 4, lineHeight: 1.6 }}>
                       {b}
-                    </p>
-                  </div>
-                ))}
-              </div>
+                    </span>
+                  </span>
+                  <span style={{ ...metaText, color: 'var(--warm)', flex: '0 0 auto' }}>{n}</span>
+                </div>
+              ))}
             </section>
 
-          </div>
+            <div style={{ marginTop: 64 }}>
+              <WaxSeal />
+            </div>
+          </>
         )}
       </div>
 
@@ -418,12 +332,12 @@ export function Challenges() {
             }}
             onClick={e => e.stopPropagation()}
           >
-            <p className="hl-eyebrow" style={{ marginBottom: 12 }}>
+            <p style={{ ...metaText, color: 'var(--bone-faint)', margin: '0 0 12px' }}>
               {currentChallenge.title}
             </p>
             <h3
               className="hl-serif hl-italic"
-              style={{ fontSize: 22, fontWeight: 300, color: 'var(--bone)', margin: '0 0 6px' }}
+              style={{ fontSize: 22, fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px' }}
             >
               Add your entry.
             </h3>
@@ -458,22 +372,26 @@ export function Challenges() {
             </div>
 
             {submitError && (
-              <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 11, margin: '0 0 12px' }}>
+              <p style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.06em', margin: '0 0 12px' }}>
                 {submitError}
               </p>
             )}
 
-            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
-              <button type="button" onClick={() => setShowSubmitModal(false)} className="hl-btn ghost">
+            <div style={{ display: 'flex', gap: 28, justifyContent: 'flex-end', alignItems: 'baseline' }}>
+              <button type="button" onClick={() => setShowSubmitModal(false)} style={affordanceQuiet}>
                 cancel
               </button>
               <button
                 type="button"
                 onClick={() => submitMutation.mutate({ challengeId: currentChallenge.id, content: submissionContent })}
                 disabled={!submissionContent.trim() || submitMutation.isPending}
-                className="hl-btn"
+                style={{
+                  ...affordance,
+                  opacity: (!submissionContent.trim() || submitMutation.isPending) ? 0.4 : 1,
+                  cursor: (!submissionContent.trim() || submitMutation.isPending) ? 'default' : 'pointer',
+                }}
               >
-                {submitMutation.isPending ? 'weaving…' : 'add to thread'}
+                {submitMutation.isPending ? 'weaving…' : 'add to thread →'}
               </button>
             </div>
           </div>
@@ -500,15 +418,12 @@ export function Challenges() {
             }}
             onClick={e => e.stopPropagation()}
           >
-            <p
-              className="hl-mono"
-              style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.06em', margin: '0 0 10px' }}
-            >
+            <p style={{ ...metaText, color: 'var(--warm)', margin: '0 0 10px' }}>
               starts {new Date(selectedChallenge.start_date).toLocaleDateString()}
             </p>
             <h3
               className="hl-serif"
-              style={{ fontSize: 24, fontWeight: 300, color: 'var(--bone)', margin: '0 0 10px' }}
+              style={{ fontSize: 24, fontWeight: 400, color: 'var(--bone)', margin: '0 0 10px' }}
             >
               {selectedChallenge.title}
             </h3>
@@ -519,8 +434,8 @@ export function Challenges() {
               {selectedChallenge.description}
             </p>
 
-            <div style={{ borderLeft: '1px solid var(--rule)', paddingLeft: 16, marginBottom: 20 }}>
-              <p className="hl-eyebrow" style={{ marginBottom: 6 }}>Prompt</p>
+            <div style={{ borderLeft: '3px solid var(--warm-dim)', paddingLeft: 16, marginBottom: 20 }}>
+              <p style={{ ...metaText, fontSize: 10, letterSpacing: '0.22em', color: 'var(--bone-faint)', margin: '0 0 6px' }}>Prompt</p>
               <p
                 className="hl-serif hl-italic"
                 style={{ fontSize: 15, color: 'var(--bone)', margin: 0 }}
@@ -530,8 +445,8 @@ export function Challenges() {
             </div>
 
             <div style={{ display: 'flex', gap: 20 }}>
-              <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{selectedChallenge.hashtag}</span>
-              <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>
+              <span style={{ ...metaText, color: 'var(--bone-faint)' }}>{selectedChallenge.hashtag}</span>
+              <span style={{ ...metaText, color: 'var(--bone-faint)' }}>
                 {selectedChallenge.duration_days
                   ? `${selectedChallenge.duration_days} days`
                   : selectedChallenge.start_date && selectedChallenge.end_date
@@ -541,7 +456,7 @@ export function Challenges() {
             </div>
 
             <div style={{ marginTop: 24, textAlign: 'right' }}>
-              <button type="button" onClick={() => setSelectedChallenge(null)} className="hl-btn ghost">close</button>
+              <button type="button" onClick={() => setSelectedChallenge(null)} style={affordanceQuiet}>close</button>
             </div>
           </div>
         </div>

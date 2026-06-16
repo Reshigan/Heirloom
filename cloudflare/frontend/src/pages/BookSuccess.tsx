@@ -2,6 +2,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
@@ -31,93 +32,56 @@ export function BookSuccess() {
           alignItems: 'center',
         }}
       >
-        {/* The bound volume — a black-linen hardcover standing on the ink, its
-            title and volume line gold-embossed into the cloth. */}
+        {/* CEREMONY: large glowing warm ∞ at the top */}
         <div
+          aria-hidden
           style={{
-            position: 'relative',
-            width: 'clamp(220px, 70vw, 300px)',
-            aspectRatio: '5 / 7',
-            background: '#14110d',
-            // near-invisible linen weave — kept under the eye, never glassy
-            backgroundImage:
-              'repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0 1px, transparent 1px 2px)',
-            border: '1px solid rgba(176,122,74,0.25)',
-            borderRadius: 2,
-            boxShadow: '0 24px 60px rgba(0,0,0,0.6)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 28,
-            padding: '14% 12%',
-            boxSizing: 'border-box',
+            fontSize: 'clamp(40px,10vw,64px)',
+            lineHeight: 1,
+            color: 'var(--warm)',
+            textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
+            marginBottom: 40,
           }}
         >
-          {/* Embossed wax ∞ seal — an oval ring holding the only mark */}
-          <span
-            aria-hidden
-            style={{
-              width: 64,
-              height: 52,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid var(--warm)',
-              borderRadius: '50%',
-              flex: '0 0 auto',
-            }}
-          >
-            <span
-              style={{
-                fontSize: 30,
-                lineHeight: 1,
-                color: 'var(--warm-bright)',
-                textShadow: '0 0 18px var(--warm-glow), 0 1px 0 rgba(0,0,0,0.6)',
-              }}
-            >
-              ∞
-            </span>
-          </span>
-
-          {/* Embossed title */}
-          <h1
-            className="hl-serif"
-            style={{
-              fontSize: 'clamp(24px, 4vw, 32px)',
-              fontWeight: 400,
-              color: 'var(--warm-bright)',
-              textShadow: '0 1px 0 rgba(0,0,0,0.6)',
-              lineHeight: 1.16,
-              margin: 0,
-            }}
-          >
-            {title}
-          </h1>
-
-          {/* Volume + year range */}
-          <p
-            className="hl-mono"
-            style={{
-              fontSize: 10,
-              letterSpacing: '0.3em',
-              textTransform: 'uppercase',
-              color: 'var(--warm-dim)',
-              margin: 0,
-            }}
-          >
-            {volume} · {range}
-          </p>
+          ∞
         </div>
 
-        {/* Quiet confirmation */}
+        {/* Serif title */}
+        <h1
+          className="hl-serif"
+          style={{
+            fontSize: 'clamp(24px,5vw,34px)',
+            fontWeight: 400,
+            color: 'var(--bone)',
+            lineHeight: 1.16,
+            margin: '0 0 20px',
+          }}
+        >
+          {title}
+        </h1>
+
+        {/* Mono warm meta uppercase */}
+        <p
+          className="hl-mono"
+          style={{
+            fontSize: 11,
+            letterSpacing: '0.26em',
+            textTransform: 'uppercase',
+            color: 'var(--warm)',
+            margin: '0 0 32px',
+          }}
+        >
+          {volume} · {range}
+        </p>
+
+        {/* Serif-italic dim byline */}
         <p
           className="hl-serif"
           style={{
-            fontSize: 16,
+            fontSize: 17,
             color: 'var(--bone-dim)',
             fontStyle: 'italic',
-            margin: '48px 0 0',
+            margin: '0 0 52px',
             maxWidth: 380,
             lineHeight: 1.6,
           }}
@@ -125,7 +89,7 @@ export function BookSuccess() {
           Your volume is bound. We'll email you when it ships.
         </p>
 
-        {/* The volume's actions — quiet mono links, each keeping its route */}
+        {/* Actions — mono warm primary CTA + quiet secondary */}
         <div
           style={{
             display: 'flex',
@@ -133,7 +97,6 @@ export function BookSuccess() {
             justifyContent: 'center',
             flexWrap: 'wrap',
             gap: 28,
-            margin: '40px auto 0',
             paddingTop: 32,
             borderTop: '1px solid var(--rule)',
             width: '100%',
@@ -157,6 +120,7 @@ export function BookSuccess() {
           >
             Back to the loom
           </Link>
+          {/* Mono warm primary action — pill radius sanctioned on single primary CTA */}
           <Link
             to="/book-builder"
             className="hl-mono"
@@ -164,18 +128,22 @@ export function BookSuccess() {
               display: 'inline-flex',
               alignItems: 'center',
               minHeight: 44,
+              padding: '0 22px',
               fontSize: 11,
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
               color: 'var(--warm)',
               textDecoration: 'none',
-              transition: `color 180ms ${EASE}`,
+              border: '1px solid var(--warm)',
+              borderRadius: 9999,
+              transition: `color 180ms ${EASE}, border-color 180ms ${EASE}`,
             }}
           >
             Bind another →
           </Link>
         </div>
 
+        {/* Session id — faint mono reference, preserved */}
         {sessionId && (
           <p
             className="hl-mono"
@@ -190,6 +158,11 @@ export function BookSuccess() {
             {sessionId}
           </p>
         )}
+
+        {/* WaxSeal foot */}
+        <div style={{ marginTop: 64 }}>
+          <WaxSeal size={22} />
+        </div>
       </div>
     </ClothShell>
   );

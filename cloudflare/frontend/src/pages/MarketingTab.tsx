@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { marketingApi } from '../services/api';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 /* ── Inline status (replaces alert) ──────────────────────────────── */
 type StatusTone = 'ok' | 'err';
@@ -24,16 +25,15 @@ function InlineStatus({ status }: { status: InlineStatusApi }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status.state?.key]);
   if (!status.state) return null;
-  const warm = status.state.tone === 'ok';
+  const ok = status.state.tone === 'ok';
   return (
     <div
       role="status"
       style={{
-        marginBottom: 20, padding: '8px 14px',
-        background: 'var(--ink)',
-        border: `1px solid ${warm ? 'var(--rule-warm)' : 'rgba(194,90,90,0.35)'}`,
-        fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.04em',
-        color: warm ? 'var(--warm)' : 'var(--danger)',
+        marginBottom: 20,
+        fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em',
+        textTransform: 'uppercase',
+        color: ok ? 'var(--warm)' : 'var(--bone-dim)',
       }}
     >
       {status.state.msg}
@@ -127,6 +127,28 @@ const labelStyle: React.CSSProperties = {
   marginBottom: 6,
 };
 
+/* ── Mono text affordance — quiet, never an icon button ────────────── */
+const affordanceStyle: React.CSSProperties = {
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  fontFamily: 'var(--mono)',
+  fontSize: 11,
+  letterSpacing: '0.22em',
+  textTransform: 'uppercase',
+  cursor: 'pointer',
+  transition: 'color 180ms var(--loom-ease)',
+};
+
+/* Mono right-cluster meta — year + faint label, for ledger rows. */
+function RowMeta({ children }: { children: React.ReactNode }) {
+  return (
+    <span style={{ display: 'flex', alignItems: 'center', gap: 12, whiteSpace: 'nowrap', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', flex: '0 0 auto' }}>
+      {children}
+    </span>
+  );
+}
+
 export function MarketingTab() {
   const queryClient = useQueryClient();
   const status = useInlineStatus();
@@ -188,33 +210,40 @@ export function MarketingTab() {
     { id: 'signups', label: 'Creator Signups' },
   ];
 
+  // Mono eyebrow stating count + kind for the active ledger.
+  const counts = {
+    influencers: influencers?.influencers?.length ?? 0,
+    campaigns: campaigns?.campaigns?.length ?? 0,
+    content: content?.content?.length ?? 0,
+    signups: creatorSignups?.signups?.length ?? 0,
+  };
+  const eyebrow =
+    activeSubTab === 'influencers' ? `${counts.influencers} THREADS` :
+    activeSubTab === 'campaigns' ? `${counts.campaigns} CAMPAIGNS` :
+    activeSubTab === 'content' ? `${counts.content} ENTRIES` :
+    `${counts.signups} SIGNUPS`;
+
   return (
     <div style={{ color: 'var(--bone)' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
-        <div>
-          <p className="loom-eyebrow" style={{ marginBottom: 10 }}>Marketing</p>
-          <h2 className="loom-h2" style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 300, fontStyle: 'italic', margin: 0 }}>
-            Outreach & campaigns.
-          </h2>
-        </div>
-        <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-          <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => setShowImportModal(true)}>
-            Import CSV
-          </button>
-          <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => setShowInfluencerModal(true)}>
-            Add Thread
-          </button>
-          <button className="loom-btn" style={{ fontSize: 11 }} onClick={() => setShowCampaignModal(true)}>
-            New Campaign
-          </button>
-        </div>
+      <CosmicHeader eyebrow={eyebrow} title="Outreach & campaigns." />
+
+      {/* Quiet mono control affordances */}
+      <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap', marginBottom: 28 }}>
+        <button style={{ ...affordanceStyle, color: 'var(--bone-dim)' }} onClick={() => setShowImportModal(true)}>
+          Import CSV
+        </button>
+        <button style={{ ...affordanceStyle, color: 'var(--bone-dim)' }} onClick={() => setShowInfluencerModal(true)}>
+          Add Thread
+        </button>
+        <button style={{ ...affordanceStyle, color: 'var(--warm)' }} onClick={() => setShowCampaignModal(true)}>
+          New Campaign
+        </button>
       </div>
 
       <InlineStatus status={status} />
 
       {/* Sub-tab nav */}
-      <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--rule)', marginBottom: 28 }}>
+      <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap', borderBottom: '1px solid var(--rule)', marginBottom: 28 }}>
         {subTabs.map(({ id, label }) => (
           <button
             key={id}
@@ -224,7 +253,8 @@ export function MarketingTab() {
               border: 'none',
               borderBottom: activeSubTab === id ? '1px solid var(--warm)' : '1px solid transparent',
               marginBottom: -1,
-              padding: '8px 16px',
+              padding: '8px 16px 8px 0',
+              marginRight: 24,
               fontFamily: 'var(--mono)',
               fontSize: 10,
               letterSpacing: '0.18em',
@@ -242,7 +272,7 @@ export function MarketingTab() {
       {/* Influencers tab */}
       {activeSubTab === 'influencers' && (
         <div>
-          <div style={{ display: 'flex', gap: 12, marginBottom: 20, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 12, marginBottom: 24, alignItems: 'center', flexWrap: 'wrap' }}>
             <select
               value={selectedSegment}
               onChange={(e) => setSelectedSegment(e.target.value)}
@@ -259,186 +289,127 @@ export function MarketingTab() {
               <option value="">All Statuses</option>
               {INFLUENCER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
-            <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>
+            <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
               {influencers?.influencers?.length || 0} threads
             </span>
           </div>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--rule)' }}>
-                  {['Name', 'Email', 'Platform', 'Segment', 'Status', 'Last Contact'].map(h => (
-                    <th key={h} style={{ textAlign: 'left', padding: '8px 16px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', fontWeight: 400 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {loadingInfluencers ? (
-                  <tr><td colSpan={6} style={{ padding: '32px 16px' }}><ProgressHair label="Loading…" /></td></tr>
-                ) : influencers?.influencers?.length === 0 ? (
-                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 12 }}>No threads yet. Import or add some.</td></tr>
-                ) : (
-                  influencers?.influencers?.map((inf: any) => (
-                    <tr key={inf.id} style={{ borderBottom: '1px solid var(--rule)' }}>
-                      <td style={{ padding: '12px 16px' }}>
-                        <div style={{ color: 'var(--bone)', fontSize: 14 }}>{inf.name}</div>
-                        {inf.handle && <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>@{inf.handle}</div>}
-                      </td>
-                      <td style={{ padding: '12px 16px', color: 'var(--bone-dim)', fontSize: 13 }}>{inf.email}</td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--rule)', color: 'var(--bone-dim)' }}>
-                          {inf.platform}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--rule)', color: 'var(--bone-dim)' }}>
-                          {inf.segment}
-                        </span>
-                      </td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <StatusBadge status={inf.status} />
-                      </td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>
-                          {inf.last_contacted_at ? new Date(inf.last_contacted_at).toLocaleDateString() : '—'}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          {loadingInfluencers ? (
+            <div style={{ padding: '32px 0' }}><ProgressHair label="Loading…" /></div>
+          ) : influencers?.influencers?.length === 0 ? (
+            <EmptyLine listen="Import or add some.">No threads yet.</EmptyLine>
+          ) : (
+            <div>
+              {influencers?.influencers?.map((inf: any) => (
+                <EntryRow
+                  key={inf.id}
+                  title={inf.name}
+                  sub={[inf.email, inf.handle ? `@${inf.handle}` : null].filter(Boolean).join('  ·  ')}
+                  meta={
+                    <RowMeta>
+                      <span style={{ color: 'var(--bone-faint)' }}>{inf.platform}</span>
+                      <span style={{ color: 'var(--bone-faint)' }}>{inf.segment}</span>
+                      <StatusBadge status={inf.status} />
+                      <span style={{ color: 'var(--bone-faint)' }}>
+                        {inf.last_contacted_at ? new Date(inf.last_contacted_at).toLocaleDateString() : '—'}
+                      </span>
+                    </RowMeta>
+                  }
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       {/* Campaigns tab */}
       {activeSubTab === 'campaigns' && (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid var(--rule)' }}>
-                {['Campaign', 'Type', 'Status', 'Sent', 'Opens', 'Created'].map(h => (
-                  <th key={h} style={{ textAlign: 'left', padding: '8px 16px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', fontWeight: 400 }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {campaigns?.campaigns?.length === 0 ? (
-                <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 12 }}>No campaigns yet.</td></tr>
-              ) : (
-                campaigns?.campaigns?.map((c: any) => (
-                  <tr key={c.id} style={{ borderBottom: '1px solid var(--rule)' }}>
-                    <td style={{ padding: '12px 16px' }}>
-                      <div style={{ color: 'var(--bone)', fontSize: 14 }}>{c.name}</div>
-                      <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{c.subject_line}</div>
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--rule-warm)', color: 'var(--warm)' }}>
-                        {c.campaign_type}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <StatusBadge status={c.status} />
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span className="loom-mono" style={{ fontSize: 13, color: 'var(--bone)' }}>{c.sent_count || 0}</span>
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span className="loom-mono" style={{ fontSize: 13, color: 'var(--bone)' }}>{c.open_count || 0}</span>
-                    </td>
-                    <td style={{ padding: '12px 16px' }}>
-                      <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>
-                        {new Date(c.created_at).toLocaleDateString()}
-                      </span>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        <div>
+          {campaigns?.campaigns?.length === 0 ? (
+            <EmptyLine>No campaigns yet.</EmptyLine>
+          ) : (
+            campaigns?.campaigns?.map((c: any) => (
+              <EntryRow
+                key={c.id}
+                title={c.name}
+                sub={c.subject_line}
+                meta={
+                  <RowMeta>
+                    <span style={{ color: 'var(--warm)' }}>{c.campaign_type}</span>
+                    <StatusBadge status={c.status} />
+                    <span style={{ color: 'var(--bone-faint)' }}>{c.sent_count || 0} sent</span>
+                    <span style={{ color: 'var(--bone-faint)' }}>{c.open_count || 0} opens</span>
+                    <span style={{ color: 'var(--bone-faint)' }}>{new Date(c.created_at).toLocaleDateString()}</span>
+                  </RowMeta>
+                }
+              />
+            ))
+          )}
         </div>
       )}
 
       {/* Creator Signups tab */}
       {activeSubTab === 'signups' && (
         <div>
-          <p className="loom-body" style={{ fontSize: 14, color: 'var(--bone-dim)', marginBottom: 20 }}>
+          <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 15, color: 'var(--bone-dim)', marginBottom: 24, lineHeight: 1.55, maxWidth: '34em' }}>
             Creators who signed up through the public form. Approve to add to the thread database.
           </p>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--rule)' }}>
-                  {['Name', 'Email', 'Platform', 'Why Interested', 'Status', ''].map(h => (
-                    <th key={h} style={{ textAlign: h === '' ? 'right' : 'left', padding: '8px 16px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', fontWeight: 400 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {creatorSignups?.signups?.length === 0 ? (
-                  <tr><td colSpan={6} style={{ textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 12 }}>No signups yet.</td></tr>
-                ) : (
-                  creatorSignups?.signups?.map((s: any) => (
-                    <tr key={s.id} style={{ borderBottom: '1px solid var(--rule)' }}>
-                      <td style={{ padding: '12px 16px', color: 'var(--bone)', fontSize: 14 }}>{s.name}</td>
-                      <td style={{ padding: '12px 16px', color: 'var(--bone-dim)', fontSize: 13 }}>{s.email}</td>
-                      <td style={{ padding: '12px 16px', color: 'var(--bone-dim)', fontSize: 13 }}>{s.platform || '—'}</td>
-                      <td style={{ padding: '12px 16px', color: 'var(--bone-faint)', fontSize: 13, maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.why_interested || '—'}</td>
-                      <td style={{ padding: '12px 16px' }}>
-                        <StatusBadge status={s.status} />
-                      </td>
-                      <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                        {s.status === 'NEW' && (
-                          <button
-                            onClick={() => approveSignupMutation.mutate(s.id)}
-                            disabled={approveSignupMutation.isPending}
-                            className="loom-btn"
-                            style={{ fontSize: 10, padding: '4px 12px' }}
-                          >
-                            Approve
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+          {creatorSignups?.signups?.length === 0 ? (
+            <EmptyLine>No signups yet.</EmptyLine>
+          ) : (
+            creatorSignups?.signups?.map((s: any) => (
+              <EntryRow
+                key={s.id}
+                title={s.name}
+                sub={[s.email, s.platform || null, s.why_interested || null].filter(Boolean).join('  ·  ')}
+                meta={
+                  <RowMeta>
+                    <StatusBadge status={s.status} />
+                    {s.status === 'NEW' && (
+                      <button
+                        onClick={() => approveSignupMutation.mutate(s.id)}
+                        disabled={approveSignupMutation.isPending}
+                        style={{ ...affordanceStyle, color: 'var(--warm)', opacity: approveSignupMutation.isPending ? 0.4 : 1 }}
+                      >
+                        Approve
+                      </button>
+                    )}
+                  </RowMeta>
+                }
+              />
+            ))
+          )}
         </div>
       )}
 
       {/* Content Library tab */}
       {activeSubTab === 'content' && (
         <div>
-          <p className="loom-body" style={{ fontSize: 14, color: 'var(--bone-dim)', marginBottom: 24 }}>
-            Marketing content, captions, and templates.
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 1 }}>
-            {content?.content?.length === 0 ? (
-              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '40px 16px', color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 12 }}>No content yet.</div>
-            ) : (
-              content?.content?.map((c: any) => (
-                <div key={c.id} style={{ border: '1px solid var(--rule)', padding: '20px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                    <div style={{ color: 'var(--bone)', fontSize: 14 }}>{c.title}</div>
-                    <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', border: '1px solid var(--rule)', color: 'var(--bone-faint)', flexShrink: 0, marginLeft: 8 }}>
-                      {c.platform}
-                    </span>
-                  </div>
-                  <p style={{ color: 'var(--bone-dim)', fontSize: 13, lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{c.caption || c.body}</p>
-                  <div style={{ display: 'flex', gap: 8, marginTop: 14, alignItems: 'center' }}>
+          <SectionLabel>Marketing content, captions, and templates</SectionLabel>
+          {content?.content?.length === 0 ? (
+            <EmptyLine>No content yet.</EmptyLine>
+          ) : (
+            content?.content?.map((c: any) => (
+              <EntryRow
+                key={c.id}
+                title={c.title}
+                sub={c.caption || c.body}
+                meta={
+                  <RowMeta>
+                    <span style={{ color: 'var(--bone-faint)' }}>{c.platform}</span>
                     <StatusBadge status={c.status} />
-                    {c.theme && <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{c.theme}</span>}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+                    {c.theme && <span style={{ color: 'var(--bone-faint)' }}>{c.theme}</span>}
+                  </RowMeta>
+                }
+              />
+            ))
+          )}
         </div>
       )}
+
+      <div style={{ marginTop: 64 }}>
+        <WaxSeal />
+      </div>
 
       {showImportModal && (
         <ImportInfluencersModal
@@ -462,20 +433,27 @@ export function MarketingTab() {
   );
 }
 
-/* ── StatusBadge ─────────────────────────────────────────────────── */
-function StatusBadge({ status }: { status: string }) {
-  const WARM = { border: '1px solid var(--rule-warm)', color: 'var(--warm)' };
-  const FAINT = { border: '1px solid var(--rule)', color: 'var(--bone-faint)' };
-  const ERR = { border: '1px solid rgba(194,90,90,0.35)', color: 'var(--danger)' };
-
-  const s: React.CSSProperties = (
-    ['CONTACTED','RESPONDED','INTERESTED','PARTNERED','SENDING','COMPLETED','APPROVED','CONVERTED'].includes(status) ? WARM :
-    ['DECLINED','UNSUBSCRIBED'].includes(status) ? ERR :
-    FAINT
-  );
-
+/* ── Empty state — centered serif-italic line + quiet listener prompt ── */
+function EmptyLine({ children, listen }: { children: React.ReactNode; listen?: string }) {
   return (
-    <span className="loom-mono" style={{ fontSize: 10, padding: '3px 7px', letterSpacing: '0.12em', ...s }}>
+    <div style={{ textAlign: 'center', padding: '64px 16px' }}>
+      <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 18, color: 'var(--bone-dim)', margin: 0, lineHeight: 1.5 }}>
+        {children}
+      </p>
+      {listen && (
+        <p style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', margin: '14px 0 0' }}>
+          {listen}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/* ── StatusBadge — mono text, warm or dim (never red) ──────────────── */
+function StatusBadge({ status }: { status: string }) {
+  const warm = ['CONTACTED','RESPONDED','INTERESTED','PARTNERED','SENDING','COMPLETED','APPROVED','CONVERTED'].includes(status);
+  return (
+    <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', color: warm ? 'var(--warm)' : 'var(--bone-faint)' }}>
       {status}
     </span>
   );

@@ -2,11 +2,11 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { RoomHeader } from '../loom/components/room';
 import { useListener } from '../hooks/useListener';
 import { useTapestryEntries } from '../hooks/useTapestryEntries';
 import { useAuthStore } from '../stores/authStore';
 import { aiApi, engagementApi } from '../services/api';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 interface OnThisDayEntry {
   id: string;
@@ -60,6 +60,7 @@ export function Today() {
         setOnThisDayError(true);
       });
   }, [isAuthenticated]);
+
   const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
@@ -90,46 +91,72 @@ export function Today() {
           transform: revealed ? 'translateY(0)' : 'translateY(14px)',
           transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
         }}>
-          <RoomHeader
+          {/* LEDGER header — entry no. 0001 eyebrow + serif title */}
+          <CosmicHeader
             eyebrow="entry no. 0001"
-            warmEyebrow
             title={<>There is someone who needs to read this.<br />Just not yet.</>}
-            lede="Write a letter today. Seal it for a date, a milestone, a death — or the moment you choose. It holds safe and finds them exactly when you intended."
-            className="hl-room-header"
+            sub="Write a letter today. Seal it for a date, a milestone, a death — or the moment you choose. It holds safe and finds them exactly when you intended."
           />
-          <style>{`.hl-room-header { margin-bottom: 36px; }`}</style>
 
-          {/* Sealed letter preview */}
+          {/* Sealed letter preview — left warm thread + mono label */}
           <div style={{
             display: 'inline-flex', flexDirection: 'column', gap: 6,
             padding: '12px 16px 12px 18px',
-            border: '1px solid rgba(244,236,216,0.10)',
             borderLeft: '2px solid rgba(176,122,74,0.55)',
-            marginBottom: 32,
+            marginBottom: 40,
           }}>
-            <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+            <div style={{
+              fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.26em',
+              textTransform: 'uppercase', color: 'var(--bone-faint)',
+            }}>
               sealed · delivery: your choice
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span className="hl-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>∞</span>
-              <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
+              <span style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>∞</span>
+              <span style={{ fontFamily: 'var(--serif)', fontSize: 13, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
                 your first letter — written today
               </span>
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link to="/compose" className="hl-btn">Write your first sealed letter →</Link>
-            <Link to="/record" style={{
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
-              color: 'var(--bone-dim)', textDecoration: 'none', borderBottom: '1px solid var(--rule)', paddingBottom: 1,
-            }}>or record a voice →</Link>
+          {/* Compose CTAs — mono text affordances */}
+          <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap', marginBottom: 52 }}>
+            <Link
+              to="/compose"
+              style={{
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none',
+                borderBottom: '1px solid var(--warm)', paddingBottom: 2,
+                minHeight: 44, display: 'inline-flex', alignItems: 'center',
+              }}
+            >
+              write your first sealed letter →
+            </Link>
+            <Link
+              to="/record"
+              style={{
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
+                textTransform: 'uppercase', color: 'var(--bone-dim)', textDecoration: 'none',
+                borderBottom: '1px solid var(--rule)', paddingBottom: 2,
+                minHeight: 44, display: 'inline-flex', alignItems: 'center',
+              }}
+            >
+              or record a voice →
+            </Link>
           </div>
 
-          <div style={{ marginTop: 52, borderTop: '1px solid var(--rule)', paddingTop: 20 }}>
-            <div className="hl-eyebrow" style={{ marginBottom: 10, color: 'var(--bone-faint)' }}>the listener</div>
-            <p className="hl-serif" style={{ fontSize: 15, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.7, margin: 0, maxWidth: '44ch' }}>
-              {promptUnavailable ? 'prompt unavailable' : prompt}
+          {/* The Listener prompt */}
+          <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 20 }}>
+            <SectionLabel>the listener</SectionLabel>
+            <p style={{
+              fontFamily: 'var(--serif)', fontSize: 15, fontStyle: 'italic',
+              color: 'var(--bone-faint)', lineHeight: 1.7, margin: '8px 0 0', maxWidth: '44ch',
+            }}>
+              {promptUnavailable ? (
+                <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em', color: 'var(--bone-dim)' }}>
+                  prompt unavailable
+                </span>
+              ) : prompt}
             </p>
           </div>
         </div>
@@ -139,105 +166,101 @@ export function Today() {
 
   return (
     <ClothShell topbarLeft={todayTopbar}>
-      {/* ── Content: flex column filling full height ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* ── Content: top third of screen ── */}
       <div style={{
-        padding: 'var(--page-pad-top) var(--page-pad-x) 0',
+        padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         maxWidth: 720,
         width: '100%',
-        alignSelf: 'center',
+        margin: '0 auto',
         opacity: revealed ? 1 : 0,
         transform: revealed ? 'translateY(0)' : 'translateY(14px)',
         transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
       }}>
-        {/* eyebrow: tonight's prompt time */}
-        <div
-          className="hl-eyebrow loom-today-eyebrow"
-          style={{ marginBottom: 22 }}
-        >
-          tonight · 8 pm
-        </div>
+        {/* LEDGER header — "tonight · 8 pm" eyebrow + the listener's daily question */}
+        <CosmicHeader
+          eyebrow="tonight · 8 pm"
+          title={promptUnavailable ? (
+            <span style={{ color: 'var(--bone-dim)', fontStyle: 'italic' }}>prompt unavailable</span>
+          ) : prompt}
+        />
 
-        {/* The Listener's daily question */}
-        <h1
-          className="hl-serif hl-tight loom-today-headline"
-          style={{
-            fontSize: 'clamp(28px, 4.4vw, 48px)',
-            fontWeight: 300,
-            lineHeight: 1.12,
-            margin: 0,
-            color: 'var(--bone)',
-            fontVariationSettings: '"opsz" 48',
-          }}
-        >
-          {prompt}
-        </h1>
-
-        {/* CTA */}
-        <div className="loom-today-cta" style={{ marginTop: 36, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Link to="/compose" className="hl-btn">write now</Link>
+        {/* Compose CTAs — mono text affordances */}
+        <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap', marginBottom: 48 }}>
+          <Link
+            to="/compose"
+            style={{
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+              textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none',
+              borderBottom: '1px solid var(--warm)', paddingBottom: 2,
+              minHeight: 44, display: 'inline-flex', alignItems: 'center',
+            }}
+          >
+            write now →
+          </Link>
           <Link
             to="/record"
             style={{
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.20em', textTransform: 'uppercase',
-              color: 'var(--bone-dim)', textDecoration: 'none',
-              borderBottom: '1px solid var(--rule)', paddingBottom: 1,
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.20em',
+              textTransform: 'uppercase', color: 'var(--bone-dim)', textDecoration: 'none',
+              borderBottom: '1px solid var(--rule)', paddingBottom: 2,
+              minHeight: 44, display: 'inline-flex', alignItems: 'center',
             }}
           >
             or speak →
           </Link>
         </div>
 
-        {/* Recent voices */}
+        {/* Recent voices — EntryRow list */}
         {contributors.length > 0 && (
-          <div
-            className="loom-today-family"
-            style={{ marginTop: 52, borderTop: '1px solid var(--rule)', paddingTop: 20,
-              opacity: revealed ? 1 : 0, transition: `opacity 1400ms ${ease}`, transitionDelay: '360ms' }}
-          >
-            <div className="hl-eyebrow" style={{ marginBottom: 12 }}>recent voices</div>
-            <div style={{ display: 'flex', gap: 28 }}>
-              {contributors.map((c) => (
-                <span key={c.author} className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-                  {String(c.author ?? '').slice(0, 8)}
-                </span>
-              ))}
-            </div>
+          <div style={{
+            opacity: revealed ? 1 : 0,
+            transition: `opacity 1400ms ${ease}`,
+            transitionDelay: '360ms',
+          }}>
+            <SectionLabel>recent voices</SectionLabel>
+            {contributors.map((c) => (
+              <EntryRow
+                key={String(c.author)}
+                title={String(c.author ?? '')}
+                author={String(c.author ?? '').slice(0, 8).toUpperCase()}
+              />
+            ))}
           </div>
         )}
 
-        {/* On this day — real data when authenticated */}
+        {/* On this day — EntryRow list */}
         {(onThisDay.length > 0 || onThisDayError) && (
-          <div
-            style={{ marginTop: 40, borderTop: '1px solid var(--rule)', paddingTop: 20,
-              opacity: revealed ? 1 : 0, transition: `opacity 1400ms ${ease}`, transitionDelay: '540ms' }}
-          >
-            <div className="hl-eyebrow" style={{ marginBottom: 14 }}>on this day</div>
+          <div style={{
+            opacity: revealed ? 1 : 0,
+            transition: `opacity 1400ms ${ease}`,
+            transitionDelay: '540ms',
+          }}>
+            <SectionLabel>on this day</SectionLabel>
             {onThisDayError ? (
-              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', fontStyle: 'italic', letterSpacing: '0.08em', margin: 0 }}>
+              <p style={{
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em',
+                color: 'var(--bone-dim)', margin: '8px 0 0',
+              }}>
                 unavailable
               </p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {onThisDay.slice(0, 3).map((m) => (
-                  <div key={m.id} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                    {m.yearsAgo !== undefined && (
-                      <span className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-                        {m.yearsAgo} {m.yearsAgo === 1 ? 'year' : 'years'} ago
-                      </span>
-                    )}
-                    <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, color: 'var(--bone-dim)', fontStyle: 'italic', lineHeight: 1.5 }}>
-                      {m.title ?? m.description ?? '—'}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              onThisDay.slice(0, 3).map((m) => (
+                <EntryRow
+                  key={m.id}
+                  title={m.title ?? m.description ?? '—'}
+                  italic
+                  year={m.yearsAgo !== undefined
+                    ? `${m.yearsAgo} ${m.yearsAgo === 1 ? 'yr' : 'yrs'} ago`
+                    : undefined}
+                />
+              ))
             )}
           </div>
         )}
-      </div>
 
+        {/* WaxSeal foot */}
+        <div style={{ marginTop: 64, paddingBottom: 24 }}>
+          <WaxSeal size={28} />
+        </div>
       </div>
     </ClothShell>
   );

@@ -3,15 +3,19 @@ import { Link } from 'react-router-dom';
 import { searchApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 /**
- * QandA — Loom 3 "ask the thread" (RAG, cited).
+ * QandA — Loom 3 "ask the thread" (RAG, cited), Cosmic COMPOSER archetype.
  *
- * Ask a question of the family thread; the Listener answers from the
- * entries you are allowed to read, and cites every claim back to a
- * specific entry. Rendered as quiet Source Serif 4 prose with citations
- * as mono links beneath — never a chatbot bubble (§1.5C, the Listener
- * is one typographic surface).
+ * The Listener asks; you answer. The active question leads as a giant serif
+ * prompt under the mono eyebrow "THE LISTENER ASKS". The answer is set down
+ * the serif body surface; a bottom action bar carries the warm ASK pill, a
+ * mono date pill, and a SHUFFLE affordance that rotates the next question.
+ * Cited sources from the family thread are set down as quiet mono rows that
+ * open to the entry they were woven from. The Listener speaks only from what
+ * was truly written — never words it has invented (§1.5C, one typographic
+ * surface, never a chatbot bubble).
  *
  * ── Honesty caveat ──────────────────────────────────────────────────
  * There is NO RAG / "ask the archive" endpoint yet (searchApi.search is
@@ -64,6 +68,8 @@ const SUGGESTIONS = [
   'The years with the most about grief.',
 ];
 
+const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+
 export function QandA() {
   const [question, setQuestion] = useState('');
   const [state, setState] = useState<AskState>({ phase: 'idle' });
@@ -96,6 +102,24 @@ export function QandA() {
     void runQuery(question);
   }
 
+  /** SHUFFLE — drop a fresh prompt from the Listener into the field. */
+  function shuffle() {
+    const next = SUGGESTIONS[Math.floor(Math.random() * SUGGESTIONS.length)];
+    setQuestion(next);
+  }
+
+  // The active question leads as the giant serif prompt; idle invites one.
+  const leadQuestion =
+    state.phase === 'idle' ? null : (state as { question: string }).question;
+
+  const today = new Date().toLocaleDateString(undefined, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+
+  const canAsk = question.trim().length >= 2 && state.phase !== 'asking';
+
   return (
     <ClothShell
       topbarLeft={<Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>}
@@ -112,85 +136,85 @@ export function QandA() {
           paddingRight: 'var(--page-pad-x)',
         }}
       >
-        <div style={{ maxWidth: 560, margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* ── tiny mono eyebrow ── */}
-          <p
-            className="hl-mono"
+        <div style={{ maxWidth: 620, margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* ── mono eyebrow ── */}
+          <div
             style={{
-              fontSize: 10,
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
               letterSpacing: '0.28em',
               textTransform: 'uppercase',
-              color: 'var(--warm-dim)',
-              textAlign: 'center',
-              margin: '12px 0 22px',
+              color: 'var(--bone-faint)',
+              marginTop: 8,
+              marginBottom: 18,
             }}
           >
-            ask the thread
-          </p>
+            the listener asks
+          </div>
 
-          {/* ── the question, as a light serif prompt ── */}
+          {/* ── the question, as a giant serif prompt ── */}
           <h1
-            className="hl-serif"
             style={{
-              fontSize: 'clamp(28px, 7vw, 38px)',
-              fontWeight: 400,
-              lineHeight: 1.12,
-              letterSpacing: '-0.01em',
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(30px, 6vw, 46px)',
+              fontWeight: 380,
+              lineHeight: 1.06,
+              letterSpacing: '-0.012em',
               color: 'var(--bone)',
-              textAlign: 'center',
               margin: '0 0 36px',
+              fontVariationSettings: '"opsz" 40',
             }}
           >
-            {state.phase === 'idle'
-              ? 'What do you want to know?'
-              : (state as { question: string }).question}
+            {leadQuestion ?? 'What do you want to know?'}
           </h1>
 
-          {/* ── the oracle answer / states ── */}
+          {/* ── the Listener's answer / states ── */}
           <div style={{ flex: 1 }}>
-            {/* idle: quiet suggested questions */}
+            {/* idle: quiet suggested questions — the Listener offers prompts */}
             {state.phase === 'idle' && (
-              <div style={{ maxWidth: 420, margin: '0 auto' }}>
-                <p
-                  className="hl-mono"
+              <div>
+                <div
                   style={{
+                    fontFamily: 'var(--mono)',
                     fontSize: 10,
-                    letterSpacing: '0.28em',
+                    letterSpacing: '0.3em',
                     textTransform: 'uppercase',
                     color: 'var(--bone-faint)',
-                    textAlign: 'center',
-                    margin: '0 0 12px',
+                    margin: '0 0 6px',
                   }}
                 >
                   or ask
-                </p>
-                {SUGGESTIONS.map((s) => (
-                  <button
-                    key={s}
-                    type="button"
-                    onClick={() => void runQuery(s)}
-                    className="hl-serif"
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      textAlign: 'center',
-                      background: 'transparent',
-                      border: 0,
-                      padding: '11px 0',
-                      color: 'var(--bone-dim)',
-                      fontStyle: 'italic',
-                      fontSize: 16,
-                      lineHeight: 1.5,
-                      cursor: 'pointer',
-                      transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-                      fontWeight: 400,
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--bone)')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--bone-dim)')}
-                  >
-                    {s}
-                  </button>
-                ))}
+                </div>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                  {SUGGESTIONS.map((s) => (
+                    <li key={s} style={{ borderBottom: '1px solid var(--rule)' }}>
+                      <button
+                        type="button"
+                        onClick={() => void runQuery(s)}
+                        style={{
+                          display: 'block',
+                          width: '100%',
+                          textAlign: 'left',
+                          background: 'transparent',
+                          border: 0,
+                          padding: '14px 0',
+                          color: 'var(--bone-dim)',
+                          fontFamily: 'var(--serif)',
+                          fontStyle: 'italic',
+                          fontSize: 18,
+                          lineHeight: 1.5,
+                          cursor: 'pointer',
+                          transition: `color 180ms ${EASE}`,
+                          fontWeight: 400,
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--bone)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--bone-dim)')}
+                      >
+                        {s}
+                      </button>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
@@ -201,15 +225,16 @@ export function QandA() {
               </div>
             )}
 
-            {/* error */}
+            {/* error — inline mono line, warm (never red, never toast) */}
             {state.phase === 'error' && (
               <p
-                className="hl-prose"
                 style={{
-                  fontSize: 18,
-                  color: 'var(--bone-dim)',
-                  fontStyle: 'italic',
-                  lineHeight: 1.85,
+                  fontFamily: 'var(--mono)',
+                  fontSize: 12,
+                  letterSpacing: '0.04em',
+                  color: 'var(--warm)',
+                  lineHeight: 1.7,
+                  margin: 0,
                   paddingLeft: 18,
                   borderLeft: '1px solid var(--warm)',
                 }}
@@ -218,18 +243,18 @@ export function QandA() {
               </p>
             )}
 
-            {/* answered: flowing serif prose with a thin warm left-rule */}
+            {/* answered: flowing serif body with a thin warm left-rule */}
             {state.phase === 'answered' && (
               <div>
                 <p
-                  className="hl-prose"
                   style={{
-                    fontSize: 19,
+                    fontFamily: 'var(--serif)',
+                    fontSize: 18,
                     margin: 0,
                     color: 'var(--bone)',
-                    lineHeight: 1.85,
-                    paddingLeft: 18,
-                    borderLeft: '1px solid var(--warm)',
+                    lineHeight: 1.75,
+                    paddingLeft: 24,
+                    borderLeft: '3px solid var(--warm)',
                   }}
                 >
                   {state.sources.length > 0 ? (
@@ -261,9 +286,9 @@ export function QandA() {
                 )}
 
                 {/* archival footer label */}
-                <p
-                  className="hl-mono"
+                <div
                   style={{
+                    fontFamily: 'var(--mono)',
                     fontSize: 10,
                     letterSpacing: '0.22em',
                     textTransform: 'uppercase',
@@ -273,71 +298,127 @@ export function QandA() {
                 >
                   woven from {state.sources.length}{' '}
                   {state.sources.length === 1 ? 'memory' : 'memories'}
-                </p>
+                </div>
               </div>
             )}
           </div>
 
-          {/* ── single underlined input, pinned low, amber caret ── */}
+          {/* ── compose the answer: serif body surface + bottom action bar ── */}
           <form onSubmit={onSubmit} style={{ marginTop: 40 }}>
-            <p
-              className="hl-mono"
+            <div
               style={{
+                fontFamily: 'var(--mono)',
                 fontSize: 10,
                 letterSpacing: '0.28em',
                 textTransform: 'uppercase',
                 color: 'var(--warm-dim)',
-                margin: '0 0 10px',
+                margin: '0 0 12px',
               }}
             >
-              ask anything
-            </p>
+              your answer
+            </div>
+
+            {/* serif body answer surface — 18px / 1.75, warm caret, no box */}
+            <textarea
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="Answer in your own words…"
+              aria-label="Ask the thread"
+              rows={3}
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: 0,
+                borderBottom: '1px solid var(--warm)',
+                outline: 'none',
+                resize: 'none',
+                color: 'var(--bone)',
+                caretColor: 'var(--warm)',
+                fontFamily: 'var(--serif)',
+                fontSize: 18,
+                fontWeight: 400,
+                lineHeight: 1.75,
+                padding: '4px 0 14px',
+                letterSpacing: '-0.006em',
+              }}
+            />
+
+            {/* bottom action bar: ASK warm pill · date pill · shuffle */}
             <div
               style={{
                 display: 'flex',
-                alignItems: 'baseline',
-                borderBottom: '1px solid var(--warm)',
+                alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: 16,
+                marginTop: 18,
               }}
             >
-              <input
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                placeholder="…"
-                className="hl-serif"
-                aria-label="Ask the thread"
-                style={{
-                  flex: 1,
-                  background: 'transparent',
-                  border: 0,
-                  outline: 'none',
-                  color: 'var(--bone)',
-                  caretColor: 'var(--warm)',
-                  fontSize: 18,
-                  fontWeight: 400,
-                  padding: '12px 0',
-                  letterSpacing: '-0.006em',
-                }}
-              />
               <button
                 type="submit"
-                disabled={state.phase === 'asking' || question.trim().length < 2}
+                disabled={!canAsk}
                 style={{
-                  background: 'transparent',
-                  border: 0,
-                  cursor: question.trim().length < 2 ? 'default' : 'pointer',
-                  opacity: question.trim().length < 2 ? 0.35 : 1,
-                  padding: '12px 0 12px 16px',
-                  fontSize: 18,
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.2em',
+                  textTransform: 'uppercase',
+                  color: canAsk ? 'var(--ink)' : 'var(--warm)',
+                  background: canAsk ? 'var(--warm)' : 'transparent',
+                  border: '1px solid var(--warm)',
+                  borderRadius: 999,
+                  padding: '11px 22px',
+                  cursor: canAsk ? 'pointer' : 'default',
+                  opacity: canAsk ? 1 : 0.5,
                   whiteSpace: 'nowrap',
-                  fontFamily: 'var(--serif)',
-                  color: 'var(--warm)',
-                  transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                  transition: `opacity 180ms ${EASE}, background 180ms ${EASE}, color 180ms ${EASE}`,
                 }}
               >
-                →
+                ask →
+              </button>
+
+              <span
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  border: '1px solid var(--rule)',
+                  borderRadius: 999,
+                  padding: '8px 16px',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {today}
+              </span>
+
+              <button
+                type="button"
+                onClick={shuffle}
+                style={{
+                  marginLeft: 'auto',
+                  background: 'transparent',
+                  border: 0,
+                  cursor: 'pointer',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-dim)',
+                  padding: '8px 0',
+                  whiteSpace: 'nowrap',
+                  transition: `color 180ms ${EASE}`,
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--warm)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--bone-dim)')}
+              >
+                shuffle ∞
               </button>
             </div>
           </form>
+
+          <div style={{ marginTop: 40 }}>
+            <WaxSeal size={26} />
+          </div>
         </div>
       </div>
     </ClothShell>
@@ -353,11 +434,11 @@ function Citation({ index, source }: { index: number; source: SourceEntry }) {
     <li style={{ padding: '10px 0', borderTop: '1px solid var(--rule)' }}>
       <Link
         to={to}
-        className="hl-mono"
         style={{
           display: 'flex',
           alignItems: 'baseline',
           gap: 10,
+          fontFamily: 'var(--mono)',
           fontSize: 10,
           letterSpacing: '0.06em',
           color: 'var(--bone-faint)',

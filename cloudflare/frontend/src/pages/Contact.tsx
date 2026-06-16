@@ -2,8 +2,12 @@ import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
-import { RoomHeader } from '../loom/components/room';
 import { usePageMeta } from '../lib/usePageMeta';
+import {
+  CosmicHeader,
+  SectionLabel,
+  WaxSeal,
+} from '../loom/cosmic/CosmicUI';
 
 export function Contact() {
   usePageMeta('Contact', 'Get in touch with the Heirloom team.');
@@ -59,52 +63,117 @@ export function Contact() {
     color: 'var(--bone)',
     caretColor: 'var(--warm)',
     fontFamily: 'var(--serif)',
-    fontSize: 16,
+    fontSize: 18,
     lineHeight: 1.7,
-    padding: '10px 0',
+    padding: '12px 0',
     outline: 'none',
     boxSizing: 'border-box',
+    display: 'block',
   };
 
   return (
     <ClothShell topbarLeft={<HLogo />} topbarCenter="contact">
-      <div style={{ maxWidth: 'var(--page-max-prose)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
+      <div
+        style={{
+          maxWidth: 'var(--page-max-prose)',
+          margin: '0 auto',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+        }}
+      >
         {isSubmitted ? (
+          /* ── Success state ── */
           <div role="status" style={{ paddingTop: 40 }}>
-            <p
-              className="hl-serif"
-              style={{ fontSize: 32, color: 'var(--bone-faint)', margin: '0 0 28px', lineHeight: 1 }}
-              aria-hidden
-            >
-              ∞
-            </p>
+            <WaxSeal size={36} />
             <h1
               className="hl-serif hl-tight"
-              style={{ fontSize: 'var(--type-display)', fontWeight: 300, margin: '0 0 20px', color: 'var(--bone)' }}
+              style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 'clamp(34px,7vw,58px)',
+                fontWeight: 380,
+                lineHeight: 1.04,
+                color: 'var(--bone)',
+                margin: '28px 0 20px',
+              }}
             >
               Message sent.
             </h1>
             <p
-              className="hl-prose"
-              style={{ fontSize: 17, color: 'var(--bone-dim)', margin: '0 0 40px', lineHeight: 1.7 }}
+              style={{
+                fontFamily: 'var(--serif)',
+                fontStyle: 'italic',
+                fontSize: 17,
+                color: 'var(--bone-dim)',
+                margin: '0 0 40px',
+                lineHeight: 1.7,
+              }}
             >
               Thank you for reaching out. We'll get back to you within two business days.
             </p>
-            <Link to="/" className="hl-link warm" style={{ fontSize: 15 }}>
-              return home →
+            <Link
+              to="/"
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.26em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                textDecoration: 'none',
+              }}
+            >
+              Return home →
             </Link>
           </div>
         ) : (
+          /* ── Idle / submitting state ── */
           <>
-            <RoomHeader
+            <CosmicHeader
               eyebrow="contact"
               title="Write to us."
-              lede="We respond within two business days."
-              className="hl-room-header"
+              sub="We respond within two business days."
             />
 
-            <form onSubmit={handleSubmit} aria-label="Contact form" noValidate style={{ marginTop: 40 }}>
-              <div style={{ marginBottom: 18 }}>
+            {/* Contact channel */}
+            <SectionLabel>Where to find us</SectionLabel>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '14px 0',
+                borderBottom: '1px solid var(--rule)',
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: 'var(--sans)',
+                  fontSize: 14,
+                  color: 'var(--bone)',
+                }}
+              >
+                Office
+              </span>
+              <span
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.14em',
+                  color: 'var(--bone-dim)',
+                  textAlign: 'right',
+                }}
+              >
+                131 Continental Dr Suite 305, Newark, DE 19713, US
+              </span>
+            </div>
+
+            {/* Contact form */}
+            <SectionLabel>Send a message</SectionLabel>
+            <form
+              onSubmit={handleSubmit}
+              aria-label="Contact form"
+              noValidate
+              style={{ marginTop: 8 }}
+            >
+              <div style={{ marginBottom: 20 }}>
                 <input
                   id="c-name"
                   type="text"
@@ -115,7 +184,7 @@ export function Contact() {
                   style={inputStyle}
                 />
               </div>
-              <div style={{ marginBottom: 18 }}>
+              <div style={{ marginBottom: 20 }}>
                 <input
                   id="c-email"
                   type="email"
@@ -126,7 +195,7 @@ export function Contact() {
                   style={inputStyle}
                 />
               </div>
-              <div style={{ marginBottom: 18 }}>
+              <div style={{ marginBottom: 20 }}>
                 <input
                   id="c-subject"
                   type="text"
@@ -137,7 +206,7 @@ export function Contact() {
                   style={inputStyle}
                 />
               </div>
-              <div style={{ marginBottom: 24 }}>
+              <div style={{ marginBottom: 28 }}>
                 <textarea
                   id="c-message"
                   value={form.message}
@@ -154,7 +223,17 @@ export function Contact() {
               </div>
 
               {error ? (
-                <p role="alert" className="hl-prose" style={{ fontStyle: 'italic', color: 'var(--danger)', fontSize: 14, margin: '0 0 18px' }}>
+                <p
+                  role="alert"
+                  style={{
+                    fontFamily: 'var(--mono)',
+                    fontStyle: 'italic',
+                    fontSize: 12,
+                    letterSpacing: '0.08em',
+                    color: 'var(--warm)',
+                    margin: '0 0 20px',
+                  }}
+                >
                   {error}
                 </p>
               ) : null}
@@ -162,24 +241,30 @@ export function Contact() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="hl-btn"
-                style={{ opacity: isSubmitting ? 0.5 : 1 }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  padding: '12px 0',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  cursor: isSubmitting ? 'default' : 'pointer',
+                  opacity: isSubmitting ? 0.5 : 1,
+                  minHeight: 44,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  transition: 'opacity 180ms var(--ease)',
+                }}
               >
-                {isSubmitting ? 'sending…' : 'Send →'}
+                {isSubmitting ? 'Sending…' : 'Send →'}
               </button>
             </form>
 
-            <p
-              style={{
-                fontFamily: 'var(--mono)',
-                fontSize: 10,
-                color: 'var(--bone-dim)',
-                marginTop: 48,
-                letterSpacing: '0.08em',
-              }}
-            >
-              131 Continental Dr Suite 305, Newark, DE 19713, US
-            </p>
+            <div style={{ marginTop: 72 }}>
+              <WaxSeal size={28} />
+            </div>
           </>
         )}
       </div>

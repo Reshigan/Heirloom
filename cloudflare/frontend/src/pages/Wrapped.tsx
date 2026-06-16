@@ -6,9 +6,13 @@ import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
-import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+
+// Sanctioned stagger ladder — only the four allowed motion durations, used as
+// the reveal delays so each stat moment lands on a legal beat.
+const REVEAL_DELAY = [0, 180, 360, 720];
 
 function parseDate(entry: any): Date {
   const iso = entry.metadata?.entryDate || entry.createdAt || entry.created_at;
@@ -68,7 +72,7 @@ function StatBand({
         padding: 'clamp(28px,6vh,64px) 0',
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(20px)',
-        transition: `opacity 720ms ${EASE} ${index * 90}ms, transform 720ms ${EASE} ${index * 90}ms`,
+        transition: `opacity 720ms ${EASE} ${REVEAL_DELAY[index] ?? 720}ms, transform 720ms ${EASE} ${REVEAL_DELAY[index] ?? 720}ms`,
       }}
     >
       <div
@@ -187,16 +191,23 @@ export default function Wrapped() {
           boxSizing: 'border-box',
         }}
       >
-        {/* eyebrow */}
+        {/* HERO statement — mono eyebrow + giant serif title + serif-italic sub */}
         <div
           style={{
-            fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.3em',
-            textTransform: 'uppercase', color: 'var(--bone-dim)', textAlign: 'center',
             opacity: visible ? 1 : 0,
             transition: `opacity 720ms ${EASE}`,
           }}
         >
-          The Year Woven · {YEAR}
+          <CosmicHeader
+            align="center"
+            eyebrow={`The Year Woven · ${YEAR}`}
+            title="A thread of one year"
+            sub={
+              stats.thisYear.length > 0
+                ? `In ${YEAR} the family wove ${stats.thisYear.length.toLocaleString()} entries across ${stats.activeMonths} ${stats.activeMonths === 1 ? 'month' : 'months'} of the thread.`
+                : `${YEAR} waits to be woven — no entries on the cloth yet.`
+            }
+          />
         </div>
 
         {/* the stack of stat moments */}
@@ -211,7 +222,7 @@ export default function Wrapped() {
           style={{
             marginTop: 'clamp(24px,5vh,56px)',
             opacity: visible ? 0.9 : 0,
-            transition: `opacity 1400ms ${EASE} ${bands.length * 90}ms`,
+            transition: `opacity 1400ms ${EASE} 720ms`,
           }}
         >
           <WaxSeal size={26} />
@@ -225,14 +236,14 @@ export default function Wrapped() {
             marginTop: 'clamp(28px,5vh,56px)',
             background: 'transparent', border: 0, padding: '6px 2px', cursor: 'pointer',
             opacity: visible ? 1 : 0,
-            transition: `opacity 1400ms ${EASE} ${(bands.length + 1) * 90}ms`,
+            transition: `opacity 1400ms ${EASE} 1400ms`,
           }}
         >
           <span
             style={{
               fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.26em',
               textTransform: 'uppercase', color: 'var(--warm)',
-              borderBottom: '1px solid rgba(176,122,74,0.4)', paddingBottom: 3,
+              borderBottom: '1px solid var(--warm-dim)', paddingBottom: 3,
             }}
           >
             {copied ? 'link copied' : `share your ${YEAR}`}

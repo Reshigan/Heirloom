@@ -52,15 +52,27 @@ const stepLabels: Record<BookStep, string> = {
   order: 'Order',
 };
 
+// COMPOSER: each step leads with its own mono eyebrow + giant serif prompt.
+const stepPrompts: Record<BookStep, { eyebrow: string; prompt: string }> = {
+  select: { eyebrow: 'The Volume', prompt: 'Which threads do you bind?' },
+  customize: { eyebrow: 'The Volume', prompt: 'How should it be set?' },
+  preview: { eyebrow: 'The Volume', prompt: 'This is your cloth, bound.' },
+  order: { eyebrow: 'The Volume', prompt: 'Where shall it be sent?' },
+};
+
+// Flat serif input (COMPOSER): no box — a single hairline underline that warms
+// on focus, transparent ground, warm caret. Preserves the same field behaviour.
 const inputStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
-  border: '1px solid var(--rule)',
-  borderRadius: 2,
-  padding: '10px 14px',
+  border: 0,
+  borderBottom: '1px solid var(--rule)',
+  borderRadius: 0,
+  padding: '8px 0',
   color: 'var(--bone)',
+  caretColor: 'var(--warm)',
   fontFamily: 'var(--serif)',
-  fontSize: 15,
+  fontSize: 16,
   lineHeight: 1.7,
   outline: 'none',
   boxSizing: 'border-box',
@@ -130,9 +142,9 @@ function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }
   const photo: React.CSSProperties = {
     background: active ? 'rgba(176,122,74,0.16)' : 'rgba(244,236,216,0.06)',
     border: `1px solid ${ink}`,
-    borderRadius: 1,
+    borderRadius: 0,
   };
-  const line = (w: string): React.CSSProperties => ({ height: 2, width: w, background: ink, borderRadius: 1 });
+  const line = (w: string): React.CSSProperties => ({ height: 2, width: w, background: ink, borderRadius: 0 });
   const lines = (n: number) => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 3, flex: 1, justifyContent: 'center' }}>
       {Array.from({ length: n }).map((_, i) => (
@@ -298,8 +310,8 @@ export function BookBuilder() {
       {/* scrollable inner */}
       <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
-        {/* Header — mono eyebrow + serif headline (the mockup) */}
-        <CosmicHeader eyebrow="The Volume" title="Bind your thread into a book." />
+        {/* Header — mono eyebrow + giant serif prompt, contextual to the step (COMPOSER) */}
+        <CosmicHeader eyebrow={stepPrompts[step].eyebrow} title={stepPrompts[step].prompt} align="center" />
         <p
           className="hl-mono"
           style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)', textAlign: 'center', margin: '-20px 0 56px' }}
@@ -347,6 +359,8 @@ export function BookBuilder() {
           @media (max-width: 899px) {
             .hl-bind-preview { display: none !important; }
           }
+          .hl-book-field:focus { border-bottom-color: var(--warm) !important; }
+          .hl-book-field::placeholder { color: var(--bone-faint); }
         `}</style>
 
         {/* Step content */}
@@ -429,7 +443,7 @@ export function BookBuilder() {
                   height: 210,
                   justifySelf: 'end',
                   border: '1px solid var(--rule)',
-                  borderRadius: 2,
+                  borderRadius: 0,
                   background: 'var(--paper, rgba(244,236,216,0.04))',
                   display: 'flex',
                   flexDirection: 'column',
@@ -459,15 +473,17 @@ export function BookBuilder() {
                 <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Book title</label>
                 <input
                   type="text"
+                  className="hl-book-field"
                   value={config.title}
                   onChange={(e) => setConfig((prev) => ({ ...prev, title: e.target.value }))}
-                  style={{ ...inputStyle, fontSize: 17 }}
+                  style={{ ...inputStyle, fontSize: 'clamp(22px, 4vw, 30px)', fontWeight: 380, lineHeight: 1.2 }}
                 />
               </div>
               <div>
                 <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Subtitle (optional)</label>
                 <input
                   type="text"
+                  className="hl-book-field"
                   value={config.subtitle}
                   onChange={(e) => setConfig((prev) => ({ ...prev, subtitle: e.target.value }))}
                   placeholder="A collection of our most precious moments"
@@ -477,6 +493,7 @@ export function BookBuilder() {
               <div>
                 <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Dedication</label>
                 <textarea
+                  className="hl-book-field"
                   value={config.dedicationText}
                   onChange={(e) => setConfig((prev) => ({ ...prev, dedicationText: e.target.value }))}
                   placeholder="For my children, with all my love…"
@@ -485,52 +502,73 @@ export function BookBuilder() {
                 />
               </div>
               <RoomSection label="Cover type">
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                  {(['hardcover', 'softcover'] as const).map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => setConfig((prev) => ({ ...prev, coverType: type }))}
-                      style={{
-                        background: config.coverType === type ? 'rgba(176,122,74,0.06)' : 'transparent',
-                        border: `1px solid ${config.coverType === type ? 'var(--warm)' : 'var(--rule)'}`,
-                        padding: '16px 18px',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
-                        borderRadius: 0,
-                      }}
-                    >
-                      <p
-                        className="hl-serif"
+                {/* hairline-separated ledger rows — no cards; the chosen cover
+                    carries a warm BOUND marker on its right (mockup). */}
+                <div style={{ borderTop: '1px solid var(--rule)' }}>
+                  {(['hardcover', 'softcover'] as const).map((type) => {
+                    const on = config.coverType === type;
+                    return (
+                      <button
+                        key={type}
+                        type="button"
+                        onClick={() => setConfig((prev) => ({ ...prev, coverType: type }))}
                         style={{
-                          fontSize: 16,
-                          fontWeight: 300,
-                          textTransform: 'capitalize',
-                          color: config.coverType === type ? 'var(--warm)' : 'var(--bone)',
-                          margin: '0 0 4px',
+                          display: 'flex',
+                          alignItems: 'baseline',
+                          justifyContent: 'space-between',
+                          gap: 16,
+                          width: '100%',
+                          background: 'transparent',
+                          border: 0,
+                          borderBottom: '1px solid var(--rule)',
+                          padding: '15px 0',
+                          cursor: 'pointer',
+                          textAlign: 'left',
+                          transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
                         }}
                       >
-                        {type}
-                      </p>
-                      <p className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', margin: 0 }}>
-                        {type === 'hardcover' ? 'Full-colour · case-wrap' : 'Full-colour · softcover'}
-                      </p>
-                    </button>
-                  ))}
+                        <span style={{ minWidth: 0 }}>
+                          <span
+                            className="hl-serif"
+                            style={{
+                              display: 'block',
+                              fontSize: 18,
+                              fontWeight: 400,
+                              fontStyle: on ? 'italic' : 'normal',
+                              textTransform: 'capitalize',
+                              color: on ? 'var(--warm)' : 'var(--bone)',
+                            }}
+                          >
+                            {type}
+                          </span>
+                          <span className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}>
+                            {type === 'hardcover' ? 'Full-colour · case-wrap' : 'Full-colour · softcover'}
+                          </span>
+                        </span>
+                        <span
+                          className="hl-mono"
+                          style={{
+                            fontSize: 10,
+                            letterSpacing: '0.2em',
+                            textTransform: 'uppercase',
+                            color: on ? 'var(--warm)' : 'var(--bone-faint)',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {on ? 'Bound' : 'Choose'}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </RoomSection>
               <RoomSection label="Page layout">
                 <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', fontStyle: 'italic', margin: '0 0 18px' }}>
                   Choose how the current page is set.
                 </p>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(132px, 1fr))',
-                    gap: 16,
-                  }}
-                >
+                {/* hairline-separated ledger rows — serif label left, a quiet
+                    thin-ruled glyph + warm SET marker right; no cards, no glow. */}
+                <div style={{ borderTop: '1px solid var(--rule)' }}>
                   {pageLayouts.map(({ id, label }) => {
                     const active = pageLayout === id;
                     return (
@@ -539,44 +577,62 @@ export function BookBuilder() {
                         type="button"
                         onClick={() => setPageLayout(id)}
                         style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: 18,
+                          width: '100%',
                           background: 'transparent',
                           border: 0,
-                          padding: 0,
+                          borderBottom: '1px solid var(--rule)',
+                          padding: '14px 0',
                           cursor: 'pointer',
-                          textAlign: 'center',
+                          textAlign: 'left',
+                          transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
                         }}
                       >
-                        {/* thin-ruled framed thumbnail on warm-paper-on-ink */}
-                        <div
+                        <span
+                          className="hl-serif"
                           style={{
-                            aspectRatio: '3 / 4',
-                            background: 'var(--paper, rgba(244,236,216,0.05))',
-                            border: `1px solid ${active ? 'var(--warm)' : 'var(--rule)'}`,
-                            borderRadius: 2,
-                            padding: 10,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 5,
-                            overflow: 'hidden',
-                            boxShadow: active ? '0 0 32px var(--warm-glow, rgba(176,122,74,0.18))' : 'none',
-                            transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), box-shadow 360ms cubic-bezier(0.16,1,0.3,1)',
-                          }}
-                        >
-                          <LayoutGlyph layout={id} active={active} />
-                        </div>
-                        <p
-                          className="hl-mono"
-                          style={{
-                            fontSize: 9,
-                            letterSpacing: '0.16em',
-                            textTransform: 'uppercase',
-                            color: active ? 'var(--warm)' : 'var(--bone-faint)',
-                            margin: '10px 0 0',
-                            transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                            fontSize: 18,
+                            fontWeight: 400,
+                            fontStyle: active ? 'italic' : 'normal',
+                            color: active ? 'var(--warm)' : 'var(--bone)',
                           }}
                         >
                           {label}
-                        </p>
+                        </span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 16, flex: '0 0 auto' }}>
+                          {/* the layout glyph kept as a small quiet preview block */}
+                          <span
+                            aria-hidden
+                            style={{
+                              width: 30,
+                              height: 40,
+                              border: `1px solid ${active ? 'var(--warm-dim, rgba(176,122,74,0.5))' : 'var(--rule)'}`,
+                              padding: 5,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 4,
+                              overflow: 'hidden',
+                              flex: '0 0 auto',
+                            }}
+                          >
+                            <LayoutGlyph layout={id} active={active} />
+                          </span>
+                          <span
+                            className="hl-mono"
+                            style={{
+                              fontSize: 10,
+                              letterSpacing: '0.2em',
+                              textTransform: 'uppercase',
+                              color: active ? 'var(--warm)' : 'var(--bone-faint)',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {active ? 'Set' : 'Use'}
+                          </span>
+                        </span>
                       </button>
                     );
                   })}
@@ -623,8 +679,7 @@ export function BookBuilder() {
                   display: 'flex',
                   flexDirection: 'column',
                   padding: 16,
-                  borderRadius: 2,
-                  boxShadow: '0 0 56px var(--warm-glow)',
+                  borderRadius: 0,
                 }}
               >
                 {/* Brand eyebrow */}
@@ -690,7 +745,7 @@ export function BookBuilder() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     border: '1px solid var(--warm)',
-                    borderRadius: 2,
+                    borderRadius: 0,
                     color: 'var(--warm)',
                     fontSize: 13,
                   }}
@@ -781,6 +836,7 @@ export function BookBuilder() {
                   <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Full name</label>
                   <input
                     type="text"
+                    className="hl-book-field"
                     value={shipTo.name}
                     onChange={(e) => setShipTo((p) => ({ ...p, name: e.target.value }))}
                     required
@@ -792,6 +848,7 @@ export function BookBuilder() {
                   <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Address line 1</label>
                   <input
                     type="text"
+                    className="hl-book-field"
                     value={shipTo.line1}
                     onChange={(e) => setShipTo((p) => ({ ...p, line1: e.target.value }))}
                     required
@@ -803,6 +860,7 @@ export function BookBuilder() {
                   <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Address line 2 (optional)</label>
                   <input
                     type="text"
+                    className="hl-book-field"
                     value={shipTo.line2}
                     onChange={(e) => setShipTo((p) => ({ ...p, line2: e.target.value }))}
                     style={inputStyle}
@@ -814,6 +872,7 @@ export function BookBuilder() {
                     <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>City</label>
                     <input
                       type="text"
+                      className="hl-book-field"
                       value={shipTo.city}
                       onChange={(e) => setShipTo((p) => ({ ...p, city: e.target.value }))}
                       required
@@ -824,6 +883,7 @@ export function BookBuilder() {
                     <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>State / Province</label>
                     <input
                       type="text"
+                      className="hl-book-field"
                       value={shipTo.state_code}
                       onChange={(e) => setShipTo((p) => ({ ...p, state_code: e.target.value }))}
                       style={inputStyle}
@@ -836,6 +896,7 @@ export function BookBuilder() {
                     <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Country code</label>
                     <input
                       type="text"
+                      className="hl-book-field"
                       value={shipTo.country_code}
                       onChange={(e) => setShipTo((p) => ({ ...p, country_code: e.target.value }))}
                       required
@@ -846,6 +907,7 @@ export function BookBuilder() {
                     <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Postcode</label>
                     <input
                       type="text"
+                      className="hl-book-field"
                       value={shipTo.postcode}
                       onChange={(e) => setShipTo((p) => ({ ...p, postcode: e.target.value }))}
                       required
@@ -858,6 +920,7 @@ export function BookBuilder() {
                   <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Phone number</label>
                   <input
                     type="tel"
+                    className="hl-book-field"
                     value={shipTo.phone_number}
                     onChange={(e) => setShipTo((p) => ({ ...p, phone_number: e.target.value }))}
                     required
@@ -869,6 +932,7 @@ export function BookBuilder() {
                   <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Email</label>
                   <input
                     type="email"
+                    className="hl-book-field"
                     value={shipTo.email}
                     onChange={(e) => setShipTo((p) => ({ ...p, email: e.target.value }))}
                     required
@@ -946,7 +1010,7 @@ export function BookBuilder() {
               style={{
                 background: 'transparent',
                 border: '1px solid var(--warm)',
-                borderRadius: 2,
+                borderRadius: 999,
                 padding: '15px 56px',
                 cursor: step === 'select' && totalItems === 0 ? 'default' : 'pointer',
                 fontSize: 11,

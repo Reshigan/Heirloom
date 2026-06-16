@@ -4,29 +4,63 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { billingApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { planLabel, isPaidTier, isFounderTier, isFreeTier, PLAN_LIMITS } from '../lib/plans';
 
-const BILLING_CSS = `
-.hl-billing-grid {
-  display: grid;
-  grid-template-columns: 1.15fr 1fr;
-  gap: 48px;
-  align-content: start;
-}
-@media (max-width: 639px) {
-  .hl-billing-grid { grid-template-columns: 1fr; gap: 32px; }
-}
-.hl-usage-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 14px;
-}
-@media (max-width: 360px) {
-  .hl-usage-grid { grid-template-columns: 1fr 1fr; }
-}
-`;
+const ROW: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'baseline',
+  gap: 20,
+  padding: '14px 0',
+  borderBottom: '1px solid var(--rule)',
+  flexWrap: 'wrap',
+};
 
+const LABEL: React.CSSProperties = {
+  fontFamily: 'var(--serif)',
+  fontSize: 16,
+  fontWeight: 400,
+  color: 'var(--bone)',
+  lineHeight: 1.4,
+};
+
+const VALUE_STATIC: React.CSSProperties = {
+  fontFamily: 'var(--mono)',
+  fontSize: 12,
+  letterSpacing: '0.14em',
+  color: 'var(--bone-dim)',
+  whiteSpace: 'nowrap',
+  textAlign: 'right',
+};
+
+const ACTION: React.CSSProperties = {
+  fontFamily: 'var(--mono)',
+  fontSize: 11,
+  letterSpacing: '0.18em',
+  textTransform: 'uppercase',
+  color: 'var(--warm)',
+  background: 'transparent',
+  border: 0,
+  padding: 0,
+  cursor: 'pointer',
+  textDecoration: 'none',
+  whiteSpace: 'nowrap',
+};
+
+const ACTION_QUIET: React.CSSProperties = {
+  ...ACTION,
+  color: 'var(--bone-dim)',
+};
+
+const NOTE: React.CSSProperties = {
+  fontFamily: 'var(--serif)',
+  fontSize: 14,
+  lineHeight: 1.7,
+  color: 'var(--bone-dim)',
+  fontWeight: 400,
+  margin: '4px 0 0',
+};
 
 export function Billing() {
   const [busy, setBusy] = useState<string | null>(null);
@@ -72,144 +106,149 @@ export function Billing() {
     ? 'family · $6.99/mo'
     : 'free plan';
 
+  const dateLabel = isTrialing && trialEndsAt ? 'trial ends' : renews ? 'next charge' : 'status';
+  const dateValue = isTrialing && trialEndsAt
+    ? new Date(trialEndsAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+    : renews
+    ? new Date(renews).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+    : 'active';
+
+  const limits = PLAN_LIMITS[currentTier?.toUpperCase()] ?? PLAN_LIMITS['STARTER'];
+
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'billing' }]} />}
     >
-      <style>{BILLING_CSS}</style>
-      <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
+      <div style={{ maxWidth: '46rem', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
-          {subscriptionError && (
-            <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 16 }}>
-              could not load subscription — try refreshing
-            </p>
-          )}
-          {billingError && (
-            <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 16 }}>
-              {billingError}
-            </p>
-          )}
+        {subscriptionError && (
+          <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--danger)', letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+            could not load subscription — try refreshing
+          </p>
+        )}
+        {billingError && (
+          <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--danger)', letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+            {billingError}
+          </p>
+        )}
 
-          <div style={{ marginBottom: 28 }}>
-            <RoomHeader eyebrow={counterText} title="Billing" warmEyebrow={isFounder} />
+        <CosmicHeader
+          eyebrow={counterText}
+          title="Billing"
+        />
+
+        {/* ── Your plan ─────────────────────────────── */}
+        <SectionLabel>your plan</SectionLabel>
+        <div>
+          <div style={ROW}>
+            <span style={LABEL}>
+              {planLabel(currentTier)}{isTrialing ? ' · trialing' : ''}
+            </span>
+            <span style={VALUE_STATIC}>
+              {priceLabel}{currentTier === 'FAMILY' && !isTrialing ? ' / mo' : ''}
+            </span>
+          </div>
+          <div style={ROW}>
+            <span style={LABEL}>{dateLabel}</span>
+            <span style={VALUE_STATIC}>{dateValue}</span>
           </div>
 
-          <div className="hl-billing-grid">
-
-            {/* ── Tier card ─────────────────────────────── */}
-            <div>
-              <div className="hl-eyebrow" style={{ marginBottom: 14 }}>your tier</div>
-              <div style={{ padding: 'clamp(18px, 4vw, 28px) clamp(16px, 4vw, 28px)', border: '1px solid var(--rule-strong)', position: 'relative' }}>
-                <div style={{ position: 'absolute', top: -1, left: 0, right: 0, height: 3, background: 'var(--warm)' }} />
-
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', flexWrap: 'wrap', gap: 12 }}>
-                  <div>
-                    <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.28em', textTransform: 'uppercase' }}>
-                      {planLabel(currentTier)}{isTrialing ? ' · trialing' : ''}
-                    </div>
-                    <div className="hl-serif" style={{ fontSize: 'clamp(32px, 8vw, 52px)', fontWeight: 300, letterSpacing: '-0.022em', marginTop: 8, lineHeight: 1 }}>
-                      {priceLabel}
-                      {currentTier === 'FAMILY' && !isTrialing && (
-                        <span className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', marginLeft: 4, letterSpacing: '0.1em' }}>/mo</span>
-                      )}
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-                      {isTrialing && trialEndsAt ? 'trial ends' : renews ? 'next charge' : 'status'}
-                    </div>
-                    <div className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)', fontWeight: 400, marginTop: 4 }}>
-                      {isTrialing && trialEndsAt
-                        ? new Date(trialEndsAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
-                        : renews
-                        ? new Date(renews).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
-                        : 'active'}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="hl-usage-grid" style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--rule)' }}>
-                  {(PLAN_LIMITS[currentTier?.toUpperCase()] ?? PLAN_LIMITS['STARTER']).map(([n, u]) => (
-                    <div key={n}>
-                      <div className="hl-serif" style={{ fontSize: 14, color: 'var(--bone)', fontWeight: 400 }}>{n}</div>
-                      <div className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.12em', marginTop: 1 }}>of {u}</div>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ marginTop: 18, display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
-                  {!isFounder && (
-                    <Link to="/founder" style={{ color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
-                      become a founder →
-                    </Link>
-                  )}
-                  {currentTier === 'FAMILY' && (
-                    <button type="button" onClick={() => { setBusy('FAMILY_ANNUAL'); checkout.mutate('yearly'); }} disabled={!!busy}
-                      style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0 }}>
-                      {busy === 'FAMILY_ANNUAL' ? 'opening…' : 'switch to annual'}
-                    </button>
-                  )}
-                  {isPaidTier(currentTier) && (
-                    <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending}
-                      style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0 }}>
-                      {portal.isPending ? 'opening…' : 'downgrade'}
-                    </button>
-                  )}
-                  {isFreeTier(currentTier) && (
-                    <button type="button" onClick={() => { setBusy('FAMILY'); checkout.mutate('monthly'); }} disabled={!!busy} className="hl-btn" style={{ fontSize: 11, padding: '9px 18px' }}>
-                      {busy === 'FAMILY' ? 'opening…' : 'start 30-day trial →'}
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Invoices */}
-              <div className="hl-eyebrow" style={{ marginTop: 32, marginBottom: 12 }}>invoices</div>
-              <div style={{ borderTop: '1px solid var(--rule)' }}>
-                <div style={{ display: 'flex', alignItems: 'baseline', padding: '12px 0', borderBottom: '1px solid var(--rule)', gap: 16, flexWrap: 'wrap' }}>
-                  <span className="hl-serif" style={{ flex: 1, fontSize: 13, color: 'var(--bone-dim)', fontWeight: 400, minWidth: '60%' }}>
-                    Receipts and full invoice history live in the Stripe portal.
-                  </span>
-                  <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending}
-                    style={{ background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0, flexShrink: 0 }}>
-                    {portal.isPending ? 'opening…' : 'open portal →'}
-                  </button>
-                </div>
-              </div>
+          {/* Plan actions */}
+          {!isFounder && (
+            <div style={ROW}>
+              <span style={LABEL}>founder · lifetime</span>
+              <Link to="/founder" style={ACTION}>become a founder →</Link>
             </div>
-
-            {/* ── Right: payment + pledge + cancel ────────── */}
-            <div>
-              <div className="hl-eyebrow" style={{ marginBottom: 14 }}>payment method</div>
-              <div style={{ padding: 'clamp(14px, 3vw, 20px) clamp(14px, 3vw, 20px)', border: '1px solid var(--rule-strong)' }}>
-                <div className="hl-mono" style={{ fontSize: 13, color: 'var(--bone)', letterSpacing: '0.14em' }}>•••• •••• •••• ••••</div>
-                <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.12em', marginTop: 6 }}>managed via stripe</div>
-                <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending}
-                  style={{ display: 'inline-block', marginTop: 10, background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0 }}>
-                  {portal.isPending ? 'opening…' : 'replace card →'}
-                </button>
-              </div>
-
-              <div className="hl-eyebrow" style={{ marginTop: 32, marginBottom: 12 }}>continuity pledge</div>
-              <div className="hl-serif" style={{ fontSize: 14, lineHeight: 1.7, fontStyle: 'italic', color: 'var(--bone-dim)', fontWeight: 400 }}>
-                If Heirloom ends, the successor non-profit named in our bylaws inherits the archive. The family export is always free.
-              </div>
-              <div className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 10 }}>
-                pledge no. 0001 — jun 2026
-              </div>
-
-              <div className="hl-eyebrow" style={{ marginTop: 32, marginBottom: 12 }}>ending the subscription</div>
-              <div className="hl-serif" style={{ fontSize: 13, lineHeight: 1.7, color: 'var(--bone-dim)', fontWeight: 400 }}>
-                Your thread is never deleted. It freezes in place and is downloadable for life.
-              </div>
-              <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending}
-                style={{ display: 'inline-block', marginTop: 10, background: 'transparent', border: 0, cursor: 'pointer', color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0 }}>
-                {portal.isPending ? 'opening…' : 'cancel · gentle exit →'}
+          )}
+          {currentTier === 'FAMILY' && (
+            <div style={ROW}>
+              <span style={LABEL}>annual billing</span>
+              <button type="button" onClick={() => { setBusy('FAMILY_ANNUAL'); checkout.mutate('yearly'); }} disabled={!!busy} style={ACTION}>
+                {busy === 'FAMILY_ANNUAL' ? 'opening…' : 'switch to annual →'}
               </button>
             </div>
+          )}
+          {isFreeTier(currentTier) && (
+            <div style={ROW}>
+              <span style={LABEL}>upgrade to family</span>
+              <button type="button" onClick={() => { setBusy('FAMILY'); checkout.mutate('monthly'); }} disabled={!!busy} style={ACTION}>
+                {busy === 'FAMILY' ? 'opening…' : 'start 30-day trial →'}
+              </button>
+            </div>
+          )}
+          {isPaidTier(currentTier) && (
+            <div style={ROW}>
+              <span style={LABEL}>change plan</span>
+              <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending} style={ACTION_QUIET}>
+                {portal.isPending ? 'opening…' : 'downgrade →'}
+              </button>
+            </div>
+          )}
+        </div>
 
+        {/* ── What's included ───────────────────────── */}
+        <SectionLabel>what's included</SectionLabel>
+        <div>
+          {limits.map(([n, u]) => (
+            <div key={n} style={ROW}>
+              <span style={LABEL}>{n}</span>
+              <span style={VALUE_STATIC}>{u}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Payment method ────────────────────────── */}
+        <SectionLabel>payment method</SectionLabel>
+        <div>
+          <div style={ROW}>
+            <span style={{ ...LABEL, fontFamily: 'var(--mono)', fontSize: 14, letterSpacing: '0.14em', color: 'var(--bone)' }}>
+              •••• •••• •••• ••••
+            </span>
+            <span style={VALUE_STATIC}>managed via stripe</span>
+          </div>
+          <div style={ROW}>
+            <span style={LABEL}>card on file</span>
+            <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending} style={ACTION}>
+              {portal.isPending ? 'opening…' : 'replace card →'}
+            </button>
           </div>
         </div>
+
+        {/* ── Invoices ──────────────────────────────── */}
+        <SectionLabel>invoices</SectionLabel>
+        <div>
+          <div style={ROW}>
+            <span style={LABEL}>Receipts and full invoice history live in the Stripe portal.</span>
+            <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending} style={ACTION}>
+              {portal.isPending ? 'opening…' : 'open portal →'}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Continuity pledge ─────────────────────── */}
+        <SectionLabel>continuity pledge</SectionLabel>
+        <p style={{ ...NOTE, fontStyle: 'italic' }}>
+          If Heirloom ends, the successor non-profit named in our bylaws inherits the archive. The family export is always free.
+        </p>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 12 }}>
+          pledge no. 0001 — jun 2026
+        </div>
+
+        {/* ── Ending the subscription ───────────────── */}
+        <SectionLabel>ending the subscription</SectionLabel>
+        <p style={NOTE}>
+          Your thread is never deleted. It freezes in place and is downloadable for life.
+        </p>
+        <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--rule)', display: 'flex', justifyContent: 'flex-end' }}>
+          <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending} style={ACTION_QUIET}>
+            {portal.isPending ? 'opening…' : 'cancel · gentle exit →'}
+          </button>
+        </div>
+
+        <div style={{ marginTop: 64 }}>
+          <WaxSeal />
+        </div>
+      </div>
     </ClothShell>
   );
 }

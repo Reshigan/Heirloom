@@ -5,21 +5,26 @@ import { aiApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
-import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { SectionLabel } from '../loom/cosmic/CosmicUI';
 
 /**
- * FutureLetter — cosmic restyle (cosmic-letter.png).
+ * FutureLetter — CEREMONY archetype.
  *
- * A letter written from your 80-year-old self, generated from the values,
- * hopes and fears you note today. Distinct from the hand-written Letter
- * composer (/letters/new) — this one the Listener drafts for you.
+ * A letter written now, sealed to open at the far end of your life — a ritual
+ * of writing-to-the-future. The Listener drafts it from the values, hopes and
+ * fears you note today. Distinct from the hand-written Letter composer
+ * (/letters/new).
  *
- * Visual: intimate dark-paper writing surface, tiny mono eyebrow, serif
- * recipient title, amber ∞ wax seal beside a single outlined pill, and a
- * dim mono "opens when" line. No icons, no glass, ∞ is the only mark.
+ * Framed as ceremony: a glowing warm ∞ crowns the page, a serif title names the
+ * recipient, and mono warm meta reads "SEALED · OPENS <year>". The compose
+ * surface (every field, validation, submit/share path, and every branch) sits
+ * inside one faint rounded-rect frame. No icons, no glass; ∞ is the only mark.
  */
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+
+/** the year this letter is meant to be opened — the far end of a life */
+const OPEN_YEAR = (age: number) => new Date().getFullYear() + Math.max(0, 90 - age);
 
 const labelStyle: React.CSSProperties = {
   display: 'block',
@@ -112,6 +117,7 @@ export function FutureLetter() {
           maxWidth: 560,
           margin: '0 auto',
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+          textAlign: 'center',
         }}
       >
         {/* back link */}
@@ -128,34 +134,57 @@ export function FutureLetter() {
             letterSpacing: '0.18em',
             textTransform: 'uppercase',
             color: 'var(--bone-faint)',
-            marginBottom: 40,
+            marginBottom: 48,
             display: 'block',
           }}
         >
           back to the thread
         </button>
 
-        {/* eyebrow + serif recipient */}
-        <header style={{ textAlign: 'center', marginBottom: 32 }}>
+        {/* the ceremony: glowing ∞, serif title, mono warm meta */}
+        <header style={{ marginBottom: 40 }}>
           <div
-            className="hl-mono"
-            style={{ fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--warm)' }}
+            aria-hidden
+            style={{
+              color: 'var(--warm)',
+              fontSize: 'clamp(40px, 10vw, 64px)',
+              lineHeight: 1,
+              textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
+              marginBottom: 24,
+            }}
           >
-            A letter to
+            ∞
           </div>
           <h1
             className="hl-serif"
-            style={{ fontSize: 32, lineHeight: 1.15, color: 'var(--bone)', margin: '12px 0 0', fontWeight: 400 }}
+            style={{ fontSize: 'clamp(24px, 5vw, 34px)', lineHeight: 1.15, color: 'var(--bone)', margin: 0, fontWeight: 400 }}
           >
-            your future self
+            A letter to your future self
           </h1>
+          <div
+            className="hl-mono"
+            style={{ fontSize: 11, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--warm)', marginTop: 18 }}
+          >
+            {generatedLetter
+              ? `Sealed · ${new Date().getFullYear()}`
+              : `Sealed now · Opens ${OPEN_YEAR(formData.currentAge)}`}
+          </div>
+          <p
+            className="hl-serif"
+            style={{ fontSize: 16, fontStyle: 'italic', color: 'var(--bone-dim)', margin: '14px auto 0', maxWidth: '26em' }}
+          >
+            {generatedLetter
+              ? 'The words you set down today, kept until the far end of your life.'
+              : 'Write to the self you have not yet become. Seal it across time.'}
+          </p>
         </header>
 
-        {/* the dark-paper writing surface */}
+        {/* the ceremony frame — the sealed writing surface */}
         <div
           style={{
-            borderRadius: 4,
-            border: '1px solid color-mix(in srgb, var(--warm) 22%, transparent)',
+            textAlign: 'left',
+            borderRadius: 14,
+            border: '1px solid var(--rule)',
             background: 'color-mix(in srgb, var(--bone) 3%, var(--ink))',
             boxShadow: '0 0 60px -28px color-mix(in srgb, var(--warm) 60%, transparent)',
             padding: 'clamp(24px, 6vw, 40px)',
@@ -191,7 +220,7 @@ export function FutureLetter() {
                 </button>
               </div>
               {shareError && (
-                <p className="hl-mono" style={{ fontSize: 9, color: 'var(--danger)', letterSpacing: '0.1em', margin: '0 0 12px' }}>{shareError}</p>
+                <p className="hl-mono" style={{ fontSize: 9, color: 'var(--warm)', letterSpacing: '0.1em', margin: '0 0 12px' }}>{shareError}</p>
               )}
 
               <div
@@ -294,14 +323,13 @@ export function FutureLetter() {
               ) : null}
 
               {genError && (
-                <p style={{ color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 11, margin: 0, letterSpacing: '0.04em' }}>
+                <p style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, margin: 0, letterSpacing: '0.04em' }}>
                   {genError}
                 </p>
               )}
 
-              {/* seal + outlined pill — the seal-this-letter row */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginTop: 6 }}>
-                <WaxSeal size={26} />
+              {/* the rite — seal this letter (mono warm pill CTA) */}
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
                 <button
                   type="submit"
                   disabled={generateMutation.isPending}
@@ -315,19 +343,19 @@ export function FutureLetter() {
                     fontSize: 11,
                     letterSpacing: '0.24em',
                     textTransform: 'uppercase',
-                    padding: '12px 22px',
+                    padding: '13px 28px',
                     opacity: generateMutation.isPending ? 0.5 : 1,
                     transition: `opacity 180ms ${EASE}`,
                   }}
                 >
-                  {generateMutation.isPending ? 'writing across time…' : 'seal this letter'}
+                  {generateMutation.isPending ? 'sealing across time…' : 'seal this letter →'}
                 </button>
               </div>
             </form>
           )}
         </div>
 
-        {/* dim mono "opens when" line beneath the paper */}
+        {/* the ceremony's closing line beneath the frame */}
         <p
           className="hl-mono"
           style={{
@@ -336,46 +364,43 @@ export function FutureLetter() {
             letterSpacing: '0.24em',
             textTransform: 'uppercase',
             color: 'var(--bone-faint)',
-            margin: '24px 0 0',
+            margin: '28px 0 0',
           }}
         >
           {generatedLetter ? 'sealed across time' : 'opens at the far end of your life'}
         </p>
 
-        {/* previous letters — quiet hairline list */}
+        {/* previous letters — quiet hairline ledger of sealed rites */}
         {previousLetters?.letters && previousLetters.letters.length > 0 ? (
-          <div style={{ marginTop: 56 }}>
-            <div
-              className="hl-mono"
-              style={{ fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 4 }}
-            >
-              Previous letters
-            </div>
+          <div style={{ textAlign: 'left', marginTop: 48 }}>
+            <SectionLabel>Sealed before</SectionLabel>
             <hr className="hl-rule" style={{ marginBottom: 0 }} />
             <div>
               {previousLetters.letters.map((letter: any) => (
                 <div
                   key={letter.id}
-                  style={{ borderBottom: '1px solid var(--rule)', paddingTop: 16, paddingBottom: 16 }}
+                  style={{ display: 'flex', alignItems: 'baseline', gap: 20, borderBottom: '1px solid var(--rule)', paddingTop: 16, paddingBottom: 16 }}
                 >
-                  <p
-                    className="hl-serif"
-                    style={{ fontSize: 16, fontWeight: 300, color: 'var(--bone)', margin: '0 0 4px' }}
-                  >
-                    Letter from your future self
-                  </p>
-                  <p
-                    className="hl-serif"
-                    style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--bone-dim)', margin: '0 0 6px' }}
-                  >
-                    to {letter.recipientName ?? 'you'}
-                  </p>
-                  <p
+                  <span style={{ flex: 1, minWidth: 0 }}>
+                    <span
+                      className="hl-serif"
+                      style={{ display: 'block', fontSize: 18, fontWeight: 400, color: 'var(--bone)', lineHeight: 1.3 }}
+                    >
+                      Letter from your future self
+                    </span>
+                    <span
+                      className="hl-serif"
+                      style={{ display: 'block', fontSize: 14, fontStyle: 'italic', color: 'var(--bone-dim)', marginTop: 4 }}
+                    >
+                      to {letter.recipientName ?? 'you'}
+                    </span>
+                  </span>
+                  <span
                     className="hl-mono"
-                    style={{ fontSize: 10, color: 'var(--warm)', margin: 0, letterSpacing: '0.06em' }}
+                    style={{ flex: '0 0 auto', fontSize: 11, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}
                   >
-                    {new Date(letter.createdAt).toLocaleDateString()}
-                  </p>
+                    Sealed {new Date(letter.createdAt).getFullYear()}
+                  </span>
                 </div>
               ))}
             </div>

@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader } from '../loom/components/room';
 import { usePageMeta } from '../lib/usePageMeta';
+import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 const SECTIONS = [
   {
@@ -50,29 +50,85 @@ export function Terms() {
       topbarCenter="terms"
       topbarRight={<Link to="/privacy">privacy →</Link>}
     >
-      <div style={{ maxWidth: 'min(68ch, var(--page-max-prose))', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
-        <RoomHeader eyebrow="terms · plain words version" title="What we owe each other." />
+      <div
+        style={{
+          maxWidth: '62ch',
+          margin: '0 auto',
+          padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+        }}
+      >
+        {/* LEGAL variant: mono eyebrow + giant serif title */}
+        <CosmicHeader
+          eyebrow="terms of service · plain words version"
+          title="What we owe each other."
+        />
 
+        {/* Serif prose body — section by section */}
         {SECTIONS.map((s) => (
-          <div key={s.n} style={{ marginTop: 48, display: 'grid', gridTemplateColumns: 'min(80px, 20%) 1fr', gap: 'clamp(16px, 3vw, 32px)', borderTop: '1px solid var(--rule)', paddingTop: 24 }}>
-            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.32em', textTransform: 'uppercase' }}>{s.n}</div>
-            <div>
-              <h2 className="hl-serif hl-tight" style={{ fontSize: 24, fontWeight: 400, margin: 0, letterSpacing: '-0.012em', color: 'var(--bone)' }}>{s.h}</h2>
-              <p className="hl-prose" style={{ fontSize: 16, lineHeight: 1.75, marginTop: 10, color: 'var(--bone-dim)' }}>{s.b}</p>
-            </div>
-          </div>
+          <section key={s.n} style={{ marginTop: 52 }}>
+            {/* Section label: roman numeral + heading in mono + serif */}
+            <SectionLabel>{s.n} — {s.h}</SectionLabel>
+            <p
+              style={{
+                fontFamily: 'var(--serif)',
+                fontSize: 17,
+                lineHeight: 1.7,
+                color: 'var(--bone)',
+                margin: '10px 0 0',
+                maxWidth: '62ch',
+              }}
+            >
+              {s.b}
+            </p>
+          </section>
         ))}
 
-        <div style={{ marginTop: 56, paddingTop: 28, borderTop: '1px solid var(--rule)', display: 'flex', gap: 28, alignItems: 'center' }}>
+        {/* Footer rule + links */}
+        <div
+          style={{
+            marginTop: 72,
+            paddingTop: 28,
+            borderTop: '1px solid var(--rule)',
+            display: 'flex',
+            gap: 28,
+            alignItems: 'center',
+            flexWrap: 'wrap',
+          }}
+        >
           <Link to="/" style={{ textDecoration: 'none' }}>
             <HLogo size={14} wordmark mono />
           </Link>
-          <Link to="/privacy" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>
+          <Link
+            to="/privacy"
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 10,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              textDecoration: 'none',
+            }}
+          >
             Privacy
           </Link>
-          <a href="mailto:support@heirloom.blue" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>
+          <a
+            href="mailto:support@heirloom.blue"
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 10,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              textDecoration: 'none',
+            }}
+          >
             Contact
           </a>
+        </div>
+
+        {/* WaxSeal foot — optional per spec */}
+        <div style={{ marginTop: 56, marginBottom: 8 }}>
+          <WaxSeal size={24} />
         </div>
       </div>
     </ClothShell>

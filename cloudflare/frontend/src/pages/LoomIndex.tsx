@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
@@ -9,6 +9,12 @@ import { LettersAwaitingMe } from '../loom/components/LettersAwaitingMe';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeFromMetadata, dyeForId, dyeVar, moodForDye, type Dye } from '../loom/dye';
+import {
+  CosmicHeader,
+  EntryRow,
+  SectionLabel,
+  WaxSeal,
+} from '../loom/cosmic/CosmicUI';
 
 /**
  * LoomIndex — the ∞ aggregate index.
@@ -66,6 +72,7 @@ function fmtDay(iso: string): string {
 export function LoomIndex() {
   const { isAuthenticated } = useAuthStore();
   const [groupBy, setGroupBy] = useState<GroupBy>('time');
+  const navigate = useNavigate();
 
   const { data, isLoading } = useQuery({
     queryKey: ['loom-index'],
@@ -154,6 +161,19 @@ export function LoomIndex() {
     <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'index' }]} />
   );
 
+  // Mono right-cluster label for each entry depending on active grouping axis
+  function entryMeta(e: IndexEntry): string {
+    const kind = e.kind;
+    if (groupBy === 'time') return `${kind} · ${fmtDay(e.iso)}`;
+    if (groupBy === 'recipient') return `${kind} · ${e.mood}`;
+    return `${kind} · ${e.recipient ?? e.year}`;
+  }
+
+  // Dye color for left margin thread
+  function dyeColor(dye: Dye): string {
+    return dyeVar(dye);
+  }
+
   return (
     <ClothShell topbarLeft={topbarLeft} topbarCenter={<InfinityMenu />} topbarRight={<UserMenu />}>
       {/* Hairline loading bar */}
@@ -177,8 +197,24 @@ export function LoomIndex() {
       <LettersAwaitingMe />
 
       <div style={{ padding: 'clamp(24px, 5vw, 48px)', paddingBottom: 120, maxWidth: 680 }}>
-        {/* Quick links — feature destinations */}
-        <div style={{ display: 'flex', gap: 16, marginBottom: 28, flexWrap: 'wrap' }}>
+
+        {/* LEDGER header — mono eyebrow states count + kind; serif title names the surface */}
+        <CosmicHeader
+          eyebrow={
+            entries.length === 0
+              ? 'the whole cloth'
+              : `${entries.length} ${entries.length === 1 ? 'thread' : 'threads'} woven`
+          }
+          title="The Index"
+          sub={
+            entries.length === 0
+              ? 'The whole cloth, once you begin to weave.'
+              : undefined
+          }
+        />
+
+        {/* Quick links — feature destinations, kept as quiet mono text links */}
+        <div style={{ display: 'flex', gap: 20, marginBottom: 32, flexWrap: 'wrap', borderBottom: '1px solid var(--rule)', paddingBottom: 20 }}>
           {([
             { label: 'wrapped', to: '/wrapped' },
             { label: 'book', to: '/book-builder' },
@@ -191,8 +227,8 @@ export function LoomIndex() {
               style={{
                 fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em',
                 textTransform: 'uppercase', color: 'var(--bone-faint)',
-                textDecoration: 'none', borderBottom: '1px solid var(--rule)',
-                paddingBottom: 2,
+                textDecoration: 'none',
+                minHeight: 44, display: 'inline-flex', alignItems: 'center',
               }}
             >
               {label} →
@@ -200,77 +236,76 @@ export function LoomIndex() {
           ))}
         </div>
 
-        {/* Count + axis selector */}
-        <div style={{ marginBottom: 28 }}>
-          <p style={{
-            fontFamily: 'var(--serif)', fontSize: 17, fontStyle: 'italic', fontWeight: 300,
-            color: 'var(--bone-dim)', margin: '0 0 14px',
-          }}>
-            {entries.length === 0
-              ? 'The whole cloth, once you begin to weave.'
-              : `${entries.length} ${entries.length === 1 ? 'thread' : 'threads'}, woven so far.`}
-          </p>
-          <div style={{ display: 'flex', gap: 18 }}>
-            {GROUPS.map((g) => (
-              <button
-                key={g}
-                type="button"
-                onClick={() => setGroupBy(g)}
-                style={{
-                  background: 'none', border: 0, padding: '6px 0', cursor: 'pointer',
-                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  color: groupBy === g ? 'var(--warm)' : 'var(--bone-faint)',
-                  borderBottom: groupBy === g ? '1px solid var(--warm)' : '1px solid transparent',
-                }}
-              >
-                {g === 'time' ? 'by time' : g === 'recipient' ? 'by recipient' : 'by mood'}
-              </button>
-            ))}
-          </div>
+        {/* Grouping axis selector — mono control bar above the list */}
+        <div
+          style={{
+            display: 'flex', gap: 24, marginBottom: 32,
+          }}
+        >
+          {GROUPS.map((g) => (
+            <button
+              key={g}
+              type="button"
+              onClick={() => setGroupBy(g)}
+              style={{
+                background: 'none', border: 0, padding: '10px 0', cursor: 'pointer',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: groupBy === g ? 'var(--warm)' : 'var(--bone-faint)',
+                borderBottom: groupBy === g ? '1px solid var(--warm)' : '1px solid transparent',
+                transition: `color 180ms ${EASE}, border-color 180ms ${EASE}`,
+                minHeight: 44,
+              }}
+            >
+              {g === 'time' ? 'by time' : g === 'recipient' ? 'by recipient' : 'by mood'}
+            </button>
+          ))}
         </div>
 
-        {/* Sections */}
+        {/* LEDGER — grouped sections, each with a SectionLabel + EntryRow list */}
         {sections.map((sec) => (
-          <section key={sec.key} style={{ marginBottom: 32 }}>
-            <h2 style={{
-              fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.24em',
-              textTransform: 'uppercase', color: 'var(--bone-faint)',
-              margin: '0 0 10px', display: 'flex', justifyContent: 'space-between',
-            }}>
-              <span>{sec.key}</span>
-              <span style={{ color: 'var(--bone-faint)' }}>{sec.items.length}</span>
-            </h2>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <section key={sec.key} aria-label={sec.key}>
+            <SectionLabel>
+              {sec.key}
+              <span style={{ marginLeft: 14, color: 'var(--bone-faint)', opacity: 0.5 }}>
+                {sec.items.length}
+              </span>
+            </SectionLabel>
+
+            <div>
               {sec.items.map((e) => (
-                <Link
+                <div
                   key={e.id}
-                  to={e.href}
-                  style={{
-                    borderLeft: `3px solid ${dyeVar(e.dye)}`,
-                    borderBottom: '1px solid var(--rule)',
-                    padding: '10px 14px', textDecoration: 'none',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 12,
-                  }}
+                  style={{ borderLeft: `3px solid ${dyeColor(e.dye)}` }}
                 >
-                  <span style={{
-                    fontFamily: 'var(--serif)', fontSize: 14, fontStyle: 'italic', fontWeight: 300,
-                    color: 'var(--bone)', lineHeight: 1.5, minWidth: 0, overflow: 'hidden',
-                    textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                  }}>
-                    {e.title}
-                  </span>
-                  <span style={{
-                    fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.14em',
-                    textTransform: 'uppercase', color: 'rgba(244,236,216,0.35)', flexShrink: 0,
-                  }}>
-                    {e.kind} · {groupBy === 'time' ? fmtDay(e.iso) : groupBy === 'recipient' ? e.mood : (e.recipient ?? e.year)}
-                  </span>
-                </Link>
+                  <EntryRow
+                    title={e.title}
+                    italic
+                    meta={entryMeta(e)}
+                    dye={e.dye}
+                    onClick={() => navigate(e.href)}
+                  />
+                </div>
               ))}
             </div>
           </section>
         ))}
+
+        {/* Empty state — centered serif-italic dim line */}
+        {!isLoading && entries.length === 0 && (
+          <p style={{
+            fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+            fontSize: 17, color: 'var(--bone-dim)', textAlign: 'center',
+            marginTop: 80, lineHeight: 1.7,
+          }}>
+            Begin weaving. Each memory, letter, and voice<br />thread will appear here.
+          </p>
+        )}
+
+        {/* WaxSeal foot */}
+        <div style={{ marginTop: 72 }}>
+          <WaxSeal size={28} />
+        </div>
       </div>
     </ClothShell>
   );

@@ -241,6 +241,11 @@ export function Weft() {
     return 'A woven memory';
   };
 
+  // The hand on the right of the ledger row — the recipient names a letter,
+  // otherwise the kind of thread (MEMORY / LETTER / VOICE), tinted by its dye.
+  const authorOf = (entry: LoomEntry) =>
+    entry.kind === 'letter' && entry.recipient ? entry.recipient : entry.kind;
+
   return (
     <ClothShell
       topbarLeft={<HLogo size="sm" wordmark />}
@@ -267,8 +272,9 @@ export function Weft() {
         <div style={{ width: '100%', maxWidth: 460 }}>
           <CosmicHeader eyebrow={eyebrow} title="The Thread" align="left" />
 
-          {/* The woven thread — each row is a warm-amber left filament, serif title,
-              one-line dim subtitle, right-aligned mono date; faint decade dividers. */}
+          {/* The woven thread — each row is the canonical ledger entry: serif title
+              on a dye left-filament, one-line dim subtitle, and a mono right cluster of
+              year + dye dot + author tinted by the thread's dye; faint decade dividers. */}
           <div>
             {recent.map((entry, i) => {
               const prev = recent[i - 1];
@@ -281,7 +287,6 @@ export function Weft() {
                   <div style={{ borderLeft: `3px solid ${thread}`, paddingLeft: 18 }}>
                     <EntryRow
                       italic={false}
-                      filled={false}
                       title={
                         <>
                           {entry.locked ? <span style={{ color: 'var(--warm)', marginRight: 6 }}>∞</span> : null}
@@ -289,7 +294,9 @@ export function Weft() {
                         </>
                       }
                       sub={subOf(entry)}
-                      meta={fmtRowDate(entry.date)}
+                      year={fmtRowDate(entry.date)}
+                      author={authorOf(entry)}
+                      dye={entry.dye}
                       onClick={() => handleSelectEntry(entry)}
                     />
                   </div>

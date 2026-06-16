@@ -3,9 +3,10 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 /**
- * /founder/welcome — Loom 3 rewrite.
+ * /founder/welcome — CEREMONY archetype.
  *
  * Reads ?pledgeNumber= and ?name= from URL params.
  * Standalone dark ink screen — no AppFrame, no polling, no ProgressHair.
@@ -37,94 +38,108 @@ export function FounderWelcome() {
       topbarCenter="welcome"
       topbarRight={<UserMenu />}
     >
-      {/* ── Centered content ──────────────────────────────────────── */}
+      {/* ── Ceremony: centered, vast air ──────────────────────────── */}
       <div
         style={{
           opacity: visible ? 1 : 0,
           transform: visible ? 'none' : 'translateY(12px)',
-          transition: `opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease)`,
+          transition: `opacity 720ms cubic-bezier(0.16,1,0.3,1), transform 720ms cubic-bezier(0.16,1,0.3,1)`,
           position: 'absolute',
           inset: 0,
           display: 'flex',
+          flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
+          gap: 0,
         }}
       >
+        {/* ── Ceremony frame ────────────────────────────────────────── */}
         <div
           style={{
             textAlign: 'center',
             maxWidth: 'var(--page-max-focus)',
-            borderTop: '1px solid var(--rule)',
-            borderBottom: '1px solid var(--rule)',
-            padding: 'clamp(40px, 7vw, 72px) 0',
+            width: '100%',
+            border: '1px solid var(--rule)',
+            borderRadius: 14,
+            padding: 'clamp(48px, 8vw, 80px) clamp(24px, 6vw, 64px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 0,
           }}
         >
-          {/* Infinity mark */}
+          {/* Glowing ∞ at top — the ceremony mark */}
           <div
             aria-hidden
-            className="hl-serif"
             style={{
-              fontSize: 'clamp(40px, 6vw, 56px)',
-              fontWeight: 200,
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(40px, 10vw, 64px)',
               color: 'var(--warm)',
-              opacity: 0.7,
+              textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
               lineHeight: 1,
-              marginBottom: 30,
+              marginBottom: 36,
             }}
           >
             ∞
           </div>
 
-          {/* Eyebrow */}
-          <p
-            className="hl-eyebrow"
-            style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 26 }}
-          >
-            welcome
-          </p>
-
-          {/* Heading */}
+          {/* Serif title */}
           <h1
-            className="hl-serif hl-tight"
             style={{
-              fontSize: 'clamp(34px, 5vw, 56px)',
-              fontWeight: 200,
-              margin: 0,
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(24px, 5vw, 34px)',
+              fontWeight: 400,
+              lineHeight: 1.2,
               color: 'var(--bone)',
+              margin: '0 0 24px',
+              letterSpacing: '-0.01em',
             }}
           >
             Welcome, {name}. You are now in the continuity record.
           </h1>
 
-          {/* Pledge number — the centrepiece */}
+          {/* Mono warm meta — pledge number centrepiece */}
           <div
-            className="hl-mono"
             style={{
+              fontFamily: 'var(--mono)',
               fontSize: 'clamp(48px, 7vw, 72px)',
               color: 'var(--warm)',
               letterSpacing: '0.12em',
               fontWeight: 400,
               lineHeight: 1,
-              margin: '34px 0 4px',
+              marginBottom: 6,
             }}
           >
             {pledgeDisplay}
           </div>
-          <div style={{ marginBottom: 28 }}>
-            <span className="hl-mono" style={{ fontSize: 13, letterSpacing: '0.14em', color: 'var(--bone-faint)' }}>#{pledgeDisplay}</span>
+
+          {/* Mono warm meta — sub-label */}
+          <div
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.26em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
+              opacity: 0.65,
+              marginBottom: 32,
+            }}
+          >
+            FOUNDER · #{pledgeDisplay} · $249 LIFETIME
           </div>
 
-          {/* Body prose */}
+          {/* Serif-italic dim byline */}
           <p
-            className="hl-serif"
             style={{
-              fontSize: 'var(--type-body-lg)',
+              fontFamily: 'var(--serif)',
+              fontStyle: 'italic',
+              fontWeight: 300,
+              fontSize: 'clamp(15px, 2.5vw, 17px)',
               color: 'var(--bone-dim)',
               lineHeight: 1.7,
-              maxWidth: '46ch',
-              marginLeft: 'auto',
-              marginRight: 'auto',
+              maxWidth: '42ch',
+              margin: '0 0 44px',
             }}
           >
             Your pledge is part of the first hundred. Lifetime access.
@@ -133,46 +148,48 @@ export function FounderWelcome() {
             next steps and the date of your first quarterly Founder call.
           </p>
 
-          {/* CTA */}
-          <div
+          {/* Mono warm CTA into the app */}
+          <Link
+            to="/loom"
             style={{
-              marginTop: 44,
-              display: 'flex',
-              flexDirection: 'column',
+              fontFamily: 'var(--mono)',
+              fontSize: 12,
+              letterSpacing: '0.26em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
+              textDecoration: 'none',
+              padding: '14px 28px',
+              border: '1px solid var(--warm)',
+              borderRadius: 999,
+              minHeight: 44,
+              display: 'inline-flex',
               alignItems: 'center',
-              gap: 18,
+              transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+              marginBottom: 20,
             }}
           >
-            <Link to="/loom" className="hl-btn text" style={{ textDecoration: 'none', letterSpacing: '0.06em' }}>
-              begin the thread →
-            </Link>
-            <span
-              className="hl-mono"
-              style={{
-                fontSize: '10.5px',
-                color: 'var(--bone-faint)',
-                letterSpacing: '0.12em',
-              }}
-            >
-              or come back when ready
-            </span>
-          </div>
+            BEGIN THE THREAD →
+          </Link>
+
+          {/* Sub-CTA — quiet mono */}
+          <span
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 10,
+              letterSpacing: '0.14em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+            }}
+          >
+            or come back when ready
+          </span>
+        </div>
+
+        {/* ── WaxSeal foot ──────────────────────────────────────────── */}
+        <div style={{ marginTop: 40 }}>
+          <WaxSeal size={22} />
         </div>
       </div>
-
-      {/* ── Warm glow at bottom ───────────────────────────────────── */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: 160,
-          background: 'transparent',
-          pointerEvents: 'none',
-        }}
-      />
     </ClothShell>
   );
 }

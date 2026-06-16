@@ -1198,37 +1198,57 @@ export function Compose() {
         }}
       >
         <div style={{ maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
-          {/* masthead — mono eyebrow + right-aligned date (cosmic-composer mockup) */}
+          {/* masthead — mono eyebrow + giant serif prompt, right-aligned mono date pill (cosmic COMPOSER) */}
           <header
             style={{
               display: 'flex',
               alignItems: 'baseline',
               justifyContent: 'space-between',
-              gap: 16,
-              margin: '0 0 28px',
+              gap: 'clamp(16px, 4vw, 40px)',
+              margin: '0 0 36px',
+              flexWrap: 'wrap',
               opacity: writingFocused ? 0.4 : 1,
               transition: `opacity 720ms ${ease}`,
             }}
           >
-            <p
-              style={{
-                fontFamily: 'var(--mono)',
-                fontSize: 11,
-                letterSpacing: '0.28em',
-                textTransform: 'uppercase',
-                color: 'var(--warm)',
-                margin: 0,
-              }}
-            >
-              {isLetter ? 'Weave a new letter' : 'Weave a new thread'}
-            </p>
+            <div style={{ flex: '1 1 260px', minWidth: 0 }}>
+              <p
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.3em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  margin: '0 0 14px',
+                }}
+              >
+                {isLetter ? 'Weave a new letter' : 'Weave a new memory'}
+              </p>
+              <h1
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontVariationSettings: "'opsz' 40",
+                  fontWeight: 400,
+                  fontSize: 'clamp(28px, 5vw, 44px)',
+                  lineHeight: 1.08,
+                  letterSpacing: '-0.01em',
+                  color: 'var(--bone)',
+                  margin: 0,
+                }}
+              >
+                {isLetter ? 'Write into the cloth.' : 'What is worth keeping?'}
+              </h1>
+            </div>
             <span
               style={{
                 fontFamily: 'var(--mono)',
                 fontSize: 11,
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
+                color: 'var(--bone-dim)',
+                border: '1px solid var(--rule)',
+                padding: '7px 14px',
+                whiteSpace: 'nowrap',
                 flexShrink: 0,
               }}
             >
@@ -1346,7 +1366,7 @@ export function Compose() {
             />
 
             {bodyError && (
-              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.1em', marginTop: 6 }}>
+              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.1em', marginTop: 6 }}>
                 {bodyError}
               </p>
             )}
@@ -1426,7 +1446,7 @@ export function Compose() {
                             fontSize: 9,
                             letterSpacing: '0.12em',
                             textTransform: 'uppercase',
-                            color: 'var(--danger)',
+                            color: 'var(--warm)',
                             textAlign: 'center',
                             padding: 4,
                           }}
@@ -1531,10 +1551,11 @@ export function Compose() {
               role="alert"
               style={{
                 marginTop: 20,
-                fontStyle: 'italic',
-                color: 'var(--danger)',
-                fontSize: 14,
-                fontFamily: 'var(--serif)',
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.14em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
               }}
             >
               {error}
@@ -1626,26 +1647,27 @@ export function Compose() {
               }}
               disabled={submitDisabled}
               style={{
-                background: 'transparent',
+                background: submitDisabled ? 'transparent' : 'var(--warm)',
                 border: '1px solid var(--warm)',
                 borderRadius: 999,
-                padding: '11px 30px',
+                padding: '12px 32px',
                 minHeight: 44,
                 fontFamily: 'var(--mono)',
                 fontSize: 12,
-                letterSpacing: '0.24em',
+                letterSpacing: '0.26em',
                 textTransform: 'uppercase',
-                color: 'var(--warm)',
+                color: submitDisabled ? 'var(--warm)' : 'var(--ink)',
                 cursor: submitDisabled ? 'default' : 'pointer',
                 opacity: submitDisabled ? 0.4 : 1,
                 transition: 'background 180ms var(--ease), color 180ms var(--ease), opacity 180ms var(--ease)',
               }}
               onMouseEnter={(e) => {
                 if (submitDisabled) return;
-                e.currentTarget.style.background = 'var(--warm-glow)';
+                e.currentTarget.style.background = 'var(--warm-bright)';
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
+                if (submitDisabled) return;
+                e.currentTarget.style.background = 'var(--warm)';
               }}
             >
               {save.isPending ? (isLetter ? 'sealing…' : 'weaving…') : (isLetter ? submitLabel : 'weave it in')}

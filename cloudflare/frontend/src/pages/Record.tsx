@@ -9,6 +9,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { RecipientPicker } from '../loom/components/RecipientPicker';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { VoiceRefine } from '../loom/components/VoiceRefine';
+import { WaxSeal, SectionLabel } from '../loom/cosmic/CosmicUI';
 
 /**
  * Record — ComposerSpeak (Loom 3 · §6.3).
@@ -344,116 +345,149 @@ export function Record() {
           textAlign: 'center',
         }}
       >
-        {/* ── mono kicker, hairline-framed ─────────────────────────── */}
-        <div className="hl-rule" style={{ width: 120, height: 1, marginBottom: 22 }} />
+        {/* ── mono eyebrow ─────────────────────────────────────────── */}
         <div
-          className="hl-eyebrow hl-mono"
           style={{
-            color: 'var(--bone-faint)',
+            fontFamily: 'var(--mono)',
+            fontSize: 11,
             letterSpacing: '0.3em',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 10,
-            marginBottom: 22,
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+            marginBottom: 28,
           }}
         >
-          voice
-          <span aria-hidden style={{ width: 3, height: 3, background: 'var(--warm)', display: 'inline-block' }} />
-          speak it
+          record a voice
         </div>
-        <div className="hl-rule" style={{ width: 120, height: 1, marginBottom: 40 }} />
 
-        {/* ── thin serif line ──────────────────────────────────────── */}
-        <p
-          className="hl-serif hl-italic"
+        {/* ── giant serif prompt ───────────────────────────────────── */}
+        <h1
           style={{
-            fontSize: 'var(--type-subhead)',
-            color: 'var(--bone-dim)',
-            lineHeight: 1.3,
-            margin: '0 0 44px',
+            fontFamily: 'var(--serif)',
+            fontSize: 'clamp(30px, 6vw, 48px)',
+            fontWeight: 400,
+            lineHeight: 1.08,
+            letterSpacing: '-0.012em',
+            color: 'var(--bone)',
+            margin: '0 0 18px',
+            fontVariationSettings: '"opsz" 40',
+            maxWidth: '16em',
           }}
         >
           Say it the way you remember.
+        </h1>
+
+        <p
+          className="hl-serif hl-italic"
+          style={{
+            fontSize: 17,
+            color: 'var(--bone-dim)',
+            lineHeight: 1.4,
+            margin: '0 0 48px',
+          }}
+        >
+          A voice is the part of a person that outlives the rest.
         </p>
 
-        {/* ── calm amber hairline waveform ─────────────────────────── */}
-        <svg
-          aria-hidden
-          viewBox="0 0 400 48"
-          preserveAspectRatio="none"
+        {/* ── the record control — the centerpiece ─────────────────── */}
+        {/* mono RECORD / STOP affordance, a hairline level/timer beneath. No spinner. */}
+        <div
           style={{
-            width: '100%',
-            maxWidth: 400,
-            height: 48,
-            marginBottom: 40,
-            opacity: recordingState === 'recording' ? 0.9 : 0.45,
-            transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 22,
+            marginBottom: 8,
           }}
         >
-          <path
-            d="M0 24 C 20 24, 26 18, 34 24 S 48 30, 56 24 S 72 8, 84 24 S 100 36, 112 24 S 130 14, 144 24 S 162 30, 176 24 S 196 16, 212 24 S 232 32, 248 24 S 268 18, 284 24 S 304 28, 320 24 S 344 20, 364 24 S 388 24, 400 24"
-            fill="none"
-            stroke="var(--warm)"
-            strokeWidth={1}
-            vectorEffect="non-scaling-stroke"
-          />
-        </svg>
+          {recordingState === 'idle' ? (
+            <button
+              type="button"
+              onClick={start}
+              aria-label="Begin recording"
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--warm)',
+                borderRadius: 0,
+                padding: '16px 40px',
+                cursor: 'pointer',
+                color: 'var(--warm)',
+                fontFamily: 'var(--mono)',
+                fontSize: 13,
+                fontWeight: 600,
+                letterSpacing: '0.32em',
+                textTransform: 'uppercase',
+                transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+            >
+              record
+            </button>
+          ) : live ? (
+            <button
+              type="button"
+              onClick={stop}
+              aria-label="Stop recording"
+              style={{
+                background: recordingState === 'recording' ? 'var(--warm-dim)' : 'transparent',
+                border: '1px solid var(--warm)',
+                borderRadius: 0,
+                padding: '16px 48px',
+                cursor: 'pointer',
+                color: recordingState === 'recording' ? 'var(--bone)' : 'var(--warm)',
+                fontFamily: 'var(--mono)',
+                fontSize: 13,
+                fontWeight: 600,
+                letterSpacing: '0.32em',
+                textTransform: 'uppercase',
+                animation: recordingState === 'recording'
+                  ? 'hl-record-pulse 1400ms cubic-bezier(0.16,1,0.3,1) infinite'
+                  : 'none',
+                transition: 'background 360ms cubic-bezier(0.16,1,0.3,1), color 360ms cubic-bezier(0.16,1,0.3,1)',
+              }}
+            >
+              stop
+            </button>
+          ) : null}
 
-        {/* ── mono timer ───────────────────────────────────────────── */}
-        <span
-          style={{
-            fontFamily: 'var(--mono)',
-            fontSize: 'var(--type-subhead)',
-            letterSpacing: '0.18em',
-            color: recordingState === 'paused' ? 'var(--bone-faint)' : 'var(--bone)',
-            lineHeight: 1,
-            marginBottom: 28,
-            transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-          }}
-        >
-          {mm}:{ss}
-        </span>
-
-        {/* ── record control — thin amber ring, no icon ────────────── */}
-        {recordingState === 'idle' ? (
-          <button
-            type="button"
-            onClick={start}
-            aria-label="Begin recording"
+          {/* hairline level — calm amber line that brightens while recording */}
+          <svg
+            aria-hidden
+            viewBox="0 0 400 28"
+            preserveAspectRatio="none"
             style={{
-              width: 64,
-              height: 64,
-              borderRadius: '50%',
-              border: '1px solid var(--warm)',
-              background: 'transparent',
-              padding: 0,
-              cursor: 'pointer',
+              width: '100%',
+              maxWidth: 360,
+              height: 28,
+              opacity: recordingState === 'recording' ? 0.9 : 0.4,
+              transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
             }}
-          />
-        ) : live ? (
-          <button
-            type="button"
-            onClick={stop}
-            aria-label="Stop recording"
-            style={{
-              width: 64,
-              height: 64,
-              borderRadius: '50%',
-              border: '1px solid var(--warm)',
-              background: recordingState === 'recording' ? 'var(--warm-dim)' : 'transparent',
-              padding: 0,
-              cursor: 'pointer',
-              animation: recordingState === 'recording'
-                ? 'hl-record-pulse 1400ms cubic-bezier(0.16,1,0.3,1) infinite'
-                : 'none',
-              transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
-            }}
-          />
-        ) : null}
+          >
+            <path
+              d="M0 14 C 20 14, 26 10, 34 14 S 48 18, 56 14 S 72 4, 84 14 S 100 22, 112 14 S 130 7, 144 14 S 162 18, 176 14 S 196 9, 212 14 S 232 20, 248 14 S 268 10, 284 14 S 304 17, 320 14 S 344 11, 364 14 S 388 14, 400 14"
+              fill="none"
+              stroke="var(--warm)"
+              strokeWidth={1}
+              vectorEffect="non-scaling-stroke"
+            />
+          </svg>
 
-        {/* ── controls below ring ───────────────────────────────── */}
+          {/* mono timer */}
+          <span
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 'var(--type-subhead)',
+              letterSpacing: '0.18em',
+              color: recordingState === 'paused' ? 'var(--bone-faint)' : 'var(--bone)',
+              lineHeight: 1,
+              transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+            }}
+          >
+            {mm}:{ss}
+          </span>
+        </div>
+
+        {/* ── controls below the centerpiece ────────────────────── */}
         {live ? (
-          <div style={{ marginTop: 28, display: 'flex', gap: 32, alignItems: 'center' }}>
+          <div style={{ marginTop: 24, display: 'flex', gap: 32, alignItems: 'center' }}>
             <button
               type="button"
               onClick={stop}
@@ -490,19 +524,6 @@ export function Record() {
               {recordingState === 'paused' ? 'resume' : 'pause'}
             </button>
           </div>
-        ) : recordingState === 'idle' ? (
-          <p
-            className="hl-mono"
-            style={{
-              marginTop: 18,
-              fontSize: 9,
-              letterSpacing: '0.28em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
-            }}
-          >
-            tap to record
-          </p>
         ) : null}
 
         {/* ── pre-recording fields (idle only) ──────────────────── */}
@@ -672,22 +693,12 @@ export function Record() {
           </div>
         ) : null}
 
-        {/* ── cosmic playback — amber waveform + outlined play ring ── */}
+        {/* ── playback — amber waveform + mono PLAY / PAUSE affordance ── */}
         {recordingState === 'recorded' && audioUrl ? (
           <div style={{ width: '100%', maxWidth: 420, marginTop: 8 }}>
             {/* eyebrow */}
-            <div
-              style={{
-                fontFamily: 'var(--mono)',
-                fontSize: 11,
-                letterSpacing: '0.3em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
-                textAlign: 'center',
-                marginBottom: 56,
-              }}
-            >
-              what you said
+            <div style={{ textAlign: 'center' }}>
+              <SectionLabel>what you said</SectionLabel>
             </div>
 
             {/* timecode */}
@@ -699,7 +710,7 @@ export function Record() {
                 color: 'var(--bone)',
                 textAlign: 'center',
                 lineHeight: 1,
-                marginBottom: 32,
+                margin: '24px 0 32px',
               }}
             >
               {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}
@@ -715,7 +726,7 @@ export function Record() {
                 gap: 2,
                 height: 64,
                 width: '100%',
-                marginBottom: 56,
+                marginBottom: 40,
                 opacity: playing ? 1 : 0.85,
                 transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
               }}
@@ -733,48 +744,28 @@ export function Record() {
               ))}
             </div>
 
-            {/* outlined play / pause ring with CSS triangle */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 48 }}>
+            {/* mono PLAY / PAUSE text affordance */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 40 }}>
               <button
                 type="button"
                 onClick={togglePlay}
                 aria-label={playing ? 'Pause playback' : 'Play recording'}
                 style={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: '50%',
-                  border: '1px solid var(--warm)',
                   background: 'transparent',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  border: '1px solid var(--warm)',
+                  borderRadius: 0,
+                  padding: '12px 32px',
                   cursor: 'pointer',
-                  padding: 0,
-                  transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                  color: 'var(--warm)',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 12,
+                  fontWeight: 600,
+                  letterSpacing: '0.32em',
+                  textTransform: 'uppercase',
+                  transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
                 }}
               >
-                {playing ? (
-                  <span
-                    aria-hidden
-                    style={{ display: 'flex', gap: 5 }}
-                  >
-                    <span style={{ width: 3, height: 16, background: 'var(--warm)', display: 'block' }} />
-                    <span style={{ width: 3, height: 16, background: 'var(--warm)', display: 'block' }} />
-                  </span>
-                ) : (
-                  <span
-                    aria-hidden
-                    style={{
-                      width: 0,
-                      height: 0,
-                      marginLeft: 4,
-                      borderTop: '8px solid transparent',
-                      borderBottom: '8px solid transparent',
-                      borderLeft: '13px solid var(--warm)',
-                      display: 'block',
-                    }}
-                  />
-                )}
+                {playing ? 'pause' : 'play'}
               </button>
             </div>
 
@@ -853,44 +844,72 @@ export function Record() {
           </div>
         ) : null}
 
-        {/* ── save / discard row ────────────────────────────────── */}
+        {/* ── optional serif title input ────────────────────────── */}
+        {recordingState === 'recorded' ? (
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={PROMPTS[promptIdx]}
+            style={{
+              marginTop: 32,
+              width: '100%',
+              maxWidth: 480,
+              background: 'transparent',
+              border: 0,
+              borderBottom: '1px solid var(--rule)',
+              color: 'var(--bone)',
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(20px, 4vw, 28px)',
+              fontWeight: 400,
+              lineHeight: 1.2,
+              padding: '6px 0',
+              textAlign: 'center',
+              caretColor: 'var(--warm)',
+              outline: 'none',
+            }}
+          />
+        ) : null}
+
+        {/* ── bottom action bar: SAVE pill · date pill · discard ── */}
         {recordingState === 'recorded' ? (
           <div
             style={{
               marginTop: 32,
               display: 'flex',
               alignItems: 'center',
-              gap: 16,
+              gap: 18,
               flexWrap: 'wrap',
               justifyContent: 'center',
             }}
           >
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder={PROMPTS[promptIdx]}
-              style={{
-                width: 280,
-                background: 'transparent',
-                border: 0,
-                borderBottom: '1px solid var(--rule)',
-                color: 'var(--bone)',
-                fontFamily: 'var(--serif)',
-                fontSize: 15,
-                padding: '4px 0',
-                outline: 'none',
-              }}
-            />
-
             <button
               type="button"
               onClick={() => save.mutate()}
               disabled={save.isPending || !audioBlob}
               className="hl-btn"
-              style={{ opacity: save.isPending || !audioBlob ? 0.5 : 1 }}
+              style={{ borderRadius: 999, opacity: save.isPending || !audioBlob ? 0.5 : 1 }}
             >
-              {save.isPending ? 'sealing…' : 'seal this voice →'}
+              {save.isPending ? 'sealing…' : 'save →'}
             </button>
+
+            {/* date pill — the chosen entry date, set pre-recording */}
+            <span
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+                border: '1px solid var(--rule)',
+                borderRadius: 999,
+                padding: '8px 16px',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {entryDate
+                ? new Date(`${entryDate}T00:00:00`).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+                : 'today'}
+            </span>
 
             <button
               type="button"
@@ -908,27 +927,33 @@ export function Record() {
                 borderBottom: '1px solid var(--rule)',
               }}
             >
-              let it fade
+              re-record
             </button>
           </div>
         ) : null}
 
-        {/* ── error ─────────────────────────────────────────────── */}
+        {/* ── error — inline mono line, warm (never red, never toast) ── */}
         {error ? (
           <p
             role="alert"
-            className="hl-serif"
             style={{
               marginTop: 20,
-              fontSize: 14,
-              fontStyle: 'italic',
-              color: 'var(--danger)',
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
               textAlign: 'center',
             }}
           >
             {error}
           </p>
         ) : null}
+
+        {/* ── the ∞ resting at the foot ─────────────────────────── */}
+        <div style={{ marginTop: 56 }}>
+          <WaxSeal />
+        </div>
       </div>
 
       {/* ── sealed voice ceremony ─────────────────────────────────── */}

@@ -354,7 +354,7 @@ export function Unlock() {
                 >
                   {/* small glowing wax-sealed ∞, near top-center */}
                   <div style={{ textAlign: 'center', marginBottom: 26 }}>
-                    <WaxSeal size={30} />
+                    <WaxSeal size={26} />
                   </div>
 
                   {/* SEALED yyyy   OPENED yyyy */}
@@ -515,9 +515,9 @@ export function Unlock() {
   );
 }
 
-/* ─── The wax seal — a small warm disc carrying the ∞ mark. The product's one
-   warm accent, lit by --warm-glow. No gradient mesh, no blur, no drop shadow —
-   a single ring-lit disc, the ∞ glyph engraved in ink. ──────────────────── */
+/* ─── The wax seal — the ∞ mark resting warm, the product's ONE emotional
+   accent, lit only by --warm-glow via textShadow. No disc, no circle, no
+   border-radius identity chip — the sanctioned bare ∞ glyph alone. ──────── */
 function WaxSeal({ size = 30 }: { size?: number }) {
   return (
     <span
@@ -525,25 +525,16 @@ function WaxSeal({ size = 30 }: { size?: number }) {
       style={{
         display: 'inline-grid',
         placeItems: 'center',
-        width: size,
-        height: size,
-        borderRadius: '50%',
-        background: 'var(--warm)',
-        boxShadow: `0 0 0 1px var(--warm-bright), 0 0 ${size * 0.45}px var(--warm-glow), 0 0 ${size * 1.1}px var(--warm-glow)`,
+        fontFamily: "'Source Serif 4', serif",
+        fontVariationSettings: "'opsz' 48",
+        fontSize: size,
+        fontWeight: 400,
+        lineHeight: 1,
+        color: 'var(--warm)',
+        textShadow: `0 0 ${size * 0.6}px var(--warm-glow), 0 0 ${size * 0.25}px var(--warm-glow)`,
       }}
     >
-      <span
-        style={{
-          fontFamily: "'Source Serif 4', serif",
-          fontVariationSettings: "'opsz' 48",
-          fontSize: size * 0.5,
-          fontWeight: 400,
-          lineHeight: 1,
-          color: 'var(--ink)',
-        }}
-      >
-        ∞
-      </span>
+      ∞
     </span>
   );
 }
@@ -563,6 +554,7 @@ function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean })
     >
       <div style={{ maxWidth: 480 }}>
         <div
+          aria-hidden
           style={{
             fontFamily: "'Source Serif 4', serif",
             fontVariationSettings: "'opsz' 72",
@@ -570,6 +562,7 @@ function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean })
             fontWeight: 300,
             lineHeight: 1,
             color: 'var(--warm)',
+            textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
             marginBottom: 28,
           }}
         >
@@ -582,8 +575,14 @@ function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean })
         ) : (
           <>
             <div
+              className="loom-mono"
+              style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.26em', textTransform: 'uppercase', marginBottom: 18 }}
+            >
+              the unlock
+            </div>
+            <div
               className="loom-serif"
-              style={{ fontSize: 22, fontStyle: 'italic', fontWeight: 300, color: 'var(--bone)', lineHeight: 1.6 }}
+              style={{ fontSize: 'clamp(28px, 6vw, 40px)', fontStyle: 'italic', fontWeight: 300, color: 'var(--bone)', lineHeight: 1.2, letterSpacing: '-0.015em' }}
             >
               No thread has untied yet.
             </div>

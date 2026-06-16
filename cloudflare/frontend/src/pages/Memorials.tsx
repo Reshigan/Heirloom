@@ -3,7 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { dyeColor, dyeFromMetadata, dyeForId } from '../loom/dye';
 import { memorialsApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -42,6 +43,19 @@ const labelStyle: React.CSSProperties = {
   color: 'var(--bone-faint)',
   marginBottom: 10,
 };
+
+// Quiet mono text affordance — never an icon button
+const affordanceStyle = (color: string): React.CSSProperties => ({
+  background: 'none',
+  border: 0,
+  padding: 0,
+  cursor: 'pointer',
+  fontFamily: 'var(--mono)',
+  fontSize: 10,
+  letterSpacing: '0.14em',
+  textTransform: 'uppercase',
+  color,
+});
 
 export function Memorials() {
   const queryClient = useQueryClient();
@@ -98,185 +112,119 @@ export function Memorials() {
   };
 
   const memorialList: any[] = memorials || [];
+  const countLabel = isLoading
+    ? 'memorials'
+    : `${memorialList.length} ${memorialList.length === 1 ? 'memorial' : 'memorials'}`;
 
   return (
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'memorials' }]} />} topbarCenter="memorials" topbarRight={<UserMenu />}>
       <div style={{ maxWidth: 'var(--page-max-reading)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
-        {/* Page header */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, marginBottom: 64 }}>
-          <RoomHeader eyebrow="memorials" title="In memory of." />
+        {/* Page header — count eyebrow + serif title; quiet mono create affordance */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap', marginBottom: 56 }}>
+          <CosmicHeader eyebrow={countLabel} title="In memory of." />
           <button
             type="button"
             onClick={() => setShowCreateModal(true)}
-            className="hl-btn"
-            style={{ flexShrink: 0, marginTop: 6 }}
+            style={{
+              flexShrink: 0,
+              marginTop: 8,
+              background: 'none',
+              border: 0,
+              padding: 0,
+              cursor: 'pointer',
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
+              minHeight: 44,
+            }}
           >
-            create memorial
+            create memorial →
           </button>
         </div>
 
-        {/* Memorial list */}
+        {/* Memorial list — vertical ledger of EntryRows */}
         {isLoading ? (
           <p
             className="hl-serif hl-italic"
-            style={{ color: 'var(--bone-faint)', fontSize: 16 }}
+            style={{ color: 'var(--bone-dim)', fontSize: 16 }}
           >
-            Loading…
+            Gathering the names…
           </p>
         ) : memorialList.length > 0 ? (
-          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 64px' }}>
-            {memorialList.map((memorial: any) => (
-              <li
-                key={memorial.id}
-                style={{
-                  borderTop: '1px solid var(--rule)',
-                  paddingTop: 28,
-                  marginBottom: 40,
-                }}
-              >
-                <article>
-                  {/* Name */}
-                  <h3
-                    className="hl-serif"
-                    style={{
-                      fontSize: 24,
-                      fontWeight: 400,
-                      color: 'var(--bone)',
-                      margin: 0,
-                      lineHeight: 1.2,
-                    }}
-                  >
-                    {memorial.memorial_name}
-                  </h3>
-
-                  {/* Dates */}
-                  {(memorial.birth_date || memorial.death_date) && (
-                    <p
-                      className="hl-mono"
-                      style={{
-                        fontSize: 11,
-                        color: 'var(--bone-faint)',
-                        marginTop: 6,
-                        marginBottom: 0,
-                        letterSpacing: '0.04em',
-                      }}
-                    >
-                      {memorial.birth_date
-                        ? new Date(memorial.birth_date).getFullYear()
-                        : '?'}
-                      {' – '}
-                      {memorial.death_date
-                        ? new Date(memorial.death_date).getFullYear()
-                        : '?'}
-                      {memorial.location && (
-                        <span style={{ marginLeft: 20 }}>{memorial.location}</span>
-                      )}
-                      <span style={{ marginLeft: 20 }}>{memorial.view_count || 0} visits</span>
-                    </p>
-                  )}
-
-                  {/* Tribute / notes */}
-                  {memorial.memorial_description && (
-                    <p
-                      className="hl-prose"
-                      style={{
-                        fontSize: 16,
-                        marginTop: 16,
-                        marginBottom: 0,
-                        color: 'var(--bone-dim)',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 3,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
-                      }}
-                    >
-                      {memorial.memorial_description}
-                    </p>
-                  )}
-
-                  {/* Dye swatch */}
-                  <div
-                    style={{
-                      width: 32,
-                      height: 3,
-                      background: 'var(--dye-iron)',
-                      marginTop: 12,
-                    }}
-                    aria-hidden
+          <div style={{ margin: '0 0 56px' }}>
+            {memorialList.map((memorial: any) => {
+              const born = memorial.birth_date ? new Date(memorial.birth_date).getFullYear() : '?';
+              const died = memorial.death_date ? new Date(memorial.death_date).getFullYear() : '?';
+              const hasDates = memorial.birth_date || memorial.death_date;
+              const memKey = String(memorial.id ?? memorial.qr_code ?? memorial.memorial_name ?? '');
+              const dye = dyeFromMetadata(memorial) ?? dyeForId(memKey);
+              const tint = dyeColor(memKey);
+              return (
+                <div key={memorial.id} style={{ borderBottom: '1px solid var(--rule)' }}>
+                  {/* Row: name in dye hue + mono born–died years + dye dot */}
+                  <EntryRow
+                    title={<span style={{ color: tint }}>{memorial.memorial_name}</span>}
+                    sub={memorial.memorial_description || undefined}
+                    year={hasDates ? `${born}–${died}` : undefined}
+                    dye={dye}
+                    onClick={() => setSelectedMemorial(memorial)}
                   />
-
-                  {/* Actions */}
-                  <div style={{ display: 'flex', gap: 20, marginTop: 16 }}>
+                  {/* Quiet mono affordances under the row (same handlers as before) */}
+                  <div style={{ display: 'flex', gap: 22, flexWrap: 'wrap', padding: '0 0 14px', marginTop: -4 }}>
+                    {memorial.location && (
+                      <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                        {memorial.location}
+                      </span>
+                    )}
+                    <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                      {memorial.view_count || 0} visits
+                    </span>
                     <button
                       type="button"
-                                            onClick={() => setSelectedMemorial(memorial)}
-                      style={{
-                        background: 'none',
-                        border: 0,
-                        padding: 0,
-                        cursor: 'pointer',
-                        fontFamily: 'var(--mono)',
-                        fontSize: 10,
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase',
-                        color: 'var(--warm)',
-                      }}
+                      onClick={() => setSelectedMemorial(memorial)}
+                      style={affordanceStyle('var(--warm)')}
                     >
                       view →
                     </button>
                     <button
                       type="button"
-                                            onClick={() => downloadQR(memorial)}
-                      style={{
-                        background: 'none',
-                        border: 0,
-                        padding: 0,
-                        cursor: 'pointer',
-                        fontFamily: 'var(--mono)',
-                        fontSize: 10,
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase',
-                        color: 'var(--bone-faint)',
-                      }}
+                      onClick={() => downloadQR(memorial)}
+                      style={affordanceStyle('var(--bone-dim)')}
                     >
                       download QR
                     </button>
                     <button
                       type="button"
-                                            onClick={() => shareMemorial(memorial)}
-                      style={{
-                        background: 'none',
-                        border: 0,
-                        padding: 0,
-                        cursor: 'pointer',
-                        fontFamily: 'var(--mono)',
-                        fontSize: 10,
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase',
-                        color: 'var(--bone-faint)',
-                      }}
+                      onClick={() => shareMemorial(memorial)}
+                      style={affordanceStyle('var(--bone-dim)')}
                     >
                       share
                     </button>
                   </div>
-                </article>
-              </li>
-            ))}
-          </ul>
+                </div>
+              );
+            })}
+          </div>
         ) : (
-          /* Empty state */
-          <p
-            className="hl-serif hl-italic"
-            style={{
-              fontSize: 18,
-              fontWeight: 300,
-              color: 'var(--bone-faint)',
-              margin: '0 0 48px',
-            }}
-          >
-            No memorials yet.
-          </p>
+          /* Empty state — centered serif-italic line + quiet prompt */
+          <div style={{ textAlign: 'center', padding: '64px 0', margin: '0 0 40px' }}>
+            <p
+              className="hl-serif hl-italic"
+              style={{ fontSize: 20, fontWeight: 300, color: 'var(--bone-dim)', margin: '0 0 14px' }}
+            >
+              No names rest here yet.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              style={{ ...affordanceStyle('var(--warm)'), fontSize: 11, letterSpacing: '0.16em', minHeight: 44 }}
+            >
+              create the first memorial →
+            </button>
+          </div>
         )}
 
         {/* How it works */}
@@ -297,6 +245,11 @@ export function Memorials() {
             ))}
           </div>
         </section>
+
+        {/* WaxSeal foot */}
+        <div style={{ marginTop: 64 }}>
+          <WaxSeal />
+        </div>
       </div>
 
       {/* Create overlay */}
@@ -327,7 +280,7 @@ export function Memorials() {
             <div style={{ display: 'grid', gap: 20 }}>
               <div>
                 <label style={labelStyle} htmlFor="mem-name">
-                  Name <span style={{ color: 'var(--danger)' }} aria-hidden>*</span>
+                  Name <span style={{ color: 'var(--warm)' }} aria-hidden>*</span>
                 </label>
                 <input
                   id="mem-name"
@@ -448,7 +401,7 @@ export function Memorials() {
               {formError && (
                 <p
                   className="hl-mono"
-                  style={{ fontSize: 11, color: 'var(--danger)', margin: 0, letterSpacing: '0.06em' }}
+                  style={{ fontSize: 11, color: 'var(--warm)', margin: 0, letterSpacing: '0.06em' }}
                 >
                   {formError}
                 </p>
@@ -527,13 +480,13 @@ export function Memorials() {
               />
             </div>
 
-            {/* Name */}
+            {/* Name — tinted in the memorial's dye hue */}
             <h3
               className="hl-serif"
               style={{
                 fontSize: 24,
                 fontWeight: 400,
-                color: 'var(--bone)',
+                color: dyeColor(String(selectedMemorial.id ?? selectedMemorial.qr_code ?? selectedMemorial.memorial_name ?? '')),
                 margin: '0 0 6px',
                 lineHeight: 1.2,
               }}
@@ -562,12 +515,12 @@ export function Memorials() {
               </p>
             )}
 
-            {/* Dye swatch */}
+            {/* Dye swatch — the memorial's dye signal (a thread, never a circle) */}
             <div
               style={{
                 width: 32,
                 height: 3,
-                background: 'var(--dye-iron)',
+                background: dyeColor(String(selectedMemorial.id ?? selectedMemorial.qr_code ?? selectedMemorial.memorial_name ?? '')),
                 marginTop: 12,
                 marginBottom: 0,
               }}

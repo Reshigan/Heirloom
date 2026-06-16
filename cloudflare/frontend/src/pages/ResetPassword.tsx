@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authApi } from '../services/api';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader } from '../loom/components/room';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 export function ResetPassword() {
   const navigate = useNavigate();
@@ -60,153 +60,398 @@ export function ResetPassword() {
     <ClothShell
       topbarLeft={<HLogo />}
       topbarCenter="reset password"
-      topbarRight={<Link to="/login" className="hl-mono" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>sign in →</Link>}
-    >
-      <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
-        <div
-          aria-hidden
-          className="hl-serif"
-          style={{ fontSize: 'clamp(40px, 6vw, 56px)', fontWeight: 200, color: 'var(--warm)', opacity: 0.7, lineHeight: 1, marginBottom: 30 }}
+      topbarRight={
+        <Link
+          to="/login"
+          style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 9,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+            textDecoration: 'none',
+          }}
         >
-          ∞
-        </div>
+          sign in →
+        </Link>
+      }
+    >
+      {/* FORM archetype: centered column, vast air, content vertically centered */}
+      <div
+        style={{
+          minHeight: 'calc(100vh - 56px)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '64px 24px 80px',
+        }}
+      >
+        <div style={{ width: '100%', maxWidth: 360, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-        {!token ? (
-          /* Invalid link state */
-          <div role="status">
-            <RoomHeader
-              eyebrow="reset"
-              title="Invalid reset link."
-              lede="This link has expired or is no longer valid."
-            />
-            <div style={{ marginBottom: 32 }} />
-            <Link to="/forgot-password" className="hl-btn text" style={{ textDecoration: 'none', letterSpacing: '0.06em' }}>
-              request a new link →
-            </Link>
+          {/* ∞ ceremony mark */}
+          <div
+            aria-hidden
+            style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(40px, 9vw, 64px)',
+              color: 'var(--warm)',
+              lineHeight: 1,
+              marginBottom: 40,
+              textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
+            }}
+          >
+            ∞
           </div>
-        ) : success ? (
-          /* Success state */
-          <div role="status">
-            <RoomHeader
-              eyebrow="reset"
-              title="Password reset."
-              lede="Your thread is secured. Returning you to sign in…"
-            />
-            <div style={{ marginBottom: 32 }} />
-            <Link to="/login" className="hl-btn text" style={{ textDecoration: 'none', letterSpacing: '0.06em' }}>
-              go to sign in →
-            </Link>
-          </div>
-        ) : (
-          /* Main form */
-          <>
-            <RoomHeader eyebrow="reset" title="New password." />
-            <div style={{ marginBottom: 28 }} />
 
-            <form onSubmit={handleSubmit} style={{ display: 'grid' }}>
-              {/* Password input */}
-              <div style={{ marginBottom: 18 }}>
-                <label
-                  htmlFor="rp-password"
-                  className="hl-mono"
-                  style={{
-                    display: 'block',
-                    marginBottom: 6,
-                    fontSize: 10,
-                    letterSpacing: '0.32em',
-                    textTransform: 'uppercase',
-                    color: 'var(--bone-faint)',
-                  }}
-                >
-                  new password
-                </label>
-                <input
-                  id="rp-password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                  className="hl-input"
-                />
-                <p
-                  className="hl-mono"
-                  style={{ margin: '6px 0 0', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}
-                >
-                  at least 8 characters
-                </p>
+          {!token ? (
+            /* Invalid / expired link state */
+            <div role="status" style={{ textAlign: 'center', width: '100%' }}>
+              {/* Mono eyebrow */}
+              <div
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.28em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  marginBottom: 18,
+                }}
+              >
+                reset
               </div>
 
-              {/* Confirm input */}
-              <div style={{ marginBottom: 24 }}>
-                <label
-                  htmlFor="rp-confirm"
-                  className="hl-mono"
-                  style={{
-                    display: 'block',
-                    marginBottom: 6,
-                    fontSize: 10,
-                    letterSpacing: '0.32em',
-                    textTransform: 'uppercase',
-                    color: 'var(--bone-faint)',
-                  }}
-                >
-                  confirm password
-                </label>
-                <input
-                  id="rp-confirm"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  autoComplete="new-password"
-                  className="hl-input"
-                />
+              {/* Giant serif headline */}
+              <h1
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontSize: 'clamp(40px, 9vw, 72px)',
+                  lineHeight: 1.05,
+                  letterSpacing: '-0.012em',
+                  color: 'var(--bone)',
+                  fontWeight: 380,
+                  margin: '0 0 20px',
+                }}
+              >
+                Invalid reset link.
+              </h1>
+
+              <p
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontStyle: 'italic',
+                  fontWeight: 300,
+                  fontSize: 17,
+                  lineHeight: 1.55,
+                  color: 'var(--bone-dim)',
+                  margin: '0 0 40px',
+                }}
+              >
+                This link has expired or is no longer valid.
+              </p>
+
+              <Link
+                to="/forgot-password"
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  textDecoration: 'none',
+                  display: 'inline-block',
+                  minHeight: 44,
+                  lineHeight: '44px',
+                }}
+              >
+                request a new link →
+              </Link>
+            </div>
+
+          ) : success ? (
+            /* Success state */
+            <div role="status" style={{ textAlign: 'center', width: '100%' }}>
+              {/* Mono eyebrow */}
+              <div
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.28em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  marginBottom: 18,
+                }}
+              >
+                reset
               </div>
 
-              {/* Error */}
-              {error ? (
-                <p
-                  role="alert"
-                  className="hl-mono"
-                  style={{ fontSize: 10, color: 'var(--danger)', margin: '0 0 16px', letterSpacing: '0.06em' }}
-                >
-                  {error}
-                </p>
-              ) : null}
+              {/* Giant serif headline */}
+              <h1
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontSize: 'clamp(40px, 9vw, 72px)',
+                  lineHeight: 1.05,
+                  letterSpacing: '-0.012em',
+                  color: 'var(--bone)',
+                  fontWeight: 380,
+                  margin: '0 0 20px',
+                }}
+              >
+                Password reset.
+              </h1>
 
-              {/* Submit */}
-              <div>
+              <p
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontStyle: 'italic',
+                  fontWeight: 300,
+                  fontSize: 17,
+                  lineHeight: 1.55,
+                  color: 'var(--bone-dim)',
+                  margin: '0 0 40px',
+                }}
+              >
+                Your thread is secured. Returning you to sign in…
+              </p>
+
+              <Link
+                to="/login"
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  textDecoration: 'none',
+                  display: 'inline-block',
+                  minHeight: 44,
+                  lineHeight: '44px',
+                }}
+              >
+                go to sign in →
+              </Link>
+            </div>
+
+          ) : (
+            /* Main form */
+            <div style={{ width: '100%', textAlign: 'center' }}>
+              {/* Mono eyebrow */}
+              <div
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.28em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  marginBottom: 18,
+                }}
+              >
+                password reset
+              </div>
+
+              {/* Giant serif headline */}
+              <h1
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontSize: 'clamp(40px, 9vw, 72px)',
+                  lineHeight: 1.05,
+                  letterSpacing: '-0.012em',
+                  color: 'var(--bone)',
+                  fontWeight: 380,
+                  margin: '0 0 12px',
+                }}
+              >
+                New password.
+              </h1>
+
+              {/* Serif-italic sub */}
+              <p
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontStyle: 'italic',
+                  fontWeight: 300,
+                  fontSize: 16,
+                  color: 'var(--bone-dim)',
+                  margin: '0 0 48px',
+                  lineHeight: 1.5,
+                }}
+              >
+                Choose a password for your thread.
+              </p>
+
+              <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 0, width: '100%' }}>
+                {/* New password field */}
+                <div style={{ marginBottom: 32 }}>
+                  <label
+                    htmlFor="rp-password"
+                    style={{
+                      display: 'block',
+                      fontFamily: 'var(--mono)',
+                      fontSize: 10,
+                      letterSpacing: '0.32em',
+                      textTransform: 'uppercase',
+                      color: 'var(--bone-faint)',
+                      marginBottom: 10,
+                    }}
+                  >
+                    new password
+                  </label>
+                  <input
+                    id="rp-password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    minLength={8}
+                    autoComplete="new-password"
+                    placeholder="at least 8 characters"
+                    style={{
+                      width: '100%',
+                      background: 'transparent',
+                      border: 0,
+                      borderBottom: '1px solid var(--rule)',
+                      color: 'var(--bone)',
+                      caretColor: 'var(--warm)',
+                      fontFamily: 'var(--sans)',
+                      fontSize: 18,
+                      padding: '8px 0 10px',
+                      textAlign: 'center',
+                      outline: 'none',
+                      transition: 'border-color 180ms var(--ease)',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+                    onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
+                  />
+                  <p
+                    style={{
+                      fontFamily: 'var(--mono)',
+                      fontSize: 10,
+                      color: 'var(--bone-faint)',
+                      letterSpacing: '0.06em',
+                      margin: '6px 0 0',
+                    }}
+                  >
+                    at least 8 characters
+                  </p>
+                </div>
+
+                {/* Confirm password field */}
+                <div style={{ marginBottom: 36 }}>
+                  <label
+                    htmlFor="rp-confirm"
+                    style={{
+                      display: 'block',
+                      fontFamily: 'var(--mono)',
+                      fontSize: 10,
+                      letterSpacing: '0.32em',
+                      textTransform: 'uppercase',
+                      color: 'var(--bone-faint)',
+                      marginBottom: 10,
+                    }}
+                  >
+                    confirm password
+                  </label>
+                  <input
+                    id="rp-confirm"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    autoComplete="new-password"
+                    placeholder="repeat password"
+                    style={{
+                      width: '100%',
+                      background: 'transparent',
+                      border: 0,
+                      borderBottom: '1px solid var(--rule)',
+                      color: 'var(--bone)',
+                      caretColor: 'var(--warm)',
+                      fontFamily: 'var(--sans)',
+                      fontSize: 18,
+                      padding: '8px 0 10px',
+                      textAlign: 'center',
+                      outline: 'none',
+                      transition: 'border-color 180ms var(--ease)',
+                      boxSizing: 'border-box',
+                    }}
+                    onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+                    onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
+                  />
+                </div>
+
+                {/* Inline error — mono warm, role=alert */}
+                {error ? (
+                  <p
+                    role="alert"
+                    style={{
+                      fontFamily: 'var(--mono)',
+                      fontSize: 10,
+                      color: 'var(--warm)',
+                      letterSpacing: '0.06em',
+                      margin: '0 0 20px',
+                    }}
+                  >
+                    {error}
+                  </p>
+                ) : null}
+
+                {/* Submit CTA — mono uppercase warm pill */}
                 <button
                   type="submit"
                   disabled={isLoading || !password.trim() || !confirmPassword.trim()}
-                  className="hl-btn text"
-                  style={{ letterSpacing: '0.06em', opacity: isLoading || !password.trim() || !confirmPassword.trim() ? 0.5 : 1 }}
+                  style={{
+                    fontFamily: 'var(--mono)',
+                    fontSize: 11,
+                    letterSpacing: '0.26em',
+                    textTransform: 'uppercase',
+                    color: 'var(--warm)',
+                    background: 'transparent',
+                    border: '1px solid var(--warm)',
+                    borderRadius: 999,
+                    padding: '12px 32px',
+                    minHeight: 44,
+                    cursor: isLoading || !password.trim() || !confirmPassword.trim() ? 'not-allowed' : 'pointer',
+                    opacity: isLoading || !password.trim() || !confirmPassword.trim() ? 0.4 : 1,
+                    transition: 'opacity 180ms var(--ease)',
+                    width: '100%',
+                  }}
                 >
                   {isLoading ? 'setting…' : 'set password →'}
                 </button>
-              </div>
-            </form>
+              </form>
 
-            <div style={{ marginTop: 40, paddingTop: 22, borderTop: '1px solid var(--rule)' }}>
-              <Link
-                to="/login"
-                className="hl-mono"
+              {/* Footer: back to sign in */}
+              <div
                 style={{
-                  fontSize: 10.5,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: 'var(--bone-faint)',
-                  textDecoration: 'none',
+                  marginTop: 48,
+                  paddingTop: 24,
+                  borderTop: '1px solid var(--rule)',
                 }}
               >
-                ← back to sign in
-              </Link>
+                <Link
+                  to="/login"
+                  style={{
+                    fontFamily: 'var(--mono)',
+                    fontSize: 10,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: 'var(--bone-faint)',
+                    textDecoration: 'none',
+                  }}
+                >
+                  ← back to sign in
+                </Link>
+              </div>
             </div>
-          </>
-        )}
+          )}
 
+          {/* WaxSeal ceremony foot */}
+          <div style={{ marginTop: 64 }}>
+            <WaxSeal size={28} />
+          </div>
+
+        </div>
       </div>
     </ClothShell>
   );

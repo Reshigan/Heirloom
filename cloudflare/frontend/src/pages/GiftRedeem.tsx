@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
+import { SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import api from '../services/api';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -16,6 +17,46 @@ interface VoucherInfo {
   recipientMessage?: string;
   fromName?: string;
   expiresAt: string;
+}
+
+const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+
+// The glowing warm ∞ — the ceremony mark at the top of the rite.
+function CeremonyMark() {
+  return (
+    <div
+      aria-hidden
+      className="hl-serif"
+      style={{
+        fontSize: 'clamp(40px, 10vw, 64px)',
+        fontWeight: 200,
+        lineHeight: 1,
+        color: 'var(--warm)',
+        textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
+        marginBottom: 30,
+      }}
+    >
+      ∞
+    </div>
+  );
+}
+
+// Mono warm meta line — uppercase 0.26em, the ceremony's voice.
+function CeremonyMeta({ children }: { children: React.ReactNode }) {
+  return (
+    <p
+      className="hl-mono"
+      style={{
+        fontSize: 11,
+        letterSpacing: '0.26em',
+        textTransform: 'uppercase',
+        color: 'var(--warm)',
+        margin: '0 0 22px',
+      }}
+    >
+      {children}
+    </p>
+  );
 }
 
 // ── GiftRedeem ────────────────────────────────────────────────────────────────
@@ -98,9 +139,25 @@ export function GiftRedeem() {
   const formatTier = (tier: string) =>
     tier.charAt(0).toUpperCase() + tier.slice(1).toLowerCase();
 
+  // mono warm uppercase CTA — the ceremony's primary verb
+  const ctaStyle = (enabled: boolean): React.CSSProperties => ({
+    background: 'transparent',
+    border: 0,
+    padding: 0,
+    fontFamily: 'var(--mono)',
+    fontSize: 12,
+    letterSpacing: '0.26em',
+    textTransform: 'uppercase',
+    color: 'var(--warm)',
+    opacity: enabled ? 1 : 0.45,
+    cursor: enabled ? 'pointer' : 'default',
+    minHeight: 44,
+    transition: `opacity 180ms ${EASE}`,
+  });
+
   return (
     <ClothShell topbarLeft={<HLogo />} topbarCenter="redeem">
-      {/* centered content area */}
+      {/* centered ceremony field — vast air */}
       <div
         style={{
           display: 'flex',
@@ -110,41 +167,26 @@ export function GiftRedeem() {
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        <div style={{ textAlign: 'center', maxWidth: 'var(--page-max-focus)', width: '100%' }}>
+        <div
+          style={{
+            textAlign: 'center',
+            maxWidth: 'var(--page-max-focus)',
+            width: '100%',
+            border: '1px solid var(--rule)',
+            borderRadius: 14,
+            padding: 'clamp(32px, 6vw, 56px) clamp(24px, 5vw, 48px)',
+          }}
+        >
 
           {redeemSuccess ? (
-            // ── Success state — centered ceremony ──────────────────────────
+            // ── Success state — the rite completed ─────────────────────────
             <div role="status">
-              {/* ∞ mark — faint amber */}
-              <div
-                className="hl-serif"
-                style={{
-                  fontSize: 44,
-                  fontWeight: 200,
-                  lineHeight: 1,
-                  color: 'var(--warm)',
-                  opacity: 0.7,
-                  marginBottom: 28,
-                }}
-              >
-                ∞
-              </div>
-              <p
-                className="hl-mono"
-                style={{
-                  fontSize: 10,
-                  letterSpacing: '0.32em',
-                  textTransform: 'uppercase',
-                  color: 'var(--bone-dim)',
-                  margin: '0 0 22px',
-                }}
-              >
-                activated
-              </p>
+              <CeremonyMark />
+              <CeremonyMeta>activated</CeremonyMeta>
               <h1
                 className="hl-serif hl-tight"
                 style={{
-                  fontSize: 'var(--type-display)',
+                  fontSize: 'clamp(24px, 5vw, 34px)',
                   fontWeight: 200,
                   color: 'var(--bone)',
                   margin: '0 0 18px',
@@ -155,10 +197,12 @@ export function GiftRedeem() {
               <p
                 className="hl-serif"
                 style={{
+                  fontStyle: 'italic',
                   fontSize: 'var(--type-body)',
                   color: 'var(--bone-dim)',
                   margin: '0 0 36px',
                   lineHeight: 1.7,
+                  fontWeight: 300,
                 }}
               >
                 Your {formatTier(voucherInfo?.tier || '')} thread is now active.
@@ -168,37 +212,33 @@ export function GiftRedeem() {
               </p>
               <button
                 onClick={() => navigate('/loom/today')}
-                className="hl-mono"
-                style={{
-                  background: 'transparent',
-                  border: 0,
-                  padding: 0,
-                  fontSize: 11,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: 'var(--warm)',
-                  cursor: 'pointer',
-                }}
+                style={ctaStyle(true)}
               >
                 open the thread →
               </button>
             </div>
           ) : (
-            // ── Redeem form ────────────────────────────────────────────────
+            // ── Redeem ceremony ────────────────────────────────────────────
             <>
+              <CeremonyMark />
+              <CeremonyMeta>
+                {voucherInfo?.recipientName
+                  ? `a gift for ${voucherInfo.recipientName}`
+                  : 'a gift for you'}
+              </CeremonyMeta>
               <h1
                 className="hl-serif hl-tight"
                 style={{
-                  fontSize: 'var(--type-display)',
+                  fontSize: 'clamp(24px, 5vw, 34px)',
                   fontWeight: 200,
                   color: 'var(--bone)',
-                  margin: '0 0 28px',
+                  margin: '0 0 32px',
                 }}
               >
                 Your gift is here.
               </h1>
 
-              {/* Code input */}
+              {/* Code input — underline-only, centered, warm caret */}
               <input
                 type="text"
                 value={code}
@@ -219,24 +259,26 @@ export function GiftRedeem() {
                   border: 'none',
                   borderBottom: '1px solid var(--rule)',
                   outline: 'none',
-                  padding: '8px 0',
+                  padding: '10px 0',
                   marginBottom: 24,
                   color: 'var(--bone)',
+                  caretColor: 'var(--warm)',
                   fontFamily: 'var(--mono)',
                 }}
                 autoComplete="off"
                 spellCheck={false}
               />
 
-              {/* Error */}
+              {/* Error — inline mono warm, never a toast */}
               {error && (
                 <p
                   role="alert"
                   className="hl-mono"
                   style={{
-                    fontSize: 10,
-                    letterSpacing: '0.08em',
-                    color: 'var(--danger)',
+                    fontSize: 11,
+                    letterSpacing: '0.14em',
+                    textTransform: 'uppercase',
+                    color: 'var(--warm)',
                     margin: '0 0 20px',
                     textAlign: 'center',
                   }}
@@ -245,7 +287,7 @@ export function GiftRedeem() {
                 </p>
               )}
 
-              {/* Voucher detail */}
+              {/* Voucher detail — the gift's particulars */}
               {voucherInfo && (
                 <div
                   style={{
@@ -255,12 +297,7 @@ export function GiftRedeem() {
                     marginBottom: 28,
                   }}
                 >
-                  <p
-                    className="hl-eyebrow dark"
-                    style={{ marginBottom: 16, color: 'var(--warm)' }}
-                  >
-                    valid gift
-                  </p>
+                  <SectionLabel>the gift</SectionLabel>
 
                   {voucherInfo.fromName && (
                     <p
@@ -268,7 +305,7 @@ export function GiftRedeem() {
                         fontFamily: 'var(--serif)',
                         fontSize: 15,
                         color: 'var(--bone-dim)',
-                        marginBottom: 16,
+                        margin: '8px 0 16px',
                         fontWeight: 300,
                       }}
                     >
@@ -282,7 +319,7 @@ export function GiftRedeem() {
                   {voucherInfo.recipientMessage && (
                     <div
                       style={{
-                        borderLeft: '1px solid var(--warm)',
+                        borderLeft: '3px solid var(--warm)',
                         paddingLeft: 16,
                         marginBottom: 24,
                       }}
@@ -314,7 +351,8 @@ export function GiftRedeem() {
                         style={{
                           display: 'flex',
                           justifyContent: 'space-between',
-                          padding: '10px 0',
+                          alignItems: 'center',
+                          padding: '12px 0',
                           borderBottom: '1px solid var(--rule)',
                         }}
                       >
@@ -347,35 +385,24 @@ export function GiftRedeem() {
                     <button
                       onClick={handleRedeem}
                       disabled={isRedeeming}
-                      className="hl-mono"
-                      style={{
-                        background: 'transparent',
-                        border: 0,
-                        padding: 0,
-                        fontSize: 11,
-                        letterSpacing: '0.18em',
-                        textTransform: 'uppercase',
-                        color: 'var(--warm)',
-                        opacity: isRedeeming ? 0.5 : 1,
-                        cursor: isRedeeming ? 'default' : 'pointer',
-                        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
-                      }}
+                      style={ctaStyle(!isRedeeming)}
                     >
-                      {isRedeeming ? 'activating…' : 'redeem the gift →'}
+                      {isRedeeming ? 'activating…' : 'open the gift →'}
                     </button>
                   ) : (
                     <div>
                       <p
+                        className="hl-mono"
                         style={{
                           textAlign: 'center',
-                          fontFamily: 'var(--mono)',
                           fontSize: 10,
-                          letterSpacing: '0.08em',
+                          letterSpacing: '0.18em',
+                          textTransform: 'uppercase',
                           color: 'var(--bone-faint)',
                           marginBottom: 16,
                         }}
                       >
-                        sign in or create an account to redeem
+                        sign in or create an account to open
                       </p>
                       <div style={{ display: 'flex', gap: 12 }}>
                         <Link
@@ -403,28 +430,20 @@ export function GiftRedeem() {
                 </div>
               )}
 
-              {/* Redeem button (pre-validation or after entry) — amber text-link */}
+              {/* Validate CTA — shown before a gift resolves */}
               {!voucherInfo && (
                 <button
                   onClick={() => validateCode(code)}
                   disabled={isValidating || code.length < 10}
-                  className="hl-mono"
-                  style={{
-                    background: 'transparent',
-                    border: 0,
-                    padding: 0,
-                    fontSize: 11,
-                    letterSpacing: '0.18em',
-                    textTransform: 'uppercase',
-                    color: 'var(--warm)',
-                    opacity: isValidating || code.length < 10 ? 0.45 : 1,
-                    cursor: isValidating || code.length < 10 ? 'default' : 'pointer',
-                    transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
-                  }}
+                  style={ctaStyle(!(isValidating || code.length < 10))}
                 >
-                  {isValidating ? 'checking…' : 'redeem the gift →'}
+                  {isValidating ? 'checking…' : 'open →'}
                 </button>
               )}
+
+              <div style={{ marginTop: 44 }}>
+                <WaxSeal size={26} />
+              </div>
             </>
           )}
         </div>

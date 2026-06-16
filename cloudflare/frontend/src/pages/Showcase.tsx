@@ -3,6 +3,15 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { RoomHeader } from '../loom/components/room';
 import { UserMenu } from '../loom/components/Frame';
+import { SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+
+/** Illustrative thread entries — not real data. */
+const SAMPLE_ENTRIES = [
+  { title: 'The summer we built the barn', year: '1962', author: 'Elspeth', dye: 'saffron' as const },
+  { title: 'A letter from Cape Town', year: '1981', author: 'Thomas', dye: 'indigo' as const, italic: true },
+  { title: 'Her recipe, in her hand', year: '1994', author: 'Miriam', dye: 'walnut' as const },
+  { title: 'The night the ice storm came', year: '2007', author: 'James', dye: 'madder' as const },
+];
 
 export function Showcase() {
   return (
@@ -26,9 +35,37 @@ export function Showcase() {
             lede="Each entry becomes a weft thread. The cloth grows denser with every year. These patterns are illustrative — generated to show the form, not real account data."
           />
 
-          <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap', marginTop: 48 }}>
+          {/* Illustrative ledger rows */}
+          <SectionLabel>a family's threads</SectionLabel>
+
+          {SAMPLE_ENTRIES.map((e) => (
+            <EntryRow
+              key={e.title}
+              title={e.title}
+              year={e.year}
+              author={e.author}
+              dye={e.dye}
+              italic={e.italic}
+            />
+          ))}
+
+          {/* CTAs */}
+          <div
+            style={{
+              display: 'flex',
+              gap: 20,
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              marginTop: 56,
+            }}
+          >
             <Link to="/loom/pwa" className="hl-btn ghost">See the living cloth →</Link>
             <Link to="/signup" className="hl-btn">Start your thread — free</Link>
+          </div>
+
+          {/* Foot mark */}
+          <div style={{ marginTop: 72 }}>
+            <WaxSeal size={28} />
           </div>
         </div>
       </div>

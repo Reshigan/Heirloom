@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
-import { WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, SectionLabel, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { capsulesApi, threadsApi } from '../services/api';
 
 type CapsuleStatus = 'open' | 'sealed' | 'unlocked';
@@ -303,33 +303,21 @@ export function TimeCapsule() {
       >
         <ThreadComposeBanner />
 
-        {/* Header — eyebrow + big serif title */}
+        {/* Ceremony header — glowing ∞ + eyebrow + big serif title */}
         <header style={{ marginBottom: 64 }}>
-          <p
-            className="hl-mono"
+          <div
+            aria-hidden
             style={{
-              fontSize: 10,
-              letterSpacing: '0.28em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
-              margin: '0 0 18px',
+              color: 'var(--warm)',
+              fontSize: 'clamp(40px, 10vw, 64px)',
+              lineHeight: 1,
+              marginBottom: 28,
+              textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
             }}
           >
-            sealed until
-          </p>
-          <h1
-            className="hl-serif"
-            style={{
-              fontSize: 'var(--type-display, 40px)',
-              fontWeight: 300,
-              color: 'var(--bone)',
-              margin: 0,
-              lineHeight: 1.05,
-              letterSpacing: '-0.01em',
-            }}
-          >
-            Time Capsules
-          </h1>
+            ∞
+          </div>
+          <CosmicHeader eyebrow="sealed until" title="Time Capsules" />
         </header>
 
         {/* Capsule list */}
@@ -527,41 +515,57 @@ export function TimeCapsule() {
               padding: '48px 44px 40px',
               maxHeight: '92vh',
               overflowY: 'auto',
+              border: '1px solid var(--rule)',
+              borderRadius: 14,
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Eyebrow + serif heading */}
-            <p
-              className="hl-mono"
-              style={{
-                fontSize: 10,
-                letterSpacing: '0.32em',
-                textTransform: 'uppercase',
-                color: 'var(--warm)',
-                margin: '0 0 16px',
-              }}
-            >
-              The Sealed Note
-            </p>
-            <h2
-              className="hl-serif"
-              style={{
-                fontSize: 30,
-                fontWeight: 300,
-                lineHeight: 1.08,
-                letterSpacing: '-0.01em',
-                margin: '0 0 40px',
-                color: 'var(--bone)',
-              }}
-            >
-              When should this open?
-            </h2>
+            {/* Ceremony crown — glowing ∞ + serif title + mono warm meta */}
+            <div style={{ textAlign: 'center', marginBottom: 40 }}>
+              <div
+                aria-hidden
+                style={{
+                  color: 'var(--warm)',
+                  fontSize: 'clamp(40px, 10vw, 64px)',
+                  lineHeight: 1,
+                  marginBottom: 22,
+                  textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
+                }}
+              >
+                ∞
+              </div>
+              <h2
+                className="hl-serif"
+                style={{
+                  fontSize: 'clamp(24px, 5vw, 34px)',
+                  fontWeight: 300,
+                  lineHeight: 1.08,
+                  letterSpacing: '-0.01em',
+                  margin: '0 0 16px',
+                  color: 'var(--bone)',
+                }}
+              >
+                When should this open?
+              </h2>
+              <p
+                className="hl-mono"
+                style={{
+                  fontSize: 11,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  margin: 0,
+                }}
+              >
+                {resolvedUnlock
+                  ? `Sealed · Opens ${formatUnlockDate(resolvedUnlock)}`
+                  : 'A note for the future'}
+              </p>
+            </div>
 
             {/* Capsule name */}
             <div style={{ marginBottom: 28 }}>
-              <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
-                Capsule name
-              </label>
+              <SectionLabel>Capsule name</SectionLabel>
               <input
                 type="text"
                 value={newCapsule.title}
@@ -674,10 +678,8 @@ export function TimeCapsule() {
             </div>
 
             {/* Description (optional) */}
-            <div style={{ marginTop: 28 }}>
-              <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>
-                Description (optional)
-              </label>
+            <div style={{ marginTop: 14 }}>
+              <SectionLabel>Description (optional)</SectionLabel>
               <textarea
                 value={newCapsule.description}
                 onChange={(e) =>
@@ -690,11 +692,9 @@ export function TimeCapsule() {
             </div>
 
             {/* Cover style */}
-            <div style={{ marginTop: 24 }}>
-              <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>
-                Cover style
-              </label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ marginTop: 14 }}>
+              <SectionLabel>Cover style</SectionLabel>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
                 {COVER_STYLES.map((style) => (
                   <button
                     key={style.id}
@@ -738,7 +738,7 @@ export function TimeCapsule() {
                 className="hl-mono"
                 style={{
                   fontSize: 10,
-                  color: 'var(--danger)',
+                  color: 'var(--warm)',
                   letterSpacing: '0.14em',
                   textTransform: 'uppercase',
                   margin: '20px 0 0',

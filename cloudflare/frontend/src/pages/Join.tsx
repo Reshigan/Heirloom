@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
 import { engagementApi } from '../services/api';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 const PENDING_INVITE_KEY = 'hl-pending-invite';
 
@@ -56,14 +57,19 @@ export function Join() {
       topbarRight={!user ? (
         <Link
           to="/login"
-          className="hl-mono"
-          style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}
+          style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 9,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+            textDecoration: 'none',
+          }}
         >
           sign in
         </Link>
       ) : undefined}
     >
-      {/* body */}
       <div
         style={{
           display: 'flex',
@@ -71,93 +77,334 @@ export function Join() {
           justifyContent: 'center',
           alignItems: 'center',
           minHeight: '100%',
-        }}
-      >
-      <div
-        style={{
-          maxWidth: 'var(--page-max-focus)',
-          width: '100%',
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        {!isValid ? (
-          <>
-            <p className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 16 }}>invalid link</p>
-            <h1 className="hl-serif hl-tight" style={{ fontSize: 'var(--type-title)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px' }}>
-              This invite link is not valid.
-            </h1>
-            <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', lineHeight: 1.7, fontWeight: 300, margin: '0 0 32px' }}>
-              The link may have expired or been miscopied. Ask the person who invited you to resend.
-            </p>
-            <Link to="/" className="hl-link warm" style={{ fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase' }}>← home</Link>
-          </>
-        ) : accepting ? (
-          <>
-            <div style={{ height: 1, background: 'var(--warm)', width: '32px', marginBottom: 28, opacity: 0.6 }} />
-            <p className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>joining…</p>
-          </>
-        ) : done ? (
-          <>
-            <p className="hl-eyebrow" style={{ color: 'var(--warm)', marginBottom: 16 }}>welcome to the thread</p>
-            <h1 className="hl-serif hl-tight" style={{ fontSize: 'var(--type-title)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 20px' }}>
-              You've joined the family cloth.
-            </h1>
-            <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', lineHeight: 1.7, fontWeight: 300 }}>
-              Your first thread is waiting to be woven.
-            </p>
-          </>
-        ) : error ? (
-          <>
-            <p className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 16 }}>something went wrong</p>
-            <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', lineHeight: 1.7, fontWeight: 300, margin: '0 0 24px' }}>{error}</p>
-            <Link to="/loom" className="hl-link warm" style={{ fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase' }}>go to heirloom →</Link>
-          </>
-        ) : (
-          <div style={{ textAlign: 'center', borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)', padding: 'clamp(40px, 7vw, 72px) 0' }}>
-            <div aria-hidden className="hl-serif" style={{ fontSize: 'clamp(40px, 6vw, 56px)', fontWeight: 200, color: 'var(--warm)', opacity: 0.7, lineHeight: 1, marginBottom: 30 }}>∞</div>
-            <p className="hl-eyebrow" style={{ color: 'var(--bone-faint)', letterSpacing: '0.4em', marginBottom: 26 }}>welcome</p>
-            <h1 className="hl-serif hl-tight" style={{ fontSize: 'clamp(34px, 5vw, 56px)', fontWeight: 200, color: 'var(--bone)', margin: 0 }}>
-              Your thread is waiting for your voice.
-            </h1>
-            <p className="hl-serif" style={{ fontSize: 'var(--type-body-lg)', color: 'var(--bone-dim)', lineHeight: 1.7, maxWidth: '46ch', margin: '24px auto 0' }}>
-              Someone in your family has woven a permanent record of memories, letters, and stories — owned by your bloodline, not a platform. You've been included. Add your voice, or simply read what has been written.
-            </p>
+        <div style={{ width: '100%', maxWidth: 400, textAlign: 'center' }}>
 
-            <div className="hl-mono" style={{ margin: '32px 0', fontSize: 13, color: 'var(--bone)', letterSpacing: '0.1em' }}>
-              <span style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>invite code</span>
-              {'  '}{code}
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18 }}>
-              <button
-                type="button"
-                className="hl-btn text"
-                onClick={() => storeAndGo('/signup')}
-                style={{ letterSpacing: '0.06em' }}
-              >
-                create account →
-              </button>
-              <button
-                type="button"
-                onClick={() => storeAndGo('/login')}
-                className="hl-mono"
+          {!isValid ? (
+            /* ── Invalid invite link ── */
+            <div style={{ textAlign: 'center' }}>
+              <p
                 style={{
-                  background: 'transparent',
-                  border: 0,
-                  padding: 0,
-                  color: 'var(--bone-faint)',
-                  fontSize: 10.5,
-                  letterSpacing: '0.18em',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.26em',
                   textTransform: 'uppercase',
-                  cursor: 'pointer',
+                  color: 'var(--warm)',
+                  margin: '0 0 24px',
                 }}
               >
-                already have an account → sign in
-              </button>
+                invalid link
+              </p>
+              <h1
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontSize: 'clamp(40px,9vw,72px)',
+                  fontWeight: 300,
+                  lineHeight: 1.05,
+                  color: 'var(--bone)',
+                  margin: '0 0 28px',
+                }}
+              >
+                This invite link is not valid.
+              </h1>
+              <p
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontStyle: 'italic',
+                  fontSize: 17,
+                  lineHeight: 1.7,
+                  color: 'var(--bone-dim)',
+                  margin: '0 0 40px',
+                  maxWidth: '38ch',
+                  marginInline: 'auto',
+                }}
+              >
+                The link may have expired or been miscopied. Ask the person who invited you to resend.
+              </p>
+              <Link
+                to="/"
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  textDecoration: 'none',
+                }}
+              >
+                ← home
+              </Link>
+              <div style={{ marginTop: 72, display: 'flex', justifyContent: 'center' }}>
+                <WaxSeal size={28} />
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+
+          ) : accepting ? (
+            /* ── Accepting / loading ── */
+            <div style={{ textAlign: 'center' }}>
+              <progress
+                style={{
+                  appearance: 'none',
+                  WebkitAppearance: 'none',
+                  width: 32,
+                  height: 1,
+                  border: 'none',
+                  background: 'var(--rule)',
+                  display: 'block',
+                  margin: '0 auto 32px',
+                  opacity: 0.6,
+                }}
+              />
+              <p
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                }}
+              >
+                joining…
+              </p>
+            </div>
+
+          ) : done ? (
+            /* ── Success ── */
+            <div style={{ textAlign: 'center' }}>
+              <p
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  margin: '0 0 24px',
+                }}
+              >
+                welcome to the thread
+              </p>
+              <h1
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontSize: 'clamp(40px,9vw,72px)',
+                  fontWeight: 300,
+                  lineHeight: 1.05,
+                  color: 'var(--bone)',
+                  margin: '0 0 28px',
+                }}
+              >
+                You've joined the family cloth.
+              </h1>
+              <p
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontStyle: 'italic',
+                  fontSize: 17,
+                  lineHeight: 1.7,
+                  color: 'var(--bone-dim)',
+                  maxWidth: '38ch',
+                  marginInline: 'auto',
+                  margin: '0 auto 64px',
+                }}
+              >
+                Your first thread is waiting to be woven.
+              </p>
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <WaxSeal size={28} />
+              </div>
+            </div>
+
+          ) : error ? (
+            /* ── Error ── */
+            <div style={{ textAlign: 'center' }}>
+              <p
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  margin: '0 0 24px',
+                }}
+              >
+                something went wrong
+              </p>
+              <p
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 12,
+                  letterSpacing: '0.1em',
+                  color: 'var(--warm)',
+                  margin: '0 0 40px',
+                  maxWidth: '40ch',
+                  marginInline: 'auto',
+                  lineHeight: 1.6,
+                }}
+              >
+                {error}
+              </p>
+              <Link
+                to="/loom"
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  textDecoration: 'none',
+                }}
+              >
+                go to heirloom →
+              </Link>
+              <div style={{ marginTop: 72, display: 'flex', justifyContent: 'center' }}>
+                <WaxSeal size={28} />
+              </div>
+            </div>
+
+          ) : (
+            /* ── Default: not logged in, valid invite ── */
+            <div style={{ textAlign: 'center' }}>
+              {/* Glowing ∞ */}
+              <div
+                aria-hidden
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontSize: 'clamp(40px,10vw,64px)',
+                  fontWeight: 200,
+                  color: 'var(--warm)',
+                  lineHeight: 1,
+                  marginBottom: 40,
+                  textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
+                }}
+              >
+                ∞
+              </div>
+
+              {/* Mono eyebrow */}
+              <p
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.4em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  margin: '0 0 24px',
+                }}
+              >
+                welcome
+              </p>
+
+              {/* Giant serif headline */}
+              <h1
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontSize: 'clamp(40px,9vw,72px)',
+                  fontWeight: 300,
+                  lineHeight: 1.05,
+                  color: 'var(--bone)',
+                  margin: '0 0 28px',
+                }}
+              >
+                Your thread is waiting for your voice.
+              </h1>
+
+              {/* Serif-italic sub */}
+              <p
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontStyle: 'italic',
+                  fontSize: 17,
+                  lineHeight: 1.7,
+                  color: 'var(--bone-dim)',
+                  maxWidth: '46ch',
+                  marginInline: 'auto',
+                  margin: '0 auto 36px',
+                }}
+              >
+                Someone in your family has woven a permanent record of memories, letters, and stories — owned by your bloodline, not a platform. You've been included. Add your voice, or simply read what has been written.
+              </p>
+
+              {/* Invite code display */}
+              <p
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 9,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  margin: '0 0 6px',
+                }}
+              >
+                invite code
+              </p>
+              <p
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 13,
+                  letterSpacing: '0.1em',
+                  color: 'var(--bone)',
+                  margin: '0 0 40px',
+                }}
+              >
+                {code}
+              </p>
+
+              {/* CTAs */}
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 20,
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => storeAndGo('/signup')}
+                  style={{
+                    fontFamily: 'var(--mono)',
+                    fontSize: 11,
+                    letterSpacing: '0.26em',
+                    textTransform: 'uppercase',
+                    color: 'var(--warm)',
+                    background: 'transparent',
+                    border: 0,
+                    padding: '14px 0',
+                    minHeight: 44,
+                    cursor: 'pointer',
+                  }}
+                >
+                  create account →
+                </button>
+                <button
+                  type="button"
+                  onClick={() => storeAndGo('/login')}
+                  style={{
+                    fontFamily: 'var(--mono)',
+                    fontSize: 10,
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                    color: 'var(--bone-faint)',
+                    background: 'transparent',
+                    border: 0,
+                    padding: '12px 0',
+                    minHeight: 44,
+                    cursor: 'pointer',
+                  }}
+                >
+                  already have an account → sign in
+                </button>
+              </div>
+
+              <div style={{ marginTop: 72, display: 'flex', justifyContent: 'center' }}>
+                <WaxSeal size={28} />
+              </div>
+            </div>
+          )}
+
+        </div>
       </div>
     </ClothShell>
   );

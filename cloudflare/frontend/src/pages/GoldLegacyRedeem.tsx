@@ -5,6 +5,7 @@ import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
 import { TapestryEdge } from '../loom/components/Frame';
 import { ClothShell } from '../loom/components/ClothShell';
+import { SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import api from '../services/api';
 
 interface GoldLegacyVoucherInfo {
@@ -27,6 +28,47 @@ const BENEFITS = [
   'gold legacy member designation',
   'early access to new features',
 ];
+
+const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+
+/** The ceremonial glowing warm ∞ at the head of the ritual. */
+function GlowMark() {
+  return (
+    <div
+      aria-hidden
+      className="hl-serif"
+      style={{
+        fontSize: 'clamp(40px, 10vw, 64px)',
+        fontWeight: 200,
+        color: 'var(--warm)',
+        lineHeight: 1,
+        marginBottom: 28,
+        textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
+      }}
+    >
+      ∞
+    </div>
+  );
+}
+
+/** A serif-bullet benefit line, used in both the success scroll and the pre-validation list. */
+function BenefitLine({ children, size = 14 }: { children: React.ReactNode; size?: number }) {
+  return (
+    <li
+      className="hl-serif"
+      style={{
+        display: 'flex',
+        alignItems: 'baseline',
+        gap: 12,
+        fontSize: size,
+        color: 'var(--bone-dim)',
+      }}
+    >
+      <span style={{ color: 'var(--warm)', flexShrink: 0 }}>·</span>
+      {children}
+    </li>
+  );
+}
 
 export function GoldLegacyRedeem() {
   const navigate = useNavigate();
@@ -122,29 +164,27 @@ export function GoldLegacyRedeem() {
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        <div style={{ width: '100%', maxWidth: 'var(--page-max-focus)', textAlign: 'center' }}>
+        {/* The ceremony frame — vast air, one faint rounded-rect */}
+        <div
+          style={{
+            width: '100%',
+            maxWidth: 'var(--page-max-focus)',
+            textAlign: 'center',
+            border: '1px solid var(--rule)',
+            borderRadius: 14,
+            padding: 'clamp(32px, 7vw, 56px) clamp(24px, 6vw, 48px)',
+            boxSizing: 'border-box',
+          }}
+        >
 
           {redeemSuccess ? (
             /* ── Success state ── */
             <div role="status">
-              {/* ∞ mark */}
-              <div
-                className="hl-serif"
-                style={{
-                  fontSize: 44,
-                  fontWeight: 200,
-                  color: 'var(--warm)',
-                  opacity: 0.7,
-                  marginBottom: 28,
-                  lineHeight: 1,
-                }}
-              >
-                ∞
-              </div>
+              <GlowMark />
 
               <h1
                 className="hl-serif hl-tight"
-                style={{ fontSize: 'var(--type-display)', fontWeight: 200, margin: '0 0 28px', color: 'var(--bone)' }}
+                style={{ fontSize: 'clamp(24px, 5vw, 34px)', fontWeight: 200, margin: '0 0 24px', color: 'var(--bone)' }}
               >
                 Your lifetime access.
               </h1>
@@ -152,10 +192,10 @@ export function GoldLegacyRedeem() {
               <p
                 className="hl-mono"
                 style={{
-                  fontSize: 10,
-                  letterSpacing: '0.32em',
+                  fontSize: 11,
+                  letterSpacing: '0.26em',
                   textTransform: 'uppercase',
-                  color: 'var(--bone-dim)',
+                  color: 'var(--warm)',
                   margin: '0 0 24px',
                 }}
               >
@@ -204,20 +244,7 @@ export function GoldLegacyRedeem() {
                 }}
               >
                 {BENEFITS.map((b, i) => (
-                  <li
-                    key={i}
-                    className="hl-serif"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'baseline',
-                      gap: 12,
-                      fontSize: 14,
-                      color: 'var(--bone-dim)',
-                    }}
-                  >
-                    <span style={{ color: 'var(--warm)', flexShrink: 0 }}>·</span>
-                    {b}
-                  </li>
+                  <BenefitLine key={i}>{b}</BenefitLine>
                 ))}
               </ul>
 
@@ -229,7 +256,7 @@ export function GoldLegacyRedeem() {
                   border: 0,
                   padding: 0,
                   fontSize: 11,
-                  letterSpacing: '0.18em',
+                  letterSpacing: '0.26em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
                   cursor: 'pointer',
@@ -241,27 +268,27 @@ export function GoldLegacyRedeem() {
           ) : (
             /* ── Entry state ── */
             <>
-              {/* ∞ mark */}
-              <div
-                className="hl-serif"
-                style={{
-                  fontSize: 44,
-                  fontWeight: 200,
-                  color: 'var(--warm)',
-                  opacity: 0.7,
-                  marginBottom: 28,
-                  lineHeight: 1,
-                }}
-              >
-                ∞
-              </div>
+              <GlowMark />
 
               <h1
                 className="hl-serif hl-tight"
-                style={{ fontSize: 'var(--type-display)', fontWeight: 200, margin: '0 0 28px', color: 'var(--bone)' }}
+                style={{ fontSize: 'clamp(24px, 5vw, 34px)', fontWeight: 200, margin: '0 0 12px', color: 'var(--bone)' }}
               >
                 Your lifetime access.
               </h1>
+
+              <p
+                className="hl-mono"
+                style={{
+                  fontSize: 11,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                  margin: '0 0 28px',
+                }}
+              >
+                gold legacy · $249 lifetime
+              </p>
 
               {/* Code input */}
               <input
@@ -301,7 +328,7 @@ export function GoldLegacyRedeem() {
                 <p
                   role="alert"
                   className="hl-mono"
-                  style={{ fontSize: 10, color: 'var(--danger)', margin: '0 0 16px', letterSpacing: '0.04em' }}
+                  style={{ fontSize: 10, color: 'var(--warm)', margin: '0 0 16px', letterSpacing: '0.04em' }}
                 >
                   {error}
                 </p>
@@ -353,19 +380,8 @@ export function GoldLegacyRedeem() {
 
                   {voucherInfo.recipientMessage && (
                     <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--rule)' }}>
-                      <p
-                        className="hl-mono"
-                        style={{
-                          fontSize: 9,
-                          letterSpacing: '0.32em',
-                          textTransform: 'uppercase',
-                          color: 'var(--bone-dim)',
-                          margin: '0 0 10px',
-                        }}
-                      >
-                        a note
-                      </p>
-                      <div style={{ borderLeft: '1px solid var(--rule)', paddingLeft: 16 }}>
+                      <SectionLabel>a note</SectionLabel>
+                      <div style={{ borderLeft: '1px solid var(--rule)', paddingLeft: 16, marginTop: 4 }}>
                         <p
                           className="hl-serif hl-italic"
                           style={{ fontSize: 14, color: 'var(--bone-dim)', lineHeight: 1.7, margin: 0 }}
@@ -377,19 +393,8 @@ export function GoldLegacyRedeem() {
                   )}
 
                   <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--rule)' }}>
-                    <p
-                      className="hl-mono"
-                      style={{
-                        fontSize: 9,
-                        letterSpacing: '0.32em',
-                        textTransform: 'uppercase',
-                        color: 'var(--bone-dim)',
-                        margin: '0 0 12px',
-                      }}
-                    >
-                      lifetime benefits
-                    </p>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    <SectionLabel>lifetime benefits</SectionLabel>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 4 }}>
                       {['Lifetime Access', 'Unlimited Storage', 'Priority Support', 'Gold Designation'].map(
                         (b, i) => (
                           <div
@@ -416,12 +421,12 @@ export function GoldLegacyRedeem() {
                           border: 0,
                           padding: 0,
                           fontSize: 11,
-                          letterSpacing: '0.18em',
+                          letterSpacing: '0.26em',
                           textTransform: 'uppercase',
                           color: 'var(--warm)',
                           opacity: isRedeeming ? 0.5 : 1,
                           cursor: isRedeeming ? 'default' : 'pointer',
-                          transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                          transition: `opacity 180ms ${EASE}`,
                         }}
                       >
                         {isRedeeming ? 'activating…' : 'activate →'}
@@ -479,12 +484,12 @@ export function GoldLegacyRedeem() {
                     border: 0,
                     padding: 0,
                     fontSize: 11,
-                    letterSpacing: '0.18em',
+                    letterSpacing: '0.26em',
                     textTransform: 'uppercase',
                     color: 'var(--warm)',
                     opacity: isValidating ? 0.5 : 1,
                     cursor: isValidating ? 'default' : 'pointer',
-                    transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                    transition: `opacity 180ms ${EASE}`,
                   }}
                 >
                   {isValidating ? 'checking…' : 'activate →'}
@@ -500,7 +505,7 @@ export function GoldLegacyRedeem() {
                       border: 0,
                       padding: 0,
                       fontSize: 11,
-                      letterSpacing: '0.18em',
+                      letterSpacing: '0.26em',
                       textTransform: 'uppercase',
                       color: 'var(--warm)',
                       opacity: 0.35,
@@ -511,18 +516,7 @@ export function GoldLegacyRedeem() {
                   </button>
 
                   <div style={{ marginTop: 32 }}>
-                    <p
-                      className="hl-mono"
-                      style={{
-                        fontSize: 9,
-                        letterSpacing: '0.32em',
-                        textTransform: 'uppercase',
-                        color: 'var(--bone-dim)',
-                        margin: '0 0 14px',
-                      }}
-                    >
-                      gold legacy grants you
-                    </p>
+                    <SectionLabel>gold legacy grants you</SectionLabel>
                     <ul
                       style={{
                         listStyle: 'none',
@@ -534,25 +528,17 @@ export function GoldLegacyRedeem() {
                       }}
                     >
                       {BENEFITS.map((f, i) => (
-                        <li
-                          key={i}
-                          className="hl-serif"
-                          style={{
-                            display: 'flex',
-                            alignItems: 'baseline',
-                            gap: 12,
-                            fontSize: 14,
-                            color: 'var(--bone-dim)',
-                          }}
-                        >
-                          <span style={{ color: 'var(--warm)', flexShrink: 0 }}>·</span>
-                          {f}
-                        </li>
+                        <BenefitLine key={i}>{f}</BenefitLine>
                       ))}
                     </ul>
                   </div>
                 </>
               )}
+
+              {/* The ∞ wax seal resting at the foot of the ceremony */}
+              <div style={{ marginTop: 40 }}>
+                <WaxSeal size={24} />
+              </div>
             </>
           )}
         </div>

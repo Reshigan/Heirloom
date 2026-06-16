@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { streaksApi, challengesApi } from '../services/api';
 
 // Dye names in rotation for activity grid cells
@@ -112,10 +112,11 @@ export function Streaks() {
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        {/* ── Kicker + H1 ── */}
-        <div style={{ marginBottom: 28 }}>
-          <RoomHeader eyebrow="Continuity" title="The thread unbroken." />
-        </div>
+        {/* ── CosmicHeader: mono eyebrow states the current streak count ── */}
+        <CosmicHeader
+          eyebrow={`${currentStreak} ${currentStreak === 1 ? 'day' : 'days'} unbroken`}
+          title="The thread unbroken."
+        />
 
         {streakLoading ? (
           <p
@@ -125,9 +126,9 @@ export function Streaks() {
             Reading the thread…
           </p>
         ) : (
-          <div style={{ display: 'grid', gap: 56 }}>
+          <div style={{ display: 'grid', gap: 64 }}>
 
-            {/* ── Current streak ── */}
+            {/* ── Current streak — quiet serif numeral, mono label ── */}
             <section>
               {/* Current streak number */}
               <div style={{ marginBottom: 4 }}>
@@ -149,34 +150,34 @@ export function Streaks() {
                   style={{
                     fontSize: 10,
                     color: 'var(--bone-faint)',
-                    letterSpacing: '0.08em',
+                    letterSpacing: '0.3em',
                     textTransform: 'uppercase',
                     display: 'block',
-                    marginTop: 4,
+                    marginTop: 8,
                   }}
                 >
-                  days
+                  days running
                 </span>
               </div>
 
               {/* Status line */}
-              <div style={{ marginTop: 16 }}>
+              <div style={{ marginTop: 20 }}>
                 {streak?.isStreakActive ? (
                   <span
                     className="hl-mono"
-                    style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.12em', textTransform: 'uppercase' }}
+                    style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.18em', textTransform: 'uppercase' }}
                   >
                     active
                   </span>
                 ) : streak?.canExtendStreak ? (
                   <span
                     className="hl-mono"
-                    style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}
+                    style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.06em' }}
                   >
                     Add an entry today to continue the thread.
                     <Link
                       to="/compose"
-                      style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none', marginLeft: 8 }}
+                      style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none', marginLeft: 10 }}
                     >
                       write now →
                     </Link>
@@ -184,12 +185,12 @@ export function Streaks() {
                 ) : (
                   <span
                     className="hl-mono"
-                    style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}
+                    style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.06em' }}
                   >
                     Begin a new thread today.
                     <Link
                       to="/compose"
-                      style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none', marginLeft: 8 }}
+                      style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none', marginLeft: 10 }}
                     >
                       write now →
                     </Link>
@@ -198,41 +199,68 @@ export function Streaks() {
                 {streak?.streakFrozenUntil && (
                   <span
                     className="hl-mono"
-                    style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.04em', display: 'block', marginTop: 8 }}
+                    style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.06em', display: 'block', marginTop: 10 }}
                   >
                     Thread held until {new Date(streak.streakFrozenUntil).toLocaleDateString()}.
                   </span>
                 )}
               </div>
 
-              {/* Longest + total — secondary row */}
+              {/* ── Stat figures — quiet serif numerals, mono labels ── */}
               <div
                 style={{
-                  marginTop: 12,
+                  marginTop: 36,
+                  paddingTop: 28,
+                  borderTop: '1px solid var(--rule)',
                   display: 'flex',
-                  gap: 40,
-                  alignItems: 'baseline',
+                  flexWrap: 'wrap',
+                  gap: 'clamp(36px, 8vw, 72px)',
+                  alignItems: 'flex-end',
                 }}
               >
-                <span
-                  className="hl-mono"
-                  style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}
-                >
-                  longest {longestStreak}d
-                </span>
-                <span
-                  className="hl-mono"
-                  style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}
-                >
-                  {totalMemories} entries total
-                </span>
-                {streak?.streakStartedAt && (
+                <div>
+                  <span
+                    className="hl-serif"
+                    style={{ fontSize: 'clamp(30px, 5vw, 42px)', fontWeight: 200, color: 'var(--bone)', lineHeight: 1, display: 'block', letterSpacing: '-0.02em' }}
+                  >
+                    {longestStreak}
+                  </span>
                   <span
                     className="hl-mono"
-                    style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.04em' }}
+                    style={{ fontSize: 9.5, color: 'var(--bone-faint)', letterSpacing: '0.3em', textTransform: 'uppercase', display: 'block', marginTop: 8 }}
                   >
-                    since {new Date(streak.streakStartedAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+                    longest run
                   </span>
+                </div>
+                <div>
+                  <span
+                    className="hl-serif"
+                    style={{ fontSize: 'clamp(30px, 5vw, 42px)', fontWeight: 200, color: 'var(--bone)', lineHeight: 1, display: 'block', letterSpacing: '-0.02em' }}
+                  >
+                    {totalMemories}
+                  </span>
+                  <span
+                    className="hl-mono"
+                    style={{ fontSize: 9.5, color: 'var(--bone-faint)', letterSpacing: '0.3em', textTransform: 'uppercase', display: 'block', marginTop: 8 }}
+                  >
+                    entries total
+                  </span>
+                </div>
+                {streak?.streakStartedAt && (
+                  <div>
+                    <span
+                      className="hl-serif hl-italic"
+                      style={{ fontSize: 'clamp(20px, 3.5vw, 26px)', fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.1, display: 'block' }}
+                    >
+                      {new Date(streak.streakStartedAt).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
+                    </span>
+                    <span
+                      className="hl-mono"
+                      style={{ fontSize: 9.5, color: 'var(--bone-faint)', letterSpacing: '0.3em', textTransform: 'uppercase', display: 'block', marginTop: 8 }}
+                    >
+                      since
+                    </span>
+                  </div>
                 )}
               </div>
 
@@ -240,10 +268,11 @@ export function Streaks() {
               {streak?.isStreakActive && !streak?.streakFrozenUntil && (
                 <div
                   style={{
-                    marginTop: 28,
-                    paddingTop: 20,
+                    marginTop: 32,
+                    paddingTop: 24,
                     borderTop: '1px solid var(--rule)',
                     display: 'flex',
+                    flexWrap: 'wrap',
                     alignItems: 'baseline',
                     justifyContent: 'space-between',
                     gap: 24,
@@ -252,13 +281,13 @@ export function Streaks() {
                   <div>
                     <p
                       className="hl-serif"
-                      style={{ fontSize: 15, fontWeight: 300, color: 'var(--bone)', margin: '0 0 3px' }}
+                      style={{ fontSize: 16, fontWeight: 300, color: 'var(--bone)', margin: '0 0 4px' }}
                     >
                       Hold the thread for one day.
                     </p>
                     <p
                       className="hl-mono"
-                      style={{ fontSize: 10, color: 'var(--bone-faint)', margin: 0, letterSpacing: '0.04em' }}
+                      style={{ fontSize: 10, color: 'var(--bone-faint)', margin: 0, letterSpacing: '0.06em' }}
                     >
                       Rest without losing continuity. Once per week.
                     </p>
@@ -268,41 +297,34 @@ export function Streaks() {
                     onClick={() => setShowFreezeModal(true)}
                     style={{
                       background: 'transparent',
-                      border: '1px solid var(--rule)',
+                      border: 0,
                       color: 'var(--bone-dim)',
                       fontFamily: 'var(--mono)',
                       fontSize: 10,
-                      letterSpacing: '0.08em',
+                      letterSpacing: '0.18em',
                       textTransform: 'uppercase',
-                      padding: '6px 14px',
+                      padding: '8px 0',
                       cursor: 'pointer',
                       borderRadius: 0,
                       flexShrink: 0,
-                      transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
+                      transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
                     }}
                     onMouseEnter={e => {
-                      e.currentTarget.style.borderColor = 'var(--warm)';
                       e.currentTarget.style.color = 'var(--warm)';
                     }}
                     onMouseLeave={e => {
-                      e.currentTarget.style.borderColor = 'var(--rule)';
                       e.currentTarget.style.color = 'var(--bone-dim)';
                     }}
                   >
-                    hold thread
+                    hold thread →
                   </button>
                 </div>
               )}
             </section>
 
-            {/* ── Activity grid ── */}
+            {/* ── Activity grid — last 91 days ── */}
             <section>
-              <p
-                className="hl-eyebrow"
-                style={{ marginBottom: 16 }}
-              >
-                91 days
-              </p>
+              <SectionLabel>91 Days</SectionLabel>
 
               {/* Tooltip */}
               <div style={{ position: 'relative', overflowX: 'auto' }}>
@@ -311,7 +333,7 @@ export function Streaks() {
                     display: 'grid',
                     gridTemplateColumns: 'repeat(7, 1fr)',
                     gap: 4,
-                    marginTop: 40,
+                    marginTop: 20,
                     minWidth: 340,
                   }}
                 >
@@ -368,182 +390,90 @@ export function Streaks() {
               </div>
             </section>
 
-            {/* ── Continuity marks ── */}
+            {/* ── Continuity marks — hairline ledger rows ── */}
             <section>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 20 }}>
-                <p className="hl-eyebrow">Continuity marks</p>
-                <hr
-                  style={{
-                    flex: 1,
-                    border: 0,
-                    borderTop: '1px solid var(--rule)',
-                    margin: 0,
-                  }}
-                />
-              </div>
-              <ul style={{ listStyle: 'none', padding: 0, margin: 0, borderTop: '1px solid var(--rule)' }}>
+              <SectionLabel>Continuity Marks</SectionLabel>
+              <div style={{ borderTop: '1px solid var(--rule)' }}>
                 {continuityMarks.map(mark => {
                   const reached = longestStreak >= mark.days;
                   return (
-                    <li
+                    <EntryRow
                       key={mark.days}
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: '14px 64px 1fr 64px',
-                        gap: 18,
-                        alignItems: 'baseline',
-                        padding: '14px 0',
-                        borderBottom: '1px solid var(--rule)',
-                      }}
-                    >
-                      <span
-                        aria-hidden
-                        style={{
-                          width: 6,
-                          height: 6,
-                          borderRadius: 0,
-                          background: reached ? 'var(--warm)' : 'transparent',
-                          border: reached ? 'none' : '1px solid var(--rule)',
-                          alignSelf: 'center',
-                          justifySelf: 'center',
-                        }}
-                      />
-                      <span
-                        className="hl-mono"
-                        style={{
-                          fontSize: 11,
-                          letterSpacing: '0.04em',
-                          color: 'var(--bone-faint)',
-                          margin: 0,
-                        }}
-                      >
-                        {mark.days}d
-                      </span>
-                      <span
-                        className="hl-serif"
-                        style={{
-                          fontSize: 16,
-                          fontWeight: 300,
-                          color: reached ? 'var(--bone)' : 'var(--bone-dim)',
-                          margin: 0,
-                        }}
-                      >
-                        {mark.label}
-                      </span>
-                      <span
-                        className="hl-mono"
-                        style={{
-                          fontSize: 9.5,
-                          color: 'var(--bone-faint)',
-                          textAlign: 'right',
-                          letterSpacing: '0.18em',
-                          textTransform: 'uppercase',
-                          margin: 0,
-                        }}
-                      >
-                        {reached ? 'reached' : '—'}
-                      </span>
-                    </li>
+                      title={mark.label}
+                      italic={!reached}
+                      year={`${mark.days}D`}
+                      meta={reached ? 'REACHED' : '—'}
+                    />
                   );
                 })}
-              </ul>
+              </div>
             </section>
 
             {/* ── Current challenge cross-link ── */}
             {currentChallenge && (
-              <section style={{ borderTop: '1px solid var(--rule)', paddingTop: 28 }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 32 }}>
-                  <div>
-                    <p className="hl-eyebrow" style={{ marginBottom: 8 }}>This week's theme</p>
+              <section>
+                <SectionLabel>This Week's Theme</SectionLabel>
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: 32, paddingTop: 8 }}>
+                  <div style={{ flex: 1, minWidth: 240 }}>
                     <h3
                       className="hl-serif"
-                      style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)', margin: '0 0 6px' }}
+                      style={{ fontSize: 22, fontWeight: 400, color: 'var(--bone)', margin: '0 0 8px', lineHeight: 1.2 }}
                     >
                       {currentChallenge.title}
                     </h3>
                     <p
                       className="hl-serif"
-                      style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 8px', lineHeight: 1.6, fontWeight: 300 }}
+                      style={{ fontSize: 15, color: 'var(--bone-dim)', margin: '0 0 12px', lineHeight: 1.6, fontWeight: 300 }}
                     >
                       {currentChallenge.description}
                     </p>
                     <span
                       className="hl-mono"
-                      style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}
+                      style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em', textTransform: 'uppercase' }}
                     >
                       {currentChallenge.hashtag} · {currentChallenge.submissionCount || 0} entries
                     </span>
                   </div>
                   <Link
                     to="/challenges"
-                    className="hl-btn"
                     style={{
+                      fontFamily: 'var(--mono)',
                       textDecoration: 'none',
                       flexShrink: 0,
-                      padding: '8px 16px',
+                      color: 'var(--warm)',
                       fontSize: 10,
-                      letterSpacing: '0.08em',
+                      letterSpacing: '0.18em',
                       textTransform: 'uppercase',
+                      paddingTop: 6,
                     }}
                   >
-                    join theme
+                    join theme →
                   </Link>
                 </div>
               </section>
             )}
 
-            {/* ── Upcoming themes ── */}
+            {/* ── Upcoming themes — hairline ledger rows ── */}
             {challenges && (challenges as any[]).length > 0 && (
               <section>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginBottom: 16 }}>
-                  <p className="hl-eyebrow">Coming themes</p>
-                  <hr
-                    style={{
-                      flex: 1,
-                      border: 0,
-                      borderTop: '1px solid var(--rule)',
-                      margin: 0,
-                    }}
-                  />
-                </div>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                <SectionLabel>Coming Themes</SectionLabel>
+                <div style={{ borderTop: '1px solid var(--rule)' }}>
                   {(challenges as any[]).slice(0, 4).map((challenge: any) => (
-                    <li
+                    <EntryRow
                       key={challenge.id}
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: '100px 1fr',
-                        gap: 20,
-                        padding: '12px 0',
-                        borderBottom: '1px solid var(--rule)',
-                        alignItems: 'baseline',
-                      }}
-                    >
-                      <span
-                        className="hl-mono"
-                        style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.04em' }}
-                      >
-                        {new Date(challenge.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                      </span>
-                      <div>
-                        <p
-                          className="hl-serif"
-                          style={{ margin: '0 0 2px', fontSize: 15, fontWeight: 300, color: 'var(--bone)' }}
-                        >
-                          {challenge.title}
-                        </p>
-                        <span
-                          className="hl-mono"
-                          style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.06em' }}
-                        >
-                          {challenge.theme}
-                        </span>
-                      </div>
-                    </li>
+                      title={challenge.title}
+                      sub={challenge.theme}
+                      meta={new Date(challenge.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }).toUpperCase()}
+                    />
                   ))}
-                </ul>
+                </div>
               </section>
             )}
+
+            {/* ── Wax seal foot ── */}
+            <div style={{ paddingTop: 8 }}>
+              <WaxSeal />
+            </div>
           </div>
         )}
       </div>
@@ -633,7 +563,7 @@ export function Streaks() {
             {freezeError && (
               <p
                 className="hl-mono"
-                style={{ fontSize: 11, color: 'var(--danger)', marginTop: 12, letterSpacing: '0.04em' }}
+                style={{ fontSize: 11, color: 'var(--warm)', marginTop: 12, letterSpacing: '0.14em', textTransform: 'uppercase' }}
               >
                 {freezeError}
               </p>

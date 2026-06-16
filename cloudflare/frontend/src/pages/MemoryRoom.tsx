@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { dyeColor } from '../loom/dye';
 import api from '../services/api';
 
@@ -37,6 +38,7 @@ export function MemoryRoom() {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [openId, setOpenId] = useState<string | null>(null);
 
   const { data, isLoading, error, refetch } = useQuery<RoomData>({
     queryKey: ['memory-room', token],
@@ -113,15 +115,10 @@ export function MemoryRoom() {
       <ClothShell topbarCenter="memory room">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, height: '100%' }}>
           <div style={{ textAlign: 'center', maxWidth: 480 }}>
-            <p
-              className="hl-serif"
-              style={{ fontSize: 28, color: 'var(--warm)', marginBottom: 16 }}
-            >
-              ∞
-            </p>
+            <WaxSeal size={28} />
             <h1
               className="hl-serif hl-tight"
-              style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '0 0 12px', color: 'var(--bone)' }}
+              style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '16px 0 12px', color: 'var(--bone)' }}
             >
               Room not found.
             </h1>
@@ -139,6 +136,8 @@ export function MemoryRoom() {
 
   const { room, contributions } = data;
   const contentTypeLabel = (t: string) => t === 'PHOTO' ? 'Photo' : t === 'VOICE' ? 'Voice' : 'Story';
+  const count = contributions.length;
+  const ledgerEyebrow = `${count} ${count === 1 ? 'MEMORY' : 'MEMORIES'} SHARED`;
 
   return (
     <ClothShell
@@ -170,131 +169,184 @@ export function MemoryRoom() {
         margin: '0 auto',
       }}>
 
-        {/* Room header — the reading-room anchor */}
+        {/* Room header — the reading-room anchor (chrome preserved) */}
         <RoomHeader
           eyebrow={<>MEMORY ROOM <span style={{ color: 'var(--warm)' }}>·</span> {room.ownerName}</>}
           title={room.name || 'A room in the cloth.'}
           lede={room.description || undefined}
         />
 
-        {/* Inline success status */}
+        {/* Inline success status — mono, warm, never red */}
         {submitted && (
           <div
             role="status"
-            style={{
-              marginTop: 32,
-              padding: '14px 20px',
-              border: '1px solid var(--warm)',
-            }}
+            style={{ marginTop: 32, borderLeft: '3px solid var(--warm)', paddingLeft: 18 }}
           >
             <p
-              className="hl-prose dark"
-              style={{ fontSize: 14, color: 'var(--warm)', margin: 0, fontStyle: 'italic' }}
+              className="hl-mono"
+              style={{
+                fontSize: 11,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                margin: 0,
+              }}
             >
-              Thank you for sharing your memory. It means so much.
+              Thank you — your memory is woven in.
             </p>
           </div>
         )}
 
-        {/* Memory list — each entry read as a single memory per the comp */}
-        <div style={{ marginTop: 72 }}>
-          {contributions.length > 0 ? (
+        {/* The ledger — count + kind eyebrow over the entry rows */}
+        <div style={{ marginTop: 64 }}>
+          <CosmicHeader
+            eyebrow={ledgerEyebrow}
+            title="The memories."
+          />
+
+          {/* Quiet mono control bar */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 12,
+              marginBottom: 8,
+            }}
+          >
+            <SectionLabel>{count === 0 ? 'NONE YET' : `${count} ${count === 1 ? 'ENTRY' : 'ENTRIES'}`}</SectionLabel>
+            <button
+              type="button"
+              onClick={() => setShowContribute(true)}
+              style={{
+                background: 'transparent',
+                border: 0,
+                cursor: 'pointer',
+                padding: 0,
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.24em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+              }}
+            >
+              + share a memory
+            </button>
+          </div>
+
+          {count > 0 ? (
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {contributions.map((c) => {
                 const dye = dyeColor(c.id);
-                const year = new Date(c.created_at).getFullYear();
-                const dateLine = new Date(c.created_at).toLocaleDateString(undefined, {
+                const date = new Date(c.created_at);
+                const year = date.getFullYear();
+                const dateLine = date.toLocaleDateString(undefined, {
                   day: '2-digit',
                   month: 'long',
                   year: 'numeric',
                 });
+                const isOpen = openId === c.id;
+                const author = `${c.contributor_name}${c.contributor_relationship ? `, ${c.contributor_relationship}` : ''}`;
                 return (
-                  <li key={c.id} style={{ marginBottom: 80 }}>
-                    {/* Kicker — MEMORY · <year> */}
-                    <div
-                      className="hl-mono"
-                      style={{
-                        fontSize: 11,
-                        letterSpacing: '0.28em',
-                        textTransform: 'uppercase',
-                        color: 'var(--bone-faint)',
-                        marginBottom: 18,
-                      }}
-                    >
-                      MEMORY <span style={{ color: 'var(--warm)' }}>·</span> {year}
-                    </div>
-
-                    {/* Title — oversized serif display, wraps naturally */}
-                    <h2
-                      className="hl-serif hl-tight"
-                      style={{
-                        fontSize: 'clamp(34px, 6vw, 64px)',
-                        fontWeight: 200,
-                        color: 'var(--bone)',
-                        margin: '0 0 28px',
-                      }}
-                    >
-                      {c.title || c.contributor_name}
-                    </h2>
-
-                    {/* Body — narrow prose with the author's dye on the left margin */}
-                    <p
-                      className="hl-serif hl-prose dark"
-                      style={{
-                        fontSize: 'var(--type-body-lg)',
-                        color: 'var(--bone-dim)',
-                        lineHeight: 1.85,
-                        margin: 0,
-                        maxWidth: '64ch',
-                        paddingLeft: 22,
-                        borderLeft: `3px solid ${dye}`,
-                        whiteSpace: 'pre-wrap',
-                      }}
-                    >
-                      {c.content}
-                    </p>
-
-                    {/* Footer — hairline rule then mono date · author */}
-                    <div style={{ marginTop: 32, maxWidth: '64ch' }}>
-                      <hr className="hl-rule" />
-                      <p
-                        className="hl-mono"
+                  <li key={c.id}>
+                    <EntryRow
+                      title={c.title || c.contributor_name}
+                      sub={`${contentTypeLabel(c.content_type)} · ${dateLine}`}
+                      year={year}
+                      author={c.contributor_name}
+                      dye={undefined}
+                      italic={!c.title}
+                      onClick={() => setOpenId(isOpen ? null : c.id)}
+                    />
+                    {/* Click-through read view — expands inline below the row */}
+                    {isOpen && (
+                      <div
                         style={{
-                          fontSize: 11,
-                          color: 'var(--bone-faint)',
-                          letterSpacing: '0.18em',
-                          textTransform: 'uppercase',
-                          marginTop: 18,
+                          padding: '20px 0 28px',
+                          borderBottom: '1px solid var(--rule)',
+                          maxWidth: '64ch',
                         }}
                       >
-                        {dateLine} <span style={{ color: 'var(--warm)' }}>·</span> {c.contributor_name}
-                        {c.contributor_relationship ? `, ${c.contributor_relationship}` : ''}
-                        {` · ${contentTypeLabel(c.content_type)}`}
-                      </p>
-                    </div>
+                        <p
+                          className="hl-serif hl-prose dark"
+                          style={{
+                            fontSize: 'var(--type-body-lg)',
+                            color: 'var(--bone-dim)',
+                            lineHeight: 1.85,
+                            margin: 0,
+                            paddingLeft: 22,
+                            borderLeft: `3px solid ${dye}`,
+                            whiteSpace: 'pre-wrap',
+                          }}
+                        >
+                          {c.content}
+                        </p>
+                        <p
+                          className="hl-mono"
+                          style={{
+                            fontSize: 10,
+                            color: 'var(--bone-faint)',
+                            letterSpacing: '0.18em',
+                            textTransform: 'uppercase',
+                            margin: '18px 0 0',
+                            paddingLeft: 22,
+                          }}
+                        >
+                          {dateLine} <span style={{ color: 'var(--warm)' }}>·</span> {author}
+                          {` · ${contentTypeLabel(c.content_type)}`}
+                        </p>
+                      </div>
+                    )}
                   </li>
                 );
               })}
             </ul>
           ) : (
-            <p
-              className="hl-serif hl-prose dark"
-              style={{ fontSize: 'var(--type-body-lg)', color: 'var(--bone-dim)', fontStyle: 'italic' }}
-            >
-              No memories shared yet. Be the first to contribute.
-            </p>
+            <div style={{ textAlign: 'center', padding: '48px 0' }}>
+              <p
+                className="hl-serif"
+                style={{
+                  fontSize: 'var(--type-body-lg)',
+                  color: 'var(--bone-dim)',
+                  fontStyle: 'italic',
+                  margin: '0 0 12px',
+                }}
+              >
+                No memories shared yet.
+              </p>
+              <button
+                type="button"
+                onClick={() => setShowContribute(true)}
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  cursor: 'pointer',
+                  padding: 0,
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.24em',
+                  textTransform: 'uppercase',
+                  color: 'var(--warm)',
+                }}
+              >
+                be the first to contribute →
+              </button>
+            </div>
           )}
 
-          {/* Footer */}
-          <footer style={{ marginTop: 80 }}>
-            <hr className="hl-rule" />
+          {/* Wax seal foot + provenance */}
+          <div style={{ marginTop: 80 }}>
+            <WaxSeal size={28} />
             <p
               className="hl-mono"
               style={{
                 fontSize: 10,
                 color: 'var(--bone-faint)',
                 letterSpacing: '0.18em',
-                marginTop: 18,
+                textTransform: 'uppercase',
+                textAlign: 'center',
+                marginTop: 20,
               }}
             >
               Powered by{' '}
@@ -305,7 +357,7 @@ export function MemoryRoom() {
                 Heirloom
               </a>
             </p>
-          </footer>
+          </div>
         </div>
       </div>
 
@@ -548,7 +600,7 @@ export function MemoryRoom() {
                     margin: 0,
                     fontFamily: 'var(--mono)',
                     fontSize: 11,
-                    color: 'var(--danger)',
+                    color: 'var(--warm)',
                     letterSpacing: '0.06em',
                   }}
                 >

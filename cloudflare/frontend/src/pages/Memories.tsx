@@ -7,6 +7,7 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { Link } from 'react-router-dom';
 import { useListener } from '../hooks/useListener';
 import { type Memory } from '../types';
+import { CosmicHeader, WaxSeal, WarmDot } from '../loom/cosmic/CosmicUI';
 
 const DYE_COLORS: Record<string, string> = {
   memory:    'var(--dye-madder)',
@@ -39,16 +40,22 @@ function imageOf(m: Memory): string | null {
 type Filters = { year: string; month: string; type: string; query: string; emotion: string; person: string };
 const EMPTY_FILTERS: Filters = { year: '', month: '', type: '', query: '', emotion: '', person: '' };
 
-function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; activeEmotion?: string }) {
+/**
+ * A single ledger row for one woven memory. The serif title rests on the left;
+ * a mono cluster of entry-year + dye dot + author/type rests on the right. The
+ * row's click-through opens the entry inline — revealing its full prose, any
+ * photograph, and the quiet mono edit / delete affordances.
+ */
+function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; activeEmotion?: string }) {
   const queryClient = useQueryClient();
+  const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [editText, setEditText] = useState(m.description ?? '');
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const el = cardRef.current;
+    const el = rowRef.current;
     if (!el) return;
     const io = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setVisible(true); io.disconnect(); } },
@@ -76,141 +83,178 @@ function MemoryCard({ m, index, activeEmotion }: { m: Memory; index: number; act
     onError: () => setMutError('Could not remove this entry.'),
   });
 
-  const dyeColor = DYE_COLORS[(m.type as string) ?? 'memory'] ?? DYE_COLORS['memory'];
-  const dateStr = new Date(entryDateOf(m)).toLocaleDateString(undefined, {
-    year: 'numeric', month: 'short', day: 'numeric',
-  });
+  const typeKey = (m.type as string) ?? 'memory';
+  const dyeColor = DYE_COLORS[typeKey] ?? DYE_COLORS['memory'];
+  const entryDate = new Date(entryDateOf(m));
+  const year = isNaN(entryDate.getTime()) ? '' : String(entryDate.getFullYear());
+  const fullDate = isNaN(entryDate.getTime())
+    ? ''
+    : entryDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  const author = (personOf(m) ?? typeKey).toUpperCase();
 
   if (deleteMut.isSuccess) return null;
 
-  const delay = Math.min(index % 6, 5) * 72; // stagger within each "batch" of 6
+  const delay = Math.min(index % 8, 7) * 56; // stagger within each "batch"
+  const title = m.title || (m.description ? (m.description as string).slice(0, 64) : 'Untitled');
 
   return (
     <div
-      ref={cardRef}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      ref={rowRef}
       style={{
-        breakInside: 'avoid', marginBottom: 24, paddingLeft: 14,
-        borderLeft: `3px solid ${dyeColor}`, position: 'relative',
+        borderLeft: `3px solid ${dyeColor}`,
+        paddingLeft: 14,
         opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(14px)',
+        transform: visible ? 'translateY(0)' : 'translateY(10px)',
         transition: `opacity 720ms cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 720ms cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
       }}
     >
-      {/* Date + controls row */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-        <span className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
-          {dateStr}
-        </span>
-        <div className="memory-card-actions" style={{
-          display: 'flex', gap: 12,
-          opacity: (hovered || editing || confirmDelete) ? 1 : 0,
+      {/* The ledger row — click toggles the entry open. Mirrors EntryRow's
+          structure (serif title left; mono year + dye dot + author right). */}
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+        className="hl-ledger-row"
+        style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          gap: 20,
+          width: '100%',
+          textAlign: 'left',
+          padding: '15px 0',
+          background: 'none',
+          borderWidth: 0,
+          borderBottom: '1px solid var(--rule)',
+          cursor: 'pointer',
           transition: 'opacity 180ms var(--ease)',
-          pointerEvents: (hovered || editing || confirmDelete) ? 'auto' : 'none',
-        }}>
-          {!editing && !confirmDelete && (
-            <>
-              <button type="button" onClick={() => { setEditText(m.description ?? ''); setEditing(true); }}
-                className="hl-mono"
-                style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-                edit
-              </button>
-              <button type="button" onClick={() => setConfirmDelete(true)}
-                className="hl-mono"
-                style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--danger)', opacity: 0.7 }}>
-                delete
-              </button>
-            </>
-          )}
-        </div>
-      </div>
-
-      {activeEmotion && (() => {
-        const em = EMOTIONS.find(e => e.value === activeEmotion);
-        return em ? (
-          <span style={{
-            display: 'inline-block', fontFamily: 'var(--mono)', fontSize: 9,
-            letterSpacing: '0.18em', textTransform: 'uppercase',
-            color: em.dye, borderLeft: `2px solid ${em.dye}`,
-            paddingLeft: 6, marginBottom: 8, opacity: 0.85,
-          }}>
-            {em.label}
+          minHeight: 44,
+        }}
+      >
+        <span style={{ flex: 1, minWidth: 0 }}>
+          <span className="hl-serif" style={{ fontStyle: 'normal', fontWeight: 400, fontSize: 19, lineHeight: 1.3, color: 'var(--bone)', display: 'block' }}>
+            {title}
           </span>
-        ) : null;
-      })()}
-
-      {imageOf(m) && (
-        <img
-          src={imageOf(m) as string}
-          alt={m.title ?? ''}
-          loading="lazy"
-          style={{
-            display: 'block',
-            width: '100%',
-            height: 'auto',
-            marginBottom: 10,
-            background: 'var(--rule)',
-          }}
-        />
-      )}
-
-      {m.title && (
-        <p className="hl-serif" style={{ fontSize: 13, fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px', letterSpacing: '0.01em' }}>
-          {m.title}
-        </p>
-      )}
-
-      {personOf(m) && (
-        <span className="hl-mono" style={{ display: 'inline-block', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 6 }}>
-          for {personOf(m)}
         </span>
-      )}
+        <span style={{ display: 'flex', alignItems: 'center', gap: 9, whiteSpace: 'nowrap', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', flex: '0 0 auto' }}>
+          {year && <span style={{ color: 'var(--bone-faint)' }}>{year}</span>}
+          <WarmDot color={dyeColor} size={5} />
+          <span style={{ color: dyeColor, textTransform: 'uppercase', letterSpacing: '0.16em' }}>{author}</span>
+        </span>
+      </button>
 
-      {editing ? (
-        <div>
-          <textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows={5} autoFocus
-            style={{ width: '100%', background: 'transparent', border: '1px solid var(--rule)', borderRadius: 0, color: 'var(--bone)', caretColor: 'var(--warm)', fontFamily: 'var(--serif)', fontSize: 15, lineHeight: 1.7, padding: '8px 10px', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
-          <div style={{ display: 'flex', gap: 16, marginTop: 10 }}>
-            <button type="button" onClick={() => updateMut.mutate()} disabled={updateMut.isPending}
-              style={{ background: 'var(--warm)', color: 'var(--ink)', border: 0, borderRadius: 0, padding: '7px 16px', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', cursor: updateMut.isPending ? 'wait' : 'pointer', opacity: updateMut.isPending ? 0.6 : 1 }}>
-              {updateMut.isPending ? 'saving…' : 'save'}
-            </button>
-            <button type="button" onClick={() => setEditing(false)}
-              style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-              cancel
-            </button>
+      {open && (
+        <div style={{ padding: '14px 0 22px' }}>
+          {/* Full date + edit / delete affordances (mono text, never icons) */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 10, flexWrap: 'wrap' }}>
+            {fullDate && (
+              <span className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                {fullDate}
+              </span>
+            )}
+            {!editing && !confirmDelete && (
+              <div style={{ display: 'flex', gap: 14 }}>
+                <button type="button" onClick={() => { setEditText(m.description ?? ''); setEditing(true); }}
+                  className="hl-mono"
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                  edit
+                </button>
+                <button type="button" onClick={() => setConfirmDelete(true)}
+                  className="hl-mono"
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm)' }}>
+                  delete
+                </button>
+              </div>
+            )}
           </div>
-          {updateMut.isError && (
-            <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', marginTop: 8, letterSpacing: '0.08em' }}>Could not save — try again.</p>
+
+          {activeEmotion && (() => {
+            const em = EMOTIONS.find(e => e.value === activeEmotion);
+            return em ? (
+              <span style={{
+                display: 'inline-block', fontFamily: 'var(--mono)', fontSize: 9,
+                letterSpacing: '0.18em', textTransform: 'uppercase',
+                color: em.dye, borderLeft: `2px solid ${em.dye}`,
+                paddingLeft: 6, marginBottom: 10, opacity: 0.85,
+              }}>
+                {em.label}
+              </span>
+            ) : null;
+          })()}
+
+          {imageOf(m) && (
+            <img
+              src={imageOf(m) as string}
+              alt={m.title ?? ''}
+              loading="lazy"
+              style={{
+                display: 'block',
+                width: '100%',
+                maxWidth: 520,
+                height: 'auto',
+                marginBottom: 14,
+                background: 'var(--rule)',
+              }}
+            />
           )}
-        </div>
-      ) : (
-        <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: 0 }}>
-          {(m.description as string)?.slice(0, 240)}{((m.description as string)?.length ?? 0) > 240 ? '…' : ''}
-        </p>
-      )}
 
-      {confirmDelete && (
-        <div style={{ marginTop: 12, display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-          <span className="hl-mono" style={{ fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>Delete this memory?</span>
-          <button type="button" onClick={() => deleteMut.mutate()} disabled={deleteMut.isPending}
-            style={{ background: 'transparent', border: '1px solid var(--danger)', borderRadius: 0, padding: '6px 14px', cursor: deleteMut.isPending ? 'wait' : 'pointer', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--danger)', opacity: deleteMut.isPending ? 0.6 : 1, touchAction: 'manipulation', minHeight: 44 }}>
-            {deleteMut.isPending ? 'deleting…' : 'confirm'}
-          </button>
-          <button type="button" onClick={() => { setConfirmDelete(false); setMutError(null); }}
-            style={{ background: 'transparent', border: 0, padding: '6px 0', cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)', touchAction: 'manipulation', minHeight: 44 }}>
-            cancel
-          </button>
+          {personOf(m) && (
+            <span className="hl-mono" style={{ display: 'block', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 8 }}>
+              for {personOf(m)}
+            </span>
+          )}
+
+          {editing ? (
+            <div>
+              <textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows={6} autoFocus
+                style={{ width: '100%', maxWidth: 640, background: 'transparent', border: '1px solid var(--rule)', borderRadius: 0, color: 'var(--bone)', caretColor: 'var(--warm)', fontFamily: 'var(--serif)', fontSize: 17, lineHeight: 1.75, padding: '10px 12px', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
+              <div style={{ display: 'flex', gap: 18, marginTop: 12, alignItems: 'center' }}>
+                <button type="button" onClick={() => updateMut.mutate()} disabled={updateMut.isPending}
+                  className="hl-mono"
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: updateMut.isPending ? 'wait' : 'pointer', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', opacity: updateMut.isPending ? 0.6 : 1 }}>
+                  {updateMut.isPending ? 'saving…' : 'save'}
+                </button>
+                <button type="button" onClick={() => setEditing(false)}
+                  className="hl-mono"
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                  cancel
+                </button>
+              </div>
+              {updateMut.isError && (
+                <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', marginTop: 8, letterSpacing: '0.08em' }}>Could not save — try again.</p>
+              )}
+            </div>
+          ) : (
+            (m.description as string) && (
+              <p className="hl-serif" style={{ fontSize: 17, lineHeight: 1.75, color: 'var(--bone)', margin: 0, maxWidth: '62ch', whiteSpace: 'pre-wrap' }}>
+                {m.description as string}
+              </p>
+            )
+          )}
+
+          {confirmDelete && (
+            <div style={{ marginTop: 14, display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
+              <span className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>Unweave this thread?</span>
+              <button type="button" onClick={() => deleteMut.mutate()} disabled={deleteMut.isPending}
+                className="hl-mono"
+                style={{ background: 'transparent', border: 0, padding: '6px 0', cursor: deleteMut.isPending ? 'wait' : 'pointer', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', opacity: deleteMut.isPending ? 0.6 : 1, touchAction: 'manipulation', minHeight: 44 }}>
+                {deleteMut.isPending ? 'removing…' : 'confirm'}
+              </button>
+              <button type="button" onClick={() => { setConfirmDelete(false); setMutError(null); }}
+                className="hl-mono"
+                style={{ background: 'transparent', border: 0, padding: '6px 0', cursor: 'pointer', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', touchAction: 'manipulation', minHeight: 44 }}>
+                cancel
+              </button>
+            </div>
+          )}
+          {mutError && (
+            <p className="hl-mono" role="alert" style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.1em', marginTop: 10 }}>{mutError}</p>
+          )}
+
+          <div className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.16em', marginTop: 14 }}>
+            #{(index + 1).toString().padStart(3, '0')}
+          </div>
         </div>
       )}
-      {mutError && (
-        <p className="hl-mono" role="alert" style={{ fontSize: 12, color: 'var(--danger)', letterSpacing: '0.1em', marginTop: 8 }}>{mutError}</p>
-      )}
-
-      <div className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.1em', marginTop: 10 }}>
-        #{(index + 1).toString().padStart(3, '0')}
-      </div>
     </div>
   );
 }
@@ -247,6 +291,7 @@ function emotionMatchesMemory(m: Memory, emotionValue: string): boolean {
   return em.keywords.some(kw => haystack.includes(kw));
 }
 
+/** The quiet mono control bar above the ledger — search, type, year, month, person, emotion. */
 function FilterBar({ memories, filters, setFilters }: {
   memories: Memory[];
   filters: Filters;
@@ -262,31 +307,33 @@ function FilterBar({ memories, filters, setFilters }: {
 
   const selectStyle: React.CSSProperties = {
     background: 'transparent',
-    border: '1px solid var(--rule)',
+    border: 0,
+    borderBottom: '1px solid var(--rule)',
     borderRadius: 0,
     color: 'var(--bone-dim)',
     fontFamily: 'var(--mono)',
     fontSize: 10,
-    letterSpacing: '0.12em',
+    letterSpacing: '0.14em',
     textTransform: 'uppercase',
-    padding: '5px 8px',
+    padding: '5px 2px',
     cursor: 'pointer',
     appearance: 'none' as const,
     WebkitAppearance: 'none' as const,
+    minHeight: 32,
   };
 
   const active = filters.year || filters.month || filters.type || filters.query || filters.emotion || filters.person;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 28 }}>
       {/* Row 1: search + type + year + month + clear */}
-      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
         <input
           type="text"
           placeholder="search"
           value={filters.query}
           onChange={e => setFilters({ ...filters, query: e.target.value })}
-          style={{ ...selectStyle, minWidth: 120, paddingLeft: 8 }}
+          style={{ ...selectStyle, minWidth: 130 }}
         />
 
         <select value={filters.type} onChange={e => setFilters({ ...filters, type: e.target.value })} style={selectStyle}>
@@ -314,11 +361,12 @@ function FilterBar({ memories, filters, setFilters }: {
           <button
             type="button"
             onClick={() => setFilters(EMPTY_FILTERS)}
+            className="hl-mono"
             style={{
               background: 'transparent', border: 0, padding: 0,
-              cursor: 'pointer', fontFamily: 'var(--mono)',
-              fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase',
-              color: 'var(--warm)',
+              cursor: 'pointer',
+              fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase',
+              color: 'var(--warm)', minHeight: 32,
             }}
           >
             clear ×
@@ -327,32 +375,33 @@ function FilterBar({ memories, filters, setFilters }: {
       </div>
 
       {/* Row 2: emotion chips */}
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
         <span style={{
           fontFamily: 'var(--mono)', fontSize: 9,
-          letterSpacing: '0.22em', textTransform: 'uppercase',
+          letterSpacing: '0.3em', textTransform: 'uppercase',
           color: 'var(--bone-faint)', marginRight: 2,
         }}>
           feel
         </span>
         {EMOTIONS.map(em => {
-          const active = filters.emotion === em.value;
+          const isOn = filters.emotion === em.value;
           return (
             <button
               key={em.value}
               type="button"
-              onClick={() => setFilters({ ...filters, emotion: active ? '' : em.value })}
+              onClick={() => setFilters({ ...filters, emotion: isOn ? '' : em.value })}
               style={{
                 background: 'transparent',
-                border: `1px solid ${active ? em.dye : 'var(--rule)'}`,
+                border: 0,
+                borderBottom: `1px solid ${isOn ? em.dye : 'transparent'}`,
                 borderRadius: 0,
-                padding: '4px 10px',
+                padding: '2px 0',
                 cursor: 'pointer',
                 fontFamily: 'var(--mono)',
                 fontSize: 10,
-                letterSpacing: '0.14em',
+                letterSpacing: '0.16em',
                 textTransform: 'uppercase',
-                color: active ? em.dye : 'var(--bone-faint)',
+                color: isOn ? em.dye : 'var(--bone-faint)',
                 transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
                 minHeight: 28,
                 whiteSpace: 'nowrap',
@@ -419,26 +468,31 @@ export function Memories() {
         <progress style={{ width: '100%', height: 1, display: 'block', appearance: 'none', accentColor: 'var(--warm)' }} />
       )}
 
+      {/* The ledger header — mono eyebrow stating count + kind, giant serif title. */}
       {!isLoading && allMemories.length > 0 && (
-        <div style={{ padding: 'clamp(16px, 4vw, 32px) clamp(24px, 5vw, 48px) 0' }}>
+        <div style={{ padding: 'clamp(28px, 6vw, 56px) var(--page-pad-x) 0' }}>
+          <CosmicHeader
+            eyebrow={`${memories.length} WOVEN${filters.query || filters.year || filters.month || filters.type || filters.emotion || filters.person ? ` · OF ${allMemories.length}` : ''}`}
+            title="The woven memories"
+          />
           <FilterBar memories={allMemories} filters={filters} setFilters={setFilters} />
         </div>
       )}
 
       {!isLoading && memories.length === 0 && allMemories.length > 0 && (
-        <div style={{ padding: '0 clamp(24px, 5vw, 48px) 24px' }}>
-          <p className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+        <div style={{ padding: '0 var(--page-pad-x) 24px' }}>
+          <p className="hl-serif" style={{ fontSize: 'clamp(18px, 3vw, 22px)', fontStyle: 'italic', color: 'var(--bone-dim)', lineHeight: 1.6, margin: 0 }}>
             {filters.query
-              ? `no memories match "${filters.query}"`
+              ? `Nothing here matches “${filters.query}.”`
               : filters.emotion
-                ? 'no memories with this emotion yet'
-                : 'no memories found for this filter'}
+                ? 'No threads carry this feeling yet.'
+                : 'No threads found for this filter.'}
           </p>
         </div>
       )}
 
       {!isLoading && allMemories.length === 0 && (
-        <div style={{ padding: 'clamp(40px, 8vw, 80px) clamp(24px, 6vw, 56px)' }}>
+        <div style={{ padding: 'clamp(40px, 8vw, 80px) var(--page-pad-x)' }}>
           <p
             className="hl-serif"
             style={{ fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 300, color: 'var(--bone)', lineHeight: 1.5, margin: '0 0 12px' }}
@@ -474,21 +528,17 @@ export function Memories() {
         </div>
       )}
 
-      <div style={{
-        columns: 'var(--mosaic-cols, 3) auto',
-        columnGap: 24,
-        padding: 'clamp(24px, 5vw, 48px)',
-        paddingBottom: allMemories.length > 0 ? 0 : 'var(--page-clear)',
-      }}>
-        <style>{`
-          @media (max-width: 900px) { :root { --mosaic-cols: 2 } }
-          @media (max-width: 540px) { :root { --mosaic-cols: 1 } }
-        `}</style>
-
-        {memories.map((m, i) => (
-          <MemoryCard key={m.id} m={m} index={i} activeEmotion={filters.emotion || undefined} />
-        ))}
-      </div>
+      {/* The ledger — a vertical list of hairline-ruled entry rows. */}
+      {memories.length > 0 && (
+        <div style={{
+          padding: '0 var(--page-pad-x)',
+          paddingBottom: 'clamp(32px, 6vw, 64px)',
+        }}>
+          {memories.map((m, i) => (
+            <MemoryRow key={m.id} m={m} index={i} activeEmotion={filters.emotion || undefined} />
+          ))}
+        </div>
+      )}
 
       {allMemories.length > 0 && (
         <div style={{
@@ -496,15 +546,18 @@ export function Memories() {
           paddingBottom: 'var(--page-clear)',
           borderTop: '1px solid var(--rule)',
         }}>
-          <span className="hl-eyebrow" style={{ display: 'inline', color: 'var(--bone-faint)', marginRight: 14 }}>
-            the listener
-          </span>
-          <span
-            className="hl-serif"
-            style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 14, lineHeight: 1.6 }}
-          >
-            {listenerPrompt}
-          </span>
+          <WaxSeal size={28} />
+          <div style={{ textAlign: 'center', marginTop: 22 }}>
+            <span className="hl-eyebrow" style={{ display: 'inline', color: 'var(--bone-faint)', marginRight: 14 }}>
+              the listener
+            </span>
+            <span
+              className="hl-serif"
+              style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontSize: 14, lineHeight: 1.6 }}
+            >
+              {listenerPrompt}
+            </span>
+          </div>
         </div>
       )}
     </ClothShell>

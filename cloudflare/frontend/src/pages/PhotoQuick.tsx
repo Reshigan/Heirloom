@@ -6,7 +6,8 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { uploadMemoryImage, validateImage, type UploadedImage } from '../utils/uploadImage';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { dyeVar } from '../loom/dye';
 
 /**
  * PhotoQuick — the fast lane (§ photo entry).
@@ -137,20 +138,25 @@ export function PhotoQuick() {
 
   const canSave = readyImages.length > 0 && uploadingCount === 0 && !save.isPending;
 
+  // The fast lane always weaves under the walnut dye (travel) — tint the
+  // photograph affordances and meta with it as the author's signal.
+  const tint = dyeVar('walnut');
+
   const topbarLeft = (
     <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'index', to: '/loom/index' }, { label: 'photograph' }]} />
   );
 
+  const today = new Date().toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
+
   return (
     <ClothShell topbarLeft={topbarLeft}>
       <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
-        <RoomHeader
+        <CosmicHeader
           eyebrow="the fast lane"
           title="A photograph, straight into the cloth."
-          lede="Pick a photo, add one line, weave. The full Composer is there when you want to write."
-          className="hl-mb-section"
+          sub="Pick a photo, add one line, weave. The full Composer is there when you want to write."
         />
-        <div style={{ height: 36 }} />
+
         <input
           ref={fileInputRef}
           type="file"
@@ -170,37 +176,49 @@ export function PhotoQuick() {
             onClick={() => fileInputRef.current?.click()}
             style={{
               width: '100%',
-              minHeight: 'clamp(240px, 40vh, 360px)',
+              minHeight: 'clamp(220px, 36vh, 320px)',
               background: 'transparent',
               border: '1px solid var(--rule)',
+              borderLeft: `3px solid ${tint}`,
               color: 'var(--bone-dim)',
               cursor: 'pointer',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 14,
+              gap: 16,
               transition: `border-color 360ms ${EASE}, color 360ms ${EASE}`,
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = 'var(--bone-dim)';
+              e.currentTarget.style.borderLeftColor = tint;
               e.currentTarget.style.color = 'var(--bone)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.borderColor = 'var(--rule)';
+              e.currentTarget.style.borderLeftColor = tint;
               e.currentTarget.style.color = 'var(--bone-dim)';
             }}
           >
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 28, color: 'var(--warm)' }}>∞</span>
             <span
-              className="hl-serif hl-italic"
-              style={{ fontSize: 'clamp(18px, 4vw, 22px)', color: 'var(--bone)' }}
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 13,
+                letterSpacing: '0.26em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+              }}
             >
-              Choose a photograph
+              Add a photograph
             </span>
             <span
-              className="hl-mono"
-              style={{ fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 10,
+                letterSpacing: '0.2em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+              }}
             >
               jpg · png · webp · up to 25 mb
             </span>
@@ -210,13 +228,13 @@ export function PhotoQuick() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-                gap: 12,
-                marginBottom: 28,
+                gridTemplateColumns: 'repeat(auto-fill, minmax(132px, 1fr))',
+                gap: 10,
+                marginBottom: 36,
               }}
             >
               {images.map((im) => (
-                <div key={im.id} style={{ position: 'relative', aspectRatio: '1 / 1', overflow: 'hidden' }}>
+                <div key={im.id} style={{ position: 'relative', aspectRatio: '1 / 1', overflow: 'hidden', borderRadius: 0 }}>
                   <img
                     src={im.url}
                     alt=""
@@ -236,7 +254,7 @@ export function PhotoQuick() {
                         position: 'absolute',
                         left: 0,
                         bottom: 0,
-                        height: 2,
+                        height: 1,
                         width: `${im.progress}%`,
                         background: 'var(--warm)',
                         transition: 'width 180ms linear',
@@ -245,17 +263,17 @@ export function PhotoQuick() {
                   )}
                   {im.error && (
                     <span
-                      className="hl-mono"
                       style={{
                         position: 'absolute',
                         inset: 0,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        fontFamily: 'var(--mono)',
                         fontSize: 10,
-                        letterSpacing: '0.12em',
+                        letterSpacing: '0.16em',
                         textTransform: 'uppercase',
-                        color: 'var(--danger)',
+                        color: 'var(--warm)',
                       }}
                     >
                       failed
@@ -278,22 +296,25 @@ export function PhotoQuick() {
                       border: 0,
                       color: 'var(--bone)',
                       fontFamily: 'var(--mono)',
-                      fontSize: 15,
+                      fontSize: 11,
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
                       cursor: 'pointer',
                       padding: 0,
                     }}
                   >
-                    ×
+                    remove
                   </button>
                 </div>
               ))}
             </div>
 
-            <input
+            <textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               aria-label="Caption for photograph"
               placeholder="A line about this photograph — or leave it"
+              rows={2}
               style={{
                 width: '100%',
                 border: 0,
@@ -302,29 +323,43 @@ export function PhotoQuick() {
                 color: 'var(--bone)',
                 caretColor: 'var(--warm)',
                 fontFamily: 'var(--serif)',
-                fontStyle: 'italic',
-                fontSize: 'clamp(18px, 3.5vw, 22px)',
-                padding: '0 0 8px',
+                fontWeight: 300,
+                fontSize: 'clamp(20px, 4vw, 26px)',
+                lineHeight: 1.5,
+                padding: '0 0 10px',
                 outline: 'none',
-                marginBottom: 28,
+                resize: 'none',
+                marginBottom: 40,
               }}
               onFocus={(e) => (e.currentTarget.style.borderBottomColor = 'var(--warm)')}
               onBlur={(e) => (e.currentTarget.style.borderBottomColor = 'var(--rule)')}
             />
 
             <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+              <span
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {today}
+              </span>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 style={{
                   background: 'transparent',
-                  border: '1px solid var(--rule)',
+                  border: 0,
                   color: 'var(--bone-dim)',
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
                   letterSpacing: '0.16em',
                   textTransform: 'uppercase',
-                  padding: '10px 16px',
+                  padding: '10px 0',
                   cursor: 'pointer',
                   minHeight: 44,
                 }}
@@ -344,6 +379,7 @@ export function PhotoQuick() {
                 className="hl-btn"
                 style={{
                   marginLeft: 'auto',
+                  borderRadius: 999,
                   cursor: canSave ? 'pointer' : 'default',
                   opacity: canSave ? 1 : 0.45,
                 }}
@@ -358,16 +394,20 @@ export function PhotoQuick() {
           <p
             role="alert"
             style={{
-              marginTop: 20,
-              fontStyle: 'italic',
-              color: 'var(--danger)',
-              fontSize: 14,
-              fontFamily: 'var(--serif)',
+              marginTop: 22,
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
             }}
           >
             {error}
           </p>
         )}
+
+        <div style={{ height: 64 }} />
+        <WaxSeal />
       </div>
     </ClothShell>
   );

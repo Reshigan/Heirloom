@@ -111,166 +111,294 @@ export function Offline() {
     setDraft('');
   }, [draft, queue]);
 
-  const label = (s: string) => (
-    <div className="loom-eyebrow" style={{ marginBottom: 12 }}>
-      {s}
-    </div>
-  );
-
   return (
     <div
       style={{
         minHeight: '100vh',
         background: 'var(--ink)',
         color: 'var(--bone)',
-        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
         paddingBottom: 'calc(96px + env(safe-area-inset-bottom))',
       }}
     >
-      {/* header */}
+      {/* UTILITY archetype: centered, vast air, ∞ mark, serif headline, dim italic, mono warm affordances */}
       <div
         style={{
-          padding: '24px 22px 0',
+          width: '100%',
+          maxWidth: 520,
+          padding: '0 22px',
+          marginTop: 'clamp(72px, 14vh, 120px)',
           display: 'flex',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
           alignItems: 'center',
+          textAlign: 'center',
         }}
       >
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-          <span className="loom-serif" style={{ fontSize: 16, color: 'var(--warm)', fontWeight: 300, lineHeight: 1 }} aria-hidden>
-            ∞
-          </span>
-          <span className="loom-mono" style={{ fontSize: 9, color: 'var(--bone-dim)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
-            offline
-          </span>
+        {/* ∞ mark */}
+        <span
+          aria-hidden
+          style={{
+            fontFamily: 'var(--serif)',
+            fontSize: 'clamp(40px, 10vw, 64px)',
+            color: 'var(--warm)',
+            lineHeight: 1,
+            marginBottom: 32,
+            display: 'block',
+          }}
+        >
+          ∞
         </span>
-        <span className="loom-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
-          {queue.length} {queue.length === 1 ? 'entry' : 'entries'} holding
-        </span>
-      </div>
 
-      {/* tonight's prompt — still writable */}
-      <div style={{ maxWidth: 560, margin: '0 auto', padding: '40px 22px 0' }}>
-        {label('tonight · 8 pm')}
+        {/* Serif headline */}
         <h1
           className="loom-serif"
-          style={{ fontSize: 28, lineHeight: 1.15, fontWeight: 300, margin: 0, letterSpacing: '-0.016em' }}
+          style={{
+            fontSize: 'clamp(26px, 6vw, 38px)',
+            fontWeight: 300,
+            lineHeight: 1.15,
+            letterSpacing: '-0.016em',
+            margin: '0 0 16px',
+            color: 'var(--bone)',
+          }}
         >
           {PROMPT}
         </h1>
-        <p className="loom-serif" style={{ fontStyle: 'italic', fontSize: 14, color: 'var(--bone-dim)', marginTop: 20, fontWeight: 400, lineHeight: 1.6 }}>
+
+        {/* Serif-italic dim line */}
+        <p
+          className="loom-serif"
+          style={{
+            fontStyle: 'italic',
+            fontSize: 15,
+            color: 'var(--bone-dim)',
+            lineHeight: 1.65,
+            margin: '0 0 40px',
+            fontWeight: 400,
+          }}
+        >
           You're offline. Write anyway. The thread holds it here until you reconnect.
         </p>
 
-        <textarea
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder="Write it down…"
-          rows={3}
-          aria-label="Write tonight's entry"
-          className="loom-serif"
-          style={{
-            width: '100%',
-            marginTop: 16,
-            background: 'var(--ink-card)',
-            color: 'var(--bone)',
-            border: '1px solid var(--rule)',
-            borderRadius: 0,
-            padding: '12px 14px',
-            fontSize: 16,
-            lineHeight: 1.6,
-            resize: 'none',
-            outline: 'none',
-          }}
-        />
-        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 18 }}>
-          <button type="button" onClick={hold} disabled={!draft.trim()} className="loom-btn" style={{ opacity: draft.trim() ? 1 : 0.5 }}>
-            hold it offline <span aria-hidden>→</span>
-          </button>
-          <span className="loom-mono" style={{ fontSize: 9.5, color: 'var(--bone-faint)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-            not sent until you reconnect
-          </span>
-        </div>
-      </div>
-
-      {/* holding queue */}
-      {queue.length > 0 && (
-        <div style={{ maxWidth: 560, margin: '0 auto', padding: '32px 22px 0' }}>
-          {label(`holding offline · ${queue.length}`)}
-          {queue.map((r, i) => (
-            <div
-              key={r.id}
+        {/* Composer — textarea + hold button */}
+        <div style={{ width: '100%', textAlign: 'left' }}>
+          <textarea
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            placeholder="Write it down…"
+            rows={3}
+            aria-label="Write tonight's entry"
+            className="loom-serif"
+            style={{
+              width: '100%',
+              background: 'transparent',
+              color: 'var(--bone)',
+              border: 0,
+              borderBottom: '1px solid var(--rule)',
+              borderRadius: 0,
+              padding: '10px 0',
+              fontSize: 16,
+              lineHeight: 1.65,
+              resize: 'none',
+              outline: 'none',
+              caretColor: 'var(--warm)',
+              boxSizing: 'border-box',
+            }}
+          />
+          <div
+            style={{
+              marginTop: 14,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: 12,
+            }}
+          >
+            <button
+              type="button"
+              onClick={hold}
+              disabled={!draft.trim()}
+              className="loom-mono"
               style={{
-                display: 'grid',
-                gridTemplateColumns: '12px 1fr auto',
-                gap: 10,
-                padding: '11px 0',
-                borderTop: i === 0 ? '1px solid var(--rule)' : 0,
-                borderBottom: '1px solid var(--rule)',
-                alignItems: 'baseline',
+                background: 'transparent',
+                border: 0,
+                padding: 0,
+                cursor: draft.trim() ? 'pointer' : 'default',
+                fontSize: 10,
+                color: draft.trim() ? 'var(--warm)' : 'var(--bone-faint)',
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                opacity: draft.trim() ? 1 : 0.5,
+                minHeight: 44,
+                display: 'inline-flex',
+                alignItems: 'center',
+                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
               }}
             >
-              <span style={{ width: 12, height: 2, background: `var(--dye-${r.dye})`, alignSelf: 'center' }} aria-hidden />
-              <span className="loom-serif" style={{ fontSize: 14, color: 'var(--bone)', fontWeight: 400, fontStyle: 'italic' }}>
-                {r.text}
-              </span>
-              <span className="loom-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
-                holding
-              </span>
-            </div>
-          ))}
-          <div className="loom-mono" style={{ fontSize: 9.5, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', marginTop: 14 }}>
-            will sync when connected · no data sent until then
+              hold it offline →
+            </button>
+            <span
+              className="loom-mono"
+              style={{
+                fontSize: 9,
+                color: 'var(--bone-faint)',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {queue.length > 0
+                ? `${queue.length} ${queue.length === 1 ? 'entry' : 'entries'} holding`
+                : 'not sent until reconnect'}
+            </span>
           </div>
         </div>
-      )}
 
-      {/* still available offline */}
-      <div style={{ maxWidth: 560, margin: '0 auto', padding: '32px 22px 0' }}>
-        {label('still available · offline')}
-        <div className="loom-serif" style={{ fontSize: 13.5, lineHeight: 1.85, color: 'var(--bone-dim)', fontWeight: 400 }}>
-          <div>· write entries (held here until you reconnect)</div>
-          <div>· read the last days of the cloth already loaded</div>
-          <div>· read every letter you have already opened</div>
-          <div>· the listener is silent until reconnect</div>
+        {/* Holding queue — only when non-empty */}
+        {queue.length > 0 && (
+          <div style={{ width: '100%', marginTop: 40, textAlign: 'left' }}>
+            <div
+              className="loom-mono"
+              style={{
+                fontSize: 9,
+                color: 'var(--bone-faint)',
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                marginBottom: 12,
+              }}
+            >
+              holding offline · {queue.length}
+            </div>
+            {queue.map((r, i) => (
+              <div
+                key={r.id}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '12px 1fr auto',
+                  gap: 10,
+                  padding: '11px 0',
+                  borderTop: i === 0 ? '1px solid var(--rule)' : 0,
+                  borderBottom: '1px solid var(--rule)',
+                  alignItems: 'baseline',
+                }}
+              >
+                <span
+                  style={{
+                    width: 12,
+                    height: 2,
+                    background: `var(--dye-${r.dye})`,
+                    alignSelf: 'center',
+                  }}
+                  aria-hidden
+                />
+                <span
+                  className="loom-serif"
+                  style={{
+                    fontSize: 14,
+                    color: 'var(--bone)',
+                    fontWeight: 400,
+                    fontStyle: 'italic',
+                  }}
+                >
+                  {r.text}
+                </span>
+                <span
+                  className="loom-mono"
+                  style={{
+                    fontSize: 9,
+                    color: 'var(--bone-faint)',
+                    letterSpacing: '0.18em',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  holding
+                </span>
+              </div>
+            ))}
+            <div
+              className="loom-mono"
+              style={{
+                fontSize: 9,
+                color: 'var(--bone-faint)',
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                marginTop: 14,
+              }}
+            >
+              will sync when connected · no data sent until then
+            </div>
+          </div>
+        )}
+
+        {/* Still available offline */}
+        <div style={{ width: '100%', marginTop: 48, textAlign: 'left' }}>
+          <div
+            className="loom-mono"
+            style={{
+              fontSize: 9,
+              color: 'var(--bone-faint)',
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              marginBottom: 12,
+            }}
+          >
+            still available · offline
+          </div>
+          <div
+            className="loom-serif"
+            style={{
+              fontSize: 14,
+              lineHeight: 1.85,
+              color: 'var(--bone-dim)',
+              fontWeight: 400,
+            }}
+          >
+            <div>· write entries (held here until you reconnect)</div>
+            <div>· read the last days of the cloth already loaded</div>
+            <div>· read every letter you have already opened</div>
+            <div>· the listener is silent until reconnect</div>
+          </div>
         </div>
-      </div>
 
-      {/* status bar */}
-      <div
-        style={{
-          position: 'fixed',
-          bottom: 'calc(28px + env(safe-area-inset-bottom))',
-          left: 22,
-          right: 22,
-          maxWidth: 560,
-          margin: '0 auto',
-          paddingTop: 16,
-          borderTop: '1px solid var(--rule)',
-          display: 'flex',
-          justifyContent: 'space-between',
-        }}
-      >
-        <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-          offline · since {clockTime(since)}
-        </span>
-        <button
-          type="button"
-          onClick={() => location.reload()}
+        {/* Mono warm home/retry link */}
+        <div style={{ marginTop: 56 }}>
+          <button
+            type="button"
+            onClick={() => location.reload()}
+            className="loom-mono"
+            style={{
+              background: 'transparent',
+              border: 0,
+              padding: 0,
+              cursor: 'pointer',
+              fontSize: 10,
+              color: 'var(--warm)',
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              minHeight: 44,
+              display: 'inline-flex',
+              alignItems: 'center',
+              transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+            }}
+          >
+            sync · when ready →
+          </button>
+        </div>
+
+        {/* Offline-since status — mono dim, centered */}
+        <div
           className="loom-mono"
           style={{
-            background: 'transparent',
-            border: 0,
-            padding: 0,
-            cursor: 'pointer',
-            fontSize: 10,
-            color: 'var(--warm)',
-            letterSpacing: '0.16em',
+            marginTop: 10,
+            fontSize: 9,
+            color: 'var(--bone-faint)',
+            letterSpacing: '0.18em',
             textTransform: 'uppercase',
           }}
         >
-          sync · when ready →
-        </button>
+          offline · since {clockTime(since)}
+        </div>
       </div>
     </div>
   );

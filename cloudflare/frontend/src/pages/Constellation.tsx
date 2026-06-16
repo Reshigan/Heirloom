@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { CosmicHeader } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { useAuthStore } from '../stores/authStore';
 import { familyApi, threadsApi, memoriesApi } from '../services/api';
 import { dyeColor } from '../loom/dye';
@@ -277,20 +277,13 @@ export function Constellation() {
                           <span
                             aria-hidden
                             style={{
-                              width: 5,
-                              height: 5,
-                              borderRadius: 0,
-                              background: dye,
-                              transform: 'rotate(45deg)',
-                              opacity: isLit ? 1 : 0.78,
-                              boxShadow: k.you
-                                ? '0 0 8px 1px rgba(176,122,74,0.55)'
-                                : isLit
-                                  ? '0 0 7px 1px rgba(176,122,74,0.4)'
-                                  : '0 0 5px 0 rgba(176,122,74,0.22)',
-                              transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1), box-shadow 360ms cubic-bezier(0.16,1,0.3,1)',
+                              display: 'inline-flex',
+                              opacity: isLit ? 1 : 0.7,
+                              transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
                             }}
-                          />
+                          >
+                            <WarmDot color={dye} size={5} />
+                          </span>
                           <span
                             style={{
                               fontFamily: 'var(--serif)',
@@ -336,13 +329,15 @@ export function Constellation() {
         {error && (
           <p
             style={{
-              color: 'var(--danger)',
+              color: 'var(--warm)',
               fontFamily: 'var(--mono)',
-              fontSize: 12,
+              fontSize: 11,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
               margin: '24px 0 0',
             }}
           >
-            could not load constellation
+            could not load the bloodline
           </p>
         )}
 
@@ -363,6 +358,12 @@ export function Constellation() {
                 ? `${resonances.length} resonance${resonances.length !== 1 ? 's' : ''} found`
                 : 'no resonances yet'}
             </span>
+          </div>
+        )}
+
+        {kin.length > 0 && (
+          <div style={{ marginTop: 'clamp(36px, 7vh, 72px)' }}>
+            <WaxSeal size={26} />
           </div>
         )}
       </div>

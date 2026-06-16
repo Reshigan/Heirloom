@@ -7,6 +7,7 @@ import { encryptionService } from '../services/encryptionService';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 // Login — a single calm centered column over the global filament backdrop.
 export function Login() {
@@ -69,12 +70,12 @@ export function Login() {
             welcome back
           </div>
 
-          {/* Serif title — type is the hero */}
+          {/* Serif title — type is the hero, FORM archetype scale */}
           <h1 className="hl-serif hl-tight" style={{
-            fontSize: 'clamp(30px, 7.5vw, 44px)',
-            fontWeight: 300, lineHeight: 1.04,
+            fontSize: 'clamp(40px, 9vw, 72px)',
+            fontWeight: 300, lineHeight: 1.05,
             letterSpacing: '-0.022em',
-            margin: sessionExpired ? '0 0 24px' : '0 0 48px',
+            margin: sessionExpired ? '0 0 24px' : '0 0 56px',
             color: 'var(--bone)',
             fontVariationSettings: '"opsz" 40',
           }}>
@@ -132,7 +133,10 @@ export function Login() {
             </div>
 
             {error ? (
-              <p role="alert" className="hl-italic" style={{ color: 'var(--danger)', fontSize: 14, margin: 0 }}>
+              <p role="alert" className="hl-mono" style={{
+                color: 'var(--warm)', fontSize: 11,
+                letterSpacing: '0.08em', margin: 0,
+              }}>
                 {error}
               </p>
             ) : null}
@@ -173,6 +177,11 @@ export function Login() {
             <Link to="/signup" style={{ color: 'var(--bone-dim)', textDecoration: 'none' }}>
               start one
             </Link>
+          </div>
+
+          {/* WaxSeal — ceremony foot per FORM archetype */}
+          <div style={{ marginTop: 72 }}>
+            <WaxSeal size={28} />
           </div>
         </div>
       </div>

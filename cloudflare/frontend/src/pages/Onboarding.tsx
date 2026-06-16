@@ -16,8 +16,10 @@ const STEPS: Step[] = ['tour', 'entry', 'invite'];
 const TOTAL_STEPS = STEPS.length;
 
 // ── Styles ────────────────────────────────────────────────────────────────
-// Calm single-question layout: a mono step counter and hairline at the top,
-// the question centered in deep negative space, the action anchored low.
+// The welcome ceremony: centered, vast air. A glowing warm ∞ crowns each step,
+// a serif title holds the centre, mono warm meta names the moment, and a
+// serif-italic byline whispers the promise. One question per page; the action
+// rests low as a mono warm verb between steps.
 
 const stage: React.CSSProperties = {
   flex: 1,
@@ -40,23 +42,25 @@ const stepLabel: React.CSSProperties = {
   marginBottom: 14,
 };
 
-// Mono eyebrow — the ledger's entry-number line on ceremony surfaces.
+// Mono warm meta — the ceremony's "what this moment is" line, uppercase,
+// resting just under the crowning ∞.
 const eyebrowStyle: React.CSSProperties = {
   fontFamily: 'var(--mono)',
   fontSize: 11,
-  letterSpacing: '0.28em',
+  letterSpacing: '0.26em',
   textTransform: 'uppercase' as const,
-  color: 'var(--bone-faint)',
+  color: 'var(--warm)',
   textAlign: 'center',
-  marginBottom: 28,
+  margin: '22px 0 28px',
 };
 
-// The hero headline of the first ceremony step — giant, serif, centered.
+// The ceremony title — serif, centered, the moment's name in the bloodline's
+// own voice. CEREMONY scale: clamp(24px, 5vw, 34px).
 const heroHeadlineStyle: React.CSSProperties = {
   fontFamily: 'var(--serif)',
   fontWeight: 400,
-  fontSize: 'clamp(40px, 9vw, 72px)',
-  lineHeight: 1.05,
+  fontSize: 'clamp(24px, 5vw, 34px)',
+  lineHeight: 1.1,
   letterSpacing: '-0.012em',
   color: 'var(--bone)',
   textAlign: 'center',
@@ -66,26 +70,32 @@ const heroHeadlineStyle: React.CSSProperties = {
 
 const questionStyle: React.CSSProperties = {
   fontFamily: 'var(--serif)',
-  fontWeight: 300,
-  fontSize: 'clamp(30px, 7vw, 44px)',
+  fontWeight: 400,
+  fontSize: 'clamp(24px, 5vw, 34px)',
   lineHeight: 1.12,
-  letterSpacing: '-0.01em',
+  letterSpacing: '-0.012em',
   color: 'var(--bone)',
   textAlign: 'center',
   margin: 0,
 };
 
-// Sub line — serif italic, the confidential-space promise.
+// Serif-italic byline — dim, the confidential-space promise spoken quietly
+// beneath the title.
 const ledeStyle: React.CSSProperties = {
   fontFamily: 'var(--serif)',
   fontStyle: 'italic',
   fontWeight: 300,
-  fontSize: 15,
+  fontSize: 16,
   lineHeight: 1.6,
   color: 'var(--bone-dim)',
   textAlign: 'center',
-  margin: '20px auto 0',
-  maxWidth: 360,
+  margin: '22px auto 0',
+  maxWidth: 380,
+};
+
+// Wrapper that gives the crowning WaxSeal ∞ breathing room above the meta line.
+const crownWrap: React.CSSProperties = {
+  marginBottom: 8,
 };
 
 // Underlined input — no box, just a hairline rule under the text (mockup).
@@ -360,12 +370,14 @@ export function Onboarding() {
   // The 'tour' step is rendered full-bleed (see below) and isn't in this map.
   // Each screen is one calm question, centered in negative space.
   const screens: Record<'entry' | 'invite', React.ReactNode> = {
-    // The hero — the first ceremony page. The family-name field names the
-    // bloodline's thread; the first-entry line begins the cloth beneath it.
+    // The first rite — the family-name field names the bloodline's thread; the
+    // first-entry line begins the cloth beneath it. The glowing ∞ crowns it.
     entry: (
       <>
+        <div style={crownWrap}><WaxSeal size={56} /></div>
         <div style={eyebrowStyle}>Entry No. 0001</div>
         <h1 style={heroHeadlineStyle}>Begin the thread.</h1>
+        <p style={ledeStyle}>A confidential, private space for your legacy.</p>
 
         <input
           style={heroInputStyle}
@@ -379,11 +391,7 @@ export function Onboarding() {
           autoFocus
         />
 
-        <WaxSeal size={20} />
-
-        <p style={ledeStyle}>A confidential, private space for your legacy.</p>
-
-        <div style={{ marginTop: 44 }}>
+        <div style={{ marginTop: 4 }}>
           <textarea
             style={textareaStyle}
             value={firstEntry}
@@ -398,7 +406,8 @@ export function Onboarding() {
 
     invite: (
       <>
-        <div style={eyebrowStyle}>family</div>
+        <div style={crownWrap}><WaxSeal size={56} /></div>
+        <div style={eyebrowStyle}>The Bloodline</div>
         <h1 style={questionStyle}>Who else tends this thread?</h1>
         <p style={ledeStyle}>
           Invite one person — a partner, a parent, a grown child. They'll receive an invitation to join.
@@ -425,7 +434,7 @@ export function Onboarding() {
   const ctaLabel = busy
     ? step === 'entry' ? 'sealing…' : 'inviting…'
     : inviteSent
-    ? 'sent ✓'
+    ? 'invitation sent'
     : step === 'entry' ? 'start your thread' : 'invite →';
 
   // The product tour leads onboarding; it manages its own progress + actions.
@@ -487,7 +496,6 @@ export function Onboarding() {
             </button>
           ) : (
             <>
-              <WaxSeal size={22} />
               <button
                 type="button"
                 style={pillStyle}

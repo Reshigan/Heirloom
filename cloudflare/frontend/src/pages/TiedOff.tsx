@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { RoomHeader } from '../loom/components/room';
+import { CosmicHeader } from '../loom/cosmic/CosmicUI';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -130,12 +130,12 @@ export function TiedOff() {
       >
         <div>
           {error && (
-            <p className="loom-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>{error}</p>
+            <p className="loom-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>{error}</p>
           )}
-          <RoomHeader
+          <CosmicHeader
             eyebrow={`tied off · ${loading ? '…' : `${locked.length} ${locked.length === 1 ? 'thread' : 'threads'} waiting`}`}
             title="sealed against time"
-            lede="each is a thread tied off at the loom's edge. when its date arrives, the loom unties it and weaves it back into the cloth — for whoever is reading then."
+            sub="each is a thread tied off at the loom's edge. when its date arrives, the loom unties it and weaves it back into the cloth — for whoever is reading then."
           />
         </div>
 

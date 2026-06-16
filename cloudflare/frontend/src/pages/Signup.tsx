@@ -4,10 +4,10 @@ import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
 import { VaultModal } from '../components/VaultModal';
 import { threadsApi } from '../services/api';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
-// Signup — Loom 3 single calm centered column (matches cosmic-signin mockup,
-// adapted for CREATE ACCOUNT). Underlined fields, mono micro-labels, one warm
-// primary action, quiet "sign in" link. All data/auth/validation logic preserved.
+// Signup — FORM archetype. Underlined fields, mono micro-labels, giant serif
+// headline, one warm primary CTA, WaxSeal foot. All data/auth/validation preserved.
 // step one · the thread's name · step two · you · step three · how to begin
 
 export const SIGNUP_INTENT_KEY = 'heirloom_signup_intent';
@@ -149,32 +149,32 @@ export function Signup() {
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        padding: 'clamp(40px,8vh,96px) clamp(20px,6vw,40px) 80px',
+        padding: 'clamp(48px,9vh,100px) clamp(20px,6vw,40px) 100px',
       }}
     >
       <div style={{ width: '100%', maxWidth: 440, margin: '0 auto' }}>
-        {/* Wordmark — infinity mark over serif name */}
-        <div style={{ textAlign: 'center', marginBottom: 'clamp(40px,7vh,72px)' }}>
+
+        {/* FORM archetype header — mono eyebrow + giant centered serif headline */}
+        <div style={{ textAlign: 'center', marginBottom: 'clamp(48px,8vh,80px)' }}>
           <div
-            aria-hidden
-            className="hl-serif"
+            className="hl-mono"
             style={{
-              fontSize: 26,
-              color: 'var(--bone)',
-              lineHeight: 1,
-              marginBottom: 18,
-              fontWeight: 300,
+              fontSize: 10,
+              letterSpacing: '0.34em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              marginBottom: 24,
             }}
           >
-            ∞
+            begin a thread
           </div>
           <h1
             className="hl-serif"
             style={{
-              fontSize: 'clamp(34px,8vw,44px)',
+              fontSize: 'clamp(40px,9vw,72px)',
               fontWeight: 300,
-              letterSpacing: '-0.02em',
-              lineHeight: 1,
+              letterSpacing: '-0.025em',
+              lineHeight: 1.05,
               margin: 0,
               color: 'var(--bone)',
               fontVariationSettings: '"opsz" 40',
@@ -182,18 +182,19 @@ export function Signup() {
           >
             Heirloom
           </h1>
-          <div
-            className="hl-mono"
+          <p
+            className="hl-serif"
             style={{
-              marginTop: 22,
-              fontSize: 10,
-              letterSpacing: '0.34em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
+              fontStyle: 'italic',
+              fontSize: 16,
+              color: 'var(--bone-dim)',
+              marginTop: 18,
+              lineHeight: 1.55,
+              fontWeight: 300,
             }}
           >
-            begin a thread
-          </div>
+            Start your family's thousand-year thread.
+          </p>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -409,21 +410,23 @@ export function Signup() {
             </p>
           )}
 
-          {/* warm primary action — full-width, mirrors CONTINUE in mockup */}
+          {/* warm primary CTA — mono uppercase, pill form, ≥44px touch target */}
           <button
             type="submit"
             disabled={isLoading}
             style={{
               marginTop: 36,
               width: '100%',
+              minHeight: 44,
               cursor: isLoading ? 'default' : 'pointer',
               background: 'var(--warm)',
               border: 0,
+              borderRadius: 2,
               color: 'var(--ink)',
-              padding: '16px 24px',
+              padding: '14px 24px',
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.24em',
+              letterSpacing: '0.26em',
               textTransform: 'uppercase',
               opacity: isLoading ? 0.5 : 1,
               transition: `opacity 180ms ${EASE}, background 180ms ${EASE}`,
@@ -437,15 +440,29 @@ export function Signup() {
                 ? 'continue · 30-day trial of family'
                 : 'begin your thread'}
           </button>
+
+          {/* isLoading progress hairline — 1px, no spinner */}
+          {isLoading && (
+            <div
+              style={{
+                height: 1,
+                background: 'var(--warm)',
+                opacity: 0.4,
+                marginTop: 2,
+                animation: `none`,
+              }}
+            />
+          )}
+
           <p
-            className="hl-italic"
-            style={{ textAlign: 'center', fontSize: 13, color: 'var(--bone-faint)', marginTop: 16, fontWeight: 400 }}
+            className="hl-serif"
+            style={{ textAlign: 'center', fontSize: 13, fontStyle: 'italic', color: 'var(--bone-faint)', marginTop: 16, fontWeight: 300 }}
           >
             no card on file · switches to free if not upgraded
           </p>
         </form>
 
-        {/* quiet secondary link — "sign in" in place of "create a thread" */}
+        {/* quiet secondary link — sign in */}
         <div style={{ textAlign: 'center', marginTop: 'clamp(40px,7vh,64px)' }}>
           <Link
             to="/login"
@@ -464,18 +481,21 @@ export function Signup() {
           </Link>
         </div>
 
-        <div
-          className="hl-mono"
-          style={{
-            marginTop: 40,
-            textAlign: 'center',
-            fontSize: 9,
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
-          }}
-        >
-          ∞ &nbsp; encrypted in browser · key escrow · 2 of 3 contacts
+        {/* WaxSeal — the ∞ resting warm at the page foot */}
+        <div style={{ marginTop: 56, textAlign: 'center' }}>
+          <WaxSeal size={22} />
+          <div
+            className="hl-mono"
+            style={{
+              marginTop: 14,
+              fontSize: 9,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+            }}
+          >
+            encrypted in browser · key escrow · 2 of 3 contacts
+          </div>
         </div>
       </div>
 
@@ -534,17 +554,22 @@ function Row({ children, style }: { children: React.ReactNode; style?: React.CSS
 function Helper({ children }: { children: React.ReactNode }) {
   return (
     <p
-      className="hl-italic"
-      style={{ fontSize: 13, color: 'var(--bone-faint)', marginTop: 12, lineHeight: 1.55, fontWeight: 400 }}
+      className="hl-serif"
+      style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-faint)', marginTop: 12, lineHeight: 1.55, fontWeight: 300 }}
     >
       {children}
     </p>
   );
 }
 
+// Inline mono error line in --warm per FORM archetype spec
 function FieldError({ children }: { children: React.ReactNode }) {
   return (
-    <p role="alert" className="hl-italic" style={{ margin: '8px 0 0', fontSize: 13, color: 'var(--danger)' }}>
+    <p
+      role="alert"
+      className="hl-mono"
+      style={{ margin: '8px 0 0', fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm)' }}
+    >
       {children}
     </p>
   );
@@ -584,7 +609,7 @@ function CycleTab({
   );
 }
 
-// Underlined field with mono micro-label — the mockup's core field idiom.
+// Underlined field with mono micro-label — the FORM archetype's core field idiom.
 function Field({
   label,
   id,
@@ -637,13 +662,14 @@ function Field({
           width: '100%',
           background: 'transparent',
           border: 0,
-          borderBottom: `1px solid ${error ? 'var(--danger)' : 'var(--rule-strong)'}`,
+          borderBottom: `1px solid ${error ? 'var(--warm)' : 'var(--rule-strong)'}`,
           padding: '8px 0',
           color: 'var(--bone)',
           fontFamily: 'var(--serif)',
           fontSize: 17,
           outline: 'none',
           borderRadius: 0,
+          caretColor: 'var(--warm)',
           transition: `border-color 180ms ${EASE}`,
         }}
         onFocus={(e) => { if (!error) e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}

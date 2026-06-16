@@ -3,7 +3,8 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { giftsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { ClothShell } from '../loom/components/ClothShell';
-import { RoomHeader } from '../loom/components/room';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { dyeColor } from '../loom/dye';
 
 interface GiftData {
   id: string;
@@ -34,6 +35,17 @@ function LoadingHair() {
       <div className="progress-hair" style={{ width: 180 }} />
     </div>
   );
+}
+
+const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+
+// ── The kind word for a memory type, set in the READING subline ──────────────
+function kindWord(memoryType: string): string {
+  return memoryType === 'memory'
+    ? 'photograph'
+    : memoryType === 'voice'
+    ? 'recording'
+    : 'letter';
 }
 
 export function GiftReceive() {
@@ -102,36 +114,25 @@ export function GiftReceive() {
           }}
         >
           <div style={{ maxWidth: 'var(--page-max-focus)', width: '100%', textAlign: 'center' }}>
-            <div
-              className="hl-serif"
-              style={{
-                fontSize: 44,
-                fontWeight: 200,
-                lineHeight: 1,
-                color: 'var(--warm)',
-                opacity: 0.7,
-                marginBottom: 28,
-              }}
-            >
-              ∞
-            </div>
+            <WaxSeal size={40} />
             <p
-              className="hl-mono"
               style={{
+                fontFamily: 'var(--mono)',
                 fontSize: 10,
                 letterSpacing: '0.32em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-dim)',
-                margin: '0 0 22px',
+                margin: '26px 0 22px',
               }}
             >
               gift not found
             </p>
             <h1
-              className="hl-serif hl-tight"
               style={{
-                fontSize: 'var(--type-display)',
-                fontWeight: 200,
+                fontFamily: 'var(--serif)',
+                fontSize: 'clamp(30px, 6vw, 44px)',
+                fontWeight: 400,
+                lineHeight: 1.05,
                 color: 'var(--bone)',
                 margin: '0 0 18px',
               }}
@@ -139,20 +140,20 @@ export function GiftReceive() {
               This link has expired.
             </h1>
             <p
-              className="hl-serif"
               style={{
-                fontSize: 'var(--type-body)',
+                fontFamily: 'var(--serif)',
+                fontSize: 18,
                 color: 'var(--bone-dim)',
                 margin: '0 0 36px',
-                lineHeight: 1.7,
+                lineHeight: 1.75,
               }}
             >
               {error}
             </p>
             <button
               onClick={() => navigate('/')}
-              className="hl-mono"
               style={{
+                fontFamily: 'var(--mono)',
                 background: 'transparent',
                 border: 0,
                 padding: 0,
@@ -191,41 +192,29 @@ export function GiftReceive() {
               width: '100%',
               textAlign: 'center',
               opacity: 0,
-              animation: 'css-fade-in 720ms cubic-bezier(0.16,1,0.3,1) forwards',
+              animation: `css-fade-in 720ms ${EASE} forwards`,
             }}
             role="status"
           >
-            {/* ∞ mark — faint amber */}
-            <div
-              className="hl-serif"
-              style={{
-                fontSize: 44,
-                fontWeight: 200,
-                lineHeight: 1,
-                color: 'var(--warm)',
-                opacity: 0.7,
-                marginBottom: 28,
-              }}
-            >
-              ∞
-            </div>
+            <WaxSeal size={44} />
             <p
-              className="hl-mono"
               style={{
+                fontFamily: 'var(--mono)',
                 fontSize: 10,
                 letterSpacing: '0.32em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-dim)',
-                margin: '0 0 22px',
+                margin: '28px 0 22px',
               }}
             >
               claimed
             </p>
             <h1
-              className="hl-serif hl-tight"
               style={{
-                fontSize: 'var(--type-display)',
-                fontWeight: 200,
+                fontFamily: 'var(--serif)',
+                fontSize: 'clamp(30px, 6vw, 44px)',
+                fontWeight: 400,
+                lineHeight: 1.05,
                 color: 'var(--bone)',
                 margin: '0 0 18px',
               }}
@@ -233,12 +222,12 @@ export function GiftReceive() {
               This thread is yours now.
             </h1>
             <p
-              className="hl-serif"
               style={{
-                fontSize: 'var(--type-body)',
+                fontFamily: 'var(--serif)',
+                fontSize: 18,
                 color: 'var(--bone-dim)',
                 margin: '0 0 36px',
-                lineHeight: 1.7,
+                lineHeight: 1.75,
               }}
             >
               Create a free account to keep it safe and start your own
@@ -246,8 +235,8 @@ export function GiftReceive() {
             </p>
             <button
               onClick={() => navigate('/signup')}
-              className="hl-mono"
               style={{
+                fontFamily: 'var(--mono)',
                 background: 'transparent',
                 border: 0,
                 padding: 0,
@@ -266,128 +255,136 @@ export function GiftReceive() {
     );
   }
 
-  // ── Main gift receive screen ──────────────────────────────────────────────
+  // ── Main gift receive screen — READING archetype ──────────────────────────
+  // Dye thread for the left margin, hashed off the gift id (stable per gift).
+  const dye = gift ? dyeColor(gift.id) : 'var(--rule)';
+  const senderName = gift?.sender_name || 'someone';
+  const headline = gift?.content?.title || 'Someone gave you a thread.';
+
   return (
     <ClothShell topbarCenter="a gift">
-
-      {/* Content area — below topbar */}
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', minHeight: '100%' }}>
-        <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto' }}>
+        <article
+          style={{
+            maxWidth: 'var(--page-max-focus)',
+            margin: '0 auto',
+            borderLeft: `3px solid ${dye}`,
+            paddingLeft: 24,
+          }}
+        >
+          {/* Serif headline */}
+          <h1
+            style={{
+              fontFamily: 'var(--serif)',
+              fontSize: 'clamp(30px, 6vw, 44px)',
+              fontWeight: 400,
+              lineHeight: 1.06,
+              letterSpacing: '-0.01em',
+              color: 'var(--bone)',
+              margin: 0,
+            }}
+          >
+            {headline}
+          </h1>
 
-          <RoomHeader
-            eyebrow="a gift"
-            title={'Someone gave you a thread.'}
-          />
+          {/* Mono warm subline — A GIFT FROM <SENDER> [· A <KIND>] */}
+          <p
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.26em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
+              margin: '20px 0 0',
+            }}
+          >
+            A gift from {senderName}
+            {gift?.content && <> · A {kindWord(gift.memory_type)}</>}
+          </p>
 
           {/* Hairline rule */}
-          <hr className="hl-rule parchment" style={{ margin: '28px 0 28px' }} />
+          <hr
+            style={{
+              border: 0,
+              borderTop: '1px solid var(--rule)',
+              margin: '32px 0',
+            }}
+          />
 
-          {/* Sender message block — left-rule quote */}
+          {/* Sender's personal message — justified serif body */}
           {gift?.personal_message && (
-            <div
+            <p
               style={{
-                borderLeft: '1px solid var(--warm)',
-                paddingLeft: 20,
-                maxWidth: 540,
-                marginBottom: 32,
+                fontFamily: 'var(--serif)',
+                fontSize: 18,
+                lineHeight: 1.75,
+                color: 'var(--bone)',
+                textAlign: 'justify',
+                maxWidth: '62ch',
+                margin: '0 0 32px',
               }}
             >
-              {gift.sender_name && (
-                <p
-                  className="hl-serif"
-                  style={{
-                    fontSize: 16,
-                    fontStyle: 'italic',
-                    color: 'var(--bone-dim)',
-                    margin: '0 0 12px',
-                  }}
-                >
-                  from{' '}
-                  <span style={{ color: 'var(--warm)' }}>
-                    {gift.sender_name}
-                  </span>
-                </p>
-              )}
-              <p
-                className="hl-prose dark"
-                style={{
-                  fontSize: 17,
-                  color: 'var(--bone-dim)',
-                  margin: 0,
-                  lineHeight: 1.85,
-                }}
-              >
-                &ldquo;{gift.personal_message}&rdquo;
-              </p>
-            </div>
+              &ldquo;{gift.personal_message}&rdquo;
+            </p>
           )}
 
-          {/* Content preview (if present) */}
+          {/* The gifted content — preview body */}
           {gift?.content && (
             <>
-              <hr className="hl-rule parchment" style={{ margin: '0 0 20px' }} />
-              <div style={{ marginBottom: 32 }}>
-                <p
-                  className="hl-eyebrow dark"
-                  style={{ marginBottom: 8, color: 'var(--warm)' }}
-                >
-                  {gift.memory_type === 'memory'
-                    ? 'photograph'
-                    : gift.memory_type === 'voice'
-                    ? 'voice recording'
-                    : 'letter'}
-                </p>
-                <p
-                  className="hl-serif"
+              {gift.content.thumbnail_url && (
+                <img
+                  src={gift.content.thumbnail_url}
+                  alt={gift.content.title}
                   style={{
+                    display: 'block',
+                    maxWidth: '100%',
+                    width: '62ch',
+                    maxHeight: 420,
+                    objectFit: 'cover',
+                    margin: '0 0 28px',
+                  }}
+                />
+              )}
+              {gift.content.preview && (
+                <p
+                  style={{
+                    fontFamily: 'var(--serif)',
                     fontSize: 18,
-                    fontStyle: 'italic',
-                    color: 'var(--bone)',
-                    margin: '0 0 6px',
+                    lineHeight: 1.75,
+                    color: 'var(--bone-dim)',
+                    textAlign: 'justify',
+                    maxWidth: '62ch',
+                    margin: '0 0 32px',
                   }}
                 >
-                  {gift.content.title}
+                  {gift.content.preview}
                 </p>
-                {gift.content.preview && (
-                  <p
-                    className="hl-mono"
-                    style={{
-                      fontSize: 12,
-                      color: 'var(--bone-dim)',
-                      margin: 0,
-                      letterSpacing: '0.04em',
-                    }}
-                  >
-                    {gift.content.preview}
-                  </p>
-                )}
-              </div>
-              <hr className="hl-rule parchment" style={{ margin: '0 0 28px' }} />
+              )}
             </>
           )}
 
-          {/* Inline error (claim attempt failed) */}
+          {/* Inline error (claim attempt failed) — mono, never red, never toast */}
           {error && (
             <p
               role="alert"
-              className="hl-mono"
               style={{
+                fontFamily: 'var(--mono)',
                 fontSize: 11,
-                color: 'var(--danger)',
+                color: 'var(--warm)',
                 letterSpacing: '0.04em',
-                marginBottom: 16,
+                margin: '0 0 16px',
               }}
             >
               {error}
             </p>
           )}
 
-          {/* Accept — amber mono text-link */}
+          {/* Accept — quiet mono warm text action */}
           <button
             onClick={handleClaim}
             disabled={claiming}
-            className="hl-mono"
             style={{
+              fontFamily: 'var(--mono)',
               marginTop: 24,
               background: 'transparent',
               border: 0,
@@ -398,7 +395,8 @@ export function GiftReceive() {
               color: 'var(--warm)',
               opacity: claiming ? 0.5 : 1,
               cursor: claiming ? 'default' : 'pointer',
-              transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+              transition: `opacity 180ms ${EASE}`,
+              display: 'block',
             }}
           >
             {claiming ? 'accepting…' : 'accept the gift →'}
@@ -406,8 +404,8 @@ export function GiftReceive() {
 
           {/* Create account link */}
           <p
-            className="hl-mono"
             style={{
+              fontFamily: 'var(--mono)',
               marginTop: 20,
               fontSize: 10.5,
               letterSpacing: '0.18em',
@@ -425,7 +423,11 @@ export function GiftReceive() {
             </Link>
           </p>
 
-        </div>
+          {/* WaxSeal foot */}
+          <div style={{ margin: '56px 0 0' }}>
+            <WaxSeal />
+          </div>
+        </article>
       </div>
     </ClothShell>
   );
