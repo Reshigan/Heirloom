@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
@@ -39,6 +39,32 @@ export function MemoryRoom() {
   const [content, setContent] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [openId, setOpenId] = useState<string | null>(null);
+  const contributeRef = useRef<HTMLDivElement>(null);
+
+  // Contribute overlay = a modal: trap focus, close on Escape, focus first field.
+  useEffect(() => {
+    if (!showContribute) return;
+    const el = contributeRef.current;
+    if (!el) return;
+    const focusable = el.querySelectorAll<HTMLElement>(
+      'input, textarea, button, [tabindex]:not([tabindex="-1"])',
+    );
+    if (focusable.length) focusable[0].focus();
+    const trap = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setShowContribute(false); return; }
+      if (e.key !== 'Tab') return;
+      const nodes = Array.from(focusable);
+      if (!nodes.length) return;
+      const first = nodes[0];
+      const last = nodes[nodes.length - 1];
+      if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
+        e.preventDefault();
+        (e.shiftKey ? last : first).focus();
+      }
+    };
+    document.addEventListener('keydown', trap);
+    return () => document.removeEventListener('keydown', trap);
+  }, [showContribute]);
 
   const { data, isLoading, error, refetch } = useQuery<RoomData>({
     queryKey: ['memory-room', token],
@@ -377,6 +403,10 @@ export function MemoryRoom() {
           onClick={() => setShowContribute(false)}
         >
           <div
+            ref={contributeRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="contribute-title"
             style={{
               background: 'var(--parchment)',
               border: '1px solid var(--parchment-rule)',
@@ -390,6 +420,7 @@ export function MemoryRoom() {
           >
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 28 }}>
               <h3
+                id="contribute-title"
                 className="hl-serif hl-tight"
                 style={{ fontSize: 22, fontWeight: 300, margin: 0, color: 'var(--parchment-ink)' }}
               >
@@ -502,54 +533,6 @@ export function MemoryRoom() {
                       }}
                     >
                       Story
-                    </button>
-                  )}
-                  {room.allowPhotos && (
-                    <button
-                      type="button"
-                      disabled
-                      title="Coming soon"
-                      style={{
-                        flex: 1,
-                        fontSize: 11,
-                        padding: '10px 0',
-                        fontFamily: 'var(--mono)',
-                        letterSpacing: '0.18em',
-                        textTransform: 'uppercase',
-                        border: '1px solid var(--parchment-rule)',
-                        borderRadius: 0,
-                        cursor: 'not-allowed',
-                        background: 'transparent',
-                        color: 'var(--parchment-ink)',
-                        opacity: 0.35,
-                        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
-                      }}
-                    >
-                      Photo
-                    </button>
-                  )}
-                  {room.allowVoice && (
-                    <button
-                      type="button"
-                      disabled
-                      title="Coming soon"
-                      style={{
-                        flex: 1,
-                        fontSize: 11,
-                        padding: '10px 0',
-                        fontFamily: 'var(--mono)',
-                        letterSpacing: '0.18em',
-                        textTransform: 'uppercase',
-                        border: '1px solid var(--parchment-rule)',
-                        borderRadius: 0,
-                        cursor: 'not-allowed',
-                        background: 'transparent',
-                        color: 'var(--parchment-ink)',
-                        opacity: 0.35,
-                        transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
-                      }}
-                    >
-                      Voice
                     </button>
                   )}
                 </div>

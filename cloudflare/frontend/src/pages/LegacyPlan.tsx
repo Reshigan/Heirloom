@@ -662,38 +662,10 @@ export function LegacyPlan() {
             </p>
           </div>
           <button
-            disabled
-            title="Coming soon"
-            style={{ fontFamily: 'var(--mono)', background: 'none', border: 'none', cursor: 'not-allowed', padding: 0, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--bone-faint)', flex: '0 0 auto', minHeight: 44, opacity: 0.4 }}
+            onClick={() => navigate('/book-builder')}
+            style={{ fontFamily: 'var(--mono)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm)', flex: '0 0 auto', minHeight: 44 }}
           >
-            generate PDF
-          </button>
-        </div>
-
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: 20,
-            borderBottom: '1px solid var(--rule)',
-            padding: '14px 0',
-          }}
-        >
-          <div style={{ minWidth: 0 }}>
-            <p style={{ fontFamily: 'var(--serif)', fontSize: 19, lineHeight: 1.3, color: 'var(--bone)', margin: '0 0 4px' }}>
-              Textile pattern
-            </p>
-            <p style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', margin: 0, letterSpacing: '0.04em' }}>
-              Your entries encoded as a woven cloth pattern
-            </p>
-          </div>
-          <button
-            disabled
-            title="Coming soon"
-            style={{ fontFamily: 'var(--mono)', background: 'none', border: 'none', cursor: 'not-allowed', padding: 0, fontSize: 11, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--bone-faint)', flex: '0 0 auto', minHeight: 44, opacity: 0.4 }}
-          >
-            generate
+            build book
           </button>
         </div>
 

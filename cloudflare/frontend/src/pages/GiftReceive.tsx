@@ -77,7 +77,7 @@ export function GiftReceive() {
     if (!token) return;
     if (!isAuthenticated) {
       localStorage.setItem('PENDING_GIFT_TOKEN', token);
-      navigate(`/signup?redirect=${encodeURIComponent(`/gift/receive?token=${token}`)}`);
+      navigate(`/signup?redirect=${encodeURIComponent(`/gift-memory/${token}`)}`);
       return;
     }
     setClaiming(true);

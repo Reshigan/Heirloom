@@ -66,6 +66,8 @@ export function BottomNav() {
           <Link
             key={item.href}
             to={item.href}
+            aria-label={isCenter ? 'Home' : item.label}
+            aria-current={isActive ? 'page' : undefined}
             style={{
               flex: 1,
               display: 'flex',
@@ -88,7 +90,7 @@ export function BottomNav() {
               transition: 'color 180ms cubic-bezier(0.16,1,0.3,1), border-color 180ms cubic-bezier(0.16,1,0.3,1)',
             }}
           >
-            {item.label}
+            {isCenter ? <span aria-hidden="true">{item.label}</span> : item.label}
           </Link>
         );
       })}

@@ -567,7 +567,7 @@ export function ReadingRoom() {
               <button
                 type="button"
                 onClick={() => {
-                  if (t.kind === 'voice') navigate(`/record?id=${t.id}`);
+                  if (t.kind === 'voice') navigate(`/loom/voice?id=${t.id}&edit=1`);
                   else if (t.kind === 'letter') navigate(`/compose?id=${t.id}`);
                   else navigate(`/compose?entry=${t.id}`);
                 }}
@@ -864,7 +864,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
           </div>
           <h2 style={{
             fontSize: 46, fontStyle: 'italic', margin: 0, maxWidth: '14ch',
-            color: 'var(--parchment-ink)', fontFamily: 'var(--display)', fontWeight: 300,
+            color: 'var(--parchment-ink)', fontFamily: 'var(--serif)', fontWeight: 300,
           }}>
             {c.title}
           </h2>

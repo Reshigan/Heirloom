@@ -228,7 +228,7 @@ export function GiftPurchase() {
                   id: 'FAMILY',
                   name: 'Family',
                   description: '1 year of Family plan',
-                  storage: '25 GB',
+                  storage: '50 GB',
                   quarterly: { amount: 0, display: '—' },
                   yearly: { amount: 0, display: '—' },
                 },

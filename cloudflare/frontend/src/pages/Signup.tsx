@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
+import { safeRedirect } from '../lib/safeRedirect';
 import { VaultModal } from '../components/VaultModal';
 import { threadsApi } from '../services/api';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
@@ -512,11 +513,11 @@ export function Signup() {
             // complete payment. Family/Free use the trial-first model (no card on
             // file) and go to the product tour + first-entry onboarding. A
             // deep-link redirect always takes precedence.
-            navigate(redirectUrl || (tier === 'founder' ? '/founder' : '/onboarding'));
+            navigate(safeRedirect(redirectUrl, tier === 'founder' ? '/founder' : '/onboarding'));
           }}
           onSkip={() => {
             setShowVaultSetup(false);
-            navigate(redirectUrl || (tier === 'founder' ? '/founder' : '/onboarding'));
+            navigate(safeRedirect(redirectUrl, tier === 'founder' ? '/founder' : '/onboarding'));
           }}
         />
       ) : null}

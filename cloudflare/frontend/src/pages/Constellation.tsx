@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { useAuthStore } from '../stores/authStore';
 import { familyApi, threadsApi, memoriesApi } from '../services/api';
 import { dyeColor } from '../loom/dye';
@@ -32,9 +33,12 @@ export function Constellation() {
   const [hovered, setHovered] = useState<number | null>(null);
   const [resonances, setResonances] = useState<{ year: number; memberIds: string[] }[]>([]);
   const [error, setError] = useState(false);
+  // Start loading so the "no threads yet" empty state doesn't flash before the fetch lands.
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) { setLoading(false); return; }
+    setLoading(true);
 
     const familyPromise = familyApi.getAll();
 
@@ -105,7 +109,7 @@ export function Constellation() {
         picks: res.filter(r => r.memberIds.includes(m.id)).map(r => r.year),
       }));
       setKin(mapped);
-    }).catch(() => { setError(true); });
+    }).catch(() => { setError(true); }).finally(() => { setLoading(false); });
   }, [isAuthenticated, user?.id, user?.defaultThreadId]);
 
   // Layout: group kin into generation rows. No explicit generation field on
@@ -155,7 +159,11 @@ export function Constellation() {
             alignItems: 'center',
           }}
         >
-          {!error && kin.length === 0 ? (
+          {loading && kin.length === 0 ? (
+            <div style={{ paddingTop: 'clamp(24px, 6vh, 64px)' }}>
+              <ProgressHair width={80} />
+            </div>
+          ) : !error && kin.length === 0 ? (
             <div
               style={{
                 display: 'flex',

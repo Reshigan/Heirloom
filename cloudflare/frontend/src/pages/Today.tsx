@@ -7,6 +7,7 @@ import { useTapestryEntries } from '../hooks/useTapestryEntries';
 import { useAuthStore } from '../stores/authStore';
 import { aiApi, engagementApi } from '../services/api';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { ProgressHair } from '../loom/components/ProgressHair';
 
 interface OnThisDayEntry {
   id: string;
@@ -23,7 +24,7 @@ export function Today() {
   const [prompt, setPrompt] = useState<string>(localPrompt);
   const [promptUnavailable, setPromptUnavailable] = useState(false);
   const [onThisDay, setOnThisDay] = useState<OnThisDayEntry[]>([]);
-  const { entries } = useTapestryEntries();
+  const { entries, isLoading: entriesLoading } = useTapestryEntries();
   const [onThisDayError, setOnThisDayError] = useState(false);
 
   // Fetch real AI prompt when authenticated
@@ -78,6 +79,18 @@ export function Today() {
   const todayTopbar = (
     <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'today' }]} />
   );
+
+  // Still loading the thread — show the hairline progress, not the first-run
+  // empty state, so the sealed-letter prompt doesn't flash before data arrives.
+  if (entriesLoading && entries.length === 0) {
+    return (
+      <ClothShell topbarLeft={todayTopbar}>
+        <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x)', maxWidth: 'var(--page-max-focus)', margin: '0 auto' }}>
+          <ProgressHair width={80} />
+        </div>
+      </ClothShell>
+    );
+  }
 
   // First-run: no entries yet — show focused sealed letter prompt
   if (entries.length === 0) {

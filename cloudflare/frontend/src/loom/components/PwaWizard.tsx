@@ -120,7 +120,7 @@ export function PwaWizard({ onDone }: { onDone: () => void }) {
     onDone();
   }, [onDone]);
 
-  // swipe-to-advance (touch)
+  // swipe-to-advance (touch) + Escape-to-skip (keyboard)
   useEffect(() => {
     let startX = 0;
     const onStart = (e: TouchEvent) => { startX = e.touches[0].clientX; };
@@ -129,13 +129,22 @@ export function PwaWizard({ onDone }: { onDone: () => void }) {
       if (dx < -50) advance();
       if (dx > 50 && step > 0) setStep(s => s - 1);
     };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') skip(); };
     window.addEventListener('touchstart', onStart, { passive: true });
     window.addEventListener('touchend', onEnd, { passive: true });
-    return () => { window.removeEventListener('touchstart', onStart); window.removeEventListener('touchend', onEnd); };
-  }, [advance, step]);
+    window.addEventListener('keydown', onKey);
+    return () => {
+      window.removeEventListener('touchstart', onStart);
+      window.removeEventListener('touchend', onEnd);
+      window.removeEventListener('keydown', onKey);
+    };
+  }, [advance, step, skip]);
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="pwa-wizard-heading"
       style={{
         position: 'fixed', inset: 0, zIndex: 200,
         background: 'var(--ink)',
@@ -180,6 +189,7 @@ export function PwaWizard({ onDone }: { onDone: () => void }) {
         <div className="hl-eyebrow" style={{ marginBottom: 14, color: 'var(--warm)' }}>{current.eyebrow}</div>
 
         <h2
+          id="pwa-wizard-heading"
           className="hl-serif hl-tight"
           style={{
             fontSize: 'clamp(22px, 6vw, 30px)',

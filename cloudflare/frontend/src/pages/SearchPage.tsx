@@ -39,11 +39,13 @@ const FILTERS: { label: string; value: TypeFilter }[] = [
   { label: 'letters',  value: 'letter' },
 ];
 
-const ROW_LINK: Record<SearchResult['type'], string> = {
-  memory: '/memories',
-  voice:  '/record',
-  letter: '/letters',
-};
+// Route a search hit to the specific entry it represents (id carried through),
+// not a generic list. Mirrors FamilyFeed's itemTo so search and feed agree.
+function entryLink(r: SearchResult): string {
+  if (r.type === 'voice') return `/loom/voice?id=${r.id}`;
+  if (r.type === 'letter') return `/loom/letter?id=${r.id}`;
+  return `/loom/read?entry=${r.id}`;
+}
 
 const KIND_LABEL: Record<SearchResult['type'], string> = {
   memory: 'memory',
@@ -276,7 +278,7 @@ export function SearchPage() {
                       }
                       year={formatYear(r.created_at)}
                       meta={KIND_LABEL[r.type].toUpperCase()}
-                      onClick={() => navigate(ROW_LINK[r.type])}
+                      onClick={() => navigate(entryLink(r))}
                     />
                   ))}
                 </section>

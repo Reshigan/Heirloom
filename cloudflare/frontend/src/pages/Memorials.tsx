@@ -78,6 +78,9 @@ export function Memorials() {
   });
 
   const [formError, setFormError] = useState<string | null>(null);
+  // Which memorial's link was just copied — drives inline "link copied" feedback
+  // when navigator.share is unavailable (the clipboard fallback is otherwise silent).
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const createMutation = useMutation({
     mutationFn: () => memorialsApi.create(formData),
@@ -107,7 +110,12 @@ export function Memorials() {
         url,
       });
     } else {
-      copyToClipboard(url).catch(() => {});
+      copyToClipboard(url)
+        .then(() => {
+          setCopiedId(memorial.id);
+          setTimeout(() => setCopiedId((c) => (c === memorial.id ? null : c)), 2000);
+        })
+        .catch(() => {});
     }
   };
 
@@ -199,9 +207,9 @@ export function Memorials() {
                     <button
                       type="button"
                       onClick={() => shareMemorial(memorial)}
-                      style={affordanceStyle('var(--bone-dim)')}
+                      style={affordanceStyle(copiedId === memorial.id ? 'var(--warm)' : 'var(--bone-dim)')}
                     >
-                      share
+                      {copiedId === memorial.id ? 'link copied' : 'share'}
                     </button>
                   </div>
                 </div>
@@ -590,11 +598,11 @@ export function Memorials() {
               </button>
               <button
                 type="button"
-                                onClick={() => shareMemorial(selectedMemorial)}
+                onClick={() => shareMemorial(selectedMemorial)}
                 className="hl-btn"
                 style={{ flex: 1 }}
               >
-                share
+                {copiedId === selectedMemorial.id ? 'link copied' : 'share'}
               </button>
             </div>
 

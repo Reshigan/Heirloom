@@ -446,7 +446,9 @@ export function QuickWizard() {
     if (!selectedPerson || !contentType) return;
     const params = new URLSearchParams();
     if (selectedPrompt) params.set('prompt', selectedPrompt);
-    params.set('for', selectedPerson.id);
+    // Both Record and Compose read `recipientId`; Compose also reads `forName`.
+    // (Emitting `for` left the recipient unset on the voice path.)
+    params.set('recipientId', selectedPerson.id);
     params.set('forName', selectedPerson.name);
     if (contentType === 'voice') {
       navigate(`/record?${params.toString()}`);

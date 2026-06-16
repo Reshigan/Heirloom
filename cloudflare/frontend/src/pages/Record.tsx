@@ -54,6 +54,10 @@ export function Record() {
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [promptIdx, setPromptIdx] = useState(0);
+  // A seed prompt passed via ?prompt= (from QuickWizard / PersonPage) overrides
+  // the cycling PROMPTS until the author advances the prev/next affordances.
+  const [customPrompt, setCustomPrompt] = useState<string | null>(() => searchParams.get('prompt'));
+  const activePrompt = customPrompt ?? PROMPTS[promptIdx];
   const [addresseeName, setAddresseeName] = useState('');
   const [recipientId, setRecipientId] = useState<string | null>(null);
   const [entryDate, setEntryDate] = useState(() => new Date().toISOString().slice(0, 10));
@@ -259,7 +263,7 @@ export function Record() {
         throw new Error(`Upload failed: ${uploadResponse.status}`);
       }
       const { data } = await voiceApi.create({
-        title: title.trim() || PROMPTS[promptIdx],
+        title: title.trim() || activePrompt,
         transcript: transcript.trim() || null,
         fileKey: upload.fileKey ?? upload.key,
         fileUrl: upload.publicUrl ?? upload.url,
@@ -662,7 +666,7 @@ export function Record() {
                 margin: '8px 0 0',
               }}
             >
-              {PROMPTS[promptIdx]}
+              {activePrompt}
             </p>
 
             {/* Prompt prev/next */}
@@ -677,14 +681,16 @@ export function Record() {
             >
               <button
                 type="button"
-                onClick={() => setPromptIdx((i) => (i - 1 + PROMPTS.length) % PROMPTS.length)}
+                aria-label="Previous prompt"
+                onClick={() => { setCustomPrompt(null); setPromptIdx((i) => (i - 1 + PROMPTS.length) % PROMPTS.length); }}
                 style={promptCard()}
               >
                 ←
               </button>
               <button
                 type="button"
-                onClick={() => setPromptIdx((i) => (i + 1) % PROMPTS.length)}
+                aria-label="Next prompt"
+                onClick={() => { setCustomPrompt(null); setPromptIdx((i) => (i + 1) % PROMPTS.length); }}
                 style={promptCard()}
               >
                 →
@@ -849,7 +855,7 @@ export function Record() {
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder={PROMPTS[promptIdx]}
+            placeholder={activePrompt}
             style={{
               marginTop: 32,
               width: '100%',
@@ -996,7 +1002,13 @@ function promptCard(): React.CSSProperties {
   return {
     background: 'transparent',
     border: 0,
-    padding: 0,
+    // ≥44px hit area for touch — glyph stays visually small, tap target does not
+    minWidth: 44,
+    minHeight: 44,
+    padding: 12,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     cursor: 'pointer',
     color: 'var(--bone-faint)',
     fontFamily: 'var(--mono)',

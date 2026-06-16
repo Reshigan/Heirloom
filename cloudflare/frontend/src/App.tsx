@@ -8,6 +8,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { isNativePlatform } from './services/pushNotificationService';
 import { clearChunkReloadFlag } from './lib/chunkReload';
 import { PENDING_INVITE_KEY } from './lib/constants';
+import { safeRedirect } from './lib/safeRedirect';
 import { PwaNudge } from './components/PwaNudge';
 import { BottomNav } from './loom/components/BottomNav';
 import { ClothBackdrop } from './loom/components/ClothBackdrop';
@@ -141,11 +142,9 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
   if (!_hasHydrated) return <div style={{ minHeight: '100vh', backgroundColor: 'var(--ink)' }} />;
   if (isAuthenticated) {
     // Honor a ?redirect= param so gift/redeem flows land on the right page after login.
-    // Sanitize to prevent open redirect: only allow same-origin paths (start with /,
-    // but not //).
+    // Sanitized via safeRedirect to prevent open redirect (same-origin paths only).
     const params = new URLSearchParams(window.location.search);
-    const raw = params.get('redirect') || '/loom';
-    const to = raw.startsWith('/') && !raw.startsWith('//') ? raw : '/loom';
+    const to = safeRedirect(params.get('redirect'), '/loom');
     return <Navigate to={to} replace />;
   }
   return <>{children}</>;

@@ -8,6 +8,7 @@ import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { safeRedirect } from '../lib/safeRedirect';
 
 // Login — a single calm centered column over the global filament backdrop.
 export function Login() {
@@ -15,7 +16,7 @@ export function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login } = useAuthStore();
-  const redirectUrl = searchParams.get('redirect');
+  const redirectUrl = safeRedirect(searchParams.get('redirect'), '/loom/pwa');
   const sessionExpired = searchParams.get('session_expired') === 'true';
 
   const [email, setEmail] = useState('');

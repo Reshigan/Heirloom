@@ -762,6 +762,9 @@ export function Compose() {
   const editId = searchParams.get('id');
   // Load an existing memory from ?entry= (edit from ReadingRoom).
   const editEntryId = searchParams.get('entry');
+  // A prompt carried in from the QuickWizard / a PersonPage suggestion guides
+  // the writing as the field's placeholder (never saved unless the user types).
+  const seedPrompt = searchParams.get('prompt');
   const prefilledRef = useRef(false);
   const { data: draftLetter } = useQuery({
     queryKey: ['letter', editId],
@@ -1343,7 +1346,7 @@ export function Compose() {
                   ? recipientName.trim()
                     ? `Dear ${recipientName},\n\nWrite your letter here…`
                     : 'Write your letter here…'
-                  : 'Share a family memory…'
+                  : seedPrompt || 'Share a family memory…'
               }
               style={{
                 width: '100%',

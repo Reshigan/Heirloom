@@ -224,7 +224,12 @@ export function PwaNudge() {
               style={{
                 background: 'transparent',
                 border: 0,
-                padding: '2px 4px',
+                minWidth: 44,
+                minHeight: 44,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 0,
                 cursor: 'pointer',
                 fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
                 fontSize: 14,

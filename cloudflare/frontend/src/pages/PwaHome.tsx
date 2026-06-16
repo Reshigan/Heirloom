@@ -8,6 +8,7 @@ import { useIsNewUser } from '../hooks/useIsNewUser';
 import { useAuthStore } from '../stores/authStore';
 import { memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { HLogo } from '../loom/components/HLogo';
 import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
 import { SpineThread, type SpineEntry } from '../loom/components/SpineThread';
@@ -288,7 +289,7 @@ function AuthHome({
 /* ─── Main export ────────────────────────────────────────────────────────── */
 export function PwaHome() {
   const role = useRole();
-  const { entries } = useTapestryEntries();
+  const { entries, isLoading: entriesLoading } = useTapestryEntries();
   const { prompt } = useListener();
   const { isNewUser, isLoading: isNewUserLoading } = useIsNewUser();
   const [wizardDone, setWizardDone] = useState(() => !shouldShowWizard());
@@ -327,6 +328,14 @@ export function PwaHome() {
       topbarRight={<PwaMenu />}
     >
       {!wizardDone && <PwaWizard onDone={() => setWizardDone(true)} />}
+
+      {/* Still resolving whether this is a first-run user or loading the thread —
+          show the hairline rather than flashing the first-run prompt or an empty cloth. */}
+      {(isNewUserLoading || (entriesLoading && entries.length === 0)) && (
+        <div style={{ padding: 'clamp(40px, 9vw, 64px) clamp(20px, 5vw, 32px)', maxWidth: 520, margin: '0 auto' }}>
+          <ProgressHair width={80} />
+        </div>
+      )}
 
       {/* First-run experience — shown when the user has no entries yet */}
       {!isNewUserLoading && isNewUser && (
@@ -397,7 +406,7 @@ export function PwaHome() {
           topbar and reserves BottomNav clearance, so rendering directly here
           keeps content off the fixed nav and lets the cloth parallax read
           `.loom main` scroll. (A nested absolute scroller defeated both.) */}
-      {!isNewUser && (
+      {!isNewUserLoading && !isNewUser && !(entriesLoading && entries.length === 0) && (
         <AuthHome role={role} entries={entries} prompt={prompt} stats={stats} />
       )}
 

@@ -160,7 +160,7 @@ engagementV2Routes.get('/family-feed', async (c) => {
   const familyUserIds = familyResult.results.map((f: any) => f.user_id).filter(Boolean);
 
   if (familyUserIds.length === 0) {
-    return c.json([]);
+    return c.json({ items: [] });
   }
 
   // Get recent activity from family members
@@ -210,7 +210,20 @@ engagementV2Routes.get('/family-feed', async (c) => {
     .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 30);
 
-  return c.json(feed);
+  // Shape to the FamilyFeed contract: { items: FeedItem[] } where each item
+  // carries author_name/preview (the frontend reads .items, not a bare array).
+  const items = feed.map((r: any) => ({
+    id: r.id,
+    type: r.type,
+    title: r.title ?? '',
+    preview: (r.description ?? '').slice(0, 140),
+    author_name: `${r.first_name ?? ''} ${r.last_name ?? ''}`.trim(),
+    author_avatar: r.avatar_url ?? null,
+    created_at: r.created_at,
+    reactions: 0,
+  }));
+
+  return c.json({ items });
 });
 
 // Public stats endpoint

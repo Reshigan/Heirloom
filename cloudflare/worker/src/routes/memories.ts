@@ -408,18 +408,18 @@ memoriesRoutes.get('/search', async (c) => {
     }
   }
 
-  // Search letters (subject, body)
+  // Search letters (title, body)
   if (typeParam === 'all' || typeParam === 'letter') {
     const rows = await c.env.DB.prepare(`
-      SELECT id, subject, body, created_at
+      SELECT id, title, body, created_at
       FROM letters
       WHERE user_id = ? AND deleted_at IS NULL
-        AND (subject LIKE ? ESCAPE '\\' OR body LIKE ? ESCAPE '\\')
+        AND (title LIKE ? ESCAPE '\\' OR body LIKE ? ESCAPE '\\')
       ORDER BY created_at DESC
     `).bind(userId, likePattern, likePattern).all();
 
     for (const r of rows.results) {
-      const title = (r.subject as string) || '';
+      const title = (r.title as string) || '';
       const body = (r.body as string) || '';
       const snippet = body.slice(0, 120);
       const score = countOccurrences(title, q) + countOccurrences(snippet, q);

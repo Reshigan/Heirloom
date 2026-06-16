@@ -264,7 +264,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
           padding: '8px 16px', background: 'var(--ink)', color: 'var(--bone)',
           fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.08em',
           textDecoration: 'none', border: '1px solid var(--bone-dim)',
-          transition: 'top 100ms',
+          transition: 'top 180ms var(--ease)',
         }}
         onFocus={e => (e.currentTarget.style.top = '8px')}
         onBlur={e => (e.currentTarget.style.top = '-100px')}

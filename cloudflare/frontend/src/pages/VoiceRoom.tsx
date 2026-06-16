@@ -47,6 +47,7 @@ export function VoiceRoom() {
   const { isAuthenticated, user } = useAuthStore();
   const [searchParams] = useSearchParams();
   const wantId = searchParams.get('id');
+  const wantEdit = searchParams.get('edit') === '1';
   const [playingId, setPlayingId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -118,10 +119,22 @@ export function VoiceRoom() {
   // bring it into view once the list has rendered.
   useEffect(() => {
     if (!wantId || recordings.length === 0) return;
-    setPlayingId(wantId);
     const el = document.getElementById(`voice-${wantId}`);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, [wantId, recordings.length]);
+    // Arriving with ?edit=1 (e.g. "edit" from the Reading Room) opens the
+    // inline refine form pre-filled, instead of just the player.
+    if (wantEdit) {
+      const entry = recordings.find((r) => r.id === wantId);
+      if (entry) {
+        setEditingId(entry.id);
+        setEditTitle(entry.title ?? '');
+        setEditDesc(entry.description ?? entry.transcript ?? '');
+        setEditError(null);
+        return;
+      }
+    }
+    setPlayingId(wantId);
+  }, [wantId, wantEdit, recordings.length]);
 
   const topbarLeft = (
     <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'voice' }]} />

@@ -350,6 +350,7 @@ export function Challenges() {
 
             <div style={{ marginBottom: 20 }}>
               <label
+                htmlFor="challenge-submission"
                 style={{
                   display: 'block',
                   fontFamily: 'var(--mono)',
@@ -363,6 +364,7 @@ export function Challenges() {
                 Your memory
               </label>
               <textarea
+                id="challenge-submission"
                 value={submissionContent}
                 onChange={(e) => setSubmissionContent(e.target.value)}
                 placeholder="Write here…"

@@ -21,28 +21,30 @@ function pickDye(type: string): string {
  * Uses the same weft-* query keys as Weft.tsx so both surfaces share
  * one cache — invalidating after a write updates both instantly.
  */
-export function useTapestryEntries(): { entries: CanvasEntry[]; isError: boolean } {
+export function useTapestryEntries(): { entries: CanvasEntry[]; isError: boolean; isLoading: boolean } {
   const { isAuthenticated } = useAuthStore();
 
-  const { data: memoriesData, isError: me } = useQuery({
+  const { data: memoriesData, isError: me, isLoading: ml } = useQuery({
     queryKey: ['weft-memories'],
     queryFn: () => memoriesApi.getAll({ limit: 500 }).then((r) => r.data),
     enabled: isAuthenticated,
   });
 
-  const { data: lettersData, isError: le } = useQuery({
+  const { data: lettersData, isError: le, isLoading: ll } = useQuery({
     queryKey: ['weft-letters'],
     queryFn: () => lettersApi.getAll({ limit: 500 }).then((r) => r.data),
     enabled: isAuthenticated,
   });
 
-  const { data: voiceData, isError: ve } = useQuery({
+  const { data: voiceData, isError: ve, isLoading: vl } = useQuery({
     queryKey: ['weft-voice'],
     queryFn: () => voiceApi.getAll({ limit: 500 }).then((r) => r.data),
     enabled: isAuthenticated,
   });
 
   const isError = me || le || ve;
+  // While any query is still in-flight the empty-state would flash; gate on this.
+  const isLoading = ml || ll || vl;
 
   const entries = useMemo(() => {
     const mems: any[] = Array.isArray((memoriesData as any)?.data) ? (memoriesData as any).data : [];
@@ -89,5 +91,5 @@ export function useTapestryEntries(): { entries: CanvasEntry[]; isError: boolean
     return all.sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [memoriesData, lettersData, voiceData]);
 
-  return { entries, isError };
+  return { entries, isError, isLoading };
 }

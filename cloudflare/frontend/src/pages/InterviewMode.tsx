@@ -342,6 +342,7 @@ export function InterviewMode() {
           >
             <textarea
               className="hl-serif"
+              aria-label="Your answer"
               value={textAnswer}
               onChange={(e) => setTextAnswer(e.target.value)}
               placeholder="write your answer…"

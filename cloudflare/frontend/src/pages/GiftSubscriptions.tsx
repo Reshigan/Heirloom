@@ -4,6 +4,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { giftSubscriptionsApi, settingsApi } from '../services/api';
+import { PLAN_FEATURES } from '../lib/plans';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const OCCASION_STYLES = [
@@ -16,33 +17,9 @@ const OCCASION_STYLES = [
 
 const STEP_LABELS = ['plan', 'recipient', 'your details', 'review'];
 
-// Bullet features per tier
-const TIER_BULLETS: Record<string, string[]> = {
-  STARTER: [
-    'Unlimited text entries',
-    'Up to 3 authors',
-    'Append-only audit log',
-    '1 GB media storage',
-    'PDF export',
-    'Email delivery',
-  ],
-  FAMILY: [
-    'Unlimited text entries',
-    'Up to 12 authors',
-    'Append-only audit log',
-    '25 GB media storage',
-    'PDF + textile export',
-    'Priority delivery',
-  ],
-  LEGACY: [
-    'Unlimited text entries',
-    'Unlimited authors',
-    'Append-only audit log',
-    '250 GB media storage',
-    'Print-quality export',
-    'Succession vault included',
-  ],
-};
+// Bullet features per tier — single source of truth is lib/plans.ts so the gift
+// flow can never drift from the canonical Pricing page (storage, members, tier).
+const TIER_BULLETS = PLAN_FEATURES;
 
 // ── GiftSubscriptions ─────────────────────────────────────────────────────────
 export function GiftSubscriptions() {
@@ -104,19 +81,22 @@ export function GiftSubscriptions() {
   });
 
   // ── Derived ──────────────────────────────────────────────────────────────────
+  // Fallback mirrors the worker /gift pricing (canonical list $6.99 / $69 / $249,
+  // 10% gifter discount) so a slow API never flashes a wrong price. STARTER is
+  // free and not giftable; LEGACY brands as "Founder".
   const tiers = pricing?.tiers || [
     {
-      id: 'STARTER', name: 'Free', description: 'Anyone can begin a thread — no gift needed', storage: '1 GB', free: true,
+      id: 'STARTER', name: 'Free', description: 'Anyone can begin a thread — no gift needed', storage: '500 MB', free: true,
       monthly: { amount: 0, display: 'Free' },
     },
     {
-      id: 'FAMILY', name: 'Family', description: 'The full thread — for the whole bloodline', storage: '25 GB', popular: true,
-      monthly: { amount: 8.99, display: '$8.99', listAmount: 9.99, listDisplay: '$9.99', giftDiscount: '10% off' },
-      yearly:  { amount: 89.1, display: '$89.10', listAmount: 99, listDisplay: '$99.00', giftDiscount: '10% off', savings: '2 months free' },
+      id: 'FAMILY', name: 'Family', description: 'The full thread — for the whole bloodline', storage: '50 GB', popular: true,
+      monthly: { amount: 6.29, display: '$6.29', listAmount: 6.99, listDisplay: '$6.99', giftDiscount: '10% off' },
+      yearly:  { amount: 62.1, display: '$62.10', listAmount: 69, listDisplay: '$69.00', giftDiscount: '10% off', savings: '2 months free' },
     },
     {
-      id: 'LEGACY', name: 'Legacy', description: 'Lifetime, for every generation — paid once', storage: 'Unlimited',
-      lifetime: { amount: 216, display: '$216.00', listAmount: 240, listDisplay: '$240.00', giftDiscount: '10% off', note: 'once · lifetime' },
+      id: 'LEGACY', name: 'Founder', description: 'Lifetime, for every generation — paid once', storage: '500 GB',
+      lifetime: { amount: 224.1, display: '$224.10', listAmount: 249, listDisplay: '$249.00', giftDiscount: '10% off', note: 'once · lifetime' },
     },
   ];
 

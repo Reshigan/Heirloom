@@ -174,6 +174,9 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
           onClick={onDismiss}
         >
           <motion.div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="feature-onboarding-title"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
@@ -185,7 +188,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
             <div className="flex items-start justify-between mb-6 gap-6">
               <div>
                 <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-2">Walkthrough</p>
-                <h2 className="font-body font-light text-xl md:text-2xl tracking-[-0.014em]">{config.title}</h2>
+                <h2 id="feature-onboarding-title" className="font-body font-light text-xl md:text-2xl tracking-[-0.014em]">{config.title}</h2>
                 <p className="text-sm text-paper-65 mt-1">{config.subtitle}</p>
               </div>
               <button
