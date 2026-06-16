@@ -88,6 +88,19 @@ function variantFor(pathname: string): FilamentVariant {
   return ROUTE_VARIANT[p] ?? 'ambient';
 }
 
+// The data-room gestures (waveform/seal/book) render as recognisable objects, so
+// at full luminance they fight the type for the eye. The map + ambient bloom are
+// already whisper-quiet and read perfectly; these three get dimmed to match, so
+// the gesture stays backdrop and the words stay hero.
+const VARIANT_INTENSITY: Partial<Record<FilamentVariant, number>> = {
+  waveform: 0.5,
+  seal: 0.58,
+  book: 0.55,
+};
+function intensityFor(variant: FilamentVariant): number {
+  return VARIANT_INTENSITY[variant] ?? 1;
+}
+
 // A small stable hash so two `arc` screens don't weave an identical crescent.
 function seedFor(pathname: string): number {
   let h = 2166136261;
@@ -115,5 +128,5 @@ export function ClothBackdrop(_props: ClothBackdropProps) {
   const location = useLocation();
   const variant = variantFor(location.pathname);
   // Re-key on (variant, path) so navigation re-weaves the gesture fresh.
-  return <Filament key={`${variant}:${location.pathname}`} variant={variant} seed={seedFor(location.pathname)} />;
+  return <Filament key={`${variant}:${location.pathname}`} variant={variant} seed={seedFor(location.pathname)} intensity={intensityFor(variant)} />;
 }

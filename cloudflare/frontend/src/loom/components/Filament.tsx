@@ -281,7 +281,7 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
         const env = Math.sin(t * Math.PI); // taper at the ends
         return env * (0.18 + 0.82 * Math.abs(Math.sin(i * 1.7 + rnd() * 6) * Math.cos(i * 0.6)));
       });
-      const maxH = H * 0.2;
+      const maxH = H * 0.15;
       for (let i = 0; i < bars; i++) {
         const x = x0 + (i / (bars - 1)) * span;
         const h = maxH * seedAmps[i];
