@@ -19,6 +19,11 @@ import { useEffect, useRef } from 'react';
  */
 
 export type FilamentVariant =
+  | 'tapestry'  // LIVING TAPESTRY — a volumetric woven cloth of golden light rising
+                //   from a bright convergence at the foot, threads splaying up into
+                //   bokeh dark with real depth-of-field. The hero language; the
+                //   default surface for the capture home, the landing, and every
+                //   content/form room. (Higgsfield direction "D".)
   | 'arc'       // crescent ring hanging from the top — sign-in, composer, pricing, thread, threshold
   | 'crown'     // radiating aurora crown over the top third — home prompt
   | 'wave'      // horizontal woven waves across the bottom third — landing hero
@@ -81,18 +86,20 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
 
     // ── shared filament stroke: 3-pass soft bloom — wide halo, mid glow, bright
     // core — drawn additively so threads read as warm light, not CAD wires. ──
-    function drawFilament(c: CanvasRenderingContext2D, pts: number[][], color: string, a: number, w: number) {
+    // blurScale > 1 widens the halo to fake near-field depth-of-field bloom (the
+    // foreground threads of the tapestry); < 1 tightens it for far threads.
+    function drawFilament(c: CanvasRenderingContext2D, pts: number[][], color: string, a: number, w: number, blurScale = 1) {
       if (pts.length < 2) return;
       c.strokeStyle = color;
       c.shadowColor = color;
       // pass 1 — wide soft halo
-      c.shadowBlur = 26;
+      c.shadowBlur = 26 * blurScale;
       c.globalAlpha = Math.min(0.3, a * 0.55);
       c.lineWidth = w + 2.6;
       trace(c, pts);
       c.stroke();
       // pass 2 — mid glow
-      c.shadowBlur = 12;
+      c.shadowBlur = 12 * blurScale;
       c.globalAlpha = Math.min(0.5, a);
       c.lineWidth = w + 0.8;
       trace(c, pts);
@@ -112,6 +119,68 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
     }
 
     // ── geometry generators — each returns an array of point-paths ──────────────
+    // LIVING TAPESTRY — the hero weave. A bundle of long luminous threads launched
+    // from a bright convergence just below the foot of the screen, splaying upward
+    // and outward in graceful curves so they cross one another into a woven cloth.
+    // Each thread carries a depth `z` (0 far → 1 near): near threads are brighter,
+    // thicker and bloom wider (depth-of-field); far threads are fine and faint.
+    // Additive blending means the convergence — where every thread overlaps — burns
+    // brightest, then the cloth thins and darkens as the threads fan apart toward
+    // the top, exactly like the Higgsfield reference. Two mirrored families (left-
+    // and right-leaning) build the X-crossings that read as warp over weft.
+    function tapestryPaths(rnd: () => number): { pts: number[][]; a: number; w: number; z: number }[] {
+      const out: { pts: number[][]; a: number; w: number; z: number }[] = [];
+      const px = W * 0.5;            // convergence x — centre
+      const py = H * 1.04;           // convergence y — just below the foot
+      const reach = H * 1.18;        // threads climb past the top edge
+      const count = 54;
+      for (let i = 0; i < count; i++) {
+        const z = rnd();                                   // depth 0 far → 1 near
+        const side = rnd() < 0.5 ? -1 : 1;                 // left- or right-leaning
+        // launch angle measured from straight-up; nearer the centre = more vertical
+        const spread = Math.pow(rnd(), 0.78);              // bias toward upright
+        const launch = side * (0.04 + spread * 1.16);      // radians off vertical
+        const bend = side * (0.18 + rnd() * 0.6) + (rnd() - 0.5) * 0.5; // outward curl
+        const wobAmp = (3 + rnd() * 9) * (0.5 + z);        // nearer threads wobble more
+        const wobFreq = 1.4 + rnd() * 2.6;
+        const phase = rnd() * Math.PI * 2;
+        const stepR = 9 - z * 3;                           // near threads denser samples
+        const pts: number[][] = [];
+        for (let r = 0; r <= reach; r += stepR) {
+          const t = r / reach;
+          const ang = -Math.PI / 2 + launch + bend * t * t; // bends outward as it rises
+          const perp = Math.sin(t * Math.PI * wobFreq + phase) * wobAmp * t; // woven sway
+          const dirx = Math.cos(ang);
+          const diry = Math.sin(ang);
+          // wobble perpendicular to the thread direction
+          const x = px + dirx * r - diry * perp;
+          const y = py + diry * r + dirx * perp;
+          pts.push([x, y]);
+        }
+        // near threads brighter + thicker; depth fades the far ones into bokeh
+        const a = 0.1 + z * z * 0.42;
+        const w = 0.45 + z * z * 1.7;
+        out.push({ pts, a, w, z });
+      }
+      // a few short bright filaments hugging the convergence — the molten foot of
+      // the cloth where the weave is densest and the eye is meant to settle.
+      for (let i = 0; i < 9; i++) {
+        const side = rnd() < 0.5 ? -1 : 1;
+        const launch = side * (0.05 + rnd() * 0.5);
+        const len = reach * (0.16 + rnd() * 0.2);
+        const phase = rnd() * Math.PI * 2;
+        const pts: number[][] = [];
+        for (let r = 0; r <= len; r += 6) {
+          const t = r / len;
+          const ang = -Math.PI / 2 + launch;
+          const perp = Math.sin(t * Math.PI * 2 + phase) * 4 * t;
+          pts.push([px + Math.cos(ang) * r - Math.sin(ang) * perp, py + Math.sin(ang) * r + Math.cos(ang) * perp]);
+        }
+        out.push({ pts, a: 0.4 + rnd() * 0.2, w: 1.4 + rnd() * 1.1, z: 1 });
+      }
+      return out;
+    }
+
     // A crescent ring hanging from the top: concentric arcs + a woven cross-weave
     // of radials, brightest along the lower curve.
     function arcPaths(rnd: () => number): { pts: number[][]; a: number; w: number }[] {
@@ -420,6 +489,7 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
 
     function pathsFor(variant: FilamentVariant, rnd: () => number) {
       switch (variant) {
+        case 'tapestry': return tapestryPaths(rnd);
         case 'arc': return arcPaths(rnd);
         case 'crown': return crownPaths(rnd);
         case 'wave': return wavePaths(rnd);
@@ -474,6 +544,7 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
       // infinity/ember keep their own brighter knot-bloom below, so skip here. ──
       const bloomFor = (): { cx: number; cy: number; r: number; a: number } | null => {
         switch (variant) {
+          case 'tapestry': return { cx: W / 2,        cy: H * 1.0,  r: Math.max(W, H) * 0.62,        a: 0.14 };
           case 'arc':      return { cx: W / 2,        cy: H * 0.02, r: Math.min(W * 0.55, H * 0.5),  a: 0.09 };
           case 'crown':    return { cx: W / 2,        cy: H * 0.05, r: Math.min(W * 0.6, H * 0.5),   a: 0.09 };
           case 'wave':     return { cx: W / 2,        cy: H * 0.82, r: Math.min(W * 0.6, H * 0.45),  a: 0.09 };
@@ -498,7 +569,12 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
       }
 
       const paths = pathsFor(variant, rnd);
-      for (const p of paths) drawFilament(ctx, p.pts, warm, p.a * lum, p.w);
+      for (const p of paths) {
+        // tapestry threads carry depth `z` → nearer threads bloom wider (DOF)
+        const z = (p as { z?: number }).z;
+        const blurScale = z == null ? 1 : 0.5 + z * 1.35;
+        drawFilament(ctx, p.pts, warm, p.a * lum, p.w, blurScale);
+      }
 
       // The memory map's living constellation — scattered glowing place-lights.
       if (variant === 'map') {
@@ -546,6 +622,21 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
         }
       }
       ctx.globalCompositeOperation = 'source-over';
+
+      // Tapestry: dissolve the upper threads back into ink so the cloth reads as a
+      // weave rising from the foot into bokeh dark — and so the upper ~60% stays
+      // clean negative space for the type to remain the hero (rule #3).
+      if (variant === 'tapestry') {
+        const ink = (v('--ink') || '#0e0e0c').trim();
+        const fade = ctx.createLinearGradient(0, 0, 0, H);
+        // opaque ink at the very top → clear by the lower third where the weave lives
+        fade.addColorStop(0, ink);
+        fade.addColorStop(0.34, paper ? `${ink}00` : ink.length === 7 ? `${ink}d0` : ink);
+        fade.addColorStop(0.62, `${ink}00`);
+        fade.addColorStop(1, `${ink}00`);
+        ctx.fillStyle = fade;
+        ctx.fillRect(0, 0, W, H);
+      }
     }
 
     paint();
@@ -594,7 +685,7 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
         (dyeName && cs.getPropertyValue(`--dye-${dyeName}`).trim()) ||
         cs.getPropertyValue('--warm-bright').trim() ||
         '#cf935a';
-      const midY = variant === 'wave' ? H * 0.8 : variant === 'arc' || variant === 'crown' ? H * 0.18 : H * 0.34;
+      const midY = variant === 'wave' || variant === 'tapestry' ? H * 0.8 : variant === 'arc' || variant === 'crown' ? H * 0.18 : H * 0.34;
       const amp = 26 + (H * 0.04);
       const freq = 1.4 / W * Math.PI * 2;
       const yAt = (x: number) => midY + Math.sin(x * freq) * amp;

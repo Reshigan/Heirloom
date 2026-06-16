@@ -28,25 +28,27 @@ export const CLOTH_BG_ENTRIES = Array.from({ length: 48 }, (_, i) => ({
  * 'none' (pure ink) where the screen's own content carries all the light.
  */
 const ROUTE_VARIANT: Record<string, FilamentVariant> = {
-  '/': 'wave',                 // landing hero — woven waves across the bottom
+  '/': 'tapestry',             // landing hero — the living woven cloth, full power
   '/loom': 'infinity',         // the threshold ceremony — a centred ∞
-  '/loom/pwa': 'crown',        // capture home — "the listener asks"
-  '/loom/today': 'crown',
-  '/onboarding': 'arc',
-  '/login': 'arc',
-  '/signin': 'arc',
-  '/signup': 'arc',
-  '/pricing': 'arc',
-  '/billing': 'arc',
-  '/compose': 'arc',
-  '/loom/compose': 'arc',
-  '/quick': 'arc',
-  '/loom/index': 'arc',
-  '/memories': 'arc',
-  '/threads': 'arc',
-  '/loom/weft': 'arc',
-  '/family-feed': 'arc',
-  '/on-this-day': 'arc',
+  '/loom/pwa': 'tapestry',     // capture home — "the listener asks" rises from the weave
+  '/loom/today': 'tapestry',
+  // ── content + form rooms all wear the Living Tapestry, so the whole app reads
+  // as one woven surface; the type stays hero in the clean upper band. ──
+  '/onboarding': 'tapestry',
+  '/login': 'tapestry',
+  '/signin': 'tapestry',
+  '/signup': 'tapestry',
+  '/pricing': 'tapestry',
+  '/billing': 'tapestry',
+  '/compose': 'tapestry',
+  '/loom/compose': 'tapestry',
+  '/quick': 'tapestry',
+  '/loom/index': 'tapestry',
+  '/memories': 'tapestry',
+  '/threads': 'tapestry',
+  '/loom/weft': 'tapestry',
+  '/family-feed': 'tapestry',
+  '/on-this-day': 'tapestry',
   '/tree': 'tree',
   '/loom/kin': 'tree',
   '/wrapped': 'scurve',
@@ -85,7 +87,9 @@ const ROUTE_VARIANT: Record<string, FilamentVariant> = {
 
 function variantFor(pathname: string): FilamentVariant {
   const p = (pathname.replace(/\/+$/, '') || '/').toLowerCase();
-  return ROUTE_VARIANT[p] ?? 'ambient';
+  // Unmapped rooms fall to the Living Tapestry (not a flat bloom) so every
+  // surface belongs to the same woven cloth.
+  return ROUTE_VARIANT[p] ?? 'tapestry';
 }
 
 // The data-room gestures (waveform/seal/book) render as recognisable objects, so
@@ -97,7 +101,22 @@ const VARIANT_INTENSITY: Partial<Record<FilamentVariant, number>> = {
   seal: 0.58,
   book: 0.55,
 };
-function intensityFor(variant: FilamentVariant): number {
+
+// The Living Tapestry runs at two powers. On the HERO surfaces — landing, the
+// capture home, today — the screen is mostly empty negative space, so the weave
+// is the showpiece and burns at full 0.9. Every OTHER tapestry room carries real
+// text down into the lower viewport (pricing cards, list rows, form fields),
+// where the bright foot-convergence would wash the words out. There the weave
+// drops to a faint woven ground so the type always wins. (Legibility is
+// functionality — never let the backdrop eat a control.)
+const TAPESTRY_HERO = new Set(['/', '/loom/pwa', '/loom/today']);
+const TAPESTRY_HERO_INTENSITY = 0.9;
+const TAPESTRY_CONTENT_INTENSITY = 0.34;
+
+function intensityFor(variant: FilamentVariant, pathname: string): number {
+  if (variant === 'tapestry') {
+    return TAPESTRY_HERO.has(pathname) ? TAPESTRY_HERO_INTENSITY : TAPESTRY_CONTENT_INTENSITY;
+  }
   return VARIANT_INTENSITY[variant] ?? 1;
 }
 
@@ -126,7 +145,10 @@ interface ClothBackdropProps {
  */
 export function ClothBackdrop(_props: ClothBackdropProps) {
   const location = useLocation();
+  // Normalise once — both the variant map and the tapestry hero set key on the
+  // trailing-slash-stripped, lower-cased path.
+  const p = (location.pathname.replace(/\/+$/, '') || '/').toLowerCase();
   const variant = variantFor(location.pathname);
   // Re-key on (variant, path) so navigation re-weaves the gesture fresh.
-  return <Filament key={`${variant}:${location.pathname}`} variant={variant} seed={seedFor(location.pathname)} intensity={intensityFor(variant)} />;
+  return <Filament key={`${variant}:${location.pathname}`} variant={variant} seed={seedFor(location.pathname)} intensity={intensityFor(variant, p)} />;
 }
