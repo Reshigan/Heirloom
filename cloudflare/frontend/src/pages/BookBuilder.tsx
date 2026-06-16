@@ -4,6 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { RoomSection } from '../loom/components/room';
 import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { dyeFromMetadata, dyeForId, type Dye } from '../loom/dye';
 import { memoriesApi, lettersApi, voiceApi, booksApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -89,6 +90,39 @@ const emptyShipTo: ShipTo = {
   phone_number: '',
   email: '',
 };
+
+/** A loosely-typed selectable entry — the shape the memory/letter/voice APIs return. */
+interface ChapterEntry {
+  id: string;
+  title?: string;
+  subject?: string;
+  created_at?: string;
+  date?: string;
+  createdAt?: string;
+  author_name?: string;
+  authorName?: string;
+  author?: { name?: string };
+  metadata?: unknown;
+  dye?: unknown;
+}
+
+/** A bound entry's chapter year — from any of the date fields the APIs return. */
+function chapterYear(it: { created_at?: string; date?: string; createdAt?: string }): string {
+  const d = it?.created_at || it?.date || it?.createdAt;
+  const y = d ? new Date(d).getFullYear() : NaN;
+  return Number.isFinite(y) ? String(y) : '';
+}
+
+/** The author hand behind an entry — first name only, for the mono right cluster. */
+function chapterAuthor(it: { author_name?: string; authorName?: string; author?: { name?: string } }): string {
+  const raw = it?.author_name || it?.authorName || it?.author?.name || '';
+  return raw.trim().split(/\s+/)[0] || '';
+}
+
+/** The dye this chapter inherits — saved metadata first, else stable id hash. */
+function chapterDye(it: { id: string; metadata?: unknown; dye?: unknown }): Dye {
+  return dyeFromMetadata(it?.metadata ?? it) ?? dyeForId(it.id);
+}
 
 /** placeholder marks inside a template thumbnail — serif/mono rules + a photo block */
 function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }) {
@@ -264,8 +298,8 @@ export function BookBuilder() {
       {/* scrollable inner */}
       <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
-        {/* Header — mono eyebrow + serif working title (mockup 1) */}
-        <CosmicHeader eyebrow="Bind the Book" title="Bind your thread" />
+        {/* Header — mono eyebrow + serif headline (the mockup) */}
+        <CosmicHeader eyebrow="The Volume" title="Bind your thread into a book." />
         <p
           className="hl-mono"
           style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)', textAlign: 'center', margin: '-20px 0 56px' }}
@@ -304,61 +338,117 @@ export function BookBuilder() {
           ))}
         </div>
 
+        {/* the binding screen widens to seat the floating page preview; every
+            other step keeps the quiet 640 measure. */}
+        <style>{`
+          @media (min-width: 900px) {
+            .hl-bind-grid { grid-template-columns: minmax(0, 1fr) 150px !important; }
+          }
+          @media (max-width: 899px) {
+            .hl-bind-preview { display: none !important; }
+          }
+        `}</style>
+
         {/* Step content */}
-        <div style={{ maxWidth: 640, margin: '0 auto' }}>
+        <div style={{ maxWidth: step === 'select' ? 900 : 640, margin: '0 auto' }}>
 
-          {/* ── Select ── */}
+          {/* ── Select — the chapters that become the bound volume ── */}
           {step === 'select' && (
-            <div style={{ display: 'grid', gap: 40 }}>
-              <p
-                className="hl-serif"
-                style={{ fontSize: 15, color: 'var(--bone-dim)', margin: 0, fontStyle: 'italic' }}
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'minmax(0, 1fr)',
+                gap: 56,
+                alignItems: 'start',
+              }}
+              className="hl-bind-grid"
+            >
+              {/* the chapter list — every selected entry is a chapter */}
+              <div style={{ display: 'grid', gap: 40 }}>
+                <p
+                  className="hl-serif"
+                  style={{ fontSize: 15, color: 'var(--bone-dim)', margin: 0, fontStyle: 'italic' }}
+                >
+                  Choose the threads to bind. Each becomes a chapter, kept in its own hand and year.
+                </p>
+
+                {([
+                  { key: 'memoryIds' as const, label: 'Memories', list: memoryList },
+                  { key: 'letterIds' as const, label: 'Letters', list: letterList },
+                  { key: 'voiceIds' as const, label: 'Voice recordings', list: voiceList },
+                ]).map(({ key, label, list }) => (
+                  <div key={key}>
+                    {/* chapter/section heading — mono label + mono count */}
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 2 }}>
+                      <SectionLabel>{label}</SectionLabel>
+                      <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.1em', color: 'var(--warm)', marginLeft: 'auto' }}>
+                        {config[key].length} in book
+                      </span>
+                    </div>
+                    <div style={{ maxHeight: 220, overflowY: 'auto' }}>
+                      {list.map((item: ChapterEntry) => {
+                        const on = config[key].includes(item.id);
+                        return (
+                          <EntryRow
+                            key={item.id}
+                            title={item.title || item.subject || 'Untitled'}
+                            italic={on}
+                            year={chapterYear(item)}
+                            dye={chapterDye(item)}
+                            author={chapterAuthor(item) || undefined}
+                            onClick={() => toggleItem(key, item.id)}
+                          />
+                        );
+                      })}
+                      {list.length === 0 && (
+                        <p
+                          className="hl-serif"
+                          style={{ fontSize: 14, color: 'var(--bone-faint)', fontStyle: 'italic', padding: '12px 0', margin: 0 }}
+                        >
+                          No {label.toLowerCase()} yet.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+
+                <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}>
+                  {totalItems} chapters chosen · ~{estimatedPages} pages estimated
+                </p>
+              </div>
+
+              {/* floating page preview — a narrow bound page, decorative only.
+                  Hidden below 900px via the .hl-bind-preview rule. */}
+              <aside
+                aria-hidden
+                className="hl-bind-preview"
+                style={{
+                  position: 'sticky',
+                  top: 24,
+                  width: 150,
+                  height: 210,
+                  justifySelf: 'end',
+                  border: '1px solid var(--rule)',
+                  borderRadius: 2,
+                  background: 'var(--paper, rgba(244,236,216,0.04))',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  padding: '18px 16px 16px',
+                  opacity: 0.7,
+                }}
               >
-                Select the memories, letters, and voice recordings to include in your book.
-              </p>
-
-              {([
-                { key: 'memoryIds' as const, label: 'Memories', list: memoryList },
-                { key: 'letterIds' as const, label: 'Letters', list: letterList },
-                { key: 'voiceIds' as const, label: 'Voice recordings', list: voiceList },
-              ]).map(({ key, label, list }) => (
-                <div key={key}>
-                  {/* chapter/section heading — mono label + mono count (mockup 1 left rail) */}
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 2 }}>
-                    <SectionLabel>{label}</SectionLabel>
-                    <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.1em', color: 'var(--warm)', marginLeft: 'auto' }}>
-                      {config[key].length} in book
-                    </span>
-                  </div>
-                  <div style={{ maxHeight: 200, overflowY: 'auto' }}>
-                    {list.map((item: { id: string; title?: string; subject?: string }, i: number) => {
-                      const on = config[key].includes(item.id);
-                      return (
-                        <EntryRow
-                          key={item.id}
-                          title={item.title || (item as { id: string; title?: string; subject?: string }).subject || 'Untitled'}
-                          italic={on}
-                          filled={on}
-                          meta={on ? 'p. ' + String((i + 1) * 2).padStart(3, '0') : '—'}
-                          onClick={() => toggleItem(key, item.id)}
-                        />
-                      );
-                    })}
-                    {list.length === 0 && (
-                      <p
-                        className="hl-serif"
-                        style={{ fontSize: 14, color: 'var(--bone-faint)', fontStyle: 'italic', padding: '12px 0', margin: 0 }}
-                      >
-                        No {label.toLowerCase()} yet.
-                      </p>
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}>
-                {totalItems} items selected · ~{estimatedPages} pages estimated
-              </p>
+                <span className="hl-mono" style={{ fontSize: 7, letterSpacing: '0.3em', color: 'var(--bone-faint)' }}>
+                  CHAPTER {String(totalItems || 1).padStart(2, '0')}
+                </span>
+                <span
+                  className="hl-serif"
+                  style={{ fontSize: 14, lineHeight: 1.25, color: 'var(--bone-dim)', fontStyle: 'italic' }}
+                >
+                  {config.title}
+                </span>
+                <WaxSeal size={16} />
+              </aside>
             </div>
           )}
 
@@ -860,16 +950,19 @@ export function BookBuilder() {
                 padding: '15px 56px',
                 cursor: step === 'select' && totalItems === 0 ? 'default' : 'pointer',
                 fontSize: 11,
-                letterSpacing: '0.26em',
+                letterSpacing: '0.24em',
                 textTransform: 'uppercase',
                 color: 'var(--warm)',
                 opacity: step === 'select' && totalItems === 0 ? 0.4 : 1,
                 transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
               }}
             >
-              {step === 'customize' ? 'Preview' : 'Continue'}
+              {step === 'select' ? 'Bind the Volume' : step === 'customize' ? 'Preview' : 'Continue'}
             </button>
           )}
+
+          {/* the warm ∞ seal beneath the binding CTA */}
+          {step === 'select' && <WaxSeal size={26} />}
 
           <button
             type="button"

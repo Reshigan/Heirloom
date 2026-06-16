@@ -40,14 +40,28 @@ const stepLabel: React.CSSProperties = {
   marginBottom: 14,
 };
 
+// Mono eyebrow — the ledger's entry-number line on ceremony surfaces.
 const eyebrowStyle: React.CSSProperties = {
   fontFamily: 'var(--mono)',
-  fontSize: 10,
-  letterSpacing: '0.32em',
+  fontSize: 11,
+  letterSpacing: '0.28em',
   textTransform: 'uppercase' as const,
-  color: 'var(--warm)',
+  color: 'var(--bone-faint)',
   textAlign: 'center',
   marginBottom: 28,
+};
+
+// The hero headline of the first ceremony step — giant, serif, centered.
+const heroHeadlineStyle: React.CSSProperties = {
+  fontFamily: 'var(--serif)',
+  fontWeight: 400,
+  fontSize: 'clamp(40px, 9vw, 72px)',
+  lineHeight: 1.05,
+  letterSpacing: '-0.012em',
+  color: 'var(--bone)',
+  textAlign: 'center',
+  margin: 0,
+  fontVariationSettings: '"opsz" 40',
 };
 
 const questionStyle: React.CSSProperties = {
@@ -61,8 +75,10 @@ const questionStyle: React.CSSProperties = {
   margin: 0,
 };
 
+// Sub line — serif italic, the confidential-space promise.
 const ledeStyle: React.CSSProperties = {
   fontFamily: 'var(--serif)',
+  fontStyle: 'italic',
   fontWeight: 300,
   fontSize: 15,
   lineHeight: 1.6,
@@ -90,6 +106,16 @@ const inputStyle: React.CSSProperties = {
   outline: 'none',
   boxSizing: 'border-box' as const,
   transition: 'border-color 180ms var(--ease)',
+};
+
+// Hero family-name input — underline only, centered, ~360px, breathing room
+// above and below. Caret + focus underline carry the one warm colour.
+const heroInputStyle: React.CSSProperties = {
+  ...inputStyle,
+  maxWidth: 360,
+  margin: '36px auto',
+  fontSize: 20,
+  fontWeight: 400,
 };
 
 const textareaStyle: React.CSSProperties = {
@@ -169,6 +195,33 @@ function pillLeave(e: React.MouseEvent<HTMLButtonElement>) {
   e.currentTarget.style.color = 'var(--warm-bright)';
 }
 
+// Bare warm text CTA — mono uppercase, no border or fill (the hero step's
+// "START YOUR THREAD"). 44px min touch height; hover lifts to warm-bright.
+const ctaTextStyle: React.CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  minHeight: 44,
+  padding: '11px 8px',
+  border: 0,
+  background: 'transparent',
+  color: 'var(--warm)',
+  fontFamily: 'var(--mono)',
+  fontSize: 11,
+  letterSpacing: '0.26em',
+  textTransform: 'uppercase' as const,
+  cursor: 'pointer',
+  touchAction: 'manipulation',
+  transition: 'color 180ms var(--ease)',
+};
+
+function ctaTextHover(e: React.MouseEvent<HTMLButtonElement>) {
+  e.currentTarget.style.color = 'var(--warm-bright)';
+}
+function ctaTextLeave(e: React.MouseEvent<HTMLButtonElement>) {
+  e.currentTarget.style.color = 'var(--warm)';
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────
 export function Onboarding() {
   const navigate = useNavigate();
@@ -176,6 +229,10 @@ export function Onboarding() {
 
   const [stepIndex, setStepIndex] = useState(0);
   const step = STEPS[stepIndex];
+
+  // Family name — seeded from the surname captured at signup. This names the
+  // bloodline's thread; it feeds the thread-naming logic in ensureThreadId.
+  const [familyName, setFamilyName] = useState(user?.lastName?.trim() ?? '');
 
   // First entry
   const [firstEntry, setFirstEntry] = useState('');
@@ -216,17 +273,23 @@ export function Onboarding() {
   function onFocus(e: React.FocusEvent<HTMLElement>) {
     (e.target as HTMLElement).style.borderColor = 'var(--rule-strong)';
   }
+  // Hero family-name field lifts its underline to the one warm colour on focus.
+  function onWarmFocus(e: React.FocusEvent<HTMLElement>) {
+    (e.target as HTMLElement).style.borderColor = 'var(--warm)';
+  }
   function onBlur(e: React.FocusEvent<HTMLElement>) {
     (e.target as HTMLElement).style.borderColor = 'var(--rule)';
   }
 
   // ── Step handlers ────────────────────────────────────────────────────
 
-  // Resolve the thread id, creating one only if signup somehow didn't.
+  // Resolve the thread id, creating one only if signup somehow didn't. The
+  // hero's family-name field (falling back to the signup surname) names it.
   async function ensureThreadId(): Promise<string | null> {
     if (threadId) return threadId;
     try {
-      const name = user?.lastName ? `The ${user.lastName} Thread` : 'Our Family Thread';
+      const surname = familyName.trim() || user?.lastName?.trim();
+      const name = surname ? `The ${surname} Thread` : 'Our Family Thread';
       const { data } = await threadsApi.create({ name, default_visibility: 'FAMILY' });
       const id = data.thread.id;
       setThreadId(id);
@@ -297,13 +360,29 @@ export function Onboarding() {
   // The 'tour' step is rendered full-bleed (see below) and isn't in this map.
   // Each screen is one calm question, centered in negative space.
   const screens: Record<'entry' | 'invite', React.ReactNode> = {
+    // The hero — the first ceremony page. The family-name field names the
+    // bloodline's thread; the first-entry line begins the cloth beneath it.
     entry: (
       <>
-        <div style={eyebrowStyle}>first entry</div>
-        <h1 style={questionStyle}>Write the first entry</h1>
-        <p style={ledeStyle}>
-          A memory, a thought, a truth about right now. The cloth begins with this line.
-        </p>
+        <div style={eyebrowStyle}>Entry No. 0001</div>
+        <h1 style={heroHeadlineStyle}>Begin the thread.</h1>
+
+        <input
+          style={heroInputStyle}
+          type="text"
+          value={familyName}
+          onChange={(e) => setFamilyName(e.target.value)}
+          onFocus={onWarmFocus}
+          onBlur={onBlur}
+          placeholder="your family name"
+          aria-label="Your family name"
+          autoFocus
+        />
+
+        <WaxSeal size={20} />
+
+        <p style={ledeStyle}>A confidential, private space for your legacy.</p>
+
         <div style={{ marginTop: 44 }}>
           <textarea
             style={textareaStyle}
@@ -312,7 +391,6 @@ export function Onboarding() {
             onFocus={onFocus}
             onBlur={onBlur}
             placeholder="The first line of a thousand-year thread"
-            autoFocus
           />
         </div>
       </>
@@ -343,11 +421,12 @@ export function Onboarding() {
   };
 
   // ── CTA label ────────────────────────────────────────────────────────
+  // Entry is the hero step; its CTA is the mono "START YOUR THREAD".
   const ctaLabel = busy
     ? step === 'entry' ? 'sealing…' : 'inviting…'
     : inviteSent
     ? 'sent ✓'
-    : step === 'entry' ? 'seal it →' : 'invite →';
+    : step === 'entry' ? 'start your thread' : 'invite →';
 
   // The product tour leads onboarding; it manages its own progress + actions.
   if (step === 'tour') {
@@ -393,33 +472,36 @@ export function Onboarding() {
         </div>
 
         <div style={{ ...actions, position: 'relative', zIndex: 1 }}>
-          <WaxSeal size={22} />
-
-          <button
-            type="button"
-            style={{
-              ...pillStyle,
-              opacity: busy || (step === 'entry' && !firstEntry.trim()) ? 0.4 : 1,
-              cursor: busy || (step === 'entry' && !firstEntry.trim()) ? 'default' : 'pointer',
-            }}
-            onClick={handleNext}
-            onMouseEnter={pillHover}
-            onMouseLeave={pillLeave}
-            disabled={busy || (step === 'entry' && !firstEntry.trim())}
-          >
-            {ctaLabel}
-          </button>
-
-          {step === 'entry' && (
-            <button type="button" style={skipStyle} onClick={() => setStepIndex(2)}>
-              skip
+          {step === 'entry' ? (
+            // Hero: bare warm "START YOUR THREAD" — the ∞ already rests in the
+            // hero above, so no second seal here.
+            <button
+              type="button"
+              style={{ ...ctaTextStyle, opacity: busy ? 0.4 : 1, cursor: busy ? 'default' : 'pointer' }}
+              onClick={handleNext}
+              onMouseEnter={ctaTextHover}
+              onMouseLeave={ctaTextLeave}
+              disabled={busy}
+            >
+              {ctaLabel}
             </button>
-          )}
-
-          {step === 'invite' && (
-            <button type="button" style={skipStyle} onClick={finish}>
-              skip for now
-            </button>
+          ) : (
+            <>
+              <WaxSeal size={22} />
+              <button
+                type="button"
+                style={pillStyle}
+                onClick={handleNext}
+                onMouseEnter={pillHover}
+                onMouseLeave={pillLeave}
+                disabled={busy}
+              >
+                {ctaLabel}
+              </button>
+              <button type="button" style={skipStyle} onClick={finish}>
+                skip for now
+              </button>
+            </>
           )}
         </div>
       </div>

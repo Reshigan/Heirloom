@@ -6,36 +6,104 @@ import { settingsApi, exportApi, deadmanApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { usePageMeta } from '../lib/usePageMeta';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { CosmicHeader } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { useLoomTheme } from '../loom/theme';
 
 const RESPONSIVE_CSS = `
-.hl-setting-row {
+/* Ledger row — serif label left, mono value/control right. */
+.hl-ledgerrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.hl-ledgerrow-label {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--bone);
+  line-height: 1.3;
+  min-width: 0;
+}
+.hl-ledgerrow-hint {
+  display: block;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--bone-faint);
+  line-height: 1.5;
+  margin-top: 2px;
+}
+.hl-ledgerrow-value {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  white-space: nowrap;
+  flex-shrink: 0;
+  text-align: right;
+}
+.hl-ledgerrow-value--warm { color: var(--warm); }
+
+/* Mono action — the warm right-side actionable value (VIEW / MANAGE / CHANGE). */
+.hl-monoaction {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--warm);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
+}
+.hl-monoaction:hover { color: var(--warm-bright); }
+.hl-monoaction:disabled { opacity: 0.5; cursor: default; }
+.hl-monoaction--quiet { color: var(--bone-dim); }
+.hl-monoaction--quiet:hover { color: var(--bone); }
+.hl-monoaction--danger { color: var(--danger); }
+
+/* Field input set inside an expanded row block. */
+.hl-fieldrow {
   display: grid;
   grid-template-columns: 160px 1fr;
   gap: 8px 20px;
-  padding: 18px 0;
-  border-top: 1px solid var(--rule);
+  padding: 14px 0;
+  border-bottom: 1px solid var(--rule);
   align-items: baseline;
 }
 @media (max-width: 639px) {
-  .hl-setting-row { grid-template-columns: 1fr; gap: 4px; padding: 15px 0; }
+  .hl-fieldrow { grid-template-columns: 1fr; gap: 4px; padding: 13px 0; }
+  .hl-ledgerrow { gap: 16px; }
 }
-.hl-notif-row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 12px;
-  padding: 16px 0;
-  border-top: 1px solid var(--rule);
-  align-items: center;
-}
-.hl-section-eyebrow {
+.hl-field-label {
   font-family: var(--mono);
   font-size: 10px;
-  letter-spacing: 0.28em;
+  color: var(--bone-faint);
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--warm);
+  padding-top: 2px;
 }
+.hl-field-input {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  font-family: var(--serif);
+  font-size: 16px;
+  color: var(--bone);
+  font-weight: 400;
+  width: 100%;
+  padding: 2px 0 4px;
+}
+
 .hl-signout {
   display: block;
   width: 100%;
@@ -43,7 +111,7 @@ const RESPONSIVE_CSS = `
   background: transparent;
   border: 0;
   padding: 22px 0;
-  margin: 64px 0 0;
+  margin: 56px 0 40px;
   cursor: pointer;
   font-family: var(--serif);
   font-size: 19px;
@@ -52,42 +120,6 @@ const RESPONSIVE_CSS = `
   transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
 }
 .hl-signout:hover { color: var(--warm-bright); }
-
-.hl-sumrow {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 20px;
-  width: 100%;
-  text-align: left;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--rule);
-  padding: 26px 2px;
-  cursor: pointer;
-  transition: opacity 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
-}
-.hl-sumrow:hover { opacity: 0.78; }
-.hl-sumrow-label {
-  font-family: var(--serif);
-  font-size: 23px;
-  font-weight: 400;
-  color: var(--bone);
-  line-height: 1.1;
-}
-.hl-sumrow-meta {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--bone-faint);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-.hl-sumrow-body {
-  padding: 4px 2px 36px;
-  border-bottom: 1px solid var(--rule);
-}
 
 /* slim pill toggle — track + warm dot when on (no chunky OS switch) */
 .hl-toggle {
@@ -135,45 +167,34 @@ function PillToggle({ checked, onChange, ariaLabel }: { checked: boolean; onChan
   );
 }
 
-/** Cosmic summary row — large serif label + mono meta, expands to reveal section content. */
-function SummaryRow({ label, meta, open, onToggle, children }: {
-  label: string;
-  meta: React.ReactNode;
-  open: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-}) {
+/**
+ * Ledger row — serif label on the left, mono value/control on the right.
+ * `hint` sets an italic serif sub-line under the label; `value` is the right
+ * column (a static mono string, a warm action, a toggle — anything).
+ */
+function LedgerRow({ label, hint, value }: { label: React.ReactNode; hint?: React.ReactNode; value: React.ReactNode }) {
   return (
-    <>
-      <button type="button" className="hl-sumrow" onClick={onToggle} aria-expanded={open}>
-        <span className="hl-sumrow-label">{label}</span>
-        <span className="hl-sumrow-meta">{open ? 'CLOSE ×' : meta}</span>
-      </button>
-      {open && <div className="hl-sumrow-body">{children}</div>}
-    </>
-  );
-}
-
-function Row({ label, children, hint }: { label: string; children: React.ReactNode; hint?: string }) {
-  return (
-    <div className="hl-setting-row">
-      <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase', paddingTop: 2 }}>{label}</div>
-      <div>
-        <div className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)', fontWeight: 400 }}>{children}</div>
-        {hint && <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-dim)', marginTop: 2, fontWeight: 400, lineHeight: 1.5 }}>{hint}</div>}
-      </div>
+    <div className="hl-ledgerrow">
+      <span className="hl-ledgerrow-label">
+        {label}
+        {hint && <span className="hl-ledgerrow-hint">{hint}</span>}
+      </span>
+      <span className="hl-ledgerrow-value">{value}</span>
     </div>
   );
 }
+
+const FIELD_INPUT_STYLE: React.CSSProperties = {
+  background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)',
+  fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', fontWeight: 400,
+  width: '100%', padding: '2px 0 4px',
+};
 
 export function Settings() {
   usePageMeta('Settings');
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const { theme, setTheme } = useLoomTheme();
-  const [openRow, setOpenRow] = useState<null | 'account' | 'notifications' | 'theme' | 'privacy'>(null);
-  const toggleRow = (r: 'account' | 'notifications' | 'theme' | 'privacy') =>
-    setOpenRow((cur) => (cur === r ? null : r));
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
   const [birthDate, setBirthDate] = useState('');
@@ -205,6 +226,7 @@ export function Settings() {
   const [guardianEmail, setGuardianEmail] = useState('');
   const [guardianName, setGuardianName] = useState('');
   const [guardianSaved, setGuardianSaved] = useState(false);
+  const [guardianOpen, setGuardianOpen] = useState(false);
   const saveGuardian = useMutation({
     mutationFn: () => settingsApi.updateProfile({ firstName, lastName, ...(guardianEmail ? { guardianEmail, guardianName } : {}) } as any),
     onSuccess: () => { setGuardianSaved(true); setTimeout(() => setGuardianSaved(false), 3000); },
@@ -329,26 +351,6 @@ export function Settings() {
 
   const prefs = ((notifData as any)?.preferences ?? {}) as Record<string, boolean>;
 
-  // ── Mono meta values, derived from existing data ──────────────────
-  const accountMeta = (() => {
-    const id = (user as any)?.id as string | undefined;
-    if (id) return `USER_ID: ${id.slice(0, 8).toUpperCase()}`;
-    if (user?.email) return user.email.toUpperCase();
-    return 'MANAGE';
-  })();
-  const notifMeta = (() => {
-    const on: string[] = [];
-    if (prefs.pushNotifications) on.push('PUSH');
-    if (prefs.emailNotifications || prefs.weeklyDigest || prefs.reminderEmails) on.push('EMAIL');
-    return on.length ? `ENABLED: ${on.join(', ')}` : 'MANAGE';
-  })();
-  const themeMeta = `CURRENT: ${(theme === 'system' ? 'SYSTEM' : theme).toUpperCase()} MODE`;
-  const privacyMeta = (() => {
-    const last = (dmStatus.lastCheckIn ?? dmStatus.lastCheckInAt) as string | undefined;
-    if (last) return `LAST REVIEW: ${new Date(last).toISOString().slice(0, 10)}`;
-    return 'MANAGE';
-  })();
-
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'settings' }]} />}
@@ -365,54 +367,51 @@ export function Settings() {
           )}
 
           {/* ════════ ACCOUNT ════════ */}
-          <SummaryRow label="Account" meta={accountMeta} open={openRow === 'account'} onToggle={() => toggleRow('account')}>
+          <SectionLabel>Account</SectionLabel>
 
-          {/* ── Your name ─────────────────────────────────── */}
-          <div className="hl-eyebrow" style={{ margin: '4px 0 14px', color: 'var(--warm)' }}>you</div>
-
-          <div className="hl-setting-row">
-            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>first name</div>
+          <div className="hl-fieldrow">
+            <div className="hl-field-label">first name</div>
             <input
               aria-label="First name"
               value={firstName}
               onChange={(e) => { setFirstName(e.target.value); setSavedFlash(false); }}
-              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+              style={FIELD_INPUT_STYLE}
             />
           </div>
-          <div className="hl-setting-row">
-            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>last name</div>
+          <div className="hl-fieldrow">
+            <div className="hl-field-label">last name</div>
             <input
               aria-label="Last name"
               value={lastName}
               onChange={(e) => { setLastName(e.target.value); setSavedFlash(false); }}
-              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+              style={FIELD_INPUT_STYLE}
             />
           </div>
-          <div className="hl-setting-row">
-            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>date of birth</div>
+          <div className="hl-fieldrow">
+            <div className="hl-field-label">date of birth</div>
             <input
               type="date"
               aria-label="Date of birth"
               value={birthDate}
               max={new Date().toISOString().slice(0, 10)}
               onChange={(e) => { setBirthDate(e.target.value); setSavedFlash(false); }}
-              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', colorScheme: 'dark', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+              style={{ ...FIELD_INPUT_STYLE, colorScheme: 'dark' }}
             />
           </div>
-          <div className="hl-setting-row">
-            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>gender</div>
+          <div className="hl-fieldrow">
+            <div className="hl-field-label">gender</div>
             <input
               aria-label="Gender"
               value={gender}
               placeholder="optional — e.g. woman, man, nonbinary"
               onChange={(e) => { setGender(e.target.value); setSavedFlash(false); }}
-              style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
+              style={FIELD_INPUT_STYLE}
             />
           </div>
-          <p className="hl-serif" style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--bone-faint)', margin: '4px 0 0', lineHeight: 1.6 }}>
+          <p className="hl-serif" style={{ fontSize: 12, fontStyle: 'italic', color: 'var(--bone-faint)', margin: '10px 0 0', lineHeight: 1.6, maxWidth: '52ch' }}>
             Used only to tailor the Listener's prompts to your life — never shown to anyone, never required.
           </p>
-          <div style={{ padding: '12px 0', borderTop: '1px solid var(--rule)', display: 'flex', alignItems: 'center', gap: 16, marginBottom: 8, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '14px 0 6px', flexWrap: 'wrap' }}>
             <button type="button" onClick={() => save.mutate()} disabled={save.isPending} className="hl-btn" style={{ fontSize: 11, padding: '9px 18px' }}>
               {save.isPending ? 'saving…' : 'save'}
             </button>
@@ -424,332 +423,327 @@ export function Settings() {
             )}
           </div>
 
-          {/* Change email */}
-          <div style={{ padding: '12px 0', borderTop: '1px solid var(--rule)' }}>
-            {emailStage === 'idle' ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <span className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)', fontWeight: 400 }}>{user?.email ?? '—'}</span>
-                  <span className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-dim)', fontWeight: 400, lineHeight: 1.5 }}>primary identifier</span>
-                </div>
-                <button type="button" onClick={() => { setEmailStage('form'); setEmailFlash(false); }}
-                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none', flexShrink: 0 }}>
-                  change →
+          {/* Email — ledger row that expands to the change form */}
+          {emailStage === 'idle' ? (
+            <LedgerRow
+              label="Email"
+              hint="primary identifier"
+              value={
+                <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 14 }}>
+                  <span className="hl-ledgerrow-value" style={{ textTransform: 'none', letterSpacing: '0.06em' }}>{user?.email ?? '—'}</span>
+                  <button type="button" className="hl-monoaction" onClick={() => { setEmailStage('form'); setEmailFlash(false); }}>change →</button>
+                  {emailFlash && <span className="hl-monoaction" style={{ cursor: 'default' }}>∞ updated</span>}
+                </span>
+              }
+            />
+          ) : (
+            <div style={{ padding: '14px 0', borderBottom: '1px solid var(--rule)', maxWidth: 360 }}>
+              <div className="hl-field-label" style={{ marginBottom: 10 }}>change email</div>
+              {([
+                { label: 'new email',         val: newEmail,       set: setNewEmail,       type: 'email',    placeholder: 'new email address',       ariaLabel: 'New email address' },
+                { label: 'current password',  val: emailPassword,  set: setEmailPassword,  type: 'password', placeholder: 'confirm your identity',    ariaLabel: 'Current password' },
+              ] as const).map((f) => (
+                <input
+                  key={f.label}
+                  type={f.type}
+                  aria-label={f.ariaLabel}
+                  value={f.val}
+                  onChange={(e) => { f.set(e.target.value); setEmailError(null); }}
+                  onKeyDown={(e) => e.key === 'Enter' && newEmail && emailPassword && handleChangeEmail()}
+                  placeholder={f.placeholder}
+                  style={{ ...FIELD_INPUT_STYLE, padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
+                />
+              ))}
+              {emailError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{emailError}</p>}
+              <div style={{ display: 'flex', gap: 14, marginTop: 4, alignItems: 'center' }}>
+                <button type="button" onClick={handleChangeEmail} disabled={!newEmail || !emailPassword || changeEmail.isPending}
+                  className="hl-btn" style={{ fontSize: 11, padding: '9px 18px', opacity: (!newEmail || !emailPassword || changeEmail.isPending) ? 0.5 : 1 }}>
+                  {changeEmail.isPending ? 'updating…' : 'update email'}
                 </button>
-                {emailFlash && <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)' }}>∞ updated</span>}
-              </div>
-            ) : (
-              <div style={{ maxWidth: 360 }}>
-                <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10 }}>change email</div>
-                {([
-                  { label: 'new email',         val: newEmail,       set: setNewEmail,       type: 'email',    placeholder: 'new email address',       ariaLabel: 'New email address' },
-                  { label: 'current password',  val: emailPassword,  set: setEmailPassword,  type: 'password', placeholder: 'confirm your identity',    ariaLabel: 'Current password' },
-                ] as const).map((f) => (
-                  <input
-                    key={f.label}
-                    type={f.type}
-                    aria-label={f.ariaLabel}
-                    value={f.val}
-                    onChange={(e) => { f.set(e.target.value); setEmailError(null); }}
-                    onKeyDown={(e) => e.key === 'Enter' && newEmail && emailPassword && handleChangeEmail()}
-                    placeholder={f.placeholder}
-                    style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
-                  />
-                ))}
-                {emailError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{emailError}</p>}
-                <div style={{ display: 'flex', gap: 14, marginTop: 4 }}>
-                  <button type="button" onClick={handleChangeEmail} disabled={!newEmail || !emailPassword || changeEmail.isPending}
-                    className="hl-btn" style={{ fontSize: 11, padding: '9px 18px', opacity: (!newEmail || !emailPassword || changeEmail.isPending) ? 0.5 : 1 }}>
-                    {changeEmail.isPending ? 'updating…' : 'update email'}
-                  </button>
-                  <button type="button" onClick={() => { setEmailStage('idle'); setNewEmail(''); setEmailPassword(''); setEmailError(null); }}
-                    style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
-                    cancel
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Change password */}
-          <div style={{ padding: '12px 0', borderTop: '1px solid var(--rule)' }}>
-            {pwStage === 'idle' ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                <button type="button" onClick={() => setPwStage('form')}
-                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--bone-dim)', letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
-                  change password →
+                <button type="button" className="hl-monoaction hl-monoaction--quiet" onClick={() => { setEmailStage('idle'); setNewEmail(''); setEmailPassword(''); setEmailError(null); }}>
+                  cancel
                 </button>
-                {pwFlash && <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)' }}>∞ updated</span>}
               </div>
-            ) : (
-              <div style={{ maxWidth: 360 }}>
-                <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase', marginBottom: 10 }}>change password</div>
-                {([
-                  { label: 'current', val: pwCurrent, set: setPwCurrent, type: 'password', placeholder: 'current password',      ariaLabel: 'Current password' },
-                  { label: 'new',     val: pwNew,     set: setPwNew,     type: 'password', placeholder: 'new password (min 8)',   ariaLabel: 'New password' },
-                  { label: 'confirm', val: pwConfirm, set: setPwConfirm, type: 'password', placeholder: 'confirm new password',  ariaLabel: 'Confirm new password' },
-                ] as const).map((f) => (
-                  <input
-                    key={f.label}
-                    type={f.type}
-                    aria-label={f.ariaLabel}
-                    value={f.val}
-                    onChange={(e) => { f.set(e.target.value); setPwError(null); }}
-                    onKeyDown={(e) => e.key === 'Enter' && pwCurrent && pwNew && pwConfirm && handleChangePw()}
-                    placeholder={f.placeholder}
-                    style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 16, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
-                  />
-                ))}
-                {pwError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{pwError}</p>}
-                <div style={{ display: 'flex', gap: 14, marginTop: 4 }}>
-                  <button type="button" onClick={handleChangePw} disabled={!pwCurrent || !pwNew || !pwConfirm || changePw.isPending}
-                    className="hl-btn" style={{ fontSize: 11, padding: '9px 18px', opacity: (!pwCurrent || !pwNew || !pwConfirm || changePw.isPending) ? 0.5 : 1 }}>
-                    {changePw.isPending ? 'updating…' : 'update password'}
-                  </button>
-                  <button type="button" onClick={() => { setPwStage('idle'); setPwCurrent(''); setPwNew(''); setPwConfirm(''); setPwError(null); }}
-                    style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
-                    cancel
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          </SummaryRow>
+          {/* Password — ledger row that expands to the change form */}
+          {pwStage === 'idle' ? (
+            <LedgerRow
+              label="Password"
+              value={
+                <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 14 }}>
+                  <span className="hl-ledgerrow-value">••••••••</span>
+                  <button type="button" className="hl-monoaction" onClick={() => setPwStage('form')}>change →</button>
+                  {pwFlash && <span className="hl-monoaction" style={{ cursor: 'default' }}>∞ updated</span>}
+                </span>
+              }
+            />
+          ) : (
+            <div style={{ padding: '14px 0', borderBottom: '1px solid var(--rule)', maxWidth: 360 }}>
+              <div className="hl-field-label" style={{ marginBottom: 10 }}>change password</div>
+              {([
+                { label: 'current', val: pwCurrent, set: setPwCurrent, type: 'password', placeholder: 'current password',      ariaLabel: 'Current password' },
+                { label: 'new',     val: pwNew,     set: setPwNew,     type: 'password', placeholder: 'new password (min 8)',   ariaLabel: 'New password' },
+                { label: 'confirm', val: pwConfirm, set: setPwConfirm, type: 'password', placeholder: 'confirm new password',  ariaLabel: 'Confirm new password' },
+              ] as const).map((f) => (
+                <input
+                  key={f.label}
+                  type={f.type}
+                  aria-label={f.ariaLabel}
+                  value={f.val}
+                  onChange={(e) => { f.set(e.target.value); setPwError(null); }}
+                  onKeyDown={(e) => e.key === 'Enter' && pwCurrent && pwNew && pwConfirm && handleChangePw()}
+                  placeholder={f.placeholder}
+                  style={{ ...FIELD_INPUT_STYLE, padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
+                />
+              ))}
+              {pwError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{pwError}</p>}
+              <div style={{ display: 'flex', gap: 14, marginTop: 4, alignItems: 'center' }}>
+                <button type="button" onClick={handleChangePw} disabled={!pwCurrent || !pwNew || !pwConfirm || changePw.isPending}
+                  className="hl-btn" style={{ fontSize: 11, padding: '9px 18px', opacity: (!pwCurrent || !pwNew || !pwConfirm || changePw.isPending) ? 0.5 : 1 }}>
+                  {changePw.isPending ? 'updating…' : 'update password'}
+                </button>
+                <button type="button" className="hl-monoaction hl-monoaction--quiet" onClick={() => { setPwStage('idle'); setPwCurrent(''); setPwNew(''); setPwConfirm(''); setPwError(null); }}>
+                  cancel
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* ════════ NOTIFICATIONS ════════ */}
-          <SummaryRow label="Notifications" meta={notifMeta} open={openRow === 'notifications'} onToggle={() => toggleRow('notifications')}>
-
-          {/* ── Notifications ────────────────────────────── */}
-          <div className="hl-eyebrow" style={{ margin: '4px 0 14px', color: 'var(--warm)' }}>the listener</div>
+          <SectionLabel>Notifications</SectionLabel>
 
           {([
-            { key: 'weeklyDigest',       label: 'weekly digest',   hint: 'family entries since last week',      ariaLabel: 'Enable weekly digest emails' },
-            { key: 'reminderEmails',     label: 'quarterly',       hint: 'gentle prompt to add a thread',       ariaLabel: 'Enable quarterly reminder emails' },
-            { key: 'pushNotifications',  label: 'locks opening',   hint: 'when sealed entries unlock',          ariaLabel: 'Enable push notifications for sealed entry unlocks' },
-            { key: 'emailNotifications', label: 'receipts',        hint: 'transactional only',                  ariaLabel: 'Enable transactional email notifications' },
-            { key: 'marketingEmails',    label: 'product updates', hint: 'occasional · unsubscribe any time',   ariaLabel: 'Enable product update emails' },
+            { key: 'weeklyDigest',       label: 'Weekly digest',   hint: 'family entries since last week',      ariaLabel: 'Enable weekly digest emails' },
+            { key: 'reminderEmails',     label: 'Quarterly',       hint: 'gentle prompt to add a thread',       ariaLabel: 'Enable quarterly reminder emails' },
+            { key: 'pushNotifications',  label: 'Locks opening',   hint: 'when sealed entries unlock',          ariaLabel: 'Enable push notifications for sealed entry unlocks' },
+            { key: 'emailNotifications', label: 'Receipts',        hint: 'transactional only',                  ariaLabel: 'Enable transactional email notifications' },
+            { key: 'marketingEmails',    label: 'Product updates', hint: 'occasional · unsubscribe any time',   ariaLabel: 'Enable product update emails' },
           ] as const).map((item) => (
-            <div key={item.key} className="hl-notif-row">
-              <div>
-                <div className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', fontWeight: 400 }}>{item.label}</div>
-                <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-faint)', fontWeight: 400, marginTop: 2 }}>{item.hint}</div>
-              </div>
-              <PillToggle
-                ariaLabel={item.ariaLabel}
-                checked={!!prefs[item.key]}
-                onChange={(next) => updateNotif.mutate({ [item.key]: next })}
-              />
-            </div>
+            <LedgerRow
+              key={item.key}
+              label={item.label}
+              hint={item.hint}
+              value={
+                <PillToggle
+                  ariaLabel={item.ariaLabel}
+                  checked={!!prefs[item.key]}
+                  onChange={(next) => updateNotif.mutate({ [item.key]: next })}
+                />
+              }
+            />
           ))}
           {notifError && (
             <span className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.12em', display: 'block', paddingTop: 6 }}>{notifError}</span>
           )}
 
-          </SummaryRow>
+          {/* ════════ APPEARANCE ════════ */}
+          <SectionLabel>Appearance</SectionLabel>
 
-          {/* ════════ THEME ════════ */}
-          <SummaryRow label="Theme" meta={themeMeta} open={openRow === 'theme'} onToggle={() => toggleRow('theme')}>
+          <LedgerRow
+            label="Theme"
+            hint="the thread is written for the dark — but it reads in either light"
+            value={
+              <span style={{ display: 'inline-flex', gap: 22 }}>
+                {(['dark', 'light', 'system'] as const).map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => setTheme(opt)}
+                    aria-pressed={theme === opt}
+                    className="hl-monoaction"
+                    style={{ color: theme === opt ? 'var(--warm)' : 'var(--bone-dim)' }}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </span>
+            }
+          />
 
-          <div className="hl-eyebrow" style={{ margin: '4px 0 14px', color: 'var(--warm)' }}>appearance</div>
-          <p className="hl-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.65, margin: '0 0 18px', maxWidth: '52ch' }}>
-            The thread is written for the dark — but it reads in either light.
-          </p>
-          <div style={{ display: 'flex', gap: 0, flexWrap: 'wrap' }}>
-            {(['dark', 'light', 'system'] as const).map((opt) => (
-              <button
-                key={opt}
-                type="button"
-                onClick={() => setTheme(opt)}
-                aria-pressed={theme === opt}
-                style={{
-                  background: 'transparent',
-                  border: 0,
-                  borderBottom: theme === opt ? '1px solid var(--warm)' : '1px solid var(--rule)',
-                  padding: '10px 22px 10px 0',
-                  marginRight: 24,
-                  cursor: 'pointer',
-                  fontFamily: 'var(--mono)',
-                  fontSize: 11,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: theme === opt ? 'var(--warm)' : 'var(--bone-dim)',
-                  transition: 'color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1))',
-                }}
-              >
-                {opt}
-              </button>
-            ))}
-          </div>
+          {/* ════════ THE BLOODLINE ════════ */}
+          <SectionLabel>The Bloodline</SectionLabel>
 
-          </SummaryRow>
+          <LedgerRow
+            label="Successors"
+            hint="ordered · cascade on triggered switch"
+            value={<Link to="/threads" className="hl-monoaction">manage →</Link>}
+          />
+          <LedgerRow
+            label="Thread steward"
+            hint="takes custodianship when the dead-man's switch triggers"
+            value={<Link to="/threads" className="hl-monoaction">designate →</Link>}
+          />
+          <LedgerRow
+            label="Memorial mode"
+            hint="read-only public archive · no new entries after 1 year inactive"
+            value="auto · 12 months"
+          />
 
-          {/* ════════ PRIVACY ════════ */}
-          <SummaryRow label="Privacy" meta={privacyMeta} open={openRow === 'privacy'} onToggle={() => toggleRow('privacy')}>
-
-          {/* ── The thread ────────────────────────────────── */}
-          <div className="hl-eyebrow" style={{ margin: '4px 0 6px', color: 'var(--warm)' }}>the thread</div>
-          <div style={{ marginBottom: 14 }}>
-            <Link to="/billing" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none', borderBottom: '1px solid var(--rule)' }}>manage billing →</Link>
-          </div>
-
-          <Row label="successors" hint="ordered · cascade on triggered switch">
-            <Link to="/threads" style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
-              manage →
-            </Link>
-          </Row>
-          <div className="hl-setting-row">
-            <div className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', textTransform: 'uppercase', paddingTop: 2 }}>
-              dead-man's switch
-            </div>
-            <div>
-              <div className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)', fontWeight: 400, marginBottom: 6 }}>
-                {dmStatus.status === 'active' ? (
-                  <>armed · next check-in due <span style={{ color: 'var(--warm)' }}>{dmStatus.nextCheckInDue ? new Date(dmStatus.nextCheckInDue).toLocaleDateString() : '—'}</span></>
-                ) : dmStatus.status === 'warning' ? (
-                  <span style={{ color: 'var(--danger)' }}>overdue — check in now</span>
-                ) : deadmanStatus.isLoading ? (
-                  <span style={{ color: 'var(--bone-faint)' }}>loading…</span>
-                ) : (
-                  'not configured'
+          {/* Letter guardian — ledger row that expands to the designate form */}
+          {!guardianOpen ? (
+            <LedgerRow
+              label="Letter guardian"
+              hint="ensures your sealed letters reach the people you wrote them for"
+              value={
+                <button type="button" className="hl-monoaction" onClick={() => setGuardianOpen(true)}>
+                  {guardianEmail ? 'edit →' : 'designate →'}
+                </button>
+              }
+            />
+          ) : (
+            <div style={{ padding: '14px 0', borderBottom: '1px solid var(--rule)' }}>
+              <div className="hl-field-label" style={{ marginBottom: 6 }}>letter guardian</div>
+              <p className="hl-serif" style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.6, margin: '0 0 16px', maxWidth: '52ch' }}>
+                Designate someone who ensures your sealed letters reach the people you wrote them for — even if you can no longer do it yourself.
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 16, marginBottom: 16 }}>
+                <div>
+                  <div className="hl-field-label" style={{ marginBottom: 6 }}>guardian name</div>
+                  <input
+                    aria-label="Guardian name"
+                    value={guardianName}
+                    onChange={e => { setGuardianName(e.target.value); setGuardianSaved(false); }}
+                    placeholder="their name"
+                    style={{ ...FIELD_INPUT_STYLE, fontSize: 15 }}
+                  />
+                </div>
+                <div>
+                  <div className="hl-field-label" style={{ marginBottom: 6 }}>guardian email</div>
+                  <input
+                    type="email"
+                    aria-label="Guardian email"
+                    value={guardianEmail}
+                    onChange={e => { setGuardianEmail(e.target.value); setGuardianSaved(false); }}
+                    placeholder="name@example.com"
+                    style={{ ...FIELD_INPUT_STYLE, fontSize: 15 }}
+                  />
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
+                {guardianEmailError && (
+                  <span className="hl-mono" style={{ width: '100%', fontSize: 10, color: 'var(--danger)', letterSpacing: '0.12em' }}>{guardianEmailError}</span>
+                )}
+                <button
+                  type="button"
+                  className="hl-monoaction"
+                  style={{ color: guardianEmail ? 'var(--warm)' : 'var(--bone-faint)', cursor: guardianEmail ? 'pointer' : 'default', opacity: saveGuardian.isPending ? 0.5 : 1 }}
+                  onClick={() => {
+                    if (guardianEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guardianEmail)) {
+                      setGuardianEmailError('enter a valid email address');
+                      return;
+                    }
+                    setGuardianEmailError(null);
+                    saveGuardian.mutate();
+                  }}
+                  disabled={!guardianEmail || saveGuardian.isPending}
+                >
+                  {saveGuardian.isPending ? 'saving…' : 'designate guardian →'}
+                </button>
+                <button type="button" className="hl-monoaction hl-monoaction--quiet" onClick={() => setGuardianOpen(false)}>
+                  close
+                </button>
+                {guardianSaved && (
+                  <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.12em' }}>saved</span>
                 )}
               </div>
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+              <p className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-faint)', margin: '10px 0 0', lineHeight: 1.5, maxWidth: '52ch' }}>
+                They receive a notification if your account goes 6+ months inactive. No access to your entries — only authority to ensure delivery.
+              </p>
+            </div>
+          )}
+
+          {/* ════════ PRIVACY ════════ */}
+          <SectionLabel>Privacy</SectionLabel>
+
+          {/* Dead-man's switch — status row with check-in/configure actions */}
+          <div className="hl-ledgerrow" style={{ alignItems: 'flex-start' }}>
+            <span className="hl-ledgerrow-label">
+              Dead-man's switch
+              <span className="hl-ledgerrow-hint">warns at 7 days · triggers at 14 · thread passes to steward</span>
+            </span>
+            <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+              <span className="hl-ledgerrow-value">
+                {dmStatus.status === 'active' ? (
+                  <>ARMED · DUE <span style={{ color: 'var(--warm)' }}>{dmStatus.nextCheckInDue ? new Date(dmStatus.nextCheckInDue).toLocaleDateString() : '—'}</span></>
+                ) : dmStatus.status === 'warning' ? (
+                  <span style={{ color: 'var(--danger)' }}>OVERDUE — CHECK IN</span>
+                ) : deadmanStatus.isLoading ? (
+                  <span style={{ color: 'var(--bone-faint)' }}>LOADING…</span>
+                ) : (
+                  'NOT CONFIGURED'
+                )}
+              </span>
+              <span style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                 {(dmStatus.status === 'active' || dmStatus.status === 'warning') && (
-                  <button type="button" onClick={() => checkIn.mutate()} disabled={checkIn.isPending}
-                    style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--warm)', letterSpacing: '0.18em', textTransform: 'uppercase', opacity: checkIn.isPending ? 0.5 : 1 }}>
-                    {checkIn.isPending ? 'checking in…' : 'check in now →'}
+                  <button type="button" className="hl-monoaction" onClick={() => checkIn.mutate()} disabled={checkIn.isPending}>
+                    {checkIn.isPending ? 'checking in…' : 'check in →'}
                   </button>
                 )}
-                <Link to="/threads" style={{ color: 'var(--bone-faint)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
-                  configure →
-                </Link>
+                <Link to="/threads" className="hl-monoaction hl-monoaction--quiet">configure →</Link>
                 {checkInError && (
                   <span className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.12em' }}>{checkInError}</span>
                 )}
-              </div>
-              <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-faint)', fontWeight: 400, marginTop: 3 }}>
-                warns at 7 days · triggers at 14 days · thread passes to steward
-              </div>
-            </div>
+              </span>
+            </span>
           </div>
-          <Row label="export" hint="full JSON archive of all your memories, letters, and voice">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-end' }}>
-              <button
-                type="button"
-                onClick={handleExport}
-                disabled={exportLoading}
-                style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none', opacity: exportLoading ? 0.5 : 1 }}
-              >
-                {exportLoading ? 'preparing…' : 'download archive →'}
+
+          <LedgerRow label="Key escrow" hint="shamir-split · zero-knowledge to platform" value="ENABLED · 2 OF 3" />
+          <LedgerRow label="Recovery phrase" hint="print and store offline" value="FOUR WORDS · IN ONBOARDING" />
+
+          {/* Export — ledger row with download action + error */}
+          <div className="hl-ledgerrow" style={{ alignItems: 'flex-start' }}>
+            <span className="hl-ledgerrow-label">
+              Export
+              <span className="hl-ledgerrow-hint">full JSON archive of all your memories, letters, and voice</span>
+            </span>
+            <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
+              <button type="button" className="hl-monoaction" onClick={handleExport} disabled={exportLoading}>
+                {exportLoading ? 'preparing…' : 'download →'}
               </button>
               {exportError && (
                 <span className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.12em' }}>{exportError}</span>
               )}
-            </div>
-          </Row>
-
-          {/* ── Encryption ───────────────────────────────── */}
-          <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--warm)' }}>encryption</div>
-          <Row label="key escrow" hint="shamir-split · zero-knowledge to platform">enabled · 3 trusted, 2 required</Row>
-          <Row label="recovery phrase" hint="print and store offline">four words · configure in onboarding</Row>
-
-          {/* ── Support ──────────────────────────────────── */}
-          <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--warm)' }}>support</div>
-          <Row label="write to us" hint="we respond within two business days">
-            <a href="mailto:support@heirloom.blue" style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
-              support@heirloom.blue →
-            </a>
-          </Row>
-
-          {/* ── Letter Guardian ──────────────────────────── */}
-          <div className="hl-eyebrow" style={{ margin: '28px 0 6px', color: 'var(--warm)' }}>if something happens to me</div>
-          <p className="hl-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.65, margin: '0 0 16px', maxWidth: '52ch' }}>
-            Designate someone who ensures your sealed letters reach the people you wrote them for — even if you can no longer do it yourself.
-          </p>
-          <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 16, marginBottom: 4 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: 16, marginBottom: 16 }}>
-              <div>
-                <div className="hl-mono" style={{ fontSize: 9.5, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 6 }}>guardian name</div>
-                <input
-                  aria-label="Guardian name"
-                  value={guardianName}
-                  onChange={e => { setGuardianName(e.target.value); setGuardianSaved(false); }}
-                  placeholder="their name"
-                  style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
-                />
-              </div>
-              <div>
-                <div className="hl-mono" style={{ fontSize: 9.5, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 6 }}>guardian email</div>
-                <input
-                  type="email"
-                  aria-label="Guardian email"
-                  value={guardianEmail}
-                  onChange={e => { setGuardianEmail(e.target.value); setGuardianSaved(false); }}
-                  placeholder="name@example.com"
-                  style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', fontWeight: 400, width: '100%', padding: '2px 0 4px' }}
-                />
-              </div>
-            </div>
-            <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
-              {guardianEmailError && (
-                <span className="hl-mono" style={{ width: '100%', fontSize: 10, color: 'var(--danger)', letterSpacing: '0.12em' }}>{guardianEmailError}</span>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  if (guardianEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(guardianEmail)) {
-                    setGuardianEmailError('enter a valid email address');
-                    return;
-                  }
-                  setGuardianEmailError(null);
-                  saveGuardian.mutate();
-                }}
-                disabled={!guardianEmail || saveGuardian.isPending}
-                style={{ background: 'transparent', border: 0, padding: 0, cursor: guardianEmail ? 'pointer' : 'default', fontFamily: 'var(--mono)', fontSize: 10.5, color: guardianEmail ? 'var(--warm)' : 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', opacity: saveGuardian.isPending ? 0.5 : 1 }}
-              >
-                {saveGuardian.isPending ? 'saving…' : 'designate guardian →'}
-              </button>
-              {guardianSaved && (
-                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.12em' }}>saved</span>
-              )}
-            </div>
-            <p className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-faint)', margin: '10px 0 0', lineHeight: 1.5, maxWidth: '52ch' }}>
-              They receive a notification if your account goes 6+ months inactive. No access to your entries — only authority to ensure delivery.
-            </p>
+            </span>
           </div>
 
-          {/* ── Inheritance ──────────────────────────────── */}
-          <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--warm)' }}>inheritance</div>
-          <Row label="thread steward" hint="takes custodianship of the thread when the dead-man's switch triggers">
-            <Link to="/threads" style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', textDecoration: 'none' }}>
-              designate →
-            </Link>
-          </Row>
-          <Row label="memorial mode" hint="read-only public archive · no new entries after 1 year of inactivity">
-            auto-eligible after 12 months
-          </Row>
+          {/* ════════ BILLING ════════ */}
+          <SectionLabel>Billing</SectionLabel>
 
-          {/* ── Danger ───────────────────────────────────── */}
-          <div className="hl-eyebrow" style={{ margin: '28px 0 14px', color: 'var(--danger)' }}>danger</div>
-          <div style={{ padding: '14px 0', borderTop: '1px solid var(--rule)' }}>
+          <LedgerRow
+            label="Subscription"
+            hint="plan, payment, and invoices"
+            value={<Link to="/billing" className="hl-monoaction">manage →</Link>}
+          />
+
+          {/* ════════ SUPPORT ════════ */}
+          <SectionLabel>Support</SectionLabel>
+
+          <LedgerRow
+            label="Write to us"
+            hint="we respond within two business days"
+            value={<a href="mailto:support@heirloom.blue" className="hl-monoaction">support@heirloom.blue →</a>}
+          />
+
+          {/* ════════ DANGER ════════ */}
+          <SectionLabel>Danger</SectionLabel>
+
+          <div style={{ padding: '14px 0', borderBottom: '1px solid var(--rule)' }}>
             {deleteStage === 'idle' && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setDeleteStage('confirm')}
-                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--danger)' }}
-                >
-                  close account →
+              <div className="hl-ledgerrow" style={{ padding: 0, border: 0 }}>
+                <span className="hl-ledgerrow-label">
+                  Close account
+                  <span className="hl-ledgerrow-hint">90-day archive window before permanent erasure</span>
+                </span>
+                <button type="button" className="hl-monoaction hl-monoaction--danger" onClick={() => setDeleteStage('confirm')}>
+                  close →
                 </button>
-                <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 12, color: 'var(--bone-dim)', marginTop: 4, fontWeight: 400 }}>
-                  90-day archive window before permanent erasure
-                </div>
-              </>
+              </div>
             )}
 
             {deleteStage === 'confirm' && (
-              <div style={{ borderTop: '1px solid color-mix(in srgb, var(--danger) 35%, transparent)', paddingTop: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
+              <div style={{ maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 14 }}>close account</div>
                 <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
                   Your thread will be archived for 90 days. During that window you can download a full export of everything you have ever written. After 90 days it is permanently erased.
@@ -759,8 +753,7 @@ export function Settings() {
                     style={{ background: 'transparent', border: '1px solid var(--danger)', color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer' }}>
                     continue →
                   </button>
-                  <button type="button" onClick={() => setDeleteStage('idle')}
-                    style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                  <button type="button" className="hl-monoaction hl-monoaction--quiet" onClick={() => setDeleteStage('idle')}>
                     cancel
                   </button>
                 </div>
@@ -768,7 +761,7 @@ export function Settings() {
             )}
 
             {deleteStage === 'quote' && (
-              <div style={{ borderTop: '1px solid color-mix(in srgb, var(--danger) 35%, transparent)', paddingTop: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
+              <div style={{ maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 14 }}>export fee</div>
                 {exitQuoteQ.isLoading ? (
                   <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.5, margin: '24px 0' }} />
@@ -793,8 +786,7 @@ export function Settings() {
                     style={{ background: 'transparent', border: '1px solid var(--danger)', color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer' }}>
                     archive my account →
                   </button>
-                  <button type="button" onClick={() => setDeleteStage('idle')}
-                    style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                  <button type="button" className="hl-monoaction hl-monoaction--quiet" onClick={() => setDeleteStage('idle')}>
                     cancel
                   </button>
                 </div>
@@ -802,7 +794,7 @@ export function Settings() {
             )}
 
             {deleteStage === 'password' && (
-              <div style={{ borderTop: '1px solid color-mix(in srgb, var(--danger) 35%, transparent)', paddingTop: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
+              <div style={{ maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--danger)', marginBottom: 14 }}>confirm password</div>
                 <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 18px', lineHeight: 1.6 }}>
                   Enter your password to archive your account. A download link will be emailed to you.
@@ -815,7 +807,7 @@ export function Settings() {
                   onKeyDown={(e) => e.key === 'Enter' && deletePassword && archiveMutation.mutate()}
                   placeholder="your password"
                   autoFocus
-                  style={{ width: '100%', background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)', padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8 }}
+                  style={{ ...FIELD_INPUT_STYLE, fontSize: 15, padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8 }}
                 />
                 {deleteError && (
                   <p className="hl-mono" style={{ fontSize: 10, color: 'var(--danger)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 14px' }}>{deleteError}</p>
@@ -825,8 +817,7 @@ export function Settings() {
                     style={{ background: 'transparent', border: '1px solid var(--danger)', color: 'var(--danger)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer', opacity: (!deletePassword || archiveMutation.isPending) ? 0.5 : 1 }}>
                     {archiveMutation.isPending ? 'archiving…' : 'archive account'}
                   </button>
-                  <button type="button" onClick={() => { setDeleteStage('idle'); setDeletePassword(''); setDeleteError(null); }}
-                    style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer' }}>
+                  <button type="button" className="hl-monoaction hl-monoaction--quiet" onClick={() => { setDeleteStage('idle'); setDeletePassword(''); setDeleteError(null); }}>
                     cancel
                   </button>
                 </div>
@@ -834,7 +825,7 @@ export function Settings() {
             )}
 
             {deleteStage === 'archived' && (
-              <div style={{ borderTop: '1px solid color-mix(in srgb, var(--warm) 35%, transparent)', paddingTop: 'clamp(20px, 4vw, 28px)', maxWidth: 480 }}>
+              <div style={{ maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--warm)', marginBottom: 14 }}>archived</div>
                 <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
                   Your account has been archived. Check your email for a download link. Your thread will be permanently erased in 90 days.
@@ -848,15 +839,13 @@ export function Settings() {
                   {exportLoading ? 'preparing…' : 'download archive now →'}
                 </button>
                 <br />
-                <button type="button" onClick={() => { logout(); navigate('/', { replace: true }); }}
-                  style={{ background: 'transparent', border: 0, fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', cursor: 'pointer', marginTop: 8 }}>
+                <button type="button" className="hl-monoaction hl-monoaction--quiet" style={{ marginTop: 8 }}
+                  onClick={() => { logout(); navigate('/', { replace: true }); }}>
                   sign out
                 </button>
               </div>
             )}
           </div>
-
-          </SummaryRow>
 
           {/* ── Sign out ─────────────────────────────────── */}
           <button
@@ -866,6 +855,8 @@ export function Settings() {
           >
             Sign out
           </button>
+
+          <WaxSeal size={28} />
 
         </div>
     </ClothShell>

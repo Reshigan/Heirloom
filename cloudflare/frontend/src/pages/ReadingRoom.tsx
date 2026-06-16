@@ -182,17 +182,17 @@ function ReadingContent({
 }) {
   const paras = paragraphs(t.body);
   const isLastEntry = activeIndex === total - 1;
-  // Provenance stamp — mono, museum-label form: "TUE 14 JAN 1987, WOVEN BY GRANDPA"
-  const stamp = useMemo(() => {
-    const d = new Date(t.ord || 0);
-    const provenance = isNaN(d.getTime()) || t.ord === 0
-      ? t.date.replace(/·/g, ' ')
-      : d.toLocaleDateString('en-US', {
-          weekday: 'short', day: '2-digit', month: 'short', year: 'numeric',
-        }).replace(',', '').toUpperCase();
-    const verb = t.kind === 'voice' ? 'RECORDED' : t.kind === 'photo' ? 'KEPT' : 'WOVEN';
-    return `${provenance}, ${verb} BY ${t.who.toUpperCase()}`;
-  }, [t.ord, t.date, t.kind, t.who]);
+  // Subline — mono museum byline: "A MEMORY BY <AUTHOR> · <YEAR>"
+  const subline = useMemo(() => {
+    const article =
+      t.kind === 'letter' ? 'A LETTER'
+      : t.kind === 'voice' ? 'A RECORDING'
+      : t.kind === 'photo' ? 'A PHOTOGRAPH'
+      : 'A MEMORY';
+    const verb = t.kind === 'voice' ? 'RECORDED' : t.kind === 'photo' ? 'KEPT' : 'BY';
+    const lede = verb === 'BY' ? `${article} BY` : `${article} ${verb} BY`;
+    return `${lede} ${t.who.toUpperCase()} · ${t.year}`;
+  }, [t.kind, t.who, t.year]);
 
   return (
     <div style={{
@@ -201,26 +201,31 @@ function ReadingContent({
       display: 'flex', flexDirection: 'column', alignItems: 'center',
       padding: 'clamp(72px, 14vh, 132px) 28px 56px',
     }}>
-      <div style={{ maxWidth: '38em', width: '100%', position: 'relative', flex: 1, display: 'flex', flexDirection: 'column' }}>
-
-        {/* Provenance stamp — the museum label: DATE · WOVEN BY <author> */}
-        <div style={{
-          fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.28em',
-          textTransform: 'uppercase', color: 'var(--bone-dim)', lineHeight: 1.6,
-          marginBottom: 'clamp(20px, 4vh, 36px)',
-        }}>
-          {stamp}
-        </div>
+      {/* Reading column — a left dye thread runs its full height; prose clears it */}
+      <div style={{
+        maxWidth: '62ch', width: '100%', position: 'relative', flex: 1,
+        display: 'flex', flexDirection: 'column',
+        borderLeft: `3px solid ${dye}`, paddingLeft: 24,
+      }}>
 
         {/* Title — the hero */}
         <h1 style={{
-          fontFamily: 'var(--serif)', fontWeight: 300,
-          fontSize: 'clamp(36px, 7.5vw, 60px)', lineHeight: 1.05,
+          fontFamily: 'var(--serif)', fontWeight: 400,
+          fontSize: 'clamp(30px, 6vw, 44px)', lineHeight: 1.1,
           letterSpacing: '-0.01em', color: 'var(--bone)',
-          margin: '0 0 clamp(36px, 7vh, 60px)',
+          margin: '0 0 14px',
         }}>
           {t.title}
         </h1>
+
+        {/* Subline — mono byline directly under the title */}
+        <div style={{
+          fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
+          textTransform: 'uppercase', color: 'var(--warm)', lineHeight: 1.6,
+          marginBottom: 'clamp(32px, 6vh, 56px)',
+        }}>
+          {subline}
+        </div>
 
         {/* Body — justified serif prose at a comfortable reading measure */}
         <div>
@@ -253,14 +258,14 @@ function ReadingContent({
               const dropCap = i === 0 && !t.photoUrl && t.kind !== 'voice';
               return (
                 <p key={i} style={{
-                  fontFamily: 'var(--serif)', fontSize: 'clamp(18px, 2.2vw, 21px)', lineHeight: 1.85,
-                  color: 'var(--bone)', margin: '0 0 24px', fontWeight: 300,
+                  fontFamily: 'var(--serif)', fontSize: 18, lineHeight: 1.75,
+                  color: 'var(--bone)', margin: '0 0 24px', fontWeight: 400,
                   textAlign: 'justify', textJustify: 'inter-word', hyphens: 'auto',
                 }}>
                   {dropCap && p.length > 1 ? (
                     <>
                       <span style={{
-                        float: 'left', fontFamily: 'var(--serif)', fontWeight: 300,
+                        float: 'left', fontFamily: 'var(--serif)', fontWeight: 400,
                         fontSize: '3.4em', lineHeight: 0.78, color: 'var(--warm)',
                         paddingRight: '0.08em', marginTop: '0.06em',
                       }}>
@@ -276,8 +281,8 @@ function ReadingContent({
             })
           ) : (
             <p style={{
-              fontFamily: 'var(--serif)', fontSize: 'clamp(18px, 2.2vw, 21px)', lineHeight: 1.85,
-              color: 'var(--bone-dim)', fontStyle: 'italic', margin: 0, fontWeight: 300,
+              fontFamily: 'var(--serif)', fontSize: 18, lineHeight: 1.75,
+              color: 'var(--bone-dim)', fontStyle: 'italic', margin: 0, fontWeight: 400,
             }}>
               {t.kind === 'voice'
                 ? 'A recording with no transcript yet.'
@@ -289,9 +294,9 @@ function ReadingContent({
         {/* Closing mark — the ∞ wax seal at rest, the product's only mark */}
         <div style={{
           marginTop: 'clamp(40px, 9vh, 72px)',
-          display: 'flex', justifyContent: 'flex-start',
+          display: 'flex', justifyContent: 'center',
         }}>
-          <WaxSeal size={22} />
+          <WaxSeal size={26} />
         </div>
 
         {/* Selvedge — the entry's append-only revision history */}

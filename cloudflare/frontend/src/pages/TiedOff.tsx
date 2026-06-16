@@ -26,6 +26,12 @@ interface TiedEntry {
   kind: string;
   weft: number;
   deliverYear: number;
+  /** ceremony title — the letter's own title, its milestone, or a recipient phrasing */
+  title: string;
+  /** the hand that wrote it, from the signature — null when unsigned */
+  author: string | null;
+  /** the year it was written */
+  writtenYear: number | null;
 }
 
 export function TiedOff() {
@@ -62,9 +68,30 @@ export function TiedOff() {
               Math.max(0.02, (deliverDate.getFullYear() - today) / (futureHorizon - today)),
             );
             const recipient =
-              Array.isArray(l.recipientNames) && l.recipientNames.length > 0
+              Array.isArray(l.recipients) && l.recipients.length > 0
+                ? l.recipients[0]?.name
+                : Array.isArray(l.recipientNames) && l.recipientNames.length > 0
                 ? l.recipientNames[0]
                 : (l.salutation?.replace(/^dear\s+/i, '') ?? 'someone');
+
+            // ceremony title: the letter's own title, else its milestone, else a recipient phrasing
+            const milestone: string | undefined = l.milestoneLabel ?? undefined;
+            const title: string =
+              (typeof l.title === 'string' && l.title.trim()) ||
+              (milestone ? `a letter for your ${milestone.replace(/^your\s+/i, '')}` : '') ||
+              `a letter for ${recipient}`;
+
+            // the hand that wrote it — from the signature, stripped of a leading sign-off
+            const signature: string | undefined =
+              typeof l.signature === 'string' && l.signature.trim() ? l.signature.trim() : undefined;
+            const author = signature
+              ? signature.replace(/^(love|yours|with love|from|always),?\s*/i, '').trim() || signature
+              : null;
+
+            const written = l.createdAt ? new Date(l.createdAt) : null;
+            const writtenYear =
+              written && !Number.isNaN(written.getFullYear()) ? written.getFullYear() : null;
+
             return {
               id: l.id ?? '',
               date: deliverDate.toISOString().slice(0, 10).replace(/-/g, '·'),
@@ -73,6 +100,9 @@ export function TiedOff() {
               kind: 'letter',
               weft,
               deliverYear: deliverDate.getFullYear(),
+              title,
+              author,
+              writtenYear,
             };
           });
 
@@ -203,21 +233,20 @@ export function TiedOff() {
           );
         })()}
 
-        {/* card grid */}
+        {/* the sealed — each tied thread as a centered ceremony card */}
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-            gap: 24,
-            alignContent: 'start',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: 64,
             overflowY: 'auto',
-            paddingBottom: 80,
+            paddingBottom: 96,
           }}
         >
           {!loading && locked.length === 0 ? (
             <div
               style={{
-                gridColumn: '1/-1',
                 paddingTop: 48,
                 fontFamily: 'var(--serif)',
                 fontSize: 17,
@@ -239,9 +268,15 @@ export function TiedOff() {
               <Link
                 key={i}
                 to={`/loom/letter?id=${it.id}`}
-                style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'block',
+                  width: '100%',
+                  maxWidth: 540,
+                }}
               >
-                <TiedCard {...it} />
+                <SealedCeremony {...it} />
               </Link>
             ))
           )}
@@ -251,63 +286,87 @@ export function TiedOff() {
   );
 }
 
-function TiedCard({ date, recip, years, kind }: Omit<TiedEntry, 'weft' | 'id' | 'deliverYear'>) {
+/**
+ * One sealed thread, set as a ceremony: a large molten ∞ over the letter's
+ * title, the seal date in mono warm, and — when the hand is known — an italic
+ * byline. Centred inside a single faint rounded-rect frame, the way the wax
+ * gathers a sealed page.
+ */
+function SealedCeremony({ deliverYear, title, author, writtenYear }: TiedEntry) {
   return (
     <div
       style={{
         border: '1px solid var(--rule)',
-        padding: '26px 22px',
-        position: 'relative',
-        display: 'grid',
-        gap: 14,
-        minHeight: 168,
+        borderRadius: 14,
+        padding: 'clamp(32px, 6vw, 48px) clamp(24px, 5vw, 40px)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        gap: 20,
+        transition: 'border-color 360ms var(--ease)',
       }}
     >
+      {/* the molten wax seal */}
       <div
+        aria-hidden
         style={{
-          position: 'absolute',
-          top: -10,
-          right: 18,
-          background: 'var(--ink)',
-          padding: '0 8px',
           color: 'var(--warm)',
           fontFamily: 'var(--serif)',
-          fontSize: 18,
+          fontSize: 'clamp(40px, 10vw, 64px)',
           lineHeight: 1,
+          textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
         }}
       >
         ∞
       </div>
-      <div className="loom-mono" style={{ fontSize: 10, color: 'var(--warm)' }}>
-        {date}
-      </div>
-      <div
-        className="loom-serif"
+
+      {/* the letter's title */}
+      <h2
         style={{
-          fontVariationSettings: "'opsz' 28",
-          fontSize: 19,
-          fontStyle: 'italic',
+          fontFamily: 'var(--serif)',
+          fontSize: 'clamp(24px, 5vw, 34px)',
           fontWeight: 400,
-          lineHeight: 1.3,
+          lineHeight: 1.18,
+          letterSpacing: '-0.01em',
+          color: 'var(--bone)',
+          fontVariationSettings: '"opsz" 32',
+          margin: 0,
+          maxWidth: '16em',
         }}
       >
-        {recip}
-      </div>
+        {title}
+      </h2>
+
+      {/* seal status + the year it opens */}
       <div
+        className="loom-mono"
         style={{
-          marginTop: 'auto',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'baseline',
+          fontSize: 11,
+          letterSpacing: '0.26em',
+          textTransform: 'uppercase',
+          color: 'var(--warm)',
         }}
       >
-        <span className="loom-eyebrow" style={{ fontSize: 9 }}>
-          {kind}
-        </span>
-        <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>
-          {years}
-        </span>
+        sealed · opens {deliverYear}
       </div>
+
+      {/* the hand that wrote it */}
+      {author && (
+        <p
+          style={{
+            fontFamily: 'var(--serif)',
+            fontStyle: 'italic',
+            fontWeight: 300,
+            fontSize: 15,
+            lineHeight: 1.5,
+            color: 'var(--bone-dim)',
+            margin: 0,
+          }}
+        >
+          written by {author}{writtenYear ? `, ${writtenYear}` : ''}.
+        </p>
+      )}
     </div>
   );
 }

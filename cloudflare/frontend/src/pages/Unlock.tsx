@@ -7,46 +7,44 @@ import { useAuthStore } from '../stores/authStore';
 /**
  * Screen 05 — The Unlock
  *
- * The product's ONLY ceremony, and it is made of type, not theatre.
- * STITCH_BRIEF §1.5-D / §2.5: when a tied-off thread reaches its date the
- * transformation is a single 720ms typographic cross-fade — the ∞ and the
- * sealed-date dissolve as the entry's title and prose fade up in warm. Nothing
- * burns, melts, sparks, or glows. §2.6 forbids the fire/wax/key/vault family of
- * literal-metaphor objects, glassmorphism, gradient meshes, drop shadows, and
- * floating cards that translate on entry.
+ * The product's ONLY ceremony, and it is made of type, not theatre. A single
+ * sealed letter holds the centre of a vast, empty stage: a glowing warm ∞, the
+ * letter's title in serif, a mono line of dates, and — when the letter is the
+ * author's own and its day has come — one warm "BREAK THE SEAL →" affordance.
  *
- *   phase 0  sealed     — ∞ + the sealed dates, at rest
- *   phase 1  dissolve    — the 720ms cross-fade (∞/date out, letter in)
- *   phase 2  the letter  — the prose, readable
- *   phase 3  the artifact— a portrait card to pass to descendants
+ *   phase 0  sealed     — ∞ + the title + dates, at rest. If the date has not
+ *                         yet arrived this is the whole screen (no button).
+ *   phase 1  dissolve   — the 720ms cross-fade (∞/title out, letter in)
+ *   phase 2  the letter — the prose, readable
+ *   phase 3  the artifact — a portrait card to pass to descendants
  *
- * The letter is the signed-in author's own — the most recent sealed letter
- * whose delivery date has arrived. No mock content: when nothing has untied
- * yet, the EmptyUnlock prompt holds the screen.
+ * Nothing burns, melts, sparks, or glows beyond the ∞'s own textShadow. The
+ * fire/wax/key/vault family of literal-metaphor objects, glassmorphism,
+ * gradient meshes, drop shadows, and floating cards are all forbidden.
+ *
+ * The letter is the signed-in author's own: we surface the next one in the
+ * bloodline, preferring the most-recently-matured (openable) sealed letter and
+ * falling back to the soonest-upcoming one so the waiting state is honest. No
+ * mock content — when nothing is sealed at all, the EmptyUnlock prompt holds
+ * the screen.
  */
 const VEIL = 'opacity var(--loom-dur-veil) var(--loom-ease)';
 
 interface UnlockLetter {
+  title: string;
   recipient: string;
   salutation: string;
   body: string;
   signature: string;
   writtenDate: string;   // formatted, when the letter was written
   sealedDate: string;    // formatted, when it was tied off
-  openedDate: string;    // formatted, when it untied
+  openedDate: string;    // formatted, when it untied / is due to
+  writtenYear: string;   // year only, when it was written (byline)
   sealedYear: string;    // year only, for the SEALED yyyy label
-  openedYear: string;    // year only, for the OPENED yyyy label
+  openedYear: string;    // year only, for the OPENS/OPENED yyyy label
   years: number;         // whole years between sealed and opened
+  openable: boolean;     // the delivery date has arrived — the seal may break
 }
-
-// First sentence/line of the letter body, for the dim serif teaser under the seal.
-const firstLine = (body: string): string => {
-  const t = (body || '').trim();
-  if (!t) return '';
-  const m = t.match(/^[^.!?\n]*[.!?]?/);
-  const s = (m ? m[0] : t.split('\n')[0]).trim();
-  return s.length > 90 ? s.slice(0, 88).trimEnd() + '…' : s;
-};
 
 const fmtYear = (iso?: string | null): string =>
   iso ? String(new Date(iso).getUTCFullYear()) : '';
@@ -65,6 +63,7 @@ export function Unlock() {
   const [letter, setLetter] = useState<UnlockLetter | null>(null);
   const [loading, setLoading] = useState(true);
   const [phase, setPhase] = useState(0);
+  const [broken, setBroken] = useState(false);     // the seal has been broken (reveal armed)
   const [paused, setPaused] = useState(false);
   const [continueVisible, setContinueVisible] = useState(false);
   const [continueClicked, setContinueClicked] = useState(false);
@@ -74,7 +73,9 @@ export function Unlock() {
     [user],
   );
 
-  // Load the author's most recently untied sealed letter (real data only).
+  // Load the next sealed letter in the bloodline (real data only): prefer the
+  // most-recently-matured one whose delivery date has arrived; otherwise fall
+  // back to the soonest-upcoming sealed letter so the waiting state is honest.
   useEffect(() => {
     if (!isAuthenticated) { setLoading(false); return; }
     let cancelled = false;
@@ -83,12 +84,19 @@ export function Unlock() {
         const { data } = await lettersApi.getAll({ status: 'sealed', limit: 100 });
         const rows: any[] = Array.isArray(data?.data) ? data.data : Array.isArray(data) ? data : [];
         const now = Date.now();
+        const sealed = rows.filter((l) => l.sealedAt && l.scheduledDate);
         // "Untied" = sealed, has a delivery date, and that date has arrived.
-        const matured = rows
-          .filter((l) => l.sealedAt && l.scheduledDate && new Date(l.scheduledDate).getTime() <= now)
+        const matured = sealed
+          .filter((l) => new Date(l.scheduledDate).getTime() <= now)
           .sort((a, b) => new Date(b.scheduledDate).getTime() - new Date(a.scheduledDate).getTime());
-        const head = matured[0];
+        // Still waiting — the soonest one whose day is yet to come.
+        const upcoming = sealed
+          .filter((l) => new Date(l.scheduledDate).getTime() > now)
+          .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime());
+        const head = matured[0] ?? upcoming[0];
         if (!head) { if (!cancelled) setLoading(false); return; }
+
+        const openable = new Date(head.scheduledDate).getTime() <= now;
 
         // Pull the full body (the list only carries a preview).
         const full = (await lettersApi.getOne(head.id)).data;
@@ -98,17 +106,26 @@ export function Unlock() {
           head.recipients?.[0]?.name ||
           (full.salutation || '').replace(/^(dear|to)\s+/i, '').replace(/[,，]\s*$/, '') ||
           'someone';
+        const salutation = full.salutation || `${recipient},`;
+        const writtenIso = full.createdAt || head.createdAt;
         setLetter({
+          title:
+            full.title ||
+            head.title ||
+            (full.salutation || '').replace(/[,，]\s*$/, '') ||
+            'A sealed letter',
           recipient,
-          salutation: full.salutation || `${recipient},`,
+          salutation,
           body: (full.body || '').trim(),
           signature: full.signature || authorName || '',
-          writtenDate: fmtDate(full.createdAt || head.createdAt),
+          writtenDate: fmtDate(writtenIso),
           sealedDate: fmtDate(full.sealedAt || head.sealedAt),
           openedDate: fmtDate(full.scheduledDate || head.scheduledDate),
+          writtenYear: fmtYear(writtenIso),
           sealedYear: fmtYear(full.sealedAt || head.sealedAt),
           openedYear: fmtYear(full.scheduledDate || head.scheduledDate),
           years: wholeYears(full.sealedAt || head.sealedAt, full.scheduledDate || head.scheduledDate),
+          openable,
         });
       } catch {
         // Network/auth failure → empty state, never fabricated content.
@@ -119,26 +136,27 @@ export function Unlock() {
     return () => { cancelled = true; };
   }, [isAuthenticated, authorName]);
 
-  // The reveal cadence only runs once we actually have a letter to unseal.
+  // The reveal cadence only runs once the seal has actually been broken — an
+  // openable letter waits at rest on phase 0 until the viewer breaks it.
   useEffect(() => {
-    if (!letter || paused) return;
+    if (!letter || !broken || paused) return;
     const timers: ReturnType<typeof setTimeout>[] = [];
     setPhase(0);
     setContinueVisible(false);
     setContinueClicked(false);
-    timers.push(setTimeout(() => setPhase(1), 2200)); // the dissolve begins
-    timers.push(setTimeout(() => setPhase(2), 2920)); // 720ms later: letter settled
-    // Show "continue →" button after letter has been visible for 2s
-    timers.push(setTimeout(() => setContinueVisible(true), 4920));
+    timers.push(setTimeout(() => setPhase(1), 720));  // the dissolve begins
+    timers.push(setTimeout(() => setPhase(2), 1440)); // 720ms later: letter settled
+    // Show "continue →" button after letter has been visible for ~2s
+    timers.push(setTimeout(() => setContinueVisible(true), 3440));
     return () => timers.forEach(clearTimeout);
-  }, [letter, paused]);
+  }, [letter, broken, paused]);
 
   // Advance to artifact when user clicks continue
   useEffect(() => {
     if (continueClicked) setPhase(3);
   }, [continueClicked]);
 
-  // ── No matured letter (or not signed in / still loading) → honest empty state ──
+  // ── No sealed letter at all (or not signed in / still loading) → honest empty state ──
   if (!letter) {
     return (
       <ClothShell topbarCenter="sealed" backdropOpacity={0.5}>
@@ -146,6 +164,8 @@ export function Unlock() {
       </ClothShell>
     );
   }
+
+  const sealedRest = phase < 1; // the ceremony card, at rest, before any dissolve
 
   return (
     <ClothShell
@@ -156,24 +176,26 @@ export function Unlock() {
           style={{ display: 'flex', gap: 14, alignItems: 'center', color: 'var(--bone-faint)' }}
         >
           <span aria-hidden style={{ width: 5, height: 5, background: 'var(--warm)' }} />
-          a thread unties · today
-          <button
-            type="button"
-            onClick={() => setPaused((p) => !p)}
-            style={{
-              cursor: 'pointer',
-              paddingLeft: 14,
-              color: 'var(--bone-dim)',
-              background: 'transparent',
-              border: 0,
-              borderLeft: '1px solid var(--rule)',
-              fontFamily: 'var(--mono)',
-              fontSize: 'inherit',
-              letterSpacing: 'inherit',
-            }}
-          >
-            {paused ? 'play' : 'pause'}
-          </button>
+          {letter.openable ? 'a thread unties · today' : `sealed · opens ${letter.openedYear}`}
+          {broken && (
+            <button
+              type="button"
+              onClick={() => setPaused((p) => !p)}
+              style={{
+                cursor: 'pointer',
+                paddingLeft: 14,
+                color: 'var(--bone-dim)',
+                background: 'transparent',
+                border: 0,
+                borderLeft: '1px solid var(--rule)',
+                fontFamily: 'var(--mono)',
+                fontSize: 'inherit',
+                letterSpacing: 'inherit',
+              }}
+            >
+              {paused ? 'play' : 'pause'}
+            </button>
+          )}
         </span>
       }
       backdropOpacity={0.5}
@@ -190,7 +212,7 @@ export function Unlock() {
           {/* center stage — the 720ms typographic dissolve */}
           <div style={{ display: 'grid', placeItems: 'center', position: 'relative' }}>
             <div style={{ position: 'relative', maxWidth: 600, width: '100%', minHeight: 460 }}>
-              {/* THE SEAL — glowing amber ∞ wax seal dissolving into filament light */}
+              {/* THE SEAL — the ceremony card: glowing ∞, title, dates, byline */}
               <div
                 style={{
                   position: 'absolute',
@@ -198,73 +220,114 @@ export function Unlock() {
                   display: 'grid',
                   placeItems: 'center',
                   textAlign: 'center',
-                  opacity: phase < 1 ? 1 : 0,
-                  transform: phase < 1 ? 'scale(1)' : 'scale(1.08)',
-                  filter: phase < 1 ? 'blur(0px)' : 'blur(6px)',
+                  opacity: sealedRest ? 1 : 0,
+                  transform: sealedRest ? 'scale(1)' : 'scale(1.08)',
+                  filter: sealedRest ? 'blur(0px)' : 'blur(6px)',
                   transition: `opacity 1400ms var(--loom-ease), transform 1400ms var(--loom-ease), filter 1400ms var(--loom-ease)`,
-                  pointerEvents: 'none',
+                  pointerEvents: sealedRest ? 'auto' : 'none',
                 }}
               >
-                <div style={{ display: 'grid', placeItems: 'center', gap: 'clamp(40px, 12vh, 96px)' }}>
-                  {/* eyebrow — SEALED yyyy · OPENED TODAY */}
+                {/* one faint rounded-rect frame — the ceremony card */}
+                <div
+                  style={{
+                    display: 'grid',
+                    placeItems: 'center',
+                    gap: 'clamp(22px, 4.5vh, 38px)',
+                    maxWidth: 460,
+                    width: '100%',
+                    border: '1px solid var(--rule)',
+                    borderRadius: 14,
+                    padding: 'clamp(40px, 8vh, 72px) clamp(28px, 6vw, 56px)',
+                  }}
+                >
+                  {/* the glowing warm ∞ */}
                   <div
-                    className="loom-mono"
+                    aria-hidden
+                    style={{
+                      fontFamily: 'var(--serif)',
+                      fontVariationSettings: "'opsz' 48",
+                      fontSize: 'clamp(40px, 10vw, 64px)',
+                      fontWeight: 400,
+                      lineHeight: 1,
+                      color: 'var(--warm)',
+                      textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
+                    }}
+                  >
+                    ∞
+                  </div>
+
+                  {/* the letter's title */}
+                  <h1
+                    style={{
+                      margin: 0,
+                      fontFamily: 'var(--serif)',
+                      fontVariationSettings: "'opsz' 40",
+                      fontSize: 'clamp(24px, 5vw, 34px)',
+                      fontWeight: 380,
+                      lineHeight: 1.12,
+                      letterSpacing: '-0.015em',
+                      color: 'var(--bone)',
+                    }}
+                  >
+                    {letter.title}
+                  </h1>
+
+                  {/* mono meta — SEALED · OPENS yyyy   (or the unlock affordance) */}
+                  <div
                     style={{
                       fontFamily: 'var(--mono)',
                       fontSize: 11,
-                      color: 'var(--bone-faint)',
-                      letterSpacing: '0.28em',
+                      letterSpacing: '0.26em',
                       textTransform: 'uppercase',
+                      color: 'var(--warm)',
                     }}
                   >
-                    sealed&nbsp;&nbsp;{letter.sealedDate}&nbsp;&nbsp;·&nbsp;&nbsp;opened today
+                    {letter.openable
+                      ? `sealed · opens today`
+                      : `sealed · opens ${letter.openedYear}`}
                   </div>
 
-                  {/* the seal — large warm ∞ disc with a soft radial glow behind it */}
-                  <div style={{ position: 'relative', display: 'grid', placeItems: 'center' }}>
-                    <span
-                      aria-hidden
+                  {/* byline — written by <author>, <year>. */}
+                  {(letter.signature || letter.writtenYear) && (
+                    <p
                       style={{
-                        position: 'absolute',
-                        width: 360,
-                        height: 360,
-                        borderRadius: '50%',
-                        background:
-                          'radial-gradient(circle, var(--warm-glow) 0%, rgba(176,122,74,0.10) 38%, transparent 70%)',
-                        pointerEvents: 'none',
-                      }}
-                    />
-                    <WaxSeal size={132} />
-                  </div>
-
-                  {/* the headline + the letter's first line, dim serif italic */}
-                  <div style={{ display: 'grid', placeItems: 'center', gap: 14, maxWidth: 360 }}>
-                    <div
-                      style={{
+                        margin: 0,
                         fontFamily: 'var(--serif)',
-                        fontVariationSettings: "'opsz' 48",
-                        fontSize: 'clamp(28px, 6vw, 36px)',
-                        fontWeight: 400,
-                        lineHeight: 1.1,
-                        letterSpacing: '-0.015em',
-                        color: 'var(--bone)',
-                      }}
-                    >
-                      A letter has opened.
-                    </div>
-                    <div
-                      style={{
-                        fontFamily: 'var(--serif)',
-                        fontSize: 18,
                         fontStyle: 'italic',
                         fontWeight: 300,
+                        fontSize: 15,
                         lineHeight: 1.5,
                         color: 'var(--bone-dim)',
                       }}
                     >
-                      {firstLine(letter.body) || letter.salutation}
-                    </div>
-                  </div>
+                      written by {letter.signature || 'an unknown hand'}
+                      {letter.writtenYear ? `, ${letter.writtenYear}` : ''}.
+                    </p>
+                  )}
+
+                  {/* primary action — only when the seal may break */}
+                  {letter.openable && (
+                    <button
+                      type="button"
+                      onClick={() => setBroken(true)}
+                      style={{
+                        marginTop: 6,
+                        fontFamily: 'var(--mono)',
+                        fontSize: 11,
+                        letterSpacing: '0.26em',
+                        textTransform: 'uppercase',
+                        color: 'var(--warm)',
+                        background: 'none',
+                        border: 'none',
+                        borderBottom: '1px solid var(--rule-warm)',
+                        cursor: 'pointer',
+                        paddingBottom: 4,
+                        transition: `color 360ms var(--loom-ease)`,
+                      }}
+                    >
+                      break the seal →
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -431,7 +494,9 @@ export function Unlock() {
                   ? 'ceremony complete'
                   : phase >= 1
                     ? 'the dissolve'
-                    : 'sealed'}
+                    : letter.openable
+                      ? 'ready to open'
+                      : 'sealed'}
             </span>
             <span
               className="loom-mono"

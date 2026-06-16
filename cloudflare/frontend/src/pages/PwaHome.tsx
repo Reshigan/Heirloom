@@ -10,8 +10,9 @@ import { memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
-import { WarmDot, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { SpineThread, type SpineEntry } from '../loom/components/SpineThread';
 import type { UserRole } from '../hooks/useRole';
+import type { Dye } from '../loom/dye';
 import type { CanvasEntry } from '../loom/components/TapestryCanvas';
 
 /* ─── PWA profile menu ────────────────────────────────────────────────────── */
@@ -141,13 +142,11 @@ function AuthHome({
   role,
   entries,
   prompt,
-  reroll,
   stats,
 }: {
   role: UserRole;
   entries: CanvasEntry[];
   prompt: string;
-  reroll: () => void;
   stats: { entries: number; members: number } | null;
 }) {
   const { user, isAuthenticated } = useAuthStore();
@@ -251,166 +250,38 @@ function AuthHome({
     );
   }
 
-  // ── Active author / reader — capture-first home (layout C) ──
+  // ── Active author / reader — the Thousand-Year Spine (Higgsfield "A") ──
   const isReadOnly = role === 'reader' || role === 'successor';
   const nowYear = new Date().getFullYear();
   const firstYear = count > 0
     ? entries.reduce((min, e) => Math.min(min, e.date.getFullYear()), nowYear)
     : nowYear;
   const threadYear = nowYear - firstYear + 1;
-  const recent = [...entries].filter((e) => e.title).reverse().slice(0, 3);
-  // Suggestion chips: derive from recent woven titles when present, else the seeds.
-  const SEEDS = ["Grandma's Recipe", 'The Old Oak Tree', 'A Forgotten Song'];
-  const chips: string[] = [
-    ...recent.map((e) => String(e.title)),
-    ...SEEDS,
-  ].filter((v, i, arr) => arr.indexOf(v) === i).slice(0, 3);
-  const QUIET_NAV: { to: string; label: string }[] = [
-    { to: '/letters', label: 'letters' },
-    { to: '/family', label: 'family' },
-    { to: '/book', label: 'book' },
-    { to: '/ask', label: 'ask' },
-  ];
+
+  // The real thread, woven into spine nodes — newest nearest the present core.
+  const spineEntries: SpineEntry[] = entries.map((e) => ({
+    title: (e.title && String(e.title)) || (e.sealed ? 'a sealed letter' : 'an unwoven thread'),
+    year: e.date.getFullYear(),
+    dye: e.dye as Dye,
+    sealed: e.sealed,
+    route: e.sealed ? '/loom/tied' : '/loom/weft',
+  }));
+
+  const status =
+    `since ${firstYear} · ${count} ${count === 1 ? 'memory' : 'memories'} woven · year ${threadYear} of a thousand` +
+    (stats && stats.members > 0 ? ` · ${stats.members} ${stats.members === 1 ? 'voice' : 'voices'}` : '');
 
   return (
-    <div style={{ padding: `0 ${P}`, maxWidth: 540, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
-      {/* Listener hero — cosmic-home mockup: eyebrow + centered serif
-          question + twin WRITE|SPEAK pills + 3 suggestion chips, all
-          centered over the global CosmicLoom filament (page bg stays
-          transparent so the filament reads through). */}
-      <div style={{
-        minHeight: 'clamp(420px, calc(100svh - 150px - env(safe-area-inset-top, 0px)), 720px)',
-        display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-        alignItems: 'center', textAlign: 'center',
-        gap: 30, paddingBottom: 4,
-      }}>
-        {/* Eyebrow — tapping the question rerolls; eyebrow names the listener */}
-        <span className="hl-mono" style={{
-          fontSize: 11, letterSpacing: '0.34em', textTransform: 'uppercase',
-          color: 'var(--warm)', display: 'inline-flex', alignItems: 'center', gap: 12,
-        }}>
-          {isReadOnly ? 'the cloth remembers' : (
-            <>
-              the listener asks
-              <button type="button" onClick={reroll} aria-label="another prompt" className="hl-mono"
-                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--warm)', fontSize: 12, lineHeight: 1, padding: 2 }}>
-                ↻
-              </button>
-            </>
-          )}
-        </span>
-
-        {/* The question — tap to reroll a new prompt */}
-        <h1
-          className="hl-serif hl-tight"
-          onClick={isReadOnly ? undefined : reroll}
-          style={{
-            margin: 0, fontWeight: 400,
-            fontSize: 'clamp(28px, 7.6vw, 42px)', lineHeight: 1.16,
-            color: 'var(--bone)', fontVariationSettings: '"opsz" 42',
-            textShadow: '0 0 60px var(--ink)',
-            maxWidth: '15ch',
-            cursor: isReadOnly ? 'default' : 'pointer',
-          }}
-        >
-          {isReadOnly ? 'The cloth remembers.' : prompt}
-        </h1>
-
-        {/* Capture — twin warm-outline WRITE | SPEAK pills */}
-        {isReadOnly ? (
-          <div style={{ marginTop: 2 }}>
-            <Link to="/loom" className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>open the thread →</Link>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', gap: 14, justifyContent: 'center', marginTop: 2 }}>
-            {[
-              { to: '/compose', label: 'write' },
-              { to: '/record', label: 'speak' },
-            ].map((p) => (
-              <Link
-                key={p.to}
-                to={p.to}
-                className="hl-mono"
-                style={{
-                  fontSize: 11, letterSpacing: '0.22em', textTransform: 'uppercase',
-                  color: 'var(--bone)', textDecoration: 'none',
-                  border: '1px solid var(--warm)', borderRadius: 999,
-                  padding: '11px 28px', background: 'transparent',
-                  transition: 'background 180ms var(--ease), color 180ms var(--ease)',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--warm)'; e.currentTarget.style.color = 'var(--ink)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--bone)'; }}
-              >
-                {p.label}
-              </Link>
-            ))}
-          </div>
-        )}
-
-        {/* Suggestion chips — [warm dot] serif label → /compose?prompt= */}
-        {!isReadOnly && (
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, marginTop: 6 }}>
-            {chips.map((seed) => (
-              <button
-                key={seed}
-                type="button"
-                onClick={() => navigate('/compose?prompt=' + encodeURIComponent(seed))}
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 10,
-                  background: 'transparent', border: 'none', cursor: 'pointer',
-                  padding: '4px 0', minHeight: 32,
-                }}
-              >
-                <WarmDot />
-                <span className="hl-serif" style={{ fontSize: 'clamp(15px, 4.2vw, 17px)', fontWeight: 400, color: 'var(--bone-dim)' }}>
-                  {seed}
-                </span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Recently woven — left-aligned rows: dot · serif title · sub · mono date */}
-      {recent.length > 0 && (
-        <div style={{ marginTop: 16, maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
-          <div className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 4 }}>
-            recently woven
-          </div>
-          {recent.map((e, i) => (
-            <EntryRow
-              key={`${e.n}-${i}`}
-              title={<>{e.title}{e.sealed ? ' ∞' : ''}</>}
-              sub={e.sealed ? 'sealed' : 'woven into the thread'}
-              meta={e.date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
-              onClick={() => navigate('/loom/weft')}
-            />
-          ))}
-          <Link to="/memories" className="hl-mono" style={{ display: 'inline-block', marginTop: 16, fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}>
-            see all {count} {count === 1 ? 'memory' : 'memories'} →
-          </Link>
-        </div>
-      )}
-
-      {/* Quiet nav — centered */}
-      <div style={{ marginTop: 36, paddingTop: 22, borderTop: '1px solid var(--rule)', display: 'flex', gap: 22, flexWrap: 'wrap', justifyContent: 'center' }}>
-        {QUIET_NAV.map((n) => (
-          <Link key={n.to} to={n.to} className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-dim)', textDecoration: 'none' }}>
-            {n.label}
-          </Link>
-        ))}
-      </div>
-
-      {/* The single ∞ mark */}
-      <div style={{ marginTop: 40 }}><WaxSeal size={22} /></div>
-
-      {/* One status line */}
-      <p className="hl-mono" style={{ marginTop: 18, fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textAlign: 'center' }}>
-        since {firstYear} · <b style={{ color: 'var(--warm-dim)', fontWeight: 400 }}>{count}</b>{' '}
-        {count === 1 ? 'memory' : 'memories'} woven · year {threadYear} of a thousand
-        {stats && stats.members > 0 ? ` · ${stats.members} ${stats.members === 1 ? 'voice' : 'voices'}` : ''}
-      </p>
-    </div>
+    <SpineThread
+      entries={spineEntries}
+      presentYear={nowYear}
+      prompt={isReadOnly ? undefined : prompt}
+      addLabel={isReadOnly ? 'open the thread' : 'weave a new thread'}
+      addRoute={isReadOnly ? '/loom' : '/compose'}
+      status={status}
+      onNavigate={(r) => navigate(r)}
+      minHeightCss="calc(100svh - 56px - 104px - env(safe-area-inset-top, 0px))"
+    />
   );
 }
 
@@ -418,7 +289,7 @@ function AuthHome({
 export function PwaHome() {
   const role = useRole();
   const { entries } = useTapestryEntries();
-  const { prompt, reroll } = useListener();
+  const { prompt } = useListener();
   const { isNewUser, isLoading: isNewUserLoading } = useIsNewUser();
   const [wizardDone, setWizardDone] = useState(() => !shouldShowWizard());
   const { isAuthenticated, _hasHydrated } = useAuthStore();
@@ -527,7 +398,7 @@ export function PwaHome() {
           keeps content off the fixed nav and lets the cloth parallax read
           `.loom main` scroll. (A nested absolute scroller defeated both.) */}
       {!isNewUser && (
-        <AuthHome role={role} entries={entries} prompt={prompt} reroll={reroll} stats={stats} />
+        <AuthHome role={role} entries={entries} prompt={prompt} stats={stats} />
       )}
 
     </ClothShell>

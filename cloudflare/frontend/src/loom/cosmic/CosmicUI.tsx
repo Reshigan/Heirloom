@@ -1,41 +1,156 @@
 import type { ReactNode } from 'react';
+import type { Dye } from '../dye';
+import { dyeVar } from '../dye';
 
-/** mono uppercase eyebrow + centered serif title — the mockup header on every screen */
-export function CosmicHeader({ eyebrow, title, align = 'center' }: { eyebrow: string; title: ReactNode; align?: 'center' | 'left' }) {
+/**
+ * The Illuminated Ledger — the canonical page language (Higgsfield concept "B").
+ *
+ * Every screen reads as a page of the family's ledger: a giant Source Serif
+ * headline holds the top, then hairline-ruled entry rows fall beneath it —
+ * the entry's title set in serif on the left, its year and the hand that wrote
+ * it set in mono on the right, the author tinted by their dye. The gold ∞ rests
+ * at the foot of the page. One warm colour, type as the hero, 60–70% air.
+ *
+ * These five exports are imported across the app, so evolving them upgrades
+ * every consuming page at once — there is no parallel component set.
+ */
+
+/**
+ * The ledger headline — a large, left-set Source Serif display with a mono
+ * eyebrow above it. This is the "Start your family's thousand-year thread."
+ * treatment from the concept; `align="center"` keeps the ceremony surfaces
+ * (onboarding, unlock) centred.
+ */
+export function CosmicHeader({
+  eyebrow,
+  title,
+  sub,
+  align = 'left',
+}: {
+  eyebrow?: string;
+  title: ReactNode;
+  sub?: ReactNode;
+  align?: 'center' | 'left';
+}) {
   return (
-    <header style={{ textAlign: align, marginBottom: 36 }}>
-      <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>{eyebrow}</div>
-      <h1 style={{ fontFamily: 'var(--serif)', fontSize: 34, lineHeight: 1.1, color: 'var(--bone)', marginTop: 10, fontWeight: 400 }}>{title}</h1>
+    <header style={{ textAlign: align, marginBottom: 40, maxWidth: align === 'center' ? undefined : '14em' }}>
+      {eyebrow && (
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 18 }}>
+          {eyebrow}
+        </div>
+      )}
+      <h1
+        style={{
+          fontFamily: 'var(--serif)',
+          fontSize: 'clamp(34px, 7vw, 58px)',
+          lineHeight: 1.04,
+          letterSpacing: '-0.012em',
+          color: 'var(--bone)',
+          margin: 0,
+          fontWeight: 380,
+          fontVariationSettings: '"opsz" 40',
+        }}
+      >
+        {title}
+      </h1>
+      {sub && (
+        <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 17, lineHeight: 1.55, color: 'var(--bone-dim)', margin: '20px 0 0', maxWidth: '30em' }}>
+          {sub}
+        </p>
+      )}
     </header>
   );
 }
 
-/** small filled warm dot — the only bullet mark */
-export function WarmDot({ filled = true, size = 6 }: { filled?: boolean; size?: number }) {
-  return <span aria-hidden style={{ width: size, height: size, borderRadius: '50%', background: filled ? 'var(--warm)' : 'transparent', border: filled ? 'none' : '1px solid var(--warm-dim)', flex: '0 0 auto', display: 'inline-block' }} />;
+/** A small filled dye/warm dot — the ledger's only mark beside a name. */
+export function WarmDot({ filled = true, size = 5, color }: { filled?: boolean; size?: number; color?: string }) {
+  const c = color ?? 'var(--warm)';
+  return <span aria-hidden style={{ width: size, height: size, borderRadius: '50%', background: filled ? c : 'transparent', border: filled ? 'none' : `1px solid ${c}`, flex: '0 0 auto', display: 'inline-block' }} />;
 }
 
-/** list row: dot + serif title (+optional sub) left, mono meta right */
-export function EntryRow({ title, sub, meta, italic, filled = true, onClick }: { title: ReactNode; sub?: ReactNode; meta?: ReactNode; italic?: boolean; filled?: boolean; onClick?: () => void }) {
+/**
+ * A ledger row — the heart of the language. Serif title (and optional italic
+ * snippet) on the left; on the right a mono cluster of the entry's year, a
+ * dye dot, and the author's name tinted by their dye. Old callers that pass
+ * only `meta` still get a clean mono right-column, so every existing page
+ * keeps working while it gains the hairline-ledger look.
+ */
+export function EntryRow({
+  title,
+  sub,
+  meta,
+  year,
+  author,
+  dye,
+  italic,
+  onClick,
+}: {
+  title: ReactNode;
+  sub?: ReactNode;
+  meta?: ReactNode;
+  year?: ReactNode;
+  author?: ReactNode;
+  dye?: Dye;
+  italic?: boolean;
+  /** @deprecated the ledger row carries no left bullet — kept for call-site compat */
+  filled?: boolean;
+  onClick?: () => void;
+}) {
+  const tint = dye ? dyeVar(dye) : 'var(--warm)';
+  const hasLedgerMeta = year != null || author != null || dye != null;
+
   return (
-    <button type="button" onClick={onClick} disabled={!onClick}
-      style={{ display: 'flex', alignItems: 'flex-start', gap: 14, width: '100%', textAlign: 'left', padding: '16px 0', background: 'none', borderWidth: 0, borderBottom: '1px solid var(--rule)', cursor: onClick ? 'pointer' : 'default', transition: 'opacity 180ms var(--ease)' }}>
-      <span style={{ marginTop: 8 }}><WarmDot filled={filled} /></span>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!onClick}
+      className="hl-ledger-row"
+      style={{
+        display: 'flex',
+        alignItems: 'baseline',
+        gap: 20,
+        width: '100%',
+        textAlign: 'left',
+        padding: '15px 0',
+        background: 'none',
+        borderWidth: 0,
+        borderBottom: '1px solid var(--rule)',
+        cursor: onClick ? 'pointer' : 'default',
+        transition: 'opacity 180ms var(--ease)',
+      }}
+    >
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ fontFamily: 'var(--serif)', fontStyle: italic ? 'italic' : 'normal', fontSize: 18, color: 'var(--bone)', display: 'block' }}>{title}</span>
-        {sub && <span style={{ fontFamily: 'var(--sans)', fontSize: 13, color: 'var(--bone-dim)', display: 'block', marginTop: 3 }}>{sub}</span>}
+        <span style={{ fontFamily: 'var(--serif)', fontStyle: italic ? 'italic' : 'normal', fontWeight: 400, fontSize: 19, lineHeight: 1.3, color: 'var(--bone)', display: 'block' }}>
+          {title}
+        </span>
+        {sub && <span style={{ fontFamily: 'var(--sans)', fontSize: 13, color: 'var(--bone-dim)', display: 'block', marginTop: 4, lineHeight: 1.5 }}>{sub}</span>}
       </span>
-      {meta && <span style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.1em', color: 'var(--bone-dim)', whiteSpace: 'nowrap', marginTop: 4 }}>{meta}</span>}
+
+      {hasLedgerMeta ? (
+        <span style={{ display: 'flex', alignItems: 'center', gap: 9, whiteSpace: 'nowrap', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', flex: '0 0 auto' }}>
+          {year != null && <span style={{ color: 'var(--bone-faint)' }}>{year}</span>}
+          {dye && <WarmDot color={tint} size={5} />}
+          {author != null && <span style={{ color: tint, textTransform: 'uppercase', letterSpacing: '0.16em' }}>{author}</span>}
+        </span>
+      ) : (
+        meta != null && (
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', color: 'var(--bone-faint)', whiteSpace: 'nowrap', flex: '0 0 auto' }}>{meta}</span>
+        )
+      )}
     </button>
   );
 }
 
-/** uppercase mono group label (MEMORIES / LETTERS / VOICES) */
+/** Uppercase mono group label (MEMORIES / LETTERS / VOICES). */
 export function SectionLabel({ children }: { children: ReactNode }) {
-  return <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--bone-faint)', margin: '28px 0 6px' }}>{children}</div>;
+  return <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--bone-faint)', margin: '34px 0 8px' }}>{children}</div>;
 }
 
-/** the ∞ wax seal — the product's only mark */
+/** The ∞ wax seal — the product's only mark, resting warm at the foot of a page. */
 export function WaxSeal({ size = 30 }: { size?: number }) {
-  return <div aria-hidden style={{ textAlign: 'center', color: 'var(--warm)', fontSize: size, lineHeight: 1, opacity: 0.9 }}>∞</div>;
+  return (
+    <div aria-hidden style={{ textAlign: 'center', color: 'var(--warm)', fontSize: size, lineHeight: 1, opacity: 0.92, textShadow: '0 0 24px var(--warm-glow), 0 0 8px var(--warm-glow)' }}>
+      ∞
+    </div>
+  );
 }

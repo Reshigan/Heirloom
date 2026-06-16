@@ -3,71 +3,25 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
 
-/** warm-paper page color — a muted bone, not pure white, that sits on --ink */
-const PAGE = '#1a1510';
-const PAGE_EDGE = 'rgba(176,122,74,0.35)';
-
-/** one bound page in the spread */
-function BookLeaf({ children, side, folio }: { children: React.ReactNode; side: 'left' | 'right'; folio?: string }) {
-  return (
-    <div
-      style={{
-        background: PAGE,
-        flex: '1 1 0',
-        minWidth: 0,
-        padding: '54px 46px 40px',
-        position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        boxShadow:
-          side === 'left'
-            ? 'inset -18px 0 28px -20px rgba(0,0,0,0.7)'
-            : 'inset 18px 0 28px -20px rgba(0,0,0,0.7)',
-        borderTop: `1px solid ${PAGE_EDGE}`,
-        borderBottom: `1px solid ${PAGE_EDGE}`,
-        borderLeft: side === 'left' ? `1px solid ${PAGE_EDGE}` : 'none',
-        borderRight: side === 'right' ? `1px solid ${PAGE_EDGE}` : 'none',
-        borderRadius: side === 'left' ? '3px 0 0 3px' : '0 3px 3px 0',
-      }}
-    >
-      {/* running header — book/family name */}
-      <div
-        className="hl-mono"
-        style={{
-          fontSize: 9,
-          letterSpacing: '0.32em',
-          textTransform: 'uppercase',
-          color: 'var(--warm-dim)',
-          textAlign: side === 'left' ? 'left' : 'right',
-          marginBottom: 34,
-          opacity: 0.85,
-        }}
-      >
-        the bloodline · heirloom
-      </div>
-      <div style={{ flex: 1 }}>{children}</div>
-      {/* folio — centered mono page number */}
-      {folio && (
-        <div
-          className="hl-mono"
-          style={{ fontSize: 11, color: 'var(--warm-dim)', textAlign: 'center', marginTop: 30 }}
-        >
-          {folio}
-        </div>
-      )}
-    </div>
-  );
-}
+/** warm paper cream — the ONE sanctioned inversion: the physical printed sheet */
+const PAPER = 'color-mix(in srgb, var(--bone) 92%, #d8c9a8)';
+/** near-black warm ink for printed text on the cream sheet */
+const PAGE_INK = '#1a1712';
+const PAGE_INK_DIM = 'rgba(26,23,18,0.5)';
+/** warm ornament tone — warm-dim, legible on light paper */
+const PAGE_WARM = '#8c5a30';
+/** faint center-gutter / rule on the sheet */
+const PAGE_RULE = 'rgba(0,0,0,0.08)';
 
 const PAGE_BODY: React.CSSProperties = {
   fontFamily: 'var(--serif)',
-  fontWeight: 300,
-  fontSize: 14.5,
-  lineHeight: 1.72,
-  color: 'rgba(244,236,216,0.74)',
+  fontWeight: 400,
+  fontSize: 16,
+  lineHeight: 1.7,
+  color: PAGE_INK,
   textAlign: 'justify',
   hyphens: 'auto',
-  margin: 0,
+  margin: '0 0 1.1em',
 };
 
 export function BookPage() {
@@ -77,6 +31,17 @@ export function BookPage() {
       topbarCenter="the book"
       topbarRight={<UserMenu />}
     >
+      <style>{`
+        .hl-book-columns {
+          column-count: 2;
+          column-gap: 56px;
+          column-rule: 1px solid ${PAGE_RULE};
+        }
+        /* narrow viewports: the spread folds to a single page column */
+        @media (max-width: 680px) {
+          .hl-book-columns { column-count: 1; column-rule: none; }
+        }
+      `}</style>
       <div
         style={{
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
@@ -88,42 +53,75 @@ export function BookPage() {
           gap: 26,
         }}
       >
-        {/* the open spread, reverent on the ink surround */}
-        <div
+        {/* the bound sheet — cream paper, reverent on the ink surround */}
+        <article
           style={{
-            display: 'flex',
             width: '100%',
-            maxWidth: 820,
-            alignItems: 'stretch',
+            maxWidth: 860,
+            background: PAPER,
+            color: PAGE_INK,
+            padding: '48px 56px',
+            borderRadius: 3,
+            /* the ONE allowed shadow — a subtle page-edge lift on the sheet */
+            boxShadow: '0 24px 60px -32px rgba(0,0,0,0.65)',
+            position: 'relative',
             transition: 'opacity 720ms var(--ease), transform 720ms var(--ease)',
           }}
         >
-          {/* left leaf — chapter opening with drop-cap */}
-          <BookLeaf side="left" folio="46">
-            <div
-              className="hl-mono"
+          {/* running head — book title · chapter year */}
+          <div
+            className="hl-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: '0.26em',
+              textTransform: 'uppercase',
+              color: PAGE_INK_DIM,
+              textAlign: 'center',
+              marginBottom: 40,
+            }}
+          >
+            the mercer thread · 1921
+          </div>
+
+          {/* chapter head + warm ornament — set across the full sheet */}
+          <header style={{ textAlign: 'center', marginBottom: 30 }}>
+            <h1
               style={{
-                fontSize: 10,
-                letterSpacing: '0.3em',
-                textTransform: 'uppercase',
-                color: 'var(--warm)',
-                marginBottom: 14,
+                fontFamily: 'var(--serif)',
+                fontWeight: 400,
+                fontSize: 'clamp(26px, 4vw, 38px)',
+                lineHeight: 1.12,
+                color: PAGE_INK,
+                margin: 0,
               }}
             >
-              Chapter Three · The Old Oak
+              The crossing
+            </h1>
+            <div
+              style={{
+                marginTop: 14,
+                color: PAGE_WARM,
+                fontSize: 20,
+                lineHeight: 1,
+              }}
+            >
+              ∞
             </div>
-            <div style={{ height: 1, background: 'var(--rule)', marginBottom: 22 }} />
+          </header>
+
+          {/* two-page column body — single column on narrow viewports */}
+          <div className="hl-book-columns" style={{ textAlign: 'justify' }}>
             <p style={PAGE_BODY}>
               <span
                 style={{
                   float: 'left',
                   fontFamily: 'var(--serif)',
                   fontWeight: 400,
-                  fontSize: 56,
-                  lineHeight: 0.82,
-                  color: 'var(--warm)',
-                  paddingRight: 8,
-                  marginTop: 4,
+                  fontSize: '3.2em',
+                  lineHeight: 0.8,
+                  color: PAGE_INK,
+                  marginRight: 8,
+                  marginTop: 2,
                 }}
               >
                 O
@@ -134,10 +132,6 @@ export function BookPage() {
               presence, our belonging. The wind whispered secrets through its leaves: tales of
               laughter, of tears, and the countless seasons it had witnessed.
             </p>
-          </BookLeaf>
-
-          {/* right leaf — continuing column, folio + the only mark */}
-          <BookLeaf side="right" folio="47">
             <p style={PAGE_BODY}>
               Each year, the oak seemed to grow stronger, mirroring our own resilience. It became our
               gathering place, the silent witness to our lives unfolding. From childhood games to
@@ -146,18 +140,28 @@ export function BookPage() {
               in the earth and reaching for the sky, forever connected by the unseen threads of
               history.
             </p>
-            <div style={{ marginTop: 26, textAlign: 'center', color: 'var(--warm)', fontSize: 22, lineHeight: 1, opacity: 0.9 }}>
-              ∞
-            </div>
-          </BookLeaf>
-        </div>
+          </div>
 
-        {/* page-turn affordances — typographic, not icons */}
+          {/* folio — printed page number at the foot of the sheet */}
+          <div
+            className="hl-mono"
+            style={{
+              fontSize: 10,
+              color: PAGE_INK_DIM,
+              textAlign: 'center',
+              marginTop: 40,
+            }}
+          >
+            21
+          </div>
+        </article>
+
+        {/* page-turn affordances — typographic, on the ink gutter outside the sheet */}
         <div
           style={{
             display: 'flex',
             width: '100%',
-            maxWidth: 820,
+            maxWidth: 860,
             alignItems: 'center',
             justifyContent: 'space-between',
           }}
