@@ -73,7 +73,7 @@ settingsRoutes.get('/profile', async (c) => {
   
   const user = await c.env.DB.prepare(`
     SELECT id, email, first_name, last_name, avatar_url, preferred_currency, birth_date, gender,
-           two_factor_enabled, email_verified, created_at, updated_at
+           guardian_email, guardian_name, two_factor_enabled, email_verified, created_at, updated_at
     FROM users WHERE id = ?
   `).bind(userId).first();
 
@@ -90,6 +90,8 @@ settingsRoutes.get('/profile', async (c) => {
     preferredCurrency: user.preferred_currency,
     birthDate: user.birth_date,
     gender: user.gender,
+    guardianEmail: user.guardian_email,
+    guardianName: user.guardian_name,
     twoFactorEnabled: !!user.two_factor_enabled,
     emailVerified: !!user.email_verified,
     createdAt: user.created_at,
@@ -102,7 +104,7 @@ settingsRoutes.patch('/profile', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   
-  const { firstName, lastName, avatarUrl, preferredCurrency, birthDate, gender } = body;
+  const { firstName, lastName, avatarUrl, preferredCurrency, birthDate, gender, guardianEmail, guardianName } = body;
   const now = new Date().toISOString();
 
   // Convert undefined to null for D1 compatibility. birth_date/gender use a
@@ -116,6 +118,8 @@ settingsRoutes.patch('/profile', async (c) => {
         preferred_currency = COALESCE(?, preferred_currency),
         birth_date = COALESCE(?, birth_date),
         gender = COALESCE(?, gender),
+        guardian_email = COALESCE(?, guardian_email),
+        guardian_name = COALESCE(?, guardian_name),
         updated_at = ?
     WHERE id = ?
   `).bind(
@@ -125,13 +129,15 @@ settingsRoutes.patch('/profile', async (c) => {
     preferredCurrency ?? null,
     birthDate ?? null,
     gender ?? null,
+    guardianEmail ?? null,
+    guardianName ?? null,
     now,
     userId
   ).run();
 
   const user = await c.env.DB.prepare(`
     SELECT id, email, first_name, last_name, avatar_url, preferred_currency, birth_date, gender,
-           two_factor_enabled, email_verified, created_at, updated_at
+           guardian_email, guardian_name, two_factor_enabled, email_verified, created_at, updated_at
     FROM users WHERE id = ?
   `).bind(userId).first();
 
@@ -144,6 +150,8 @@ settingsRoutes.patch('/profile', async (c) => {
     preferredCurrency: user?.preferred_currency,
     birthDate: user?.birth_date,
     gender: user?.gender,
+    guardianEmail: user?.guardian_email,
+    guardianName: user?.guardian_name,
     twoFactorEnabled: !!user?.two_factor_enabled,
     emailVerified: !!user?.email_verified,
     updatedAt: user?.updated_at,

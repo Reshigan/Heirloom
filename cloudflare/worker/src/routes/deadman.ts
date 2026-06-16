@@ -30,11 +30,17 @@ deadmanRoutes.get('/status', async (c) => {
   const nextCheckIn = new Date(lastCheckIn.getTime() + intervalDays * 24 * 60 * 60 * 1000);
   const now = new Date();
   const daysUntilDue = Math.ceil((nextCheckIn.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
-  
+
+  // The DB stores status uppercase ('ACTIVE'/'CANCELLED'/'TRIGGERED'); the
+  // frontend matches lowercase. Also derive 'warning' for an active switch that
+  // is past due but not yet triggered, so the UI can surface the grace period.
+  const rawStatus = ((dms.status as string) || '').toLowerCase();
+  const calculatedStatus = rawStatus === 'active' && daysUntilDue < 0 ? 'warning' : rawStatus;
+
   return c.json({
     configured: true,
     id: dms.id,
-    status: dms.status,
+    status: calculatedStatus,
     checkInIntervalDays: dms.check_in_interval_days,
     gracePeriodDays: dms.grace_period_days,
     lastCheckIn: dms.last_check_in,

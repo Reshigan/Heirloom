@@ -1559,6 +1559,16 @@ export function Compose() {
               }}
             >
               {error}
+              {/* Quota/413 from the worker reads "Storage limit reached…". Give it
+                  an actionable way out — a quiet link to billing, same mono/warm key. */}
+              {/storage limit|upgrade/i.test(error) && (
+                <>
+                  {' · '}
+                  <Link to="/billing" style={{ color: 'var(--warm-bright)', textDecoration: 'underline' }}>
+                    See plans
+                  </Link>
+                </>
+              )}
             </p>
           )}
 

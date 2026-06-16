@@ -222,8 +222,7 @@ export function Unlock() {
                   textAlign: 'center',
                   opacity: sealedRest ? 1 : 0,
                   transform: sealedRest ? 'scale(1)' : 'scale(1.08)',
-                  filter: sealedRest ? 'blur(0px)' : 'blur(6px)',
-                  transition: `opacity 1400ms var(--loom-ease), transform 1400ms var(--loom-ease), filter 1400ms var(--loom-ease)`,
+                  transition: `opacity 1400ms var(--loom-ease), transform 1400ms var(--loom-ease)`,
                   pointerEvents: sealedRest ? 'auto' : 'none',
                 }}
               >

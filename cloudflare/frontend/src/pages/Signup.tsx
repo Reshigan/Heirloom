@@ -40,7 +40,7 @@ const TIERS: {
   sub: string;
   body: string;
 }[] = [
-  { id: 'free', name: 'Free', price: 'free', sub: 'forever', body: '1 thread · 30 entries / yr · read everything' },
+  { id: 'free', name: 'Free', price: 'free', sub: 'forever', body: '1 thread · 500 MB · every feature' },
   { id: 'family', name: 'Family', price: '$6.99', sub: '/ month', body: 'unlimited · all members · voice · sealed notes' },
   { id: 'founder', name: 'Founder', price: '$249', sub: 'once · lifetime', body: 'family forever · name in continuity record' },
 ];
@@ -68,7 +68,10 @@ export function Signup() {
     acceptedTerms: false,
     marketingConsent: false,
   });
-  const [tier, setTier] = useState<Tier>('family');
+  const [tier, setTier] = useState<Tier>(() => {
+    const t = searchParams.get('tier')?.toLowerCase();
+    return t === 'free' || t === 'founder' || t === 'family' ? t : 'family';
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<SignupErrors>({});
   const [showVaultSetup, setShowVaultSetup] = useState(false);
@@ -505,13 +508,15 @@ export function Signup() {
           mode="setup"
           onComplete={() => {
             setShowVaultSetup(false);
-            // Fresh signup → product tour + first-entry onboarding (unless a
-            // deep-link redirect was requested, which takes precedence).
-            navigate(redirectUrl || '/onboarding');
+            // Founder is a one-time purchase with no trial — route to /founder to
+            // complete payment. Family/Free use the trial-first model (no card on
+            // file) and go to the product tour + first-entry onboarding. A
+            // deep-link redirect always takes precedence.
+            navigate(redirectUrl || (tier === 'founder' ? '/founder' : '/onboarding'));
           }}
           onSkip={() => {
             setShowVaultSetup(false);
-            navigate(redirectUrl || '/onboarding');
+            navigate(redirectUrl || (tier === 'founder' ? '/founder' : '/onboarding'));
           }}
         />
       ) : null}

@@ -9,6 +9,7 @@ import { copyToClipboard } from '../utils/clipboard';
 import { type FamilyMember } from '../types';
 import { formatDate } from '../utils/date';
 import { CosmicHeader, SectionLabel, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { dyeForId } from '../loom/dye';
 
 interface PendingInvite {
   id: string;
@@ -492,11 +493,14 @@ export function Family() {
           <SectionLabel>the roster</SectionLabel>
           <div style={{ display: 'grid', gap: 0 }}>
             {members.map((m) => {
-              const dyeKey = m.dye?.toLowerCase() || undefined;
+              // Fall back to a deterministic per-member dye so each member carries
+              // a distinct, stable identity hue even when none was explicitly set
+              // (no UI assigns custom dyes yet — without this every row is warm).
+              const dyeKey = m.dye?.toLowerCase() || dyeForId(m.id);
               const isEditing = editTarget?.id === m.id;
               const relMeta = [m.relationship, m.role].filter(Boolean).join(' · ');
-              const thread = dyeKey ? `var(--dye-${dyeKey}, var(--warm))` : 'var(--warm)';
-              const nameColor = dyeKey && DYE_TEXT[dyeKey] ? DYE_TEXT[dyeKey] : 'var(--bone)';
+              const thread = `var(--dye-${dyeKey}, var(--warm))`;
+              const nameColor = DYE_TEXT[dyeKey] ?? 'var(--bone)';
               return (
                 <div
                   key={m.id}

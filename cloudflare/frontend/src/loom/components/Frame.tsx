@@ -55,7 +55,7 @@ export function SecurityDot({ size = 6 }: { size?: number }) {
         display: 'inline-block',
         width: size,
         height: size,
-        background: status === 'green' ? 'var(--safe)' : 'var(--danger)',
+        background: status === 'green' ? 'var(--bone-dim)' : 'var(--warm)',
         borderRadius: 0,
         flexShrink: 0,
         verticalAlign: 'middle',

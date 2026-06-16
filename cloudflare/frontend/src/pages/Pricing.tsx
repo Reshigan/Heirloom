@@ -68,8 +68,8 @@ export function Pricing() {
       cadenceAnnual: 'Per year',
       features: PLAN_FEATURES.FAMILY,
       cta: 'Subscribe now',
-      to: '/signup?tier=FAMILY',
-      toAnnual: '/signup?tier=FAMILY&cycle=annual',
+      to: '/signup?tier=family',
+      toAnnual: '/signup?tier=family&cycle=annual',
       emphasized: true,
     },
     {
