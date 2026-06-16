@@ -390,7 +390,7 @@ export function AdminDashboard() {
                 { v: usageAnalytics?.engagement?.dormant || 0, l: 'Dormant', danger: true },
               ].map(({ v, l, accent, danger }: any) => (
                 <div key={l} style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: danger ? 'var(--danger)' : accent ? 'var(--warm)' : 'var(--bone)', marginBottom: 4 }}>{v}</div>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: (danger || accent) ? 'var(--warm)' : 'var(--bone)', marginBottom: 4 }}>{v}</div>
                   <div className="loom-eyebrow">{l}</div>
                 </div>
               ))}
@@ -492,7 +492,7 @@ export function AdminDashboard() {
                   <div className="loom-eyebrow">Warning</div>
                 </div>
                 <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--danger)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.triggeredSwitches || 0}</div>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.triggeredSwitches || 0}</div>
                   <div className="loom-eyebrow">Triggered</div>
                 </div>
               </div>
@@ -713,7 +713,7 @@ export function AdminDashboard() {
               <button className="loom-btn" onClick={() => setShowGoldLegacyModal(true)}>Create Gold Legacy Voucher</button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid rgba(176,122,74,0.2)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--gold-20)' }}>
               {[
                 { v: goldLegacyVouchers?.total || 0, l: 'Total Gold Legacy' },
                 { v: goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'REDEEMED').length || 0, l: 'Redeemed' },
@@ -768,7 +768,7 @@ export function AdminDashboard() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--rule)' }}>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--danger)', marginBottom: 4 }}>{billingStats?.failed || 0}</div>
+                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{billingStats?.failed || 0}</div>
                 <div className="loom-eyebrow">Failed</div>
               </div>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
@@ -776,7 +776,7 @@ export function AdminDashboard() {
                 <div className="loom-eyebrow">Pending Retry</div>
               </div>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{billingStats?.resolved || 0}</div>
+                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone-dim)', marginBottom: 4 }}>{billingStats?.resolved || 0}</div>
                 <div className="loom-eyebrow">Resolved</div>
               </div>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
@@ -793,7 +793,7 @@ export function AdminDashboard() {
                       <div style={{ color: 'var(--bone)' }}>{error.userName}</div>
                       <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{error.userEmail}</div>
                     </td>
-                    <td style={tdStyle}><span className="loom-mono" style={{ fontSize: 11, color: 'var(--danger)' }}>{error.errorType?.replace(/_/g, ' ')}</span></td>
+                    <td style={tdStyle}><span className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)' }}>{error.errorType?.replace(/_/g, ' ')}</span></td>
                     <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--bone-dim)' }}>${((error.amount || 0) / 100).toFixed(2)} {error.currency}</td>
                     <td style={tdStyle}><StatusWord value={error.status} /></td>
                     <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--bone-faint)' }}>{error.retryCount || 0}</td>
@@ -843,7 +843,7 @@ export function AdminDashboard() {
                       <div className="loom-mono" style={{ fontSize: 10, color: user.subscriptionStatus === 'ACTIVE' || user.subscriptionStatus === 'TRIALING' ? 'var(--warm)' : 'var(--bone-faint)', marginTop: 2 }}>{user.subscriptionStatus || 'None'}</div>
                     </td>
                     <td style={tdStyle}>
-                      <span className="loom-mono" style={{ fontSize: 11, color: user.emailVerified ? 'var(--warm)' : 'var(--danger)' }}>{user.emailVerified ? 'VERIFIED' : 'UNVERIFIED'}</span>
+                      <span className="loom-mono" style={{ fontSize: 11, color: user.emailVerified ? 'var(--bone-dim)' : 'var(--warm)' }}>{user.emailVerified ? 'VERIFIED' : 'UNVERIFIED'}</span>
                     </td>
                     <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--bone-faint)' }}>{new Date(user.createdAt).toLocaleDateString()}</td>
                     <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--bone-faint)' }}>{user.lastLoginAt ? new Date(user.lastLoginAt).toLocaleDateString() : 'Never'}</td>
@@ -872,7 +872,7 @@ export function AdminDashboard() {
               <div style={{ display: 'flex', gap: 16 }}>
                 <span className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)' }}>{tickets?.data?.filter((t: any) => t.status === 'OPEN').length || 0} OPEN</span>
                 <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>{tickets?.data?.filter((t: any) => t.status === 'IN_PROGRESS').length || 0} IN PROGRESS</span>
-                <span className="loom-mono" style={{ fontSize: 11, color: 'var(--danger)' }}>{tickets?.data?.filter((t: any) => t.status === 'ESCALATED' || t.category === 'CHATBOT_ESCALATION').length || 0} ESCALATED</span>
+                <span className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)' }}>{tickets?.data?.filter((t: any) => t.status === 'ESCALATED' || t.category === 'CHATBOT_ESCALATION').length || 0} ESCALATED</span>
               </div>
             </div>
             <Panel>
@@ -887,7 +887,7 @@ export function AdminDashboard() {
                           style={{
                             borderBottom: '1px solid var(--rule)',
                             cursor: 'pointer',
-                            borderLeft: isEscalated ? '2px solid var(--danger)' : '2px solid transparent',
+                            borderLeft: isEscalated ? '2px solid var(--warm)' : '2px solid transparent',
                           }}
                           onMouseOver={(e) => (e.currentTarget.style.background = 'var(--ink-card)')}
                           onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
@@ -896,7 +896,7 @@ export function AdminDashboard() {
                             <div style={{ color: 'var(--bone)' }}>{ticket.subject}</div>
                             <span
                               className="loom-mono"
-                              style={{ fontSize: 11, color: ticket.priority === 'HIGH' ? 'var(--danger)' : ticket.priority === 'MEDIUM' ? 'var(--warm)' : 'var(--bone-faint)' }}
+                              style={{ fontSize: 11, color: ticket.priority === 'HIGH' ? 'var(--warm)' : ticket.priority === 'MEDIUM' ? 'var(--bone-dim)' : 'var(--bone-faint)' }}
                             >
                               {ticket.priority}
                             </span>
@@ -908,14 +908,14 @@ export function AdminDashboard() {
                           <td style={tdStyle}>
                             <span
                               className="loom-mono"
-                              style={{ fontSize: 11, color: ticket.category === 'CHATBOT_ESCALATION' ? 'var(--danger)' : 'var(--bone-dim)' }}
+                              style={{ fontSize: 11, color: ticket.category === 'CHATBOT_ESCALATION' ? 'var(--warm)' : 'var(--bone-dim)' }}
                             >
                               {ticket.category === 'CHATBOT_ESCALATION' ? 'CHATBOT ESCALATION' : (ticket.category || '—')}
                             </span>
                           </td>
                           <td style={tdStyle}>
                             {ticket.status === 'ESCALATED'
-                              ? <span className="loom-mono" style={{ fontSize: 11, color: 'var(--danger)' }}>ESCALATED</span>
+                              ? <span className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)' }}>ESCALATED</span>
                               : <StatusWord value={ticket.status} />}
                           </td>
                           <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--bone-faint)' }}>{new Date(ticket.createdAt).toLocaleDateString()}</td>
@@ -944,7 +944,7 @@ export function AdminDashboard() {
                 {Object.entries(systemHealth.checks).filter(([k]) => k !== 'timestamp').map(([key, value]) => (
                   <div key={key} style={{ padding: '16px 20px', background: 'var(--ink-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ color: 'var(--bone-dim)', textTransform: 'capitalize', fontSize: 13 }}>{key}</span>
-                    <span className="loom-mono" style={{ fontSize: 11, color: value === 'healthy' ? 'var(--warm)' : 'var(--danger)' }}>{(value as string).toUpperCase()}</span>
+                    <span className="loom-mono" style={{ fontSize: 11, color: value === 'healthy' ? 'var(--bone-dim)' : 'var(--warm)' }}>{(value as string).toUpperCase()}</span>
                   </div>
                 ))}
               </div>
@@ -1001,7 +1001,7 @@ export function AdminDashboard() {
                     <td style={{ ...tdStyle, color: 'var(--bone)' }}>{adminUser.firstName} {adminUser.lastName}</td>
                     <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--bone-dim)' }}>{adminUser.email}</td>
                     <td style={tdStyle}><span className="loom-mono" style={{ fontSize: 11, color: adminUser.role === 'SUPER_ADMIN' ? 'var(--warm)' : 'var(--bone-faint)' }}>{adminUser.role}</span></td>
-                    <td style={tdStyle}><span className="loom-mono" style={{ fontSize: 11, color: adminUser.isActive ? 'var(--warm)' : 'var(--danger)' }}>{adminUser.isActive ? 'ACTIVE' : 'INACTIVE'}</span></td>
+                    <td style={tdStyle}><span className="loom-mono" style={{ fontSize: 11, color: adminUser.isActive ? 'var(--bone-dim)' : 'var(--warm)' }}>{adminUser.isActive ? 'ACTIVE' : 'INACTIVE'}</span></td>
                     <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--bone-faint)' }}>{adminUser.lastLoginAt ? new Date(adminUser.lastLoginAt).toLocaleString() : 'Never'}</td>
                   </tr>
                 ))}
@@ -1168,7 +1168,7 @@ function AdminBar({ section, email, role, onLogout }: { section: string; email: 
             letterSpacing: '0.18em', textTransform: 'lowercase',
             color: 'var(--bone-faint)', padding: 0,
           }}
-          onMouseOver={e => (e.currentTarget.style.color = 'var(--danger)')}
+          onMouseOver={e => (e.currentTarget.style.color = 'var(--warm)')}
           onMouseOut={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
         >
           sign out
@@ -1237,9 +1237,9 @@ function InlineStatus({ status }: { status: InlineStatus }) {
       style={{
         marginBottom: 20, padding: '8px 14px',
         background: 'var(--ink-card)',
-        border: `1px solid ${warm ? 'rgba(176,122,74,0.2)' : 'rgba(194,90,90,0.35)'}`,
+        border: `1px solid ${warm ? 'var(--gold-20)' : 'var(--gold-40)'}`,
         fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.04em',
-        color: warm ? 'var(--warm)' : 'var(--danger)',
+        color: warm ? 'var(--bone-dim)' : 'var(--warm)',
       }}
     >
       {status.state.msg}
@@ -1258,7 +1258,7 @@ function ConfirmModal({ title, body, confirmLabel, onConfirm, onClose }: {
         <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={onClose}>cancel</button>
         <button
           className="loom-btn"
-          style={{ fontSize: 11, background: 'var(--danger)', borderColor: 'var(--danger)' }}
+          style={{ fontSize: 11, background: 'transparent', borderColor: 'var(--warm)', color: 'var(--warm)' }}
           onClick={() => { onConfirm(); onClose(); }}
         >
           {confirmLabel || 'confirm'}
@@ -1302,9 +1302,9 @@ function StatusWord({ value }: { value: string }) {
   if (!value) return null;
   const v = value.toUpperCase();
   const color =
-    v === 'ACTIVE' || v === 'VERIFIED' || v === 'SENT' || v === 'RESOLVED' || v === 'REDEEMED' || v === 'PAID' || v === 'FOREVER' ? 'var(--warm)' :
-    v === 'FAILED' || v === 'UNVERIFIED' || v === 'INACTIVE' || v === 'EXPIRED' || v === 'TRIGGERED' ? 'var(--danger)' :
-    v === 'TRIALING' || v === 'PENDING_RETRY' || v === 'IN_PROGRESS' || v === 'OPEN' ? 'var(--warm)' :
+    v === 'ACTIVE' || v === 'VERIFIED' || v === 'SENT' || v === 'RESOLVED' || v === 'REDEEMED' || v === 'PAID' || v === 'FOREVER' ? 'var(--bone-dim)' :
+    v === 'FAILED' || v === 'UNVERIFIED' || v === 'INACTIVE' || v === 'EXPIRED' || v === 'TRIGGERED' ? 'var(--warm)' :
+    v === 'TRIALING' || v === 'PENDING_RETRY' || v === 'IN_PROGRESS' || v === 'OPEN' ? 'var(--bone-dim)' :
     'var(--bone-faint)';
   return <span className="loom-mono" style={{ fontSize: 11, color }}>{v}</span>;
 }
@@ -1370,7 +1370,7 @@ function CouponRow({ coupon }: { coupon: any }) {
         </button>
       </td>
       <td style={{ ...tdStyle, textAlign: 'right' }}>
-        <button className="loom-btn-ghost" style={{ fontSize: 11, color: 'var(--danger)' }} onClick={() => setConfirming(true)}>Delete</button>
+        <button className="loom-btn-ghost" style={{ fontSize: 11, color: 'var(--warm)' }} onClick={() => setConfirming(true)}>Delete</button>
         {confirming && (
           <ConfirmModal
             title="Delete coupon"
@@ -1381,7 +1381,7 @@ function CouponRow({ coupon }: { coupon: any }) {
           />
         )}
         {couponRowError && (
-          <span className="loom-mono" style={{ fontSize: 10, color: 'var(--danger)', marginLeft: 8 }}>{couponRowError}</span>
+          <span className="loom-mono" style={{ fontSize: 10, color: 'var(--warm)', marginLeft: 8 }}>{couponRowError}</span>
         )}
       </td>
     </tr>
@@ -1620,9 +1620,9 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
         )}
 
         <div style={{ paddingTop: 16, borderTop: '1px solid var(--rule)' }}>
-          <div className="loom-eyebrow" style={{ color: 'var(--danger)', marginBottom: 8 }}>Danger Zone</div>
+          <div className="loom-eyebrow" style={{ color: 'var(--warm)', marginBottom: 8 }}>Danger Zone</div>
           <button
-            style={{ width: '100%', background: 'transparent', border: '1px solid var(--danger)', color: 'var(--danger)', padding: '8px 16px', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 12, letterSpacing: '0.08em', opacity: cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE' ? 0.4 : 1 }}
+            style={{ width: '100%', background: 'transparent', border: '1px solid var(--warm)', color: 'var(--warm)', padding: '8px 16px', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 12, letterSpacing: '0.08em', opacity: cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE' ? 0.4 : 1 }}
             onClick={() => setConfirmingCancel(true)}
             disabled={cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE'}
           >
@@ -1686,9 +1686,9 @@ function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () =
             <MetaCell label="Sent" value={email.sentAt ? new Date(email.sentAt).toLocaleString() : '—'} />
           </div>
           {email.errorMessage && (
-            <div style={{ padding: '10px 12px', border: '1px solid var(--danger)' }}>
-              <div className="loom-eyebrow" style={{ marginBottom: 4, color: 'var(--danger)' }}>Error</div>
-              <div style={{ fontSize: 13, color: 'var(--danger)', opacity: 0.8 }}>{email.errorMessage}</div>
+            <div style={{ padding: '10px 12px', border: '1px solid var(--warm)' }}>
+              <div className="loom-eyebrow" style={{ marginBottom: 4, color: 'var(--warm)' }}>Error</div>
+              <div style={{ fontSize: 13, color: 'var(--warm)', opacity: 0.8 }}>{email.errorMessage}</div>
             </div>
           )}
           <div style={{ padding: '10px 12px', background: 'var(--ink)', border: '1px solid var(--rule)' }}>
@@ -1755,7 +1755,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
       <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
         <StatusWord value={ticket?.status || ''} />
         <span style={{ color: 'var(--rule)' }}>·</span>
-        <span className="loom-mono" style={{ fontSize: 11, color: ticket?.priority === 'HIGH' ? 'var(--danger)' : 'var(--bone-faint)' }}>{ticket?.priority}</span>
+        <span className="loom-mono" style={{ fontSize: 11, color: ticket?.priority === 'HIGH' ? 'var(--warm)' : 'var(--bone-faint)' }}>{ticket?.priority}</span>
       </div>
 
       <div style={{ padding: '10px 12px', background: 'var(--ink)', border: '1px solid var(--rule)', marginBottom: 16 }}>
@@ -1764,7 +1764,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
         {ticket?.messages?.map((msg: any) => (
-          <div key={msg.id} style={{ padding: '12px 16px', border: '1px solid var(--rule)', marginLeft: msg.senderType === 'ADMIN' ? 32 : 0, marginRight: msg.senderType === 'USER' ? 32 : 0, background: msg.senderType === 'USER' ? 'var(--ink)' : 'transparent', borderColor: msg.senderType === 'ADMIN' ? 'rgba(176,122,74,0.2)' : 'var(--rule)' }}>
+          <div key={msg.id} style={{ padding: '12px 16px', border: '1px solid var(--rule)', marginLeft: msg.senderType === 'ADMIN' ? 32 : 0, marginRight: msg.senderType === 'USER' ? 32 : 0, background: msg.senderType === 'USER' ? 'var(--ink)' : 'transparent', borderColor: msg.senderType === 'ADMIN' ? 'var(--gold-20)' : 'var(--rule)' }}>
             <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginBottom: 6 }}>{msg.senderType === 'ADMIN' ? 'Admin' : 'User'} · {new Date(msg.createdAt).toLocaleString()}</div>
             <div style={{ fontSize: 13, color: 'var(--bone)' }}>{msg.content}</div>
           </div>
@@ -1772,7 +1772,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
       </div>
 
       {ticketError && (
-        <p className="loom-mono" style={{ fontSize: 11, color: 'var(--danger)', margin: '0 0 8px', letterSpacing: '0.04em' }}>{ticketError}</p>
+        <p className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)', margin: '0 0 8px', letterSpacing: '0.04em' }}>{ticketError}</p>
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -2012,7 +2012,7 @@ The Heirloom Team`;
           <div className="loom-serif" style={{ fontSize: 40, color: 'var(--warm)', marginBottom: 12 }}>∞</div>
           <p className="loom-h2" style={{ fontStyle: 'italic', fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>Gold Legacy Voucher Created</p>
           <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', marginBottom: 16 }}>Member #{createdVoucher.memberNumber}</p>
-          <div style={{ padding: 16, border: '1px solid rgba(176,122,74,0.2)', marginBottom: 16 }}>
+          <div style={{ padding: 16, border: '1px solid var(--gold-20)', marginBottom: 16 }}>
             <p className="loom-mono" style={{ fontSize: 16, color: 'var(--warm)', letterSpacing: '0.12em' }}>{createdVoucher.code}</p>
           </div>
           {createdVoucher.emailSent && <p className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)', marginBottom: 16 }}>Invitation email sent to {createdVoucher.recipientEmail}</p>}
@@ -2024,7 +2024,7 @@ The Heirloom Team`;
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ padding: '10px 14px', background: 'var(--ink)', border: '1px solid rgba(176,122,74,0.2)' }}>
+          <div style={{ padding: '10px 14px', background: 'var(--ink)', border: '1px solid var(--gold-20)' }}>
             <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>Gold Legacy vouchers grant lifetime access. Reserved for special individuals only.</p>
           </div>
           <LoomField label="Recipient Name">
