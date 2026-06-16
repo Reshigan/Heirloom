@@ -9,56 +9,60 @@ import { readDescription } from '../lib/legacyArchive';
 
 export const memoryCardsRoutes = new Hono<AppEnv>();
 
-// Card styles available
+// Card styles — every share card is the brand's public face, so all draw from
+// the one constitution palette (ink #0e0e0c · bone #f4ecd8 · warm #b07a4a /
+// bright #cf935a / dim #8c5a30). The styles vary ground (ink "vault" vs paper
+// "bone") and accent weight, never hue. The ids are stable (stored on existing
+// cards); only the colors changed from the pre-migration gold/purple/pink set.
 const CARD_STYLES = {
   quote: {
-    name: 'Quote Card',
-    description: 'Memory excerpt with elegant typography',
-    bgColor: '#0a0a0f',
-    textColor: '#f5f5f0',
-    accentColor: '#D4AF37',
+    name: 'The Archive',
+    description: 'Bone serif on deep ink — the house style',
+    bgColor: '#0e0e0c',
+    textColor: '#f4ecd8',
+    accentColor: '#b07a4a',
   },
   polaroid: {
-    name: 'Polaroid',
-    description: 'Classic instant photo style',
-    bgColor: '#ffffff',
-    textColor: '#1a1a1a',
-    accentColor: '#D4AF37',
+    name: 'Paper',
+    description: 'Ink on warm paper, like a page from the book',
+    bgColor: '#f4ecd8',
+    textColor: '#1a1712',
+    accentColor: '#8c5a30',
   },
   vintage: {
-    name: 'Vintage Postcard',
-    description: 'Nostalgic postcard aesthetic',
-    bgColor: '#f5e6d3',
-    textColor: '#4a3728',
-    accentColor: '#8b4513',
+    name: 'Aged Leaf',
+    description: 'Sun-faded paper and walnut ink',
+    bgColor: '#e9dcc0',
+    textColor: '#2a2118',
+    accentColor: '#8c5a30',
   },
   modern: {
-    name: 'Modern Gradient',
-    description: 'Contemporary gradient design',
-    bgColor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    textColor: '#ffffff',
-    accentColor: '#ffd700',
+    name: 'Nightfall',
+    description: 'Deep ink with a bright sealing-wax mark',
+    bgColor: '#0e0e0c',
+    textColor: '#f4ecd8',
+    accentColor: '#cf935a',
   },
   holiday: {
-    name: 'Holiday',
-    description: 'Festive seasonal design',
-    bgColor: '#1a472a',
-    textColor: '#f5f5f0',
-    accentColor: '#c41e3a',
+    name: 'Hearth',
+    description: 'A warm-dark ground for a gathered season',
+    bgColor: '#14110c',
+    textColor: '#f4ecd8',
+    accentColor: '#cf935a',
   },
   mothers_day: {
     name: "Mother's Day",
-    description: 'Soft floral design for mom',
-    bgColor: '#fff0f5',
-    textColor: '#8b4557',
-    accentColor: '#ff69b4',
+    description: 'Soft paper with a quiet warm accent',
+    bgColor: '#f4ecd8',
+    textColor: '#2a2118',
+    accentColor: '#b07a4a',
   },
   fathers_day: {
     name: "Father's Day",
-    description: 'Classic design for dad',
-    bgColor: '#1a365d',
-    textColor: '#f5f5f0',
-    accentColor: '#4299e1',
+    description: 'Deep ink with a steady warm accent',
+    bgColor: '#0e0e0c',
+    textColor: '#f4ecd8',
+    accentColor: '#b07a4a',
   },
 };
 
