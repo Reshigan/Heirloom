@@ -314,19 +314,23 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
         for (const l of lobes) s += l.h * Math.exp(-((t - l.c) * (t - l.c)) / (2 * l.w * l.w));
         return Math.min(1, s) * taper(t);
       };
-      const maxH = H * 0.16;
+      // slim band: the voice/record/interview pages all carry functional mono
+      // controls in this lower region, so the gesture must whisper, not bloom —
+      // additive halos from 74 closely-spaced bars saturate fast, so the per-bar
+      // alphas stay low and the band stays thin to keep the controls legible.
+      const maxH = H * 0.115;
       for (let i = 0; i < bars; i++) {
         const t = i / (bars - 1);
         const x = x0 + t * span;
         // fine per-bar grain so neighbouring bars differ like real samples
         const grain = 0.62 + 0.38 * Math.abs(Math.sin(i * 1.9 + rnd() * 6) * Math.cos(i * 0.7 + rnd()));
         const h = Math.max(1.5, maxH * env(t) * grain);
-        out.push({ pts: [[x, cy - h], [x, cy + h]], a: 0.24 + env(t) * 0.5, w: 1.0 + env(t) * 1.3 });
+        out.push({ pts: [[x, cy - h], [x, cy + h]], a: 0.14 + env(t) * 0.3, w: 0.9 + env(t) * 1.0 });
       }
-      // bright baseline thread the bars stand on, brightest through the middle
+      // faint baseline thread the bars stand on, brightest through the middle
       const base: number[][] = [];
       for (let x = x0 - 12; x <= x0 + span + 12; x += 7) base.push([x, cy]);
-      out.push({ pts: base, a: 0.42, w: 1.1 });
+      out.push({ pts: base, a: 0.24, w: 1.0 });
       return out;
     }
 
@@ -475,7 +479,7 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
           case 'wave':     return { cx: W / 2,        cy: H * 0.82, r: Math.min(W * 0.6, H * 0.45),  a: 0.09 };
           case 'scurve':   return { cx: W * 0.52,     cy: H * 0.5,  r: Math.max(W, H) * 0.5,         a: 0.05 };
           case 'tree':     return { cx: W / 2,        cy: H * 0.3,  r: Math.min(W * 0.5, H * 0.4),   a: 0.08 };
-          case 'waveform': return { cx: W / 2,        cy: H * 0.62, r: Math.min(W * 0.5, 380),       a: 0.15 };
+          case 'waveform': return { cx: W / 2,        cy: H * 0.62, r: Math.min(W * 0.5, 380),       a: 0.1  };
           case 'book':     return { cx: W / 2,        cy: H * 0.46, r: Math.min(W * 0.45, 340),      a: 0.13 };
           case 'seal':     return { cx: W / 2,        cy: H * 0.4,  r: Math.min(W * 0.24, 170),      a: 0.2  };
           case 'map':      return { cx: W / 2,        cy: H * 0.45, r: Math.max(W, H) * 0.55,        a: 0.05 };

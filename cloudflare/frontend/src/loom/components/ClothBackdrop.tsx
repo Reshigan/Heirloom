@@ -93,7 +93,7 @@ function variantFor(pathname: string): FilamentVariant {
 // already whisper-quiet and read perfectly; these three get dimmed to match, so
 // the gesture stays backdrop and the words stay hero.
 const VARIANT_INTENSITY: Partial<Record<FilamentVariant, number>> = {
-  waveform: 0.5,
+  waveform: 0.36,
   seal: 0.58,
   book: 0.55,
 };
