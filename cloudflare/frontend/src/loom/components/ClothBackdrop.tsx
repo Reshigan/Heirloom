@@ -108,7 +108,10 @@ export function ClothBackdrop(_props: ClothBackdropProps) {
         style={{
           position: 'absolute',
           inset: 0,
-          opacity: present ? 1 : 0.26,
+          // Off-home the weave used to drop to 0.26 — so faint the signature
+          // warm glow vanished in every room. Hold it bright; the room veil
+          // (below) keeps centre type legible while the weave breathes.
+          opacity: present ? 1 : 0.62,
           transition: 'opacity 1400ms var(--ease-out)',
         }}
       >
@@ -129,10 +132,13 @@ export function ClothBackdrop(_props: ClothBackdropProps) {
             position: 'absolute',
             inset: 0,
             pointerEvents: 'none',
-            opacity: 0.97,
+            // Was 0.97 + a wide ink core that blacked the whole room. Lighter
+            // now, with a smaller core, so the warm weave glows at the top and
+            // edges (matching the mockups) while the centred text stays calm.
+            opacity: 0.82,
             transition: 'opacity 1400ms var(--ease-out)',
             background:
-              'radial-gradient(ellipse 76% 88% at 50% 46%, var(--ink) 38%, color-mix(in srgb, var(--ink) 55%, transparent) 68%, transparent 92%)',
+              'radial-gradient(ellipse 70% 80% at 50% 44%, var(--ink) 28%, color-mix(in srgb, var(--ink) 46%, transparent) 62%, transparent 90%)',
           }}
         />
       )}

@@ -1,5 +1,4 @@
 import { type ReactNode } from 'react';
-import type { ClothEntry } from './ClothCanvas3D';
 import { CLOTH_BG_ENTRIES } from './ClothBackdrop';
 import { BOTTOM_NAV_CLEARANCE } from './BottomNav';
 
@@ -15,7 +14,7 @@ interface ClothShellProps {
   backdropOpacity?: number;
   noTopbar?: boolean;
   /** @deprecated cloth is now a single global backdrop (LoomShellRoot) */
-  entries?: ClothEntry[];
+  entries?: unknown[];
 }
 
 export function ClothShell({
