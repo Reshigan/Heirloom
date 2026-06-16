@@ -14,6 +14,16 @@ export function registerServiceWorker(): void {
   if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return;
 
   window.addEventListener('load', () => {
+    // Did a service worker already control this page when it loaded? On a
+    // brand-new visit there is none. The SW claiming the page for the FIRST
+    // time must NOT trigger a reload: the page already holds the freshest
+    // network assets, so a reload here shows nothing newer — it only interrupts
+    // the user. In practice it fires ~1–3s after load and aborts whatever
+    // request is in flight, which silently kills the very first signup POST for
+    // every new visitor. Only a genuine update — a NEW worker replacing an
+    // existing controller — warrants the one-time refresh.
+    const hadControllerAtLoad = !!navigator.serviceWorker.controller;
+
     navigator.serviceWorker
       .register('/sw.js')
       .then((reg) => {
@@ -38,16 +48,19 @@ export function registerServiceWorker(): void {
       })
       .catch((err) => console.warn('[sw] registration failed:', err));
 
-    // Path 1 — controllerchange: fires when the active SW switches.
+    // Path 1 — controllerchange: fires when the active SW switches. Skip the
+    // first-install case (no prior controller) — only refresh on a real update.
     navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadControllerAtLoad) return;
       reloadOnce();
     });
 
     // Path 2 — SW_UPDATED message: the new SW broadcasts this to every open
     // window/PWA tab after clients.claim(), catching background tabs and
     // standalone PWA windows that may have missed the controllerchange event.
+    // Same first-install guard — a brand-new visit must not self-reload.
     navigator.serviceWorker.addEventListener('message', (event) => {
-      if (event.data?.type === 'SW_UPDATED') reloadOnce();
+      if (event.data?.type === 'SW_UPDATED' && hadControllerAtLoad) reloadOnce();
     });
   });
 }
