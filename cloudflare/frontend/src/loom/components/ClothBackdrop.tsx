@@ -49,7 +49,6 @@ const ROUTE_VARIANT: Record<string, FilamentVariant> = {
   '/loom/weft': 'tapestry',
   '/family-feed': 'tapestry',
   '/on-this-day': 'tapestry',
-  '/tree': 'tree',
   '/loom/kin': 'tree',
   '/wrapped': 'scurve',
   '/unseal': 'ember',
@@ -81,8 +80,6 @@ const ROUTE_VARIANT: Record<string, FilamentVariant> = {
   '/export': 'book',
   // ── the memory map — scattered glowing place-lights over faint latitudes ──
   '/memory-map': 'map',
-  '/map': 'map',
-  '/loom/map': 'map',
 };
 
 function variantFor(pathname: string): FilamentVariant {
