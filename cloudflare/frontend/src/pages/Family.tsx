@@ -206,9 +206,6 @@ export function Family() {
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'family' }]} />}
-      topbarRight={!showForm ? (
-        <button type="button" className="hl-btn" onClick={() => openForm('add')} style={{ fontSize: 12, padding: '6px 14px' }}>add →</button>
-      ) : undefined}
     >
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x)', paddingBottom: 'var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
 
@@ -720,35 +717,6 @@ export function Family() {
             })}
           </div>
           </>
-        )}
-
-        {/* invite pill — the single warm call at the foot of the roster */}
-        {!showForm && (
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 56 }}>
-            <button
-              type="button"
-              onClick={() => openForm('invite')}
-              className="hl-mono"
-              style={{
-                background: 'transparent',
-                border: '1px solid var(--warm)',
-                borderRadius: 999,
-                padding: '13px 30px',
-                cursor: 'pointer',
-                fontSize: 11,
-                letterSpacing: '0.28em',
-                textTransform: 'uppercase',
-                color: 'var(--warm)',
-                transition: 'background 180ms var(--ease), color 180ms var(--ease)',
-                touchAction: 'manipulation',
-                minHeight: 44,
-              }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'var(--warm)'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--ink)'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.background = 'transparent'; (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
-            >
-              invite a member
-            </button>
-          </div>
         )}
 
         {/* the ∞ wax seal rests warm at the foot of the ledger */}

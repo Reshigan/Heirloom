@@ -635,24 +635,28 @@ export function ReadingRoom() {
         </div>
       </div>
 
-      {/* Layer 2: Selvedge nav — mobile toggle */}
-      <button
-        type="button"
-        onClick={() => setSelvedgeOpen(o => !o)}
-        className="selvedge-toggle"
-        style={{
-          position: 'fixed', left: 0, top: '50%', transform: 'translateY(-50%)',
-          background: 'var(--rule)', border: 'none', color: 'var(--bone-faint)',
-          fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.15em',
-          padding: '8px 4px', cursor: 'pointer', writingMode: 'vertical-rl',
-          textTransform: 'uppercase', zIndex: 16, display: 'none',
-        }}
-      >
-        entries
-      </button>
+      {/* Layer 2: Selvedge nav — mobile toggle. Gated on entries: an empty
+          manifesto state has nothing to navigate, so no orphan "ENTRIES" tab. */}
+      {entries.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setSelvedgeOpen(o => !o)}
+          className="selvedge-toggle"
+          style={{
+            position: 'fixed', left: 0, top: '50%', transform: 'translateY(-50%)',
+            background: 'var(--rule)', border: 'none', color: 'var(--bone-faint)',
+            fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.15em',
+            padding: '8px 4px', cursor: 'pointer', writingMode: 'vertical-rl',
+            textTransform: 'uppercase', zIndex: 16, display: 'none',
+          }}
+        >
+          entries
+        </button>
+      )}
       <style>{`.selvedge-toggle { display: none !important; } @media (max-width: 640px) { .selvedge-toggle { display: block !important; } .reading-topmeta { display: none !important; } }`}</style>
 
       {/* Layer 2: Selvedge nav */}
+      {entries.length > 0 && (
       <div
         onMouseEnter={() => setNavOpen(true)}
         onMouseLeave={() => setNavOpen(false)}
@@ -702,6 +706,7 @@ export function ReadingRoom() {
           ))}
         </div>
       </div>
+      )}
 
       {/* Layer 3: ClothPage or empty state */}
       <div style={{ position: 'absolute', inset: 0, top: 56, zIndex: 10 }}>

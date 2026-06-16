@@ -131,26 +131,31 @@ export function Memorials() {
         {/* Page header — count eyebrow + serif title; quiet mono create affordance */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap', marginBottom: 56 }}>
           <CosmicHeader eyebrow={countLabel} title="In memory of." />
-          <button
-            type="button"
-            onClick={() => setShowCreateModal(true)}
-            style={{
-              flexShrink: 0,
-              marginTop: 8,
-              background: 'none',
-              border: 0,
-              padding: 0,
-              cursor: 'pointer',
-              fontFamily: 'var(--mono)',
-              fontSize: 11,
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
-              color: 'var(--warm)',
-              minHeight: 44,
-            }}
-          >
-            create memorial →
-          </button>
+          {/* Header create affordance only once names exist — the empty state
+              carries its own "create the first memorial →" so we never double
+              the warm call. */}
+          {memorialList.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              style={{
+                flexShrink: 0,
+                marginTop: 8,
+                background: 'none',
+                border: 0,
+                padding: 0,
+                cursor: 'pointer',
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.16em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                minHeight: 44,
+              }}
+            >
+              create memorial →
+            </button>
+          )}
         </div>
 
         {/* Memorial list — vertical ledger of EntryRows */}
