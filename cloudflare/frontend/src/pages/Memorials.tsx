@@ -125,7 +125,7 @@ export function Memorials() {
     : `${memorialList.length} ${memorialList.length === 1 ? 'memorial' : 'memorials'}`;
 
   return (
-    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'memorials' }]} />} topbarCenter="memorials" topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'memorials' }]} />} topbarRight={<UserMenu />}>
       <div style={{ maxWidth: 'var(--page-max-reading)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
         {/* Page header — count eyebrow + serif title; quiet mono create affordance */}

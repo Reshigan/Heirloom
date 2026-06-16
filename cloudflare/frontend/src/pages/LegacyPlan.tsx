@@ -138,7 +138,6 @@ export function LegacyPlan() {
     return (
       <ClothShell
         topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'legacy plan' }]} />}
-        topbarCenter="legacy plan"
         topbarRight={<UserMenu />}
       >
         <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>

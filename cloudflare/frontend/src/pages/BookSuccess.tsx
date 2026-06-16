@@ -20,7 +20,7 @@ export function BookSuccess() {
   const range = params.get('range')?.trim() || String(new Date().getFullYear());
 
   return (
-    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'the book', to: '/book-builder' }, { label: 'ordered' }]} />} topbarCenter="book ordered" topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'the book', to: '/book-builder' }, { label: 'ordered' }]} />} topbarRight={<UserMenu />}>
       <div
         style={{
           maxWidth: 'var(--page-max-focus)',

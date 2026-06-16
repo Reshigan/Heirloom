@@ -133,7 +133,7 @@ export function PersonPage() {
   // ── LOADING ──────────────────────────────────────────────
   if (isLoading) {
     return (
-      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: 'person' }]} />} topbarCenter="person" topbarRight={<UserMenu />}>
+      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: 'person' }]} />} topbarRight={<UserMenu />}>
         <div style={PAGE_WRAP}>
           <p
             style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}
@@ -148,7 +148,7 @@ export function PersonPage() {
   // ── NOT FOUND ────────────────────────────────────────────
   if (!member) {
     return (
-      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: 'person' }]} />} topbarCenter="person" topbarRight={<UserMenu />}>
+      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: 'person' }]} />} topbarRight={<UserMenu />}>
         <div style={PAGE_WRAP}>
           <Link to="/family" style={BACK_LINK}>
             ← back to family
@@ -175,7 +175,7 @@ export function PersonPage() {
   const headerSub = subParts.length ? subParts.join('  ·  ') : undefined;
 
   return (
-    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: member.name }]} />} topbarCenter="person" topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: member.name }]} />} topbarRight={<UserMenu />}>
       <div style={PAGE_WRAP}>
         <Link to="/family" style={BACK_LINK}>
           ← back to family

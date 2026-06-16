@@ -257,7 +257,7 @@ export function StoryArtifact() {
   const artifactList = artifacts?.artifacts ?? [];
 
   return (
-    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'story artifacts' }]} />} topbarCenter="story artifacts" topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'story artifacts' }]} />} topbarRight={<UserMenu />}>
       {/* ProgressHair — 1px hairline while loading, no spinner */}
       {isLoading && (
         <progress

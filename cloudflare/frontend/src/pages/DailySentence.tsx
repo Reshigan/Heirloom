@@ -322,7 +322,6 @@ export function DailySentence() {
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/' }, { label: 'daily' }]} />}
-      topbarCenter="daily"
       topbarRight={isAuthenticated ? <UserMenu /> : undefined}
     >
       {/* ── scrollable body ──────────────────────────────────────────── */}

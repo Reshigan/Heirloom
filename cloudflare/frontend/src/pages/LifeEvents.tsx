@@ -309,7 +309,7 @@ export function LifeEvents() {
 
   if (isLoading) {
     return (
-      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />} topbarCenter="life events" topbarRight={<UserMenu />}>
+      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />} topbarRight={<UserMenu />}>
         <div style={{ padding: 'clamp(16px, 4vw, 48px)' }}>
           <div
             style={{
@@ -328,7 +328,7 @@ export function LifeEvents() {
   const eventCount = events.length;
 
   return (
-    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />} topbarCenter="life events" topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />} topbarRight={<UserMenu />}>
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
 
         {/* Page header — ledger eyebrow stating the count */}

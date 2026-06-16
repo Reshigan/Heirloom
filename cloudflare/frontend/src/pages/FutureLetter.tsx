@@ -85,7 +85,9 @@ export function FutureLetter() {
       setGenError(null);
     },
     onError: () => {
-      setGenError('Generation failed. Please try again.');
+      // Mid-ceremony failure, in-voice — the words are never lost (every field
+      // is kept), the rite simply didn't take. Invite one more attempt.
+      setGenError('The seal didn’t take — your words are safe. Try sealing once more.');
     },
   });
 
@@ -97,6 +99,7 @@ export function FutureLetter() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setGenError(null); // clear a prior failure so the retry shows a clean hairline
     generateMutation.mutate();
   };
 
@@ -111,7 +114,7 @@ export function FutureLetter() {
   const set = (patch: Partial<typeof formData>) => setFormData({ ...formData, ...patch });
 
   return (
-    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'future letter' }]} />} topbarCenter="future letter" topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'future letter' }]} />} topbarRight={<UserMenu />}>
       <div
         style={{
           maxWidth: 560,
@@ -323,7 +326,11 @@ export function FutureLetter() {
               ) : null}
 
               {genError && (
-                <p style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, margin: 0, letterSpacing: '0.04em' }}>
+                <p
+                  role="status"
+                  className="hl-serif"
+                  style={{ color: 'var(--bone-dim)', fontStyle: 'italic', fontSize: 15, lineHeight: 1.5, margin: 0, textAlign: 'center' }}
+                >
                   {genError}
                 </p>
               )}
@@ -348,7 +355,7 @@ export function FutureLetter() {
                     transition: `opacity 180ms ${EASE}`,
                   }}
                 >
-                  {generateMutation.isPending ? 'sealing across time…' : 'seal this letter →'}
+                  {generateMutation.isPending ? 'sealing across time…' : genError ? 'try sealing again →' : 'seal this letter →'}
                 </button>
               </div>
             </form>

@@ -24,7 +24,6 @@ export function BookPage() {
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'the book' }]} />}
-      topbarCenter="the book"
       topbarRight={<UserMenu />}
     >
       <div

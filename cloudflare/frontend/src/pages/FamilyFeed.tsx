@@ -65,7 +65,6 @@ export function FamilyFeed() {
           trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'family feed' }]}
         />
       }
-      topbarCenter="family feed"
       topbarRight={<UserMenu />}
     >
       <div

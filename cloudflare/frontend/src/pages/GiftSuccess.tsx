@@ -11,7 +11,6 @@ export function GiftSuccess() {
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'gift sent' }]} />}
-      topbarCenter="gift"
       topbarRight={<UserMenu />}
     >
       <div

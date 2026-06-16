@@ -112,7 +112,6 @@ export function ThreadDetail() {
     return (
       <ClothShell
         topbarLeft={<Breadcrumbs trail={[{ label: 'threads', to: '/threads' }, { label: 'thread' }]} />}
-        topbarCenter="the wall"
         topbarRight={<Link to="/threads" className="hl-link warm">threads →</Link>}
       >
         <div style={{ padding: '56px clamp(20px, 5vw, 56px)' }}>
@@ -131,7 +130,6 @@ export function ThreadDetail() {
     return (
       <ClothShell
         topbarLeft={<Breadcrumbs trail={[{ label: 'threads', to: '/threads' }, { label: 'thread' }]} />}
-        topbarCenter="the wall"
         topbarRight={<Link to="/threads" className="hl-link warm">threads →</Link>}
       >
         <div style={{ padding: '56px clamp(20px, 5vw, 56px)', maxWidth: 560 }}>
@@ -198,7 +196,6 @@ export function ThreadDetail() {
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'threads', to: '/threads' }, { label: threadName ?? 'thread' }]} />}
-      topbarCenter={`the wall · ${threadName ?? 'thread'}`}
       topbarRight={<Link to="/threads" className="hl-link warm">threads →</Link>}
     >
       {/* ── Full-screen Wall ledger ── */}
