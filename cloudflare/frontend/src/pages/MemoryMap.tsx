@@ -90,11 +90,6 @@ export function MemoryMap() {
     </Link>
   );
 
-  const placeCount = locations.length;
-  const eyebrow = `${memories.length} ${memories.length === 1 ? 'PLACE WOVEN' : 'MEMORIES'}${
-    placeCount ? ` · ${placeCount} ${placeCount === 1 ? 'PLACE' : 'PLACES'}` : ''
-  }`;
-
   return (
     <ClothShell topbarLeft={backLink} topbarCenter="places">
       {/* content wrapper */}
@@ -106,7 +101,7 @@ export function MemoryMap() {
         }}
       >
         {/* Quiet mono eyebrow — the only line above the map field, per the reference.
-            Carries the live count when memories exist; falls back to the place phrase. */}
+            The standing phrase in both states; never a count. */}
         <div
           style={{
             fontFamily: 'var(--mono)',
@@ -118,35 +113,7 @@ export function MemoryMap() {
             margin: '12px 0 56px',
           }}
         >
-          {memories.length ? eyebrow : 'WHERE IT HAPPENED'}
-        </div>
-
-        {/* Filter row — restrained, mono micro-labels (text affordances, not icons),
-            centred beneath the eyebrow so the map field carries the composition. */}
-        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 40 }}>
-          {FILTERS.map((f) => (
-            <button
-              key={f}
-              type="button"
-              onClick={() => setFilter(f)}
-              style={{
-                background: 'transparent',
-                border: 0,
-                borderRadius: 0,
-                padding: '4px 0',
-                minHeight: 44,
-                cursor: 'pointer',
-                fontFamily: 'var(--mono)',
-                fontSize: 9,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: filter === f ? 'var(--warm)' : 'var(--bone-faint)',
-                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-              }}
-            >
-              {f === 'all' ? 'All' : f === 'memory' ? 'Memories' : f + 's'}
-            </button>
-          ))}
+          {'WHERE IT HAPPENED'}
         </div>
 
         {isError && (
@@ -304,10 +271,9 @@ export function MemoryMap() {
                       }}
                     >
                       <span
-                        className="hl-mono"
+                        className="hl-serif"
                         style={{
-                          fontSize: 9,
-                          letterSpacing: '0.04em',
+                          fontSize: 11,
                           color: active ? 'var(--bone)' : 'var(--bone-dim)',
                           transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
                         }}
@@ -315,10 +281,9 @@ export function MemoryMap() {
                         {d.memory.location_name || d.memory.title}
                       </span>
                       <span
-                        className="hl-mono"
+                        className="hl-serif"
                         style={{
                           fontSize: 9,
-                          letterSpacing: '0.08em',
                           color: 'var(--bone-faint)',
                         }}
                       >
@@ -360,6 +325,37 @@ export function MemoryMap() {
                 >
                   {maxYear}
                 </span>
+              </div>
+            )}
+
+            {/* Filter row — restrained, mono micro-labels (text affordances, not icons),
+                centred above the places ledger so the eyebrow→map band stays empty.
+                Only renders when memories exist. */}
+            {memories.length > 0 && (
+              <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 40 }}>
+                {FILTERS.map((f) => (
+                  <button
+                    key={f}
+                    type="button"
+                    onClick={() => setFilter(f)}
+                    style={{
+                      background: 'transparent',
+                      border: 0,
+                      borderRadius: 0,
+                      padding: '4px 0',
+                      minHeight: 44,
+                      cursor: 'pointer',
+                      fontFamily: 'var(--mono)',
+                      fontSize: 9,
+                      letterSpacing: '0.18em',
+                      textTransform: 'uppercase',
+                      color: filter === f ? 'var(--warm)' : 'var(--bone-faint)',
+                      transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                    }}
+                  >
+                    {f === 'all' ? 'All' : f === 'memory' ? 'Memories' : f + 's'}
+                  </button>
+                ))}
               </div>
             )}
 

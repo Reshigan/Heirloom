@@ -125,6 +125,12 @@ export function Weft() {
         .catch(() => []),
   });
 
+  const { data: threadData } = useQuery({
+    queryKey: ['weft-thread', user?.defaultThreadId],
+    enabled: !!user?.defaultThreadId,
+    queryFn: () => threadsApi.get(user!.defaultThreadId!).then((r) => r.data?.thread).catch(() => null),
+  });
+
   const allEntries = useMemo(() => {
     const mems = Array.isArray((memoriesData as any)?.data) ? (memoriesData as any).data : [];
     const lets = Array.isArray((lettersData as any)?.data) ? (lettersData as any).data : [];
@@ -222,13 +228,16 @@ export function Weft() {
   // One chronological list, newest first, with faint decade dividers between groups.
   const recent = [...allEntries].reverse();
 
-  // Eyebrow span — "THE THREAD · 1947–2026" from the archive's year range.
+  // Eyebrow span — "THE VANCE THREAD · 1947–2026" from the bloodline name + year range.
   const years = allEntries.map((e) => e.year).filter((y) => Number.isFinite(y));
   const spanLo = years.length ? Math.min(...years) : null;
   const spanHi = years.length ? Math.max(...years) : null;
+  // Strip a trailing "thread" so a stored "Vance Thread" never becomes "THE VANCE THREAD THREAD".
+  const fam = (threadData?.name || '').trim().replace(/\s*thread$/i, '').trim();
+  const label = fam ? `THE ${fam.toUpperCase()} THREAD` : 'THE THREAD';
   const eyebrow = spanLo != null && spanHi != null
-    ? `THE THREAD · ${spanLo}–${spanHi}`
-    : 'THE THREAD';
+    ? `${label} · ${spanLo}–${spanHi}`
+    : label;
 
   // Decade of a year, e.g. 1998 → "1990s" — drives the faint year-divider labels.
   const decadeOf = (y: number) => `${Math.floor(y / 10) * 10}s`;

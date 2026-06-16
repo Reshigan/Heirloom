@@ -256,6 +256,7 @@ export function Unlock() {
                     letterSpacing: '0.28em',
                     textTransform: 'uppercase',
                     color: 'var(--bone-faint)',
+                    textAlign: 'left',
                   }}
                 >
                   {[
@@ -463,48 +464,39 @@ export function Unlock() {
             </div>
           </div>
 
-          {/* footer rule — ceremony status left, archival mark right */}
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'baseline',
-              borderTop: '1px solid var(--rule)',
-              paddingTop: 18,
-            }}
-          >
-            <span
-              className="loom-mono"
+          {/* footer rule — ceremony status left; shown only once the dissolve begins */}
+          {!sealedRest && (
+            <div
               style={{
-                fontSize: 9,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: phase >= 2 ? 'var(--warm)' : 'var(--bone-faint)',
-                transition: 'color var(--loom-dur-shift) var(--loom-ease)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'baseline',
+                borderTop: '1px solid var(--rule)',
+                paddingTop: 18,
               }}
             >
-              {phase >= 3
-                ? 'the artifact'
-                : phase >= 2
-                  ? 'ceremony complete'
-                  : phase >= 1
-                    ? 'the dissolve'
-                    : letter.openable
-                      ? 'ready to open'
-                      : 'sealed'}
-            </span>
-            <span
-              className="loom-mono"
-              style={{
-                fontSize: 9,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-faint)',
-              }}
-            >
-              JetBrains Mono
-            </span>
-          </div>
+              <span
+                className="loom-mono"
+                style={{
+                  fontSize: 9,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: phase >= 2 ? 'var(--warm)' : 'var(--bone-faint)',
+                  transition: 'color var(--loom-dur-shift) var(--loom-ease)',
+                }}
+              >
+                {phase >= 3
+                  ? 'the artifact'
+                  : phase >= 2
+                    ? 'ceremony complete'
+                    : phase >= 1
+                      ? 'the dissolve'
+                      : letter.openable
+                        ? 'ready to open'
+                        : 'sealed'}
+              </span>
+            </div>
+          )}
       </div>
     </ClothShell>
   );

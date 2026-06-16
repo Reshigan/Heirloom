@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ClothPage } from '../loom/components/ClothPage';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeVar, dyeFromMetadata, dyeForId, type Dye } from '../loom/dye';
@@ -515,8 +516,13 @@ export function ReadingRoom() {
   // wall view
   return (
     <div className="loom" style={{ position: 'fixed', inset: 0, background: 'var(--ink)' }}>
-      {/* Hairline loading bar */}
-      <div aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'var(--warm)', opacity: loading ? 0.6 : 0, transition: 'opacity 360ms', zIndex: 30, pointerEvents: 'none' }} />
+      {/* Loading: the canonical sweeping hairline (ProgressHair), pinned to
+          the top of the wall view — not a static bar, not a spinner. */}
+      {loading && (
+        <div aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30, pointerEvents: 'none' }}>
+          <ProgressHair />
+        </div>
+      )}
 
       {/* Layer 1: Topbar */}
       <div style={{
@@ -912,7 +918,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
           ← earlier
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           {entries.map((e, i) => (
             <button
               key={e.id}
@@ -921,13 +927,21 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
               aria-current={i === ch}
               onClick={() => setCh(i)}
               style={{
-                background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                fontSize: 14, lineHeight: 1,
-                color: i === ch ? 'var(--warm)' : 'var(--parchment-faint)',
-                transition: `color 180ms ${EASE}`, fontFamily: 'var(--serif)',
+                background: 'transparent', border: 0, padding: '8px 0', cursor: 'pointer',
+                display: 'inline-flex', alignItems: 'center',
               }}
             >
-              ∞
+              {/* a single neutral reading marker — ∞ is reserved for the seal/foot,
+                  never repeated as pagination. Active widens + warms. */}
+              <span
+                aria-hidden
+                style={{
+                  display: 'block', height: 2,
+                  width: i === ch ? 20 : 6,
+                  background: i === ch ? 'var(--warm)' : 'var(--parchment-faint)',
+                  transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
+                }}
+              />
             </button>
           ))}
         </div>

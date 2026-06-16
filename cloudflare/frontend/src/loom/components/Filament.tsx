@@ -20,7 +20,7 @@ import { useEffect, useRef } from 'react';
 
 export type FilamentVariant =
   | 'arc'       // crescent ring hanging from the top — sign-in, composer, pricing, thread, threshold
-  | 'crown'     // radiating aurora crown over the top third — home prompt, onboarding
+  | 'crown'     // radiating aurora crown over the top third — home prompt
   | 'wave'      // horizontal woven waves across the bottom third — landing hero
   | 'infinity'  // a centred ∞ lemniscate knot — the threshold ceremony
   | 'ember'     // ∞ wax knot breaking open into rising embers — a letter unsealed

@@ -35,7 +35,7 @@ export function CosmicHeader({
   return (
     <header style={{ textAlign: align, marginBottom: 40, maxWidth: align === 'center' ? undefined : '14em' }}>
       {eyebrow && (
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 18 }}>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--warm)', marginBottom: 18 }}>
           {eyebrow}
         </div>
       )}
@@ -143,14 +143,17 @@ export function EntryRow({
 
 /** Uppercase mono group label (MEMORIES / LETTERS / VOICES). */
 export function SectionLabel({ children }: { children: ReactNode }) {
-  return <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--bone-faint)', margin: '34px 0 8px' }}>{children}</div>;
+  return <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--warm)', margin: '34px 0 8px' }}>{children}</div>;
 }
 
 /** The ∞ wax seal — the product's only mark, resting warm at the foot of a page. */
 export function WaxSeal({ size = 30 }: { size?: number }) {
   return (
-    <div aria-hidden style={{ textAlign: 'center', color: 'var(--warm)', fontSize: size, lineHeight: 1, opacity: 0.92, textShadow: '0 0 24px var(--warm-glow), 0 0 8px var(--warm-glow)' }}>
-      ∞
+    <div aria-hidden style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      width: size * 2.2, height: size * 2.2,
+      background: 'radial-gradient(circle, var(--warm-glow) 0%, transparent 68%)' }}>
+      <span style={{ color: 'var(--warm)', fontSize: size, lineHeight: 1, opacity: 0.92,
+        textShadow: '0 0 24px var(--warm-glow), 0 0 8px var(--warm-glow)' }}>∞</span>
     </div>
   );
 }

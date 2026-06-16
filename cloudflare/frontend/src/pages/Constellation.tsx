@@ -12,8 +12,8 @@ import { dyeColor } from '../loom/dye';
  * Screen 08 — The Constellation
  *
  * The bloodline rendered as a calm vertical tree: kin stacked by the order
- * they enter the line, connected by hairline threads. Each member is a serif
- * name in their own dye hue with a small dye point — no avatars. "you" is the
+ * they enter the line, connected by hairline threads. Each member is a mono
+ * uppercase name in their own dye hue with a small dye square — no avatars. "you" is the
  * one warm thread. Where the loom finds a resonance across lives, the footer
  * counts it. Lots of dark negative space; type is the hero.
  */

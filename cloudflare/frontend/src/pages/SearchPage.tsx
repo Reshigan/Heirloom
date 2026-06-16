@@ -84,12 +84,6 @@ export function SearchPage() {
   });
 
   const results = searchQ.data?.results ?? [];
-  const total = searchQ.data?.total ?? 0;
-
-  // Eyebrow: result count when results are available, otherwise a quiet label
-  const eyebrow = ready && !searchQ.isLoading && !searchQ.isError && results.length > 0
-    ? `${total} ${total === 1 ? 'thread' : 'threads'} found`
-    : 'the family archive';
 
   return (
     <ClothShell
@@ -188,22 +182,6 @@ export function SearchPage() {
             );
           })}
         </div>
-
-        {/* ── inline result count (live binding; quiet mono status) ── */}
-        {ready && !searchQ.isLoading && !searchQ.isError && results.length > 0 && (
-          <div
-            style={{
-              fontFamily: 'var(--mono)',
-              fontSize: 10,
-              letterSpacing: '0.3em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
-              marginTop: 18,
-            }}
-          >
-            {eyebrow}
-          </div>
-        )}
 
         {/* ── states ── */}
         {!ready ? (

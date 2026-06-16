@@ -750,28 +750,31 @@ export function Record() {
               ))}
             </div>
 
-            {/* mono PLAY / PAUSE text affordance */}
+            {/* circular warm ring — play triangle / pause bars */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 40 }}>
               <button
                 type="button"
                 onClick={togglePlay}
                 aria-label={playing ? 'Pause playback' : 'Play recording'}
                 style={{
-                  background: 'transparent',
+                  width: 64,
+                  height: 64,
                   border: '1px solid var(--warm)',
-                  borderRadius: 0,
-                  padding: '12px 32px',
-                  cursor: 'pointer',
+                  borderRadius: '50%',
+                  background: 'transparent',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                   color: 'var(--warm)',
-                  fontFamily: 'var(--mono)',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  letterSpacing: '0.32em',
-                  textTransform: 'uppercase',
-                  transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
+                  cursor: 'pointer',
+                  transition: 'all 180ms cubic-bezier(0.16,1,0.3,1)',
                 }}
               >
-                {playing ? 'pause' : 'play'}
+                {playing ? (
+                  <span style={{ fontSize: 20 }}>❚❚</span>
+                ) : (
+                  <span style={{ fontSize: 20, marginLeft: 2 }}>▶</span>
+                )}
               </button>
             </div>
 

@@ -4,8 +4,6 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
-import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { UserMenu } from '../loom/components/Frame';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
@@ -182,11 +180,7 @@ export default function Wrapped() {
   ];
 
   return (
-    <ClothShell
-      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'wrapped' }]} />}
-      topbarCenter={`${YEAR}`}
-      topbarRight={<UserMenu />}
-    >
+    <ClothShell noTopbar>
       <div
         style={{
           minHeight: '100%',

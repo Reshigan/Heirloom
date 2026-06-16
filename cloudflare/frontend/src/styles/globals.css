@@ -1005,7 +1005,7 @@ html {
   color: var(--parchment-ink);
   background: transparent;
   border: 0;
-  border-bottom: 1px solid rgba(26, 25, 22, 0.28);
+  border-bottom: 1px solid var(--rule);
   border-radius: 0;  /* §2: 0px radius always */
   padding: 10px 0;
   width: 100%;

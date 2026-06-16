@@ -1644,7 +1644,7 @@ export function Compose() {
               }}
               disabled={submitDisabled}
               style={{
-                background: submitDisabled ? 'transparent' : 'var(--warm)',
+                background: 'transparent',
                 border: '1px solid var(--warm)',
                 borderRadius: 999,
                 padding: '12px 32px',
@@ -1653,18 +1653,20 @@ export function Compose() {
                 fontSize: 12,
                 letterSpacing: '0.26em',
                 textTransform: 'uppercase',
-                color: submitDisabled ? 'var(--warm)' : 'var(--ink)',
+                color: 'var(--warm)',
                 cursor: submitDisabled ? 'default' : 'pointer',
                 opacity: submitDisabled ? 0.4 : 1,
                 transition: 'background 180ms var(--ease), color 180ms var(--ease), opacity 180ms var(--ease)',
               }}
               onMouseEnter={(e) => {
                 if (submitDisabled) return;
-                e.currentTarget.style.background = 'var(--warm-bright)';
+                e.currentTarget.style.borderColor = 'var(--warm-bright)';
+                e.currentTarget.style.color = 'var(--warm-bright)';
               }}
               onMouseLeave={(e) => {
                 if (submitDisabled) return;
-                e.currentTarget.style.background = 'var(--warm)';
+                e.currentTarget.style.borderColor = 'var(--warm)';
+                e.currentTarget.style.color = 'var(--warm)';
               }}
             >
               {save.isPending ? (isLetter ? 'sealing…' : 'weaving…') : (isLetter ? submitLabel : 'weave it in')}

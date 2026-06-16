@@ -117,7 +117,7 @@ export function QandA() {
   return (
     <ClothShell
       topbarLeft={<Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>}
-      topbarCenter="ask the thread"
+      topbarCenter="the listener"
     >
       <div
         style={{

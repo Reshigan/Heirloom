@@ -125,7 +125,7 @@ export function ExportPage() {
         }}
       >
         {/* ── header ── */}
-        <CosmicHeader eyebrow="take it with you" title="Export the thread" />
+        <CosmicHeader eyebrow="take it with you" title="Export the thread" align="center" />
 
         {/* ── format — how the archive leaves with you ── */}
         <div style={{ marginTop: 28 }}>

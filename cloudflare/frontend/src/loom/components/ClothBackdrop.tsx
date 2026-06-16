@@ -31,7 +31,7 @@ const ROUTE_VARIANT: Record<string, FilamentVariant> = {
   '/loom': 'infinity',         // the threshold ceremony — a centred ∞
   '/loom/pwa': 'crown',        // capture home — "the listener asks"
   '/loom/today': 'crown',
-  '/onboarding': 'crown',
+  '/onboarding': 'arc',
   '/login': 'arc',
   '/signin': 'arc',
   '/signup': 'arc',

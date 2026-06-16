@@ -380,43 +380,47 @@ export function BookBuilder() {
 
         {/* Header — mono eyebrow + giant serif prompt, contextual to the step (COMPOSER) */}
         <CosmicHeader eyebrow={stepPrompts[step].eyebrow} title={stepPrompts[step].prompt} align="center" />
-        <p
-          className="hl-mono"
-          style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)', textAlign: 'center', margin: '-20px 0 56px' }}
-        >
-          {currentStepIndex + 1} of {stepOrder.length} · {stepLabels[step]}
-        </p>
+        {step !== 'customize' && (
+          <>
+            <p
+              className="hl-mono"
+              style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)', textAlign: 'center', margin: '-20px 0 56px' }}
+            >
+              {currentStepIndex + 1} of {stepOrder.length} · {stepLabels[step]}
+            </p>
 
-        {/* Step progress — compact hairline rail (mockup rhythm) */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 0, maxWidth: 640, margin: '0 auto 48px', borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)' }}>
-          {stepOrder.map((s, i) => (
-            <div key={s} style={{ flex: 1, position: 'relative', padding: '14px 0', textAlign: 'center' }}>
-              <div
-                style={{
-                  position: 'absolute',
-                  top: -1,
-                  left: 0,
-                  width: '100%',
-                  height: 1,
-                  background: i <= currentStepIndex ? 'var(--warm)' : 'transparent',
-                  transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
-                }}
-              />
-              <span
-                className="hl-mono"
-                style={{
-                  fontSize: 9,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  color: i <= currentStepIndex ? 'var(--warm)' : 'var(--bone-faint)',
-                  transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
-                }}
-              >
-                {stepLabels[s]}
-              </span>
+            {/* Step progress — compact hairline rail (mockup rhythm) */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 0, maxWidth: 640, margin: '0 auto 48px', borderTop: '1px solid var(--rule)', borderBottom: '1px solid var(--rule)' }}>
+              {stepOrder.map((s, i) => (
+                <div key={s} style={{ flex: 1, position: 'relative', padding: '14px 0', textAlign: 'center' }}>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: -1,
+                      left: 0,
+                      width: '100%',
+                      height: 1,
+                      background: i <= currentStepIndex ? 'var(--warm)' : 'transparent',
+                      transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
+                    }}
+                  />
+                  <span
+                    className="hl-mono"
+                    style={{
+                      fontSize: 9,
+                      letterSpacing: '0.2em',
+                      textTransform: 'uppercase',
+                      color: i <= currentStepIndex ? 'var(--warm)' : 'var(--bone-faint)',
+                      transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
+                    }}
+                  >
+                    {stepLabels[s]}
+                  </span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
 
         {/* the binding screen widens to seat the floating page preview; every
             other step keeps the quiet 640 measure. */}

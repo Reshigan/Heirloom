@@ -1,6 +1,5 @@
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
-import { HLogo } from '../loom/components/HLogo';
 import { useAuthStore } from '../stores/authStore';
 
 /**
@@ -30,24 +29,7 @@ export function Threshold() {
   const enter = () => navigate('/signup');
 
   return (
-    <ClothShell
-      topbarLeft={<HLogo size="sm" wordmark />}
-      topbarRight={
-        <Link
-          to="/login"
-          style={{
-            fontFamily: 'var(--mono)',
-            fontSize: 10,
-            letterSpacing: '0.22em',
-            textTransform: 'uppercase',
-            color: 'var(--warm)',
-            textDecoration: 'none',
-          }}
-        >
-          enter →
-        </Link>
-      }
-    >
+    <ClothShell noTopbar>
       {/* A single centred ceremony column over the global filament backdrop —
           the glowing ∞ behind belongs to ClothBackdrop, not to this page. */}
       <div
@@ -60,14 +42,14 @@ export function Threshold() {
         }}
       >
         <div style={{ width: '100%', maxWidth: 420 }}>
-          {/* Mono eyebrow — names the threshold */}
+          {/* Serif title — names the threshold, kept below the h1 tagline */}
           <div
-            className="hl-mono"
+            className="hl-serif"
             style={{
-              fontSize: 11,
-              letterSpacing: '0.34em',
+              fontSize: 'clamp(18px, 4vw, 24px)',
+              letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
+              color: 'var(--bone-dim)',
             }}
           >
             the threshold

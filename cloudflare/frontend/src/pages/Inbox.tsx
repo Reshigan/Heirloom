@@ -85,7 +85,7 @@ export function Inbox() {
         }}
       >
         <div style={{ width: '100%', maxWidth: 440 }}>
-          <CosmicHeader eyebrow="THE INBOX" title="Inbox" />
+          <CosmicHeader eyebrow="THE INBOX" title="Inbox" align="center" />
 
           {hasError && (
             <p
@@ -286,11 +286,14 @@ function ageUnlockDate(item: UpcomingUnlock): Date | null {
 
 function formatDate(iso: string): string {
   try {
-    return new Date(iso).toLocaleDateString(undefined, {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    });
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    const now = new Date();
+    const startOf = (x: Date) => new Date(x.getFullYear(), x.getMonth(), x.getDate());
+    const dayDiff = Math.round((startOf(now).getTime() - startOf(d).getTime()) / 86400000);
+    if (dayDiff === 0) return 'Today';
+    if (dayDiff === 1) return 'Yesterday';
+    return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   } catch {
     return iso;
   }

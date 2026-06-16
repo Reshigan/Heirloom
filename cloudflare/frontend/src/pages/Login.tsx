@@ -4,7 +4,6 @@ import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
 import { VaultModal } from '../components/VaultModal';
 import { encryptionService } from '../services/encryptionService';
-import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
@@ -45,15 +44,7 @@ export function Login() {
   };
 
   return (
-    <ClothShell
-      topbarLeft={<HLogo />}
-      topbarCenter="sign in"
-      topbarRight={
-        <Link to="/signup" style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none' }}>
-          begin a thread →
-        </Link>
-      }
-    >
+    <ClothShell noTopbar>
       {/* A single calm centered column — vast negative space, the global filament backdrop behind. */}
       <div style={{
         display: 'grid',
