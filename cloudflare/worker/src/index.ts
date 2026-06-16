@@ -779,6 +779,7 @@ const PUBLIC_API_PREFIXES = [
   '/api/book-orders/webhook', // Lulu webhook (HMAC verified)
   '/api/billing/webhook',     // Stripe webhook (HMAC verified inside handler)
   '/api/billing/pricing',     // pricing is public — unauthenticated visitors see plans
+  '/api/memorials/page/',     // shared memorial pages (QR/short-url) + tributes — public by design
 ];
 
 // JWT middleware for protected routes. Bypasses for paths in
