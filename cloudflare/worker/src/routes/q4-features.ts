@@ -732,13 +732,20 @@ memorialRoutes.post('/page/:code/tribute', async (c) => {
   if (!memorial) {
     return c.json({ error: 'Memorial not found' }, 404);
   }
-  
+
+  // Public route — name/email are optional on the tribute form. Coerce every
+  // nullable bind to null; an omitted value would otherwise reach D1 as
+  // `undefined` and throw D1_TYPE_ERROR → 500 for an anonymous visitor.
+  if (!body.message) {
+    return c.json({ error: 'A tribute message is required' }, 400);
+  }
+
   const id = crypto.randomUUID();
   await c.env.DB.prepare(`
     INSERT INTO memorial_page_content (
       id, memorial_id, content_type, content_text, submitted_by_name, submitted_by_email, created_at
     ) VALUES (?, ?, 'tribute', ?, ?, ?, ?)
-  `).bind(id, memorial.id, body.message, body.name, body.email, now).run();
+  `).bind(id, memorial.id, body.message, body.name ?? null, body.email ?? null, now).run();
   
   // Notify owner
   await c.env.DB.prepare(`
@@ -813,7 +820,14 @@ milestonesRoutes.post('/', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   const now = new Date().toISOString();
-  
+
+  // Required fields. familyMemberId is optional (a milestone can stand alone,
+  // e.g. an anniversary) — but it must be coerced to null at the bind layer, or
+  // an omitted value reaches D1 as `undefined` and throws D1_TYPE_ERROR → 500.
+  if (!body.name || !body.date) {
+    return c.json({ error: 'Milestone name and date are required' }, 400);
+  }
+
   const id = crypto.randomUUID();
   await c.env.DB.prepare(`
     INSERT INTO milestone_alerts (
@@ -821,11 +835,11 @@ milestonesRoutes.post('/', async (c) => {
       milestone_date, recurring, reminder_days_before, prompt_suggestion, created_at
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(
-    id, userId, body.familyMemberId, body.type, body.name,
+    id, userId, body.familyMemberId ?? null, body.type || 'birthday', body.name,
     body.date, body.recurring ? 1 : 0, body.reminderDays || 7,
-    body.promptSuggestion, now
+    body.promptSuggestion ?? null, now
   ).run();
-  
+
   return c.json({ id, success: true });
 });
 
