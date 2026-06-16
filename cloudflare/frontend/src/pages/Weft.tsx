@@ -169,10 +169,13 @@ export function Weft() {
     />
   );
 
-  const rightSlot = (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+  // The view toggle lives in the body (a right-aligned control over the
+  // content), never the topbar — at 430px a 2-option toggle + UserMenu
+  // overflowed the right column and clipped "THREADS" to "READS". The reference
+  // tapestry has a clean topbar (wordmark + menu only); the toggle is ours.
+  const toggleRow = (
+    <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 }}>
       {toggle}
-      <UserMenu />
     </div>
   );
 
@@ -180,7 +183,7 @@ export function Weft() {
     return (
       <ClothShell
         topbarLeft={<HLogo size="sm" wordmark />}
-        topbarRight={rightSlot}
+        topbarRight={<UserMenu />}
         backdropOpacity={0.3}
       >
         {isLoading ? <ProgressHair /> : <EmptyThread onWeave={() => navigate('/compose')} onRecord={() => navigate('/record')} />}
@@ -203,15 +206,18 @@ export function Weft() {
     return (
       <ClothShell
         topbarLeft={<HLogo size="sm" wordmark />}
-        topbarRight={rightSlot}
+        topbarRight={<UserMenu />}
         backdropOpacity={0.3}
       >
-        <WeftCentury
-          entries={allEntries}
-          kin={kinForCentury}
-          userBornYear={userBornYear}
-          onSelectEntry={handleSelectEntry}
-        />
+        <div style={{ position: 'relative', minHeight: '100%' }}>
+          <div style={{ position: 'absolute', top: 16, right: 24, zIndex: 5 }}>{toggle}</div>
+          <WeftCentury
+            entries={allEntries}
+            kin={kinForCentury}
+            userBornYear={userBornYear}
+            onSelectEntry={handleSelectEntry}
+          />
+        </div>
       </ClothShell>
     );
   }
@@ -250,7 +256,7 @@ export function Weft() {
   return (
     <ClothShell
       topbarLeft={<HLogo size="sm" wordmark />}
-      topbarRight={rightSlot}
+      topbarRight={<UserMenu />}
       backdropOpacity={0.3}
     >
       <div
@@ -265,6 +271,8 @@ export function Weft() {
       >
         <div style={{ width: '100%', maxWidth: 460 }}>
           <CosmicHeader eyebrow={eyebrow} title="The Thread" align="left" />
+
+          {toggleRow}
 
           {/* The woven thread — each row is the canonical ledger entry: serif title
               on a dye left-filament, one-line dim subtitle, and a mono right cluster of
