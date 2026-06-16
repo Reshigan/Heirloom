@@ -150,11 +150,6 @@ export function Weft() {
   const entries = mode === 'empty' ? [] : allEntries;
 
   const memberCount = Array.isArray(threadMembersData) ? threadMembersData.length : null;
-  const entryCount = (
-    <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-dim)', textTransform: 'uppercase' }}>
-      {allEntries.length} entries{memberCount != null ? ` · ${memberCount} members` : ''}
-    </span>
-  );
 
   const handleSelectEntry = (entry: { id?: string; kind: string }) => {
     if (!entry.id) return;
@@ -170,7 +165,6 @@ export function Weft() {
       options={[
         { value: 'pull', label: 'threads' },
         { value: 'century', label: 'century' },
-        { value: 'empty', label: 'empty' },
       ]}
     />
   );
@@ -186,7 +180,6 @@ export function Weft() {
     return (
       <ClothShell
         topbarLeft={<HLogo size="sm" wordmark />}
-        topbarCenter="the tapestry"
         topbarRight={rightSlot}
         backdropOpacity={0.3}
       >
@@ -210,7 +203,6 @@ export function Weft() {
     return (
       <ClothShell
         topbarLeft={<HLogo size="sm" wordmark />}
-        topbarCenter="the tapestry"
         topbarRight={rightSlot}
         backdropOpacity={0.3}
       >
@@ -235,9 +227,9 @@ export function Weft() {
   // Strip a trailing "thread" so a stored "Vance Thread" never becomes "THE VANCE THREAD THREAD".
   const fam = (threadData?.name || '').trim().replace(/\s*thread$/i, '').trim();
   const label = fam ? `THE ${fam.toUpperCase()} THREAD` : 'THE THREAD';
-  const eyebrow = spanLo != null && spanHi != null
+  const eyebrow = (spanLo != null && spanHi != null
     ? `${label} · ${spanLo}–${spanHi}`
-    : label;
+    : label) + (memberCount != null ? ` · ${memberCount} KIN` : '');
 
   // Decade of a year, e.g. 1998 → "1990s" — drives the faint year-divider labels.
   const decadeOf = (y: number) => `${Math.floor(y / 10) * 10}s`;
@@ -258,14 +250,7 @@ export function Weft() {
   return (
     <ClothShell
       topbarLeft={<HLogo size="sm" wordmark />}
-      topbarCenter="the tapestry"
-      topbarRight={
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          {entryCount}
-          {toggle}
-          <UserMenu />
-        </div>
-      }
+      topbarRight={rightSlot}
       backdropOpacity={0.3}
     >
       <div
