@@ -8,7 +8,7 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { copyToClipboard } from '../utils/clipboard';
 import { type FamilyMember } from '../types';
 import { formatDate } from '../utils/date';
-import { CosmicHeader, SectionLabel, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { dyeForId } from '../loom/dye';
 
 interface PendingInvite {
@@ -213,9 +213,9 @@ export function Family() {
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x)', paddingBottom: 'var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
 
 
-        {/* heading — ledger headline; mono eyebrow states the count + kind */}
+        {/* heading — ledger headline; warm mono eyebrow names the bloodline */}
         <CosmicHeader
-          eyebrow={`${members.length} ${members.length === 1 ? 'HAND' : 'HANDS'} · THE BLOODLINE`}
+          eyebrow="THE BLOODLINE"
           title="Who holds the thread"
         />
 
@@ -490,7 +490,6 @@ export function Family() {
           </div>
         ) : (
           <>
-          <SectionLabel>the roster</SectionLabel>
           <div style={{ display: 'grid', gap: 0 }}>
             {members.map((m) => {
               // Fall back to a deterministic per-member dye so each member carries
@@ -506,66 +505,75 @@ export function Family() {
                   key={m.id}
                   style={{
                     borderBottom: '1px solid var(--rule)',
-                    borderLeft: `3px solid ${thread}`,
                   }}
                 >
-                  {/* roster ledger row — left dye margin thread carries identity; serif
-                      name tinted by dye on the left, mono cluster (dye dot + relation)
-                      on the right. No avatar circle, no swatch chip. */}
+                  {/* roster ledger row — a small solid dye-colour square swatch on the
+                      left carries the member's identity signal (not an avatar circle),
+                      serif name centre, mono relation on the right. Hairline dividers. */}
                   <Link
                     to={`/person/${m.id}`}
                     style={{
                       display: 'flex',
-                      alignItems: 'baseline',
+                      alignItems: 'center',
                       justifyContent: 'space-between',
                       gap: 18,
                       textDecoration: 'none',
-                      padding: '20px 16px',
+                      padding: '22px 4px',
                       minHeight: 44,
                     }}
                   >
                     <span
-                      className="hl-serif"
                       style={{
-                        fontWeight: 400,
-                        fontSize: 'clamp(18px, 5vw, 22px)',
-                        lineHeight: 1.25,
-                        color: nameColor,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 18,
                         flex: 1,
                         minWidth: 0,
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
                       }}
                     >
-                      {m.name}
+                      <span
+                        aria-hidden="true"
+                        style={{
+                          flex: '0 0 auto',
+                          width: 22,
+                          height: 22,
+                          borderRadius: 3,
+                          background: thread,
+                        }}
+                      />
+                      <span
+                        className="hl-serif"
+                        style={{
+                          fontWeight: 400,
+                          fontSize: 'clamp(18px, 5vw, 22px)',
+                          lineHeight: 1.25,
+                          color: nameColor,
+                          minWidth: 0,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
+                        {m.name}
+                      </span>
                     </span>
                     {relMeta && (
                       <span
+                        className="hl-mono"
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 9,
                           flex: '0 0 auto',
                           whiteSpace: 'nowrap',
+                          fontSize: 10,
+                          letterSpacing: '0.22em',
+                          textTransform: 'uppercase',
+                          color: 'var(--bone-dim)',
                         }}
                       >
-                        <WarmDot color={thread} size={5} />
-                        <span
-                          className="hl-mono"
-                          style={{
-                            fontSize: 10,
-                            letterSpacing: '0.22em',
-                            textTransform: 'uppercase',
-                            color: 'var(--bone-dim)',
-                          }}
-                        >
-                          {relMeta}
-                        </span>
+                        {relMeta}
                       </span>
                     )}
                   </Link>
-                  <div style={{ padding: isEditing ? '0 16px 8px 16px' : '0 16px 18px 16px', display: 'grid', gap: 8 }}>
+                  <div style={{ padding: isEditing ? '0 4px 8px 44px' : '0 4px 18px 44px', display: 'grid', gap: 8 }}>
                     {!relMeta && (
                       <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-faint)', lineHeight: 1.2 }}>
                         relationship not set — edit to weave it in
@@ -657,7 +665,7 @@ export function Family() {
 
                   {/* Inline edit form */}
                   {isEditing && (
-                    <div style={{ padding: '0 16px 22px 16px' }}>
+                    <div style={{ padding: '0 4px 22px 44px' }}>
                       <input
                         value={editName}
                         onChange={(e) => { setEditName(e.target.value); setEditError(null); }}

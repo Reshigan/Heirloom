@@ -7,7 +7,7 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { Link } from 'react-router-dom';
 import { useListener } from '../hooks/useListener';
 import { type Memory } from '../types';
-import { CosmicHeader, WaxSeal, WarmDot } from '../loom/cosmic/CosmicUI';
+import { WaxSeal, SectionLabel } from '../loom/cosmic/CosmicUI';
 
 const DYE_COLORS: Record<string, string> = {
   memory:    'var(--dye-madder)',
@@ -86,16 +86,21 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
   const typeKey = (m.type as string) ?? 'memory';
   const dyeColor = DYE_COLORS[typeKey] ?? DYE_COLORS['memory'];
   const entryDate = new Date(entryDateOf(m));
-  const year = isNaN(entryDate.getTime()) ? '' : String(entryDate.getFullYear());
+  const monthYear = isNaN(entryDate.getTime())
+    ? ''
+    : `${MONTHS[entryDate.getMonth()]} ${entryDate.getFullYear()}`.toUpperCase();
   const fullDate = isNaN(entryDate.getTime())
     ? ''
     : entryDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-  const author = (personOf(m) ?? typeKey).toUpperCase();
 
   if (deleteMut.isSuccess) return null;
 
   const delay = Math.min(index % 8, 7) * 56; // stagger within each "batch"
   const title = m.title || (m.description ? (m.description as string).slice(0, 64) : 'Untitled');
+  // The quiet italic sub-line beneath the title — the entry's first prose breath.
+  const snippet = m.description
+    ? (m.description as string).replace(/\s+/g, ' ').trim().slice(0, 56)
+    : '';
 
   return (
     <div
@@ -131,15 +136,20 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
         }}
       >
         <span style={{ flex: 1, minWidth: 0 }}>
-          <span className="hl-serif" style={{ fontStyle: 'normal', fontWeight: 400, fontSize: 19, lineHeight: 1.3, color: 'var(--bone)', display: 'block' }}>
+          <span className="hl-serif" style={{ fontStyle: 'normal', fontWeight: 400, fontSize: 'clamp(20px, 4.5vw, 24px)', lineHeight: 1.22, color: 'var(--bone)', display: 'block' }}>
             {title}
           </span>
+          {snippet && (
+            <span className="hl-serif" style={{ fontStyle: 'italic', fontWeight: 300, fontSize: 14, lineHeight: 1.5, color: 'var(--bone-dim)', display: 'block', marginTop: 5, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {snippet}
+            </span>
+          )}
         </span>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 9, whiteSpace: 'nowrap', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', flex: '0 0 auto' }}>
-          {year && <span style={{ color: 'var(--bone-faint)' }}>{year}</span>}
-          <WarmDot color={dyeColor} size={5} />
-          <span style={{ color: dyeColor, textTransform: 'uppercase', letterSpacing: '0.16em' }}>{author}</span>
-        </span>
+        {monthYear && (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 8, whiteSpace: 'nowrap', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', flex: '0 0 auto', color: 'var(--bone-faint)' }}>
+            {monthYear}
+          </span>
+        )}
       </button>
 
       {open && (
@@ -417,7 +427,7 @@ function FilterBar({ memories, filters, setFilters }: {
 }
 
 export function Memories() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const { prompt: listenerPrompt } = useListener();
 
@@ -428,6 +438,20 @@ export function Memories() {
   });
 
   const allMemories: Memory[] = Array.isArray(data) ? data : [];
+
+  // The thread's name + lived year span — the mono eyebrow over the ledger.
+  const threadName = `The ${user?.lastName ?? ''} Thread`.replace(/\s+/g, ' ').trim();
+  const years = allMemories
+    .map(m => new Date(entryDateOf(m)).getFullYear())
+    .filter(y => !isNaN(y));
+  const yearRange = years.length
+    ? (() => {
+        const lo = Math.min(...years);
+        const hi = Math.max(...years);
+        return lo === hi ? String(lo) : `${lo}–${hi}`;
+      })()
+    : '';
+  const eyebrow = [threadName.toUpperCase(), yearRange].filter(Boolean).join(' · ');
 
   const memories = allMemories
     .filter(m => {
@@ -468,13 +492,24 @@ export function Memories() {
         <progress style={{ width: '100%', height: 1, display: 'block', appearance: 'none', accentColor: 'var(--warm)' }} />
       )}
 
-      {/* The ledger header — mono eyebrow stating count + kind, giant serif title. */}
+      {/* The ledger header — a single quiet mono line naming the thread and the
+          span of years it holds, set in centred small-caps over the ledger.
+          The quiet filter bar follows beneath it. */}
       {!isLoading && allMemories.length > 0 && (
-        <div style={{ padding: 'clamp(28px, 6vw, 56px) var(--page-pad-x) 0' }}>
-          <CosmicHeader
-            eyebrow={`${memories.length} WOVEN${filters.query || filters.year || filters.month || filters.type || filters.emotion || filters.person ? ` · OF ${allMemories.length}` : ''}`}
-            title="The woven memories"
-          />
+        <div style={{ padding: 'clamp(40px, 8vw, 72px) var(--page-pad-x) 0' }}>
+          <div
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.28em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              textAlign: 'center',
+              marginBottom: 'clamp(28px, 5vw, 44px)',
+            }}
+          >
+            {eyebrow || `${memories.length} WOVEN`}
+          </div>
           <FilterBar memories={allMemories} filters={filters} setFilters={setFilters} />
         </div>
       )}
@@ -528,15 +563,26 @@ export function Memories() {
         </div>
       )}
 
-      {/* The ledger — a vertical list of hairline-ruled entry rows. */}
+      {/* The ledger — hairline-ruled entry rows, grouped by decade. A mono
+          SectionLabel (e.g. 1940s) opens each new decade as it falls. */}
       {memories.length > 0 && (
         <div style={{
           padding: '0 var(--page-pad-x)',
           paddingBottom: 'clamp(32px, 6vw, 64px)',
         }}>
-          {memories.map((m, i) => (
-            <MemoryRow key={m.id} m={m} index={i} activeEmotion={filters.emotion || undefined} />
-          ))}
+          {memories.map((m, i) => {
+            const d = new Date(entryDateOf(m));
+            const decade = isNaN(d.getTime()) ? null : Math.floor(d.getFullYear() / 10) * 10;
+            const prev = i > 0 ? new Date(entryDateOf(memories[i - 1])) : null;
+            const prevDecade = prev && !isNaN(prev.getTime()) ? Math.floor(prev.getFullYear() / 10) * 10 : null;
+            const showLabel = decade != null && decade !== prevDecade;
+            return (
+              <div key={m.id}>
+                {showLabel && <SectionLabel>{`${decade}s`}</SectionLabel>}
+                <MemoryRow m={m} index={i} activeEmotion={filters.emotion || undefined} />
+              </div>
+            );
+          })}
         </div>
       )}
 

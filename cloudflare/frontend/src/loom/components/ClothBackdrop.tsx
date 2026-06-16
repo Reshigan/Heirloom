@@ -50,6 +50,7 @@ const ROUTE_VARIANT: Record<string, FilamentVariant> = {
   '/loom/kin': 'tree',
   '/wrapped': 'scurve',
   '/unseal': 'ember',
+  '/loom/unlock': 'ember',     // the unseal ceremony — a wax knot breaking into embers
   '/loom/tied': 'ember',
 };
 

@@ -43,6 +43,84 @@ interface VoiceEntry {
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
+// A deterministic warm-filament waveform derived from the recording id, scrubbed
+// by playback progress. This IS the audio's content (not backdrop) — amber bars
+// that the elapsed portion lights to warm-bright as the recording plays.
+function VoiceWaveform({ seed, progress }: { seed: string; progress: number }) {
+  const bars = 56;
+  // Hash the id into a stable pseudo-random sequence so each recording owns its
+  // own silhouette, steady across renders.
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  const heights: number[] = [];
+  for (let i = 0; i < bars; i++) {
+    h ^= h << 13; h ^= h >>> 17; h ^= h << 5;
+    const n = ((h >>> 0) % 1000) / 1000;
+    // Centre-weighted envelope so the waveform swells toward the middle.
+    const env = Math.sin((i / (bars - 1)) * Math.PI);
+    heights.push(0.18 + (0.2 + n * 0.8) * env);
+  }
+  return (
+    <div
+      aria-hidden
+      style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        gap: 2, height: 72, margin: '0 auto', maxWidth: 320,
+      }}
+    >
+      {heights.map((ratio, i) => {
+        const lit = i / bars <= progress;
+        return (
+          <span
+            key={i}
+            style={{
+              flex: '1 1 0', height: `${Math.round(ratio * 100)}%`,
+              minWidth: 1, borderRadius: 1,
+              background: lit ? 'var(--warm-bright)' : 'var(--warm)',
+              opacity: lit ? 0.95 : 0.55,
+              transition: `opacity 180ms ${EASE}, background 180ms ${EASE}`,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+// The circular outlined play/pause control — a ring with a ▷ glyph, in the ∞ idiom.
+function PlayRing({ playing }: { playing: boolean }) {
+  return (
+    <span
+      aria-hidden
+      style={{
+        width: 56, height: 56, borderRadius: '50%',
+        border: '1px solid var(--warm)', display: 'flex',
+        alignItems: 'center', justifyContent: 'center', flex: '0 0 auto',
+        color: 'var(--warm)', transition: `border-color 180ms ${EASE}, color 180ms ${EASE}`,
+      }}
+    >
+      {playing ? (
+        <span style={{ display: 'flex', gap: 4 }}>
+          <span style={{ width: 3, height: 16, background: 'currentColor' }} />
+          <span style={{ width: 3, height: 16, background: 'currentColor' }} />
+        </span>
+      ) : (
+        <span
+          style={{
+            width: 0, height: 0, marginLeft: 3,
+            borderTop: '8px solid transparent',
+            borderBottom: '8px solid transparent',
+            borderLeft: '13px solid currentColor',
+          }}
+        />
+      )}
+    </span>
+  );
+}
+
 export function VoiceRoom() {
   const { isAuthenticated, user } = useAuthStore();
   const [searchParams] = useSearchParams();
@@ -302,28 +380,28 @@ export function VoiceRoom() {
                     display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap',
                     paddingBottom: 16,
                   }}>
-                    <button
-                      type="button"
-                      aria-label={isPlaying ? 'Stop voice recording' : 'Play voice recording'}
-                      aria-expanded={isPlaying}
-                      aria-controls={`audio-${entry.id}`}
-                      onClick={() => handlePlay(entry.id)}
-                      className="hl-voice-play"
-                      disabled={!entry.fileUrl}
-                      style={{
-                        background: 'transparent', border: 0, padding: 0,
-                        cursor: entry.fileUrl ? 'pointer' : 'default',
-                        fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
-                        textTransform: 'uppercase',
-                        color: isPlaying ? 'var(--warm-bright)' : 'var(--warm)',
-                        opacity: entry.fileUrl ? 1 : 0.4,
-                        transition: `color 180ms ${EASE}`,
-                      }}
-                    >
-                      {isPlaying
-                        ? `pause${audioDuration > 0 ? ` · ${formatTime(currentTime)}` : ''}`
-                        : 'play'}
-                    </button>
+                    {!isPlaying && (
+                      <button
+                        type="button"
+                        aria-label="Play voice recording"
+                        aria-expanded={isPlaying}
+                        aria-controls={`audio-${entry.id}`}
+                        onClick={() => handlePlay(entry.id)}
+                        className="hl-voice-play"
+                        disabled={!entry.fileUrl}
+                        style={{
+                          background: 'transparent', border: 0, padding: 0,
+                          cursor: entry.fileUrl ? 'pointer' : 'default',
+                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                          textTransform: 'uppercase',
+                          color: 'var(--warm)',
+                          opacity: entry.fileUrl ? 1 : 0.4,
+                          transition: `color 180ms ${EASE}`,
+                        }}
+                      >
+                        play
+                      </button>
+                    )}
 
                     {!isEditing && (
                       <button
@@ -385,15 +463,36 @@ export function VoiceRoom() {
                     )}
                   </div>
 
-                  {/* Playing — hairline scrub progress + hidden audio element */}
+                  {/* Playing — the focused player: WHAT YOU SAID eyebrow, big serif
+                      timer, the warm content waveform, a circular play/pause ring. */}
                   {isPlaying && entry.fileUrl && (
-                    <div id={`audio-${entry.id}`} style={{ animation: `hl-fade 360ms ${EASE}`, paddingBottom: 18 }}>
-                      <div style={{ height: 1, background: 'var(--rule)', position: 'relative' }}>
-                        <div style={{ position: 'absolute', left: 0, top: 0, height: 1, background: 'var(--warm)', width: `${audioDuration ? (currentTime / audioDuration) * 100 : 0}%`, transition: `width 360ms ${EASE}` }} />
+                    <div id={`audio-${entry.id}`} style={{ animation: `hl-fade 360ms ${EASE}`, paddingBottom: 28, textAlign: 'center' }}>
+                      <div style={{
+                        fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.28em',
+                        textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 22,
+                      }}>
+                        what you said
                       </div>
-                      <div style={{ marginTop: 8, fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.1em', color: 'var(--bone-faint)' }}>
-                        {formatTime(currentTime)} / {formatTime(audioDuration)}
+                      <div style={{
+                        fontFamily: 'var(--serif)', fontWeight: 380, fontVariationSettings: '"opsz" 40',
+                        fontSize: 'clamp(40px, 11vw, 64px)', lineHeight: 1, letterSpacing: '-0.01em',
+                        color: 'var(--bone)', marginBottom: 28,
+                      }}>
+                        {formatTime(currentTime)}
                       </div>
+                      <VoiceWaveform seed={entry.id} progress={audioDuration ? currentTime / audioDuration : 0} />
+                      <button
+                        type="button"
+                        aria-label="Stop voice recording"
+                        onClick={() => handlePlay(entry.id)}
+                        className="hl-voice-play"
+                        style={{
+                          background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                          margin: '32px auto 0', display: 'block',
+                        }}
+                      >
+                        <PlayRing playing />
+                      </button>
                       <audio
                         ref={(el) => { audioRef.current = el; }}
                         src={entry.fileUrl}
@@ -428,26 +527,31 @@ export function VoiceRoom() {
                     </div>
                   )}
 
-                  {/* FIND BETTER WORDS — refine entry point */}
+                  {/* FIND BETTER WORDS — refine entry point. Centred + underlined
+                      under the focused player; quiet inline link otherwise. */}
                   {!isEditing && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingId(entry.id);
-                        setEditTitle(entry.title ?? '');
-                        setEditDesc(entry.description ?? entry.transcript ?? '');
-                        setEditError(null);
-                      }}
-                      style={{
-                        background: 'transparent', border: 0, padding: 0,
-                        marginBottom: 18,
-                        cursor: 'pointer',
-                        fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
-                        textTransform: 'uppercase', color: 'var(--warm)',
-                      }}
-                    >
-                      find better words
-                    </button>
+                    <div style={{ textAlign: isPlaying ? 'center' : 'left' }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingId(entry.id);
+                          setEditTitle(entry.title ?? '');
+                          setEditDesc(entry.description ?? entry.transcript ?? '');
+                          setEditError(null);
+                        }}
+                        style={{
+                          background: 'transparent', border: 0, padding: 0,
+                          marginBottom: 18,
+                          cursor: 'pointer',
+                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                          textTransform: 'uppercase', color: 'var(--warm)',
+                          textDecoration: 'underline', textUnderlineOffset: 4,
+                          textDecorationColor: 'var(--warm-dim)',
+                        }}
+                      >
+                        find better words
+                      </button>
+                    </div>
                   )}
 
                   {/* Inline edit / refine form */}

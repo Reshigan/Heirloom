@@ -17,12 +17,14 @@ import {
 } from '../loom/cosmic/CosmicUI';
 
 /**
- * LoomIndex — the ∞ aggregate index.
+ * LoomIndex — the family ledger.
  *
- * The ∞ is the only mark in the product, and here it opens onto the whole
- * cloth at once: every memory, letter, and voice thread the author has woven,
- * regrouped on demand by TIME, RECIPIENT, or MOOD. No feed, no cards — just the
- * thread edge (dye) and the artifact, the way the rest of the loom reads.
+ * The whole cloth read as one page of the bloodline's ledger: a mono header
+ * names the thread and its year-span, decade labels fall down the margin, and
+ * every memory, letter, and voice thread sits as a hairline ledger row — serif
+ * title, dim sub, mono date on the right, dye thread on the left. Regroupable
+ * on demand by TIME, RECIPIENT, or MOOD. No feed, no cards. The arc crescent
+ * over the head is the global backdrop's gesture for this surface.
  */
 
 type Kind = 'memory' | 'photo' | 'letter' | 'voice';
@@ -63,14 +65,22 @@ function firstRecipient(e: { recipients?: Array<{ name?: string }> | null }): st
   return n || null;
 }
 
-function fmtDay(iso: string): string {
+/** "OCT 1947" — mono right-cluster date, uppercased month + year. */
+function fmtMonthYear(iso: string): string {
   const d = new Date(`${iso}T00:00:00`);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }).toUpperCase();
+}
+
+/** "1940s" — the decade bucket a year falls into. */
+function decadeOf(year: string): string {
+  const y = parseInt(year, 10);
+  if (Number.isNaN(y)) return year;
+  return `${Math.floor(y / 10) * 10}s`;
 }
 
 export function LoomIndex() {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const [groupBy, setGroupBy] = useState<GroupBy>('time');
   const navigate = useNavigate();
 
@@ -141,12 +151,25 @@ export function LoomIndex() {
 
   const entries: IndexEntry[] = data ?? [];
 
-  // Group into [heading, entries] sections by the active axis.
+  // The thread is named for the bloodline — the author's family name.
+  const familyName = (user?.lastName?.trim() || user?.firstName?.trim() || '').toUpperCase();
+
+  // Year-span across the whole cloth (min–max), for the mono header.
+  const yearSpan = useMemo(() => {
+    const years = entries.map((e) => parseInt(e.year, 10)).filter((y) => !Number.isNaN(y));
+    if (years.length === 0) return null;
+    const min = Math.min(...years);
+    const max = Math.max(...years);
+    return min === max ? `${min}` : `${min}–${max}`;
+  }, [entries]);
+
+  // Group into [heading, entries] sections by the active axis. The time axis
+  // buckets by decade so the ledger reads in eras, not single years.
   const sections = useMemo(() => {
     if (entries.length === 0) return [] as Array<{ key: string; items: IndexEntry[] }>;
     const map = new Map<string, IndexEntry[]>();
     const keyOf = (e: IndexEntry) =>
-      groupBy === 'time' ? e.year : groupBy === 'recipient' ? e.recipient ?? 'unaddressed' : e.mood;
+      groupBy === 'time' ? decadeOf(e.year) : groupBy === 'recipient' ? e.recipient ?? 'unaddressed' : e.mood;
     for (const e of entries) {
       const k = keyOf(e);
       (map.get(k) ?? map.set(k, []).get(k)!).push(e);
@@ -161,12 +184,22 @@ export function LoomIndex() {
     <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'index' }]} />
   );
 
-  // Mono right-cluster label for each entry depending on active grouping axis
+  // Mono header naming the thread and its span — "THE VANCE THREAD · 1947–2026".
+  const headerEyebrow = (() => {
+    const name = familyName ? `THE ${familyName} THREAD` : 'THE THREAD';
+    return yearSpan ? `${name} · ${yearSpan}` : name;
+  })();
+
+  // A short serif sub the dye/recipient/mood axes annotate quietly.
+  function entrySub(e: IndexEntry): string | undefined {
+    if (groupBy === 'recipient') return e.mood;
+    if (groupBy === 'mood') return e.recipient ?? undefined;
+    return undefined;
+  }
+
+  // Mono right-cluster date for the time ledger; the other axes name the year.
   function entryMeta(e: IndexEntry): string {
-    const kind = e.kind;
-    if (groupBy === 'time') return `${kind} · ${fmtDay(e.iso)}`;
-    if (groupBy === 'recipient') return `${kind} · ${e.mood}`;
-    return `${kind} · ${e.recipient ?? e.year}`;
+    return groupBy === 'time' ? fmtMonthYear(e.iso) : e.year;
   }
 
   // Dye color for left margin thread
@@ -196,16 +229,12 @@ export function LoomIndex() {
       {/* Recipient milestone nudge — a quiet line when a letter has been released to you. */}
       <LettersAwaitingMe />
 
-      <div style={{ padding: 'clamp(24px, 5vw, 48px)', paddingBottom: 120, maxWidth: 680 }}>
+      <div style={{ padding: 'clamp(24px, 5vw, 48px)', paddingBottom: 120, maxWidth: 680, margin: '0 auto' }}>
 
-        {/* LEDGER header — mono eyebrow states count + kind; serif title names the surface */}
+        {/* LEDGER header — the mono thread title names the bloodline + its year-span. */}
         <CosmicHeader
-          eyebrow={
-            entries.length === 0
-              ? 'the whole cloth'
-              : `${entries.length} ${entries.length === 1 ? 'thread' : 'threads'} woven`
-          }
-          title="The Index"
+          eyebrow={headerEyebrow}
+          title="The Family Thread"
           sub={
             entries.length === 0
               ? 'The whole cloth, once you begin to weave.'
@@ -213,8 +242,30 @@ export function LoomIndex() {
           }
         />
 
+        {/* Grouping axis selector — quiet mono control, the decade ledger dominates. */}
+        <div style={{ display: 'flex', gap: 24, marginBottom: 12 }}>
+          {GROUPS.map((g) => (
+            <button
+              key={g}
+              type="button"
+              onClick={() => setGroupBy(g)}
+              style={{
+                background: 'none', border: 0, padding: '10px 0', cursor: 'pointer',
+                fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: groupBy === g ? 'var(--warm)' : 'var(--bone-faint)',
+                borderBottom: groupBy === g ? '1px solid var(--warm)' : '1px solid transparent',
+                transition: `color 180ms ${EASE}, border-color 180ms ${EASE}`,
+                minHeight: 44,
+              }}
+            >
+              {g === 'time' ? 'by time' : g === 'recipient' ? 'by recipient' : 'by mood'}
+            </button>
+          ))}
+        </div>
+
         {/* Quick links — feature destinations, kept as quiet mono text links */}
-        <div style={{ display: 'flex', gap: 20, marginBottom: 32, flexWrap: 'wrap', borderBottom: '1px solid var(--rule)', paddingBottom: 20 }}>
+        <div style={{ display: 'flex', gap: 20, marginBottom: 24, flexWrap: 'wrap', borderBottom: '1px solid var(--rule)', paddingBottom: 18 }}>
           {([
             { label: 'wrapped', to: '/wrapped' },
             { label: 'book', to: '/book-builder' },
@@ -236,53 +287,25 @@ export function LoomIndex() {
           ))}
         </div>
 
-        {/* Grouping axis selector — mono control bar above the list */}
-        <div
-          style={{
-            display: 'flex', gap: 24, marginBottom: 32,
-          }}
-        >
-          {GROUPS.map((g) => (
-            <button
-              key={g}
-              type="button"
-              onClick={() => setGroupBy(g)}
-              style={{
-                background: 'none', border: 0, padding: '10px 0', cursor: 'pointer',
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                color: groupBy === g ? 'var(--warm)' : 'var(--bone-faint)',
-                borderBottom: groupBy === g ? '1px solid var(--warm)' : '1px solid transparent',
-                transition: `color 180ms ${EASE}, border-color 180ms ${EASE}`,
-                minHeight: 44,
-              }}
-            >
-              {g === 'time' ? 'by time' : g === 'recipient' ? 'by recipient' : 'by mood'}
-            </button>
-          ))}
-        </div>
-
-        {/* LEDGER — grouped sections, each with a SectionLabel + EntryRow list */}
+        {/* LEDGER — decade sections, each a SectionLabel above its EntryRow list */}
         {sections.map((sec) => (
           <section key={sec.key} aria-label={sec.key}>
-            <SectionLabel>
-              {sec.key}
-              <span style={{ marginLeft: 14, color: 'var(--bone-faint)', opacity: 0.5 }}>
-                {sec.items.length}
-              </span>
-            </SectionLabel>
+            <SectionLabel>{sec.key}</SectionLabel>
 
             <div>
               {sec.items.map((e) => (
                 <div
                   key={e.id}
-                  style={{ borderLeft: `3px solid ${dyeColor(e.dye)}` }}
+                  style={{ borderLeft: `3px solid ${dyeColor(e.dye)}`, paddingLeft: 18 }}
                 >
+                  {/* dye omitted intentionally: the wrapper div paints the left
+                      thread, and passing dye here would trigger EntryRow's
+                      year/dot/author ledger branch and suppress the month-year meta. */}
                   <EntryRow
                     title={e.title}
+                    sub={entrySub(e)}
                     italic
                     meta={entryMeta(e)}
-                    dye={e.dye}
                     onClick={() => navigate(e.href)}
                   />
                 </div>
@@ -302,7 +325,7 @@ export function LoomIndex() {
           </p>
         )}
 
-        {/* WaxSeal foot */}
+        {/* WaxSeal foot — the ∞ rests at the page's end */}
         <div style={{ marginTop: 72 }}>
           <WaxSeal size={28} />
         </div>

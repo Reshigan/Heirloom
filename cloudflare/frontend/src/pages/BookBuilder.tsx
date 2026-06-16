@@ -8,16 +8,17 @@ import { dyeFromMetadata, dyeForId, type Dye } from '../loom/dye';
 import { memoriesApi, lettersApi, voiceApi, booksApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
-type BookStep = 'select' | 'customize' | 'preview' | 'order';
+type BookStep = 'select' | 'customize' | 'page' | 'preview' | 'order';
 
-// Page-layout templates (mockup 2 — the page-layout chooser folded into the
-// builder). Each is a thin-ruled selectable thumbnail; the active one carries
-// a warm border. The full set is kept even where the mockup shows a subset.
+// Page-layout templates (cosmic-page-templates). Each is a thin-ruled
+// selectable thumbnail; the active one carries a warm border. The chooser
+// renders exactly the four tiles the reference shows, in a clean 2×2 grid —
+// 'chapter-open' stays a valid layout type (LayoutGlyph still handles it) but
+// is not offered as a fifth orphan tile.
 type PageLayout = 'full-bleed' | 'photo-caption' | 'chapter-open' | 'two-column' | 'quote';
 const pageLayouts: { id: PageLayout; label: string }[] = [
-  { id: 'full-bleed', label: 'Full-bleed memory' },
+  { id: 'full-bleed', label: 'Full bleed memory' },
   { id: 'photo-caption', label: 'Text & portrait' },
-  { id: 'chapter-open', label: 'Chapter open' },
   { id: 'two-column', label: 'Two columns' },
   { id: 'quote', label: 'Quiet quote' },
 ];
@@ -44,10 +45,11 @@ const DYE_HEX = {
   weld: '#bda845',
 } as const;
 
-const stepOrder: BookStep[] = ['select', 'customize', 'preview', 'order'];
+const stepOrder: BookStep[] = ['select', 'customize', 'page', 'preview', 'order'];
 const stepLabels: Record<BookStep, string> = {
   select: 'Select',
   customize: 'Customize',
+  page: 'Page',
   preview: 'Preview',
   order: 'Order',
 };
@@ -55,7 +57,8 @@ const stepLabels: Record<BookStep, string> = {
 // COMPOSER: each step leads with its own mono eyebrow + giant serif prompt.
 const stepPrompts: Record<BookStep, { eyebrow: string; prompt: string }> = {
   select: { eyebrow: 'The Volume', prompt: 'Which threads do you bind?' },
-  customize: { eyebrow: 'The Volume', prompt: 'How should it be set?' },
+  customize: { eyebrow: 'The Book', prompt: 'Bind your thread' },
+  page: { eyebrow: 'The Page', prompt: 'Choose a page layout' },
   preview: { eyebrow: 'The Volume', prompt: 'This is your cloth, bound.' },
   order: { eyebrow: 'The Volume', prompt: 'Where shall it be sent?' },
 };
@@ -154,13 +157,24 @@ function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }
   );
   switch (layout) {
     case 'full-bleed':
-      return <div style={{ ...photo, flex: 1 }} />;
-    case 'photo-caption':
+      // a centred photo plate with a serif caption + a few body lines beneath
       return (
         <>
-          <div style={{ ...photo, flex: 2 }} />
+          <div style={{ ...photo, flex: 1.6 }} />
+          <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 9, color: active ? 'var(--warm)' : 'var(--bone-dim)', lineHeight: 1 }}>
+            Full bleed memory
+          </span>
           {lines(2)}
         </>
+      );
+    case 'photo-caption':
+      // a tall block of body text with a small inset portrait
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+          {lines(4)}
+          <div style={{ ...photo, height: 16, width: 22, alignSelf: 'flex-end' }} />
+          {lines(2)}
+        </div>
       );
     case 'chapter-open':
       return (
@@ -172,20 +186,73 @@ function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }
     case 'two-column':
       return (
         <div style={{ display: 'flex', gap: 6, flex: 1 }}>
-          {lines(5)}
-          {lines(5)}
+          {lines(6)}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, justifyContent: 'flex-end' }}>
+            {lines(3)}
+            <div style={{ ...photo, height: 16 }} />
+          </div>
         </div>
       );
     case 'quote':
       return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1, justifyContent: 'center', alignItems: 'center', padding: '0 6px' }}>
-          <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 18, color: ink, lineHeight: 1 }}>“</span>
-          <div style={line('70%')} />
-          <div style={line('84%')} />
-          <div style={line('50%')} />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flex: 1, justifyContent: 'center', alignItems: 'center', padding: '0 8px' }}>
+          <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 20, color: ink, lineHeight: 0.6 }}>“</span>
+          <div style={line('78%')} />
+          <div style={line('92%')} />
+          <div style={line('60%')} />
+          <div style={{ ...photo, height: 14, width: 16, marginTop: 4 }} />
         </div>
       );
   }
+}
+
+/** The bound volume itself — a glowing filament book with the ∞ wax seal on its
+ *  cover. Content-integrated (it IS the volume being made), so it lives in the
+ *  page, not in the global backdrop. Pure SVG line-work, one warm hue. */
+function GlowingBook() {
+  return (
+    <div aria-hidden style={{ display: 'flex', justifyContent: 'center', margin: '8px 0 4px' }}>
+      <svg
+        width="232"
+        height="200"
+        viewBox="0 0 232 200"
+        fill="none"
+        style={{ filter: 'drop-shadow(0 0 22px var(--warm-glow)) drop-shadow(0 0 6px var(--warm-glow))' }}
+      >
+        {/* spine + cover block, drawn as a slight isometric volume */}
+        <g stroke="var(--warm)" strokeWidth="1.25" strokeLinejoin="round" strokeLinecap="round">
+          {/* front cover */}
+          <path d="M58 44 L150 30 L150 158 L58 172 Z" opacity="0.95" />
+          {/* page block / fore-edge */}
+          <path d="M150 30 L186 44 L186 168 L150 158 Z" opacity="0.6" />
+          <path d="M58 172 L94 184 L186 168" opacity="0.6" />
+          {/* leaf hairlines along the fore-edge */}
+          <path d="M154 40 L182 52" opacity="0.32" />
+          <path d="M154 60 L182 72" opacity="0.32" />
+          <path d="M154 80 L182 92" opacity="0.32" />
+          <path d="M154 100 L182 112" opacity="0.32" />
+          <path d="M154 120 L182 132" opacity="0.32" />
+          {/* cover inner frame */}
+          <path d="M70 58 L138 48 L138 146 L70 156 Z" opacity="0.35" />
+        </g>
+        {/* the ∞ wax seal medallion centred on the cover */}
+        <g transform="translate(104 92)">
+          <circle r="18" fill="none" stroke="var(--warm)" strokeWidth="1.25" opacity="0.9" />
+          <circle r="13" fill="none" stroke="var(--warm)" strokeWidth="0.75" opacity="0.5" />
+          <text
+            x="0"
+            y="1"
+            textAnchor="middle"
+            dominantBaseline="central"
+            fill="var(--warm)"
+            style={{ fontSize: 18, fontFamily: 'var(--serif)' }}
+          >
+            ∞
+          </text>
+        </g>
+      </svg>
+    </div>
+  );
 }
 
 export function BookBuilder() {
@@ -194,6 +261,7 @@ export function BookBuilder() {
   const defaultThreadId = user?.defaultThreadId ?? undefined;
   const [step, setStep] = useState<BookStep>('select');
   const [pageLayout, setPageLayout] = useState<PageLayout>('full-bleed');
+  const [copies, setCopies] = useState<number>(1);
   const [shipTo, setShipTo] = useState<ShipTo>(emptyShipTo);
   const [config, setConfig] = useState<BookConfig>({
     title: 'Our Family Memories',
@@ -429,6 +497,30 @@ export function BookBuilder() {
                 <p className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}>
                   {totalItems} chapters chosen · ~{estimatedPages} pages estimated
                 </p>
+
+                {/* what goes inside — the include toggles live with the
+                    chapters they govern */}
+                <RoomSection label="What goes inside">
+                  <div style={{ display: 'grid', gap: 12 }}>
+                    {[
+                      { key: 'includePhotos', label: 'Include photos' },
+                      { key: 'includeTranscriptions', label: 'Include voice transcriptions' },
+                      { key: 'includeDates', label: 'Include dates' },
+                    ].map(({ key, label }) => (
+                      <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={config[key as keyof BookConfig] as boolean}
+                          onChange={(e) => setConfig((prev) => ({ ...prev, [key]: e.target.checked }))}
+                          style={{ width: 14, height: 14, accentColor: 'var(--warm)', cursor: 'pointer' }}
+                        />
+                        <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)' }}>
+                          {label}
+                        </span>
+                      </label>
+                    ))}
+                  </div>
+                </RoomSection>
               </div>
 
               {/* floating page preview — a narrow bound page, decorative only.
@@ -466,199 +558,179 @@ export function BookBuilder() {
             </div>
           )}
 
-          {/* ── Customize ── */}
+          {/* ── Customize — the bound volume (cosmic-book-builder). Reads
+              MINIMAL: glowing book with the ∞ seal, then the quiet 3-row
+              ledger (Copies / Order / Chapters). The PREVIEW pill is the
+              shared step action below. ── */}
           {step === 'customize' && (
-            <div style={{ display: 'grid', gap: 24 }}>
-              <div>
-                <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Book title</label>
-                <input
-                  type="text"
-                  className="hl-book-field"
-                  value={config.title}
-                  onChange={(e) => setConfig((prev) => ({ ...prev, title: e.target.value }))}
-                  style={{ ...inputStyle, fontSize: 'clamp(22px, 4vw, 30px)', fontWeight: 380, lineHeight: 1.2 }}
-                />
-              </div>
-              <div>
-                <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Subtitle (optional)</label>
-                <input
-                  type="text"
-                  className="hl-book-field"
-                  value={config.subtitle}
-                  onChange={(e) => setConfig((prev) => ({ ...prev, subtitle: e.target.value }))}
-                  placeholder="A collection of our most precious moments"
-                  style={inputStyle}
-                />
-              </div>
-              <div>
-                <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Dedication</label>
-                <textarea
-                  className="hl-book-field"
-                  value={config.dedicationText}
-                  onChange={(e) => setConfig((prev) => ({ ...prev, dedicationText: e.target.value }))}
-                  placeholder="For my children, with all my love…"
-                  rows={3}
-                  style={{ ...inputStyle, resize: 'none' }}
-                />
-              </div>
-              <RoomSection label="Cover type">
-                {/* hairline-separated ledger rows — no cards; the chosen cover
-                    carries a warm BOUND marker on its right (mockup). */}
-                <div style={{ borderTop: '1px solid var(--rule)' }}>
-                  {(['hardcover', 'softcover'] as const).map((type) => {
-                    const on = config.coverType === type;
-                    return (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => setConfig((prev) => ({ ...prev, coverType: type }))}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'baseline',
-                          justifyContent: 'space-between',
-                          gap: 16,
-                          width: '100%',
-                          background: 'transparent',
-                          border: 0,
-                          borderBottom: '1px solid var(--rule)',
-                          padding: '15px 0',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
-                        }}
-                      >
-                        <span style={{ minWidth: 0 }}>
-                          <span
-                            className="hl-serif"
-                            style={{
-                              display: 'block',
-                              fontSize: 18,
-                              fontWeight: 400,
-                              fontStyle: on ? 'italic' : 'normal',
-                              textTransform: 'capitalize',
-                              color: on ? 'var(--warm)' : 'var(--bone)',
-                            }}
-                          >
-                            {type}
-                          </span>
-                          <span className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}>
-                            {type === 'hardcover' ? 'Full-colour · case-wrap' : 'Full-colour · softcover'}
-                          </span>
-                        </span>
-                        <span
-                          className="hl-mono"
-                          style={{
-                            fontSize: 10,
-                            letterSpacing: '0.2em',
-                            textTransform: 'uppercase',
-                            color: on ? 'var(--warm)' : 'var(--bone-faint)',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {on ? 'Bound' : 'Choose'}
-                        </span>
-                      </button>
-                    );
-                  })}
+            <div style={{ display: 'grid', gap: 28 }}>
+              {/* the volume itself — glowing book with the ∞ seal (content) */}
+              <GlowingBook />
+
+              {/* the quiet ledger of the volume — serif label left, mono value
+                  right (Copies / Order / Chapters, per cosmic-book-builder).
+                  Copies carries a quiet +/- stepper. */}
+              <div style={{ borderTop: '1px solid var(--rule)', marginTop: 4 }}>
+                {/* Copies — value is a quiet mono +/- stepper */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'baseline',
+                    justifyContent: 'space-between',
+                    gap: 16,
+                    borderBottom: '1px solid var(--rule)',
+                    padding: '15px 0',
+                  }}
+                >
+                  <span className="hl-serif" style={{ fontSize: 18, fontWeight: 400, color: 'var(--bone)' }}>
+                    Copies
+                  </span>
+                  <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 14 }}>
+                    <button
+                      type="button"
+                      aria-label="Fewer copies"
+                      onClick={() => setCopies((c) => Math.max(1, c - 1))}
+                      disabled={copies <= 1}
+                      className="hl-mono"
+                      style={{
+                        background: 'transparent',
+                        border: 0,
+                        padding: 0,
+                        cursor: copies <= 1 ? 'default' : 'pointer',
+                        fontSize: 14,
+                        lineHeight: 1,
+                        color: 'var(--warm)',
+                        opacity: copies <= 1 ? 0.3 : 1,
+                        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
+                    >
+                      −
+                    </button>
+                    <span
+                      className="hl-mono"
+                      style={{ fontSize: 11, letterSpacing: '0.16em', color: 'var(--bone-dim)', minWidth: 18, textAlign: 'center' }}
+                    >
+                      {copies}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label="More copies"
+                      onClick={() => setCopies((c) => Math.min(99, c + 1))}
+                      disabled={copies >= 99}
+                      className="hl-mono"
+                      style={{
+                        background: 'transparent',
+                        border: 0,
+                        padding: 0,
+                        cursor: copies >= 99 ? 'default' : 'pointer',
+                        fontSize: 14,
+                        lineHeight: 1,
+                        color: 'var(--warm)',
+                        opacity: copies >= 99 ? 0.3 : 1,
+                        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
+                    >
+                      +
+                    </button>
+                  </span>
                 </div>
-              </RoomSection>
-              <RoomSection label="Page layout">
-                <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', fontStyle: 'italic', margin: '0 0 18px' }}>
-                  Choose how the current page is set.
-                </p>
-                {/* hairline-separated ledger rows — serif label left, a quiet
-                    thin-ruled glyph + warm SET marker right; no cards, no glow. */}
-                <div style={{ borderTop: '1px solid var(--rule)' }}>
-                  {pageLayouts.map(({ id, label }) => {
-                    const active = pageLayout === id;
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        onClick={() => setPageLayout(id)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          gap: 18,
-                          width: '100%',
-                          background: 'transparent',
-                          border: 0,
-                          borderBottom: '1px solid var(--rule)',
-                          padding: '14px 0',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
-                        }}
-                      >
-                        <span
-                          className="hl-serif"
-                          style={{
-                            fontSize: 18,
-                            fontWeight: 400,
-                            fontStyle: active ? 'italic' : 'normal',
-                            color: active ? 'var(--warm)' : 'var(--bone)',
-                          }}
-                        >
-                          {label}
-                        </span>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 16, flex: '0 0 auto' }}>
-                          {/* the layout glyph kept as a small quiet preview block */}
-                          <span
-                            aria-hidden
-                            style={{
-                              width: 30,
-                              height: 40,
-                              border: `1px solid ${active ? 'var(--warm-dim, rgba(176,122,74,0.5))' : 'var(--rule)'}`,
-                              padding: 5,
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: 4,
-                              overflow: 'hidden',
-                              flex: '0 0 auto',
-                            }}
-                          >
-                            <LayoutGlyph layout={id} active={active} />
-                          </span>
-                          <span
-                            className="hl-mono"
-                            style={{
-                              fontSize: 10,
-                              letterSpacing: '0.2em',
-                              textTransform: 'uppercase',
-                              color: active ? 'var(--warm)' : 'var(--bone-faint)',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            {active ? 'Set' : 'Use'}
-                          </span>
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </RoomSection>
-              <RoomSection label="What goes inside">
-                <div style={{ display: 'grid', gap: 12 }}>
                 {[
-                  { key: 'includePhotos', label: 'Include photos' },
-                  { key: 'includeTranscriptions', label: 'Include voice transcriptions' },
-                  { key: 'includeDates', label: 'Include dates' },
-                ].map(({ key, label }) => (
-                  <label key={key} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={config[key as keyof BookConfig] as boolean}
-                      onChange={(e) => setConfig((prev) => ({ ...prev, [key]: e.target.checked }))}
-                      style={{ width: 14, height: 14, accentColor: 'var(--warm)', cursor: 'pointer' }}
-                    />
-                    <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)' }}>
+                  { label: 'Order', value: 'Chronological' },
+                  { label: 'Chapters', value: 'By decade' },
+                ].map(({ label, value }) => (
+                  <div
+                    key={label}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'baseline',
+                      justifyContent: 'space-between',
+                      gap: 16,
+                      borderBottom: '1px solid var(--rule)',
+                      padding: '15px 0',
+                    }}
+                  >
+                    <span className="hl-serif" style={{ fontSize: 18, fontWeight: 400, color: 'var(--bone)' }}>
                       {label}
                     </span>
-                  </label>
+                    <span className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.16em', color: 'var(--bone-dim)' }}>
+                      {value}
+                    </span>
+                  </div>
                 ))}
-                </div>
-              </RoomSection>
+              </div>
+            </div>
+          )}
+
+          {/* ── The page — its own step (cosmic-page-templates). A 2×2 grid of
+              template thumbnails; the chosen layout carries a warm border. The
+              "APPLY TO CHAPTER" pill (shared step action below) advances to
+              preview. ── */}
+          {step === 'page' && (
+            <div style={{ display: 'grid', gap: 28 }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                  gap: 'clamp(16px, 4vw, 30px)',
+                }}
+              >
+                {pageLayouts.map(({ id, label }) => {
+                  const active = pageLayout === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setPageLayout(id)}
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: 12,
+                        background: 'transparent',
+                        border: 0,
+                        padding: 0,
+                        cursor: 'pointer',
+                        textAlign: 'center',
+                        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                      }}
+                    >
+                      {/* the page-shaped thumbnail — warm border when chosen */}
+                      <span
+                        aria-hidden
+                        style={{
+                          width: '100%',
+                          aspectRatio: '0.78',
+                          border: `1px solid ${active ? 'var(--warm)' : 'var(--rule)'}`,
+                          background: active ? 'rgba(176,122,74,0.05)' : 'var(--ink-card)',
+                          padding: active ? 11 : 12,
+                          outline: active ? '1px solid var(--warm-dim, rgba(176,122,74,0.5))' : 'none',
+                          outlineOffset: 5,
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 6,
+                          overflow: 'hidden',
+                          transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        }}
+                      >
+                        <LayoutGlyph layout={id} active={active} />
+                      </span>
+                      <span
+                        className="hl-mono"
+                        style={{
+                          fontSize: 9,
+                          letterSpacing: '0.22em',
+                          textTransform: 'uppercase',
+                          color: active ? 'var(--warm)' : 'var(--bone-faint)',
+                          transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        }}
+                      >
+                        {label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 
@@ -766,6 +838,110 @@ export function BookBuilder() {
           {/* ── Order ── */}
           {step === 'order' && (
             <div style={{ maxWidth: 480 }}>
+              {/* Inscription — title / subtitle / dedication, flat serif
+                  underline fields (relocated off customize to keep that screen
+                  minimal; all three stay wired to the export call). */}
+              <h3 className="hl-serif" style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', margin: '0 0 20px' }}>
+                The inscription
+              </h3>
+              <div style={{ display: 'grid', gap: 28, marginBottom: 40 }}>
+                <div>
+                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Book title</label>
+                  <input
+                    type="text"
+                    className="hl-book-field"
+                    value={config.title}
+                    onChange={(e) => setConfig((prev) => ({ ...prev, title: e.target.value }))}
+                    style={{ ...inputStyle, fontSize: 'clamp(22px, 4vw, 30px)', fontWeight: 380, lineHeight: 1.2 }}
+                  />
+                </div>
+                <div>
+                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Subtitle (optional)</label>
+                  <input
+                    type="text"
+                    className="hl-book-field"
+                    value={config.subtitle}
+                    onChange={(e) => setConfig((prev) => ({ ...prev, subtitle: e.target.value }))}
+                    placeholder="A collection of our most precious moments"
+                    style={inputStyle}
+                  />
+                </div>
+                <div>
+                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Dedication</label>
+                  <textarea
+                    className="hl-book-field"
+                    value={config.dedicationText}
+                    onChange={(e) => setConfig((prev) => ({ ...prev, dedicationText: e.target.value }))}
+                    placeholder="For my children, with all my love…"
+                    rows={3}
+                    style={{ ...inputStyle, resize: 'none' }}
+                  />
+                </div>
+
+                {/* Cover type — relocated here, next to the pricing it drives.
+                    Hairline-separated ledger rows; the chosen cover carries a
+                    warm BOUND marker. */}
+                <RoomSection label="Cover type">
+                  <div style={{ borderTop: '1px solid var(--rule)' }}>
+                    {(['hardcover', 'softcover'] as const).map((type) => {
+                      const on = config.coverType === type;
+                      return (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setConfig((prev) => ({ ...prev, coverType: type }))}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'baseline',
+                            justifyContent: 'space-between',
+                            gap: 16,
+                            width: '100%',
+                            background: 'transparent',
+                            border: 0,
+                            borderBottom: '1px solid var(--rule)',
+                            padding: '15px 0',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                          }}
+                        >
+                          <span style={{ minWidth: 0 }}>
+                            <span
+                              className="hl-serif"
+                              style={{
+                                display: 'block',
+                                fontSize: 18,
+                                fontWeight: 400,
+                                fontStyle: on ? 'italic' : 'normal',
+                                textTransform: 'capitalize',
+                                color: on ? 'var(--warm)' : 'var(--bone)',
+                              }}
+                            >
+                              {type}
+                            </span>
+                            <span className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}>
+                              {type === 'hardcover' ? 'Full-colour · case-wrap' : 'Full-colour · softcover'}
+                            </span>
+                          </span>
+                          <span
+                            className="hl-mono"
+                            style={{
+                              fontSize: 10,
+                              letterSpacing: '0.2em',
+                              textTransform: 'uppercase',
+                              color: on ? 'var(--warm)' : 'var(--bone-faint)',
+                              whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {on ? 'Bound' : 'Choose'}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </RoomSection>
+              </div>
+
               {/* Order summary */}
               <h3 className="hl-serif" style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', margin: '0 0 20px' }}>
                 Order summary
@@ -777,6 +953,7 @@ export function BookBuilder() {
                   { label: 'Cover', value: config.coverType, capitalize: true },
                   { label: 'Pages (est.)', value: String(estimatedPages) },
                   { label: 'Items included', value: String(totalItems) },
+                  { label: 'Copies', value: String(copies) },
                 ].map(({ label, value, capitalize }) => (
                   <div
                     key={label}
@@ -1021,7 +1198,7 @@ export function BookBuilder() {
                 transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
               }}
             >
-              {step === 'select' ? 'Bind the Volume' : step === 'customize' ? 'Preview' : 'Continue'}
+              {step === 'select' ? 'Bind the Volume' : step === 'customize' ? 'Preview' : step === 'page' ? 'Apply to Chapter' : 'Continue'}
             </button>
           )}
 

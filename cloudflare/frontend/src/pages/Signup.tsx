@@ -158,7 +158,8 @@ export function Signup() {
     >
       <div style={{ width: '100%', maxWidth: 440, margin: '0 auto' }}>
 
-        {/* FORM archetype header — mono eyebrow + giant centered serif headline */}
+        {/* FORM archetype header — mono eyebrow + giant centered serif headline.
+            The headline IS the hero (matches the go-live ceremony intro). */}
         <div style={{ textAlign: 'center', marginBottom: 'clamp(48px,8vh,80px)' }}>
           <div
             className="hl-mono"
@@ -167,38 +168,25 @@ export function Signup() {
               letterSpacing: '0.34em',
               textTransform: 'uppercase',
               color: 'var(--bone-faint)',
-              marginBottom: 24,
+              marginBottom: 28,
             }}
           >
             begin a thread
           </div>
           <h1
-            className="hl-serif"
+            className="hl-serif hl-tight"
             style={{
-              fontSize: 'clamp(40px,9vw,72px)',
+              fontSize: 'clamp(34px,8vw,56px)',
               fontWeight: 300,
               letterSpacing: '-0.025em',
-              lineHeight: 1.05,
+              lineHeight: 1.08,
               margin: 0,
               color: 'var(--bone)',
               fontVariationSettings: '"opsz" 40',
             }}
           >
-            Heirloom
-          </h1>
-          <p
-            className="hl-serif"
-            style={{
-              fontStyle: 'italic',
-              fontSize: 16,
-              color: 'var(--bone-dim)',
-              marginTop: 18,
-              lineHeight: 1.55,
-              fontWeight: 300,
-            }}
-          >
             Start your family's thousand-year thread.
-          </p>
+          </h1>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -414,7 +402,7 @@ export function Signup() {
             </p>
           )}
 
-          {/* warm primary CTA — mono uppercase, pill form, ≥44px touch target */}
+          {/* outlined amber mono pill — the single accent (mirrors the Login pill) */}
           <button
             type="submit"
             disabled={isLoading}
@@ -423,26 +411,26 @@ export function Signup() {
               width: '100%',
               minHeight: 44,
               cursor: isLoading ? 'default' : 'pointer',
-              background: 'var(--warm)',
-              border: 0,
-              borderRadius: 2,
-              color: 'var(--ink)',
+              background: 'transparent',
+              border: '1px solid var(--warm)',
+              borderRadius: 999,
+              color: 'var(--warm)',
               padding: '14px 24px',
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.26em',
+              letterSpacing: '0.3em',
               textTransform: 'uppercase',
               opacity: isLoading ? 0.5 : 1,
-              transition: `opacity 180ms ${EASE}, background 180ms ${EASE}`,
+              transition: `opacity 360ms ${EASE}, border-color 360ms ${EASE}, color 360ms ${EASE}`,
             }}
-            onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.background = 'var(--warm-bright)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--warm)'; }}
+            onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.borderColor = 'var(--warm-bright)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--warm)'; }}
           >
             {isLoading
               ? 'beginning…'
               : tier === 'family'
-                ? 'continue · 30-day trial of family'
-                : 'begin your thread'}
+                ? 'begin the thread · 30-day family trial'
+                : 'begin the thread'}
           </button>
 
           {/* isLoading progress hairline — 1px, no spinner */}
@@ -466,16 +454,23 @@ export function Signup() {
           </p>
         </form>
 
-        {/* quiet secondary link — sign in */}
-        <div style={{ textAlign: 'center', marginTop: 'clamp(40px,7vh,64px)' }}>
+        {/* quiet secondary link — already weaving? · sign in */}
+        <div
+          className="hl-mono"
+          style={{
+            textAlign: 'center',
+            marginTop: 'clamp(40px,7vh,64px)',
+            fontSize: 10,
+            letterSpacing: '0.26em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+          }}
+        >
+          already weaving?&nbsp;·&nbsp;
           <Link
             to="/login"
-            className="hl-mono"
             style={{
-              fontSize: 10,
-              letterSpacing: '0.26em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
+              color: 'var(--bone-dim)',
               textDecoration: 'none',
               borderBottom: '1px solid var(--rule-strong)',
               paddingBottom: 4,

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
-import { CosmicHeader, WaxSeal, SectionLabel, WarmDot } from '../loom/cosmic/CosmicUI';
+import { WaxSeal, SectionLabel, WarmDot } from '../loom/cosmic/CosmicUI';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeColor } from '../loom/dye';
@@ -23,10 +23,58 @@ function letterYear(letter: Letter): string {
   return Number.isNaN(d.getTime()) ? '' : String(d.getFullYear());
 }
 
+/**
+ * The ceremony title that reads "<Name>, on your <occasion>" — the occasion
+ * is the letter's milestone / delivery trigger, falling back to the open year.
+ */
+function letterTitle(letter: Letter): string {
+  const name = letter.recipients?.[0]?.name?.trim();
+  const occasion = (letter.milestoneLabel || letter.deliveryTrigger || '').trim();
+  if (name && occasion) return `${name}, on your ${occasion.toLowerCase()}`;
+  if (name) return name;
+  return letter.salutation || letter.title || 'A letter';
+}
+
+/** The mono "OPENS WHEN <condition>" line for the card foot. */
+function opensCondition(letter: Letter): string {
+  const occasion = (letter.milestoneLabel || letter.deliveryTrigger || '').trim();
+  if (occasion) {
+    const name = letter.recipients?.[0]?.name?.trim();
+    return name ? `opens when ${name.toLowerCase()} ${occasion.toLowerCase()}` : `opens · ${occasion.toLowerCase()}`;
+  }
+  const year = letterYear(letter);
+  return year ? `opens ${year}` : 'opens when the day comes';
+}
+
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+
+/**
+ * Choose the letter the room leads with as a full seal ceremony. We surface the
+ * letter that most wants attention right now: the first unsealed DRAFT (so the
+ * reader can finish the rite and seal it), and failing that the next letter to
+ * open / most recently sealed.
+ */
+function chooseFeatured(letters: Letter[], wantId: string | null): Letter | null {
+  if (letters.length === 0) return null;
+  if (wantId) {
+    const requested = letters.find((l) => l.id === wantId);
+    if (requested) return requested;
+  }
+  const firstDraft = letters.find((l) => !l.sealedAt);
+  if (firstDraft) return firstDraft;
+
+  // No drafts — feature the sealed letter that opens soonest, else the newest.
+  const sealed = [...letters].sort((a, b) => {
+    const ay = new Date(a.scheduledDate || a.sealedAt || a.createdAt || a.created_at || 0).getTime();
+    const by = new Date(b.scheduledDate || b.sealedAt || b.createdAt || b.created_at || 0).getTime();
+    return ay - by;
+  });
+  return sealed[0] ?? letters[0];
+}
 
 export function LetterRoom() {
   const { isAuthenticated } = useAuthStore();
+  const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const wantId = searchParams.get('id');
   const [expandedId, setExpandedId] = useState<string | null>(wantId);
@@ -38,10 +86,24 @@ export function LetterRoom() {
     enabled: isAuthenticated,
   });
 
+  // Seal the letter — the rite that closes its words until the day they open.
+  const sealMutation = useMutation({
+    mutationFn: (id: string) => lettersApi.seal(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['letters'] });
+    },
+  });
+
   const letters: Letter[] = (data as { data: Letter[] } | null)?.data ?? [];
 
-  // A letter tapped on the cloth arrives as ?id=<id> — open it and bring it
-  // into view once the list has rendered.
+  // The featured letter leads the room as a full ceremony; the rest fall to the
+  // quiet ledger below. When ?id= points at a letter, that one is featured.
+  const featured = chooseFeatured(letters, wantId);
+  const rest = featured ? letters.filter((l) => l.id !== featured.id) : letters;
+
+  // A letter tapped on the cloth arrives as ?id=<id> — open it in the ledger and
+  // bring it into view once the list has rendered (the featured one is already
+  // shown in full at the top, so this is only for ledger rows).
   useEffect(() => {
     if (!wantId || letters.length === 0) return;
     setExpandedId(wantId);
@@ -49,19 +111,21 @@ export function LetterRoom() {
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [wantId, letters.length]);
 
-  // Fetch full body when a letter is expanded
+  // Fetch full body for the featured ceremony and any expanded ledger letter.
   useEffect(() => {
-    if (!expandedId) return;
-    if (fullBodies[expandedId]) return; // already fetched
-    lettersApi.getOne(expandedId)
-      .then((r) => {
-        const body = r.data?.body ?? '';
-        if (body) setFullBodies((prev) => ({ ...prev, [expandedId]: body }));
-      })
-      .catch(() => {
-        // silently fall back to bodyPreview
-      });
-  }, [expandedId]); // eslint-disable-line react-hooks/exhaustive-deps
+    const ids = [featured?.id, expandedId].filter((id): id is string => !!id && !fullBodies[id]);
+    if (ids.length === 0) return;
+    for (const id of ids) {
+      lettersApi.getOne(id)
+        .then((r) => {
+          const body = r.data?.body ?? '';
+          if (body) setFullBodies((prev) => ({ ...prev, [id]: body }));
+        })
+        .catch(() => {
+          // silently fall back to bodyPreview
+        });
+    }
+  }, [featured?.id, expandedId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const topbarLeft = (
     <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'letters' }]} />
@@ -80,49 +144,191 @@ export function LetterRoom() {
       />
 
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
-        <CosmicHeader
-          eyebrow={`${letters.length} ${letters.length === 1 ? 'letter' : 'letters'}`}
-          title="Letters waiting to be read."
-        />
-
-        {/* CTA — seal a new letter */}
-        <Link
-          to="/loom/compose-letter"
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 10,
-            marginBottom: 32, textDecoration: 'none',
-            fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
-            textTransform: 'uppercase', color: 'var(--warm)',
-          }}
-        >
-          seal a new letter
-          <span aria-hidden>→</span>
-        </Link>
-
-        {/* Empty state — quiet serif-italic line */}
-        {!isLoading && letters.length === 0 && (
-          <div style={{ paddingTop: 48 }}>
-            <p style={{
-              fontFamily: 'var(--serif)', fontSize: 19, fontStyle: 'italic',
-              fontWeight: 300, color: 'var(--bone-dim)', lineHeight: 1.7, margin: '0 0 4px',
+        {/* Empty state — the ceremony framing inviting the first letter. */}
+        {!isLoading && !featured && (
+          <div style={{ textAlign: 'center', paddingTop: 'clamp(24px,8vh,72px)' }}>
+            <div style={{
+              fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.32em',
+              textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 16,
             }}>
-              There is someone who needs to read this.
-            </p>
-            <p style={{
-              fontFamily: 'var(--serif)', fontSize: 19, fontStyle: 'italic',
-              fontWeight: 300, color: 'var(--bone-faint)', lineHeight: 1.7, margin: 0,
+              a letter to
+            </div>
+            <h1 style={{
+              fontFamily: 'var(--serif)', fontWeight: 380,
+              fontSize: 'clamp(30px,7vw,52px)', lineHeight: 1.06,
+              letterSpacing: '-0.012em', color: 'var(--bone)',
+              margin: '0 auto', maxWidth: '12em',
+              fontVariationSettings: '"opsz" 40',
             }}>
-              Just not yet.
+              Someone who isn’t ready to read it yet.
+            </h1>
+            <p style={{
+              fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+              fontSize: 18, color: 'var(--bone-dim)', lineHeight: 1.7,
+              margin: '24px auto 0', maxWidth: '26em',
+            }}>
+              A sealed letter waits across years for the day it is meant to open.
+              Write the first.
             </p>
+            <div style={{ marginTop: 40, display: 'flex', justifyContent: 'center' }}>
+              <Link
+                to="/loom/compose-letter"
+                style={{
+                  display: 'inline-flex', alignItems: 'center',
+                  background: 'var(--warm)', border: '1px solid var(--warm)',
+                  borderRadius: 999, color: 'var(--ink)', textDecoration: 'none',
+                  fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
+                  textTransform: 'uppercase', padding: '13px 28px',
+                }}
+              >
+                write a letter
+              </Link>
+            </div>
           </div>
         )}
 
-        {/* Letters */}
-        {letters.length > 0 && (
-          <>
+        {/* The featured letter — led as the full seal ceremony. */}
+        {featured && (() => {
+          const isSealed = !!featured.sealedAt;
+          const body = fullBodies[featured.id] || featured.bodyPreview || '';
+
+          return (
+            <section style={{ textAlign: 'center', animation: `hl-fade 360ms ${EASE}` }}>
+              <div style={{
+                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.32em',
+                textTransform: 'uppercase', color: 'var(--warm)', marginBottom: 16,
+              }}>
+                a letter to
+              </div>
+              <h1 style={{
+                fontFamily: 'var(--serif)', fontWeight: 380,
+                fontSize: 'clamp(30px,7vw,52px)', lineHeight: 1.06,
+                letterSpacing: '-0.012em', color: 'var(--bone)',
+                margin: '0 auto 32px', maxWidth: '13em',
+                fontVariationSettings: '"opsz" 40',
+              }}>
+                {letterTitle(featured)}
+              </h1>
+
+              {/* The glowing letter card — warm-edged glow, ink fill. This IS the
+                  content; sealed letters show a quiet kept-words line instead. */}
+              <div style={{
+                border: '1px solid var(--warm-dim)',
+                borderRadius: 4,
+                padding: 'clamp(24px,6vw,44px)',
+                background: 'rgba(176,122,74,0.05)',
+                boxShadow: '0 0 60px -12px var(--warm-glow), inset 0 0 80px -40px var(--warm-glow)',
+                maxWidth: '38em', margin: '0 auto', textAlign: 'left',
+              }}>
+                {isSealed && !body ? (
+                  <p style={{
+                    fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+                    fontSize: 18, color: 'var(--bone-dim)', lineHeight: 1.75,
+                    margin: 0, textAlign: 'center',
+                  }}>
+                    This letter is sealed. Its words will keep until the day they are
+                    meant to be read.
+                  </p>
+                ) : (
+                  <>
+                    <p style={{
+                      fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 300,
+                      color: 'var(--bone)', lineHeight: 1.75, margin: 0,
+                      whiteSpace: 'pre-wrap',
+                    }}>
+                      {body}
+                    </p>
+                    {featured.signature && (
+                      <p style={{
+                        fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+                        fontSize: 18, color: 'var(--bone-dim)', lineHeight: 1.75,
+                        margin: '24px 0 0',
+                      }}>
+                        {featured.signature}
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Foot of the ceremony — wax seal at left, the rite pill at right. */}
+              <div style={{
+                marginTop: 28, display: 'flex', alignItems: 'center',
+                justifyContent: 'center', gap: 18, flexWrap: 'wrap',
+              }}>
+                <WaxSeal size={26} />
+                {isSealed ? (
+                  <Link
+                    to={`/loom/compose-letter?id=${featured.id}`}
+                    aria-disabled
+                    onClick={(e) => e.preventDefault()}
+                    style={{
+                      border: '1px solid var(--warm-dim)', borderRadius: 999,
+                      color: 'var(--warm-dim)', textDecoration: 'none',
+                      fontFamily: 'var(--mono)', fontSize: 11,
+                      letterSpacing: '0.26em', textTransform: 'uppercase',
+                      padding: '12px 26px', cursor: 'default',
+                    }}
+                  >
+                    sealed
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={sealMutation.isPending}
+                    onClick={() => sealMutation.mutate(featured.id)}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--warm)',
+                      borderRadius: 999,
+                      color: 'var(--warm)',
+                      fontFamily: 'var(--mono)', fontSize: 11,
+                      letterSpacing: '0.26em', textTransform: 'uppercase',
+                      padding: '12px 26px',
+                      cursor: sealMutation.isPending ? 'default' : 'pointer',
+                      opacity: sealMutation.isPending ? 0.5 : 1,
+                      transition: `opacity 180ms ${EASE}`,
+                    }}
+                  >
+                    {sealMutation.isPending ? 'sealing…' : 'seal this letter'}
+                  </button>
+                )}
+              </div>
+
+              {/* The quiet open-condition line. */}
+              <div style={{
+                marginTop: 16,
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                textTransform: 'uppercase', color: 'var(--bone-faint)',
+              }}>
+                {opensCondition(featured)}
+              </div>
+
+              {/* Quiet affordance to keep editing a featured draft. */}
+              {!isSealed && (
+                <div style={{ marginTop: 18 }}>
+                  <Link
+                    to={`/loom/compose-letter?id=${featured.id}`}
+                    style={{
+                      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
+                      textTransform: 'uppercase', color: 'var(--warm-dim)',
+                      textDecoration: 'none',
+                    }}
+                  >
+                    edit this letter
+                  </Link>
+                </div>
+              )}
+            </section>
+          );
+        })()}
+
+        {/* The rest of the letters — a quiet ledger below the ceremony. */}
+        {rest.length > 0 && (
+          <div style={{ marginTop: 'clamp(48px,10vh,88px)' }}>
             <SectionLabel>The Letters</SectionLabel>
             <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {letters.map((letter) => {
+              {rest.map((letter) => {
                 const dye = dyeColor(letter.id, letter.metadata);
                 const recipientName = letter.recipients?.[0]?.name ?? null;
                 const isExpanded = expandedId === letter.id;
@@ -150,7 +356,7 @@ export function LetterRoom() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
                       <div style={{ minWidth: 0, flex: 1 }}>
                         <h2 style={{
-                          fontFamily: 'var(--serif)', fontSize: 'clamp(24px,5vw,34px)',
+                          fontFamily: 'var(--serif)', fontSize: 'clamp(22px,4vw,30px)',
                           fontWeight: 400, color: 'var(--bone)', lineHeight: 1.12,
                           letterSpacing: '-0.01em', margin: 0,
                         }}>
@@ -223,12 +429,7 @@ export function LetterRoom() {
                             animation: `hl-fade 360ms ${EASE}`,
                           }}
                         >
-                          <div aria-hidden style={{
-                            color: 'var(--warm)', fontSize: 'clamp(40px,10vw,64px)', lineHeight: 1,
-                            textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
-                          }}>
-                            ∞
-                          </div>
+                          <WaxSeal size={56} />
                           <div style={{
                             marginTop: 18,
                             fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
@@ -245,32 +446,91 @@ export function LetterRoom() {
                           </p>
                         </div>
                       ) : (
-                        // Reading recipe — justified serif body
+                        // The ceremony — "A LETTER TO" eyebrow, serif title, the
+                        // glowing letter card, then the wax seal + SEAL THIS LETTER rite.
                         <div
                           style={{
-                            marginTop: 24, paddingTop: 24,
+                            marginTop: 28, paddingTop: 28,
                             borderTop: '1px solid var(--rule)',
                             animation: `hl-fade 360ms ${EASE}`,
                           }}
                         >
-                          <p style={{
-                            fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 300,
-                            color: 'var(--bone)', lineHeight: 1.75, margin: '0 auto',
-                            maxWidth: '62ch', textAlign: 'justify', whiteSpace: 'pre-wrap',
+                          <div style={{
+                            fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.32em',
+                            textTransform: 'uppercase', color: 'var(--warm)',
+                            textAlign: 'center', marginBottom: 14,
                           }}>
-                            {fullBodies[letter.id] || letter.bodyPreview}
-                          </p>
-                          {letter.signature && (
+                            a letter to
+                          </div>
+                          <h3 style={{
+                            fontFamily: 'var(--serif)', fontWeight: 380,
+                            fontSize: 'clamp(28px,6vw,40px)', lineHeight: 1.08,
+                            letterSpacing: '-0.012em', color: 'var(--bone)',
+                            textAlign: 'center', margin: '0 auto 30px', maxWidth: '14em',
+                            fontVariationSettings: '"opsz" 40',
+                          }}>
+                            {letterTitle(letter)}
+                          </h3>
+
+                          {/* The glowing letter card — this card IS the content. */}
+                          <div style={{
+                            border: '1px solid var(--warm-dim)',
+                            borderRadius: 4,
+                            padding: 'clamp(24px,6vw,40px)',
+                            background: 'rgba(176,122,74,0.05)',
+                            boxShadow: '0 0 60px -12px var(--warm-glow), inset 0 0 80px -40px var(--warm-glow)',
+                            maxWidth: '38em', margin: '0 auto',
+                          }}>
                             <p style={{
-                              fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
-                              fontSize: 18, color: 'var(--bone-dim)', lineHeight: 1.75,
-                              margin: '24px auto 0', maxWidth: '62ch',
+                              fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 300,
+                              color: 'var(--bone)', lineHeight: 1.75, margin: 0,
+                              whiteSpace: 'pre-wrap',
                             }}>
-                              {letter.signature}
+                              {fullBodies[letter.id] || letter.bodyPreview}
                             </p>
-                          )}
-                          <div style={{ marginTop: 36 }}>
+                            {letter.signature && (
+                              <p style={{
+                                fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+                                fontSize: 18, color: 'var(--bone-dim)', lineHeight: 1.75,
+                                margin: '24px 0 0',
+                              }}>
+                                {letter.signature}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Wax-seal dot + SEAL THIS LETTER pill, OPENS WHEN beneath. */}
+                          <div style={{
+                            marginTop: 28, display: 'flex', alignItems: 'center',
+                            justifyContent: 'center', gap: 18, flexWrap: 'wrap',
+                          }}>
                             <WaxSeal size={26} />
+                            <button
+                              type="button"
+                              disabled={sealMutation.isPending}
+                              onClick={() => sealMutation.mutate(letter.id)}
+                              style={{
+                                background: 'transparent',
+                                border: '1px solid var(--warm)',
+                                borderRadius: 999,
+                                color: 'var(--warm)',
+                                fontFamily: 'var(--mono)', fontSize: 11,
+                                letterSpacing: '0.26em', textTransform: 'uppercase',
+                                padding: '12px 26px',
+                                cursor: sealMutation.isPending ? 'default' : 'pointer',
+                                opacity: sealMutation.isPending ? 0.5 : 1,
+                                transition: `opacity 180ms ${EASE}`,
+                              }}
+                            >
+                              {sealMutation.isPending ? 'sealing…' : 'seal this letter'}
+                            </button>
+                          </div>
+                          <div style={{
+                            marginTop: 16, textAlign: 'center',
+                            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                            textTransform: 'uppercase', color: 'var(--bone-faint)',
+                          }}>
+                            {opensCondition(letter)}
                           </div>
                         </div>
                       )
@@ -279,13 +539,24 @@ export function LetterRoom() {
                 );
               })}
             </div>
-          </>
+          </div>
         )}
 
-        {/* Page foot seal */}
-        {letters.length > 0 && (
-          <div style={{ marginTop: 56 }}>
-            <WaxSeal />
+        {/* Page foot — quiet "seal a new letter" affordance. */}
+        {featured && (
+          <div style={{ marginTop: 56, textAlign: 'center' }}>
+            <Link
+              to="/loom/compose-letter"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 10,
+                textDecoration: 'none',
+                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
+                textTransform: 'uppercase', color: 'var(--warm)',
+              }}
+            >
+              seal a new letter
+              <span aria-hidden>→</span>
+            </Link>
           </div>
         )}
       </div>

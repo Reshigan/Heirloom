@@ -38,6 +38,7 @@ interface UnlockLetter {
   signature: string;
   writtenDate: string;   // formatted, when the letter was written
   sealedDate: string;    // formatted, when it was tied off
+  sealedStamp: string;   // "14 JAN 1999" — the eyebrow's date stamp
   openedDate: string;    // formatted, when it untied / is due to
   writtenYear: string;   // year only, when it was written (byline)
   sealedYear: string;    // year only, for the SEALED yyyy label
@@ -51,6 +52,24 @@ const fmtYear = (iso?: string | null): string =>
 
 const fmtDate = (iso?: string | null): string =>
   iso ? new Date(iso).toISOString().slice(0, 10).replace(/-/g, '·') : '';
+
+// "14 JAN 1999" — the eyebrow's archival date stamp.
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+const fmtStamp = (iso?: string | null): string => {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+};
+
+// The letter's opening line — its first sentence, set in italic serif under the
+// headline. Falls back to the salutation when the body is empty.
+function openingLine(salutation: string, body: string): string {
+  const first = (body || '').trim().split(/\n+/)[0]?.trim() ?? '';
+  if (!first) return salutation;
+  const sentence = first.split(/(?<=[.!?…])\s/)[0]?.trim() ?? first;
+  const clipped = sentence.length > 96 ? `${sentence.slice(0, 95).trim()}…` : sentence;
+  return clipped.replace(/[.…]+$/, '') + '…';
+}
 
 function wholeYears(fromIso?: string | null, toIso?: string | null): number {
   if (!fromIso || !toIso) return 0;
@@ -120,6 +139,7 @@ export function Unlock() {
           signature: full.signature || authorName || '',
           writtenDate: fmtDate(writtenIso),
           sealedDate: fmtDate(full.sealedAt || head.sealedAt),
+          sealedStamp: fmtStamp(full.sealedAt || head.sealedAt),
           openedDate: fmtDate(full.scheduledDate || head.scheduledDate),
           writtenYear: fmtYear(writtenIso),
           sealedYear: fmtYear(full.sealedAt || head.sealedAt),
@@ -212,13 +232,15 @@ export function Unlock() {
           {/* center stage — the 720ms typographic dissolve */}
           <div style={{ display: 'grid', placeItems: 'center', position: 'relative' }}>
             <div style={{ position: 'relative', maxWidth: 600, width: '100%', minHeight: 460 }}>
-              {/* THE SEAL — the ceremony card: glowing ∞, title, dates, byline */}
+              {/* THE OPENING — mono eyebrow stamp at top, the wax-knot breaking
+                  into embers carried by the global backdrop, then the centred
+                  headline + the letter's opening line in italic serif. */}
               <div
                 style={{
                   position: 'absolute',
                   inset: 0,
                   display: 'grid',
-                  placeItems: 'center',
+                  gridTemplateRows: 'auto 1fr',
                   textAlign: 'center',
                   opacity: sealedRest ? 1 : 0,
                   transform: sealedRest ? 'scale(1)' : 'scale(1.08)',
@@ -226,107 +248,81 @@ export function Unlock() {
                   pointerEvents: sealedRest ? 'auto' : 'none',
                 }}
               >
-                {/* one faint rounded-rect frame — the ceremony card */}
+                {/* mono eyebrow — SEALED <date> · OPENED TODAY / OPENS yyyy */}
                 <div
                   style={{
-                    display: 'grid',
-                    placeItems: 'center',
-                    gap: 'clamp(22px, 4.5vh, 38px)',
-                    maxWidth: 460,
-                    width: '100%',
-                    border: '1px solid var(--rule)',
-                    borderRadius: 14,
-                    padding: 'clamp(40px, 8vh, 72px) clamp(28px, 6vw, 56px)',
+                    fontFamily: 'var(--mono)',
+                    fontSize: 11,
+                    letterSpacing: '0.28em',
+                    textTransform: 'uppercase',
+                    color: 'var(--bone-faint)',
                   }}
                 >
-                  {/* the glowing warm ∞ */}
-                  <div
-                    aria-hidden
-                    style={{
-                      fontFamily: 'var(--serif)',
-                      fontVariationSettings: "'opsz' 48",
-                      fontSize: 'clamp(40px, 10vw, 64px)',
-                      fontWeight: 400,
-                      lineHeight: 1,
-                      color: 'var(--warm)',
-                      textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
-                    }}
-                  >
-                    ∞
-                  </div>
+                  {[
+                    letter.sealedStamp ? `sealed ${letter.sealedStamp}` : 'sealed',
+                    letter.openable ? 'opened today' : `opens ${letter.openedYear}`,
+                  ].join(' · ')}
+                </div>
 
-                  {/* the letter's title */}
-                  <h1
-                    style={{
-                      margin: 0,
-                      fontFamily: 'var(--serif)',
-                      fontVariationSettings: "'opsz' 40",
-                      fontSize: 'clamp(24px, 5vw, 34px)',
-                      fontWeight: 380,
-                      lineHeight: 1.12,
-                      letterSpacing: '-0.015em',
-                      color: 'var(--bone)',
-                    }}
-                  >
-                    {letter.title}
-                  </h1>
-
-                  {/* mono meta — SEALED · OPENS yyyy   (or the unlock affordance) */}
-                  <div
-                    style={{
-                      fontFamily: 'var(--mono)',
-                      fontSize: 11,
-                      letterSpacing: '0.26em',
-                      textTransform: 'uppercase',
-                      color: 'var(--warm)',
-                    }}
-                  >
-                    {letter.openable
-                      ? `sealed · opens today`
-                      : `sealed · opens ${letter.openedYear}`}
-                  </div>
-
-                  {/* byline — written by <author>, <year>. */}
-                  {(letter.signature || letter.writtenYear) && (
-                    <p
+                {/* the headline + opening line, centred in the remaining air */}
+                <div style={{ display: 'grid', placeItems: 'center' }}>
+                  <div style={{ maxWidth: 460, width: '100%' }}>
+                    <h1
                       style={{
                         margin: 0,
                         fontFamily: 'var(--serif)',
+                        fontVariationSettings: "'opsz' 48",
+                        fontSize: 'clamp(30px, 6vw, 44px)',
+                        fontWeight: 380,
+                        lineHeight: 1.08,
+                        letterSpacing: '-0.018em',
+                        color: 'var(--bone)',
+                      }}
+                    >
+                      {letter.openable ? 'A letter has opened.' : letter.title}
+                    </h1>
+
+                    <p
+                      style={{
+                        margin: '22px 0 0',
+                        fontFamily: 'var(--serif)',
                         fontStyle: 'italic',
                         fontWeight: 300,
-                        fontSize: 15,
-                        lineHeight: 1.5,
+                        fontSize: 'clamp(16px, 3.4vw, 19px)',
+                        lineHeight: 1.55,
                         color: 'var(--bone-dim)',
+                        textWrap: 'balance',
                       }}
                     >
-                      written by {letter.signature || 'an unknown hand'}
-                      {letter.writtenYear ? `, ${letter.writtenYear}` : ''}.
+                      {letter.openable
+                        ? openingLine(letter.salutation, letter.body)
+                        : `Written by ${letter.signature || 'an unknown hand'}${letter.writtenYear ? `, ${letter.writtenYear}` : ''}.`}
                     </p>
-                  )}
 
-                  {/* primary action — only when the seal may break */}
-                  {letter.openable && (
-                    <button
-                      type="button"
-                      onClick={() => setBroken(true)}
-                      style={{
-                        marginTop: 6,
-                        fontFamily: 'var(--mono)',
-                        fontSize: 11,
-                        letterSpacing: '0.26em',
-                        textTransform: 'uppercase',
-                        color: 'var(--warm)',
-                        background: 'none',
-                        border: 'none',
-                        borderBottom: '1px solid var(--rule-warm)',
-                        cursor: 'pointer',
-                        paddingBottom: 4,
-                        transition: `color 360ms var(--loom-ease)`,
-                      }}
-                    >
-                      break the seal →
-                    </button>
-                  )}
+                    {/* primary action — only when the seal may break */}
+                    {letter.openable && (
+                      <button
+                        type="button"
+                        onClick={() => setBroken(true)}
+                        style={{
+                          marginTop: 40,
+                          fontFamily: 'var(--mono)',
+                          fontSize: 11,
+                          letterSpacing: '0.26em',
+                          textTransform: 'uppercase',
+                          color: 'var(--warm)',
+                          background: 'none',
+                          border: 'none',
+                          borderBottom: '1px solid var(--rule-warm)',
+                          cursor: 'pointer',
+                          paddingBottom: 4,
+                          transition: `color 360ms var(--loom-ease)`,
+                        }}
+                      >
+                        read the letter →
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
 

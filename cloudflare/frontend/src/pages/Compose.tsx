@@ -1222,25 +1222,11 @@ export function Compose() {
                   letterSpacing: '0.3em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
-                  margin: '0 0 14px',
-                }}
-              >
-                {isLetter ? 'Weave a new letter' : 'Weave a new memory'}
-              </p>
-              <h1
-                style={{
-                  fontFamily: 'var(--serif)',
-                  fontVariationSettings: "'opsz' 40",
-                  fontWeight: 400,
-                  fontSize: 'clamp(28px, 5vw, 44px)',
-                  lineHeight: 1.08,
-                  letterSpacing: '-0.01em',
-                  color: 'var(--bone)',
                   margin: 0,
                 }}
               >
-                {isLetter ? 'Write into the cloth.' : 'What is worth keeping?'}
-              </h1>
+                {isLetter ? 'Weave a new letter' : 'Weave a new thread'}
+              </p>
             </div>
             <span
               style={{
@@ -1249,8 +1235,6 @@ export function Compose() {
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-dim)',
-                border: '1px solid var(--rule)',
-                padding: '7px 14px',
                 whiteSpace: 'nowrap',
                 flexShrink: 0,
               }}

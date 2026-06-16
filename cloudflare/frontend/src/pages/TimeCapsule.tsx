@@ -520,48 +520,50 @@ export function TimeCapsule() {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Ceremony crown — glowing ∞ + serif title + mono warm meta */}
-            <div style={{ textAlign: 'center', marginBottom: 40 }}>
+            {/* The Sealed Note — mono warm eyebrow → big serif question */}
+            <header style={{ marginBottom: 36 }}>
               <div
-                aria-hidden
+                className="hl-mono"
                 style={{
+                  fontSize: 11,
+                  letterSpacing: '0.28em',
+                  textTransform: 'uppercase',
                   color: 'var(--warm)',
-                  fontSize: 'clamp(40px, 10vw, 64px)',
-                  lineHeight: 1,
-                  marginBottom: 22,
-                  textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
+                  marginBottom: 18,
                 }}
               >
-                ∞
+                the sealed note
               </div>
               <h2
                 className="hl-serif"
                 style={{
-                  fontSize: 'clamp(24px, 5vw, 34px)',
+                  fontSize: 'clamp(30px, 7vw, 44px)',
                   fontWeight: 300,
-                  lineHeight: 1.08,
-                  letterSpacing: '-0.01em',
-                  margin: '0 0 16px',
+                  lineHeight: 1.06,
+                  letterSpacing: '-0.018em',
+                  margin: 0,
                   color: 'var(--bone)',
+                  maxWidth: '8em',
+                  fontVariationSettings: '"opsz" 40',
                 }}
               >
                 When should this open?
               </h2>
-              <p
-                className="hl-mono"
-                style={{
-                  fontSize: 11,
-                  letterSpacing: '0.26em',
-                  textTransform: 'uppercase',
-                  color: 'var(--warm)',
-                  margin: 0,
-                }}
-              >
-                {resolvedUnlock
-                  ? `Sealed · Opens ${formatUnlockDate(resolvedUnlock)}`
-                  : 'A note for the future'}
-              </p>
-            </div>
+              {resolvedUnlock && (
+                <p
+                  className="hl-mono"
+                  style={{
+                    fontSize: 10,
+                    letterSpacing: '0.2em',
+                    textTransform: 'uppercase',
+                    color: 'var(--bone-faint)',
+                    margin: '16px 0 0',
+                  }}
+                >
+                  sealed · opens {formatUnlockDate(resolvedUnlock)}
+                </p>
+              )}
+            </header>
 
             {/* Capsule name */}
             <div style={{ marginBottom: 28 }}>
@@ -748,13 +750,13 @@ export function TimeCapsule() {
               </p>
             )}
 
-            {/* SEAL IT pill + wax ∞ */}
+            {/* SEAL IT pill (left) + wax ∞ (right) — the foot of the note */}
             <div
               style={{
-                marginTop: 40,
+                marginTop: 44,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'space-between',
                 gap: 22,
               }}
             >
@@ -771,7 +773,7 @@ export function TimeCapsule() {
                   background: 'transparent',
                   border: '1px solid var(--warm)',
                   borderRadius: 999,
-                  padding: '14px 34px',
+                  padding: '14px 38px',
                   cursor: canSeal ? 'pointer' : 'default',
                   opacity: canSeal ? 1 : 0.45,
                   transition: `opacity 180ms ${EASE}, background 360ms ${EASE}`,
@@ -779,7 +781,7 @@ export function TimeCapsule() {
               >
                 {createMutation.isPending ? 'sealing…' : 'Seal it'}
               </button>
-              <WaxSeal size={26} />
+              <WaxSeal size={30} />
             </div>
 
             <div style={{ textAlign: 'center', marginTop: 20 }}>

@@ -5,9 +5,8 @@ import { TapestryEdge } from '../loom/components/Frame';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { threadsApi, type ThreadRole, type ThreadEntry } from '../services/api';
-import { formatDate } from '../utils/date';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
-import { DYES as DYE_PALETTE, type Dye } from '../loom/dye';
+import { DYES as DYE_PALETTE, dyeVar, type Dye } from '../loom/dye';
 
 /**
  * The 10-stop natural-dye palette is permitted ONLY inside woven thread
@@ -159,9 +158,42 @@ export function ThreadDetail() {
       ? entryRows.reduce((a, b) => (a.created_at >= b.created_at ? a : b)).id
       : null;
 
-  const eyebrow = `${entryRows.length} ${entryRows.length === 1 ? 'entry' : 'entries'} · ${memberRows.length} ${
-    memberRows.length === 1 ? 'member' : 'members'
-  }`;
+  // The year an entry sits at on the ledger — its era year, else the year it
+  // was woven. Drives the decade dividers and the mono date on the right.
+  const yearOf = (e: ThreadEntry): number => {
+    if (e.era_year != null) return e.era_year;
+    const d = new Date(e.created_at);
+    return Number.isNaN(d.getTime()) ? new Date().getFullYear() : d.getFullYear();
+  };
+
+  // Right-column mono date: the era label as written, else "OCT 1947".
+  const monthYearOf = (e: ThreadEntry): string => {
+    if (e.era_label) return e.era_label;
+    const d = new Date(e.created_at);
+    if (Number.isNaN(d.getTime())) return String(yearOf(e));
+    return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }).toUpperCase();
+  };
+
+  // Group the ledger into decades, oldest first — each decade gets a divider.
+  const sortedEntries = [...entryRows].sort((a, b) => yearOf(a) - yearOf(b));
+  const decades: { decade: number; entries: typeof sortedEntries }[] = [];
+  for (const e of sortedEntries) {
+    const decade = Math.floor(yearOf(e) / 10) * 10;
+    const last = decades[decades.length - 1];
+    if (last && last.decade === decade) last.entries.push(e);
+    else decades.push({ decade, entries: [e] });
+  }
+
+  // "THE VANCE THREAD · 1947–2026" — mono header derived from the thread + span.
+  const yearsSpan =
+    sortedEntries.length > 0
+      ? (() => {
+          const lo = yearOf(sortedEntries[0]);
+          const hi = yearOf(sortedEntries[sortedEntries.length - 1]);
+          return lo === hi ? String(lo) : `${lo}–${hi}`;
+        })()
+      : null;
+  const ledgerHeader = `the ${threadName ?? 'thread'} thread${yearsSpan ? ` · ${yearsSpan}` : ''}`;
 
   return (
     <ClothShell
@@ -181,7 +213,20 @@ export function ThreadDetail() {
         }}
       >
         <div style={{ maxWidth: 760, margin: '0 auto', padding: '48px clamp(20px, 5vw, 56px) 0' }}>
-          <CosmicHeader eyebrow={eyebrow} title={threadName ?? 'thread'} />
+          {/* ── Ledger header — mono, the page of the thread ── */}
+          <header style={{ marginBottom: 44 }}>
+            <div
+              className="hl-mono"
+              style={{
+                fontSize: 12,
+                letterSpacing: '0.34em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-dim)',
+              }}
+            >
+              {ledgerHeader}
+            </div>
+          </header>
 
           {entryRows.length === 0 ? (
             /* Empty state — a quiet listener prompt */
@@ -198,50 +243,69 @@ export function ThreadDetail() {
               </Link>
             </div>
           ) : (
-            /* ── Entry ledger ── */
+            /* ── Entry ledger, grouped by decade ── */
             <div role="list">
-              {entryRows.map((e, i) => {
-                const active = e.id === activeEntryId;
-                const sealed = !!e.pending_lock;
-                const body = !sealed ? (e.body_ciphertext ?? '').trim() : '';
-                const snippet = body ? body.split(/\n{2,}/)[0].trim() : '';
-                const dye = dyeOf(i);
-                const year = e.era_label ?? (e.era_year != null ? String(e.era_year) : formatDate(e.created_at));
-
-                const title = sealed ? (
-                  <>
-                    <span style={{ color: 'var(--warm)', marginRight: 8 }} aria-hidden>∞</span>
-                    {e.title ?? 'Sealed entry'}
-                  </>
-                ) : (
-                  e.title ?? <em style={{ color: 'var(--bone-faint)', fontStyle: 'italic' }}>Untitled entry</em>
-                );
-
-                const sub = sealed
-                  ? 'Sealed until its unlock condition is met.'
-                  : snippet || (e.title ? 'No words yet — only the title was woven.' : undefined);
-
-                return (
+              {decades.map((group) => (
+                <div key={group.decade}>
                   <div
-                    key={e.id}
-                    role="listitem"
-                    style={
-                      active
-                        ? { borderLeft: '1px solid var(--warm)', paddingLeft: 18, marginLeft: -18 }
-                        : undefined
-                    }
+                    className="hl-mono"
+                    style={{
+                      fontSize: 12,
+                      letterSpacing: '0.16em',
+                      color: 'var(--warm-dim)',
+                      margin: '34px 0 6px',
+                    }}
                   >
-                    <EntryRow
-                      title={title}
-                      sub={sub}
-                      year={year}
-                      author={authorOf(e)}
-                      dye={dye}
-                      italic={!e.title}
-                    />
+                    {group.decade}s
                   </div>
-                );
-              })}
+                  {group.entries.map((e) => {
+                    const i = entryRows.indexOf(e);
+                    const active = e.id === activeEntryId;
+                    const sealed = !!e.pending_lock;
+                    const body = !sealed ? (e.body_ciphertext ?? '').trim() : '';
+                    const snippet = body ? body.split(/\n{2,}/)[0].trim() : '';
+                    const dye = dyeOf(i < 0 ? 0 : i);
+                    const year = monthYearOf(e);
+
+                    const title = sealed ? (
+                      <>
+                        <span style={{ color: 'var(--warm)', marginRight: 8 }} aria-hidden>∞</span>
+                        {e.title ?? 'Sealed entry'}
+                      </>
+                    ) : (
+                      e.title ?? <em style={{ color: 'var(--bone-faint)', fontStyle: 'italic' }}>Untitled entry</em>
+                    );
+
+                    const sub = sealed
+                      ? 'Sealed until its unlock condition is met.'
+                      : snippet || (e.title ? 'No words yet — only the title was woven.' : undefined);
+
+                    // Each entry carries its dye as a left-margin thread — the
+                    // family identity signal. The most recent entry burns warm.
+                    const spine = active ? 'var(--warm)' : dyeVar(dye);
+
+                    return (
+                      <div
+                        key={e.id}
+                        role="listitem"
+                        title={authorOf(e)}
+                        style={{
+                          borderLeft: `2px solid ${spine}`,
+                          paddingLeft: 18,
+                          marginLeft: -18,
+                        }}
+                      >
+                        <EntryRow
+                          title={title}
+                          sub={sub}
+                          year={year}
+                          italic={!e.title}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
             </div>
           )}
 

@@ -107,17 +107,6 @@ export function Marketing() {
           position: 'relative', zIndex: 10,
           padding: 'clamp(20px, 5vh, 64px) clamp(24px, 6vw, 80px) 0',
         }}>
-          <div style={{
-            fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.28em',
-            textTransform: 'uppercase', color: 'var(--bone-faint)',
-            margin: '0 0 clamp(16px, 2.5vh, 24px)',
-            opacity: taglineIn ? 1 : 0,
-            transform: taglineIn ? 'translateY(0)' : 'translateY(16px)',
-            transition: `opacity 1400ms ${ease}, transform 1400ms ${ease}`,
-          }}>
-            the family thread · est. 2025
-          </div>
-
           <h1 style={{
             fontFamily: 'var(--serif)',
             fontSize: 'clamp(40px, 8vw, 64px)',
@@ -162,6 +151,7 @@ export function Marketing() {
               style={{
                 display: 'inline-block', padding: '13px 38px', minHeight: 44, boxSizing: 'border-box',
                 border: '1px solid var(--warm)',
+                borderRadius: 999,
                 color: 'var(--warm-bright, var(--warm))',
                 background: 'transparent',
                 fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.30em',
@@ -178,6 +168,7 @@ export function Marketing() {
                 onClick={() => promptInstall()}
                 style={{
                   background: 'transparent', border: '1px solid var(--rule)',
+                  borderRadius: 999,
                   color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 10,
                   letterSpacing: '0.24em', textTransform: 'uppercase',
                   cursor: 'pointer', padding: '12px 26px', minHeight: 44, boxSizing: 'border-box',
@@ -199,38 +190,8 @@ export function Marketing() {
         </div>
 
         {/* Negative space — the filament resolves below, via the global
-            ClothBackdrop. Scroll cue sits at the foot. */}
+            ClothBackdrop. The hero rests in vast emptiness above the waves. */}
         <div style={{ flex: 1 }} />
-
-        <p style={{
-          position: 'relative', zIndex: 10,
-          padding: '0 clamp(24px, 6vw, 80px) clamp(28px, 5vh, 44px)',
-          margin: 0,
-          fontFamily: 'var(--mono)', fontSize: 9,
-          letterSpacing: '0.24em', textTransform: 'uppercase',
-          color: 'var(--bone-faint)',
-          opacity: taglineIn ? 1 : 0,
-          transition: `opacity 1400ms ${ease}`,
-          transitionDelay: '600ms',
-        }}>
-          scroll ↓
-        </p>
-
-        {/* Specimen label — vertical, far right */}
-        <div style={{
-          position: 'absolute',
-          top: 'calc(clamp(14px, 2.5vh, 20px) + env(safe-area-inset-top, 0px) + 56px)',
-          right: 'clamp(20px, 5vw, 56px)',
-          zIndex: 5,
-          fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.26em',
-          textTransform: 'uppercase', color: 'var(--bone-faint)',
-          writingMode: 'vertical-rl',
-          opacity: taglineIn ? 1 : 0,
-          transition: `opacity 1400ms ${ease}`,
-          transitionDelay: '720ms',
-        }}>
-          specimen · the Okonkwo thread · 1952 – today
-        </div>
       </section>
 
       {/* Below the fold rests on solid ink — the filament is the hero only. */}

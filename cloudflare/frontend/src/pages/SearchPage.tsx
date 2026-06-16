@@ -98,6 +98,8 @@ export function SearchPage() {
       <style>{`
         .hl-search-flat::placeholder {
           color: var(--bone-faint);
+          text-transform: uppercase;
+          letter-spacing: 0.22em;
         }
         .hl-search-flat:focus {
           border-bottom-color: var(--warm);
@@ -125,20 +127,8 @@ export function SearchPage() {
           overflowX: 'hidden',
         }}
       >
-        {/* ── LEDGER header: mono eyebrow + giant serif title ── */}
-        <header style={{ marginBottom: 48 }}>
-          <div
-            style={{
-              fontFamily: 'var(--mono)',
-              fontSize: 11,
-              letterSpacing: '0.28em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
-              marginBottom: 18,
-            }}
-          >
-            {eyebrow}
-          </div>
+        {/* ── LEDGER header: two-tone giant serif title ── */}
+        <header style={{ marginBottom: 40 }}>
           <h1
             style={{
               fontFamily: 'var(--serif)',
@@ -151,7 +141,8 @@ export function SearchPage() {
               fontVariationSettings: '"opsz" 40',
             }}
           >
-            Find a thread.
+            Search<br />
+            <span style={{ color: 'var(--bone-dim)' }}>the family archive.</span>
           </h1>
         </header>
 
@@ -161,7 +152,7 @@ export function SearchPage() {
           className="hl-search-flat"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Search the thread…"
+          placeholder="Search the thread"
           aria-label="search"
           style={{
             display: 'block',
@@ -170,19 +161,19 @@ export function SearchPage() {
             border: 0,
             borderBottom: '1px solid var(--rule)',
             color: 'var(--bone)',
-            fontFamily: 'var(--serif)',
-            fontSize: 'clamp(22px, 4vw, 30px)',
-            fontWeight: 300,
-            fontVariationSettings: '"opsz" 28',
+            fontFamily: 'var(--mono)',
+            fontSize: 12,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
             caretColor: 'var(--warm)',
             padding: '0 0 16px',
-            margin: '0 0 44px',
+            margin: '0 0 28px',
             transition: 'border-bottom-color 180ms cubic-bezier(0.16,1,0.3,1)',
           }}
         />
 
         {/* ── type filter bar: quiet mono text affordances ── */}
-        <div style={{ display: 'flex', gap: 24, marginBottom: 48 }}>
+        <div style={{ display: 'flex', gap: 24, marginBottom: 8 }}>
           {FILTERS.map((f) => {
             const active = typeFilter === f.value;
             return (
@@ -197,6 +188,22 @@ export function SearchPage() {
             );
           })}
         </div>
+
+        {/* ── inline result count (live binding; quiet mono status) ── */}
+        {ready && !searchQ.isLoading && !searchQ.isError && results.length > 0 && (
+          <div
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 10,
+              letterSpacing: '0.3em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              marginTop: 18,
+            }}
+          >
+            {eyebrow}
+          </div>
+        )}
 
         {/* ── states ── */}
         {!ready ? (

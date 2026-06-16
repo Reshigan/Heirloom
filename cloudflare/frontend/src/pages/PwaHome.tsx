@@ -11,9 +11,9 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { HLogo } from '../loom/components/HLogo';
 import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
-import { SpineThread, type SpineEntry } from '../loom/components/SpineThread';
+import { EntryRow, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
 import type { UserRole } from '../hooks/useRole';
-import type { Dye } from '../loom/dye';
+import { dyeVar, type Dye } from '../loom/dye';
 import type { CanvasEntry } from '../loom/components/TapestryCanvas';
 
 /* ─── PWA profile menu ────────────────────────────────────────────────────── */
@@ -251,7 +251,7 @@ function AuthHome({
     );
   }
 
-  // ── Active author / reader — the Thousand-Year Spine (Higgsfield "A") ──
+  // ── Active author / reader — the Listener's capture home (Higgsfield "B") ──
   const isReadOnly = role === 'reader' || role === 'successor';
   const nowYear = new Date().getFullYear();
   const firstYear = count > 0
@@ -259,30 +259,129 @@ function AuthHome({
     : nowYear;
   const threadYear = nowYear - firstYear + 1;
 
-  // The real thread, woven into spine nodes — newest nearest the present core.
-  const spineEntries: SpineEntry[] = entries.map((e) => ({
-    title: (e.title && String(e.title)) || (e.sealed ? 'a sealed letter' : 'an unwoven thread'),
-    year: e.date.getFullYear(),
-    dye: e.dye as Dye,
-    sealed: e.sealed,
-    route: e.sealed ? '/loom/tied' : '/loom/weft',
-  }));
+  // The real thread, woven into ledger rows — newest nearest the present.
+  const recent = entries
+    .slice()
+    .sort((a, b) => b.date.getTime() - a.date.getTime())
+    .slice(0, 6)
+    .map((e) => ({
+      title: (e.title && String(e.title)) || (e.sealed ? 'a sealed letter' : 'an unwoven thread'),
+      year: e.date.getFullYear(),
+      dye: e.dye as Dye,
+      sealed: !!e.sealed,
+      route: e.sealed ? '/loom/tied' : '/loom/weft',
+    }));
 
   const status =
     `since ${firstYear} · ${count} ${count === 1 ? 'memory' : 'memories'} woven · year ${threadYear} of a thousand` +
     (stats && stats.members > 0 ? ` · ${stats.members} ${stats.members === 1 ? 'voice' : 'voices'}` : '');
 
   return (
-    <SpineThread
-      entries={spineEntries}
-      presentYear={nowYear}
-      prompt={isReadOnly ? undefined : prompt}
-      addLabel={isReadOnly ? 'open the thread' : 'weave a new thread'}
-      addRoute={isReadOnly ? '/loom' : '/compose'}
-      status={status}
-      onNavigate={(r) => navigate(r)}
-      minHeightCss="calc(100svh - 56px - 104px - env(safe-area-inset-top, 0px))"
-    />
+    <div style={{
+      display: 'grid',
+      placeItems: 'center',
+      minHeight: 'calc(100svh - 56px - 104px - env(safe-area-inset-top, 0px))',
+      padding: `clamp(40px, 9vh, 96px) ${P}`,
+      paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))',
+    }}>
+      <div style={{ width: '100%', maxWidth: 440, textAlign: 'center' }}>
+        {/* Warm mono eyebrow — the Listener */}
+        <div className="hl-mono" style={{
+          marginBottom: 18,
+          fontSize: 10, letterSpacing: '0.34em', textTransform: 'uppercase',
+          color: 'var(--warm)',
+        }}>
+          {isReadOnly ? 'the thread' : 'the listener asks'}
+        </div>
+
+        {/* The rotating prompt — type is the hero */}
+        <h1 className="hl-serif hl-tight" style={{
+          fontSize: 'clamp(28px, 7vw, 44px)',
+          fontWeight: 300, lineHeight: 1.1,
+          letterSpacing: '-0.018em',
+          margin: '0 0 40px',
+          color: 'var(--bone)',
+          fontVariationSettings: '"opsz" 40',
+        }}>
+          {isReadOnly ? `${count} ${count === 1 ? 'memory' : 'memories'} woven so far.` : prompt}
+        </h1>
+
+        {/* Two outlined mono pills — WRITE / SPEAK */}
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            onClick={() => navigate(isReadOnly ? '/loom' : '/compose')}
+            className="hl-cta-warm"
+            style={{
+              padding: '12px 28px',
+              background: 'transparent',
+              border: '1px solid var(--warm)',
+              borderRadius: 999,
+              color: 'var(--warm)',
+              fontFamily: 'var(--mono)',
+              fontSize: 11, letterSpacing: '0.3em', textTransform: 'uppercase',
+              cursor: 'pointer',
+              transition: 'border-color 360ms var(--ease), color 360ms var(--ease)',
+            }}
+          >
+            {isReadOnly ? 'open' : 'write'}
+          </button>
+          {!isReadOnly && (
+            <button
+              type="button"
+              onClick={() => navigate('/record')}
+              className="hl-cta-warm"
+              style={{
+                padding: '12px 28px',
+                background: 'transparent',
+                border: '1px solid var(--warm)',
+                borderRadius: 999,
+                color: 'var(--warm)',
+                fontFamily: 'var(--mono)',
+                fontSize: 11, letterSpacing: '0.3em', textTransform: 'uppercase',
+                cursor: 'pointer',
+                transition: 'border-color 360ms var(--ease), color 360ms var(--ease)',
+              }}
+            >
+              speak
+            </button>
+          )}
+        </div>
+
+        {/* A short ledger of recent threads */}
+        {recent.length > 0 && (
+          <div style={{ marginTop: 56, textAlign: 'left' }}>
+            {recent.map((e, i) => (
+              <EntryRow
+                key={i}
+                title={
+                  <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 10 }}>
+                    <WarmDot color={dyeVar(e.dye)} size={5} />
+                    {e.title}
+                  </span>
+                }
+                italic={e.sealed}
+                year={e.year}
+                onClick={() => navigate(e.route)}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Quiet status foot */}
+        <div className="hl-mono" style={{
+          marginTop: 40,
+          fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
+          color: 'var(--bone-faint)',
+        }}>
+          {status}
+        </div>
+
+        <div style={{ marginTop: 40 }}>
+          <WaxSeal size={26} />
+        </div>
+      </div>
+    </div>
   );
 }
 

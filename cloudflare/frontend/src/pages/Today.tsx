@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
@@ -6,7 +7,7 @@ import { useListener } from '../hooks/useListener';
 import { useTapestryEntries } from '../hooks/useTapestryEntries';
 import { useAuthStore } from '../stores/authStore';
 import { aiApi, engagementApi } from '../services/api';
-import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
 
 interface OnThisDayEntry {
@@ -80,32 +81,68 @@ export function Today() {
     <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'today' }]} />
   );
 
+  // The outlined amber mono pill — the cosmic-home WRITE / SPEAK affordance,
+  // mirroring Login's "enter" pill. warm = the lead action, quiet = the second.
+  const pillStyle = (lead: boolean): CSSProperties => ({
+    padding: '12px 30px',
+    background: 'transparent',
+    border: `1px solid ${lead ? 'var(--warm)' : 'var(--rule)'}`,
+    borderRadius: 999,
+    color: lead ? 'var(--warm)' : 'var(--bone-dim)',
+    fontFamily: 'var(--mono)',
+    fontSize: 11,
+    letterSpacing: '0.3em',
+    textTransform: 'uppercase',
+    textDecoration: 'none',
+    minHeight: 44,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: `border-color 360ms ${ease}, color 360ms ${ease}`,
+  });
+
+  // A centred recent line — small serif, a faint warm diamond mark before it.
+  const RecentLine = ({ children, italic }: { children: ReactNode; italic?: boolean }) => (
+    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 10, padding: '6px 0' }}>
+      <span aria-hidden style={{ color: 'var(--warm)', fontSize: 9, lineHeight: 1, opacity: 0.7 }}>◆</span>
+      <span style={{
+        fontFamily: 'var(--serif)', fontSize: 15, fontWeight: 300,
+        fontStyle: italic ? 'italic' : 'normal', color: 'var(--bone-dim)', lineHeight: 1.4,
+      }}>
+        {children}
+      </span>
+    </div>
+  );
+
   // Still loading the thread — show the hairline progress, not the first-run
   // empty state, so the sealed-letter prompt doesn't flash before data arrives.
   if (entriesLoading && entries.length === 0) {
     return (
       <ClothShell topbarLeft={todayTopbar}>
-        <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x)', maxWidth: 'var(--page-max-focus)', margin: '0 auto' }}>
+        <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x)', maxWidth: 'var(--page-max-focus)', margin: '0 auto', textAlign: 'center' }}>
           <ProgressHair width={80} />
         </div>
       </ClothShell>
     );
   }
 
-  // First-run: no entries yet — show focused sealed letter prompt
+  // First-run: no entries yet — show focused sealed letter prompt, in the same
+  // centred crown idiom as the capture home (global ClothBackdrop paints crown)
   if (entries.length === 0) {
     return (
       <ClothShell topbarLeft={todayTopbar}>
         <div style={{
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
-          maxWidth: 'var(--page-max-focus)',
+          maxWidth: 600,
           margin: '0 auto',
+          textAlign: 'center',
           opacity: revealed ? 1 : 0,
           transform: revealed ? 'translateY(0)' : 'translateY(14px)',
           transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
         }}>
           {/* LEDGER header — entry no. 0001 eyebrow + serif title */}
           <CosmicHeader
+            align="center"
             eyebrow="entry no. 0001"
             title={<>There is someone who needs to read this.<br />Just not yet.</>}
             sub="Write a letter today. Seal it for a date, a milestone, a death — or the moment you choose. It holds safe and finds them exactly when you intended."
@@ -114,9 +151,9 @@ export function Today() {
           {/* Sealed letter preview — left warm thread + mono label */}
           <div style={{
             display: 'inline-flex', flexDirection: 'column', gap: 6,
-            padding: '12px 16px 12px 18px',
+            padding: '12px 18px',
             borderLeft: '2px solid rgba(176,122,74,0.55)',
-            marginBottom: 40,
+            marginBottom: 44, textAlign: 'left',
           }}>
             <div style={{
               fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.26em',
@@ -132,38 +169,18 @@ export function Today() {
             </div>
           </div>
 
-          {/* Compose CTAs — mono text affordances */}
-          <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap', marginBottom: 52 }}>
-            <Link
-              to="/compose"
-              style={{
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
-                textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none',
-                borderBottom: '1px solid var(--warm)', paddingBottom: 2,
-                minHeight: 44, display: 'inline-flex', alignItems: 'center',
-              }}
-            >
-              write your first sealed letter →
-            </Link>
-            <Link
-              to="/record"
-              style={{
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
-                textTransform: 'uppercase', color: 'var(--bone-dim)', textDecoration: 'none',
-                borderBottom: '1px solid var(--rule)', paddingBottom: 2,
-                minHeight: 44, display: 'inline-flex', alignItems: 'center',
-              }}
-            >
-              or record a voice →
-            </Link>
+          {/* Capture affordances — outlined amber WRITE / quiet SPEAK pills */}
+          <div style={{ display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginBottom: 56 }}>
+            <Link to="/compose" style={pillStyle(true)}>write</Link>
+            <Link to="/record" style={pillStyle(false)}>speak</Link>
           </div>
 
           {/* The Listener prompt */}
-          <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 20 }}>
+          <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 24 }}>
             <SectionLabel>the listener</SectionLabel>
             <p style={{
               fontFamily: 'var(--serif)', fontSize: 15, fontStyle: 'italic',
-              color: 'var(--bone-faint)', lineHeight: 1.7, margin: '8px 0 0', maxWidth: '44ch',
+              color: 'var(--bone-faint)', lineHeight: 1.7, margin: '8px auto 0', maxWidth: '44ch',
             }}>
               {promptUnavailable ? (
                 <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em', color: 'var(--bone-dim)' }}>
@@ -181,73 +198,51 @@ export function Today() {
     <ClothShell topbarLeft={todayTopbar}>
       <div style={{
         padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
-        maxWidth: 720,
+        maxWidth: 600,
         width: '100%',
         margin: '0 auto',
+        textAlign: 'center',
         opacity: revealed ? 1 : 0,
         transform: revealed ? 'translateY(0)' : 'translateY(14px)',
         transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
       }}>
-        {/* LEDGER header — "tonight · 8 pm" eyebrow + the listener's daily question */}
+        {/* THE LISTENER ASKS — centred crown capture (global ClothBackdrop paints
+            the radiating crown filament behind this; the page renders no backdrop) */}
         <CosmicHeader
-          eyebrow="tonight · 8 pm"
+          align="center"
+          eyebrow="the listener asks"
           title={promptUnavailable ? (
             <span style={{ color: 'var(--bone-dim)', fontStyle: 'italic' }}>prompt unavailable</span>
           ) : prompt}
         />
 
-        {/* Compose CTAs — mono text affordances */}
-        <div style={{ display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap', marginBottom: 48 }}>
-          <Link
-            to="/compose"
-            style={{
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
-              textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none',
-              borderBottom: '1px solid var(--warm)', paddingBottom: 2,
-              minHeight: 44, display: 'inline-flex', alignItems: 'center',
-            }}
-          >
-            write now →
-          </Link>
-          <Link
-            to="/record"
-            style={{
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.20em',
-              textTransform: 'uppercase', color: 'var(--bone-dim)', textDecoration: 'none',
-              borderBottom: '1px solid var(--rule)', paddingBottom: 2,
-              minHeight: 44, display: 'inline-flex', alignItems: 'center',
-            }}
-          >
-            or speak →
-          </Link>
+        {/* Capture affordances — outlined amber WRITE / quiet SPEAK pills */}
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginBottom: 56 }}>
+          <Link to="/compose" style={pillStyle(true)}>write</Link>
+          <Link to="/record" style={pillStyle(false)}>speak</Link>
         </div>
 
-        {/* Recent voices — EntryRow list */}
+        {/* Recent voices — centred ledger lines */}
         {contributors.length > 0 && (
           <div style={{
             opacity: revealed ? 1 : 0,
             transition: `opacity 1400ms ${ease}`,
             transitionDelay: '360ms',
+            marginBottom: 8,
           }}>
-            <SectionLabel>recent voices</SectionLabel>
             {contributors.map((c) => (
-              <EntryRow
-                key={String(c.author)}
-                title={String(c.author ?? '')}
-                author={String(c.author ?? '').slice(0, 8).toUpperCase()}
-              />
+              <RecentLine key={String(c.author)}>{String(c.author ?? '')}</RecentLine>
             ))}
           </div>
         )}
 
-        {/* On this day — EntryRow list */}
+        {/* On this day — centred ledger lines */}
         {(onThisDay.length > 0 || onThisDayError) && (
           <div style={{
             opacity: revealed ? 1 : 0,
             transition: `opacity 1400ms ${ease}`,
             transitionDelay: '540ms',
           }}>
-            <SectionLabel>on this day</SectionLabel>
             {onThisDayError ? (
               <p style={{
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em',
@@ -257,14 +252,17 @@ export function Today() {
               </p>
             ) : (
               onThisDay.slice(0, 3).map((m) => (
-                <EntryRow
-                  key={m.id}
-                  title={m.title ?? m.description ?? '—'}
-                  italic
-                  year={m.yearsAgo !== undefined
-                    ? `${m.yearsAgo} ${m.yearsAgo === 1 ? 'yr' : 'yrs'} ago`
-                    : undefined}
-                />
+                <RecentLine key={m.id} italic>
+                  {m.title ?? m.description ?? '—'}
+                  {m.yearsAgo !== undefined && (
+                    <span style={{
+                      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.14em',
+                      color: 'var(--bone-faint)', marginLeft: 10,
+                    }}>
+                      {m.yearsAgo} {m.yearsAgo === 1 ? 'yr' : 'yrs'} ago
+                    </span>
+                  )}
+                </RecentLine>
               ))
             )}
           </div>

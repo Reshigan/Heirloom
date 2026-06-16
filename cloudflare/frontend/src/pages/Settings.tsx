@@ -49,6 +49,57 @@ const RESPONSIVE_CSS = `
 }
 .hl-ledgerrow-value--warm { color: var(--warm); }
 
+/* Word-value action — quiet dim serif on the right (Edit / Request / Clear / Manage). */
+.hl-wordaction {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--bone-dim);
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: 1.3;
+  transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
+}
+.hl-wordaction:hover { color: var(--bone); }
+.hl-wordaction:disabled { opacity: 0.5; cursor: default; }
+.hl-wordaction--warm { color: var(--warm); }
+.hl-wordaction--warm:hover { color: var(--warm-bright); }
+
+/* Static word value — dim serif, not actionable (e.g. "Every Day", "user@example.com"). */
+.hl-wordvalue {
+  font-family: var(--serif);
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--bone-dim);
+  white-space: nowrap;
+  line-height: 1.3;
+  text-align: right;
+}
+
+/* ON / OFF state word — mono caps; ON is warm, OFF is faint. */
+.hl-statetoggle {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  color: var(--bone-faint);
+  white-space: nowrap;
+  transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
+}
+.hl-statetoggle[aria-checked="true"] { color: var(--warm); }
+.hl-statetoggle:hover { color: var(--bone); }
+.hl-statetoggle[aria-checked="true"]:hover { color: var(--warm-bright); }
+
 /* Mono action — the warm right-side actionable value (VIEW / MANAGE / CHANGE). */
 .hl-monoaction {
   background: transparent;
@@ -106,64 +157,39 @@ const RESPONSIVE_CSS = `
 
 .hl-signout {
   display: block;
-  width: 100%;
-  text-align: center;
+  margin: 56px auto 40px;
   background: transparent;
   border: 0;
   padding: 22px 0;
-  margin: 56px 0 40px;
   cursor: pointer;
-  font-family: var(--serif);
-  font-size: 19px;
+  font-family: var(--mono);
+  font-size: 12px;
   font-weight: 400;
-  color: var(--warm);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-thickness: 1px;
+  color: var(--bone-dim);
   transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
 }
-.hl-signout:hover { color: var(--warm-bright); }
+.hl-signout:hover { color: var(--warm); }
 
-/* slim pill toggle — track + warm dot when on (no chunky OS switch) */
-.hl-toggle {
-  position: relative;
-  width: 34px;
-  height: 16px;
-  border-radius: 8px;
-  background: transparent;
-  border: 1px solid var(--rule);
-  padding: 0;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: border-color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
-}
-.hl-toggle[aria-checked="true"] { border-color: var(--warm-dim); }
-.hl-toggle::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 3px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--bone-faint);
-  transform: translate(0, -50%);
-  transition: transform 360ms var(--ease, cubic-bezier(0.16,1,0.3,1)), background 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
-}
-.hl-toggle[aria-checked="true"]::after {
-  background: var(--warm);
-  transform: translate(18px, -50%);
-}
 `;
 
-/** Slim pill toggle — quiet track, warm dot slides on. Not a chunky OS switch. */
-function PillToggle({ checked, onChange, ariaLabel }: { checked: boolean; onChange: (next: boolean) => void; ariaLabel: string }) {
+/** ON / OFF state word — mono caps, ON warm, OFF faint. The reference's toggle idiom. */
+function StateToggle({ checked, onChange, ariaLabel }: { checked: boolean; onChange: (next: boolean) => void; ariaLabel: string }) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
       aria-label={ariaLabel}
-      className="hl-toggle"
+      className="hl-statetoggle"
       onClick={() => onChange(!checked)}
-    />
+    >
+      {checked ? 'ON' : 'OFF'}
+    </button>
   );
 }
 
@@ -429,10 +455,10 @@ export function Settings() {
               label="Email"
               hint="primary identifier"
               value={
-                <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 14 }}>
-                  <span className="hl-ledgerrow-value" style={{ textTransform: 'none', letterSpacing: '0.06em' }}>{user?.email ?? '—'}</span>
-                  <button type="button" className="hl-monoaction" onClick={() => { setEmailStage('form'); setEmailFlash(false); }}>change →</button>
-                  {emailFlash && <span className="hl-monoaction" style={{ cursor: 'default' }}>∞ updated</span>}
+                <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 16 }}>
+                  <span className="hl-wordvalue">{user?.email ?? '—'}</span>
+                  <button type="button" className="hl-wordaction hl-wordaction--warm" onClick={() => { setEmailStage('form'); setEmailFlash(false); }}>Change</button>
+                  {emailFlash && <span className="hl-wordvalue" style={{ color: 'var(--warm)' }}>∞ updated</span>}
                 </span>
               }
             />
@@ -472,10 +498,10 @@ export function Settings() {
             <LedgerRow
               label="Password"
               value={
-                <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 14 }}>
-                  <span className="hl-ledgerrow-value">••••••••</span>
-                  <button type="button" className="hl-monoaction" onClick={() => setPwStage('form')}>change →</button>
-                  {pwFlash && <span className="hl-monoaction" style={{ cursor: 'default' }}>∞ updated</span>}
+                <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 16 }}>
+                  <span className="hl-wordvalue" style={{ letterSpacing: '0.12em' }}>••••••••</span>
+                  <button type="button" className="hl-wordaction hl-wordaction--warm" onClick={() => setPwStage('form')}>Change</button>
+                  {pwFlash && <span className="hl-wordvalue" style={{ color: 'var(--warm)' }}>∞ updated</span>}
                 </span>
               }
             />
@@ -526,7 +552,7 @@ export function Settings() {
               label={item.label}
               hint={item.hint}
               value={
-                <PillToggle
+                <StateToggle
                   ariaLabel={item.ariaLabel}
                   checked={!!prefs[item.key]}
                   onChange={(next) => updateNotif.mutate({ [item.key]: next })}
@@ -568,17 +594,17 @@ export function Settings() {
           <LedgerRow
             label="Successors"
             hint="ordered · cascade on triggered switch"
-            value={<Link to="/threads" className="hl-monoaction">manage →</Link>}
+            value={<Link to="/threads" className="hl-wordaction hl-wordaction--warm">Manage</Link>}
           />
           <LedgerRow
             label="Thread steward"
             hint="takes custodianship when the dead-man's switch triggers"
-            value={<Link to="/threads" className="hl-monoaction">designate →</Link>}
+            value={<Link to="/threads" className="hl-wordaction hl-wordaction--warm">Designate</Link>}
           />
           <LedgerRow
             label="Memorial mode"
             hint="read-only public archive · no new entries after 1 year inactive"
-            value="auto · 12 months"
+            value={<span className="hl-wordvalue" style={{ fontStyle: 'italic' }}>Auto · 12 months</span>}
           />
 
           {/* Letter guardian — ledger row that expands to the designate form */}
@@ -587,8 +613,8 @@ export function Settings() {
               label="Letter guardian"
               hint="ensures your sealed letters reach the people you wrote them for"
               value={
-                <button type="button" className="hl-monoaction" onClick={() => setGuardianOpen(true)}>
-                  {guardianEmail ? 'edit →' : 'designate →'}
+                <button type="button" className="hl-wordaction hl-wordaction--warm" onClick={() => setGuardianOpen(true)}>
+                  {guardianEmail ? 'Edit' : 'Designate'}
                 </button>
               }
             />
@@ -675,13 +701,13 @@ export function Settings() {
                   'NOT CONFIGURED'
                 )}
               </span>
-              <span style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              <span style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                 {(dmStatus.status === 'active' || dmStatus.status === 'warning') && (
-                  <button type="button" className="hl-monoaction" onClick={() => checkIn.mutate()} disabled={checkIn.isPending}>
-                    {checkIn.isPending ? 'checking in…' : 'check in →'}
+                  <button type="button" className="hl-wordaction hl-wordaction--warm" onClick={() => checkIn.mutate()} disabled={checkIn.isPending}>
+                    {checkIn.isPending ? 'Checking in…' : 'Check In'}
                   </button>
                 )}
-                <Link to="/threads" className="hl-monoaction hl-monoaction--quiet">configure →</Link>
+                <Link to="/threads" className="hl-wordaction">Configure</Link>
                 {checkInError && (
                   <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.12em' }}>{checkInError}</span>
                 )}
@@ -689,18 +715,18 @@ export function Settings() {
             </span>
           </div>
 
-          <LedgerRow label="Key escrow" hint="shamir-split · zero-knowledge to platform" value="ENABLED · 2 OF 3" />
-          <LedgerRow label="Recovery phrase" hint="print and store offline" value="FOUR WORDS · IN ONBOARDING" />
+          <LedgerRow label="Key escrow" hint="shamir-split · zero-knowledge to platform" value={<span className="hl-wordvalue" style={{ fontStyle: 'italic' }}>Enabled · 2 of 3</span>} />
+          <LedgerRow label="Recovery phrase" hint="print and store offline" value={<span className="hl-wordvalue" style={{ fontStyle: 'italic' }}>Four words · in onboarding</span>} />
 
-          {/* Export — ledger row with download action + error */}
+          {/* Data Export — ledger row with download action + error */}
           <div className="hl-ledgerrow" style={{ alignItems: 'flex-start' }}>
             <span className="hl-ledgerrow-label">
-              Export
+              Data Export
               <span className="hl-ledgerrow-hint">full JSON archive of all your memories, letters, and voice</span>
             </span>
             <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
-              <button type="button" className="hl-monoaction" onClick={handleExport} disabled={exportLoading}>
-                {exportLoading ? 'preparing…' : 'download →'}
+              <button type="button" className="hl-wordaction hl-wordaction--warm" onClick={handleExport} disabled={exportLoading}>
+                {exportLoading ? 'Preparing…' : 'Request'}
               </button>
               {exportError && (
                 <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.12em' }}>{exportError}</span>
@@ -714,7 +740,7 @@ export function Settings() {
           <LedgerRow
             label="Subscription"
             hint="plan, payment, and invoices"
-            value={<Link to="/billing" className="hl-monoaction">manage →</Link>}
+            value={<Link to="/billing" className="hl-wordaction hl-wordaction--warm">Manage</Link>}
           />
 
           {/* ════════ SUPPORT ════════ */}
@@ -723,7 +749,7 @@ export function Settings() {
           <LedgerRow
             label="Write to us"
             hint="we respond within two business days"
-            value={<a href="mailto:support@heirloom.blue" className="hl-monoaction">support@heirloom.blue →</a>}
+            value={<a href="mailto:support@heirloom.blue" className="hl-wordaction hl-wordaction--warm" style={{ letterSpacing: 0 }}>support@heirloom.blue</a>}
           />
 
           {/* ════════ DANGER ════════ */}
@@ -736,8 +762,8 @@ export function Settings() {
                   Close account
                   <span className="hl-ledgerrow-hint">90-day archive window before permanent erasure</span>
                 </span>
-                <button type="button" className="hl-monoaction hl-monoaction--danger" onClick={() => setDeleteStage('confirm')}>
-                  close →
+                <button type="button" className="hl-wordaction hl-wordaction--warm" onClick={() => setDeleteStage('confirm')}>
+                  Close
                 </button>
               </div>
             )}
@@ -856,7 +882,9 @@ export function Settings() {
             Sign out
           </button>
 
-          <WaxSeal size={28} />
+          <div style={{ textAlign: 'center' }}>
+            <WaxSeal size={28} />
+          </div>
 
         </div>
     </ClothShell>

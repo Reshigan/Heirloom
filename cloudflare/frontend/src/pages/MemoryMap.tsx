@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { ClothShell } from '../loom/components/ClothShell';
-import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { memoriesApi } from '../services/api';
 
 interface MapMemory {
@@ -105,15 +105,25 @@ export function MemoryMap() {
           padding: '40px 28px 96px',
         }}
       >
-        {/* Cosmic ledger header — mono eyebrow (count + kind) + giant serif title */}
-        <CosmicHeader
-          eyebrow={memories.length ? eyebrow : 'WHERE IT HAPPENED'}
-          title="Places"
-          sub="Every memory anchored to the ground it happened on."
-        />
+        {/* Quiet mono eyebrow — the only line above the map field, per the reference.
+            Carries the live count when memories exist; falls back to the place phrase. */}
+        <div
+          style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 11,
+            letterSpacing: '0.34em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+            textAlign: 'center',
+            margin: '12px 0 56px',
+          }}
+        >
+          {memories.length ? eyebrow : 'WHERE IT HAPPENED'}
+        </div>
 
-        {/* Filter row — restrained, mono micro-labels (text affordances, not icons) */}
-        <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginBottom: 28 }}>
+        {/* Filter row — restrained, mono micro-labels (text affordances, not icons),
+            centred beneath the eyebrow so the map field carries the composition. */}
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap', justifyContent: 'center', marginBottom: 40 }}>
           {FILTERS.map((f) => (
             <button
               key={f}
@@ -294,10 +304,10 @@ export function MemoryMap() {
                       }}
                     >
                       <span
-                        className="hl-serif"
+                        className="hl-mono"
                         style={{
-                          fontSize: 11,
-                          fontWeight: 300,
+                          fontSize: 9,
+                          letterSpacing: '0.04em',
                           color: active ? 'var(--bone)' : 'var(--bone-dim)',
                           transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
                         }}
@@ -307,8 +317,8 @@ export function MemoryMap() {
                       <span
                         className="hl-mono"
                         style={{
-                          fontSize: 8,
-                          letterSpacing: '0.1em',
+                          fontSize: 9,
+                          letterSpacing: '0.08em',
                           color: 'var(--bone-faint)',
                         }}
                       >

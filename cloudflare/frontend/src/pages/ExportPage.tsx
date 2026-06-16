@@ -7,51 +7,53 @@ import { ProgressHair } from '../loom/components/ProgressHair';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 /**
- * ExportPage — bind the bloodline into a single book.
+ * ExportPage — take the thread with you.
  *
- * Gathers every memory, letter, and voice transcript into one PDF via
- * exportApi.familyBook (synchronous generation). On success the finished
- * blob is fetched and saved straight to disk. Past bindings list below.
+ * Four ways to leave with the archive whole:
+ *   · the printed book   (HARDCOVER — elegant cover PDF, ready for the press)
+ *   · the digital archive (PDF      — the family book, bound on screen)
+ *   · plain text          (TXT      — the unadorned family book)
+ *   · the whole thread    (ZIP      — every record, dumped raw)
+ *
+ * The first three render through exportApi.familyBook (synchronous PDF
+ * generation); the finished blob is fetched and saved straight to disk. The
+ * whole-thread option pulls the full data export and saves it locally. Past
+ * bindings list below.
  */
 
 type CoverStyle = 'classic' | 'modern' | 'elegant';
 
-interface ExportForm {
-  title: string;
-  subtitle: string;
-  dedication: string;
-  coverStyle: CoverStyle;
-  includeMemories: boolean;
-  includeLetters: boolean;
-  includeVoiceTranscripts: boolean;
-  includeFamilyTree: boolean;
+/** The four shapes the archive can leave in. */
+type ExportFormat = 'hardcover' | 'pdf' | 'txt' | 'zip';
+
+interface FormatOption {
+  format: ExportFormat;
+  label: string;
+  ext: string;
 }
 
-const INITIAL_FORM: ExportForm = {
-  title: '',
-  subtitle: '',
-  dedication: '',
-  coverStyle: 'classic',
+const FORMATS: FormatOption[] = [
+  { format: 'hardcover', label: 'Printed book', ext: 'hardcover' },
+  { format: 'pdf', label: 'Digital archive', ext: 'pdf' },
+  { format: 'txt', label: 'Plain text', ext: 'txt' },
+  { format: 'zip', label: 'The whole thread', ext: 'zip' },
+];
+
+/** familyBook payload — the full thread, bound. Cover follows the chosen format. */
+const BOOK_SCOPE = {
+  title: undefined,
+  subtitle: undefined,
+  dedication: undefined,
   includeMemories: true,
   includeLetters: true,
-  includeVoiceTranscripts: false,
+  includeVoiceTranscripts: true,
   includeFamilyTree: true,
-};
+} as const;
 
-const COVER_STYLES: CoverStyle[] = ['classic', 'modern', 'elegant'];
-
-const inputStyle: React.CSSProperties = {
-  background: 'transparent',
-  border: 0,
-  borderBottom: '1px solid var(--rule)',
-  outline: 'none',
-  color: 'var(--bone)',
-  fontFamily: 'var(--serif)',
-  fontSize: 15,
-  padding: '6px 0',
-  width: '100%',
-  boxSizing: 'border-box',
-  caretColor: 'var(--warm)',
+const COVER_FOR: Record<Exclude<ExportFormat, 'zip'>, CoverStyle> = {
+  hardcover: 'elegant',
+  pdf: 'classic',
+  txt: 'modern',
 };
 
 async function saveBlob(exportId: string): Promise<void> {
@@ -68,7 +70,7 @@ async function saveBlob(exportId: string): Promise<void> {
 
 export function ExportPage() {
   const qc = useQueryClient();
-  const [form, setForm] = useState<ExportForm>(INITIAL_FORM);
+  const [format, setFormat] = useState<ExportFormat>('pdf');
 
   const historyQ = useQuery({
     queryKey: ['export', 'history'],
@@ -77,15 +79,26 @@ export function ExportPage() {
 
   const bind = useMutation({
     mutationFn: async () => {
+      // The whole thread → the full raw data export, saved as JSON.
+      if (format === 'zip') {
+        const res = await exportApi.exportData();
+        const blob = new Blob([JSON.stringify(res.data, null, 2)], {
+          type: 'application/json',
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `heirloom-thread-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        return;
+      }
+      // The bound book — printed, digital, or plain — rendered to a PDF blob.
       const res = await exportApi.familyBook({
-        title: form.title || undefined,
-        subtitle: form.subtitle || undefined,
-        dedication: form.dedication || undefined,
-        coverStyle: form.coverStyle,
-        includeMemories: form.includeMemories,
-        includeLetters: form.includeLetters,
-        includeVoiceTranscripts: form.includeVoiceTranscripts,
-        includeFamilyTree: form.includeFamilyTree,
+        ...BOOK_SCOPE,
+        coverStyle: COVER_FOR[format],
       });
       await saveBlob(res.data.exportId);
     },
@@ -112,103 +125,23 @@ export function ExportPage() {
         }}
       >
         {/* ── header ── */}
-        <CosmicHeader
-          eyebrow="take it with you"
-          title="Export the thread"
-        />
+        <CosmicHeader eyebrow="take it with you" title="Export the thread" />
 
-        {/* ── scope — what goes inside ── */}
-        <SectionLabel>what to include</SectionLabel>
+        {/* ── format — how the archive leaves with you ── */}
+        <div style={{ marginTop: 28 }}>
+          {FORMATS.map((opt) => (
+            <FormatRow
+              key={opt.format}
+              label={opt.label}
+              ext={opt.ext}
+              selected={format === opt.format}
+              onSelect={() => setFormat(opt.format)}
+            />
+          ))}
+        </div>
 
-        <ScopeRow
-          label="The whole thread"
-          meta="memories"
-          on={form.includeMemories}
-          onToggle={() => setForm((f) => ({ ...f, includeMemories: !f.includeMemories }))}
-        />
-        <ScopeRow
-          label="Letters"
-          meta="sealed & open"
-          on={form.includeLetters}
-          onToggle={() => setForm((f) => ({ ...f, includeLetters: !f.includeLetters }))}
-        />
-        <ScopeRow
-          label="Voices"
-          meta="transcripts"
-          on={form.includeVoiceTranscripts}
-          onToggle={() =>
-            setForm((f) => ({ ...f, includeVoiceTranscripts: !f.includeVoiceTranscripts }))
-          }
-        />
-        <ScopeRow
-          label="The bloodline"
-          meta="family tree"
-          on={form.includeFamilyTree}
-          onToggle={() => setForm((f) => ({ ...f, includeFamilyTree: !f.includeFamilyTree }))}
-        />
-
-        {/* ── the book ── title, subtitle, dedication, cover style ── */}
-        <SectionLabel>the book</SectionLabel>
-
-        <LabelRow label="title">
-          <input
-            type="text"
-            style={inputStyle}
-            placeholder="Our Family Story"
-            value={form.title}
-            onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-          />
-        </LabelRow>
-
-        <LabelRow label="subtitle">
-          <input
-            type="text"
-            style={inputStyle}
-            placeholder="a subtitle — optional"
-            value={form.subtitle}
-            onChange={(e) => setForm((f) => ({ ...f, subtitle: e.target.value }))}
-          />
-        </LabelRow>
-
-        <LabelRow label="dedication">
-          <textarea
-            rows={3}
-            style={{ ...inputStyle, resize: 'vertical', lineHeight: 1.5 }}
-            placeholder="a dedication — optional"
-            value={form.dedication}
-            onChange={(e) => setForm((f) => ({ ...f, dedication: e.target.value }))}
-          />
-        </LabelRow>
-
-        <LabelRow label="cover style">
-          <div style={{ display: 'flex', gap: 22, paddingTop: 8 }}>
-            {COVER_STYLES.map((style) => (
-              <button
-                key={style}
-                type="button"
-                className="hl-btn text"
-                onClick={() => setForm((f) => ({ ...f, coverStyle: style }))}
-                style={{
-                  fontFamily: 'var(--mono)',
-                  fontSize: 10,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  background: 'transparent',
-                  border: 0,
-                  cursor: 'pointer',
-                  padding: 0,
-                  color: form.coverStyle === style ? 'var(--warm)' : 'var(--bone-dim)',
-                  transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
-                }}
-              >
-                {style}
-              </button>
-            ))}
-          </div>
-        </LabelRow>
-
-        {/* ── export action ── */}
-        <div style={{ marginTop: 56, marginBottom: 8 }}>
+        {/* ── export action — the single warm pill ── */}
+        <div style={{ marginTop: 48, marginBottom: 8 }}>
           <button
             type="button"
             disabled={bind.isPending}
@@ -225,10 +158,11 @@ export function ExportPage() {
               letterSpacing: '0.28em',
               textTransform: 'uppercase',
               cursor: bind.isPending ? 'default' : 'pointer',
-              transition: 'color 360ms cubic-bezier(0.16,1,0.3,1), border-color 360ms cubic-bezier(0.16,1,0.3,1)',
+              transition:
+                'color 360ms cubic-bezier(0.16,1,0.3,1), border-color 360ms cubic-bezier(0.16,1,0.3,1)',
             }}
           >
-            {bind.isPending ? 'preparing' : 'prepare export'}
+            {bind.isPending ? 'preparing' : 'export'}
           </button>
 
           {bind.isPending && (
@@ -301,55 +235,23 @@ export function ExportPage() {
   );
 }
 
-/* ── label-value row wrapper ────────────────────────────────────────────────── */
-function LabelRow({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        padding: '14px 0',
-        borderBottom: '1px solid var(--rule)',
-        gap: 24,
-      }}
-    >
-      <span
-        style={{
-          fontFamily: 'var(--mono)',
-          fontSize: 10,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          color: 'var(--bone-faint)',
-          paddingTop: 8,
-          flex: '0 0 auto',
-          minWidth: 80,
-        }}
-      >
-        {label}
-      </span>
-      <div style={{ flex: 1 }}>{children}</div>
-    </div>
-  );
-}
-
-/* ── scope row — serif label left, mono meta/toggle right ───────────────── */
-function ScopeRow({
+/* ── format row — serif label left (with em-dash), mono ext right, warm underline when chosen ── */
+function FormatRow({
   label,
-  meta,
-  on,
-  onToggle,
+  ext,
+  selected,
+  onSelect,
 }: {
   label: string;
-  meta: string;
-  on: boolean;
-  onToggle: () => void;
+  ext: string;
+  selected: boolean;
+  onSelect: () => void;
 }) {
   return (
     <button
       type="button"
-      onClick={onToggle}
-      aria-pressed={on}
+      onClick={onSelect}
+      aria-pressed={selected}
       style={{
         display: 'flex',
         alignItems: 'baseline',
@@ -358,7 +260,7 @@ function ScopeRow({
         textAlign: 'left',
         background: 'transparent',
         border: 0,
-        borderBottom: on ? '1px solid var(--warm)' : '1px solid var(--rule)',
+        borderBottom: selected ? '1px solid var(--warm)' : '1px solid var(--rule)',
         padding: '22px 0',
         gap: 16,
         cursor: 'pointer',
@@ -370,7 +272,7 @@ function ScopeRow({
           fontFamily: 'var(--serif)',
           fontSize: 20,
           fontWeight: 400,
-          color: on ? 'var(--bone)' : 'var(--bone-dim)',
+          color: selected ? 'var(--bone)' : 'var(--bone-dim)',
           transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
         }}
       >
@@ -385,12 +287,12 @@ function ScopeRow({
           fontSize: 10,
           letterSpacing: '0.2em',
           textTransform: 'uppercase',
-          color: on ? 'var(--warm)' : 'var(--bone-faint)',
+          color: selected ? 'var(--warm)' : 'var(--bone-faint)',
           transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
           whiteSpace: 'nowrap',
         }}
       >
-        {on ? meta : 'left out'}
+        {ext}
       </span>
     </button>
   );

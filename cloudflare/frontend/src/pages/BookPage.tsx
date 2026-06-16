@@ -1,10 +1,26 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
-import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, WaxSeal } from '../loom/cosmic/CosmicUI';
+
+// The binding configuration the volume carries into the builder. Display-only
+// here — the live selection, pricing and checkout live in /book-builder. These
+// quiet rows are the threshold to that flow (the reference's Copies / Order /
+// Chapters ledger), kept as the page's standing summary of how it'll be bound.
+const bindConfig: { label: string; value: string }[] = [
+  { label: 'Copies', value: '1' },
+  { label: 'Order', value: 'Chronological' },
+  { label: 'Chapters', value: 'By decade' },
+];
 
 export function BookPage() {
+  const navigate = useNavigate();
+
+  // PREVIEW — step into the live binding flow (preserves the page's only wired
+  // navigation, the route to /book-builder).
+  const preview = () => navigate('/book-builder');
+
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'the book' }]} />}
@@ -14,207 +30,155 @@ export function BookPage() {
       <div
         style={{
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
-          maxWidth: 'var(--page-max-wide)',
+          maxWidth: 'var(--page-max-focus)',
           margin: '0 auto',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'flex-start',
+          alignItems: 'center',
+          textAlign: 'center',
         }}
       >
-        {/* reading column — dye margin thread (fallback to 1px --rule) */}
-        <article
+        {/* mono eyebrow → serif title (centred ceremony) */}
+        <CosmicHeader eyebrow="The Book" title="Bind your thread" align="center" />
+
+        {/* glowing book illustration — warm-outline volume with an ∞ wax seal.
+            content, not backdrop (the bound-book glow that IS the data). */}
+        <div
+          aria-hidden
           style={{
-            width: '100%',
-            maxWidth: '62ch',
-            borderLeft: '3px solid var(--warm-dim)',
-            paddingLeft: 24,
-            transition: 'opacity 720ms var(--ease)',
+            position: 'relative',
+            width: 168,
+            height: 196,
+            margin: '8px 0 64px',
+            filter: 'drop-shadow(0 0 32px var(--warm-glow)) drop-shadow(0 0 10px var(--warm-glow))',
           }}
         >
-          {/* running head — mono eyebrow */}
+          {/* spine — the bound edge */}
           <div
-            className="hl-mono"
             style={{
-              fontSize: 10,
-              letterSpacing: '0.26em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
-              marginBottom: 20,
+              position: 'absolute',
+              left: 0,
+              top: 6,
+              bottom: 6,
+              width: 14,
+              border: '1px solid var(--warm)',
+              borderRight: 'none',
+              background: 'transparent',
             }}
-          >
-            the mercer thread · 1921
-          </div>
-
-          {/* serif headline */}
-          <h1
-            style={{
-              fontFamily: 'var(--serif)',
-              fontWeight: 400,
-              fontSize: 'clamp(30px, 6vw, 44px)',
-              lineHeight: 1.1,
-              color: 'var(--bone)',
-              margin: '0 0 10px',
-            }}
-          >
-            The crossing
-          </h1>
-
-          {/* mono warm subline */}
+          />
+          {/* cover face */}
           <div
-            className="hl-mono"
             style={{
-              fontSize: 11,
-              letterSpacing: '0.26em',
-              textTransform: 'uppercase',
-              color: 'var(--warm)',
-              marginBottom: 40,
+              position: 'absolute',
+              left: 14,
+              top: 0,
+              right: 0,
+              bottom: 0,
+              border: '1px solid var(--warm)',
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'flex-end',
+              padding: 18,
             }}
           >
-            a story by the mercer family · 1921
-          </div>
-
-          {/* body — serif, justified, line-height 1.75, paragraph breaks preserved */}
-          <p
-            style={{
-              fontFamily: 'var(--serif)',
-              fontWeight: 400,
-              fontSize: 18,
-              lineHeight: 1.75,
-              color: 'var(--bone)',
-              textAlign: 'justify',
-              hyphens: 'auto',
-              margin: '0 0 1.2em',
-            }}
-          >
+            {/* ∞ wax seal pressed into the lower-right of the cover */}
             <span
+              className="hl-mono"
               style={{
-                float: 'left',
-                fontFamily: 'var(--serif)',
-                fontWeight: 400,
-                fontSize: '3.2em',
-                lineHeight: 0.8,
-                color: 'var(--bone)',
-                marginRight: 8,
-                marginTop: 6,
+                width: 30,
+                height: 30,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px solid var(--warm)',
+                color: 'var(--warm)',
+                fontSize: 15,
+                lineHeight: 1,
               }}
             >
-              O
+              ∞
             </span>
-            ur family lore begins with the old oak, standing silent sentinel by the riverbend. Its
-            roots run as deep as our blood, its branches reaching towards a future it could only
-            dream of. We carved our names, one by one, into its rough bark — a testament to our
-            presence, our belonging. The wind whispered secrets through its leaves: tales of
-            laughter, of tears, and the countless seasons it had witnessed.
-          </p>
-          <p
-            style={{
-              fontFamily: 'var(--serif)',
-              fontWeight: 400,
-              fontSize: 18,
-              lineHeight: 1.75,
-              color: 'var(--bone)',
-              textAlign: 'justify',
-              hyphens: 'auto',
-              margin: '0 0 1.2em',
-            }}
-          >
-            Each year, the oak seemed to grow stronger, mirroring our own resilience. It became our
-            gathering place, the silent witness to our lives unfolding. From childhood games to
-            whispered confessions under the moonlight, the tree held all our memories within its
-            ancient rings. We knew that as long as the oak stood, our family would endure — rooted
-            in the earth and reaching for the sky, forever connected by the unseen threads of
-            history.
-          </p>
-
-          {/* folio */}
-          <div
-            className="hl-mono"
-            style={{
-              fontSize: 10,
-              letterSpacing: '0.2em',
-              color: 'var(--bone-faint)',
-              marginTop: 16,
-              marginBottom: 56,
-            }}
-          >
-            21
           </div>
-        </article>
-
-        {/* page-turn affordances + build link — quiet mono below the column */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 32,
-            paddingLeft: 27, /* border 3px + paddingLeft 24 */
-            marginTop: 8,
-            flexWrap: 'wrap',
-          }}
-        >
-          <button
-            type="button"
-            className="hl-mono"
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: 11,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
-              padding: '8px 0',
-              minHeight: 44,
-              transition: 'color 180ms var(--ease)',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--warm)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--bone-faint)')}
-          >
-            ‹ earlier
-          </button>
-
-          <button
-            type="button"
-            className="hl-mono"
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: 11,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
-              padding: '8px 0',
-              minHeight: 44,
-              transition: 'color 180ms var(--ease)',
-            }}
-            onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--warm)')}
-            onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--bone-faint)')}
-          >
-            later ›
-          </button>
-
-          <Link
-            to="/book-builder"
-            className="hl-mono"
-            style={{
-              fontSize: 10,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: 'var(--warm-dim)',
-              textDecoration: 'none',
-              padding: '8px 0',
-              minHeight: 44,
-              display: 'inline-flex',
-              alignItems: 'center',
-            }}
-          >
-            build your book
-          </Link>
         </div>
 
+        {/* binding config — hairline ledger rows: mono label left, warm value right */}
+        <div style={{ width: '100%', maxWidth: 360, borderTop: '1px solid var(--rule)', marginBottom: 56 }}>
+          {bindConfig.map(({ label, value }) => (
+            <div
+              key={label}
+              style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                justifyContent: 'space-between',
+                gap: 20,
+                padding: '17px 0',
+                borderBottom: '1px solid var(--rule)',
+              }}
+            >
+              <span
+                className="hl-mono"
+                style={{
+                  fontSize: 11,
+                  letterSpacing: '0.22em',
+                  textTransform: 'lowercase',
+                  color: 'var(--bone-faint)',
+                }}
+              >
+                {label}
+              </span>
+              <span
+                className="hl-mono"
+                style={{
+                  fontSize: 11,
+                  letterSpacing: '0.16em',
+                  color: 'var(--warm)',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {value}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* outlined PREVIEW pill — steps into the live builder */}
+        <button
+          type="button"
+          onClick={preview}
+          className="hl-mono hl-cta-warm"
+          style={{
+            background: 'transparent',
+            border: '1px solid var(--warm)',
+            borderRadius: 999,
+            padding: '15px 56px',
+            cursor: 'pointer',
+            fontSize: 11,
+            letterSpacing: '0.26em',
+            textTransform: 'uppercase',
+            color: 'var(--warm)',
+          }}
+        >
+          Preview
+        </button>
+
+        {/* quiet foot link — the full binding flow */}
+        <Link
+          to="/book-builder"
+          className="hl-mono"
+          style={{
+            marginTop: 28,
+            fontSize: 10,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+            textDecoration: 'none',
+          }}
+        >
+          build your book
+        </Link>
+
         {/* wax seal foot */}
-        <div style={{ marginTop: 72, paddingLeft: 27, width: '100%', maxWidth: '62ch' }}>
+        <div style={{ marginTop: 64 }}>
           <WaxSeal size={22} />
         </div>
       </div>

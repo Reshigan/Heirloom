@@ -6,7 +6,7 @@ import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
-import { CosmicHeader, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
@@ -79,9 +79,10 @@ function StatBand({
         style={{
           fontFamily: 'var(--serif)',
           fontWeight: 300,
-          fontSize: 'clamp(72px,18vw,128px)',
-          lineHeight: 0.92,
-          letterSpacing: '-0.02em',
+          fontSize: 'clamp(84px,22vw,156px)',
+          lineHeight: 0.86,
+          letterSpacing: '-0.03em',
+          fontVariationSettings: '"opsz" 48',
           color: accent ? 'var(--warm)' : 'var(--bone)',
         }}
       >
@@ -90,11 +91,11 @@ function StatBand({
       <div
         style={{
           fontFamily: 'var(--mono)',
-          fontSize: 10,
+          fontSize: 11,
           letterSpacing: '0.28em',
           textTransform: 'uppercase',
           color: 'var(--bone-dim)',
-          marginTop: 'clamp(14px,2.4vh,24px)',
+          marginTop: 'clamp(12px,2vh,20px)',
         }}
       >
         {caption}
@@ -108,7 +109,7 @@ function StatBand({
 export default function Wrapped() {
   const { year: yearParam } = useParams<{ year?: string }>();
   const YEAR = yearParam ? parseInt(yearParam, 10) : new Date().getFullYear();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
   const [copied, setCopied] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -168,12 +169,16 @@ export default function Wrapped() {
     }
   };
 
+  // The family's most-woven thread — caption echoes the reference's "WORDS ON <top thread>".
+  const topThread = user?.lastName || user?.firstName || 'the thread';
+
   // Real, derived figures — illustrative mockup numbers replaced by live data.
+  // Numerals alternate warm / bone down the stack (constitution: one colour has emotion).
   const bands: { value: string; caption: string; accent?: boolean }[] = [
-    { value: stats.kindCounts.memory.toLocaleString(), caption: 'memories woven', accent: true },
+    { value: stats.kindCounts.memory.toLocaleString(), caption: 'memories woven',                accent: true },
     { value: stats.kindCounts.voice.toLocaleString(),  caption: 'voices kept' },
-    { value: stats.kindCounts.letter.toLocaleString(), caption: 'notes sealed' },
-    { value: stats.totalWords.toLocaleString(),        caption: 'words on the old oak' },
+    { value: stats.kindCounts.letter.toLocaleString(), caption: 'notes sealed',                  accent: true },
+    { value: stats.totalWords.toLocaleString(),        caption: `words on ${topThread}`,         accent: true },
   ];
 
   return (
@@ -187,31 +192,28 @@ export default function Wrapped() {
           minHeight: '100%',
           overflowY: 'auto',
           display: 'flex', flexDirection: 'column', alignItems: 'center',
-          padding: 'clamp(40px,9vh,96px) clamp(24px,7vw,80px) clamp(64px,12vh,128px)',
+          padding: 'clamp(32px,7vh,72px) clamp(24px,7vw,80px) clamp(64px,12vh,128px)',
           boxSizing: 'border-box',
         }}
       >
-        {/* HERO statement — mono eyebrow + giant serif title + serif-italic sub */}
+        {/* mono eyebrow — the only line of chrome above the figures */}
         <div
           style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 11,
+            letterSpacing: '0.28em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-faint)',
+            textAlign: 'center',
             opacity: visible ? 1 : 0,
             transition: `opacity 720ms ${EASE}`,
           }}
         >
-          <CosmicHeader
-            align="center"
-            eyebrow={`The Year Woven · ${YEAR}`}
-            title="A thread of one year"
-            sub={
-              stats.thisYear.length > 0
-                ? `In ${YEAR} the family wove ${stats.thisYear.length.toLocaleString()} entries across ${stats.activeMonths} ${stats.activeMonths === 1 ? 'month' : 'months'} of the thread.`
-                : `${YEAR} waits to be woven — no entries on the cloth yet.`
-            }
-          />
+          The Year Woven · {YEAR}
         </div>
 
-        {/* the stack of stat moments */}
-        <div style={{ width: '100%', maxWidth: 520, marginTop: 'clamp(28px,6vh,64px)' }}>
+        {/* the four giant stat moments — the page IS the figures */}
+        <div style={{ width: '100%', maxWidth: 560, marginTop: 'clamp(20px,4vh,48px)' }}>
           {bands.map((b, i) => (
             <StatBand key={b.caption} value={b.value} caption={b.caption} accent={b.accent} index={i} visible={visible} />
           ))}

@@ -112,12 +112,6 @@ export function QandA() {
   const leadQuestion =
     state.phase === 'idle' ? null : (state as { question: string }).question;
 
-  const today = new Date().toLocaleDateString(undefined, {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-
   const canAsk = question.trim().length >= 2 && state.phase !== 'asking';
 
   return (
@@ -137,31 +131,31 @@ export function QandA() {
         }}
       >
         <div style={{ maxWidth: 620, margin: '0 auto', width: '100%', flex: 1, display: 'flex', flexDirection: 'column' }}>
-          {/* ── mono eyebrow ── */}
+          {/* ── warm mono eyebrow ── */}
           <div
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 11,
               letterSpacing: '0.28em',
               textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
+              color: 'var(--warm)',
               marginTop: 8,
-              marginBottom: 18,
+              marginBottom: 22,
             }}
           >
-            the listener asks
+            ask the thread
           </div>
 
-          {/* ── the question, as a giant serif prompt ── */}
+          {/* ── the asked question, as a giant serif prompt ── */}
           <h1
             style={{
               fontFamily: 'var(--serif)',
               fontSize: 'clamp(30px, 6vw, 46px)',
               fontWeight: 380,
-              lineHeight: 1.06,
+              lineHeight: 1.08,
               letterSpacing: '-0.012em',
               color: 'var(--bone)',
-              margin: '0 0 36px',
+              margin: '0 0 32px',
               fontVariationSettings: '"opsz" 40',
             }}
           >
@@ -243,18 +237,18 @@ export function QandA() {
               </p>
             )}
 
-            {/* answered: flowing serif body with a thin warm left-rule */}
+            {/* answered: flowing serif prose answer — one quiet typographic surface */}
             {state.phase === 'answered' && (
               <div>
                 <p
                   style={{
                     fontFamily: 'var(--serif)',
-                    fontSize: 18,
+                    fontSize: 'clamp(18px, 2.8vw, 21px)',
                     margin: 0,
                     color: 'var(--bone)',
                     lineHeight: 1.75,
-                    paddingLeft: 24,
-                    borderLeft: '3px solid var(--warm)',
+                    fontWeight: 400,
+                    fontVariationSettings: '"opsz" 18',
                   }}
                 >
                   {state.sources.length > 0 ? (
@@ -264,8 +258,8 @@ export function QandA() {
                         {state.sources.length}{' '}
                         {state.sources.length === 1 ? 'memory' : 'memories'}
                       </span>{' '}
-                      that touch <em>"{state.question}"</em>. Each is set down below,
-                      and opens to the entry it was woven from. The Listener speaks only
+                      that touch <em>"{state.question}"</em> — each set down below,
+                      opening to the entry it was woven from. The thread speaks only
                       from what was truly written, never words it has invented.
                     </>
                   ) : (
@@ -276,81 +270,58 @@ export function QandA() {
                   )}
                 </p>
 
-                {/* cited sources — quiet mono rows */}
+                {/* cited sources — quiet mono dim "— from <source>, <year>" lines */}
                 {state.sources.length > 0 && (
-                  <ul style={{ listStyle: 'none', padding: 0, margin: '32px 0 0' }}>
-                    {state.sources.map((s, i) => (
-                      <Citation key={s.id} index={i + 1} source={s} />
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '40px 0 0' }}>
+                    {state.sources.map((s) => (
+                      <Citation key={s.id} source={s} />
                     ))}
                   </ul>
                 )}
-
-                {/* archival footer label */}
-                <div
-                  style={{
-                    fontFamily: 'var(--mono)',
-                    fontSize: 10,
-                    letterSpacing: '0.22em',
-                    textTransform: 'uppercase',
-                    color: 'var(--bone-faint)',
-                    margin: '36px 0 0',
-                  }}
-                >
-                  woven from {state.sources.length}{' '}
-                  {state.sources.length === 1 ? 'memory' : 'memories'}
-                </div>
               </div>
             )}
           </div>
 
-          {/* ── compose the answer: serif body surface + bottom action bar ── */}
+          {/* ── ASK ANYTHING — warm mono label + underlined hl-input ── */}
           <form onSubmit={onSubmit} style={{ marginTop: 40 }}>
-            <div
+            <label
+              htmlFor="qa-ask"
               style={{
+                display: 'block',
                 fontFamily: 'var(--mono)',
                 fontSize: 10,
                 letterSpacing: '0.28em',
                 textTransform: 'uppercase',
-                color: 'var(--warm-dim)',
-                margin: '0 0 12px',
+                color: 'var(--warm)',
+                margin: '0 0 10px',
               }}
             >
-              your answer
-            </div>
+              ask anything
+            </label>
 
-            {/* serif body answer surface — 18px / 1.75, warm caret, no box */}
-            <textarea
+            <input
+              id="qa-ask"
+              type="search"
+              className="hl-input"
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Answer in your own words…"
+              placeholder="What do you want to know?"
               aria-label="Ask the thread"
-              rows={3}
+              autoComplete="off"
               style={{
-                width: '100%',
-                background: 'transparent',
-                border: 0,
-                borderBottom: '1px solid var(--warm)',
-                outline: 'none',
-                resize: 'none',
-                color: 'var(--bone)',
                 caretColor: 'var(--warm)',
-                fontFamily: 'var(--serif)',
                 fontSize: 18,
                 fontWeight: 400,
-                lineHeight: 1.75,
-                padding: '4px 0 14px',
-                letterSpacing: '-0.006em',
               }}
             />
 
-            {/* bottom action bar: ASK warm pill · date pill · shuffle */}
+            {/* submit is the Enter key on the field; a quiet inline ask/shuffle pair */}
             <div
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: 16,
-                marginTop: 18,
+                gap: 18,
+                marginTop: 16,
               }}
             >
               <button
@@ -358,38 +329,21 @@ export function QandA() {
                 disabled={!canAsk}
                 style={{
                   fontFamily: 'var(--mono)',
-                  fontSize: 11,
-                  letterSpacing: '0.2em',
+                  fontSize: 10,
+                  letterSpacing: '0.22em',
                   textTransform: 'uppercase',
-                  color: canAsk ? 'var(--ink)' : 'var(--warm)',
-                  background: canAsk ? 'var(--warm)' : 'transparent',
-                  border: '1px solid var(--warm)',
-                  borderRadius: 999,
-                  padding: '11px 22px',
+                  color: 'var(--warm)',
+                  background: 'transparent',
+                  border: 0,
+                  padding: '6px 0',
                   cursor: canAsk ? 'pointer' : 'default',
-                  opacity: canAsk ? 1 : 0.5,
+                  opacity: canAsk ? 1 : 0.4,
                   whiteSpace: 'nowrap',
-                  transition: `opacity 180ms ${EASE}, background 180ms ${EASE}, color 180ms ${EASE}`,
+                  transition: `opacity 180ms ${EASE}, color 180ms ${EASE}`,
                 }}
               >
                 ask →
               </button>
-
-              <span
-                style={{
-                  fontFamily: 'var(--mono)',
-                  fontSize: 10,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: 'var(--bone-faint)',
-                  border: '1px solid var(--rule)',
-                  borderRadius: 999,
-                  padding: '8px 16px',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {today}
-              </span>
 
               <button
                 type="button"
@@ -403,21 +357,21 @@ export function QandA() {
                   fontSize: 10,
                   letterSpacing: '0.22em',
                   textTransform: 'uppercase',
-                  color: 'var(--bone-dim)',
-                  padding: '8px 0',
+                  color: 'var(--bone-faint)',
+                  padding: '6px 0',
                   whiteSpace: 'nowrap',
                   transition: `color 180ms ${EASE}`,
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--warm)')}
-                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--bone-dim)')}
+                onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--bone-faint)')}
               >
                 shuffle ∞
               </button>
             </div>
           </form>
 
-          <div style={{ marginTop: 40 }}>
-            <WaxSeal size={26} />
+          <div style={{ marginTop: 36 }}>
+            <WaxSeal size={24} />
           </div>
         </div>
       </div>
@@ -425,40 +379,39 @@ export function QandA() {
   );
 }
 
-/* ── a single cited source entry ── */
-function Citation({ index, source }: { index: number; source: SourceEntry }) {
+/* ── a single cited source — quiet mono dim "— from <source>, <year>" line ── */
+function Citation({ source }: { source: SourceEntry }) {
   const to = sourceHref(source);
   const snippet = stripMarks(source.snippet);
   const dyeColor = source.dye ? DYE_VARS[source.dye.toLowerCase()] : undefined;
   return (
-    <li style={{ padding: '10px 0', borderTop: '1px solid var(--rule)' }}>
+    <li style={{ margin: '0 0 8px' }}>
       <Link
         to={to}
         style={{
-          display: 'flex',
+          display: 'inline-flex',
           alignItems: 'baseline',
-          gap: 10,
+          gap: 8,
           fontFamily: 'var(--mono)',
-          fontSize: 10,
-          letterSpacing: '0.06em',
+          fontSize: 12,
+          letterSpacing: '0.04em',
           color: 'var(--bone-faint)',
           textDecoration: 'none',
+          maxWidth: '100%',
         }}
-        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--bone)')}
+        onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--bone-dim)')}
         onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--bone-faint)')}
       >
-        <span style={{ color: 'var(--warm)', flex: '0 0 auto' }}>[{index}]</span>
-        {/* dye swatch — colored only when a real dye is present, else honest blank */}
-        <span
-          aria-hidden
-          style={{ width: 12, height: 2, alignSelf: 'center', flex: '0 0 auto', background: dyeColor ?? 'transparent' }}
-        />
-        <span style={{ flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        {/* dye thread tick — shown only when a real dye is present, else honest blank */}
+        {dyeColor && (
+          <span
+            aria-hidden
+            style={{ width: 10, height: 2, alignSelf: 'center', flex: '0 0 auto', background: dyeColor }}
+          />
+        )}
+        <span style={{ minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           — from <span style={{ fontStyle: 'italic' }}>{source.title ?? snippet ?? 'an untitled entry'}</span>
           {source.createdAt ? `, ${formatYear(source.createdAt)}` : ''}
-        </span>
-        <span style={{ flex: '0 0 auto', textTransform: 'lowercase' }}>
-          {source.subType ?? source.type}
         </span>
       </Link>
     </li>

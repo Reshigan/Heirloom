@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, useCallback, useLayoutEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { CosmicHeader, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { useAuthStore } from '../stores/authStore';
 import { familyApi, threadsApi, memoriesApi } from '../services/api';
@@ -117,7 +117,6 @@ export function Constellation() {
   // stable genealogical stack (root ancestor → descendants) that matches the
   // cosmic-tree mockup. Sort oldest → newest first, then bucket by cohort.
   const ordered = [...kin].sort((a, b) => a.born - b.born);
-  const thisYear = new Date().getFullYear();
   const generations: KinEntry[][] = [];
   if (ordered.length > 0) {
     const base = ordered[0].born;
@@ -129,10 +128,90 @@ export function Constellation() {
   // Collapse the sparse array (empty cohorts) into contiguous rows.
   const rows = generations.filter(Boolean);
 
+  // --- Curved-connector geometry --------------------------------------------
+  // The tree's connectors are PAGE CONTENT: warm bezier curves drawn in an
+  // in-page SVG, fanning from each generation's convergence point down to every
+  // member of the next generation (the V→spray gesture in the reference). We
+  // measure live chip centres with refs + a ResizeObserver so the curves track
+  // wrapping and viewport changes — no hard-coded coordinates.
+  const treeRef = useRef<HTMLDivElement | null>(null);
+  const chipRefs = useRef<Map<string, HTMLDivElement | null>>(new Map());
+  const [paths, setPaths] = useState<{ d: string; lit: boolean }[]>([]);
+  const [svgSize, setSvgSize] = useState<{ w: number; h: number }>({ w: 0, h: 0 });
+
+  const setChipRef = useCallback((id: string) => (el: HTMLDivElement | null) => {
+    chipRefs.current.set(id, el);
+  }, []);
+
+  const measure = useCallback(() => {
+    const host = treeRef.current;
+    if (!host || rows.length === 0) { setPaths(prev => (prev.length === 0 ? prev : [])); return; }
+    const hostBox = host.getBoundingClientRect();
+    setSvgSize(prev => (prev.w === hostBox.width && prev.h === hostBox.height ? prev : { w: hostBox.width, h: hostBox.height }));
+
+    // Per-row geometry: each chip's centre x, plus the row's top and bottom y.
+    const rowGeo = rows.map(row => {
+      const pts = row
+        .map(k => {
+          const el = chipRefs.current.get(k.id);
+          if (!el) return null;
+          const b = el.getBoundingClientRect();
+          return {
+            id: k.id,
+            cx: b.left + b.width / 2 - hostBox.left,
+            top: b.top - hostBox.top,
+            bottom: b.bottom - hostBox.top,
+            lit: hovered === kin.findIndex(x => x.id === k.id) || k.you,
+          };
+        })
+        .filter((p): p is NonNullable<typeof p> => p != null);
+      if (pts.length === 0) return null;
+      const xs = pts.map(p => p.cx);
+      const mid = (Math.min(...xs) + Math.max(...xs)) / 2;
+      const bottom = Math.max(...pts.map(p => p.bottom));
+      const top = Math.min(...pts.map(p => p.top));
+      const anyLit = pts.some(p => p.lit);
+      return { pts, mid, bottom, top, anyLit };
+    });
+
+    const next: { d: string; lit: boolean }[] = [];
+    for (let i = 0; i < rowGeo.length - 1; i++) {
+      const parent = rowGeo[i];
+      const child = rowGeo[i + 1];
+      if (!parent || !child) continue;
+      // Convergence point: centred just below the parent generation.
+      const jx = parent.mid;
+      const jy = parent.bottom + 6;
+      for (const c of child.pts) {
+        const cyTop = c.top - 4;
+        // Cubic bezier: hold the line vertical out of the junction, then ease
+        // toward the child — the gentle warm sweep of the reference.
+        const dyMid = (cyTop - jy) * 0.55;
+        const d = `M ${jx} ${jy} C ${jx} ${jy + dyMid}, ${c.cx} ${cyTop - dyMid}, ${c.cx} ${cyTop}`;
+        next.push({ d, lit: parent.anyLit || c.lit });
+      }
+    }
+    setPaths(prev => {
+      if (prev.length === next.length && prev.every((p, i) => p.d === next[i].d && p.lit === next[i].lit)) {
+        return prev;
+      }
+      return next;
+    });
+  }, [rows, kin, hovered]);
+
+  useLayoutEffect(() => {
+    measure();
+    const host = treeRef.current;
+    if (!host) return;
+    const ro = new ResizeObserver(() => measure());
+    ro.observe(host);
+    window.addEventListener('resize', measure);
+    return () => { ro.disconnect(); window.removeEventListener('resize', measure); };
+  }, [measure]);
+
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'bloodline' }]} />}
-      backdropOpacity={0.3}
     >
       <div
         style={{
@@ -145,13 +224,31 @@ export function Constellation() {
           padding: 'clamp(40px, 9vh, 96px) 24px clamp(40px, 8vh, 88px)',
         }}
       >
-        <CosmicHeader eyebrow="THE LINEAGE" title="Family Tree" />
-
-        {/* The tree — generation rows stacked vertically, joined by hairline
-            CSS-border connectors. Siblings sit side-by-side in a row; a centered
-            vertical rule descends from each generation into the next. */}
+        {/* Centred mono eyebrow — the warm wing-sprays above it belong to the
+            global ClothBackdrop (tree variant), not this page. */}
         <div
           style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 12,
+            letterSpacing: '0.42em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-dim)',
+            textAlign: 'center',
+            marginBottom: 'clamp(80px, 16vh, 180px)',
+            paddingLeft: '0.42em',
+          }}
+        >
+          The Lineage
+        </div>
+
+        {/* The tree — generation rows stacked vertically, joined by warm CURVED
+            connector lines drawn as in-page SVG content (the V→spray gesture).
+            Siblings sit side-by-side in a row; the SVG fans from each
+            generation's convergence point down to every child below. */}
+        <div
+          ref={treeRef}
+          style={{
+            position: 'relative',
             width: '100%',
             maxWidth: 720,
             display: 'flex',
@@ -159,6 +256,32 @@ export function Constellation() {
             alignItems: 'center',
           }}
         >
+          {/* curved connector lines — page content, drawn behind the chips */}
+          {paths.length > 0 && (
+            <svg
+              aria-hidden
+              width={svgSize.w}
+              height={svgSize.h}
+              viewBox={`0 0 ${svgSize.w} ${svgSize.h}`}
+              style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'visible' }}
+            >
+              {paths.map((p, i) => (
+                <path
+                  key={i}
+                  d={p.d}
+                  fill="none"
+                  stroke={p.lit ? 'var(--warm-bright)' : 'var(--warm)'}
+                  strokeWidth={p.lit ? 1.4 : 1}
+                  strokeLinecap="round"
+                  style={{
+                    opacity: p.lit ? 0.85 : 0.5,
+                    filter: p.lit ? 'drop-shadow(0 0 6px var(--warm-glow))' : 'none',
+                    transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1), stroke 360ms cubic-bezier(0.16,1,0.3,1)',
+                  }}
+                />
+              ))}
+            </svg>
+          )}
           {loading && kin.length === 0 ? (
             <div style={{ paddingTop: 'clamp(24px, 6vh, 64px)' }}>
               <ProgressHair width={80} />
@@ -201,7 +324,6 @@ export function Constellation() {
             (() => {
               const kinIndex = new Map(kin.map((k, i) => [k.id, i]));
               return rows.map((row, rowIdx) => {
-              const rowLit = row.some(k => hovered === kinIndex.get(k.id) || k.you);
               return (
                 <div
                   key={row.map(k => k.id).join('-')}
@@ -210,37 +332,12 @@ export function Constellation() {
                     flexDirection: 'column',
                     alignItems: 'center',
                     width: '100%',
+                    // vertical air between generations — the SVG fans across it
+                    marginTop: rowIdx > 0 ? 'clamp(56px, 11vh, 120px)' : 0,
+                    position: 'relative',
+                    zIndex: 1,
                   }}
                 >
-                  {/* vertical connector descending from the prior generation */}
-                  {rowIdx > 0 && (
-                    <div
-                      aria-hidden
-                      style={{
-                        width: 0,
-                        height: 'clamp(26px, 4vh, 44px)',
-                        borderLeft: '1px solid',
-                        borderColor: rowLit
-                          ? 'var(--warm)'
-                          : 'rgba(176,122,74,0.32)',
-                        transition: 'border-color 360ms cubic-bezier(0.16,1,0.3,1)',
-                      }}
-                    />
-                  )}
-
-                  {/* horizontal sibling rule — spans the row when >1 member */}
-                  {rowIdx > 0 && row.length > 1 && (
-                    <div
-                      aria-hidden
-                      style={{
-                        width: 'min(86%, 460px)',
-                        height: 0,
-                        borderTop: '1px solid rgba(176,122,74,0.22)',
-                        marginBottom: 'clamp(14px, 2vh, 22px)',
-                      }}
-                    />
-                  )}
-
                   {/* the generation row — siblings side by side */}
                   <div
                     style={{
@@ -248,7 +345,7 @@ export function Constellation() {
                       flexWrap: 'wrap',
                       justifyContent: 'center',
                       alignItems: 'flex-start',
-                      gap: 'clamp(28px, 6vw, 64px)',
+                      gap: 'clamp(24px, 6vw, 56px)',
                       width: '100%',
                     }}
                   >
@@ -261,10 +358,10 @@ export function Constellation() {
                           ? 'var(--bone)'
                           : 'var(--bone-dim)';
                       const dye = k.you ? 'var(--warm)' : dyeColor(k.id);
-                      const age = (k.died ?? thisYear) - k.born;
                       return (
                         <div
                           key={k.id}
+                          ref={setChipRef(k.id)}
                           tabIndex={0}
                           role="img"
                           aria-label={`${k.name}, born ${k.born}${k.died ? `, died ${k.died}` : ', living'}`}
@@ -274,51 +371,44 @@ export function Constellation() {
                           onBlur={() => setHovered(null)}
                           style={{
                             display: 'flex',
-                            flexDirection: 'column',
+                            flexDirection: 'row',
                             alignItems: 'center',
-                            gap: 6,
+                            gap: 8,
                             cursor: 'default',
-                            padding: '4px 0',
+                            padding: '4px 2px',
+                            position: 'relative',
+                            zIndex: 1,
                           }}
                         >
-                          {/* the dye point — the member's identity signal */}
+                          {/* the dye SQUARE — the member's identity signal */}
                           <span
                             aria-hidden
                             style={{
-                              display: 'inline-flex',
-                              opacity: isLit ? 1 : 0.7,
+                              width: 9,
+                              height: 9,
+                              flex: '0 0 auto',
+                              background: dye,
+                              opacity: isLit ? 1 : 0.78,
                               transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
                             }}
-                          >
-                            <WarmDot color={dye} size={5} />
-                          </span>
+                          />
                           <span
                             style={{
-                              fontFamily: 'var(--serif)',
-                              fontVariationSettings: "'opsz' 28",
-                              fontSize: 17,
+                              fontFamily: 'var(--mono)',
+                              fontSize: 11,
                               fontWeight: 400,
                               fontStyle: k.you ? 'italic' : 'normal',
-                              letterSpacing: '0.01em',
+                              letterSpacing: '0.14em',
+                              textTransform: 'uppercase',
                               color: nameColor,
                               transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
                               whiteSpace: 'nowrap',
-                              textAlign: 'center',
+                              textAlign: 'left',
                             }}
                           >
                             {k.name}
-                          </span>
-                          <span
-                            className="loom-mono"
-                            style={{
-                              fontSize: 8.5,
-                              letterSpacing: '0.18em',
-                              color: 'var(--bone-faint)',
-                            }}
-                          >
-                            {k.died ? `${k.born} — ${k.died}` : `AGE ${age}`}
                             {k.picks.length > 0 && (
-                              <span style={{ color: 'var(--warm-dim)', marginLeft: 8 }}>
+                              <span style={{ color: 'var(--warm-dim)', marginLeft: 8, letterSpacing: '0.12em' }}>
                                 ∞ {k.picks.length}
                               </span>
                             )}

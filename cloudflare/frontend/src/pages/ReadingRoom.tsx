@@ -3,7 +3,6 @@ import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ClothPage } from '../loom/components/ClothPage';
-import { ClothBackdrop } from '../loom/components/ClothBackdrop';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
@@ -12,10 +11,10 @@ import { dyeVar, dyeFromMetadata, dyeForId, type Dye } from '../loom/dye';
 /**
  * Screen 07 — The Reading Room
  *
- * The author's own thread, read as artifacts. The same living-cloth backdrop
- * every loom room shows (ClothBackdrop — shared 3D weave + theme-aware scrim,
- * so the reader tracks light/dark like the letter and voice rooms), a selvedge
- * nav, the ClothPage artifact reader, and a full-screen BookView on parchment.
+ * The author's own thread, read as artifacts. The global route-aware backdrop
+ * (mounted once in App.tsx) paints this room's filament gesture behind the
+ * reader; the page itself carries only a selvedge nav, the ClothPage artifact
+ * reader, and a full-screen BookView on parchment.
  * Reads REAL entries (memories, letters, voice) for the signed-in user — no
  * mock content. Falls back to the EmptyThread prompt when the cloth has no
  * picks yet.
@@ -57,6 +56,16 @@ function paragraphs(body: string): string[] {
     .split(/\n{2,}|\n/)
     .map((p) => p.trim())
     .filter(Boolean);
+}
+
+const WEEKDAYS = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+const MONTHS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+// Museum date stamp from the entry's epoch ord: "TUE 14 JAN 1987".
+function stampDate(ord: number): string {
+  const d = new Date(ord);
+  if (isNaN(d.getTime()) || ord === 0) return '';
+  return `${WEEKDAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 }
 
 // ── SelvedgeHistory ───────────────────────────────────────────────────────────
@@ -182,17 +191,12 @@ function ReadingContent({
 }) {
   const paras = paragraphs(t.body);
   const isLastEntry = activeIndex === total - 1;
-  // Subline — mono museum byline: "A MEMORY BY <AUTHOR> · <YEAR>"
-  const subline = useMemo(() => {
-    const article =
-      t.kind === 'letter' ? 'A LETTER'
-      : t.kind === 'voice' ? 'A RECORDING'
-      : t.kind === 'photo' ? 'A PHOTOGRAPH'
-      : 'A MEMORY';
-    const verb = t.kind === 'voice' ? 'RECORDED' : t.kind === 'photo' ? 'KEPT' : 'BY';
-    const lede = verb === 'BY' ? `${article} BY` : `${article} ${verb} BY`;
-    return `${lede} ${t.who.toUpperCase()} · ${t.year}`;
-  }, [t.kind, t.who, t.year]);
+  // Eyebrow — mono museum stamp above the title: "<DAY DATE> · WOVEN BY <AUTHOR>"
+  const eyebrow = useMemo(() => {
+    const stamp = stampDate(t.ord) || t.date;
+    const verb = t.kind === 'voice' ? 'RECORDED BY' : t.kind === 'photo' ? 'KEPT BY' : 'WOVEN BY';
+    return `${stamp} · ${verb} ${t.who.toUpperCase()}`;
+  }, [t.ord, t.date, t.kind, t.who]);
 
   return (
     <div style={{
@@ -208,24 +212,24 @@ function ReadingContent({
         borderLeft: `3px solid ${dye}`, paddingLeft: 24,
       }}>
 
+        {/* Eyebrow — mono museum stamp above the title */}
+        <div style={{
+          fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
+          textTransform: 'uppercase', color: 'var(--warm)', lineHeight: 1.6,
+          marginBottom: 14,
+        }}>
+          {eyebrow}
+        </div>
+
         {/* Title — the hero */}
         <h1 style={{
           fontFamily: 'var(--serif)', fontWeight: 400,
           fontSize: 'clamp(30px, 6vw, 44px)', lineHeight: 1.1,
           letterSpacing: '-0.01em', color: 'var(--bone)',
-          margin: '0 0 14px',
+          margin: '0 0 clamp(32px, 6vh, 56px)',
         }}>
           {t.title}
         </h1>
-
-        {/* Subline — mono byline directly under the title */}
-        <div style={{
-          fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
-          textTransform: 'uppercase', color: 'var(--warm)', lineHeight: 1.6,
-          marginBottom: 'clamp(32px, 6vh, 56px)',
-        }}>
-          {subline}
-        </div>
 
         {/* Body — justified serif prose at a comfortable reading measure */}
         <div>
@@ -253,32 +257,15 @@ function ReadingContent({
           )}
 
           {paras.length > 0 ? (
-            paras.map((p, i) => {
-              // Drop-cap the opening paragraph — editorial first letter in warm wax.
-              const dropCap = i === 0 && !t.photoUrl && t.kind !== 'voice';
-              return (
-                <p key={i} style={{
-                  fontFamily: 'var(--serif)', fontSize: 18, lineHeight: 1.75,
-                  color: 'var(--bone)', margin: '0 0 24px', fontWeight: 400,
-                  textAlign: 'justify', textJustify: 'inter-word', hyphens: 'auto',
-                }}>
-                  {dropCap && p.length > 1 ? (
-                    <>
-                      <span style={{
-                        float: 'left', fontFamily: 'var(--serif)', fontWeight: 400,
-                        fontSize: '3.4em', lineHeight: 0.78, color: 'var(--warm)',
-                        paddingRight: '0.08em', marginTop: '0.06em',
-                      }}>
-                        {p.charAt(0)}
-                      </span>
-                      {p.slice(1)}
-                    </>
-                  ) : (
-                    p
-                  )}
-                </p>
-              );
-            })
+            paras.map((p, i) => (
+              <p key={i} style={{
+                fontFamily: 'var(--serif)', fontSize: 18, lineHeight: 1.75,
+                color: 'var(--bone)', margin: '0 0 24px', fontWeight: 400,
+                textAlign: 'justify', textJustify: 'inter-word', hyphens: 'auto',
+              }}>
+                {p}
+              </p>
+            ))
           ) : (
             <p style={{
               fontFamily: 'var(--serif)', fontSize: 18, lineHeight: 1.75,
@@ -501,7 +488,6 @@ export function ReadingRoom() {
   if (view === 'book') {
     return (
       <div className="loom" style={{ position: 'fixed', inset: 0, background: 'var(--ink)' }}>
-        <ClothBackdrop opacity={0.35} />
         <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
           <BookView entries={entries} threadName={user?.firstName ? `${who}'s thread` : 'your thread'} />
         </div>
@@ -529,9 +515,6 @@ export function ReadingRoom() {
     <div className="loom" style={{ position: 'fixed', inset: 0, background: 'var(--ink)' }}>
       {/* Hairline loading bar */}
       <div aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 1, background: 'var(--warm)', opacity: loading ? 0.6 : 0, transition: 'opacity 360ms', zIndex: 30, pointerEvents: 'none' }} />
-
-      {/* Layer 0: the shared living cloth (theme-aware, same as every room) */}
-      <ClothBackdrop opacity={0.45} />
 
       {/* Layer 1: Topbar */}
       <div style={{

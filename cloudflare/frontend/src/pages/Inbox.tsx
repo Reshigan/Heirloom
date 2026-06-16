@@ -70,14 +70,6 @@ export function Inbox() {
 
   const isEmpty = received.length === 0 && sealed.length === 0 && opened.length === 0;
 
-  // Unread = received (arrived, not yet read) + sealed (locked, waiting)
-  const unreadCount = received.length + sealed.length;
-  const totalCount = received.length + sealed.length + opened.length;
-
-  const eyebrow = totalCount > 0
-    ? `${unreadCount} UNREAD · ${totalCount} TOTAL`
-    : 'THE INBOX';
-
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'today', to: '/loom/today' }, { label: 'inbox' }]} />}
@@ -93,7 +85,7 @@ export function Inbox() {
         }}
       >
         <div style={{ width: '100%', maxWidth: 440 }}>
-          <CosmicHeader eyebrow={eyebrow} title="Inbox" />
+          <CosmicHeader eyebrow="THE INBOX" title="Inbox" />
 
           {hasError && (
             <p
@@ -147,18 +139,19 @@ export function Inbox() {
                 return (
                   <EntryRow
                     key={u.unlock_id}
-                    filled
-                    italic={!!u.entry_title}
+                    italic
                     title={
                       <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <WarmDot filled size={5} color="var(--warm)" />
-                        <span>
-                          <span aria-hidden style={{ color: 'var(--warm)', fontWeight: 300, marginRight: 8 }}>∞</span>
-                          {u.entry_title ?? 'A sealed note'}
-                        </span>
+                        <span>{u.entry_title ?? 'A sealed note for the future'}</span>
                       </span>
                     }
-                    sub={subText || undefined}
+                    sub={
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span aria-hidden style={{ color: 'var(--warm)', fontWeight: 300, fontSize: 14, lineHeight: 1 }}>∞</span>
+                        {subText && <span>{subText}</span>}
+                      </span>
+                    }
                     meta={`unlocks ${sealedUntilLabel(itemWithDye)}`}
                   />
                 );

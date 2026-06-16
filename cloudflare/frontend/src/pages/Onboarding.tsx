@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { threadsApi, familyReferralsApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
@@ -8,12 +8,14 @@ import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 // ── Types ─────────────────────────────────────────────────────────────────
 // The thread itself is created at signup (from the signup form), so onboarding
-// opens with the product tour, then the first entry, then an invite. It never
-// re-creates the thread.
-type Step = 'tour' | 'entry' | 'invite';
-const STEPS: Step[] = ['tour', 'entry', 'invite'];
-// Step labels track the full tour-led arc so the mono counter reads naturally.
-const TOTAL_STEPS = STEPS.length;
+// opens with the welcome ceremony, then the product tour, then the first entry,
+// then an invite. It never re-creates the thread.
+type Step = 'welcome' | 'tour' | 'entry' | 'invite';
+const STEPS: Step[] = ['welcome', 'tour', 'entry', 'invite'];
+// The numbered ceremony steps (entry + invite) the mono counter reads against —
+// welcome and the tour crown the arc and sit outside the count.
+const NUMBERED_STEPS: Step[] = ['entry', 'invite'];
+const TOTAL_STEPS = NUMBERED_STEPS.length;
 
 // ── Styles ────────────────────────────────────────────────────────────────
 // The welcome ceremony: centered, vast air. A glowing warm ∞ crowns each step,
@@ -159,21 +161,58 @@ const skipStyle: React.CSSProperties = {
   touchAction: 'manipulation',
 };
 
-// Soft glowing woven-filament light bloom — a single low-opacity amber radial
-// anchored in the upper third, over the vast dark stage. Not an image, not a
-// gradient mesh — one calm radial in the house idiom.
-const bloomStyle: React.CSSProperties = {
-  position: 'absolute',
-  top: '-14%',
-  left: '50%',
-  width: 'min(560px, 120vw)',
-  height: 'min(560px, 120vw)',
-  transform: 'translateX(-50%)',
-  pointerEvents: 'none',
-  background:
-    'radial-gradient(circle at 50% 40%, rgba(207,147,90,0.22) 0%, rgba(176,122,74,0.10) 34%, rgba(176,122,74,0) 62%)',
-  filter: 'saturate(1.05)',
-  zIndex: 0,
+// ── Welcome ceremony ────────────────────────────────────────────────────
+// The opening surface: a full-height column, the promise held low so the
+// global crescent filament owns the empty upper air, the verb beneath it, and
+// a quiet sign-in foot. Centered, vast negative space — no page-owned canvas.
+const welcomeStage: React.CSSProperties = {
+  flex: 1,
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  padding: 'var(--page-pad-top) var(--page-pad-x) calc(var(--page-pad-x) + env(safe-area-inset-bottom,0px))',
+  maxWidth: 'var(--page-max-focus)',
+  width: '100%',
+  margin: '0 auto',
+  boxSizing: 'border-box',
+};
+
+// The promise — serif, centered, two lines, the bloodline's own voice.
+const welcomeTitle: React.CSSProperties = {
+  fontFamily: 'var(--serif)',
+  fontWeight: 400,
+  fontSize: 'clamp(28px, 7vw, 40px)',
+  lineHeight: 1.12,
+  letterSpacing: '-0.018em',
+  color: 'var(--bone)',
+  textAlign: 'center',
+  margin: '0 0 36px',
+  fontVariationSettings: '"opsz" 40',
+};
+
+const welcomeActions: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: 30,
+  paddingBottom: 12,
+};
+
+// Quiet mono foot — uppercase, bone-faint, the sign-in escape hatch.
+const welcomeFoot: React.CSSProperties = {
+  fontFamily: 'var(--mono)',
+  fontSize: 10,
+  letterSpacing: '0.22em',
+  textTransform: 'uppercase' as const,
+  color: 'var(--bone-faint)',
+  textAlign: 'center',
+};
+
+const welcomeFootLink: React.CSSProperties = {
+  color: 'var(--bone-dim)',
+  textDecoration: 'underline',
+  textUnderlineOffset: '3px',
+  textDecorationColor: 'var(--rule)',
 };
 
 // Outlined amber pill — warm hairline border, mono uppercase label, no fill.
@@ -239,6 +278,8 @@ export function Onboarding() {
 
   const [stepIndex, setStepIndex] = useState(0);
   const step = STEPS[stepIndex];
+  // Advance by step name so the wizard order can shift without chasing indices.
+  const goTo = (s: Step) => setStepIndex(STEPS.indexOf(s));
 
   // Family name — seeded from the surname captured at signup. This names the
   // bloodline's thread; it feeds the thread-naming logic in ensureThreadId.
@@ -277,7 +318,9 @@ export function Onboarding() {
   const [error, setError] = useState<string | null>(null);
   const [inviteSent, setInviteSent] = useState(false);
 
-  const progress = (stepIndex + 1) / STEPS.length;
+  // The hairline + mono counter track only the numbered ceremony steps.
+  const numberedIndex = NUMBERED_STEPS.indexOf(step as Step);
+  const progress = (numberedIndex + 1) / NUMBERED_STEPS.length;
 
   // ── Focus helpers for border glow ────────────────────────────────────
   function onFocus(e: React.FocusEvent<HTMLElement>) {
@@ -312,7 +355,7 @@ export function Onboarding() {
 
   async function submitEntry() {
     if (!firstEntry.trim()) {
-      setStepIndex(2);
+      goTo('invite');
       return;
     }
     setBusy(true);
@@ -330,7 +373,7 @@ export function Onboarding() {
       // Non-fatal — continue forward
     } finally {
       setBusy(false);
-      setStepIndex(2);
+      goTo('invite');
     }
   }
 
@@ -437,11 +480,51 @@ export function Onboarding() {
     ? 'invitation sent'
     : step === 'entry' ? 'start your thread' : 'invite →';
 
-  // The product tour leads onboarding; it manages its own progress + actions.
+  // The welcome ceremony opens onboarding — vast air, the global crescent
+  // filament crowning the top, the promise held low in serif, and one outlined
+  // amber verb that begins the thread. No page-owned backdrop: the global
+  // ClothBackdrop paints the crescent for this route.
+  if (step === 'welcome') {
+    return (
+      <ClothShell noTopbar>
+        <div style={welcomeStage}>
+          {/* the upper two-thirds is left empty — the crescent filament breathes there */}
+          <div style={{ flex: 1 }} aria-hidden />
+
+          <h1 style={welcomeTitle}>
+            Start your family’s
+            <br />
+            thousand-year thread.
+          </h1>
+
+          <div style={welcomeActions}>
+            <button
+              type="button"
+              style={pillStyle}
+              onClick={() => goTo('tour')}
+              onMouseEnter={pillHover}
+              onMouseLeave={pillLeave}
+            >
+              begin the thread
+            </button>
+
+            <div style={welcomeFoot}>
+              already weaving?&nbsp;·&nbsp;
+              <Link to="/login" style={welcomeFootLink}>
+                sign in
+              </Link>
+            </div>
+          </div>
+        </div>
+      </ClothShell>
+    );
+  }
+
+  // The product tour follows the welcome; it manages its own progress + actions.
   if (step === 'tour') {
     return (
       <ClothShell noTopbar>
-        <Tour onDone={() => setStepIndex(1)} />
+        <Tour onDone={() => goTo('entry')} />
       </ClothShell>
     );
   }
@@ -463,11 +546,11 @@ export function Onboarding() {
         />
       </div>
 
-      {/* Stage — one question, centered in negative space, beneath the bloom */}
+      {/* Stage — one question, centered in negative space, over the global
+          filament backdrop (no page-owned canvas) */}
       <div style={{ ...stage, position: 'relative' }}>
-        <div aria-hidden style={bloomStyle} />
         <div style={{ ...stepLabel, marginTop: 18, position: 'relative', zIndex: 1 }}>
-          step {stepIndex + 1} of {TOTAL_STEPS}
+          step {numberedIndex + 1} of {TOTAL_STEPS}
         </div>
 
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
