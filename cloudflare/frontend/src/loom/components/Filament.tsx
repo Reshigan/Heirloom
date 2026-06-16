@@ -26,7 +26,12 @@ export type FilamentVariant =
   | 'ember'     // ∞ wax knot breaking open into rising embers — a letter unsealed
   | 'scurve'    // one vast faint S-curve behind giant numbers — the year wrapped
   | 'tree'      // two wing-sprays of light rising from the top — the lineage
-  | 'none';     // clean ink — most reading/utility rooms
+  | 'waveform'  // a centred glowing audio waveform — voice / record / interview
+  | 'book'      // a luminous bound volume floating in warm bloom — the book rooms
+  | 'seal'      // a warm wax-seal ring with an ∞ core — letters / sealed notes
+  | 'map'       // scattered glowing place-lights over faint latitudes — memory map
+  | 'ambient'   // a single faint warm bloom, no strokes — quiet reading/utility rooms
+  | 'none';     // pure ink — opt-out only
 
 function mulberry(seed: number): () => number {
   return () => {
@@ -74,16 +79,25 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
     let W = 1;
     let H = 1;
 
-    // ── shared filament stroke: soft outer glow + bright core, drawn additively ──
+    // ── shared filament stroke: 3-pass soft bloom — wide halo, mid glow, bright
+    // core — drawn additively so threads read as warm light, not CAD wires. ──
     function drawFilament(c: CanvasRenderingContext2D, pts: number[][], color: string, a: number, w: number) {
       if (pts.length < 2) return;
       c.strokeStyle = color;
       c.shadowColor = color;
-      c.shadowBlur = 14;
-      c.globalAlpha = Math.min(0.55, a);
-      c.lineWidth = w + 1.6;
+      // pass 1 — wide soft halo
+      c.shadowBlur = 26;
+      c.globalAlpha = Math.min(0.3, a * 0.55);
+      c.lineWidth = w + 2.6;
       trace(c, pts);
       c.stroke();
+      // pass 2 — mid glow
+      c.shadowBlur = 12;
+      c.globalAlpha = Math.min(0.5, a);
+      c.lineWidth = w + 0.8;
+      trace(c, pts);
+      c.stroke();
+      // pass 3 — bright core, no shadow
       c.shadowBlur = 0;
       c.globalAlpha = Math.min(1, a * 1.5);
       c.lineWidth = Math.max(0.5, w * 0.5);
@@ -107,7 +121,7 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
       const R = Math.min(W * 0.44, H * 0.4);
       const a0 = Math.PI * 0.16;
       const a1 = Math.PI * 0.84;
-      const rings = 11;
+      const rings = 9;
       for (let i = 0; i < rings; i++) {
         const r = R * (0.5 + (i / (rings - 1)) * 0.5);
         const jitter = (0.6 + rnd() * 0.8) * 3;
@@ -117,9 +131,10 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
           pts.push([cx + Math.cos(a) * (r + wob), cy + Math.sin(a) * (r + wob)]);
         }
         // lower (outer-bottom) rings brighter
-        out.push({ pts, a: 0.18 + (i / rings) * 0.42, w: 0.7 + rnd() * 0.7 });
+        out.push({ pts, a: 0.16 + (i / rings) * 0.34, w: 0.7 + rnd() * 0.7 });
       }
-      const spokes = 26;
+      // sparse cross-weave of radials — a hint of warp, not a CAD lattice
+      const spokes = 14;
       for (let s = 0; s < spokes; s++) {
         const a = a0 + (s / (spokes - 1)) * (a1 - a0);
         const sway = (rnd() - 0.5) * 0.05;
@@ -128,7 +143,7 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
           const aa = a + sway * Math.sin(r * 0.03);
           pts.push([cx + Math.cos(aa) * r, cy + Math.sin(aa) * r]);
         }
-        out.push({ pts, a: 0.1 + rnd() * 0.18, w: 0.5 + rnd() * 0.5 });
+        out.push({ pts, a: 0.06 + rnd() * 0.12, w: 0.5 + rnd() * 0.4 });
       }
       return out;
     }
@@ -253,6 +268,117 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
       return out;
     }
 
+    // A centred glowing audio waveform — symmetric mirrored bars woven from a
+    // soft envelope, brightest at the middle. Voice / record / interview rooms.
+    function waveformPaths(rnd: () => number): { pts: number[][]; a: number; w: number }[] {
+      const out: { pts: number[][]; a: number; w: number }[] = [];
+      const cy = H * 0.42;
+      const span = Math.min(W * 0.78, 720);
+      const x0 = (W - span) / 2;
+      const bars = 56;
+      const seedAmps = Array.from({ length: bars }, (_, i) => {
+        const t = i / (bars - 1);
+        const env = Math.sin(t * Math.PI); // taper at the ends
+        return env * (0.18 + 0.82 * Math.abs(Math.sin(i * 1.7 + rnd() * 6) * Math.cos(i * 0.6)));
+      });
+      const maxH = H * 0.2;
+      for (let i = 0; i < bars; i++) {
+        const x = x0 + (i / (bars - 1)) * span;
+        const h = maxH * seedAmps[i];
+        // each bar is a tiny vertical filament mirrored around the baseline
+        out.push({ pts: [[x, cy - h], [x, cy + h]], a: 0.22 + seedAmps[i] * 0.5, w: 1.1 + seedAmps[i] * 1.4 });
+      }
+      // a faint baseline thread the bars sit on
+      const base: number[][] = [];
+      for (let x = x0 - 10; x <= x0 + span + 10; x += 8) base.push([x, cy + Math.sin(x * 0.02) * 1.5]);
+      out.push({ pts: base, a: 0.16, w: 0.7 });
+      return out;
+    }
+
+    // A luminous bound volume — a centred open book traced in light: spine,
+    // covers, and a fan of page-edges glowing from within. Book rooms.
+    function bookPaths(rnd: () => number): { pts: number[][]; a: number; w: number }[] {
+      const out: { pts: number[][]; a: number; w: number }[] = [];
+      const cx = W / 2;
+      const cy = H * 0.46;
+      const bw = Math.min(W * 0.5, 420);
+      const bh = bw * 0.66;
+      const lift = bh * 0.16; // the V the open spine makes
+      // two covers as soft trapezoids
+      for (const dir of [-1, 1]) {
+        const ox = cx;
+        const cover: number[][] = [
+          [ox, cy - lift],
+          [ox + dir * bw * 0.5, cy - lift - bh * 0.18],
+          [ox + dir * bw * 0.5, cy + bh * 0.5 - bh * 0.18],
+          [ox, cy + bh * 0.5],
+          [ox, cy - lift],
+        ];
+        out.push({ pts: cover, a: 0.4, w: 1.4 });
+        // page fan on each side
+        const pages = 7;
+        for (let p = 1; p <= pages; p++) {
+          const t = p / (pages + 1);
+          const top = [ox + dir * bw * 0.5 * t, cy - lift - bh * 0.18 * t + 2];
+          const bot = [ox + dir * bw * 0.5 * t, cy + (bh * 0.5 - bh * 0.18 * t) - 3 - rnd() * 2];
+          out.push({ pts: [top, bot], a: 0.12 + t * 0.16, w: 0.6 });
+        }
+      }
+      // spine highlight
+      out.push({ pts: [[cx, cy - lift - 4], [cx, cy + bh * 0.5 + 2]], a: 0.55, w: 1.8 });
+      return out;
+    }
+
+    // A warm wax-seal ring with a woven ∞ core — letters / sealed notes. The
+    // bright bloom itself is added in paint(); here we trace the ring + knot.
+    function sealPaths(rnd: () => number): { pts: number[][]; a: number; w: number }[] {
+      const out: { pts: number[][]; a: number; w: number }[] = [];
+      const cx = W / 2;
+      const cy = H * 0.4;
+      const R = Math.min(W * 0.16, H * 0.13);
+      const rings = 3;
+      for (let i = 0; i < rings; i++) {
+        const r = R * (0.86 + i * 0.09);
+        const pts: number[][] = [];
+        for (let a = 0; a <= Math.PI * 2 + 0.001; a += 0.06) {
+          const wob = Math.sin(a * 7 + i) * (1 + rnd() * 1.4);
+          pts.push([cx + Math.cos(a) * (r + wob), cy + Math.sin(a) * (r + wob)]);
+        }
+        out.push({ pts, a: 0.28 + i * 0.12, w: 1.0 + i * 0.5 });
+      }
+      // the ∞ knot stamped into the seal
+      for (let i = 0; i < 3; i++) {
+        out.push({ pts: lemniscate(cx, cy, R * 0.5 * (0.9 + i * 0.06), 1 + rnd() * 1.4, rnd() * 6), a: 0.34 + i * 0.12, w: 0.8 + i * 0.4 });
+      }
+      return out;
+    }
+
+    // Scattered glowing place-lights over faint curved latitudes — the memory
+    // map's living constellation. The pin-glows are drawn in paint() as dots;
+    // here we lay the faint graticule the lights rest on.
+    function mapPaths(rnd: () => number): { pts: number[][]; a: number; w: number }[] {
+      const out: { pts: number[][]; a: number; w: number }[] = [];
+      const lats = 5;
+      for (let i = 0; i < lats; i++) {
+        const baseY = H * (0.24 + (i / (lats - 1)) * 0.5);
+        const amp = 10 + rnd() * 18;
+        const f = (0.7 + rnd() * 0.5) / W * Math.PI * 2;
+        const ph = rnd() * Math.PI * 2;
+        const pts: number[][] = [];
+        for (let x = -20; x <= W + 20; x += 9) pts.push([x, baseY + Math.sin(x * f + ph) * amp]);
+        out.push({ pts, a: 0.07 + rnd() * 0.05, w: 0.6 });
+      }
+      // a few faint meridians for depth
+      const mers = 4;
+      for (let i = 0; i < mers; i++) {
+        const baseX = W * (0.2 + (i / (mers - 1)) * 0.6);
+        const pts: number[][] = [];
+        for (let y = H * 0.18; y <= H * 0.78; y += 10) pts.push([baseX + Math.sin(y * 0.012 + i) * 14, y]);
+        out.push({ pts, a: 0.05, w: 0.5 });
+      }
+      return out;
+    }
+
     function pathsFor(variant: FilamentVariant, rnd: () => number) {
       switch (variant) {
         case 'arc': return arcPaths(rnd);
@@ -262,6 +388,11 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
         case 'ember': return infinityPaths(rnd);
         case 'scurve': return scurvePaths(rnd);
         case 'tree': return treePaths(rnd);
+        case 'waveform': return waveformPaths(rnd);
+        case 'book': return bookPaths(rnd);
+        case 'seal': return sealPaths(rnd);
+        case 'map': return mapPaths(rnd);
+        case 'ambient': return [];
         default: return [];
       }
     }
@@ -298,8 +429,62 @@ export function Filament({ variant = 'none', seed = 1941, intensity = 1, classNa
       const lum = (paper ? 0.6 : 1) * intensity;
 
       ctx.globalCompositeOperation = 'lighter';
+
+      // ── ambient warm bloom — every light-bearing room gets a soft glow behind
+      // its gesture so nothing reads as flat black. Centre + radius per variant.
+      // infinity/ember keep their own brighter knot-bloom below, so skip here. ──
+      const bloomFor = (): { cx: number; cy: number; r: number; a: number } | null => {
+        switch (variant) {
+          case 'arc':      return { cx: W / 2,        cy: H * 0.02, r: Math.min(W * 0.55, H * 0.5),  a: 0.09 };
+          case 'crown':    return { cx: W / 2,        cy: H * 0.05, r: Math.min(W * 0.6, H * 0.5),   a: 0.09 };
+          case 'wave':     return { cx: W / 2,        cy: H * 0.82, r: Math.min(W * 0.6, H * 0.45),  a: 0.09 };
+          case 'scurve':   return { cx: W * 0.52,     cy: H * 0.5,  r: Math.max(W, H) * 0.5,         a: 0.05 };
+          case 'tree':     return { cx: W / 2,        cy: H * 0.3,  r: Math.min(W * 0.5, H * 0.4),   a: 0.08 };
+          case 'waveform': return { cx: W / 2,        cy: H * 0.42, r: Math.min(W * 0.5, 380),       a: 0.15 };
+          case 'book':     return { cx: W / 2,        cy: H * 0.46, r: Math.min(W * 0.45, 340),      a: 0.13 };
+          case 'seal':     return { cx: W / 2,        cy: H * 0.4,  r: Math.min(W * 0.24, 170),      a: 0.2  };
+          case 'map':      return { cx: W / 2,        cy: H * 0.45, r: Math.max(W, H) * 0.55,        a: 0.05 };
+          case 'ambient':  return { cx: W / 2,        cy: H * 0.4,  r: Math.max(W, H) * 0.55,        a: 0.07 };
+          default:         return null;
+        }
+      };
+      const bloom = bloomFor();
+      if (bloom) {
+        const g = ctx.createRadialGradient(bloom.cx, bloom.cy, 0, bloom.cx, bloom.cy, bloom.r);
+        g.addColorStop(0, `rgba(${warmRgb},${bloom.a * lum})`);
+        g.addColorStop(0.6, `rgba(${warmRgb},${bloom.a * lum * 0.35})`);
+        g.addColorStop(1, `rgba(${warmRgb},0)`);
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, W, H);
+      }
+
       const paths = pathsFor(variant, rnd);
       for (const p of paths) drawFilament(ctx, p.pts, warm, p.a * lum, p.w);
+
+      // The memory map's living constellation — scattered glowing place-lights.
+      if (variant === 'map') {
+        const pins = 9;
+        for (let i = 0; i < pins; i++) {
+          const px = W * (0.14 + rnd() * 0.72);
+          const py = H * (0.24 + rnd() * 0.48);
+          const pr = 1.6 + rnd() * 2.4;
+          const pa = (0.4 + rnd() * 0.5) * lum;
+          // soft halo
+          const pg = ctx.createRadialGradient(px, py, 0, px, py, pr * 6);
+          pg.addColorStop(0, `rgba(${warmRgb},${pa})`);
+          pg.addColorStop(1, `rgba(${warmRgb},0)`);
+          ctx.fillStyle = pg;
+          ctx.fillRect(px - pr * 6, py - pr * 6, pr * 12, pr * 12);
+          // bright core
+          ctx.shadowColor = `rgba(${warmRgb},${pa})`;
+          ctx.shadowBlur = 10;
+          ctx.fillStyle = `rgba(${warmRgb},${Math.min(1, pa * 1.6)})`;
+          ctx.beginPath();
+          ctx.arc(px, py, pr, 0, 7);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      }
 
       // The ∞ ceremony screens get a bright wax-knot core at the lemniscate centre.
       if (variant === 'infinity' || variant === 'ember') {

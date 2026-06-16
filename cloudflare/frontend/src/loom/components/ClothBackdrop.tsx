@@ -23,8 +23,9 @@ export const CLOTH_BG_ENTRIES = Array.from({ length: 48 }, (_, i) => ({
  * crown over the home prompt, horizontal waves under the hero, a centred ∞ at
  * the threshold, wing-sprays over the lineage — not a single full-bleed web.
  * This map is the single source of truth for which gesture each route wears.
- * A path with no entry falls to 'none' (clean ink) — the reading and utility
- * rooms (family, settings, reading, search, ask, export, inbox, memory-map).
+ * A path with no entry falls to 'ambient' (a single faint warm bloom) so no
+ * room ever reads as flat black — only the few opt-out routes below force
+ * 'none' (pure ink) where the screen's own content carries all the light.
  */
 const ROUTE_VARIANT: Record<string, FilamentVariant> = {
   '/': 'wave',                 // landing hero — woven waves across the bottom
@@ -52,11 +53,39 @@ const ROUTE_VARIANT: Record<string, FilamentVariant> = {
   '/unseal': 'ember',
   '/loom/unlock': 'ember',     // the unseal ceremony — a wax knot breaking into embers
   '/loom/tied': 'ember',
+  // ── voice / oral history — a centred glowing audio waveform ──
+  '/voice': 'waveform',
+  '/loom/voice': 'waveform',
+  '/record': 'waveform',
+  '/loom/record': 'waveform',
+  '/interview': 'waveform',
+  '/loom/interview': 'waveform',
+  // ── letters / sealed notes — a warm wax-seal ring with an ∞ core ──
+  '/letters': 'seal',
+  '/loom/letters': 'seal',
+  '/letter': 'seal',
+  '/compose-letter': 'seal',
+  '/loom/compose-letter': 'seal',
+  '/sealed': 'seal',
+  '/loom/sealed': 'seal',
+  '/time-capsules': 'seal',
+  '/timecapsules': 'seal',
+  '/capsules': 'seal',
+  '/loom/capsules': 'seal',
+  // ── the book — a luminous bound volume in warm bloom ──
+  '/book': 'book',
+  '/book-builder': 'book',
+  '/loom/book': 'book',
+  '/export': 'book',
+  // ── the memory map — scattered glowing place-lights over faint latitudes ──
+  '/memory-map': 'map',
+  '/map': 'map',
+  '/loom/map': 'map',
 };
 
 function variantFor(pathname: string): FilamentVariant {
   const p = (pathname.replace(/\/+$/, '') || '/').toLowerCase();
-  return ROUTE_VARIANT[p] ?? 'none';
+  return ROUTE_VARIANT[p] ?? 'ambient';
 }
 
 // A small stable hash so two `arc` screens don't weave an identical crescent.
