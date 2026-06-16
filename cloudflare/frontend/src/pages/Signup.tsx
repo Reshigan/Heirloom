@@ -6,6 +6,7 @@ import { safeRedirect } from '../lib/safeRedirect';
 import { VaultModal } from '../components/VaultModal';
 import { threadsApi } from '../services/api';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { ProgressHair } from '../loom/components/ProgressHair';
 
 // Signup — FORM archetype. Underlined fields, mono micro-labels, giant serif
 // headline, one warm primary CTA, WaxSeal foot. All data/auth/validation preserved.
@@ -433,17 +434,13 @@ export function Signup() {
                 : 'begin the thread'}
           </button>
 
-          {/* isLoading progress hairline — 1px, no spinner */}
+          {/* isLoading: the sanctioned animated hairline (no spinner). Register
+              takes several seconds server-side (bcrypt + D1), so an indeterminate
+              sweeping ProgressHair reassures the wait instead of a frozen 1px bar. */}
           {isLoading && (
-            <div
-              style={{
-                height: 1,
-                background: 'var(--warm)',
-                opacity: 0.4,
-                marginTop: 2,
-                animation: `none`,
-              }}
-            />
+            <div style={{ marginTop: 12 }}>
+              <ProgressHair label="weaving your first thread…" />
+            </div>
           )}
 
           <p
