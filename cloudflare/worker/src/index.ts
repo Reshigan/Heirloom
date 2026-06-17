@@ -37,7 +37,7 @@ import { announcementsRoutes } from './routes/announcements';
 import engagementRoutes from './routes/engagement';
 import { streaksRoutes, challengesRoutes, referralsRoutes, giftRoutes, memorialRoutes, milestonesRoutes, notificationsRoutes } from './routes/q4-features';
 import memoryCardsRoutes from './routes/memory-cards';
-import pushNotificationRoutes, { sendPushToUser } from './routes/push-notifications';
+import pushNotificationRoutes, { sendPushToUser, sendPushToAllUsers } from './routes/push-notifications';
 import { referralRoutes } from './routes/referrals';
 import { influencerRoutes } from './routes/influencers';
 import { partnerRoutes } from './routes/partners';
@@ -60,7 +60,7 @@ import { archiveRoutes } from './routes/archive';
 import { bookOrderRoutes, bookOrderProtectedRoutes } from './routes/books';
 import { syncOpenPrintJobs } from './services/book';
 import { founderRoutes } from './routes/founders';
-import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail } from './email-templates';
+import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail, letterDeliveryEmail } from './email-templates';
 import { sendEmail } from './utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts, discoverFromTikTok, discoverFromInstagram, enrichPlaceholderEmails } from './jobs/adoption-jobs';
 import { processPushNotificationQueue, cleanupOldNotifications } from './services/pushSender';
@@ -780,6 +780,8 @@ const PUBLIC_API_PREFIXES = [
   '/api/billing/webhook',     // Stripe webhook (HMAC verified inside handler)
   '/api/billing/pricing',     // pricing is public — unauthenticated visitors see plans
   '/api/memorials/page/',     // shared memorial pages (QR/short-url) + tributes — public by design
+  '/api/deadman/verify-contact/', // legacy-contact verification (token in URL) — unauthenticated by design
+  '/deadman/verify-contact/',     // relative-path variant inside the /api mount
 ];
 
 // JWT middleware for protected routes. Bypasses for paths in
@@ -1021,6 +1023,16 @@ export default {
       const giftResult = await processScheduledGifts(env);
       console.log(`Scheduled gift deliveries — delivered:${giftResult.delivered} errors:${giftResult.errors}`);
 
+      // Scheduled-letter delivery — release any SCHEDULED letter whose date has
+      // arrived. Best-effort: a throw here must not abort the remaining daily jobs.
+      console.log('Processing scheduled letter deliveries…');
+      try {
+        const letterResult = await processScheduledLetters(env);
+        console.log(`Scheduled letters — delivered:${letterResult.delivered} recipients:${letterResult.recipients} errors:${letterResult.errors}`);
+      } catch (e) {
+        console.error('Scheduled letter delivery error:', e);
+      }
+
       // Family member grace-window expiry — hard-delete members whose 7-day
       // window has closed. Associated content rows cascade via FK ON DELETE CASCADE.
       // This is what removes the thread from the cloth permanently.
@@ -1044,6 +1056,22 @@ export default {
       }
 
       console.log('Daily jobs complete.');
+
+    } else if (cronType === '0 20 * * *') {
+      // ========== DAILY 8 PM UTC — the Listener's evening prompt ==========
+      // Enqueue one prompt per opted-in subscription; the 5-minute drain
+      // (processPushNotificationQueue) delivers them. Best-effort.
+      console.log('Enqueuing daily evening prompt push…');
+      try {
+        const promptResult = await sendPushToAllUsers(env, {
+          title: 'Heirloom',
+          body: 'the listener asks…\nWhat did you almost forget to write down today?',
+          data: { type: 'daily_prompt', route: '/loom/pwa', tag: 'heirloom' },
+        });
+        console.log(`Daily prompt push — queued:${promptResult.queuedCount}`);
+      } catch (e) {
+        console.error('Daily prompt push error:', e);
+      }
 
     } else if (cronType === '0 0 * * 0' || cronType === '0 0 * * SUN') {
       // ========== WEEKLY JOBS (Sunday midnight UTC) ==========
@@ -1120,6 +1148,91 @@ export default {
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
+
+// Scheduled-letter delivery (daily cron). A SCHEDULED letter with a concrete
+// scheduled_date is released to its recipients the day that date arrives —
+// without this no cron ever swept them. Idempotent: the letter's delivered_at
+// is the marker, so a delivered letter is never re-sent. SCHEDULED letters with
+// a NULL scheduled_date are sealed milestone/event letters released by hand
+// (POST /:id/release) and are deliberately left untouched here.
+async function processScheduledLetters(env: Env): Promise<{ delivered: number; recipients: number; errors: number }> {
+  const now = new Date().toISOString();
+  let delivered = 0;
+  let recipients = 0;
+  let errors = 0;
+
+  const due = await env.DB.prepare(`
+    SELECT id, user_id, salutation, body, signature
+    FROM letters
+    WHERE delivery_trigger = 'SCHEDULED'
+      AND scheduled_date IS NOT NULL
+      AND scheduled_date <= ?
+      AND sealed_at IS NOT NULL
+      AND deleted_at IS NULL
+      AND delivered_at IS NULL
+  `).bind(now).all();
+
+  for (const letter of due.results as any[]) {
+    try {
+      // Author name + recipient list mirror the release path exactly.
+      const [author, recipientRows] = await Promise.all([
+        env.DB.prepare(`SELECT first_name, last_name FROM users WHERE id = ?`).bind(letter.user_id).first() as Promise<
+          { first_name: string; last_name: string } | null
+        >,
+        env.DB.prepare(`
+          SELECT fm.email, fm.name FROM family_members fm
+          JOIN letter_recipients lr ON fm.id = lr.family_member_id
+          WHERE lr.letter_id = ?
+        `).bind(letter.id).all(),
+      ]);
+      const senderName = `${author?.first_name ?? ''} ${author?.last_name ?? ''}`.trim() || 'your family';
+
+      const recipientsWithEmail = (recipientRows.results as any[]).filter((r) => r.email);
+      const deliveredEmails: string[] = [];
+
+      for (const recipient of recipientsWithEmail) {
+        try {
+          const { subject, html } = letterDeliveryEmail(recipient.name || 'there', senderName, {
+            salutation: String(letter.salutation || ''),
+            body: String(letter.body || ''),
+            signature: String(letter.signature || ''),
+          });
+          await sendEmail(
+            env,
+            { from: 'Heirloom <noreply@heirloom.blue>', to: recipient.email, subject, html },
+            'letter_delivery'
+          );
+          deliveredEmails.push(recipient.email);
+        } catch (err) {
+          console.error('Scheduled letter email failed', recipient.email, err);
+          errors++;
+        }
+      }
+
+      // One batch: mark each existing delivery row DELIVERED + stamp the letter.
+      // delivered_at on the letter is set regardless so a recipient-less or
+      // email-less SCHEDULED letter is not re-examined every day.
+      const writes = deliveredEmails.map((email) =>
+        env.DB.prepare(`
+          UPDATE letter_deliveries SET status = 'DELIVERED', sent_at = ?, delivered_at = ?, updated_at = ?
+          WHERE letter_id = ? AND recipient_email = ?
+        `).bind(now, now, now, letter.id, email)
+      );
+      writes.push(
+        env.DB.prepare(`UPDATE letters SET delivered_at = ?, updated_at = ? WHERE id = ?`).bind(now, now, letter.id)
+      );
+      await env.DB.batch(writes);
+
+      delivered++;
+      recipients += deliveredEmails.length;
+    } catch (err) {
+      console.error('Scheduled letter delivery failed', letter.id, err);
+      errors++;
+    }
+  }
+
+  return { delivered, recipients, errors };
+}
 
 async function verifyJWT(token: string, secret: string): Promise<any> {
   const encoder = new TextEncoder();

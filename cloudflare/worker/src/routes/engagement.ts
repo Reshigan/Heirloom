@@ -149,16 +149,27 @@ engagementRoutes.post('/invite', requireAuth, async (c) => {
   const inviter = await c.env.DB.prepare(`
     SELECT first_name, last_name, email FROM users WHERE id = ?
   `).bind(userId).first();
-  
+
+  // Resolve the inviter's primary thread so the invitee can join the bloodline on accept.
+  let inviterThread = await c.env.DB.prepare(`
+    SELECT id FROM threads WHERE founder_user_id = ? ORDER BY created_at ASC LIMIT 1
+  `).bind(userId).first();
+  if (!inviterThread) {
+    inviterThread = await c.env.DB.prepare(`
+      SELECT thread_id AS id FROM thread_members WHERE user_id = ? ORDER BY rowid ASC LIMIT 1
+    `).bind(userId).first();
+  }
+  const threadId = (inviterThread?.id as string | undefined) || null;
+
   const inviteCode = `INV-${crypto.randomUUID().substring(0, 8).toUpperCase()}`;
   const now = new Date();
   const expiresAt = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000); // 30 days
-  
+
   const id = crypto.randomUUID();
   await c.env.DB.prepare(`
-    INSERT INTO family_invites (id, inviter_user_id, invitee_email, invitee_name, invite_code, sent_at, expires_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, userId, email.toLowerCase(), name || null, inviteCode, now.toISOString(), expiresAt.toISOString()).run();
+    INSERT INTO family_invites (id, inviter_user_id, invitee_email, invitee_name, invite_code, thread_id, sent_at, expires_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(id, userId, email.toLowerCase(), name || null, inviteCode, threadId, now.toISOString(), expiresAt.toISOString()).run();
   
   // Send invite email
   const inviterName = `${inviter?.first_name || ''} ${inviter?.last_name || ''}`.trim() || 'Someone';
@@ -233,10 +244,44 @@ engagementRoutes.post('/invite/accept', requireAuth, async (c) => {
     UPDATE family_invites SET status = 'accepted', accepted_at = ? WHERE id = ?
   `).bind(now, invite.id).run();
 
+  // Join the accepting user to the inviter's bloodline thread (idempotent).
+  // A membership failure must not abort the accept, so it's wrapped defensively.
+  let joinedThread = false;
+  const threadId = invite.thread_id as string | undefined;
+  if (threadId) {
+    try {
+      const alreadyMember = await c.env.DB.prepare(`
+        SELECT id FROM thread_members WHERE thread_id = ? AND user_id = ?
+      `).bind(threadId, userId).first();
+
+      if (!alreadyMember) {
+        const acceptingUser = await c.env.DB.prepare(`
+          SELECT first_name, last_name, email FROM users WHERE id = ?
+        `).bind(userId).first();
+
+        const userName = `${acceptingUser?.first_name || ''} ${acceptingUser?.last_name || ''}`.trim();
+        const inviteeEmail = invite.invitee_email as string | undefined;
+        const localPart = inviteeEmail ? inviteeEmail.split('@')[0] : '';
+        // display_name is NOT NULL — fall back through invitee name, user name, then email local-part.
+        const displayName = (invite.invitee_name as string | undefined) || userName || localPart || 'Family';
+        const memberEmail = (acceptingUser?.email as string | undefined) || inviteeEmail || null;
+
+        await c.env.DB.prepare(`
+          INSERT INTO thread_members (id, thread_id, user_id, display_name, email, relation_label, role)
+          VALUES (?, ?, ?, ?, ?, ?, 'AUTHOR')
+        `).bind(crypto.randomUUID(), threadId, userId, displayName, memberEmail, 'family').run();
+      }
+      joinedThread = true;
+    } catch {
+      // Membership insert failed — the accept itself still stands.
+      joinedThread = false;
+    }
+  }
+
   // Award badge to inviter
   await checkAndAwardBadges(c.env, invite.inviter_user_id as string, 'referral_success', 1);
 
-  return c.json({ success: true, inviterId: invite.inviter_user_id });
+  return c.json({ success: true, inviterId: invite.inviter_user_id, joinedThread });
 });
 
 // Cancel / delete a pending invite

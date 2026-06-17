@@ -157,15 +157,51 @@ inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
     ORDER BY l.created_at DESC
   `).bind(legacyContactId).all();
 
-  // [W2] Memories and voice recordings do not have a per-recipient column in
-  // the current schema, so returning them for every recipient would expose ALL
-  // of the owner's content to every legacy contact regardless of intent.
-  // Until explicit recipient association is added to the schema (e.g. a
-  // memory_recipients junction table), these sections return empty arrays so
-  // that no content leaks across recipients.
-  //
-  // TODO: Add a `memory_recipients` and `voice_recipients` junction table,
-  // then replace the empty arrays below with queries filtered by legacyContactId.
+  // Memories and voice recordings are scoped to this recipient via the
+  // memory_legacy_recipients / voice_legacy_recipients junction tables —
+  // the parallel of letter_legacy_recipients. A memory or voice recording is
+  // only visible to a legacy contact present in the matching table for this
+  // legacyContactId, mirroring the letter scoping above.
+  const [memories, voiceRecordings] = await Promise.all([
+    c.env.DB.prepare(`
+      SELECT
+        m.id,
+        m.type,
+        m.title,
+        m.description,
+        m.description_enc,
+        m.description_iv,
+        m.encrypted,
+        m.file_url,
+        m.file_key,
+        m.file_size,
+        m.mime_type,
+        m.metadata,
+        m.emotion,
+        m.created_at
+      FROM memories m
+      INNER JOIN memory_legacy_recipients mlr ON mlr.memory_id = m.id
+      WHERE mlr.legacy_contact_id = ?
+        AND m.deleted_at IS NULL
+      ORDER BY m.created_at DESC
+    `).bind(legacyContactId).all(),
+    c.env.DB.prepare(`
+      SELECT
+        v.id,
+        v.title,
+        v.description,
+        v.file_url,
+        v.duration,
+        v.emotion,
+        v.transcript,
+        v.created_at
+      FROM voice_recordings v
+      INNER JOIN voice_legacy_recipients vlr ON vlr.voice_recording_id = v.id
+      WHERE vlr.legacy_contact_id = ?
+        AND v.deleted_at IS NULL
+      ORDER BY v.created_at DESC
+    `).bind(legacyContactId).all(),
+  ]);
 
   return c.json({
     letters: letters.results.map((l: any) => ({
@@ -178,12 +214,27 @@ inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
       sealedAt: l.sealed_at,
       createdAt: l.created_at,
     })),
-    // Recipient-scoped memories coming soon (see TODO above).
-    memories: [],
-    recipientScopedMemories: false,
-    // Recipient-scoped voice recordings coming soon (see TODO above).
-    voiceRecordings: [],
-    recipientScopedVoice: false,
+    memories: await Promise.all(memories.results.map(async (m: any) => ({
+      id: m.id,
+      type: m.type,
+      title: m.title,
+      description: await readDescription(c.env, m),
+      fileUrl: m.file_url,
+      emotion: m.emotion,
+      createdAt: m.created_at,
+    }))),
+    recipientScopedMemories: true,
+    voiceRecordings: voiceRecordings.results.map((v: any) => ({
+      id: v.id,
+      title: v.title,
+      description: v.description,
+      fileUrl: v.file_url,
+      duration: v.duration,
+      emotion: v.emotion,
+      transcript: v.transcript,
+      createdAt: v.created_at,
+    })),
+    recipientScopedVoice: true,
   });
 });
 
@@ -229,10 +280,14 @@ inheritRoutes.get('/content/letter/:id', validateRecipientSession, async (c) => 
 // Get a specific voice recording
 inheritRoutes.get('/content/voice/:id', validateRecipientSession, async (c) => {
   const ownerId = c.get('ownerId');
+  const legacyContactId = c.get('legacyContactId');
   const voiceId = c.req.param('id');
-  
+
+  // Scope by both owner and the recipient's voice_legacy_recipients row so a
+  // session can only fetch recordings explicitly addressed to this legacy
+  // contact — mirroring the letter-by-id join above.
   const voice = await c.env.DB.prepare(`
-    SELECT 
+    SELECT
       v.id,
       v.title,
       v.description,
@@ -242,8 +297,12 @@ inheritRoutes.get('/content/voice/:id', validateRecipientSession, async (c) => {
       v.transcript,
       v.created_at
     FROM voice_recordings v
-    WHERE v.id = ? AND v.user_id = ?
-  `).bind(voiceId, ownerId).first();
+    INNER JOIN voice_legacy_recipients vlr ON vlr.voice_recording_id = v.id
+    WHERE v.id = ?
+      AND v.user_id = ?
+      AND vlr.legacy_contact_id = ?
+      AND v.deleted_at IS NULL
+  `).bind(voiceId, ownerId, legacyContactId).first();
   
   if (!voice) {
     return c.json({ error: 'Voice recording not found' }, 404);
@@ -273,9 +332,9 @@ inheritRoutes.post('/search', validateRecipientSession, async (c) => {
   }
   
   try {
-    // Fetch content scoped to this recipient.
-    // Letters: only those explicitly addressed to this legacy contact.
-    // Memories / voice: no per-recipient junction table yet — return empty (see TODO below).
+    // Fetch content scoped to this recipient — each content type is joined
+    // through its legacy-recipient junction table so search only ever covers
+    // entries explicitly addressed to this legacy contact.
     const [letters, memories, voiceRecordings] = await Promise.all([
       c.env.DB.prepare(`
         SELECT l.id, l.title, l.salutation, l.body, l.signature, l.emotion, l.sealed_at, l.created_at
@@ -284,12 +343,21 @@ inheritRoutes.post('/search', validateRecipientSession, async (c) => {
         WHERE llr.legacy_contact_id = ? AND l.sealed_at IS NOT NULL AND l.deleted_at IS NULL
         ORDER BY l.created_at DESC
       `).bind(legacyContactId).all(),
-      // [W2] memories and voice_recordings have no per-recipient junction table yet.
-      // Returning all of an owner's content here would expose unaddressed content to
-      // every inherit session. Return empty results until memory_recipients /
-      // voice_recipients junction tables are added.
-      Promise.resolve({ results: [] }),
-      Promise.resolve({ results: [] })
+      c.env.DB.prepare(`
+        SELECT m.id, m.title, m.description, m.description_enc, m.description_iv, m.encrypted,
+               m.file_url, m.mime_type AS file_type, m.emotion, m.created_at
+        FROM memories m
+        INNER JOIN memory_legacy_recipients mlr ON mlr.memory_id = m.id
+        WHERE mlr.legacy_contact_id = ? AND m.deleted_at IS NULL
+        ORDER BY m.created_at DESC
+      `).bind(legacyContactId).all(),
+      c.env.DB.prepare(`
+        SELECT v.id, v.title, v.description, v.file_url, v.duration, v.emotion, v.transcript, v.created_at
+        FROM voice_recordings v
+        INNER JOIN voice_legacy_recipients vlr ON vlr.voice_recording_id = v.id
+        WHERE vlr.legacy_contact_id = ? AND v.deleted_at IS NULL
+        ORDER BY v.created_at DESC
+      `).bind(legacyContactId).all()
     ]);
     
     // Build searchable content with context

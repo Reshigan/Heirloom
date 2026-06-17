@@ -4,7 +4,7 @@
  */
 
 import { Hono } from 'hono';
-import type { AppEnv } from '../index';
+import type { AppEnv, Env } from '../index';
 import { sendEmail } from '../utils/email';
 import { giftSubscriptionPurchaseEmail, giftSubscriptionReceivedEmail, familyReferralInviteEmail, giftSubscriptionRedeemedEmail } from '../email-templates';
 
@@ -616,6 +616,56 @@ giftRoutes.get('/purchased', async (c) => {
 // ============================================
 // QR MEMORIAL CODES ROUTES
 // ============================================
+
+/**
+ * Auto-convert a deceased user's profile into a memorial.
+ *
+ * Called from the death-confirmation path (deadman.ts /verify/:token). Creates a
+ * row in qr_memorial_codes using the SAME table + columns as the manual POST '/'
+ * handler below. Idempotent: if any memorial already exists for this user, it
+ * returns the existing id without creating a duplicate — re-confirming a death
+ * (or a re-POST of the token) never spawns a second memorial.
+ */
+export async function createMemorialForUser(
+  env: Env,
+  userId: string,
+): Promise<{ id: string; qrCode: string; created: boolean }> {
+  // Idempotency guard — a memorial already exists for this user.
+  const existing = await env.DB.prepare(`
+    SELECT id, qr_code FROM qr_memorial_codes WHERE user_id = ? ORDER BY created_at ASC LIMIT 1
+  `).bind(userId).first();
+
+  if (existing) {
+    return { id: existing.id as string, qrCode: existing.qr_code as string, created: false };
+  }
+
+  // Derive a memorial name from the user's profile (memorial_name is NOT NULL).
+  const user = await env.DB.prepare(`
+    SELECT first_name, last_name FROM users WHERE id = ?
+  `).bind(userId).first<{ first_name: string | null; last_name: string | null }>();
+
+  const memorialName =
+    `${user?.first_name ?? ''} ${user?.last_name ?? ''}`.trim() || 'In Loving Memory';
+
+  const id = crypto.randomUUID();
+  const qrCode = `MEM-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+  const shortUrl = `hlm.blue/m/${qrCode}`;
+  const now = new Date().toISOString();
+
+  await env.DB.prepare(`
+    INSERT INTO qr_memorial_codes (
+      id, user_id, family_member_id, memorial_name, memorial_description,
+      qr_code, short_url, design_style, is_public, birth_date, death_date,
+      location, epitaph, created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(
+    id, userId, null, memorialName, null,
+    qrCode, shortUrl, 'classic', 0, null, now,
+    null, null, now, now,
+  ).run();
+
+  return { id, qrCode, created: true };
+}
 
 export const memorialRoutes = new Hono<AppEnv>();
 

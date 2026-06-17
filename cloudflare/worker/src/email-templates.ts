@@ -375,6 +375,24 @@ export const legacyContactVerificationEmail = (contactName: string, userName: st
   `),
 });
 
+// Sent when someone is named a legacy contact. Links straight to the public API
+// verify-contact endpoint (a plain POST form, no client JS), so confirming the
+// role sets verification_status='VERIFIED' — the gate sendTriggerNotifications
+// reads. Quiet, archival voice: a custodianship, not a transaction.
+export const verifyContactEmail = (contactName: string, ownerName: string, verifyUrl: string): string =>
+  baseTemplate(`
+    <h2>You've been entrusted.</h2>
+    <p>Dear ${esc(contactName)},</p>
+    <p><span class="warm">${esc(ownerName)}</span> has named you a legacy contact on Heirloom &mdash;
+    a family thread meant to outlast all of us.</p>
+    <p>Should the day ever come that ${esc(ownerName)} can no longer tend their thread, you may be
+    asked to confirm it. Until then, nothing is required of you but this: to accept that you will
+    safeguard what has been left in your care.</p>
+    <a href="${safeUrl(verifyUrl)}" class="button-warm">Confirm &mdash; I will safeguard this</a>
+    <p class="muted" style="font-size: 14px; margin-top: 28px;">If you weren't expecting this, you
+    can safely ignore this email. Nothing happens without your confirmation.</p>
+  `);
+
 export const deathVerificationRequestEmail = (contactName: string, userName: string, token: string) => ({
   subject: `Verification needed for ${userName}'s Heirloom account`,
   html: baseTemplate(`

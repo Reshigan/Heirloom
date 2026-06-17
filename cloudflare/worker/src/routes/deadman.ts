@@ -5,8 +5,55 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
+import { createMemorialForUser } from './q4-features';
 
 export const deadmanRoutes = new Hono<AppEnv>();
+
+// ── Minimal on-brand HTML for the public verify-contact pages ────────────────
+// Cream (#f2e6d0) on ground (#0b0907), serif, no external assets, NO inline
+// <script> (production CSP forbids inline JS — the confirm flow is a plain
+// <form> POST that needs none). Used by the unauthenticated contact-verification
+// handlers below.
+const verifyContactPage = (heading: string, body: string): string => `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Heirloom</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #0b0907; color: #f2e6d0; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    padding: 40px 20px; box-sizing: border-box; line-height: 1.7;
+  }
+  .panel { max-width: 480px; width: 100%; }
+  .mark { font-size: 40px; color: #e0a062; line-height: 1; margin-bottom: 28px; }
+  h1 { font-size: 28px; font-weight: 400; margin: 0 0 18px; letter-spacing: -0.01em; }
+  p { font-size: 16px; color: rgba(242,230,208,0.72); margin: 14px 0; }
+  form { margin: 32px 0 0; }
+  button {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+    color: #0b0907; background: #e0a062; border: 1px solid #e0a062;
+    padding: 14px 28px; cursor: pointer;
+  }
+  .foot {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(242,230,208,0.44); margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+  <div class="panel">
+    <div class="mark">&#8734;</div>
+    <h1>${heading}</h1>
+    ${body}
+    <p class="foot">Heirloom &middot; heirloom.blue</p>
+  </div>
+</body>
+</html>`;
 
 // Get dead man's switch status
 deadmanRoutes.get('/status', async (c) => {
@@ -249,6 +296,93 @@ deadmanRoutes.post('/disable', async (c) => {
   return c.json({ success: true });
 });
 
+// Public: a legacy contact lands here from the verification email link.
+// Unauthenticated by design — keyed solely on the verification_token. Renders a
+// minimal page with a plain POST form (no JS) so the contact can confirm the
+// role, flipping verification_status to 'VERIFIED'.
+deadmanRoutes.get('/verify-contact/:token', async (c) => {
+  const token = c.req.param('token');
+
+  const contact = await c.env.DB.prepare(`
+    SELECT id, verification_status FROM legacy_contacts WHERE verification_token = ?
+  `).bind(token).first<{ id: string; verification_status: string }>();
+
+  if (!contact) {
+    return c.html(
+      verifyContactPage(
+        'This link is no longer valid.',
+        `<p>We couldn't find a verification request for this link. It may have expired,
+         or the role may have been withdrawn. If you believe this is a mistake, ask the
+         person who named you to send the invitation again.</p>`,
+      ),
+    );
+  }
+
+  if (contact.verification_status === 'VERIFIED') {
+    return c.html(
+      verifyContactPage(
+        'Already confirmed.',
+        `<p>You have already accepted this role. There is nothing more to do &mdash;
+         what has been entrusted to you remains in your care.</p>`,
+      ),
+    );
+  }
+
+  // Interpolate only the path param into the form action, URL-encoded so it can
+  // never break out of the attribute. Never any user-supplied body content.
+  const action = `/api/deadman/verify-contact/${encodeURIComponent(token)}`;
+
+  return c.html(
+    verifyContactPage(
+      'You’ve been entrusted.',
+      `<p>Someone has named you a legacy contact on Heirloom &mdash; a family thread meant
+       to outlast all of us. By confirming below, you accept that you will safeguard what
+       has been left in your care.</p>
+       <form method="POST" action="${action}">
+         <button type="submit">Confirm &mdash; I will safeguard this</button>
+       </form>`,
+    ),
+  );
+});
+
+// Public: the POST target of the verify-contact form. Marks the contact VERIFIED
+// (unless already REJECTED) and confirms. Idempotent — a re-POST stays VERIFIED.
+deadmanRoutes.post('/verify-contact/:token', async (c) => {
+  const token = c.req.param('token');
+  const now = new Date().toISOString();
+
+  const contact = await c.env.DB.prepare(`
+    SELECT id, verification_status FROM legacy_contacts WHERE verification_token = ?
+  `).bind(token).first<{ id: string; verification_status: string }>();
+
+  if (!contact) {
+    return c.html(
+      verifyContactPage(
+        'This link is no longer valid.',
+        `<p>We couldn't find a verification request for this link. It may have expired,
+         or the role may have been withdrawn.</p>`,
+      ),
+    );
+  }
+
+  // Only promote to VERIFIED if not explicitly REJECTED. Re-POSTing a VERIFIED
+  // row simply re-sets it to VERIFIED (idempotent).
+  if (contact.verification_status !== 'REJECTED') {
+    await c.env.DB.prepare(`
+      UPDATE legacy_contacts SET verification_status = 'VERIFIED', updated_at = ? WHERE verification_token = ?
+    `).bind(now, token).run();
+  }
+
+  return c.html(
+    verifyContactPage(
+      'Thank you.',
+      `<p>You have confirmed your role. Should the day ever come, you will help carry
+       this family's thread forward. Nothing more is required of you now.</p>
+       <p>You may close this window.</p>`,
+    ),
+  );
+});
+
 // Verify a passing token received by a successor
 deadmanRoutes.post('/verify/:token', async (c) => {
   try {
@@ -272,6 +406,14 @@ deadmanRoutes.post('/verify/:token', async (c) => {
       await c.env.DB.prepare(`
         UPDATE dead_man_switches SET status = 'TRIGGERED', updated_at = ? WHERE id = ?
       `).bind(now, dms.id).run();
+    }
+
+    // M3: auto-convert the deceased's profile to a memorial. Best-effort and
+    // idempotent (skips if one already exists) — never abort the trigger if it fails.
+    try {
+      await createMemorialForUser(c.env, dms.user_id as string);
+    } catch (err) {
+      console.error('Failed to auto-create memorial on death confirmation:', err);
     }
 
     return c.json({

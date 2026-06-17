@@ -555,29 +555,34 @@ settingsRoutes.post('/legacy-contacts', async (c) => {
   
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
-  
-  // Generate verification token for the legacy contact
-  const verifyToken = crypto.randomUUID() + '-' + crypto.randomUUID();
-  
+
+  // Generate the verification token. This is the key the public verify-contact
+  // flow (and idx_legacy_token) looks up — clicking the email link flips this
+  // contact's verification_status to 'VERIFIED', the gate sendTriggerNotifications
+  // filters on.
+  const verifyToken = crypto.randomUUID();
+
   await c.env.DB.prepare(`
     INSERT INTO legacy_contacts (id, user_id, name, email, phone, relationship, role, verification_token, created_at, updated_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(id, userId, name, email, phone || null, relationship || null, role || 'EXECUTOR', verifyToken, now, now).run();
-  
+
   const contact = await c.env.DB.prepare(`
     SELECT * FROM legacy_contacts WHERE id = ?
   `).bind(id).first();
-  
-  // Send verification email to the legacy contact
+
+  // Send verification email to the legacy contact. The link targets the public
+  // verify-contact API endpoint (not a frontend route) so confirming actually
+  // sets verification_status='VERIFIED'. Best-effort — never block creation.
   try {
-    const { legacyContactVerificationEmail } = await import('../email-templates');
-    const emailContent = legacyContactVerificationEmail(name, userName, verifyToken);
-    
+    const { verifyContactEmail } = await import('../email-templates');
+    const verifyUrl = 'https://heirloom.blue/api/deadman/verify-contact/' + verifyToken;
+
     await sendEmail(c.env, {
       from: 'Heirloom <noreply@heirloom.blue>',
       to: email,
-      subject: emailContent.subject,
-      html: emailContent.html,
+      subject: `${userName} named you a legacy contact`,
+      html: verifyContactEmail(name, userName, verifyUrl),
     }, 'LEGACY_CONTACT_VERIFICATION');
   } catch (err) {
     console.error('Failed to send legacy contact verification email:', err);
@@ -612,20 +617,30 @@ settingsRoutes.post('/legacy-contacts/:id/resend', async (c) => {
     return c.json({ error: 'Legacy contact not found' }, 404);
   }
 
-  if (contact.verified) {
+  if (contact.verified || contact.verification_status === 'VERIFIED') {
     return c.json({ success: true, message: 'Already verified' });
   }
 
   try {
-    const { legacyContactVerificationEmail } = await import('../email-templates');
+    // Backfill a token if this contact predates the verify-contact flow, so the
+    // resent link resolves against verification_token.
+    let token = contact.verification_token as string | null;
+    if (!token) {
+      token = crypto.randomUUID();
+      await c.env.DB.prepare(`
+        UPDATE legacy_contacts SET verification_token = ?, updated_at = ? WHERE id = ?
+      `).bind(token, new Date().toISOString(), contact.id).run();
+    }
+
+    const { verifyContactEmail } = await import('../email-templates');
     const userName = `${contact.first_name} ${contact.last_name}`;
-    const emailContent = legacyContactVerificationEmail(contact.name, userName, contact.verification_token);
+    const verifyUrl = 'https://heirloom.blue/api/deadman/verify-contact/' + token;
 
     await sendEmail(c.env, {
       from: 'Heirloom <noreply@heirloom.blue>',
       to: contact.email,
-      subject: emailContent.subject,
-      html: emailContent.html,
+      subject: `${userName} named you a legacy contact`,
+      html: verifyContactEmail(contact.name, userName, verifyUrl),
     }, 'LEGACY_CONTACT_VERIFICATION');
   } catch (err) {
     console.error('Failed to resend legacy contact verification email:', err);
