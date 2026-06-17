@@ -125,7 +125,7 @@ export function ExportPage() {
         }}
       >
         {/* ── header ── */}
-        <CosmicHeader eyebrow="take it with you" title="Export the thread" align="center" />
+        <CosmicHeader eyebrow="take it with you" title="Export the thread" align="left" />
 
         {/* ── format — how the archive leaves with you ── */}
         <div style={{ marginTop: 28 }}>
@@ -150,8 +150,8 @@ export function ExportPage() {
               width: '100%',
               padding: '16px 24px',
               background: 'transparent',
-              color: bind.isPending ? 'var(--bone-faint)' : 'var(--warm)',
-              border: bind.isPending ? '1px solid var(--rule)' : '1px solid var(--warm)',
+              color: bind.isPending ? 'var(--bone-faint)' : 'var(--gold-text)',
+              border: bind.isPending ? '1px solid var(--rule)' : '1px solid var(--copper-border)',
               borderRadius: 999,
               fontFamily: 'var(--mono)',
               fontSize: 11,
@@ -235,7 +235,7 @@ export function ExportPage() {
   );
 }
 
-/* ── format row — serif label left (with em-dash), mono ext right, warm underline when chosen ── */
+/* ── format row — serif label left, mono ext right (HARDCOVER always copper), warm underline when chosen ── */
 function FormatRow({
   label,
   ext,
@@ -247,6 +247,7 @@ function FormatRow({
   selected: boolean;
   onSelect: () => void;
 }) {
+  const isHardcover = ext === 'hardcover';
   return (
     <button
       type="button"
@@ -261,7 +262,7 @@ function FormatRow({
         background: 'transparent',
         border: 0,
         borderBottom: selected ? '1px solid var(--warm)' : '1px solid var(--rule)',
-        padding: '22px 0',
+        padding: '18px 0',
         gap: 16,
         cursor: 'pointer',
         transition: 'border-color 360ms cubic-bezier(0.16,1,0.3,1)',
@@ -272,14 +273,10 @@ function FormatRow({
           fontFamily: 'var(--serif)',
           fontSize: 20,
           fontWeight: 400,
-          color: selected ? 'var(--bone)' : 'var(--bone-dim)',
-          transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
+          color: 'var(--text-soft)',
         }}
       >
         {label}
-        <span aria-hidden style={{ color: 'var(--bone-faint)', marginLeft: 10 }}>
-          —
-        </span>
       </span>
       <span
         style={{
@@ -287,8 +284,7 @@ function FormatRow({
           fontSize: 10,
           letterSpacing: '0.2em',
           textTransform: 'uppercase',
-          color: selected ? 'var(--warm)' : 'var(--bone-faint)',
-          transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
+          color: isHardcover ? 'var(--copper-label)' : 'var(--muted-2)',
           whiteSpace: 'nowrap',
         }}
       >

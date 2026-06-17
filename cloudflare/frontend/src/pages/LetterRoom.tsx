@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
-import { WaxSeal, SectionLabel, WarmDot } from '../loom/cosmic/CosmicUI';
+import { SectionLabel, WarmDot } from '../loom/cosmic/CosmicUI';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeColor } from '../loom/dye';
@@ -196,7 +196,7 @@ export function LetterRoom() {
             <section style={{ textAlign: 'center', animation: `hl-fade 360ms ${EASE}` }}>
               <div style={{
                 fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.32em',
-                textTransform: 'uppercase', color: 'var(--warm)', marginBottom: 16,
+                textTransform: 'uppercase', color: 'var(--copper-label)', marginBottom: 16,
               }}>
                 a letter to
               </div>
@@ -214,10 +214,10 @@ export function LetterRoom() {
                   content; sealed letters show a quiet kept-words line instead. */}
               <div style={{
                 border: '1px solid var(--warm-dim)',
-                borderRadius: 4,
+                borderRadius: 8,
                 padding: 'clamp(24px,6vw,44px)',
-                background: 'color-mix(in srgb, var(--warm) 5%, transparent)',
-                boxShadow: '0 0 60px -12px var(--warm-glow), inset 0 0 80px -40px var(--warm-glow)',
+                background: 'var(--bg-letter)',
+                boxShadow: '0 0 34px rgba(216,150,84,0.42), inset 0 0 0 1px rgba(216,150,84,0.25)',
                 maxWidth: '38em', margin: '0 auto', textAlign: 'left',
               }}>
                 {isSealed && !body ? (
@@ -232,8 +232,8 @@ export function LetterRoom() {
                 ) : (
                   <>
                     <p style={{
-                      fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 300,
-                      color: 'var(--bone)', lineHeight: 1.75, margin: 0,
+                      fontFamily: 'var(--serif)', fontSize: 17, fontWeight: 300,
+                      color: '#d8c7aa', lineHeight: 1.85, margin: 0,
                       whiteSpace: 'pre-wrap',
                     }}>
                       {body}
@@ -256,15 +256,15 @@ export function LetterRoom() {
                 marginTop: 28, display: 'flex', alignItems: 'center',
                 justifyContent: 'center', gap: 18, flexWrap: 'wrap',
               }}>
-                <WaxSeal size={26} />
+                <img src="/woven/seal.png" width="54" height="54" alt="" aria-hidden />
                 {isSealed ? (
                   <Link
                     to={`/loom/compose-letter?id=${featured.id}`}
                     aria-disabled
                     onClick={(e) => e.preventDefault()}
                     style={{
-                      border: '1px solid var(--warm-dim)', borderRadius: 999,
-                      color: 'var(--warm-dim)', textDecoration: 'none',
+                      border: '1px solid var(--copper-border)', borderRadius: 999,
+                      color: 'var(--gold-text)', textDecoration: 'none',
                       fontFamily: 'var(--mono)', fontSize: 11,
                       letterSpacing: '0.26em', textTransform: 'uppercase',
                       padding: '12px 26px', cursor: 'default',
@@ -279,9 +279,9 @@ export function LetterRoom() {
                     onClick={() => sealMutation.mutate(featured.id)}
                     style={{
                       background: 'transparent',
-                      border: '1px solid var(--warm)',
+                      border: '1px solid var(--copper-border)',
                       borderRadius: 999,
-                      color: 'var(--warm)',
+                      color: 'var(--gold-text)',
                       fontFamily: 'var(--mono)', fontSize: 11,
                       letterSpacing: '0.26em', textTransform: 'uppercase',
                       padding: '12px 26px',
@@ -429,11 +429,11 @@ export function LetterRoom() {
                             animation: `hl-fade 360ms ${EASE}`,
                           }}
                         >
-                          <WaxSeal size={56} />
+                          <img src="/woven/seal.png" width="54" height="54" alt="" aria-hidden />
                           <div style={{
                             marginTop: 18,
                             fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
-                            textTransform: 'uppercase', color: 'var(--warm)',
+                            textTransform: 'uppercase', color: 'var(--copper-label)',
                           }}>
                             sealed{year ? ` · opens ${year}` : ''}
                           </div>
@@ -457,7 +457,7 @@ export function LetterRoom() {
                         >
                           <div style={{
                             fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.32em',
-                            textTransform: 'uppercase', color: 'var(--warm)',
+                            textTransform: 'uppercase', color: 'var(--copper-label)',
                             textAlign: 'center', marginBottom: 14,
                           }}>
                             a letter to
@@ -475,15 +475,15 @@ export function LetterRoom() {
                           {/* The glowing letter card — this card IS the content. */}
                           <div style={{
                             border: '1px solid var(--warm-dim)',
-                            borderRadius: 4,
+                            borderRadius: 8,
                             padding: 'clamp(24px,6vw,40px)',
-                            background: 'color-mix(in srgb, var(--warm) 5%, transparent)',
-                            boxShadow: '0 0 60px -12px var(--warm-glow), inset 0 0 80px -40px var(--warm-glow)',
+                            background: 'var(--bg-letter)',
+                            boxShadow: '0 0 34px rgba(216,150,84,0.42), inset 0 0 0 1px rgba(216,150,84,0.25)',
                             maxWidth: '38em', margin: '0 auto',
                           }}>
                             <p style={{
-                              fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 300,
-                              color: 'var(--bone)', lineHeight: 1.75, margin: 0,
+                              fontFamily: 'var(--serif)', fontSize: 17, fontWeight: 300,
+                              color: '#d8c7aa', lineHeight: 1.85, margin: 0,
                               whiteSpace: 'pre-wrap',
                             }}>
                               {fullBodies[letter.id] || letter.bodyPreview}
@@ -504,16 +504,16 @@ export function LetterRoom() {
                             marginTop: 28, display: 'flex', alignItems: 'center',
                             justifyContent: 'center', gap: 18, flexWrap: 'wrap',
                           }}>
-                            <WaxSeal size={26} />
+                            <img src="/woven/seal.png" width="54" height="54" alt="" aria-hidden />
                             <button
                               type="button"
                               disabled={sealMutation.isPending}
                               onClick={() => sealMutation.mutate(letter.id)}
                               style={{
                                 background: 'transparent',
-                                border: '1px solid var(--warm)',
+                                border: '1px solid var(--copper-border)',
                                 borderRadius: 999,
-                                color: 'var(--warm)',
+                                color: 'var(--gold-text)',
                                 fontFamily: 'var(--mono)', fontSize: 11,
                                 letterSpacing: '0.26em', textTransform: 'uppercase',
                                 padding: '12px 26px',

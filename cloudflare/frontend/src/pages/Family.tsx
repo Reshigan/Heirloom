@@ -495,6 +495,7 @@ export function Family() {
               const dyeKey = m.dye?.toLowerCase() || dyeForId(m.id);
               const isEditing = editTarget?.id === m.id;
               const relMeta = [m.relationship, m.role].filter(Boolean).join(' · ');
+              const isKeeper = (m.role ?? '').toLowerCase().includes('keeper');
               const thread = `var(--dye-${dyeKey}, var(--warm))`;
               const nameColor = DYE_TEXT[dyeKey] ?? 'var(--bone)';
               return (
@@ -556,10 +557,18 @@ export function Family() {
                           fontSize: 10,
                           letterSpacing: '0.22em',
                           textTransform: 'uppercase',
-                          color: 'var(--bone-dim)',
+                          color: 'var(--muted-3)',
                         }}
                       >
-                        {relMeta}
+                        {m.relationship && <span>{m.relationship}</span>}
+                        {m.relationship && m.role && <span> · </span>}
+                        {/* The Keeper role wears the lone copper label; other
+                            roles stay muted alongside the relationship. */}
+                        {m.role && (
+                          <span style={{ color: isKeeper ? 'var(--copper-label)' : 'var(--muted-3)' }}>
+                            {m.role}
+                          </span>
+                        )}
                       </span>
                     )}
                   </Link>
@@ -710,6 +719,26 @@ export function Family() {
             })}
           </div>
           </>
+        )}
+
+        {/* quiet mono footer — a centered call to widen the bloodline */}
+        {!showForm && (
+          <div style={{ marginTop: 56, textAlign: 'center' }}>
+            <button
+              type="button"
+              onClick={() => openForm('invite')}
+              style={{
+                background: 'transparent', border: 0, padding: '8px 0', cursor: 'pointer',
+                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.3em',
+                textTransform: 'uppercase', color: 'var(--muted-4)',
+                transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--copper-label)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--muted-4)'; }}
+            >
+              invite a family member
+            </button>
+          </div>
         )}
 
         {/* the ∞ wax seal rests warm at the foot of the ledger */}

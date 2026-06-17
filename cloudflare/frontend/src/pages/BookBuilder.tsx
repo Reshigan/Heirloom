@@ -143,7 +143,7 @@ function chapterDye(it: { id: string; metadata?: unknown; dye?: unknown }): Dye 
 function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }) {
   const ink = active ? 'var(--warm-dim, rgba(224,160,98,0.5))' : 'var(--rule)';
   const photo: React.CSSProperties = {
-    background: active ? 'color-mix(in srgb, var(--warm) 16%, transparent)' : 'color-mix(in srgb, var(--bone) 6%, transparent)',
+    background: 'linear-gradient(135deg, #5a4023, #33240f)',
     border: `1px solid ${ink}`,
     borderRadius: 0,
   };
@@ -197,6 +197,18 @@ function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }
       return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 5, flex: 1, justifyContent: 'center', alignItems: 'center', padding: '0 8px' }}>
           <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 20, color: ink, lineHeight: 0.6 }}>“</span>
+          <span
+            style={{
+              fontFamily: 'var(--serif)',
+              fontStyle: 'italic',
+              fontSize: 9,
+              lineHeight: 1.2,
+              textAlign: 'center',
+              color: active ? 'var(--warm)' : 'var(--text-excerpt)',
+            }}
+          >
+            In their own words…
+          </span>
           <div style={line('78%')} />
           <div style={line('92%')} />
           <div style={line('60%')} />
@@ -206,51 +218,94 @@ function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }
   }
 }
 
-/** The bound volume itself — a glowing filament book with the ∞ wax seal on its
- *  cover. Content-integrated (it IS the volume being made), so it lives in the
- *  page, not in the global backdrop. Pure SVG line-work, one warm hue. */
-function GlowingBook() {
+/** The bound volume itself — a 3-D embossed leather book carrying the woven ∞
+ *  seal on its cover. Content-integrated (it IS the volume being made), so it
+ *  lives in the page, not in the global backdrop. Cover title + VOL. label are
+ *  embossed into the leather. */
+function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string }) {
   return (
     <div aria-hidden style={{ display: 'flex', justifyContent: 'center', margin: '8px 0 4px' }}>
-      <svg
-        width="232"
-        height="200"
-        viewBox="0 0 232 200"
-        fill="none"
-        style={{ filter: 'drop-shadow(0 0 22px var(--warm-glow)) drop-shadow(0 0 6px var(--warm-glow))' }}
+      <div
+        style={{
+          position: 'relative',
+          width: 184,
+          height: 248,
+          // 3-D embossed leather cover
+          background: 'linear-gradient(135deg, #3a2817, #23170d 58%, #19100a)',
+          borderRadius: '3px 5px 5px 3px',
+          boxShadow: '0 18px 40px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(216,150,84,0.18)',
+        }}
       >
-        {/* spine + cover block, drawn as a slight isometric volume */}
-        <g stroke="var(--warm)" strokeWidth="1.25" strokeLinejoin="round" strokeLinecap="round">
-          {/* front cover */}
-          <path d="M58 44 L150 30 L150 158 L58 172 Z" opacity="0.95" />
-          {/* page block / fore-edge */}
-          <path d="M150 30 L186 44 L186 168 L150 158 Z" opacity="0.6" />
-          <path d="M58 172 L94 184 L186 168" opacity="0.6" />
-          {/* leaf hairlines along the fore-edge */}
-          <path d="M154 40 L182 52" opacity="0.32" />
-          <path d="M154 60 L182 72" opacity="0.32" />
-          <path d="M154 80 L182 92" opacity="0.32" />
-          <path d="M154 100 L182 112" opacity="0.32" />
-          <path d="M154 120 L182 132" opacity="0.32" />
-          {/* cover inner frame */}
-          <path d="M70 58 L138 48 L138 146 L70 156 Z" opacity="0.35" />
-        </g>
-        {/* the ∞ wax seal medallion centred on the cover */}
-        <g transform="translate(104 92)">
-          <circle r="18" fill="none" stroke="var(--warm)" strokeWidth="1.25" opacity="0.9" />
-          <circle r="13" fill="none" stroke="var(--warm)" strokeWidth="0.75" opacity="0.5" />
-          <text
-            x="0"
-            y="1"
-            textAnchor="middle"
-            dominantBaseline="central"
-            fill="var(--warm)"
-            style={{ fontSize: 18, fontFamily: 'var(--serif)' }}
+        {/* darker spine stripe on the left */}
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 15,
+            background: 'linear-gradient(90deg, #140c06, #1e130a)',
+            borderRadius: '3px 0 0 3px',
+            boxShadow: 'inset -2px 0 4px rgba(0,0,0,0.5)',
+          }}
+        />
+        {/* fore-edge stripe on the right */}
+        <div
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: 5,
+            background: 'linear-gradient(90deg, #2a1c0f, #120b05)',
+            borderRadius: '0 5px 5px 0',
+          }}
+        />
+        {/* inner frame border */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: '14px 12px 14px 24px',
+            border: '1px solid rgba(216,150,84,0.26)',
+            borderRadius: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 14,
+          }}
+        >
+          {/* woven ∞ seal centred on the cover */}
+          <img src="/woven/seal.png" width={72} alt="" aria-hidden style={{ opacity: 0.92 }} />
+          {/* embossed cover title */}
+          <span
+            style={{
+              fontFamily: 'var(--serif-display)',
+              fontSize: 13,
+              color: 'var(--gold-text)',
+              textAlign: 'center',
+              lineHeight: 1.2,
+              padding: '0 8px',
+              textShadow: '0 1px 1px rgba(0,0,0,0.6), 0 -1px 0 rgba(216,150,84,0.12)',
+            }}
           >
-            ∞
-          </text>
-        </g>
-      </svg>
+            {title}
+          </span>
+          {/* embossed volume label */}
+          <span
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 8,
+              letterSpacing: '0.2em',
+              textTransform: 'uppercase',
+              color: 'var(--gold-text)',
+              textShadow: '0 1px 1px rgba(0,0,0,0.55)',
+            }}
+          >
+            VOL. I · {yearsLabel}
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -572,8 +627,8 @@ export function BookBuilder() {
               shared step action below. ── */}
           {step === 'customize' && (
             <div style={{ display: 'grid', gap: 28 }}>
-              {/* the volume itself — glowing book with the ∞ seal (content) */}
-              <GlowingBook />
+              {/* the volume itself — embossed leather book with the ∞ seal (content) */}
+              <LeatherBook title={config.title?.trim() || 'Our Family Thread'} yearsLabel={yearsLabel} />
 
               {/* the quiet ledger of the volume — serif label left, mono value
                   right (Copies / Order / Chapters, per cosmic-book-builder).
@@ -666,6 +721,29 @@ export function BookBuilder() {
                   </div>
                 ))}
               </div>
+
+              {/* PREVIEW pill — ghost-copper, full-width beneath the ledger.
+                  Advances to the preview step (same action as the shared nav). */}
+              <button
+                type="button"
+                onClick={() => setStep('preview')}
+                className="hl-mono"
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: '1px solid var(--copper-border)',
+                  borderRadius: 999,
+                  padding: '15px 0',
+                  cursor: 'pointer',
+                  fontSize: 11,
+                  letterSpacing: '0.24em',
+                  textTransform: 'uppercase',
+                  color: 'var(--gold-text)',
+                  transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                }}
+              >
+                Preview
+              </button>
             </div>
           )}
 
@@ -703,17 +781,17 @@ export function BookBuilder() {
                         transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     >
-                      {/* the page-shaped thumbnail — warm border when chosen */}
+                      {/* the page-shaped thumbnail — warm border + glow when chosen */}
                       <span
                         aria-hidden
                         style={{
                           width: '100%',
                           aspectRatio: '0.78',
-                          border: `1px solid ${active ? 'var(--warm)' : 'var(--rule)'}`,
-                          background: active ? 'color-mix(in srgb, var(--warm) 5%, transparent)' : 'var(--ink-card)',
+                          border: active ? '1.5px solid var(--warm)' : '1px solid #3a2c1c',
+                          background: active ? 'color-mix(in srgb, var(--warm) 5%, transparent)' : 'var(--bg-template)',
+                          borderRadius: active ? 8 : 6,
+                          boxShadow: active ? '0 0 14px rgba(224,160,98,0.5)' : 'none',
                           padding: active ? 11 : 12,
-                          outline: active ? '1px solid var(--warm-dim, rgba(224,160,98,0.5))' : 'none',
-                          outlineOffset: 5,
                           display: 'flex',
                           flexDirection: 'column',
                           gap: 6,
@@ -727,9 +805,9 @@ export function BookBuilder() {
                         className="hl-mono"
                         style={{
                           fontSize: 9,
-                          letterSpacing: '0.22em',
+                          letterSpacing: '0.32em',
                           textTransform: 'uppercase',
-                          color: active ? 'var(--warm)' : 'var(--bone-faint)',
+                          color: active ? 'var(--warm)' : 'var(--copper-label)',
                           transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
                         }}
                       >

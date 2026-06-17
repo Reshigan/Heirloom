@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
-import { CosmicHeader, SectionLabel, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, SectionLabel } from '../loom/cosmic/CosmicUI';
 import { capsulesApi, threadsApi } from '../services/api';
 
 type CapsuleStatus = 'open' | 'sealed' | 'unlocked';
@@ -115,7 +115,7 @@ function CapsuleRow({
         width: '100%',
         background: isSelected ? 'color-mix(in srgb, var(--warm) 4%, transparent)' : 'transparent',
         border: 0,
-        borderBottom: '1px solid var(--rule)',
+        borderBottom: '1px solid var(--hairline)',
         padding: '24px 0',
         cursor: 'pointer',
         textAlign: 'left',
@@ -186,10 +186,10 @@ const COVER_STYLES = [
 type LockType = 'date' | 'eighteen' | 'generation' | 'gone';
 
 const LOCK_TYPES: { id: LockType; label: string; descriptor: string }[] = [
-  { id: 'date', label: 'On a date', descriptor: 'Select a specific time and day.' },
-  { id: 'eighteen', label: 'When they turn 18', descriptor: 'Automatic unlocking on birthday.' },
-  { id: 'generation', label: 'A future generation', descriptor: 'Set a long-term reveal.' },
-  { id: 'gone', label: 'After I am gone', descriptor: 'Release upon my passing.' },
+  { id: 'date', label: 'On a date', descriptor: 'Select a specific time and day' },
+  { id: 'eighteen', label: 'When they turn 18', descriptor: 'Automatic unlocking on birthday' },
+  { id: 'generation', label: 'A future generation', descriptor: 'Set a long-term reveal' },
+  { id: 'gone', label: 'After I am gone', descriptor: 'Release upon my passing' },
 ];
 
 function isoDaysFromNow(days: number): string {
@@ -338,7 +338,7 @@ export function TimeCapsule() {
             />
           </div>
         ) : !capsules?.length ? (
-          <div style={{ paddingTop: 24, borderTop: '1px solid var(--rule)' }}>
+          <div style={{ paddingTop: 24, borderTop: '1px solid var(--hairline)' }}>
             <p
               className="hl-serif hl-italic"
               style={{
@@ -395,7 +395,7 @@ export function TimeCapsule() {
           </div>
         ) : (
           <>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, borderTop: '1px solid var(--rule)' }}>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, borderTop: '1px solid var(--hairline)' }}>
               {capsules.map((capsule: Capsule) => (
                 <li key={capsule.id}>
                   <CapsuleRow
@@ -409,7 +409,7 @@ export function TimeCapsule() {
                     <div
                       style={{
                         padding: '14px 0 22px',
-                        borderBottom: '1px solid var(--rule)',
+                        borderBottom: '1px solid var(--hairline)',
                         marginTop: -1,
                       }}
                     >
@@ -528,23 +528,22 @@ export function TimeCapsule() {
                   fontSize: 11,
                   letterSpacing: '0.28em',
                   textTransform: 'uppercase',
-                  color: 'var(--warm)',
+                  color: 'var(--copper-label)',
                   marginBottom: 18,
                 }}
               >
                 the sealed note
               </div>
               <h2
-                className="hl-serif"
                 style={{
-                  fontSize: 'clamp(30px, 7vw, 44px)',
-                  fontWeight: 300,
+                  fontFamily: 'var(--serif-display)',
+                  fontSize: 34,
+                  fontWeight: 500,
                   lineHeight: 1.06,
                   letterSpacing: '-0.018em',
                   margin: 0,
                   color: 'var(--bone)',
                   maxWidth: '8em',
-                  fontVariationSettings: '"opsz" 40',
                 }}
               >
                 When should this open?
@@ -602,9 +601,21 @@ export function TimeCapsule() {
                         transition: `opacity 180ms ${EASE}`,
                       }}
                     >
-                      <span style={{ marginTop: 7, transition: `transform 180ms ${EASE}` }}>
-                        <WarmDot filled={active} size={9} />
-                      </span>
+                      <span
+                        aria-hidden
+                        style={{
+                          marginTop: 7,
+                          width: 16,
+                          height: 16,
+                          borderRadius: '50%',
+                          flexShrink: 0,
+                          border: `1px solid ${active ? 'var(--copper-border)' : '#5a4326'}`,
+                          background: active
+                            ? 'radial-gradient(circle, #e0a062 42%, transparent 46%)'
+                            : 'transparent',
+                          transition: `border-color 180ms ${EASE}`,
+                        }}
+                      />
                       <span style={{ flex: 1, minWidth: 0 }}>
                         <span
                           className="hl-serif"
@@ -619,13 +630,12 @@ export function TimeCapsule() {
                           {lt.label}
                         </span>
                         <span
-                          className="hl-mono"
+                          className="hl-serif"
                           style={{
                             display: 'block',
                             marginTop: 6,
-                            fontSize: 11,
-                            letterSpacing: '0.04em',
-                            color: 'var(--bone-faint)',
+                            fontSize: 12,
+                            color: 'var(--muted-2)',
                           }}
                         >
                           {lt.descriptor}
@@ -750,28 +760,29 @@ export function TimeCapsule() {
               </p>
             )}
 
-            {/* SEAL IT pill (left) + wax ∞ (right) — the foot of the note */}
+            {/* Woven seal mark (left) + SEAL IT pill — the foot of the note */}
             <div
               style={{
                 marginTop: 44,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
                 gap: 22,
               }}
             >
+              <img src="/woven/seal.png" width={50} alt="" aria-hidden style={{ flexShrink: 0 }} />
               <button
                 type="button"
                 onClick={handleSeal}
                 disabled={!canSeal}
                 style={{
+                  flex: 1,
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.28em',
+                  letterSpacing: '0.24em',
                   textTransform: 'uppercase',
-                  color: 'var(--warm)',
+                  color: 'var(--gold-text)',
                   background: 'transparent',
-                  border: '1px solid var(--warm)',
+                  border: '1px solid var(--copper-border)',
                   borderRadius: 999,
                   padding: '14px 38px',
                   cursor: canSeal ? 'pointer' : 'default',
@@ -781,7 +792,6 @@ export function TimeCapsule() {
               >
                 {createMutation.isPending ? 'sealing…' : 'Seal it'}
               </button>
-              <WaxSeal size={30} />
             </div>
 
             <div style={{ textAlign: 'center', marginTop: 20 }}>

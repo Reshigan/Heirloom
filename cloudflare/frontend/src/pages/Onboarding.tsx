@@ -177,17 +177,58 @@ const welcomeStage: React.CSSProperties = {
   boxSizing: 'border-box',
 };
 
-// The promise — serif, centered, two lines, the bloodline's own voice.
+// The promise — Cormorant display, centered, two lines, the bloodline's own
+// voice. Display scale only (legible >=24px).
 const welcomeTitle: React.CSSProperties = {
-  fontFamily: 'var(--serif)',
-  fontWeight: 400,
-  fontSize: 'clamp(28px, 7vw, 40px)',
-  lineHeight: 1.12,
+  fontFamily: 'var(--serif-display)',
+  fontWeight: 600,
+  fontSize: 'clamp(36px, 11vw, 44px)',
+  lineHeight: 1.04,
   letterSpacing: '-0.018em',
   color: 'var(--bone)',
   textAlign: 'center',
-  margin: '0 0 36px',
+  margin: '0 0 18px',
   fontVariationSettings: '"opsz" 40',
+};
+
+// Spectral subhead under the welcome title — the quiet promise of the product.
+const welcomeSubhead: React.CSSProperties = {
+  fontFamily: 'var(--serif)',
+  fontWeight: 400,
+  fontSize: 17,
+  lineHeight: 1.55,
+  color: 'var(--bone-dim)',
+  textAlign: 'center',
+  margin: '0 auto',
+  maxWidth: 380,
+};
+
+// Thin framing hairlines bracketing the welcome promise.
+const welcomeRule: React.CSSProperties = {
+  height: 1,
+  width: '100%',
+  maxWidth: 420,
+  background: 'var(--hairline-2)',
+  margin: '0 auto',
+};
+
+// Woven thread-band anchoring the bottom of the welcome step — full width,
+// grounded by an ink fade so it dissolves into the floor. Decorative only.
+const welcomeWovenBand: React.CSSProperties = {
+  position: 'absolute',
+  left: 0,
+  right: 0,
+  bottom: 0,
+  height: '38vh',
+  backgroundImage: 'url(/woven/thread-band.png)',
+  backgroundSize: 'cover',
+  backgroundPosition: 'bottom center',
+  backgroundRepeat: 'no-repeat',
+  opacity: 0.8,
+  WebkitMaskImage: 'linear-gradient(180deg, transparent 40%, var(--ink))',
+  maskImage: 'linear-gradient(180deg, transparent 40%, var(--ink))',
+  pointerEvents: 'none',
+  zIndex: 0,
 };
 
 const welcomeActions: React.CSSProperties = {
@@ -487,25 +528,35 @@ export function Onboarding() {
   if (step === 'welcome') {
     return (
       <ClothShell noTopbar>
-        <div style={welcomeStage}>
+        <div style={{ ...welcomeStage, position: 'relative' }}>
+          {/* woven thread-band grounding the bottom — decorative, behind content */}
+          <div style={welcomeWovenBand} aria-hidden />
+
           {/* the upper two-thirds is left empty — the crescent filament breathes there */}
-          <div style={{ flex: 1 }} aria-hidden />
+          <div style={{ flex: 1, position: 'relative', zIndex: 1 }} aria-hidden />
 
-          <h1 style={welcomeTitle}>
-            Start your family’s
-            <br />
-            thousand-year thread.
-          </h1>
+          <div style={welcomeRule} aria-hidden />
+          <div style={{ position: 'relative', zIndex: 1, paddingTop: 30, paddingBottom: 30 }}>
+            <h1 style={welcomeTitle}>
+              Start your family’s
+              <br />
+              thousand-year thread.
+            </h1>
+            <p style={welcomeSubhead}>
+              A journal of shared history, preserved for generations.
+            </p>
+          </div>
+          <div style={welcomeRule} aria-hidden />
 
-          <div style={welcomeActions}>
+          <div style={{ ...welcomeActions, position: 'relative', zIndex: 1 }}>
             <button
               type="button"
-              style={pillStyle}
+              style={{ ...pillStyle, borderColor: 'var(--copper-border)' }}
               onClick={() => goTo('tour')}
               onMouseEnter={pillHover}
               onMouseLeave={pillLeave}
             >
-              begin the thread
+              begin
             </button>
 
             <div style={welcomeFoot}>

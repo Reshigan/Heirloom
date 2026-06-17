@@ -79,7 +79,7 @@ function VoiceWaveform({ seed, progress }: { seed: string; progress: number }) {
             style={{
               flex: '1 1 0', height: `${Math.round(ratio * 100)}%`,
               minWidth: 1, borderRadius: 1,
-              background: lit ? 'var(--warm-bright)' : 'var(--warm)',
+              background: lit ? 'var(--warm)' : 'var(--copper-label)',
               opacity: lit ? 0.95 : 0.55,
               transition: `opacity 180ms ${EASE}, background 180ms ${EASE}`,
             }}
@@ -96,7 +96,7 @@ function PlayRing({ playing }: { playing: boolean }) {
     <span
       aria-hidden
       style={{
-        width: 56, height: 56, borderRadius: '50%',
+        width: 64, height: 64, borderRadius: '50%',
         border: '1px solid var(--warm)', display: 'flex',
         alignItems: 'center', justifyContent: 'center', flex: '0 0 auto',
         color: 'var(--warm)', transition: `border-color 180ms ${EASE}, color 180ms ${EASE}`,
@@ -474,8 +474,8 @@ export function VoiceRoom() {
                         what you said
                       </div>
                       <div style={{
-                        fontFamily: 'var(--serif)', fontWeight: 380, fontVariationSettings: '"opsz" 40',
-                        fontSize: 'clamp(40px, 11vw, 64px)', lineHeight: 1, letterSpacing: '-0.01em',
+                        fontFamily: 'var(--serif)', fontWeight: 300, fontVariationSettings: '"opsz" 40',
+                        fontSize: 'clamp(40px, 11vw, 66px)', lineHeight: 1, letterSpacing: '-0.01em',
                         color: 'var(--bone)', marginBottom: 28,
                       }}>
                         {formatTime(currentTime)}

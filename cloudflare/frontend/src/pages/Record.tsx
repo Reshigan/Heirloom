@@ -356,7 +356,7 @@ export function Record() {
             fontSize: 11,
             letterSpacing: '0.3em',
             textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
+            color: 'var(--copper-label)',
             marginBottom: 28,
           }}
         >
@@ -710,8 +710,9 @@ export function Record() {
             {/* timecode */}
             <div
               style={{
-                fontFamily: 'var(--mono)',
-                fontSize: 54,
+                fontFamily: 'var(--serif)',
+                fontWeight: 300,
+                fontSize: 66,
                 letterSpacing: '0.04em',
                 color: 'var(--bone)',
                 textAlign: 'center',

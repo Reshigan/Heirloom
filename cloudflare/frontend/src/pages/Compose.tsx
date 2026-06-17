@@ -1134,6 +1134,27 @@ export function Compose() {
         color: 'var(--bone)',
       }}
     >
+      {/* Woven thread-band — top of the composer, fading into the ground, behind everything */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 'clamp(160px, 28vh, 280px)',
+          backgroundImage: 'url(/woven/thread-band.png)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'top center',
+          backgroundRepeat: 'no-repeat',
+          opacity: 0.8,
+          pointerEvents: 'none',
+          zIndex: 0,
+          WebkitMaskImage: 'linear-gradient(to bottom, var(--ink) 0%, transparent 100%)',
+          maskImage: 'linear-gradient(to bottom, var(--ink) 0%, transparent 100%)',
+        }}
+      />
+
       {/* Topbar */}
       <div className="hl-topbar" style={{ borderBottom: '1px solid var(--rule)', position: 'relative', zIndex: 10 }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
@@ -1219,7 +1240,7 @@ export function Compose() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.3em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
                   margin: 0,
@@ -1305,9 +1326,9 @@ export function Compose() {
                 background: 'transparent',
                 color: title ? 'var(--bone)' : 'var(--bone-dim)',
                 caretColor: 'var(--warm)',
-                fontFamily: 'var(--serif)',
+                fontFamily: 'var(--serif-display)',
                 fontVariationSettings: "'opsz' 40",
-                fontWeight: 400,
+                fontWeight: 500,
                 fontSize: 'clamp(30px, 5vw, 44px)',
                 letterSpacing: '-0.01em',
                 width: '100%',
@@ -1340,10 +1361,10 @@ export function Compose() {
                 fontFamily: 'var(--serif)',
                 fontVariationSettings: "'opsz' 20",
                 fontFeatureSettings: '"onum" 1, "liga" 1',
-                fontSize: 'clamp(17px, 2.2vw, 20px)',
+                fontSize: 'clamp(17px, 2.2vw, 18px)',
                 fontWeight: 400,
                 lineHeight: 1.75,
-                color: 'var(--bone)',
+                color: '#d8c7aa',
                 minHeight: 300,
                 outline: 'none',
                 resize: 'none',
@@ -1645,7 +1666,7 @@ export function Compose() {
               disabled={submitDisabled}
               style={{
                 background: 'transparent',
-                border: '1px solid var(--warm)',
+                border: '1px solid var(--copper-border)',
                 borderRadius: 999,
                 padding: '12px 32px',
                 minHeight: 44,
@@ -1653,7 +1674,7 @@ export function Compose() {
                 fontSize: 12,
                 letterSpacing: '0.26em',
                 textTransform: 'uppercase',
-                color: 'var(--warm)',
+                color: 'var(--gold-text)',
                 cursor: submitDisabled ? 'default' : 'pointer',
                 opacity: submitDisabled ? 0.4 : 1,
                 transition: 'background 180ms var(--ease), color 180ms var(--ease), opacity 180ms var(--ease)',
@@ -1665,8 +1686,8 @@ export function Compose() {
               }}
               onMouseLeave={(e) => {
                 if (submitDisabled) return;
-                e.currentTarget.style.borderColor = 'var(--warm)';
-                e.currentTarget.style.color = 'var(--warm)';
+                e.currentTarget.style.borderColor = 'var(--copper-border)';
+                e.currentTarget.style.color = 'var(--gold-text)';
               }}
             >
               {save.isPending ? (isLetter ? 'sealing…' : 'weaving…') : (isLetter ? submitLabel : 'weave it in')}

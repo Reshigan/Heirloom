@@ -140,6 +140,24 @@ export function SearchPage() {
           </h1>
         </header>
 
+        {/* ── eyebrow + hairline above the input ── */}
+        <div
+          style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 11,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--copper-label)',
+            marginBottom: 14,
+          }}
+        >
+          Search the thread
+        </div>
+        <div
+          aria-hidden="true"
+          style={{ height: 1, background: 'var(--hairline-3)', marginBottom: 24 }}
+        />
+
         {/* ── flat serif search input: transparent, warm caret, underline only ── */}
         <input
           autoFocus
@@ -175,9 +193,22 @@ export function SearchPage() {
                 key={f.label}
                 className="hl-filter-btn"
                 onClick={() => setTypeFilter(f.value)}
-                style={{ color: active ? 'var(--warm)' : 'var(--bone-faint)' }}
+                style={{ position: 'relative', color: active ? 'var(--warm)' : '#c9b89c' }}
               >
                 {f.label}
+                {active && (
+                  <span
+                    aria-hidden="true"
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      right: 0,
+                      bottom: -7,
+                      height: 2,
+                      background: 'var(--warm)',
+                    }}
+                  />
+                )}
               </button>
             );
           })}
@@ -243,13 +274,17 @@ export function SearchPage() {
                     <EntryRow
                       key={r.id}
                       title={r.title}
+                      titleFont="serif"
+                      titleSize={21}
+                      titleColor="var(--text-soft)"
                       sub={
                         r.snippet ? (
                           <span
                             style={{
                               fontFamily: 'var(--serif)',
                               fontStyle: 'italic',
-                              color: 'var(--bone-faint)',
+                              fontSize: 14,
+                              color: 'var(--muted-2)',
                               lineHeight: 1.5,
                               overflow: 'hidden',
                               display: '-webkit-box',

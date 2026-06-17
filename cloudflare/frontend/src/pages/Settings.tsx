@@ -20,10 +20,10 @@ const RESPONSIVE_CSS = `
   border-bottom: 1px solid var(--rule);
 }
 .hl-ledgerrow-label {
-  font-family: var(--serif);
-  font-size: 17px;
+  font-family: var(--mono);
+  font-size: 13px;
   font-weight: 400;
-  color: var(--bone);
+  color: var(--text-warm);
   line-height: 1.3;
   min-width: 0;
 }
@@ -56,26 +56,28 @@ const RESPONSIVE_CSS = `
   padding: 0;
   margin: 0;
   cursor: pointer;
-  font-family: var(--serif);
-  font-size: 17px;
+  font-family: var(--mono);
+  font-size: 12px;
   font-weight: 400;
-  color: var(--bone-dim);
+  letter-spacing: 0.06em;
+  color: var(--copper-label);
   text-decoration: none;
   white-space: nowrap;
   line-height: 1.3;
   transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
 }
-.hl-wordaction:hover { color: var(--bone); }
-.hl-wordaction:disabled { opacity: 0.5; cursor: default; }
+.hl-wordaction:hover { color: var(--warm); }
+.hl-wordaction:disabled { color: var(--muted-3); cursor: default; }
 .hl-wordaction--warm { color: var(--warm); }
 .hl-wordaction--warm:hover { color: var(--warm-bright); }
 
-/* Static word value — dim serif, not actionable (e.g. "Every Day", "user@example.com"). */
+/* Static word value — quiet mono, not actionable (e.g. "Every Day", "user@example.com"). */
 .hl-wordvalue {
-  font-family: var(--serif);
-  font-size: 17px;
+  font-family: var(--mono);
+  font-size: 11px;
   font-weight: 400;
-  color: var(--bone-dim);
+  letter-spacing: 0.06em;
+  color: var(--muted-2);
   white-space: nowrap;
   line-height: 1.3;
   text-align: right;
@@ -89,10 +91,10 @@ const RESPONSIVE_CSS = `
   margin: 0;
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 400;
   letter-spacing: 0.18em;
-  color: var(--bone-faint);
+  color: var(--muted-3);
   white-space: nowrap;
   transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
 }
@@ -138,7 +140,7 @@ const RESPONSIVE_CSS = `
 .hl-field-label {
   font-family: var(--mono);
   font-size: 10px;
-  color: var(--bone-faint);
+  color: var(--muted-4);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   padding-top: 2px;
@@ -173,14 +175,12 @@ const RESPONSIVE_CSS = `
   padding: 22px 0;
   cursor: pointer;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 400;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  text-decoration: underline;
-  text-underline-offset: 5px;
-  text-decoration-thickness: 1px;
-  color: var(--bone-dim);
+  text-decoration: none;
+  color: var(--muted-3);
   transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
 }
 .hl-signout:hover { color: var(--warm); }
@@ -783,7 +783,7 @@ export function Settings() {
 
             {deleteStage === 'confirm' && (
               <div style={{ maxWidth: 480 }}>
-                <div className="hl-eyebrow" style={{ color: 'var(--bone-dim)', marginBottom: 14 }}>close account</div>
+                <div className="hl-eyebrow" style={{ color: 'var(--copper-label)', marginBottom: 14 }}>close account</div>
                 <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
                   Your thread will be archived for 90 days. During that window you can download a full export of everything you have ever written. After 90 days it is permanently erased.
                 </p>
@@ -801,7 +801,7 @@ export function Settings() {
 
             {deleteStage === 'quote' && (
               <div style={{ maxWidth: 480 }}>
-                <div className="hl-eyebrow" style={{ color: 'var(--bone-dim)', marginBottom: 14 }}>export fee</div>
+                <div className="hl-eyebrow" style={{ color: 'var(--copper-label)', marginBottom: 14 }}>export fee</div>
                 {exitQuoteQ.isLoading ? (
                   <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.5, margin: '24px 0' }} />
                 ) : (
@@ -834,7 +834,7 @@ export function Settings() {
 
             {deleteStage === 'password' && (
               <div style={{ maxWidth: 480 }}>
-                <div className="hl-eyebrow" style={{ color: 'var(--bone-dim)', marginBottom: 14 }}>confirm password</div>
+                <div className="hl-eyebrow" style={{ color: 'var(--copper-label)', marginBottom: 14 }}>confirm password</div>
                 <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 18px', lineHeight: 1.6 }}>
                   Enter your password to archive your account. A download link will be emailed to you.
                 </p>

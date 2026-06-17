@@ -222,20 +222,21 @@ export function Constellation() {
           flexDirection: 'column',
           alignItems: 'center',
           padding: 'clamp(40px, 9vh, 96px) 24px clamp(40px, 8vh, 88px)',
+          background: 'radial-gradient(120% 80% at 50% 30%, #15110c, #0b0907 72%)',
         }}
       >
         {/* Centred mono eyebrow — the warm wing-sprays above it belong to the
             global ClothBackdrop (tree variant), not this page. */}
         <div
           style={{
-            fontFamily: 'var(--mono)',
-            fontSize: 12,
-            letterSpacing: '0.42em',
+            fontFamily: 'var(--serif-display)',
+            fontSize: 24,
+            letterSpacing: '0.3em',
             textTransform: 'uppercase',
-            color: 'var(--bone-dim)',
+            color: 'var(--bone)',
             textAlign: 'center',
             marginBottom: 'clamp(80px, 16vh, 180px)',
-            paddingLeft: '0.42em',
+            paddingLeft: '0.3em',
           }}
         >
           The Lineage
@@ -256,6 +257,25 @@ export function Constellation() {
             alignItems: 'center',
           }}
         >
+          {/* woven sigil — the lineage tree, layered behind the live nodes */}
+          <img
+            src="/woven/thread-tree.png"
+            alt=""
+            aria-hidden
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              height: 520,
+              width: 'auto',
+              maxWidth: '100%',
+              objectFit: 'contain',
+              opacity: 0.5,
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+          />
           {/* curved connector lines — page content, drawn behind the chips */}
           {paths.length > 0 && (
             <svg
@@ -324,6 +344,8 @@ export function Constellation() {
             (() => {
               const kinIndex = new Map(kin.map((k, i) => [k.id, i]));
               return rows.map((row, rowIdx) => {
+              // deepest generation reads slightly smaller — the line tapering out
+              const squareSize = rowIdx === rows.length - 1 ? 6 : 7;
               return (
                 <div
                   key={row.map(k => k.id).join('-')}
@@ -356,7 +378,7 @@ export function Constellation() {
                         ? 'var(--warm)'
                         : isLit
                           ? 'var(--bone)'
-                          : 'var(--bone-dim)';
+                          : 'var(--text-soft)';
                       const dye = k.you ? 'var(--warm)' : dyeColor(k.id);
                       return (
                         <div
@@ -384,8 +406,8 @@ export function Constellation() {
                           <span
                             aria-hidden
                             style={{
-                              width: 9,
-                              height: 9,
+                              width: squareSize,
+                              height: squareSize,
                               flex: '0 0 auto',
                               background: dye,
                               opacity: isLit ? 1 : 0.78,
@@ -395,10 +417,10 @@ export function Constellation() {
                           <span
                             style={{
                               fontFamily: 'var(--mono)',
-                              fontSize: 11,
+                              fontSize: 10,
                               fontWeight: 400,
                               fontStyle: k.you ? 'italic' : 'normal',
-                              letterSpacing: '0.14em',
+                              letterSpacing: '0.08em',
                               textTransform: 'uppercase',
                               color: nameColor,
                               transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',

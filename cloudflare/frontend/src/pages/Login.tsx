@@ -45,8 +45,23 @@ export function Login() {
 
   return (
     <ClothShell noTopbar>
+      {/* WOVEN — flipped thread-band header, full width, gradient-fades to ink at its bottom edge */}
+      <div aria-hidden style={{
+        position: 'absolute', top: 0, left: 0, right: 0,
+        height: 'clamp(180px, 32vh, 320px)',
+        transform: 'scaleY(-1)',
+        opacity: 0.7,
+        // ink fade sits over the band; after scaleY(-1) the fade lands on the visual bottom edge
+        backgroundImage: 'linear-gradient(to top, var(--ink) 0%, rgba(11,9,7,0) 62%), url(/woven/thread-band.png)',
+        backgroundSize: 'cover, cover',
+        backgroundPosition: 'center, center top',
+        backgroundRepeat: 'no-repeat, no-repeat',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
       {/* A single calm centered column — vast negative space, the global filament backdrop behind. */}
       <div style={{
+        position: 'relative', zIndex: 1,
         display: 'grid',
         placeItems: 'center',
         minHeight: '100%',
@@ -57,14 +72,14 @@ export function Login() {
           <div className="hl-mono" style={{
             marginBottom: 14,
             fontSize: 10, letterSpacing: '0.34em', textTransform: 'uppercase',
-            color: 'var(--warm)',
+            color: 'var(--copper-label)',
           }}>
             welcome back
           </div>
 
           {/* Serif title — type is the hero, FORM archetype scale */}
           <h1 className="hl-serif hl-tight" style={{
-            fontSize: 'clamp(40px, 9vw, 72px)',
+            fontSize: 'clamp(36px, 7vw, 48px)',
             fontWeight: 300, lineHeight: 1.05,
             letterSpacing: '-0.022em',
             margin: sessionExpired ? '0 0 24px' : '0 0 56px',
@@ -99,7 +114,13 @@ export function Login() {
                 id="l-email" type="email" required autoComplete="email"
                 value={email} onChange={(e) => setEmail(e.target.value)}
                 className="hl-input"
+                style={{ borderBottom: 'none' }}
               />
+              {/* static gradient underline */}
+              <div aria-hidden style={{
+                height: 1, marginTop: 0,
+                background: 'linear-gradient(90deg, var(--copper-border), #5a4326)',
+              }} />
             </div>
 
             <div>
@@ -122,7 +143,13 @@ export function Login() {
                 id="l-pw" type="password" required autoComplete="current-password"
                 value={password} onChange={(e) => setPassword(e.target.value)}
                 className="hl-input"
+                style={{ borderBottom: 'none' }}
               />
+              {/* static gradient underline */}
+              <div aria-hidden style={{
+                height: 1, marginTop: 0,
+                background: 'linear-gradient(90deg, var(--copper-border), #5a4326)',
+              }} />
             </div>
 
             {error ? (

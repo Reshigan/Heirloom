@@ -242,21 +242,42 @@ export function Unlock() {
                   display: 'grid',
                   gridTemplateRows: 'auto 1fr',
                   textAlign: 'center',
+                  background: 'radial-gradient(120% 60% at 50% 40%, #16110b, #070605 72%)',
                   opacity: sealedRest ? 1 : 0,
                   transform: sealedRest ? 'scale(1)' : 'scale(1.08)',
                   transition: `opacity 1400ms var(--loom-ease), transform 1400ms var(--loom-ease)`,
                   pointerEvents: sealedRest ? 'auto' : 'none',
                 }}
               >
+                {/* woven embers — behind the opening content, decorative only */}
+                <img
+                  src="/woven/unseal.png"
+                  alt=""
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: 'clamp(150px, 32vw, 200px)',
+                    height: 'auto',
+                    opacity: 0.16,
+                    pointerEvents: 'none',
+                    zIndex: 0,
+                  }}
+                />
+
                 {/* mono eyebrow — SEALED <date> · OPENED TODAY / OPENS yyyy */}
                 <div
                   style={{
+                    position: 'relative',
+                    zIndex: 1,
                     fontFamily: 'var(--mono)',
                     fontSize: 11,
                     letterSpacing: '0.28em',
                     textTransform: 'uppercase',
-                    color: 'var(--bone-faint)',
-                    textAlign: 'left',
+                    color: 'var(--muted-2)',
+                    textAlign: 'center',
                   }}
                 >
                   {[
@@ -266,7 +287,7 @@ export function Unlock() {
                 </div>
 
                 {/* the headline + opening line, centred in the remaining air */}
-                <div style={{ display: 'grid', placeItems: 'center' }}>
+                <div style={{ display: 'grid', placeItems: 'center', position: 'relative', zIndex: 1 }}>
                   <div style={{ maxWidth: 460, width: '100%' }}>
                     <h1
                       style={{
@@ -291,7 +312,7 @@ export function Unlock() {
                         fontWeight: 300,
                         fontSize: 'clamp(16px, 3.4vw, 19px)',
                         lineHeight: 1.55,
-                        color: 'var(--bone-dim)',
+                        color: 'var(--text-excerpt)',
                         textWrap: 'balance',
                       }}
                     >

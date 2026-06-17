@@ -97,6 +97,30 @@
   --warm-dim: #b07a3e;
   --warm-glow: rgba(224, 160, 98, 0.18);
   --rule-warm: rgba(224, 160, 98, 0.24);
+
+  /* ── Hi-fi handoff tokens (23-screen design) ───────────────────────
+     The design dims the bright copper to a label-copper on eyebrows /
+     group labels, adds a brighter pill-border + gold pill-text, and a
+     graded muted scale for captions, dates, and dividers. Surfaces gain
+     two dark card fills (letter, template) and three hairline steps.
+     Dark values are the locked reference; the light block below lifts
+     every text-bearing one to clear WCAG AA on parchment. */
+  --copper-label:  #b07a3e;  /* eyebrows, dimmed copper labels */
+  --copper-border: #c4894d;  /* ghost-pill + emphasis-card borders */
+  --gold-text:     #e8c79a;  /* pill labels, emphasised names */
+  --ember:         #f0c074;  /* glow dots, map pins, embers */
+  --bg-letter:     #171109;  /* sealed-letter card fill */
+  --bg-template:   #100c08;  /* page-template thumbnail surface */
+  --text-soft:     #ecdfc9;  /* primary unread/name text */
+  --text-warm:     #cdbd9f;  /* warm body / read-state text */
+  --text-excerpt:  #a3917a;  /* unseal excerpt */
+  --muted-2:       #8a7d6a;  /* captions, sub-lines, sources */
+  --muted-3:       #6b6053;  /* dates, secondary roles */
+  --muted-4:       #5a5142;  /* group labels, decade dividers */
+  --hairline:      #1c160f;  /* row dividers on warm ground */
+  --hairline-2:    #221c15;
+  --hairline-3:    #2c2418;  /* entry left-rules, input hairlines */
+
   --parchment: #faf3e4;
   --parchment-deep: #f0e6d2;
   --parchment-ink: #1a1611;
@@ -222,6 +246,25 @@
   --warm-glow:    rgba(168, 98, 32, 0.18);
   --glass-bg:     rgba(18, 13, 8, 0.05);
   --glass-border: rgba(18, 13, 8, 0.12);
+
+  /* Hi-fi handoff tokens — parchment parallels. Text-bearing copper drops
+     to the AA-safe #824a16 family; surfaces become paper cards; the muted
+     scale inverts to dark-on-paper. (Bridge values, not the dark ref.) */
+  --copper-label:  #824a16;
+  --copper-border: #965616;
+  --gold-text:     #7a4410;
+  --ember:         #965616;
+  --bg-letter:     #ece0cb;
+  --bg-template:   #e6d8c2;
+  --text-soft:     #221c15;
+  --text-warm:     #3a3024;
+  --text-excerpt:  #5a4f3e;
+  --muted-2:       #5f5546;
+  --muted-3:       #6b6053;
+  --muted-4:       #6b6053;
+  --hairline:      #dcccb4;
+  --hairline-2:    #d4c4ac;
+  --hairline-3:    #cab896;
 
   /* Parchment scrim — keeps light mode reading as paper, not ink-washed. */
   --cloth-scrim: rgba(244,234,217,0.72);
@@ -521,6 +564,7 @@ em {
 @keyframes hl-stamp  { 0% { transform: translate(-50%,-50%) scale(1.6); opacity: 0; } 38% { opacity: 1; } 62% { transform: translate(-50%,-50%) scale(.86); } 100% { transform: translate(-50%,-50%) scale(1); } }
 @keyframes hl-node   { 0% { transform: scale(0); opacity: 0; } 62% { transform: scale(1.5); } 100% { transform: scale(1); opacity: 1; } }
 @keyframes hl-grow   { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes hl-caret  { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
   .hl-first-thread *,

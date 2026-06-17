@@ -57,13 +57,13 @@ export function MemoryMap() {
 
   const locations = groupByLocation(memories);
 
-  /** Project real lat/lng into a 0–100 equirectangular field. Each point carries a tiny
-      serif label + mono year, placed beside the warm point as in the mockup. */
+  /** Project real lat/lng onto the woven worldmap. The base PNG is an equirectangular-ish
+      plate; x = (lon+180)/360, y = (82-lat)/138 aligns the warm dots to its landmasses. */
   const mapDots = memories
     .filter((m) => Number.isFinite(m.latitude) && Number.isFinite(m.longitude))
     .map((m) => {
       const x = ((m.longitude + 180) / 360) * 100;
-      const y = ((90 - m.latitude) / 180) * 100;
+      const y = ((82 - m.latitude) / 138) * 100;
       return { id: m.id, x: clamp(x, 4, 96), y: clamp(y, 6, 94), memory: m };
     });
 
@@ -110,10 +110,25 @@ export function MemoryMap() {
             textTransform: 'uppercase',
             color: 'var(--bone-faint)',
             textAlign: 'center',
-            margin: '12px 0 56px',
+            margin: '12px 0 12px',
           }}
         >
           {'WHERE IT HAPPENED'}
+        </div>
+
+        {/* Second eyebrow subline — the standing interaction hint, quietest mono. */}
+        <div
+          style={{
+            fontFamily: 'var(--mono)',
+            fontSize: 9,
+            letterSpacing: '0.26em',
+            textTransform: 'uppercase',
+            color: 'var(--muted-3)',
+            textAlign: 'center',
+            margin: '0 0 56px',
+          }}
+        >
+          {'DRAG TO EXPLORE · TAP A PLACE'}
         </div>
 
         {isError && (
@@ -180,10 +195,8 @@ export function MemoryMap() {
           </div>
         ) : (
           <>
-            {/* The Map — a vast dark field with a faint continent outline. Memories sit
-                as restrained warm points placed by lat/lng, each tagged with a tiny serif
-                label + mono year, exactly as the mockup reads. Select-on-click preserved.
-                PRESERVED VERBATIM — this is the real spatial rendering. */}
+            {/* The Map — a vast dark field over the woven worldmap plate. Memories sit
+                as restrained warm glow points placed by lat/lng. Select-on-click preserved. */}
             <div
               style={{
                 position: 'relative',
@@ -194,38 +207,25 @@ export function MemoryMap() {
                 overflow: 'visible',
               }}
             >
-              {/* Faint world outline — a coordinate field, never a styled map tile. */}
-              <svg
-                viewBox="0 0 100 80"
-                preserveAspectRatio="none"
+              {/* Woven worldmap — the base coordinate plate, quiet behind the points. */}
+              <img
+                src="/woven/worldmap.png"
+                alt=""
                 aria-hidden
-                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}
-              >
-                {/* coastline-ish hairlines: schematic, low-contrast, no fills */}
-                <g stroke="var(--rule)" strokeWidth="0.35" fill="none">
-                  {/* North America */}
-                  <path d="M3 22 L14 19 L22 24 L26 34 L20 42 L12 40 L8 31 Z" />
-                  {/* South America */}
-                  <path d="M24 50 L30 49 L33 58 L29 70 L25 64 Z" />
-                  {/* Europe / Africa */}
-                  <path d="M48 22 L56 21 L60 30 L58 46 L52 60 L47 50 L46 34 Z" />
-                  {/* Asia */}
-                  <path d="M60 18 L80 17 L92 24 L88 36 L74 38 L64 30 Z" />
-                  {/* Australia */}
-                  <path d="M82 52 L92 51 L94 60 L86 62 Z" />
-                </g>
-                {/* equator + a meridian, the faintest possible */}
-                <g stroke="var(--rule)" strokeWidth="0.25" fill="none" opacity="0.5">
-                  <line x1="0" y1="40" x2="100" y2="40" />
-                  <line x1="50" y1="0" x2="50" y2="80" />
-                </g>
-              </svg>
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  opacity: 0.32,
+                  pointerEvents: 'none',
+                }}
+              />
 
               {/* Warm points — the only accent, glow restrained via box-shadow. */}
               {mapDots.map((d) => {
                 const active = selectedMemory?.id === d.id;
-                const year = new Date(d.memory.created_at).getFullYear();
-                const right = d.x > 70; // flip label to the left near the edge
                 return (
                   <button
                     key={d.id}
@@ -241,55 +241,23 @@ export function MemoryMap() {
                       border: 0,
                       background: 'transparent',
                       cursor: 'pointer',
-                      display: 'flex',
-                      flexDirection: right ? 'row-reverse' : 'row',
-                      alignItems: 'center',
-                      gap: 6,
-                      whiteSpace: 'nowrap',
+                      lineHeight: 0,
                     }}
                   >
                     <span
                       aria-hidden
                       style={{
-                        width: active ? 7 : 5,
-                        height: active ? 7 : 5,
-                        flex: '0 0 auto',
+                        display: 'block',
+                        width: active ? 8 : 6,
+                        height: active ? 8 : 6,
                         borderRadius: '50%',
-                        background: active ? 'var(--warm-bright)' : 'var(--warm)',
+                        background: 'var(--ember)',
                         boxShadow: active
-                          ? '0 0 14px rgba(224,160,98,0.7)'
-                          : '0 0 8px rgba(224,160,98,0.45)',
+                          ? '0 0 14px var(--ember)'
+                          : '0 0 8px var(--ember)',
                         transition: 'all 360ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     />
-                    <span
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        textAlign: right ? 'right' : 'left',
-                        lineHeight: 1.1,
-                      }}
-                    >
-                      <span
-                        className="hl-serif"
-                        style={{
-                          fontSize: 11,
-                          color: active ? 'var(--bone)' : 'var(--bone-dim)',
-                          transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-                        }}
-                      >
-                        {d.memory.location_name || d.memory.title}
-                      </span>
-                      <span
-                        className="hl-serif"
-                        style={{
-                          fontSize: 9,
-                          color: 'var(--bone-faint)',
-                        }}
-                      >
-                        {Number.isFinite(year) ? year : ''}
-                      </span>
-                    </span>
                   </button>
                 );
               })}
@@ -390,6 +358,23 @@ export function MemoryMap() {
                   </Link>
                 );
               })}
+            </div>
+
+            {/* Footer tally — places + mapped memories, quietest mono, computed from data. */}
+            <div
+              style={{
+                marginTop: 24,
+                paddingTop: 10,
+                borderTop: '1px solid var(--hairline)',
+                fontFamily: 'var(--mono)',
+                fontSize: 9,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--muted-3)',
+                textAlign: 'center',
+              }}
+            >
+              {`${locations.length} ${locations.length === 1 ? 'PLACE' : 'PLACES'} · ${mapDots.length} ${mapDots.length === 1 ? 'MEMORY' : 'MEMORIES'} MAPPED`}
             </div>
 
             {/* Detail sidebar (selected memory) — preserved from v1 */}

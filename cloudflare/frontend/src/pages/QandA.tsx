@@ -138,7 +138,7 @@ export function QandA() {
               fontSize: 11,
               letterSpacing: '0.28em',
               textTransform: 'uppercase',
-              color: 'var(--warm)',
+              color: 'var(--copper-label)',
               marginTop: 8,
               marginBottom: 22,
             }}
@@ -240,35 +240,47 @@ export function QandA() {
             {/* answered: flowing serif prose answer — one quiet typographic surface */}
             {state.phase === 'answered' && (
               <div>
-                <p
-                  style={{
-                    fontFamily: 'var(--serif)',
-                    fontSize: 'clamp(18px, 2.8vw, 21px)',
-                    margin: 0,
-                    color: 'var(--bone)',
-                    lineHeight: 1.75,
-                    fontWeight: 400,
-                    fontVariationSettings: '"opsz" 18',
-                  }}
-                >
-                  {state.sources.length > 0 ? (
-                    <>
-                      The thread holds{' '}
-                      <span style={{ color: 'var(--warm)' }}>
-                        {state.sources.length}{' '}
-                        {state.sources.length === 1 ? 'memory' : 'memories'}
-                      </span>{' '}
-                      that touch <em>"{state.question}"</em> — each set down below,
-                      opening to the entry it was woven from. The thread speaks only
-                      from what was truly written, never words it has invented.
-                    </>
-                  ) : (
-                    <>
-                      Nothing in the entries you can read yet speaks to{' '}
-                      <em>"{state.question}"</em>.
-                    </>
-                  )}
-                </p>
+                {/* signature LEFT vertical gradient rule beside the answer */}
+                <div style={{ display: 'flex', gap: 16 }}>
+                  <div
+                    aria-hidden
+                    style={{
+                      width: 1,
+                      flex: '0 0 auto',
+                      alignSelf: 'stretch',
+                      background: 'linear-gradient(180deg, var(--copper-border), transparent)',
+                    }}
+                  />
+                  <p
+                    style={{
+                      fontFamily: 'var(--serif)',
+                      fontSize: 'clamp(18px, 2.8vw, 21px)',
+                      margin: 0,
+                      color: 'var(--text-warm)',
+                      lineHeight: 1.75,
+                      fontWeight: 400,
+                      fontVariationSettings: '"opsz" 18',
+                    }}
+                  >
+                    {state.sources.length > 0 ? (
+                      <>
+                        The thread holds{' '}
+                        <span style={{ color: 'var(--warm)' }}>
+                          {state.sources.length}{' '}
+                          {state.sources.length === 1 ? 'memory' : 'memories'}
+                        </span>{' '}
+                        that touch <em>"{state.question}"</em> — each set down below,
+                        opening to the entry it was woven from. The thread speaks only
+                        from what was truly written, never words it has invented.
+                      </>
+                    ) : (
+                      <>
+                        Nothing in the entries you can read yet speaks to{' '}
+                        <em>"{state.question}"</em>.
+                      </>
+                    )}
+                  </p>
+                </div>
 
                 {/* cited sources — quiet mono dim "— from <source>, <year>" lines */}
                 {state.sources.length > 0 && (
@@ -282,8 +294,11 @@ export function QandA() {
             )}
           </div>
 
-          {/* ── ASK ANYTHING — warm mono label + underlined hl-input ── */}
-          <form onSubmit={onSubmit} style={{ marginTop: 40 }}>
+          {/* ── ASK ANYTHING — copper mono label + top hairline + underlined hl-input ── */}
+          <form
+            onSubmit={onSubmit}
+            style={{ marginTop: 40, borderTop: '1px solid var(--hairline-2)', paddingTop: 24 }}
+          >
             <label
               htmlFor="qa-ask"
               style={{
@@ -292,7 +307,7 @@ export function QandA() {
                 fontSize: 10,
                 letterSpacing: '0.28em',
                 textTransform: 'uppercase',
-                color: 'var(--warm)',
+                color: 'var(--copper-label)',
                 margin: '0 0 10px',
               }}
             >
@@ -392,15 +407,16 @@ function Citation({ source }: { source: SourceEntry }) {
           display: 'inline-flex',
           alignItems: 'baseline',
           gap: 8,
-          fontFamily: 'var(--mono)',
-          fontSize: 12,
+          fontFamily: 'var(--serif)',
+          fontStyle: 'italic',
+          fontSize: 13,
           letterSpacing: '0.04em',
-          color: 'var(--bone-faint)',
+          color: 'var(--muted-2)',
           textDecoration: 'none',
           maxWidth: '100%',
         }}
         onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--bone-dim)')}
-        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--bone-faint)')}
+        onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted-2)')}
       >
         {/* dye thread tick — shown only when a real dye is present, else honest blank */}
         {dyeColor && (

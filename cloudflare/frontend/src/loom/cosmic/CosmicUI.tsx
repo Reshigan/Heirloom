@@ -35,20 +35,19 @@ export function CosmicHeader({
   return (
     <header style={{ textAlign: align, marginBottom: 40, maxWidth: align === 'center' ? undefined : '14em' }}>
       {eyebrow && (
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--warm)', marginBottom: 18 }}>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--copper-label)', marginBottom: 18 }}>
           {eyebrow}
         </div>
       )}
       <h1
         style={{
-          fontFamily: 'var(--serif)',
-          fontSize: 'clamp(34px, 7vw, 58px)',
-          lineHeight: 1.04,
+          fontFamily: 'var(--serif-display)',
+          fontSize: 'clamp(34px, 7vw, 56px)',
+          lineHeight: 1.06,
           letterSpacing: '-0.012em',
           color: 'var(--bone)',
           margin: 0,
-          fontWeight: 380,
-          fontVariationSettings: '"opsz" 40',
+          fontWeight: 500,
         }}
       >
         {title}
@@ -84,6 +83,14 @@ export function EntryRow({
   dye,
   italic,
   onClick,
+  titleColor = 'var(--bone)',
+  titleSize = 19,
+  titleFont = 'serif',
+  subFont = 'sans',
+  subColor = 'var(--bone-dim)',
+  subItalic = false,
+  dateColor = 'var(--bone-faint)',
+  noBorder = false,
 }: {
   title: ReactNode;
   sub?: ReactNode;
@@ -95,9 +102,20 @@ export function EntryRow({
   /** @deprecated the ledger row carries no left bullet — kept for call-site compat */
   filled?: boolean;
   onClick?: () => void;
+  /** Per-screen overrides — defaults reproduce the canonical ledger row. */
+  titleColor?: string;
+  titleSize?: number;
+  titleFont?: 'serif' | 'sans' | 'display';
+  subFont?: 'serif' | 'sans';
+  subColor?: string;
+  subItalic?: boolean;
+  dateColor?: string;
+  noBorder?: boolean;
 }) {
   const tint = dye ? dyeVar(dye) : 'var(--warm)';
   const hasLedgerMeta = year != null || author != null || dye != null;
+  const fontFor = (f: 'serif' | 'sans' | 'display') =>
+    f === 'sans' ? 'var(--sans)' : f === 'display' ? 'var(--serif-display)' : 'var(--serif)';
 
   return (
     <button
@@ -114,36 +132,38 @@ export function EntryRow({
         padding: '15px 0',
         background: 'none',
         borderWidth: 0,
-        borderBottom: '1px solid var(--rule)',
+        borderBottom: noBorder ? 'none' : '1px solid var(--rule)',
         cursor: onClick ? 'pointer' : 'default',
         transition: 'opacity 180ms var(--ease)',
       }}
     >
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ fontFamily: 'var(--serif)', fontStyle: italic ? 'italic' : 'normal', fontWeight: 400, fontSize: 19, lineHeight: 1.3, color: 'var(--bone)', display: 'block' }}>
+        <span style={{ fontFamily: fontFor(titleFont), fontStyle: italic ? 'italic' : 'normal', fontWeight: 400, fontSize: titleSize, lineHeight: 1.3, color: titleColor, display: 'block' }}>
           {title}
         </span>
-        {sub && <span style={{ fontFamily: 'var(--sans)', fontSize: 13, color: 'var(--bone-dim)', display: 'block', marginTop: 4, lineHeight: 1.5 }}>{sub}</span>}
+        {sub && <span style={{ fontFamily: fontFor(subFont), fontStyle: subItalic ? 'italic' : 'normal', fontSize: 13, color: subColor, display: 'block', marginTop: 4, lineHeight: 1.5 }}>{sub}</span>}
       </span>
 
       {hasLedgerMeta ? (
         <span style={{ display: 'flex', alignItems: 'center', gap: 9, whiteSpace: 'nowrap', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', flex: '0 0 auto' }}>
-          {year != null && <span style={{ color: 'var(--bone-faint)' }}>{year}</span>}
+          {year != null && <span style={{ color: dateColor }}>{year}</span>}
           {dye && <WarmDot color={tint} size={5} />}
           {author != null && <span style={{ color: tint, textTransform: 'uppercase', letterSpacing: '0.16em' }}>{author}</span>}
         </span>
       ) : (
         meta != null && (
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', color: 'var(--bone-faint)', whiteSpace: 'nowrap', flex: '0 0 auto' }}>{meta}</span>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', color: dateColor, whiteSpace: 'nowrap', flex: '0 0 auto' }}>{meta}</span>
         )
       )}
     </button>
   );
 }
 
-/** Uppercase mono group label (MEMORIES / LETTERS / VOICES). */
-export function SectionLabel({ children }: { children: ReactNode }) {
-  return <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: 'var(--warm)', margin: '34px 0 8px' }}>{children}</div>;
+/** Uppercase mono group label (MEMORIES / LETTERS / VOICES). The design mutes
+ *  these dividers to a quiet grey-brown; pass tone="copper" for the rare label
+ *  the design keeps in dimmed copper. */
+export function SectionLabel({ children, tone = 'muted' }: { children: ReactNode; tone?: 'muted' | 'copper' }) {
+  return <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: tone === 'copper' ? 'var(--copper-label)' : 'var(--muted-4)', margin: '34px 0 8px' }}>{children}</div>;
 }
 
 /** The ∞ wax seal — the product's only mark, resting warm at the foot of a page. */

@@ -117,13 +117,19 @@ export function Inbox() {
                 <EntryRow
                   key={m.id}
                   filled
+                  noBorder
+                  titleFont="serif"
+                  titleSize={16}
+                  titleColor="var(--text-soft)"
+                  subFont="serif"
+                  subColor="var(--muted-2)"
                   title={
                     <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <WarmDot filled size={5} color="var(--warm)" />
+                      <span aria-hidden style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--warm)', boxShadow: '0 0 8px var(--warm)', flex: '0 0 auto', display: 'inline-block' }} />
                       <span>{m.title}</span>
                     </span>
                   }
-                  sub={`from ${m.from || 'a family member'}`}
+                  sub={<span style={{ fontSize: 11 }}>{`from ${m.from || 'a family member'}`}</span>}
                   meta={formatDate(m.createdAt)}
                   onClick={() => navigate(`/loom/read?entry=${m.id}`)}
                 />
@@ -140,15 +146,21 @@ export function Inbox() {
                   <EntryRow
                     key={u.unlock_id}
                     italic
+                    noBorder
+                    titleFont="serif"
+                    titleSize={16}
+                    titleColor="var(--copper-label)"
+                    subFont="serif"
+                    subColor="var(--muted-2)"
                     title={
                       <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <WarmDot filled size={5} color="var(--warm)" />
+                        <img src="/woven/seal.png" width={22} alt="" aria-hidden style={{ flex: '0 0 auto', display: 'inline-block' }} />
                         <span>{u.entry_title ?? 'A sealed note for the future'}</span>
                       </span>
                     }
                     sub={
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span aria-hidden style={{ color: 'var(--warm)', fontWeight: 300, fontSize: 14, lineHeight: 1 }}>∞</span>
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}>
+                        <span aria-hidden style={{ color: 'var(--warm)', fontWeight: 300, fontSize: 12, lineHeight: 1 }}>∞</span>
                         {subText && <span>{subText}</span>}
                       </span>
                     }
@@ -165,13 +177,19 @@ export function Inbox() {
                   <EntryRow
                     key={u.unlock_id}
                     filled={false}
+                    noBorder
+                    titleFont="serif"
+                    titleSize={15}
+                    titleColor="var(--text-warm)"
+                    subFont="serif"
+                    subColor="var(--muted-2)"
                     title={
                       <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <WarmDot filled={false} size={5} color="var(--bone-dim)" />
+                        <WarmDot filled={false} size={5} color="#5a4326" />
                         <span>{u.entry_title ?? 'An entry has opened'}</span>
                       </span>
                     }
-                    sub={subText || undefined}
+                    sub={subText ? <span style={{ fontSize: 11 }}>{subText}</span> : undefined}
                     meta={formatDate(u.resolved_at)}
                     onClick={() => navigate(`/loom/read?entry=${u.entry_id}`)}
                   />

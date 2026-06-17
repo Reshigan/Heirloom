@@ -83,12 +83,12 @@ export function Today() {
 
   // The outlined amber mono pill — the cosmic-home WRITE / SPEAK affordance,
   // mirroring Login's "enter" pill. warm = the lead action, quiet = the second.
-  const pillStyle = (lead: boolean): CSSProperties => ({
+  const pillStyle = (_lead: boolean): CSSProperties => ({
     padding: '12px 30px',
     background: 'transparent',
-    border: `1px solid ${lead ? 'var(--warm)' : 'var(--rule)'}`,
+    border: '1px solid var(--copper-border)',
     borderRadius: 999,
-    color: lead ? 'var(--warm)' : 'var(--bone-dim)',
+    color: 'var(--warm)',
     fontFamily: 'var(--mono)',
     fontSize: 11,
     letterSpacing: '0.3em',
@@ -104,7 +104,7 @@ export function Today() {
   // A centred recent line — small serif, a faint warm diamond mark before it.
   const RecentLine = ({ children, italic }: { children: ReactNode; italic?: boolean }) => (
     <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 10, padding: '6px 0' }}>
-      <span aria-hidden style={{ color: 'var(--warm)', fontSize: 9, lineHeight: 1, opacity: 0.7 }}>◆</span>
+      <span aria-hidden style={{ color: 'var(--muted-2)', fontSize: 15, lineHeight: 1 }}>·</span>
       <span style={{
         fontFamily: 'var(--serif)', fontSize: 15, fontWeight: 300,
         fontStyle: italic ? 'italic' : 'normal', color: 'var(--bone-dim)', lineHeight: 1.4,
@@ -196,7 +196,27 @@ export function Today() {
 
   return (
     <ClothShell topbarLeft={todayTopbar}>
+      {/* Woven header band — thread-band PNG fading into the ground, behind content */}
+      <div
+        aria-hidden
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 240,
+          backgroundImage: `linear-gradient(180deg, transparent 55%, var(--ink)), url(/woven/thread-band.png)`,
+          backgroundSize: 'cover, cover',
+          backgroundPosition: 'center, center',
+          backgroundRepeat: 'no-repeat, no-repeat',
+          opacity: 0.5,
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
       <div style={{
+        position: 'relative',
+        zIndex: 1,
         padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         maxWidth: 600,
         width: '100%',
@@ -207,14 +227,30 @@ export function Today() {
         transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
       }}>
         {/* THE LISTENER ASKS — centred crown capture (global ClothBackdrop paints
-            the radiating crown filament behind this; the page renders no backdrop) */}
-        <CosmicHeader
-          align="center"
-          eyebrow="the listener asks"
-          title={promptUnavailable ? (
-            <span style={{ color: 'var(--bone-dim)', fontStyle: 'italic' }}>prompt unavailable</span>
-          ) : prompt}
-        />
+            the radiating crown filament behind this; the page renders no backdrop).
+            Hero set inline (not via CosmicHeader) to hold the smaller, calmer
+            Cormorant listener-question scale — muted eyebrow, ~28–34px display. */}
+        <header style={{ textAlign: 'center', marginBottom: 40 }}>
+          <div style={{
+            fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
+            textTransform: 'uppercase', color: 'var(--muted-2)', marginBottom: 18,
+          }}>
+            the listener asks
+          </div>
+          <h1 style={{
+            fontFamily: 'var(--serif-display)',
+            fontSize: 'clamp(28px, 6vw, 34px)',
+            lineHeight: 1.16,
+            letterSpacing: '-0.012em',
+            color: 'var(--bone)',
+            margin: 0,
+            fontWeight: 500,
+          }}>
+            {promptUnavailable ? (
+              <span style={{ color: 'var(--bone-dim)', fontStyle: 'italic' }}>prompt unavailable</span>
+            ) : prompt}
+          </h1>
+        </header>
 
         {/* Capture affordances — outlined amber WRITE / quiet SPEAK pills */}
         <div style={{ display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginBottom: 56 }}>

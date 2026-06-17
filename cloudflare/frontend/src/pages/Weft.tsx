@@ -9,7 +9,7 @@ import { ViewToggle } from '../loom/components/ViewToggle';
 import { EmptyThread } from '../loom/components/EmptyThread';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { WeftCentury } from '../loom/components/WeftCentury';
-import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { EntryRow, SectionLabel } from '../loom/cosmic/CosmicUI';
 import { dyeVar } from '../loom/dye';
 import { memoriesApi, lettersApi, voiceApi, threadsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
@@ -248,11 +248,6 @@ export function Weft() {
     return 'A woven memory';
   };
 
-  // The hand on the right of the ledger row — the recipient names a letter,
-  // otherwise the kind of thread (MEMORY / LETTER / VOICE), tinted by its dye.
-  const authorOf = (entry: LoomEntry) =>
-    entry.kind === 'letter' && entry.recipient ? entry.recipient : entry.kind;
-
   return (
     <ClothShell
       topbarLeft={<HLogo size="sm" wordmark />}
@@ -270,23 +265,29 @@ export function Weft() {
         }}
       >
         <div style={{ width: '100%', maxWidth: 460 }}>
-          <CosmicHeader eyebrow={eyebrow} title="The Thread" align="left" />
+          {/* The design carries no large "The Thread" H1 — only a centered
+              copper eyebrow naming the bloodline and its year span. */}
+          <div style={{ textAlign: 'center' }}>
+            <SectionLabel tone="copper">{eyebrow}</SectionLabel>
+          </div>
 
           {toggleRow}
 
-          {/* The woven thread — each row is the canonical ledger entry: serif title
-              on a dye left-filament, one-line dim subtitle, and a mono right cluster of
-              year + dye dot + author tinted by the thread's dye; faint decade dividers. */}
+          {/* The woven thread — each row is a quiet ledger entry: serif title on a
+              neutral hairline left-filament, one-line Spectral subtitle, and a
+              date-only right column; muted decade dividers. The member dye survives
+              as the name tint on the title, not as a heavy left bar. */}
           <div>
             {recent.map((entry, i) => {
               const prev = recent[i - 1];
               const showDecade = !prev || decadeOf(prev.year) !== decadeOf(entry.year);
-              // Per-member dye if the author set one, else the signature warm thread.
-              const thread = entry.dye ? dyeVar(entry.dye) : 'var(--warm)';
+              // Per-member dye if the author set one, else the signature warm thread —
+              // carried as the title tint, the surviving identity signal.
+              const thread = entry.dye ? dyeVar(entry.dye) : 'var(--bone)';
               return (
                 <div key={entry.id ?? `${entry.year}-${entry.month}-${entry.title}`}>
                   {showDecade && <SectionLabel>{decadeOf(entry.year)}</SectionLabel>}
-                  <div style={{ borderLeft: `3px solid ${thread}`, paddingLeft: 18 }}>
+                  <div style={{ borderLeft: '1px solid var(--hairline-3)', paddingLeft: 14 }}>
                     <EntryRow
                       italic={false}
                       title={
@@ -297,8 +298,11 @@ export function Weft() {
                       }
                       sub={subOf(entry)}
                       year={fmtRowDate(entry.date)}
-                      author={authorOf(entry)}
-                      dye={entry.dye}
+                      titleColor={thread}
+                      subFont="serif"
+                      subColor="var(--muted-2)"
+                      dateColor="var(--muted-3)"
+                      noBorder
                       onClick={() => handleSelectEntry(entry)}
                     />
                   </div>
@@ -307,9 +311,9 @@ export function Weft() {
             })}
           </div>
 
-          {/* The ∞ wax seal — the warm full-stop on the thread. */}
-          <div style={{ marginTop: 48, textAlign: 'right' }}>
-            <WaxSeal />
+          {/* The ∞ wax seal — the centered full-stop on the thread, no glow. */}
+          <div style={{ marginTop: 48, textAlign: 'center' }}>
+            <span style={{ color: 'var(--warm)', fontSize: 30, lineHeight: 1 }}>∞</span>
           </div>
         </div>
       </div>

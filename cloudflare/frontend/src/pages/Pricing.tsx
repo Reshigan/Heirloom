@@ -89,20 +89,39 @@ export function Pricing() {
     <ClothShell topbarLeft={<HLogo href="/" />} topbarCenter="pricing">
       <div
         style={{
+          position: 'relative',
           maxWidth: 540,
           margin: '0 auto',
           padding: 'clamp(48px,11vh,120px) clamp(24px,6vw,48px) clamp(40px,9vh,96px)',
           textAlign: 'center',
         }}
       >
+        {/* WOVEN — decorative thread-band, bottom-left, behind cards */}
+        <img
+          src="/woven/thread-band.png"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            left: -40,
+            bottom: 24,
+            width: 'clamp(220px,42vw,340px)',
+            transform: 'rotate(-12deg)',
+            opacity: 0.5,
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
         {/* Eyebrow + centred serif headline */}
         <div
           className="hl-mono"
           style={{
+            position: 'relative',
+            zIndex: 1,
             fontSize: 11,
             letterSpacing: '0.3em',
             textTransform: 'uppercase',
-            color: 'var(--warm)',
+            color: 'var(--copper-label)',
             marginBottom: 18,
           }}
         >
@@ -111,6 +130,8 @@ export function Pricing() {
         <h1
           className="hl-serif hl-tight"
           style={{
+            position: 'relative',
+            zIndex: 1,
             fontSize: 'clamp(30px,7vw,46px)',
             fontWeight: 380,
             lineHeight: 1.06,
@@ -123,14 +144,18 @@ export function Pricing() {
           Choose how you keep it
         </h1>
 
-        {/* The three tiers — stacked, centred, hairline-ruled between */}
-        <div>
+        {/* The three tiers — stacked, centred, each in a card */}
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
           {tiers.map((tier) => (
             <section
               key={tier.id}
               style={{
-                padding: 'clamp(28px,5vh,40px) 0',
-                borderTop: '1px solid var(--rule)',
+                padding: '18px',
+                border: tier.emphasized
+                  ? '1px solid var(--copper-border)'
+                  : '1px solid var(--hairline-3)',
+                borderRadius: 14,
+                boxShadow: tier.emphasized ? '0 0 24px -6px rgba(216,150,84,0.4)' : undefined,
               }}
             >
               {/* Tier name */}
@@ -140,20 +165,20 @@ export function Pricing() {
                   fontSize: 'clamp(20px,4vw,26px)',
                   fontWeight: 400,
                   lineHeight: 1.1,
-                  color: 'var(--bone)',
+                  color: tier.emphasized ? 'var(--gold-text)' : 'var(--bone)',
                   marginBottom: 10,
                 }}
               >
                 {tier.name}
               </div>
 
-              {/* Big serif price + mono cadence */}
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 8 }}>
+              {/* Big Cormorant price numeral + smaller muted serif cadence suffix */}
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 6 }}>
                 <span
                   style={{
-                    fontFamily: 'var(--serif)',
-                    fontSize: 'clamp(36px,9vw,56px)',
-                    fontWeight: 400,
+                    fontFamily: 'var(--serif-display)',
+                    fontSize: 34,
+                    fontWeight: 500,
                     lineHeight: 1,
                     color: 'var(--bone)',
                   }}
@@ -163,11 +188,10 @@ export function Pricing() {
                 {tier.cadence && (
                   <span
                     style={{
-                      fontFamily: 'var(--mono)',
-                      fontSize: 11,
-                      letterSpacing: '0.18em',
-                      textTransform: 'uppercase',
-                      color: 'var(--bone-faint)',
+                      fontFamily: 'var(--serif)',
+                      fontSize: 15,
+                      lineHeight: 1,
+                      color: 'var(--muted-2)',
                     }}
                   >
                     {tier.cadence}

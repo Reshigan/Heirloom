@@ -77,11 +77,11 @@ function StatBand({
         style={{
           fontFamily: 'var(--serif)',
           fontWeight: 300,
-          fontSize: 'clamp(84px,22vw,156px)',
+          fontSize: 'clamp(54px,9vw,84px)',
           lineHeight: 0.86,
           letterSpacing: '-0.03em',
           fontVariationSettings: '"opsz" 48',
-          color: accent ? 'var(--warm)' : 'var(--bone)',
+          color: accent ? '#c8884f' : 'var(--bone)',
         }}
       >
         {value}
@@ -89,10 +89,10 @@ function StatBand({
       <div
         style={{
           fontFamily: 'var(--mono)',
-          fontSize: 11,
+          fontSize: 10,
           letterSpacing: '0.28em',
           textTransform: 'uppercase',
-          color: 'var(--bone-dim)',
+          color: 'var(--muted-2)',
           marginTop: 'clamp(12px,2vh,20px)',
         }}
       >
@@ -195,7 +195,7 @@ export default function Wrapped() {
     { value: stats.kindCounts.memory.toLocaleString(), caption: 'memories woven',                accent: true },
     { value: stats.kindCounts.voice.toLocaleString(),  caption: 'voices kept' },
     { value: stats.kindCounts.letter.toLocaleString(), caption: 'notes sealed',                  accent: true },
-    { value: stats.totalWords.toLocaleString(),        caption: `words on ${topThread}`,         accent: true },
+    { value: stats.totalWords.toLocaleString(),        caption: `words on ${topThread}` },
   ];
 
   return (
@@ -207,8 +207,38 @@ export default function Wrapped() {
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           padding: 'clamp(32px,7vh,72px) clamp(24px,7vw,80px) clamp(64px,12vh,128px)',
           boxSizing: 'border-box',
+          position: 'relative',
         }}
       >
+        {/* woven thread-swoosh — decorative backdrop behind the figures */}
+        <img
+          src="/woven/thread-swoosh.png"
+          alt=""
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: 0, left: '50%',
+            height: '100%',
+            transform: 'translateX(-50%)',
+            objectFit: 'cover',
+            opacity: 0.38,
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+        {/* radial vignette — focuses the eye on the centred numerals */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background:
+              'radial-gradient(58% 64% at 50% 50%, rgba(11,9,7,0.82), rgba(11,9,7,0.3) 68%, transparent)',
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
+
         {/* mono eyebrow — the only line of chrome above the figures */}
         <div
           style={{
@@ -216,10 +246,12 @@ export default function Wrapped() {
             fontSize: 11,
             letterSpacing: '0.28em',
             textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
+            color: 'var(--muted-2)',
             textAlign: 'center',
             opacity: visible ? 1 : 0,
             transition: `opacity 720ms ${EASE}`,
+            position: 'relative',
+            zIndex: 1,
           }}
         >
           The Year Woven · {YEAR}
@@ -234,6 +266,7 @@ export default function Wrapped() {
               opacity: visible ? 1 : 0,
               transform: visible ? 'translateY(0)' : 'translateY(20px)',
               transition: `opacity 720ms ${EASE} 180ms, transform 720ms ${EASE} 180ms`,
+              position: 'relative', zIndex: 1,
             }}
           >
             <div
@@ -257,7 +290,7 @@ export default function Wrapped() {
           </div>
         ) : (
           /* the four giant stat moments — the page IS the figures */
-          <div style={{ width: '100%', maxWidth: 560, marginTop: 'clamp(20px,4vh,48px)' }}>
+          <div style={{ width: '100%', maxWidth: 560, marginTop: 'clamp(20px,4vh,48px)', position: 'relative', zIndex: 1 }}>
             {bands.map((b, i) => (
               <StatBand key={b.caption} value={b.value} caption={b.caption} accent={b.accent} index={i} visible={visible} />
             ))}
@@ -270,6 +303,7 @@ export default function Wrapped() {
             marginTop: 'clamp(24px,5vh,56px)',
             opacity: visible ? 0.9 : 0,
             transition: `opacity 1400ms ${EASE} 720ms`,
+            position: 'relative', zIndex: 1,
           }}
         >
           <WaxSeal size={26} />
@@ -285,6 +319,7 @@ export default function Wrapped() {
               background: 'transparent', border: 0, padding: '6px 2px', cursor: 'pointer',
               opacity: visible ? 1 : 0,
               transition: `opacity 1400ms ${EASE} 1400ms`,
+              position: 'relative', zIndex: 1,
             }}
           >
             <span
