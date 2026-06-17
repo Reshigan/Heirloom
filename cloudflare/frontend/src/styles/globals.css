@@ -1240,8 +1240,9 @@ html {
   --loom-warp-rgb:   18, 13, 8;
   --loom-rule:       rgba(18, 13, 8, 0.12);
   --loom-rule-warm:  rgba(150, 80, 26, 0.32);
-  --loom-warm:       #a86220;
-  --loom-warm-bright:#be7a2e;
+  /* AA on parchment — mirrors the --warm family lift above (light only). */
+  --loom-warm:       #965616;
+  --loom-warm-bright:#8a4d12;
   --loom-warm-dim:   #824a16;
   --loom-warm-glow:  rgba(168, 98, 32, 0.18);
 }
