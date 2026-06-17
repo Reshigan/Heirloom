@@ -49,7 +49,7 @@ export function InheritanceCard() {
     return (
       <ClothShell topbarLeft={topbar} topbarCenter="inheritance">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-          <p style={{ fontFamily: 'var(--mono)', fontSize: 13, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm)', margin: 0 }}>
+          <p style={{ fontFamily: 'var(--mono)', fontSize: 13, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--copper-label)', margin: 0 }}>
             this inheritance link is invalid or has expired
           </p>
         </div>
@@ -61,20 +61,42 @@ export function InheritanceCard() {
     <ClothShell topbarLeft={topbar} topbarCenter="inheritance">
       <div
         style={{
+          position: 'relative',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          justifyContent: 'center',
           minHeight: '100%',
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        {/* Reading column with left dye margin thread */}
+        {/* Woven seal — ceremonial backdrop, behind content */}
+        <img
+          src="/woven/seal.png"
+          alt=""
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 'min(560px, 90vw)',
+            maxWidth: '90vw',
+            opacity: 0.07,
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        />
+
+        {/* Centered ceremonial card with top dye thread */}
         <div
           style={{
-            maxWidth: '62ch',
+            position: 'relative',
+            maxWidth: '54ch',
             width: '100%',
-            borderLeft: `3px solid ${threadColor}`,
-            paddingLeft: 24,
+            textAlign: 'center',
+            borderTop: `3px solid ${threadColor}`,
+            paddingTop: 40,
           }}
         >
           {/* Mono warm subline eyebrow */}
@@ -82,10 +104,10 @@ export function InheritanceCard() {
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.26em',
+              letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: 'var(--warm)',
-              marginBottom: 14,
+              color: 'var(--copper-label)',
+              marginBottom: 20,
             }}
           >
             {data?.recipientName
@@ -93,30 +115,30 @@ export function InheritanceCard() {
               : 'AN INHERITANCE'}
           </div>
 
-          {/* Serif headline — the owner's name */}
+          {/* Display headline — the owner's name */}
           <h1
             style={{
-              fontFamily: 'var(--serif)',
-              fontSize: 'clamp(30px, 6vw, 44px)',
-              fontWeight: 400,
+              fontFamily: 'var(--serif-display)',
+              fontSize: 'clamp(32px, 6vw, 48px)',
+              fontWeight: 500,
               lineHeight: 1.1,
               letterSpacing: '-0.01em',
               color: 'var(--bone)',
-              margin: '0 0 12px',
+              margin: '0 0 16px',
             }}
           >
             {data?.ownerName}
           </h1>
 
-          {/* Mono warm subline — "AN INHERITANCE" label */}
+          {/* Mono subline — "AN INHERITANCE" label */}
           <div
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.26em',
+              letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: 'var(--bone-dim)',
-              marginBottom: 48,
+              color: 'var(--muted-2)',
+              marginBottom: 56,
             }}
           >
             AN INHERITANCE
@@ -124,15 +146,15 @@ export function InheritanceCard() {
 
           {/* Body / action area */}
           {!unlocked ? (
-            <div style={{ marginBottom: 64 }}>
+            <div>
               <p
                 style={{
                   fontFamily: 'var(--serif)',
                   fontSize: 18,
-                  lineHeight: 1.75,
+                  lineHeight: 1.8,
                   color: 'var(--bone)',
-                  textAlign: 'justify',
-                  margin: '0 0 36px',
+                  margin: '0 auto 44px',
+                  maxWidth: '46ch',
                 }}
               >
                 A thread has been woven for you — generations of memory, voice, and story passed down through the bloodline. To read and contribute, open the thread.
@@ -146,9 +168,9 @@ export function InheritanceCard() {
                   padding: 0,
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.26em',
+                  letterSpacing: '0.3em',
                   textTransform: 'uppercase',
-                  color: 'var(--warm)',
+                  color: 'var(--copper-label)',
                   cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -163,7 +185,6 @@ export function InheritanceCard() {
             <div
               style={{
                 animation: 'hl-fadeIn var(--dur-slow) var(--ease) forwards',
-                marginBottom: 64,
               }}
             >
               <style>{`@keyframes hl-fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }`}</style>
@@ -171,10 +192,10 @@ export function InheritanceCard() {
                 style={{
                   fontFamily: 'var(--serif)',
                   fontSize: 18,
-                  lineHeight: 1.75,
+                  lineHeight: 1.8,
                   color: 'var(--bone)',
-                  textAlign: 'justify',
-                  margin: '0 0 36px',
+                  margin: '0 auto 44px',
+                  maxWidth: '46ch',
                 }}
               >
                 The thread is open. Create your account to read and contribute.
@@ -184,9 +205,9 @@ export function InheritanceCard() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.26em',
+                  letterSpacing: '0.3em',
                   textTransform: 'uppercase',
-                  color: 'var(--warm)',
+                  color: 'var(--copper-label)',
                   textDecoration: 'none',
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -201,7 +222,7 @@ export function InheritanceCard() {
         </div>
 
         {/* WaxSeal foot */}
-        <div style={{ marginTop: 'auto', paddingTop: 56 }}>
+        <div style={{ position: 'relative', marginTop: 'auto', paddingTop: 64 }}>
           <WaxSeal size={28} />
         </div>
       </div>

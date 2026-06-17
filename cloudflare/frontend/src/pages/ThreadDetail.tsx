@@ -249,7 +249,7 @@ export function ThreadDetail() {
                     style={{
                       fontSize: 12,
                       letterSpacing: '0.16em',
-                      color: 'var(--warm-dim)',
+                      color: 'var(--muted-4)',
                       margin: '34px 0 6px',
                     }}
                   >
@@ -433,7 +433,7 @@ export function ThreadDetail() {
                           {m.display_name}
                         </p>
                         {(m.relation_label || m.email) ? (
-                          <p className="hl-mono" style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}>
+                          <p className="hl-mono" style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--muted-2)', letterSpacing: '0.04em' }}>
                             {m.relation_label}{m.relation_label && m.email ? ' · ' : ''}{m.email}
                           </p>
                         ) : null}
@@ -495,7 +495,7 @@ export function ThreadDetail() {
                           </div>
                         ) : null}
                       </div>
-                      <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                      <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--muted-3)' }}>
                         {(m.role ?? '').toLowerCase()}
                       </span>
                     </div>
@@ -529,13 +529,13 @@ export function ThreadDetail() {
                         borderBottom: '1px solid var(--rule)',
                       }}
                     >
-                      <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.1em' }}>
+                      <span className="hl-mono" style={{ fontSize: 10, color: 'var(--copper-label)', letterSpacing: '0.1em' }}>
                         #{s.rank}
                       </span>
                       <span className="hl-serif" style={{ fontSize: 18, fontWeight: 400, color: 'var(--bone)' }}>
                         {s.display_name}
                       </span>
-                      <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                      <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--muted-3)' }}>
                         {(s.role ?? '').toLowerCase()}
                       </span>
                     </li>

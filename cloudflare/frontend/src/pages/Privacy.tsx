@@ -63,13 +63,13 @@ export function Privacy() {
             <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 22 }}>
               <h2
                 style={{
-                  fontFamily: 'var(--serif)',
-                  fontSize: 'clamp(24px, 3vw, 26px)',
-                  fontWeight: 400,
+                  fontFamily: 'var(--serif-display)',
+                  fontSize: 'clamp(24px, 3vw, 28px)',
+                  fontWeight: 500,
                   letterSpacing: '-0.012em',
                   color: 'var(--bone)',
                   margin: 0,
-                  lineHeight: 1.25,
+                  lineHeight: 1.2,
                 }}
               >
                 {s.h}

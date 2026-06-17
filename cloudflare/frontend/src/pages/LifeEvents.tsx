@@ -452,8 +452,7 @@ export function LifeEvents() {
         ) : (
           <div style={{ padding: 'clamp(40px, 8vw, 96px) 0', textAlign: 'center' }}>
             <p
-              className="hl-serif hl-italic"
-              style={{ fontSize: 20, fontWeight: 300, color: 'var(--bone-dim)', fontStyle: 'italic', margin: '0 0 28px' }}
+              style={{ fontFamily: 'var(--serif)', fontSize: 19, fontWeight: 300, color: 'var(--bone-dim)', fontStyle: 'italic', margin: '0 0 28px' }}
             >
               No moments woven yet.
             </p>
@@ -472,7 +471,7 @@ export function LifeEvents() {
         <div
           style={{
             position: 'fixed', inset: 0,
-            background: 'rgba(14,14,12,0.82)',
+            background: 'color-mix(in srgb, var(--ink) 82%, transparent)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 200, padding: 24, overflowY: 'auto',
           }}
@@ -504,7 +503,7 @@ export function LifeEvents() {
                   </button>
                 )}
                 <div>
-                  <h3 className="hl-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--bone)', margin: '0 0 2px' }}>
+                  <h3 className="hl-serif" style={{ fontSize: 26, fontWeight: 500, color: 'var(--bone)', margin: '0 0 4px', lineHeight: 1.15 }}>
                     {wizardStep === 1 && 'Choose a moment.'}
                     {wizardStep === 2 && 'Who is this for?'}
                     {wizardStep === 3 && 'Review and create.'}
@@ -551,7 +550,7 @@ export function LifeEvents() {
                     onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--rule)')}
                   >
                     <div>
-                      <p className="hl-serif" style={{ margin: '0 0 3px', fontSize: 16, fontWeight: 300, color: 'var(--bone)' }}>
+                      <p style={{ margin: '0 0 3px', fontSize: 16, fontWeight: 400, color: 'var(--bone)', fontFamily: 'var(--serif)' }}>
                         {template.title}
                       </p>
                       <p style={{ margin: 0, fontSize: 13, color: 'var(--bone-faint)', fontFamily: 'var(--serif)' }}>
@@ -602,7 +601,7 @@ export function LifeEvents() {
                         }}
                       >
                         <div>
-                          <p className="hl-serif" style={{ margin: '0 0 2px', fontSize: 16, fontWeight: 300, color: familyMemberId === member.id ? 'var(--warm)' : 'var(--bone)' }}>
+                          <p style={{ margin: '0 0 2px', fontSize: 16, fontWeight: 400, color: familyMemberId === member.id ? 'var(--warm)' : 'var(--bone)', fontFamily: 'var(--serif)' }}>
                             {member.name}
                           </p>
                           <p className="hl-mono" style={{ margin: 0, fontSize: 10, color: 'var(--bone-faint)' }}>{member.relationship}</p>
@@ -613,7 +612,7 @@ export function LifeEvents() {
                   </>
                 ) : (
                   <div style={{ textAlign: 'center', padding: '24px 0' }}>
-                    <p className="hl-serif" style={{ fontSize: 18, fontWeight: 300, color: 'var(--bone)', margin: '0 0 8px' }}>
+                    <p style={{ fontSize: 18, fontWeight: 400, color: 'var(--bone)', margin: '0 0 8px', fontFamily: 'var(--serif)' }}>
                       No family members yet.
                     </p>
                     <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-faint)', margin: '0 0 16px' }}>
@@ -786,7 +785,7 @@ export function LifeEvents() {
         <div
           style={{
             position: 'fixed', inset: 0,
-            background: 'rgba(14,14,12,0.82)',
+            background: 'color-mix(in srgb, var(--ink) 82%, transparent)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 300, padding: 24,
           }}

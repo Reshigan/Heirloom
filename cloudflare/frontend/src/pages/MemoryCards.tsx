@@ -505,8 +505,8 @@ export function MemoryCards() {
                             cursor: 'pointer',
                             fontFamily: 'var(--mono)',
                             fontSize: 11,
-                            letterSpacing: '0.12em',
-                            textTransform: 'capitalize',
+                            letterSpacing: '0.18em',
+                            textTransform: 'uppercase',
                             color: 'var(--bone-dim)',
                             transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
                           }}

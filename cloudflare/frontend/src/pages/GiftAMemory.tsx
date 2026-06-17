@@ -164,9 +164,9 @@ export function GiftAMemory() {
           </div>
           <h1
             style={{
-              fontFamily: 'var(--serif)',
+              fontFamily: 'var(--serif-display)',
               fontSize: 'clamp(26px, 5vw, 36px)',
-              fontWeight: 400,
+              fontWeight: 500,
               lineHeight: 1.1,
               letterSpacing: '-0.012em',
               color: 'var(--bone)',
@@ -253,15 +253,14 @@ export function GiftAMemory() {
         <div style={{ ...eyebrow, marginBottom: 18 }}>gift a memory</div>
         <h1
           style={{
-            fontFamily: 'var(--serif)',
+            fontFamily: 'var(--serif-display)',
             fontSize: 'clamp(34px, 7vw, 58px)',
-            fontWeight: 380,
+            fontWeight: 500,
             lineHeight: 1.04,
             letterSpacing: '-0.012em',
             color: 'var(--bone)',
             margin: 0,
             maxWidth: '14em',
-            fontVariationSettings: '"opsz" 40',
           }}
         >
           Give a thread that outlives you.

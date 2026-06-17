@@ -42,14 +42,14 @@ export function Threshold() {
         }}
       >
         <div style={{ width: '100%', maxWidth: 420 }}>
-          {/* Serif title — names the threshold, kept below the h1 tagline */}
+          {/* Mono eyebrow — names the threshold, kept above the h1 tagline */}
           <div
-            className="hl-serif"
+            className="hl-mono"
             style={{
-              fontSize: 'clamp(18px, 4vw, 24px)',
-              letterSpacing: '0.12em',
+              fontSize: 11,
+              letterSpacing: '0.32em',
               textTransform: 'uppercase',
-              color: 'var(--bone-dim)',
+              color: 'var(--copper-label)',
             }}
           >
             the threshold
@@ -63,7 +63,7 @@ export function Threshold() {
             className="hl-serif hl-tight"
             style={{
               fontSize: 'clamp(30px, 7vw, 50px)',
-              fontWeight: 380,
+              fontWeight: 500,
               lineHeight: 1.12,
               letterSpacing: '-0.012em',
               color: 'var(--bone)',

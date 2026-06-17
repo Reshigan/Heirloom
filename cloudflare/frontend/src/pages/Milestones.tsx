@@ -18,7 +18,7 @@ const milestoneTypes = [
 const fieldStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
-  border: '1px solid var(--rule)',
+  border: '1px solid var(--hairline-3)',
   borderRadius: 2,
   color: 'var(--bone)',
   caretColor: 'var(--warm)',
@@ -37,7 +37,7 @@ const labelStyle: React.CSSProperties = {
   fontWeight: 500,
   letterSpacing: '0.32em',
   textTransform: 'uppercase',
-  color: 'var(--bone-faint)',
+  color: 'var(--copper-label)',
   marginBottom: 10,
 };
 
@@ -51,7 +51,7 @@ const monoAffordance: React.CSSProperties = {
   fontSize: 10,
   letterSpacing: '0.22em',
   textTransform: 'uppercase',
-  color: 'var(--bone-faint)',
+  color: 'var(--muted-2)',
   transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
 };
 
@@ -128,7 +128,7 @@ export function Milestones() {
   const upcomingList: any[] = upcoming || [];
 
   const backLink = (
-    <Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>
+    <Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--muted-2)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>
   );
 
   const countEyebrow = `${milestoneList.length} ${milestoneList.length === 1 ? 'date held' : 'dates held'} in the thread`;
@@ -145,14 +145,14 @@ export function Milestones() {
               onClick={() => autoDetectMutation.mutate()}
               disabled={autoDetectMutation.isPending}
               style={{ ...monoAffordance, color: 'var(--bone-dim)' }}
-              onMouseEnter={e => { if (!autoDetectMutation.isPending) e.currentTarget.style.color = 'var(--warm)'; }}
+              onMouseEnter={e => { if (!autoDetectMutation.isPending) e.currentTarget.style.color = 'var(--gold-text)'; }}
               onMouseLeave={e => { e.currentTarget.style.color = 'var(--bone-dim)'; }}
             >
               {autoDetectMutation.isPending ? 'detecting…' : 'auto-detect'}
             </button>
             <button
               onClick={() => { setShowCreateModal(true); setAutoDetectMsg(null); }}
-              style={{ ...monoAffordance, color: 'var(--warm)' }}
+              style={{ ...monoAffordance, color: 'var(--gold-text)' }}
             >
               add date →
             </button>
@@ -160,13 +160,13 @@ export function Milestones() {
         </header>
 
         {autoDetectMsg && (
-          <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+          <p className="hl-mono" style={{ fontSize: 10, color: 'var(--gold-text)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
             {autoDetectMsg}
           </p>
         )}
 
         {error && (
-          <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+          <p className="hl-mono" style={{ fontSize: 10, color: 'var(--gold-text)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
             {error}
           </p>
         )}
@@ -228,7 +228,7 @@ export function Milestones() {
                     const typeInfo = getTypeInfo(milestone.milestone_type);
                     const when = new Date(milestone.milestone_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
                     return (
-                      <div key={milestone.id} style={{ borderBottom: '1px solid var(--rule)' }}>
+                      <div key={milestone.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
                         <div style={{ borderBottom: 0, marginBottom: -1 }}>
                           <EntryRow
                             title={milestone.milestone_name}
@@ -244,7 +244,7 @@ export function Milestones() {
                             <>
                               <button
                                 onClick={() => { deleteMutation.mutate(milestone.id); setConfirmDeleteId(null); }}
-                                style={{ ...monoAffordance, color: 'var(--warm)' }}
+                                style={{ ...monoAffordance, color: 'var(--gold-text)' }}
                                 aria-label="Confirm remove date"
                               >
                                 confirm
@@ -253,7 +253,7 @@ export function Milestones() {
                                 onClick={() => setConfirmDeleteId(null)}
                                 style={monoAffordance}
                                 onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone)')}
-                                onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
+                                onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted-2)')}
                                 aria-label="Cancel remove"
                               >
                                 cancel
@@ -263,8 +263,8 @@ export function Milestones() {
                             <button
                               onClick={() => { setConfirmDeleteId(milestone.id); setAutoDetectMsg(null); }}
                               style={monoAffordance}
-                              onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm)')}
-                              onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
+                              onMouseEnter={e => (e.currentTarget.style.color = 'var(--gold-text)')}
+                              onMouseLeave={e => (e.currentTarget.style.color = 'var(--muted-2)')}
                               aria-label="Remove date"
                             >
                               remove
@@ -326,9 +326,9 @@ export function Milestones() {
                       onClick={() => setFormData({ ...formData, type: type.id })}
                       style={{
                         background: 'transparent',
-                        border: `1px solid ${formData.type === type.id ? 'var(--warm)' : 'var(--rule)'}`,
+                        border: `1px solid ${formData.type === type.id ? 'var(--copper-border)' : 'var(--hairline-3)'}`,
                         borderRadius: 0,
-                        color: formData.type === type.id ? 'var(--warm)' : 'var(--bone-dim)',
+                        color: formData.type === type.id ? 'var(--gold-text)' : 'var(--bone-dim)',
                         fontFamily: 'var(--mono)',
                         fontSize: 10,
                         fontWeight: 500,
@@ -419,7 +419,7 @@ export function Milestones() {
                   style={{
                     flex: 1,
                     background: 'transparent',
-                    border: '1px solid var(--rule)',
+                    border: '1px solid var(--hairline-3)',
                     color: 'var(--bone-dim)',
                     fontFamily: 'var(--mono)',
                     fontSize: 10,

@@ -149,6 +149,7 @@ export function Signup() {
   return (
     <div
       style={{
+        position: 'relative',
         minHeight: '100dvh',
         display: 'flex',
         flexDirection: 'column',
@@ -157,7 +158,21 @@ export function Signup() {
         padding: 'clamp(48px,9vh,100px) clamp(20px,6vw,40px) 100px',
       }}
     >
-      <div style={{ width: '100%', maxWidth: 440, margin: '0 auto' }}>
+      {/* WOVEN — flipped thread-band header, full width, gradient-fades to ink at its bottom edge (matches Login) */}
+      <div aria-hidden style={{
+        position: 'absolute', top: 0, left: 0, right: 0,
+        height: 'clamp(180px, 32vh, 320px)',
+        transform: 'scaleY(-1)',
+        opacity: 0.7,
+        // ink fade sits over the band; after scaleY(-1) the fade lands on the visual bottom edge
+        backgroundImage: 'linear-gradient(to top, var(--ink) 0%, rgba(11,9,7,0) 62%), url(/woven/thread-band.png)',
+        backgroundSize: 'cover, cover',
+        backgroundPosition: 'center, center top',
+        backgroundRepeat: 'no-repeat, no-repeat',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
+      <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 440, margin: '0 auto' }}>
 
         {/* FORM archetype header — mono eyebrow + giant centered serif headline.
             The headline IS the hero (matches the go-live ceremony intro). */}
@@ -168,7 +183,7 @@ export function Signup() {
               fontSize: 10,
               letterSpacing: '0.34em',
               textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
+              color: 'var(--copper-label)',
               marginBottom: 28,
             }}
           >
@@ -660,7 +675,7 @@ function Field({
           width: '100%',
           background: 'transparent',
           border: 0,
-          borderBottom: `1px solid ${error ? 'var(--warm)' : 'var(--rule-strong)'}`,
+          borderBottom: `1px solid ${error ? 'var(--warm)' : 'var(--copper-border)'}`,
           padding: '8px 0',
           color: 'var(--bone)',
           fontFamily: 'var(--serif)',
@@ -671,7 +686,7 @@ function Field({
           transition: `border-color 180ms ${EASE}`,
         }}
         onFocus={(e) => { if (!error) e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
-        onBlur={(e) => { if (!error) e.currentTarget.style.borderBottomColor = 'var(--rule-strong)'; }}
+        onBlur={(e) => { if (!error) e.currentTarget.style.borderBottomColor = 'var(--copper-border)'; }}
       />
       {error ? <FieldError>{error}</FieldError> : null}
     </div>

@@ -187,7 +187,7 @@ export function GiftRedeem() {
                 className="hl-serif hl-tight"
                 style={{
                   fontSize: 'clamp(24px, 5vw, 34px)',
-                  fontWeight: 200,
+                  fontWeight: 500,
                   color: 'var(--bone)',
                   margin: '0 0 18px',
                 }}
@@ -230,7 +230,7 @@ export function GiftRedeem() {
                 className="hl-serif hl-tight"
                 style={{
                   fontSize: 'clamp(24px, 5vw, 34px)',
-                  fontWeight: 200,
+                  fontWeight: 500,
                   color: 'var(--bone)',
                   margin: '0 0 32px',
                 }}

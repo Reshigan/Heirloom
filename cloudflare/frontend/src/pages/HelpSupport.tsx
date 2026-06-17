@@ -130,8 +130,8 @@ export function HelpSupport() {
 
   const topbarLeft = (
     <Link to="/loom" style={{
-      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
-      textTransform: 'uppercase', color: 'var(--bone-faint)', textDecoration: 'none',
+      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em',
+      textTransform: 'uppercase', color: 'var(--muted-3)', textDecoration: 'none',
     }}>
       ← loom
     </Link>
@@ -181,7 +181,7 @@ export function HelpSupport() {
                   <span style={{
                     fontFamily: 'var(--serif)',
                     fontSize: 'clamp(15px, 2vw, 17px)',
-                    fontWeight: 300,
+                    fontWeight: 400,
                     color: 'var(--bone)',
                     lineHeight: 1.4,
                   }}>
@@ -190,9 +190,9 @@ export function HelpSupport() {
                   <span style={{
                     fontFamily: 'var(--mono)',
                     fontSize: 11,
-                    letterSpacing: '0.22em',
+                    letterSpacing: '0.3em',
                     textTransform: 'uppercase',
-                    color: open ? 'var(--warm)' : 'var(--bone-faint)',
+                    color: open ? 'var(--copper-label)' : 'var(--muted-3)',
                     flexShrink: 0,
                     transition: `color 180ms ${EASE}`,
                   }}>
@@ -203,7 +203,7 @@ export function HelpSupport() {
                   <p style={{
                     fontFamily: 'var(--serif)',
                     fontSize: 'clamp(14px, 2vw, 15px)',
-                    fontWeight: 300,
+                    fontWeight: 400,
                     lineHeight: 1.75,
                     color: 'var(--bone-dim)',
                     margin: '0 0 18px',
@@ -224,9 +224,9 @@ export function HelpSupport() {
         <p style={{
           fontFamily: 'var(--serif)',
           fontSize: 14,
-          fontWeight: 300,
+          fontWeight: 400,
           fontStyle: 'italic',
-          color: 'var(--bone-faint)',
+          color: 'var(--muted-2)',
           margin: '0 0 18px',
           lineHeight: 1.6,
         }}>
@@ -253,9 +253,9 @@ export function HelpSupport() {
             <p style={{
               fontFamily: 'var(--serif)',
               fontSize: 15,
-              fontWeight: 300,
+              fontWeight: 400,
               fontStyle: 'italic',
-              color: 'var(--bone-faint)',
+              color: 'var(--muted-2)',
               margin: 0,
               lineHeight: 1.7,
             }}>
@@ -267,16 +267,16 @@ export function HelpSupport() {
               <span style={{
                 fontFamily: 'var(--mono)',
                 fontSize: 9,
-                letterSpacing: '0.22em',
+                letterSpacing: '0.3em',
                 textTransform: 'uppercase',
-                color: m.role === 'user' ? 'var(--warm)' : 'var(--bone-faint)',
+                color: m.role === 'user' ? 'var(--copper-label)' : 'var(--muted-3)',
               }}>
                 {m.role === 'user' ? 'you' : 'assistant'}
               </span>
               <p style={{
                 fontFamily: 'var(--serif)',
                 fontSize: 15,
-                fontWeight: 300,
+                fontWeight: 400,
                 lineHeight: 1.7,
                 color: m.role === 'user' ? 'var(--bone)' : 'var(--bone-dim)',
                 margin: 0,
@@ -290,9 +290,9 @@ export function HelpSupport() {
             <span style={{
               fontFamily: 'var(--mono)',
               fontSize: 9,
-              letterSpacing: '0.22em',
+              letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: 'var(--bone-faint)',
+              color: 'var(--muted-3)',
             }}>
               thinking…
             </span>
@@ -313,10 +313,10 @@ export function HelpSupport() {
               border: 0,
               borderBottom: '1px solid var(--rule)',
               color: 'var(--bone)',
-              caretColor: 'var(--warm)',
+              caretColor: 'var(--copper-label)',
               fontFamily: 'var(--serif)',
               fontSize: 16,
-              fontWeight: 300,
+              fontWeight: 400,
               lineHeight: 1.6,
               padding: '10px 0',
               outline: 'none',
@@ -333,9 +333,9 @@ export function HelpSupport() {
               border: 0,
               fontFamily: 'var(--mono)',
               fontSize: 10,
-              letterSpacing: '0.22em',
+              letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: sending || !input.trim() ? 'var(--bone-faint)' : 'var(--warm)',
+              color: sending || !input.trim() ? 'var(--muted-3)' : 'var(--gold-text)',
               cursor: sending || !input.trim() ? 'default' : 'pointer',
               padding: '10px 0 10px 14px',
               flexShrink: 0,
@@ -356,15 +356,15 @@ export function HelpSupport() {
             style={{
               background: 'transparent',
               border: 0,
-              borderLeft: '2px solid var(--warm)',
+              borderLeft: '2px solid var(--copper-border)',
               padding: '6px 14px',
               cursor: messages.length === 0 ? 'default' : 'pointer',
               opacity: messages.length === 0 ? 0.35 : 1,
               fontFamily: 'var(--mono)',
               fontSize: 10,
-              letterSpacing: '0.22em',
+              letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: 'var(--warm)',
+              color: 'var(--gold-text)',
               touchAction: 'manipulation',
               minHeight: 44,
               transition: `opacity 180ms ${EASE}`,
@@ -376,9 +376,9 @@ export function HelpSupport() {
             <span style={{
               fontFamily: 'var(--mono)',
               fontSize: 10,
-              letterSpacing: '0.18em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
-              color: 'var(--bone-dim)',
+              color: 'var(--muted-2)',
             }}>
               reference {reference}
             </span>
@@ -415,7 +415,7 @@ export function HelpSupport() {
                       <span style={{
                         fontFamily: 'var(--serif)',
                         fontSize: 'clamp(14px, 2vw, 15px)',
-                        fontWeight: 300,
+                        fontWeight: 400,
                         color: 'var(--bone)',
                         lineHeight: 1.4,
                       }}>
@@ -424,9 +424,9 @@ export function HelpSupport() {
                       <span style={{
                         fontFamily: 'var(--mono)',
                         fontSize: 9,
-                        letterSpacing: '0.2em',
+                        letterSpacing: '0.3em',
                         textTransform: 'uppercase',
-                        color: c.ticket_number ? 'var(--warm)' : 'var(--bone-faint)',
+                        color: c.ticket_number ? 'var(--copper-label)' : 'var(--muted-3)',
                         flexShrink: 0,
                       }}>
                         {c.ticket_number ? `ref ${c.ticket_number}` : c.status.toLowerCase()}
@@ -445,16 +445,16 @@ export function HelpSupport() {
                             <span style={{
                               fontFamily: 'var(--mono)',
                               fontSize: 8,
-                              letterSpacing: '0.22em',
+                              letterSpacing: '0.3em',
                               textTransform: 'uppercase',
-                              color: m.role === 'user' ? 'var(--warm)' : 'var(--bone-faint)',
+                              color: m.role === 'user' ? 'var(--copper-label)' : 'var(--muted-3)',
                             }}>
                               {m.role === 'user' ? 'you' : 'assistant'}
                             </span>
                             <p style={{
                               fontFamily: 'var(--serif)',
                               fontSize: 14,
-                              fontWeight: 300,
+                              fontWeight: 400,
                               lineHeight: 1.65,
                               color: 'var(--bone-dim)',
                               margin: '2px 0 0',

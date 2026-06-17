@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { memoryCardsApi, aiApi } from '../services/api';
 import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { dyeForId } from '../loom/dye';
 import type { Dye } from '../loom/dye';
 
@@ -110,21 +111,9 @@ export function OnThisDay() {
 
         {/* ── Loading state ────────────────────────────────────────────── */}
         {isLoading && (
-          <progress
-            aria-label="Loading"
-            style={{
-              display: 'block',
-              width: 120,
-              height: 1,
-              appearance: 'none',
-              WebkitAppearance: 'none',
-              border: 'none',
-              background: 'var(--rule)',
-              color: 'var(--warm)',
-              opacity: 0.6,
-              marginTop: 40,
-            }}
-          />
+          <div style={{ marginTop: 40 }}>
+            <ProgressHair width={120} />
+          </div>
         )}
 
         {/* ── Empty state ──────────────────────────────────────────────── */}

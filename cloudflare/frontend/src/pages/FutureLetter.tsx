@@ -121,8 +121,25 @@ export function FutureLetter() {
           margin: '0 auto',
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           textAlign: 'center',
+          position: 'relative',
         }}
       >
+        {/* the sealing mark — woven seal, behind the ceremony, the ∞ rides over it */}
+        <img
+          src="/woven/seal.png"
+          alt=""
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: 'calc(var(--page-pad-top) + 60px)',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: 'clamp(180px, 44vw, 260px)',
+            opacity: 0.07,
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        />
         {/* back link */}
         <button
           type="button"

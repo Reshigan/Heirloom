@@ -29,10 +29,10 @@ export function NotFound() {
         <WaxSeal size={42} />
 
         <h1
-          className="hl-serif"
           style={{
+            fontFamily: 'var(--serif-display)',
             fontSize: 'clamp(26px,5vw,36px)',
-            fontWeight: 400,
+            fontWeight: 500,
             color: 'var(--bone)',
             margin: '28px 0 14px',
             lineHeight: 1.1,

@@ -292,7 +292,7 @@ export function PhotoQuick() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      background: 'rgba(14,14,12,0.7)',
+                      background: 'color-mix(in srgb, var(--ink) 70%, transparent)',
                       border: 0,
                       color: 'var(--bone)',
                       fontFamily: 'var(--mono)',

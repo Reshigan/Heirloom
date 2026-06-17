@@ -275,14 +275,13 @@ export function ThreadCompose() {
             </div>
             <h1
               style={{
-                fontFamily: "var(--serif, 'Spectral', serif)",
+                fontFamily: "var(--serif-display, 'Cormorant Garamond', serif)",
                 fontSize: 'clamp(30px, 5vw, 44px)',
                 lineHeight: 1.06,
                 letterSpacing: '-0.012em',
                 color: 'var(--bone)',
                 margin: 0,
-                fontWeight: 380,
-                fontVariationSettings: '"opsz" 40',
+                fontWeight: 500,
               }}
             >
               What will you tell{' '}

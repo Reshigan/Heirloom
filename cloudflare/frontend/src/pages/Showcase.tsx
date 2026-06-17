@@ -49,6 +49,22 @@ export function Showcase() {
             />
           ))}
 
+          {/* Illustrative footnote — mono, faint, hairline-closed */}
+          <p
+            className="hl-mono"
+            style={{
+              margin: '20px 0 0',
+              paddingTop: 16,
+              borderTop: '1px solid var(--rule)',
+              fontSize: 10,
+              letterSpacing: '0.24em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+            }}
+          >
+            four threads of an imagined family
+          </p>
+
           {/* CTAs */}
           <div
             style={{
@@ -64,8 +80,26 @@ export function Showcase() {
           </div>
 
           {/* Foot mark */}
-          <div style={{ marginTop: 72 }}>
+          <div
+            style={{
+              marginTop: 72,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16,
+            }}
+          >
             <WaxSeal size={28} />
+            <span
+              className="hl-mono"
+              style={{
+                fontSize: 10,
+                letterSpacing: '0.24em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-faint)',
+              }}
+            >
+              one thread, a thousand years
+            </span>
           </div>
         </div>
       </div>

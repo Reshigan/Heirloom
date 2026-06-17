@@ -197,14 +197,14 @@ export function RecipientExperience() {
           }}
         >
           <div style={{ borderLeft: '1px solid var(--rule)', paddingLeft: 24 }}>
-            <p style={{ ...monoMeta, color: 'var(--warm)', marginBottom: 22 }}>
+            <p style={{ ...monoMeta, color: 'var(--copper-label)', marginBottom: 22 }}>
               this link has closed
             </p>
             <h1
               style={{
-                fontFamily: 'var(--serif)',
+                fontFamily: 'var(--serif-display)',
                 fontSize: 'clamp(30px, 6vw, 44px)',
-                fontWeight: 400,
+                fontWeight: 500,
                 lineHeight: 1.08,
                 color: 'var(--bone)',
                 margin: '0 0 22px',
@@ -274,9 +274,9 @@ export function RecipientExperience() {
           {/* Headline */}
           <h1
             style={{
-              fontFamily: 'var(--serif)',
+              fontFamily: 'var(--serif-display)',
               fontSize: 'clamp(30px, 6vw, 44px)',
-              fontWeight: 400,
+              fontWeight: 500,
               lineHeight: 1.08,
               color: 'var(--bone)',
               margin: '0 0 16px',
@@ -285,8 +285,8 @@ export function RecipientExperience() {
             {thread.title?.trim() || 'Something was left for you.'}
           </h1>
 
-          {/* Mono warm subline — A MEMORY BY <AUTHOR> · <YEAR> (+ for recipient) */}
-          <p style={{ ...monoMeta, color: 'var(--warm)', display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap' }}>
+          {/* Mono copper subline — A MEMORY BY <AUTHOR> · <YEAR> (+ for recipient) */}
+          <p style={{ ...monoMeta, color: 'var(--copper-label)', display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap' }}>
             <span>a thread by {thread.senderName} · {year}</span>
             {thread.recipientName ? (
               <>

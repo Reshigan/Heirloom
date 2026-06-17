@@ -83,6 +83,20 @@ export function Marketing() {
         display: 'flex', flexDirection: 'column',
       }}>
 
+        {/* Woven hero backdrop — thread-swoosh behind everything, vignette to ink */}
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
+          backgroundImage: 'url(/woven/thread-swoosh.png)',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+          backgroundSize: 'cover',
+          opacity: 0.35,
+        }} />
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse at 50% 42%, transparent 0%, transparent 38%, var(--ink) 92%)',
+        }} />
+
         {/* Nav — minimal, barely there */}
         <nav style={{
           position: 'relative', zIndex: 20,
@@ -108,12 +122,11 @@ export function Marketing() {
           padding: 'clamp(20px, 5vh, 64px) clamp(24px, 6vw, 80px) 0',
         }}>
           <h1 style={{
-            fontFamily: 'var(--serif)',
+            fontFamily: 'var(--serif-display)',
             fontSize: 'clamp(40px, 8vw, 64px)',
-            fontWeight: 380,
+            fontWeight: 500,
             lineHeight: 1.04,
             letterSpacing: '-0.012em',
-            fontVariationSettings: '"opsz" 64',
             color: 'var(--bone)',
             margin: '0 0 clamp(22px, 3.5vh, 36px)',
             maxWidth: '16ch',
@@ -230,10 +243,9 @@ export function Marketing() {
               transitionDelay: `${i * 160}ms`,
             }}>
               <h2 style={{
-                fontFamily: 'var(--serif)',
-                fontSize: 'clamp(22px, 3.4vw, 48px)',
-                fontWeight: 380, lineHeight: 1.08, margin: 0,
-                fontVariationSettings: '"opsz" 48',
+                fontFamily: 'var(--serif-display)',
+                fontSize: 'clamp(26px, 3.4vw, 48px)',
+                fontWeight: 500, lineHeight: 1.08, margin: 0,
                 color: 'var(--bone)',
               }}>{title}</h2>
               <p style={{
@@ -347,17 +359,16 @@ export function Marketing() {
         <div>
           <div style={{
             fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em',
-            textTransform: 'uppercase', color: 'var(--warm)',
+            textTransform: 'uppercase', color: 'var(--copper-label)',
             marginBottom: 28,
           }}>
             proof of permanence
           </div>
           <h2 style={{
-            fontFamily: 'var(--serif)',
-            fontSize: 'clamp(22px, 2.8vw, 40px)',
-            fontWeight: 380, lineHeight: 1.15,
+            fontFamily: 'var(--serif-display)',
+            fontSize: 'clamp(26px, 2.8vw, 40px)',
+            fontWeight: 500, lineHeight: 1.15,
             margin: '0 0 20px',
-            fontVariationSettings: '"opsz" 44',
             letterSpacing: '-0.016em',
             color: 'var(--bone)',
           }}>

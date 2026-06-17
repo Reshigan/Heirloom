@@ -73,6 +73,7 @@ export function Letters() {
     >
       <div
         style={{
+          position: 'relative',
           padding: 'var(--page-pad-top) var(--page-pad-x)',
           paddingBottom: 'var(--page-clear)',
           minHeight: '100%',
@@ -80,6 +81,26 @@ export function Letters() {
           margin: '0 auto',
         }}
       >
+        {/* The wax seal — the letters mark, resting behind the ledger. */}
+        <img
+          src="/woven/seal.png"
+          alt=""
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: '8%',
+            right: '-4%',
+            width: 320,
+            maxWidth: '46%',
+            opacity: 0.05,
+            pointerEvents: 'none',
+            userSelect: 'none',
+            zIndex: 0,
+          }}
+        />
+
+        <div style={{ position: 'relative', zIndex: 1 }}>
+
         <CosmicHeader
           eyebrow={`${letters.length} ${letters.length === 1 ? 'letter' : 'letters'}`}
           title="The letters you've sealed."
@@ -164,8 +185,9 @@ export function Letters() {
           </ul>
         )}
 
-        <div style={{ marginTop: 64 }}>
-          <WaxSeal />
+          <div style={{ marginTop: 64 }}>
+            <WaxSeal />
+          </div>
         </div>
       </div>
     </ClothShell>

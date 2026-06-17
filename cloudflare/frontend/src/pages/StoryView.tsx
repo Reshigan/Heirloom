@@ -145,9 +145,9 @@ export function StoryView() {
           {/* Headline */}
           <h1
             style={{
-              fontFamily: 'var(--serif)',
+              fontFamily: 'var(--serif-display)',
               fontSize: 'clamp(30px, 6vw, 44px)',
-              fontWeight: 400,
+              fontWeight: 500,
               lineHeight: 1.08,
               letterSpacing: '-0.012em',
               color: 'var(--bone)',
@@ -168,7 +168,7 @@ export function StoryView() {
               fontSize: 11,
               letterSpacing: '0.26em',
               textTransform: 'uppercase',
-              color: 'var(--warm)',
+              color: 'var(--copper-label)',
             }}
           >
             <WarmDot color={thread} size={5} />
@@ -311,7 +311,7 @@ export function StoryView() {
                     fontSize: 10.5,
                     letterSpacing: '0.22em',
                     textTransform: 'uppercase',
-                    color: atEnd ? 'var(--rule)' : 'var(--warm)',
+                    color: atEnd ? 'var(--rule)' : 'var(--copper-label)',
                   }}
                 >
                   later

@@ -97,9 +97,9 @@ export function Contact() {
             <h1
               className="hl-serif hl-tight"
               style={{
-                fontFamily: 'var(--serif)',
+                fontFamily: 'var(--serif-display)',
                 fontSize: 'clamp(34px,7vw,58px)',
-                fontWeight: 380,
+                fontWeight: 500,
                 lineHeight: 1.04,
                 color: 'var(--bone)',
                 margin: '28px 0 20px',

@@ -39,7 +39,7 @@ const ACTION: React.CSSProperties = {
   fontSize: 11,
   letterSpacing: '0.18em',
   textTransform: 'uppercase',
-  color: 'var(--warm)',
+  color: 'var(--gold-text)',
   background: 'transparent',
   border: 0,
   padding: 0,
@@ -122,12 +122,12 @@ export function Billing() {
       <div style={{ maxWidth: '46rem', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
         {subscriptionError && (
-          <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)', letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+          <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--copper-label)', letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 16px' }}>
             could not load subscription — try refreshing
           </p>
         )}
         {billingError && (
-          <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)', letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+          <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--copper-label)', letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 16px' }}>
             {billingError}
           </p>
         )}
@@ -230,7 +230,7 @@ export function Billing() {
         <p style={{ ...NOTE, fontStyle: 'italic' }}>
           If Heirloom ends, the successor non-profit named in our bylaws inherits the archive. The family export is always free.
         </p>
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 12 }}>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--copper-label)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 12 }}>
           pledge no. 0001 — jun 2026
         </div>
 

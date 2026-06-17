@@ -229,11 +229,10 @@ export function LegacyPlan() {
           </div>
           <span
             style={{
-              fontFamily: 'var(--serif)',
-              fontSize: 28,
-              fontWeight: 300,
-              fontStyle: 'italic',
-              color: 'var(--warm)',
+              fontFamily: 'var(--mono)',
+              fontSize: 22,
+              letterSpacing: '0.04em',
+              color: 'var(--gold-text)',
               flex: '0 0 auto',
             }}
           >

@@ -136,6 +136,23 @@ export function Founder() {
           padding:        'clamp(48px, 8vh, 96px) 24px 80px',
         }}
       >
+        {/* ── Woven accent — corner, behind, rotated ─────────────────────── */}
+        <img
+          src="/woven/thread-band.png"
+          alt=""
+          aria-hidden
+          style={{
+            position:      'absolute',
+            top:           -40,
+            right:         -60,
+            width:         320,
+            maxWidth:      '40vw',
+            opacity:       0.06,
+            transform:     'rotate(-18deg)',
+            pointerEvents: 'none',
+            zIndex:        0,
+          }}
+        />
         {/* ── Mono eyebrow ─────────────────────────────────────────────── */}
         <p
           style={{
@@ -154,14 +171,16 @@ export function Founder() {
         {/* ── Giant serif headline ──────────────────────────────────────── */}
         <h1
           style={{
-            fontFamily:  'var(--serif)',
+            fontFamily:  'var(--serif-display)',
             fontSize:    'clamp(40px, 9vw, 72px)',
-            fontWeight:   300,
+            fontWeight:   500,
             lineHeight:   1.05,
             color:       'var(--bone)',
             textAlign:   'center',
             margin:      '0 0 20px',
             maxWidth:    '16ch',
+            position:    'relative',
+            zIndex:       1,
           }}
         >
           Become one of{' '}
@@ -199,11 +218,12 @@ export function Founder() {
         >
           <span
             style={{
-              fontFamily:  'var(--serif)',
-              fontSize:     40,
-              fontWeight:   300,
-              color:       'var(--bone)',
-              lineHeight:   1,
+              fontFamily:    'var(--mono)',
+              fontSize:       40,
+              fontWeight:     400,
+              color:         'var(--bone)',
+              lineHeight:     1,
+              letterSpacing: '0.02em',
             }}
           >
             {pledged !== null ? pledged : '—'}
@@ -262,9 +282,9 @@ export function Founder() {
             </span>
             <h2
               style={{
-                fontFamily:  'var(--serif)',
-                fontSize:     26,
-                fontWeight:   300,
+                fontFamily:  'var(--serif-display)',
+                fontSize:     30,
+                fontWeight:   500,
                 fontStyle:   'italic',
                 margin:       0,
                 color:       'var(--bone)',

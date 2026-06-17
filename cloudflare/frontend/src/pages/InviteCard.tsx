@@ -68,19 +68,28 @@ export function InviteCard() {
         </button>
       </div>
 
-      {/* ── Reading column with dye left-margin thread ── */}
+      {/* ── Ceremonial column — centered composition, generous breathing room ── */}
       <div
         style={{
-          maxWidth: 640,
-          margin: '72px auto 0',
-          padding: '0 48px 96px',
+          maxWidth: 600,
+          margin: '120px auto 0',
+          padding: '0 48px 120px',
+          textAlign: 'center',
         }}
       >
-        {/* READING archetype: left dye margin thread */}
+        {/* Ceremony archetype: centered dye thread crowning the card */}
         <div
           style={{
-            borderLeft: `3px solid ${marginColor}`,
-            paddingLeft: 28,
+            width: 3,
+            height: 56,
+            background: marginColor,
+            margin: '0 auto 44px',
+          }}
+          aria-hidden
+        />
+        <div
+          style={{
+            animation: 'hl-fadeup 720ms cubic-bezier(0.16,1,0.3,1) both',
           }}
         >
           {/* Mono warm subline — eyebrow label */}
@@ -88,24 +97,24 @@ export function InviteCard() {
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 10,
-              letterSpacing: '0.28em',
+              letterSpacing: '0.3em',
               textTransform: 'uppercase',
-              color: 'var(--warm)',
-              marginBottom: 20,
+              color: 'var(--copper-label)',
+              marginBottom: 28,
             }}
           >
             An Invitation · Heirloom Family Thread
           </div>
 
-          {/* Serif headline — "<Inviter> invites you into <Family>" */}
+          {/* Display headline — "<Inviter> invites you into <Family>" */}
           <h1
             style={{
-              fontFamily: 'var(--serif)',
+              fontFamily: 'var(--serif-display)',
               fontSize: 'clamp(30px, 6vw, 44px)',
-              lineHeight: 1.1,
-              fontWeight: 400,
+              lineHeight: 1.12,
+              fontWeight: 500,
               color: 'var(--bone)',
-              margin: '0 0 10px',
+              margin: '0 0 16px',
               letterSpacing: '-0.01em',
             }}
           >
@@ -120,8 +129,8 @@ export function InviteCard() {
               fontSize: 11,
               letterSpacing: '0.26em',
               textTransform: 'uppercase',
-              color: 'var(--warm-dim)',
-              marginBottom: 48,
+              color: 'var(--gold-text)',
+              marginBottom: 56,
             }}
           >
             From {senderName}
@@ -133,11 +142,10 @@ export function InviteCard() {
               fontFamily: 'var(--serif)',
               fontStyle: 'italic',
               fontSize: 18,
-              lineHeight: 1.75,
+              lineHeight: 1.8,
               color: 'var(--bone)',
-              textAlign: 'justify',
-              maxWidth: '62ch',
-              margin: '0 0 48px',
+              maxWidth: '52ch',
+              margin: '0 auto 56px',
             }}
           >
             {senderName} has been weaving a family thread — a permanent record of memories,
@@ -149,9 +157,7 @@ export function InviteCard() {
           {/* Access URL — quiet mono block */}
           <div
             style={{
-              borderLeft: '1px solid var(--rule)',
-              paddingLeft: 20,
-              margin: '0 0 56px',
+              margin: '0 auto 64px',
             }}
           >
             <div
@@ -161,7 +167,7 @@ export function InviteCard() {
                 letterSpacing: '0.26em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-faint)',
-                marginBottom: 8,
+                marginBottom: 10,
               }}
             >
               To read the thread
@@ -179,7 +185,7 @@ export function InviteCard() {
           </div>
 
           {/* Primary CTA — mono warm pill (pill radius allowed on single primary CTA) */}
-          <div className="no-print" style={{ marginBottom: 56 }}>
+          <div className="no-print" style={{ marginBottom: 64 }}>
             <a
               href="/signup"
               style={{
@@ -215,8 +221,8 @@ export function InviteCard() {
           </p>
         </div>
 
-        {/* WaxSeal foot */}
-        <div style={{ marginTop: 72 }}>
+        {/* WaxSeal foot — the lone ∞ mark, centered to seal the card */}
+        <div style={{ marginTop: 88, display: 'flex', justifyContent: 'center' }}>
           <WaxSeal size={28} />
         </div>
       </div>

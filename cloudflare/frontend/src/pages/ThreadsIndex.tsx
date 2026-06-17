@@ -30,7 +30,27 @@ export function ThreadsIndex() {
       )}
 
       <div
+        aria-hidden
         style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 240,
+          backgroundImage: `linear-gradient(180deg, transparent 55%, var(--ink)), url(/woven/thread-band.png)`,
+          backgroundSize: 'cover, cover',
+          backgroundPosition: 'center, center',
+          backgroundRepeat: 'no-repeat, no-repeat',
+          opacity: 0.5,
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+
+      <div
+        style={{
+          position: 'relative',
+          zIndex: 1,
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
           maxWidth: 'min(100%, 720px)',
           margin: '0 auto',
@@ -48,7 +68,7 @@ export function ThreadsIndex() {
               fontSize: 11,
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
-              color: 'var(--warm)',
+              color: 'var(--copper-label)',
               margin: '0 0 24px',
             }}
           >

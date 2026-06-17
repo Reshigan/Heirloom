@@ -54,9 +54,28 @@ export function FounderWelcome() {
           gap: 0,
         }}
       >
+        {/* Woven founder mark — centered, behind the ceremony */}
+        <img
+          src="/woven/seal.png"
+          alt=""
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: 'clamp(320px, 56vw, 560px)',
+            height: 'auto',
+            opacity: 0.06,
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
+        />
         {/* ── Ceremony frame ────────────────────────────────────────── */}
         <div
           style={{
+            position: 'relative',
+            zIndex: 1,
             textAlign: 'center',
             maxWidth: 'var(--page-max-focus)',
             width: '100%',
@@ -159,7 +178,7 @@ export function FounderWelcome() {
               color: 'var(--warm)',
               textDecoration: 'none',
               padding: '14px 28px',
-              border: '1px solid var(--warm)',
+              border: '1px solid var(--copper-border)',
               borderRadius: 999,
               minHeight: 44,
               display: 'inline-flex',
@@ -186,7 +205,7 @@ export function FounderWelcome() {
         </div>
 
         {/* ── WaxSeal foot ──────────────────────────────────────────── */}
-        <div style={{ marginTop: 40 }}>
+        <div style={{ position: 'relative', zIndex: 1, marginTop: 40 }}>
           <WaxSeal size={22} />
         </div>
       </div>

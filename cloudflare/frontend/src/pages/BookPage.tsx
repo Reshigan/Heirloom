@@ -130,7 +130,7 @@ export function BookPage() {
                 style={{
                   fontSize: 11,
                   letterSpacing: '0.16em',
-                  color: 'var(--warm)',
+                  color: 'var(--gold-text)',
                   whiteSpace: 'nowrap',
                 }}
               >

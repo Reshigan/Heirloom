@@ -91,7 +91,7 @@ export function Join() {
                   fontSize: 10,
                   letterSpacing: '0.26em',
                   textTransform: 'uppercase',
-                  color: 'var(--warm)',
+                  color: 'var(--copper-label)',
                   margin: '0 0 24px',
                 }}
               >
@@ -99,9 +99,9 @@ export function Join() {
               </p>
               <h1
                 style={{
-                  fontFamily: 'var(--serif)',
+                  fontFamily: 'var(--serif-display)',
                   fontSize: 'clamp(40px,9vw,72px)',
-                  fontWeight: 300,
+                  fontWeight: 500,
                   lineHeight: 1.05,
                   color: 'var(--bone)',
                   margin: '0 0 28px',
@@ -130,7 +130,7 @@ export function Join() {
                   fontSize: 11,
                   letterSpacing: '0.26em',
                   textTransform: 'uppercase',
-                  color: 'var(--warm)',
+                  color: 'var(--gold-text)',
                   textDecoration: 'none',
                 }}
               >
@@ -179,7 +179,7 @@ export function Join() {
                   fontSize: 10,
                   letterSpacing: '0.26em',
                   textTransform: 'uppercase',
-                  color: 'var(--warm)',
+                  color: 'var(--copper-label)',
                   margin: '0 0 24px',
                 }}
               >
@@ -187,9 +187,9 @@ export function Join() {
               </p>
               <h1
                 style={{
-                  fontFamily: 'var(--serif)',
+                  fontFamily: 'var(--serif-display)',
                   fontSize: 'clamp(40px,9vw,72px)',
-                  fontWeight: 300,
+                  fontWeight: 500,
                   lineHeight: 1.05,
                   color: 'var(--bone)',
                   margin: '0 0 28px',
@@ -225,7 +225,7 @@ export function Join() {
                   fontSize: 10,
                   letterSpacing: '0.26em',
                   textTransform: 'uppercase',
-                  color: 'var(--warm)',
+                  color: 'var(--copper-label)',
                   margin: '0 0 24px',
                 }}
               >
@@ -236,7 +236,7 @@ export function Join() {
                   fontFamily: 'var(--mono)',
                   fontSize: 12,
                   letterSpacing: '0.1em',
-                  color: 'var(--warm)',
+                  color: 'var(--muted-2)',
                   margin: '0 0 40px',
                   maxWidth: '40ch',
                   marginInline: 'auto',
@@ -252,7 +252,7 @@ export function Join() {
                   fontSize: 11,
                   letterSpacing: '0.26em',
                   textTransform: 'uppercase',
-                  color: 'var(--warm)',
+                  color: 'var(--gold-text)',
                   textDecoration: 'none',
                 }}
               >
@@ -270,10 +270,10 @@ export function Join() {
               <div
                 aria-hidden
                 style={{
-                  fontFamily: 'var(--serif)',
+                  fontFamily: 'var(--serif-display)',
                   fontSize: 'clamp(40px,10vw,64px)',
-                  fontWeight: 200,
-                  color: 'var(--warm)',
+                  fontWeight: 300,
+                  color: 'var(--ember)',
                   lineHeight: 1,
                   marginBottom: 40,
                   textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
@@ -299,9 +299,9 @@ export function Join() {
               {/* Giant serif headline */}
               <h1
                 style={{
-                  fontFamily: 'var(--serif)',
+                  fontFamily: 'var(--serif-display)',
                   fontSize: 'clamp(40px,9vw,72px)',
-                  fontWeight: 300,
+                  fontWeight: 500,
                   lineHeight: 1.05,
                   color: 'var(--bone)',
                   margin: '0 0 28px',
@@ -368,7 +368,7 @@ export function Join() {
                     fontSize: 11,
                     letterSpacing: '0.26em',
                     textTransform: 'uppercase',
-                    color: 'var(--warm)',
+                    color: 'var(--gold-text)',
                     background: 'transparent',
                     border: 0,
                     padding: '14px 0',

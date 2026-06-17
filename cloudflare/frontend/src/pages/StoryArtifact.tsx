@@ -306,9 +306,9 @@ export function StoryArtifact() {
           </div>
           <h1
             style={{
-              fontFamily: 'var(--serif)',
+              fontFamily: 'var(--serif-display)',
               fontSize: 'clamp(30px, 6vw, 44px)',
-              fontWeight: 400,
+              fontWeight: 500,
               lineHeight: 1.1,
               letterSpacing: '-0.01em',
               color: 'var(--bone)',
@@ -381,9 +381,9 @@ export function StoryArtifact() {
                     {/* Serif headline — clamp(30,6vw,44) */}
                     <h2
                       style={{
-                        fontFamily: 'var(--serif)',
+                        fontFamily: 'var(--serif-display)',
                         fontSize: 'clamp(30px, 6vw, 44px)',
-                        fontWeight: 400,
+                        fontWeight: 500,
                         lineHeight: 1.1,
                         letterSpacing: '-0.01em',
                         color: 'var(--bone)',
@@ -547,7 +547,7 @@ export function StoryArtifact() {
               Share your story
             </p>
             {/* Serif headline */}
-            <h3 style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 400, color: 'var(--bone)', margin: '0 0 8px' }}>
+            <h3 style={{ fontFamily: 'var(--serif-display)', fontSize: 26, fontWeight: 500, color: 'var(--bone)', margin: '0 0 8px' }}>
               Live for 7 days.
             </h3>
             <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--bone-dim)', margin: '0 0 28px' }}>

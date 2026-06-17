@@ -456,20 +456,47 @@ export function Inherit() {
         </Link>
       </div>
 
-      {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <div style={{ padding: shellPadding, marginTop: isMobile ? 24 : 48 }}>
-        <CosmicHeader
-          eyebrow="Someone in your line left this for you"
-          title={
-            <>
-              You have inherited a thread.
-              <br />
-              <span style={{ color: 'var(--bone-dim)', fontStyle: 'italic', fontWeight: 300 }}>
-                Read it on the day you're ready.
-              </span>
-            </>
-          }
+      {/* ── Hero — the ceremonial seal ───────────────────────────────── */}
+      <div
+        style={{
+          position: 'relative',
+          padding: shellPadding,
+          marginTop: isMobile ? 56 : 112,
+          marginBottom: isMobile ? 24 : 64,
+        }}
+      >
+        {/* Woven inheritance seal — behind, ambient, decorative only */}
+        <img
+          src="/woven/seal.png"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%,-50%)',
+            width: isMobile ? 280 : 380,
+            height: 'auto',
+            opacity: 0.12,
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}
         />
+        <div style={{ position: 'relative', textAlign: 'center', animation: `hl-fadeup 1400ms ${EASE} both` }}>
+          <CosmicHeader
+            align="center"
+            eyebrow="Someone in your line left this for you"
+            title={
+              <>
+                You have inherited a thread.
+                <br />
+                <span style={{ color: 'var(--bone-dim)', fontStyle: 'italic', fontWeight: 300 }}>
+                  Read it on the day you're ready.
+                </span>
+              </>
+            }
+          />
+        </div>
       </div>
 
       {/* ── Two-column main layout ───────────────────────────────────── */}

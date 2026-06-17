@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, SectionLabel, WaxSeal, EntryRow } from '../loom/cosmic/CosmicUI';
 import { giftSubscriptionsApi, settingsApi } from '../services/api';
 import { PLAN_FEATURES } from '../lib/plans';
 
@@ -318,8 +318,7 @@ export function GiftSubscriptions() {
                     <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flex: '0 0 auto', whiteSpace: 'nowrap' }}>
                       <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 10 }}>
                         <span
-                          className="hl-serif hl-tight"
-                          style={{ fontSize: 30, fontWeight: 300, lineHeight: 1, color: isFree ? 'var(--bone-dim)' : 'var(--warm)' }}
+                          style={{ fontFamily: 'var(--serif-display)', fontSize: 30, fontWeight: 500, lineHeight: 1, color: isFree ? 'var(--bone-dim)' : 'var(--warm)' }}
                         >
                           {pp?.display ?? `$${pp?.amount ?? 0}`}
                         </span>
@@ -814,57 +813,15 @@ export function GiftSubscriptions() {
             <SectionLabel>previous gifts</SectionLabel>
             <div style={{ display: 'grid', marginTop: 8 }}>
               {purchasedGifts.map((gift: any) => (
-                <div
+                <EntryRow
                   key={gift.id}
-                  style={{
-                    display:        'flex',
-                    alignItems:     'baseline',
-                    gap:            20,
-                    padding:        '15px 0',
-                    borderBottom:   '1px solid var(--rule)',
-                  }}
-                >
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span
-                      className="hl-serif"
-                      style={{
-                        display:    'block',
-                        fontWeight: 400,
-                        fontSize:   19,
-                        lineHeight: 1.3,
-                        color:      'var(--bone)',
-                      }}
-                    >
-                      {gift.recipient_name}
-                    </span>
-                    <span
-                      className="hl-mono"
-                      style={{ display: 'block', fontSize: 11, letterSpacing: '0.06em', color: 'var(--bone-dim)', marginTop: 4 }}
-                    >
-                      {gift.tier} plan
-                    </span>
-                  </span>
-                  <span
-                    style={{
-                      display:       'flex',
-                      flexDirection: 'column',
-                      alignItems:    'flex-end',
-                      gap:           4,
-                      flex:          '0 0 auto',
-                      whiteSpace:    'nowrap',
-                      fontFamily:    'var(--mono)',
-                      fontSize:      11,
-                      letterSpacing: '0.14em',
-                    }}
-                  >
-                    <span style={{ textTransform: 'uppercase', letterSpacing: '0.2em', color: 'var(--warm)' }}>
-                      {gift.status}
-                    </span>
-                    <span style={{ color: 'var(--bone-faint)' }}>
-                      {new Date(gift.created_at).toLocaleDateString()}
-                    </span>
-                  </span>
-                </div>
+                  title={gift.recipient_name}
+                  sub={`${gift.tier} plan`}
+                  subFont="sans"
+                  subColor="var(--bone-dim)"
+                  year={new Date(gift.created_at).toLocaleDateString()}
+                  author={gift.status}
+                />
               ))}
             </div>
           </div>
@@ -915,10 +872,11 @@ export function GiftSubscriptions() {
               gift sent
             </p>
             <h3
-              className="hl-serif hl-tight"
+              className="hl-tight"
               style={{
+                fontFamily: 'var(--serif-display)',
                 fontSize:   'var(--type-display)',
-                fontWeight: 200,
+                fontWeight: 500,
                 margin:     '0 0 16px',
                 color:      'var(--bone)',
               }}

@@ -121,7 +121,7 @@ function Tile({
           fontFamily: 'var(--serif)',
           fontSize: 22,
           lineHeight: 1.18,
-          fontWeight: 300,
+          fontWeight: 400,
           color: 'var(--bone)',
           letterSpacing: '-0.014em',
           flex: 1,
@@ -156,7 +156,7 @@ function Tile({
           style={{
             fontFamily: 'var(--mono)',
             fontSize: 9,
-            color: 'var(--warm)',
+            color: 'var(--copper-label)',
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
           }}
@@ -399,9 +399,9 @@ export function DailySentence() {
                 fontFamily: 'var(--serif)',
                 fontSize: 'clamp(22px, 4vw, 34px)',
                 lineHeight: 1.4,
-                fontWeight: 300,
+                fontWeight: 400,
                 color: 'var(--bone)',
-                caretColor: 'var(--warm)',
+                caretColor: 'var(--ember)',
                 background: 'transparent',
                 border: 'none',
                 outline: 'none',
@@ -423,7 +423,7 @@ export function DailySentence() {
                 maxWidth: '52ch',
                 marginTop: 12,
                 transition: `border-color 180ms var(--ease)`,
-                borderBottomColor: draft ? 'var(--warm-dim)' : 'var(--rule)',
+                borderBottomColor: draft ? 'var(--copper-border)' : 'var(--rule)',
               }}
             />
 
@@ -435,7 +435,7 @@ export function DailySentence() {
                   fontSize: 11,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
-                  color: 'var(--warm)',
+                  color: 'var(--copper-label)',
                   marginTop: 10,
                   display: 'block',
                 }}
@@ -465,7 +465,7 @@ export function DailySentence() {
                   letterSpacing: '0.26em',
                   textTransform: 'uppercase',
                   color: saveState === 'saved' ? 'var(--bone-dim)' : 'var(--ink)',
-                  background: saveState === 'saved' ? 'transparent' : 'var(--warm)',
+                  background: saveState === 'saved' ? 'transparent' : 'var(--gold-text)',
                   border: saveState === 'saved' ? '1px solid var(--rule)' : 'none',
                   borderRadius: 100,
                   padding: '10px 22px',

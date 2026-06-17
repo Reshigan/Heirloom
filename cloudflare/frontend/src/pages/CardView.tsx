@@ -138,7 +138,7 @@ export function CardView() {
               fontSize: 11,
               letterSpacing: '0.26em',
               textTransform: 'uppercase',
-              color: 'var(--warm)',
+              color: 'var(--copper-label)',
               textDecoration: 'none',
             }}
           >
@@ -181,12 +181,12 @@ export function CardView() {
             paddingLeft: 'clamp(18px,4vw,28px)',
           }}
         >
-          {/* Serif headline title */}
+          {/* Display headline title — ceremonial hero (always ≥30px) */}
           <h1
             style={{
-              fontFamily: 'var(--serif)',
+              fontFamily: 'var(--serif-display)',
               fontSize: 'clamp(30px,6vw,44px)',
-              fontWeight: 400,
+              fontWeight: 500,
               lineHeight: 1.1,
               letterSpacing: '-0.01em',
               color: 'var(--bone)',
@@ -196,14 +196,14 @@ export function CardView() {
             {card.memoryTitle || 'A Memory'}
           </h1>
 
-          {/* Mono warm subline */}
+          {/* Mono copper eyebrow subline */}
           <div
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 11,
               letterSpacing: '0.26em',
               textTransform: 'uppercase',
-              color: 'var(--warm)',
+              color: 'var(--copper-label)',
               marginBottom: 36,
             }}
           >
@@ -275,7 +275,7 @@ export function CardView() {
                 fontSize: 11,
                 letterSpacing: '0.26em',
                 textTransform: 'uppercase',
-                color: copied ? 'var(--bone-dim)' : 'var(--warm)',
+                color: copied ? 'var(--muted-3)' : 'var(--copper-label)',
                 background: 'none',
                 border: 'none',
                 padding: 0,
@@ -316,7 +316,7 @@ export function CardView() {
                   fontSize: 11,
                   letterSpacing: '0.26em',
                   textTransform: 'uppercase',
-                  color: 'var(--warm)',
+                  color: 'var(--copper-label)',
                   textDecoration: 'none',
                   display: 'inline-block',
                   minHeight: 44,

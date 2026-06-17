@@ -364,7 +364,7 @@ export function InterviewMode() {
 
           {/* Follow-up suggestions — the listener offers other threads to pull */}
           {followUpQuestions.length > 0 && (
-            <div>
+            <div style={{ marginTop: 40 }}>
               <SectionLabel>follow-up questions</SectionLabel>
               <div>
                 {followUpQuestions.map((q, i) => (

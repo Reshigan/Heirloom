@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import { useListener } from '../hooks/useListener';
 import { type Memory } from '../types';
 import { WaxSeal, SectionLabel } from '../loom/cosmic/CosmicUI';
+import { ProgressHair } from '../loom/components/ProgressHair';
 
 const DYE_COLORS: Record<string, string> = {
   memory:    'var(--dye-madder)',
@@ -489,7 +490,9 @@ export function Memories() {
       }
     >
       {isLoading && (
-        <progress style={{ width: '100%', height: 1, display: 'block', appearance: 'none', accentColor: 'var(--warm)' }} />
+        <div style={{ padding: 'clamp(40px, 8vw, 72px) var(--page-pad-x) 0' }}>
+          <ProgressHair label="drawing the thread…" />
+        </div>
       )}
 
       {/* The ledger header — a single quiet mono line naming the thread and the
@@ -529,8 +532,7 @@ export function Memories() {
       {!isLoading && allMemories.length === 0 && (
         <div style={{ padding: 'clamp(40px, 8vw, 80px) var(--page-pad-x)' }}>
           <p
-            className="hl-serif"
-            style={{ fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 300, color: 'var(--bone)', lineHeight: 1.5, margin: '0 0 12px' }}
+            style={{ fontFamily: 'var(--serif-display)', fontSize: 'clamp(28px, 5vw, 40px)', fontWeight: 500, color: 'var(--bone)', lineHeight: 1.2, margin: '0 0 12px' }}
           >
             The cloth has not yet been woven.
           </p>

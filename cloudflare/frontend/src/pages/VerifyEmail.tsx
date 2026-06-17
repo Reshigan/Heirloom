@@ -4,6 +4,7 @@ import { emailVerificationApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { CosmicHeader, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 export function VerifyEmail() {
@@ -92,22 +93,9 @@ export function VerifyEmail() {
               title="Confirming your address."
               sub="One moment — checking your link."
             />
-            <progress
-              aria-label="Verifying email address"
-              style={{
-                display: 'block',
-                width: '100%',
-                maxWidth: 240,
-                margin: '0 auto',
-                height: 1,
-                border: 0,
-                appearance: 'none',
-                WebkitAppearance: 'none',
-                background: 'var(--rule)',
-                color: 'var(--warm)',
-                opacity: 0.7,
-              }}
-            />
+            <div style={{ maxWidth: 240, margin: '0 auto' }}>
+              <ProgressHair label="verifying email address" />
+            </div>
           </div>
         )}
 

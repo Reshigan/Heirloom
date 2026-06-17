@@ -30,6 +30,7 @@ export function BookSuccess() {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
+          animation: `hl-fadeup 720ms ${EASE} both`,
         }}
       >
         {/* CEREMONY: large glowing warm ∞ at the top */}
@@ -46,12 +47,13 @@ export function BookSuccess() {
           ∞
         </div>
 
-        {/* Serif title */}
+        {/* Cormorant display title — hero heading, always ≥24px (clamp floor) */}
         <h1
-          className="hl-serif"
           style={{
+            fontFamily: 'var(--serif-display)',
             fontSize: 'clamp(24px,5vw,34px)',
-            fontWeight: 400,
+            fontWeight: 500,
+            letterSpacing: '-0.01em',
             color: 'var(--bone)',
             lineHeight: 1.16,
             margin: '0 0 20px',
@@ -67,7 +69,7 @@ export function BookSuccess() {
             fontSize: 11,
             letterSpacing: '0.26em',
             textTransform: 'uppercase',
-            color: 'var(--warm)',
+            color: 'var(--copper-label)',
             margin: '0 0 32px',
           }}
         >
@@ -132,9 +134,9 @@ export function BookSuccess() {
               fontSize: 11,
               letterSpacing: '0.22em',
               textTransform: 'uppercase',
-              color: 'var(--warm)',
+              color: 'var(--copper-border)',
               textDecoration: 'none',
-              border: '1px solid var(--warm)',
+              border: '1px solid var(--copper-border)',
               borderRadius: 9999,
               transition: `color 180ms ${EASE}, border-color 180ms ${EASE}`,
             }}

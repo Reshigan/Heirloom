@@ -624,7 +624,7 @@ export function AdminDashboard() {
         {activeTab === 'legacy' && legacySub === 'coupons' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p className="loom-eyebrow">Coupon Management</p>
+              <p className="loom-eyebrow" style={{ color: 'var(--copper-label)' }}>Coupon Management</p>
               <button className="loom-btn" onClick={() => setShowCouponModal(true)}>Create Coupon</button>
             </div>
             <Panel>
@@ -639,7 +639,7 @@ export function AdminDashboard() {
         {activeTab === 'legacy' && legacySub === 'vouchers' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p className="loom-eyebrow">Gift Voucher Management</p>
+              <p className="loom-eyebrow" style={{ color: 'var(--copper-label)' }}>Gift Voucher Management</p>
               <button className="loom-btn" onClick={() => setShowVoucherModal(true)}>Create Voucher</button>
             </div>
 
@@ -762,7 +762,7 @@ export function AdminDashboard() {
         {activeTab === 'billing' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p className="loom-eyebrow">Billing Analysis & Error Management</p>
+              <p className="loom-eyebrow" style={{ color: 'var(--copper-label)' }}>Billing Analysis & Error Management</p>
               <button className="loom-btn" onClick={() => adminApi.notifyAllFailedBilling().then(() => status.ok('notifications sent to all failed accounts')).catch(() => status.err('failed to send notifications'))}>Notify All Failed</button>
             </div>
 
@@ -816,7 +816,7 @@ export function AdminDashboard() {
         {activeTab === 'users' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p className="loom-eyebrow">User Management</p>
+              <p className="loom-eyebrow" style={{ color: 'var(--copper-label)' }}>User Management</p>
               <input
                 type="text"
                 placeholder="Search users…"
@@ -868,7 +868,7 @@ export function AdminDashboard() {
         {activeTab === 'support' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p className="loom-eyebrow">Support Queue</p>
+              <p className="loom-eyebrow" style={{ color: 'var(--copper-label)' }}>Support Queue</p>
               <div style={{ display: 'flex', gap: 16 }}>
                 <span className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)' }}>{tickets?.data?.filter((t: any) => t.status === 'OPEN').length || 0} OPEN</span>
                 <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>{tickets?.data?.filter((t: any) => t.status === 'IN_PROGRESS').length || 0} IN PROGRESS</span>
@@ -935,7 +935,7 @@ export function AdminDashboard() {
         {activeTab === 'system' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <p className="loom-eyebrow">System Health</p>
+              <p className="loom-eyebrow" style={{ color: 'var(--copper-label)' }}>System Health</p>
               <span className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.12em' }}>{(systemHealth?.status || 'UNKNOWN').toUpperCase()}</span>
             </div>
 

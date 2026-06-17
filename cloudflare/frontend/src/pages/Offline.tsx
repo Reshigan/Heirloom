@@ -141,7 +141,7 @@ export function Offline() {
         <span
           aria-hidden
           style={{
-            fontFamily: 'var(--serif)',
+            fontFamily: 'var(--serif-display)',
             fontSize: 'clamp(40px, 10vw, 64px)',
             color: 'var(--warm)',
             lineHeight: 1,
@@ -152,12 +152,12 @@ export function Offline() {
           ∞
         </span>
 
-        {/* Serif headline */}
+        {/* Display headline — Cormorant, hero role (>=24px) */}
         <h1
-          className="loom-serif"
           style={{
+            fontFamily: 'var(--serif-display)',
             fontSize: 'clamp(26px, 6vw, 38px)',
-            fontWeight: 300,
+            fontWeight: 500,
             lineHeight: 1.15,
             letterSpacing: '-0.016em',
             margin: '0 0 16px',

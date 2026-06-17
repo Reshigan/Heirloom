@@ -104,7 +104,7 @@ export function Challenges() {
     fontSize: 11,
     letterSpacing: '0.18em',
     textTransform: 'uppercase',
-    color: 'var(--warm)',
+    color: 'var(--copper-label)',
     background: 'none',
     border: 0,
     padding: 0,
@@ -175,7 +175,7 @@ export function Challenges() {
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 20, flexWrap: 'wrap' }}>
                     <h2
                       className="hl-serif"
-                      style={{ flex: 1, minWidth: 0, fontSize: 22, fontWeight: 400, margin: 0, lineHeight: 1.25, color: 'var(--bone)' }}
+                      style={{ flex: 1, minWidth: 0, fontSize: 25, fontWeight: 500, margin: 0, lineHeight: 1.2, color: 'var(--bone)' }}
                     >
                       {currentChallenge.title}
                     </h2>
@@ -198,7 +198,7 @@ export function Challenges() {
                     "{currentChallenge.prompt}"
                   </p>
 
-                  <p style={{ ...metaText, color: 'var(--warm)', margin: '14px 0 0' }}>
+                  <p style={{ ...metaText, color: 'var(--copper-label)', margin: '14px 0 0' }}>
                     {currentChallenge.hashtag}
                   </p>
 
@@ -224,7 +224,7 @@ export function Challenges() {
                   <div>
                     {(submissions as any[]).slice(0, 5).map((sub: any) => (
                       <div key={sub.id} style={{ borderBottom: '1px solid var(--rule)', padding: '14px 0' }}>
-                        <span style={{ ...metaText, color: 'var(--warm)' }}>
+                        <span style={{ ...metaText, color: 'var(--gold-text)' }}>
                           {sub.first_name}{sub.last_name ? ` ${sub.last_name[0]}.` : ''}
                         </span>
                         <p
@@ -293,14 +293,14 @@ export function Challenges() {
                   style={{ display: 'flex', alignItems: 'baseline', gap: 20, borderBottom: '1px solid var(--rule)', padding: '15px 0' }}
                 >
                   <span style={{ flex: 1, minWidth: 0 }}>
-                    <span className="hl-serif" style={{ fontSize: 18, fontWeight: 400, color: 'var(--bone)', display: 'block', lineHeight: 1.3 }}>
+                    <span className="hl-prose" style={{ fontSize: 17, fontWeight: 500, color: 'var(--bone)', display: 'block', lineHeight: 1.3 }}>
                       {h}
                     </span>
                     <span className="hl-prose" style={{ fontSize: 14, color: 'var(--bone-faint)', display: 'block', marginTop: 4, lineHeight: 1.6 }}>
                       {b}
                     </span>
                   </span>
-                  <span style={{ ...metaText, color: 'var(--warm)', flex: '0 0 auto' }}>{n}</span>
+                  <span style={{ ...metaText, color: 'var(--copper-label)', flex: '0 0 auto' }}>{n}</span>
                 </div>
               ))}
             </section>
@@ -420,7 +420,7 @@ export function Challenges() {
             }}
             onClick={e => e.stopPropagation()}
           >
-            <p style={{ ...metaText, color: 'var(--warm)', margin: '0 0 10px' }}>
+            <p style={{ ...metaText, color: 'var(--copper-label)', margin: '0 0 10px' }}>
               starts {new Date(selectedChallenge.start_date).toLocaleDateString()}
             </p>
             <h3

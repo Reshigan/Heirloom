@@ -73,7 +73,7 @@ export function Terms() {
                 fontFamily: 'var(--serif)',
                 fontSize: 17,
                 lineHeight: 1.7,
-                color: 'var(--bone)',
+                color: 'var(--bone-dim)',
                 margin: '10px 0 0',
                 maxWidth: '62ch',
               }}

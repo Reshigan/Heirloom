@@ -118,6 +118,23 @@ export function TiedOff() {
       topbarLeft={<Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'tied off' }]} />}
       backdropOpacity={0.35}
     >
+      {/* completion flourish — woven thread, behind everything */}
+      <img
+        src="/woven/thread-swoosh.png"
+        alt=""
+        aria-hidden
+        style={{
+          position: 'absolute',
+          left: '50%',
+          bottom: '4%',
+          transform: 'translateX(-50%)',
+          width: 'min(820px, 88vw)',
+          maxHeight: '46%',
+          objectFit: 'contain',
+          opacity: 0.07,
+          pointerEvents: 'none',
+        }}
+      />
       <div
         style={{
           position: 'absolute',
@@ -130,7 +147,7 @@ export function TiedOff() {
       >
         <div>
           {error && (
-            <p className="loom-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>{error}</p>
+            <p className="loom-mono" style={{ fontSize: 10, color: 'var(--copper-label)', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>{error}</p>
           )}
           <CosmicHeader
             eyebrow={`tied off · ${loading ? '…' : `${locked.length} ${locked.length === 1 ? 'thread' : 'threads'} waiting`}`}
@@ -204,7 +221,7 @@ export function TiedOff() {
             >
               <div
                 style={{
-                  color: 'var(--warm)',
+                  color: 'var(--ember)',
                   fontFamily: 'var(--serif)',
                   fontSize: 18,
                   lineHeight: 1,
@@ -258,7 +275,7 @@ export function TiedOff() {
               no threads are tied off yet.{' '}
               <Link
                 to="/compose"
-                style={{ color: 'var(--warm)', textDecoration: 'none' }}
+                style={{ color: 'var(--copper-label)', textDecoration: 'none' }}
               >
                 seal a letter →
               </Link>
@@ -311,7 +328,7 @@ function SealedCeremony({ deliverYear, title, author, writtenYear }: TiedEntry) 
       <div
         aria-hidden
         style={{
-          color: 'var(--warm)',
+          color: 'var(--ember)',
           fontFamily: 'var(--serif)',
           fontSize: 'clamp(40px, 10vw, 64px)',
           lineHeight: 1,
@@ -324,15 +341,14 @@ function SealedCeremony({ deliverYear, title, author, writtenYear }: TiedEntry) 
       {/* the letter's title */}
       <h2
         style={{
-          fontFamily: 'var(--serif)',
-          fontSize: 'clamp(24px, 5vw, 34px)',
-          fontWeight: 400,
-          lineHeight: 1.18,
-          letterSpacing: '-0.01em',
+          fontFamily: 'var(--serif-display)',
+          fontSize: 'clamp(26px, 5vw, 36px)',
+          fontWeight: 500,
+          lineHeight: 1.16,
+          letterSpacing: '-0.005em',
           color: 'var(--bone)',
-          fontVariationSettings: '"opsz" 32',
           margin: 0,
-          maxWidth: '16em',
+          maxWidth: '14em',
         }}
       >
         {title}
@@ -345,7 +361,7 @@ function SealedCeremony({ deliverYear, title, author, writtenYear }: TiedEntry) 
           fontSize: 11,
           letterSpacing: '0.26em',
           textTransform: 'uppercase',
-          color: 'var(--warm)',
+          color: 'var(--copper-label)',
         }}
       >
         sealed · opens {deliverYear}

@@ -188,7 +188,7 @@ export function FoundersWall() {
               fontSize: 11,
               letterSpacing: '0.26em',
               textTransform: 'uppercase',
-              color: 'var(--warm)',
+              color: 'var(--gold-text)',
               textDecoration: 'none',
               whiteSpace: 'nowrap',
               padding: '12px 0',

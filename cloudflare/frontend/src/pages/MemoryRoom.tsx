@@ -144,7 +144,7 @@ export function MemoryRoom() {
             <WaxSeal size={28} />
             <h1
               className="hl-serif hl-tight"
-              style={{ fontSize: 28, fontWeight: 300, fontStyle: 'italic', margin: '16px 0 12px', color: 'var(--bone)' }}
+              style={{ fontSize: 28, fontWeight: 500, fontStyle: 'italic', margin: '16px 0 12px', color: 'var(--bone)' }}
             >
               Room not found.
             </h1>
@@ -422,7 +422,7 @@ export function MemoryRoom() {
               <h3
                 id="contribute-title"
                 className="hl-serif hl-tight"
-                style={{ fontSize: 22, fontWeight: 300, margin: 0, color: 'var(--parchment-ink)' }}
+                style={{ fontSize: 25, fontWeight: 500, margin: 0, color: 'var(--parchment-ink)' }}
               >
                 Share a Memory
               </h3>

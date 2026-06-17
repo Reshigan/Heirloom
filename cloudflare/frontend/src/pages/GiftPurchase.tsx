@@ -124,10 +124,11 @@ export function GiftPurchase() {
               ∞
             </div>
             <h1
-              className="hl-serif hl-tight"
+              className="hl-tight"
               style={{
+                fontFamily: 'var(--serif-display)',
                 fontSize: 'clamp(24px, 5vw, 34px)',
-                fontWeight: 400,
+                fontWeight: 500,
                 lineHeight: 1.12,
                 color: 'var(--bone)',
                 margin: 0,
@@ -247,12 +248,15 @@ export function GiftPurchase() {
                     padding: '16px 18px',
                     cursor: 'pointer',
                     background: isSelected ? 'var(--ink)' : 'transparent',
-                    color: isSelected ? 'var(--bone)' : 'var(--bone)',
+                    color: 'var(--bone)',
                     border: '1px solid var(--rule)',
                     borderLeft: isFirst ? '1px solid var(--rule)' : 'none',
+                    borderBottom: isSelected
+                      ? '1px solid var(--copper-border)'
+                      : '1px solid var(--rule)',
                     outline: 'none',
                     transition:
-                      'background 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
+                      'background 180ms cubic-bezier(0.16,1,0.3,1), border-color 180ms cubic-bezier(0.16,1,0.3,1)',
                   }}
                 >
                   <span

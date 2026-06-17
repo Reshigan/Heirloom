@@ -183,8 +183,8 @@ export function GoldLegacyRedeem() {
               <GlowMark />
 
               <h1
-                className="hl-serif hl-tight"
-                style={{ fontSize: 'clamp(24px, 5vw, 34px)', fontWeight: 200, margin: '0 0 24px', color: 'var(--bone)' }}
+                className="hl-tight"
+                style={{ fontFamily: 'var(--serif-display)', fontSize: 'clamp(24px, 5vw, 34px)', fontWeight: 500, margin: '0 0 24px', color: 'var(--bone)' }}
               >
                 Your lifetime access.
               </h1>
@@ -271,8 +271,8 @@ export function GoldLegacyRedeem() {
               <GlowMark />
 
               <h1
-                className="hl-serif hl-tight"
-                style={{ fontSize: 'clamp(24px, 5vw, 34px)', fontWeight: 200, margin: '0 0 12px', color: 'var(--bone)' }}
+                className="hl-tight"
+                style={{ fontFamily: 'var(--serif-display)', fontSize: 'clamp(24px, 5vw, 34px)', fontWeight: 500, margin: '0 0 12px', color: 'var(--bone)' }}
               >
                 Your lifetime access.
               </h1>

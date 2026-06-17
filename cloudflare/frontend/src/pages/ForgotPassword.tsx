@@ -84,7 +84,7 @@ export function ForgotPassword() {
                 sub={
                   <>
                     If a thread exists for{' '}
-                    <span style={{ color: 'var(--warm)', fontStyle: 'normal' }}>{email}</span>
+                    <span style={{ color: 'var(--gold-text)', fontStyle: 'normal' }}>{email}</span>
                     , a reset link will arrive shortly.
                   </>
                 }

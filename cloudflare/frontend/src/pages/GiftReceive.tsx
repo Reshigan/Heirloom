@@ -121,7 +121,7 @@ export function GiftReceive() {
                 fontSize: 10,
                 letterSpacing: '0.32em',
                 textTransform: 'uppercase',
-                color: 'var(--bone-dim)',
+                color: 'var(--copper-label)',
                 margin: '26px 0 22px',
               }}
             >
@@ -129,9 +129,9 @@ export function GiftReceive() {
             </p>
             <h1
               style={{
-                fontFamily: 'var(--serif)',
+                fontFamily: 'var(--serif-display)',
                 fontSize: 'clamp(30px, 6vw, 44px)',
-                fontWeight: 400,
+                fontWeight: 500,
                 lineHeight: 1.05,
                 color: 'var(--bone)',
                 margin: '0 0 18px',
@@ -203,7 +203,7 @@ export function GiftReceive() {
                 fontSize: 10,
                 letterSpacing: '0.32em',
                 textTransform: 'uppercase',
-                color: 'var(--bone-dim)',
+                color: 'var(--copper-label)',
                 margin: '28px 0 22px',
               }}
             >
@@ -211,9 +211,9 @@ export function GiftReceive() {
             </p>
             <h1
               style={{
-                fontFamily: 'var(--serif)',
+                fontFamily: 'var(--serif-display)',
                 fontSize: 'clamp(30px, 6vw, 44px)',
-                fontWeight: 400,
+                fontWeight: 500,
                 lineHeight: 1.05,
                 color: 'var(--bone)',
                 margin: '0 0 18px',
@@ -263,9 +263,26 @@ export function GiftReceive() {
 
   return (
     <ClothShell topbarCenter="a gift">
-      <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', minHeight: '100%' }}>
+      <div style={{ position: 'relative', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', minHeight: '100%' }}>
+        {/* Woven unwrap mark — behind the gift, the seal being broken (§woven) */}
+        <img
+          src="/woven/seal.png"
+          alt=""
+          aria-hidden="true"
+          style={{
+            position: 'absolute',
+            top: 'var(--page-pad-top)',
+            right: 'clamp(-40px, 2vw, 40px)',
+            width: 'clamp(180px, 26vw, 320px)',
+            opacity: 0.06,
+            pointerEvents: 'none',
+            zIndex: 0,
+          }}
+        />
         <article
           style={{
+            position: 'relative',
+            zIndex: 1,
             maxWidth: 'var(--page-max-focus)',
             margin: '0 auto',
             borderLeft: `3px solid ${dye}`,
@@ -275,9 +292,9 @@ export function GiftReceive() {
           {/* Serif headline */}
           <h1
             style={{
-              fontFamily: 'var(--serif)',
+              fontFamily: 'var(--serif-display)',
               fontSize: 'clamp(30px, 6vw, 44px)',
-              fontWeight: 400,
+              fontWeight: 500,
               lineHeight: 1.06,
               letterSpacing: '-0.01em',
               color: 'var(--bone)',

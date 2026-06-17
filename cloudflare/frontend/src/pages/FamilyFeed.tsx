@@ -85,8 +85,9 @@ export function FamilyFeed() {
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 12,
-              letterSpacing: '0.12em',
-              color: 'var(--warm)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.2em',
+              color: 'var(--copper-label)',
               margin: '24px 0',
             }}
           >
@@ -103,7 +104,7 @@ export function FamilyFeed() {
               appearance: 'none',
               border: 'none',
               background: 'var(--rule)',
-              color: 'var(--warm)',
+              color: 'var(--copper-border)',
             }}
           />
         ) : !items.length ? (

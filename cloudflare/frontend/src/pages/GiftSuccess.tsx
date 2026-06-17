@@ -63,13 +63,13 @@ export function GiftSuccess() {
             SENT
           </div>
 
-          {/* Serif title */}
+          {/* Display title — Cormorant, hero only at >=24px */}
           <h1
             style={{
-              fontFamily: 'var(--serif)',
-              fontSize: 'clamp(24px, 5vw, 34px)',
-              fontWeight: 400,
-              lineHeight: 1.2,
+              fontFamily: 'var(--serif-display)',
+              fontSize: 'clamp(28px, 5vw, 40px)',
+              fontWeight: 500,
+              lineHeight: 1.15,
               letterSpacing: '-0.01em',
               color: 'var(--bone)',
               margin: '0 0 20px',

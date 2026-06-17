@@ -251,10 +251,10 @@ export function LoomIndex() {
               onClick={() => setGroupBy(g)}
               style={{
                 background: 'none', border: 0, padding: '10px 0', cursor: 'pointer',
-                fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em',
                 textTransform: 'uppercase',
-                color: groupBy === g ? 'var(--warm)' : 'var(--bone-faint)',
-                borderBottom: groupBy === g ? '1px solid var(--warm)' : '1px solid transparent',
+                color: groupBy === g ? 'var(--copper-label)' : 'var(--muted-2)',
+                borderBottom: groupBy === g ? '1px solid var(--copper-border)' : '1px solid transparent',
                 transition: `color 180ms ${EASE}, border-color 180ms ${EASE}`,
                 minHeight: 44,
               }}
@@ -276,8 +276,8 @@ export function LoomIndex() {
               key={to}
               to={to}
               style={{
-                fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em',
-                textTransform: 'uppercase', color: 'var(--bone-faint)',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em',
+                textTransform: 'uppercase', color: 'var(--muted-2)',
                 textDecoration: 'none',
                 minHeight: 44, display: 'inline-flex', alignItems: 'center',
               }}

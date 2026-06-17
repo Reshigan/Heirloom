@@ -46,7 +46,7 @@ const BACK_LINK: React.CSSProperties = {
   fontSize: 10,
   letterSpacing: '0.18em',
   textTransform: 'uppercase',
-  color: 'var(--warm)',
+  color: 'var(--copper-label)',
   textDecoration: 'none',
   display: 'inline-block',
   marginBottom: 32,
@@ -193,9 +193,9 @@ export function PersonPage() {
               style={{
                 display: 'block', width: '100%', background: 'transparent',
                 border: 0, borderBottom: '1px solid var(--rule)', outline: 'none',
-                fontFamily: 'var(--serif)', fontSize: 'clamp(30px, 6vw, 44px)', color: 'var(--bone)',
-                fontWeight: 400, padding: '4px 0 8px', boxSizing: 'border-box',
-                lineHeight: 1.1, caretColor: 'var(--warm)',
+                fontFamily: 'var(--serif-display)', fontSize: 'clamp(30px, 6vw, 44px)', color: 'var(--bone)',
+                fontWeight: 500, padding: '4px 0 8px', boxSizing: 'border-box',
+                lineHeight: 1.1, caretColor: 'var(--copper-label)',
               }}
             />
             <input
@@ -209,7 +209,7 @@ export function PersonPage() {
                 fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--bone-faint)',
                 letterSpacing: '0.26em', textTransform: 'uppercase',
                 padding: '10px 0 8px', boxSizing: 'border-box', marginTop: 16,
-                caretColor: 'var(--warm)',
+                caretColor: 'var(--copper-label)',
               }}
             />
             <input
@@ -223,7 +223,7 @@ export function PersonPage() {
                 border: 0, borderBottom: '1px solid var(--rule)', outline: 'none',
                 fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone)',
                 padding: '10px 0 8px', boxSizing: 'border-box', marginTop: 14,
-                caretColor: 'var(--warm)',
+                caretColor: 'var(--copper-label)',
               }}
             />
             <textarea
@@ -237,11 +237,11 @@ export function PersonPage() {
                 border: 0, borderBottom: '1px solid var(--rule)', outline: 'none',
                 fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--bone-dim)',
                 padding: '10px 0 8px', boxSizing: 'border-box', marginTop: 14,
-                resize: 'none', lineHeight: 1.6, caretColor: 'var(--warm)',
+                resize: 'none', lineHeight: 1.6, caretColor: 'var(--copper-label)',
               }}
             />
             {editError && (
-              <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)', letterSpacing: '0.14em', margin: '12px 0 0' }}>
+              <p style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--copper-label)', letterSpacing: '0.14em', margin: '12px 0 0' }}>
                 {editError}
               </p>
             )}
@@ -253,7 +253,7 @@ export function PersonPage() {
                 style={{
                   background: 'transparent', border: 0, padding: 0,
                   cursor: (!editName.trim() || !editRelationship.trim() || updateMember.isPending) ? 'default' : 'pointer',
-                  fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)',
+                  fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--copper-label)',
                   letterSpacing: '0.26em', textTransform: 'uppercase', minHeight: 44,
                   opacity: (!editName.trim() || !editRelationship.trim() || updateMember.isPending) ? 0.4 : 1,
                 }}
@@ -289,7 +289,7 @@ export function PersonPage() {
                 letterSpacing: '0.26em', textTransform: 'uppercase',
                 marginTop: 4, display: 'inline-block', minHeight: 44,
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--copper-label)'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
             >
               edit profile →
@@ -342,7 +342,7 @@ export function PersonPage() {
                           fontSize: 10,
                           letterSpacing: '0.18em',
                           textTransform: 'uppercase',
-                          color: 'var(--warm)',
+                          color: 'var(--copper-label)',
                           textDecoration: 'none',
                           marginLeft: 12,
                           whiteSpace: 'nowrap',

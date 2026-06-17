@@ -124,12 +124,12 @@ export function ResetPassword() {
               {/* Giant serif headline */}
               <h1
                 style={{
-                  fontFamily: 'var(--serif)',
+                  fontFamily: 'var(--serif-display)',
                   fontSize: 'clamp(40px, 9vw, 72px)',
                   lineHeight: 1.05,
                   letterSpacing: '-0.012em',
                   color: 'var(--bone)',
-                  fontWeight: 380,
+                  fontWeight: 500,
                   margin: '0 0 20px',
                 }}
               >
@@ -188,12 +188,12 @@ export function ResetPassword() {
               {/* Giant serif headline */}
               <h1
                 style={{
-                  fontFamily: 'var(--serif)',
+                  fontFamily: 'var(--serif-display)',
                   fontSize: 'clamp(40px, 9vw, 72px)',
                   lineHeight: 1.05,
                   letterSpacing: '-0.012em',
                   color: 'var(--bone)',
-                  fontWeight: 380,
+                  fontWeight: 500,
                   margin: '0 0 20px',
                 }}
               >
@@ -252,12 +252,12 @@ export function ResetPassword() {
               {/* Giant serif headline */}
               <h1
                 style={{
-                  fontFamily: 'var(--serif)',
+                  fontFamily: 'var(--serif-display)',
                   fontSize: 'clamp(40px, 9vw, 72px)',
                   lineHeight: 1.05,
                   letterSpacing: '-0.012em',
                   color: 'var(--bone)',
-                  fontWeight: 380,
+                  fontWeight: 500,
                   margin: '0 0 12px',
                 }}
               >

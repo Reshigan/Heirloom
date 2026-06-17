@@ -600,9 +600,9 @@ export function QuickWizard() {
                         style={{
                           fontSize: 10,
                           color: 'var(--warm)',
-                          letterSpacing: '0.1em',
+                          letterSpacing: '0.18em',
+                          textTransform: 'uppercase',
                           marginBottom: 16,
-                          fontStyle: 'italic',
                         }}
                       >
                         {promptError}

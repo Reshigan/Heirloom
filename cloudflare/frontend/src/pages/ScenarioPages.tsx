@@ -47,7 +47,7 @@ function ScenarioPage({
           fontSize: 13,
           letterSpacing: '0.22em',
           textTransform: 'uppercase',
-          color: 'var(--warm)',
+          color: 'var(--copper-label)',
           textDecoration: 'none',
         }}>
           heirloom
@@ -108,7 +108,7 @@ function ScenarioPage({
               fontSize: 9,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: 'var(--warm)',
+              color: 'var(--copper-label)',
               display: 'block',
               marginTop: 5,
             }}>
@@ -159,7 +159,7 @@ function ScenarioPage({
               fontSize: 9,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: 'var(--warm)',
+              color: 'var(--copper-label)',
               flexShrink: 0,
               paddingTop: 3,
               minWidth: 90,

@@ -76,12 +76,12 @@ export function AdminLogin() {
         Restricted Access
       </div>
 
-      {/* Giant serif headline */}
+      {/* Giant display headline — Cormorant, >=24px */}
       <h1
         style={{
-          fontFamily: 'var(--serif)',
+          fontFamily: 'var(--serif-display)',
           fontSize: 'clamp(40px, 9vw, 72px)',
-          fontWeight: 380,
+          fontWeight: 500,
           lineHeight: 1.05,
           letterSpacing: '-0.015em',
           color: 'var(--bone)',
