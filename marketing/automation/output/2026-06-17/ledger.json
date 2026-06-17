@@ -8,5 +8,10 @@
     "hour": 16,
     "hook": "Tonight, a strange night is unfolding.",
     "saying": "What's the one night your parent will never forget?"
+  },
+  {
+    "hour": 19,
+    "hook": "You're sorting old photos with your mom",
+    "saying": "What's the story behind the photo on your mom's nightstand?"
   }
 ]
