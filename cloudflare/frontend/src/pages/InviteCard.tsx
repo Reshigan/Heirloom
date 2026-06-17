@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
+import { engagementApi } from '../services/api';
+import { copyToClipboard } from '../utils/clipboard';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 /**
  * InviteCard — READING archetype.
  * A printable, shareable invitation into a family thread.
- * No token validation / accept flow exists in this component;
- * the CTA routes to /signup, matching the displayed URL.
+ * Generates a real family_invites code via engagementApi.invite() and renders
+ * the working accept link `${origin}/join?code=INV-…` (handled by Join.tsx),
+ * replacing the old static heirloom.blue/signup string + /signup CTA.
  */
 export function InviteCard() {
   const { user } = useAuthStore();
@@ -14,6 +18,49 @@ export function InviteCard() {
 
   // Deterministic warm accent — dye margin uses warm as fallback (no per-entry dye on an invite)
   const marginColor = 'var(--warm-dim)';
+
+  // Real invite wiring — generate an INV- code, then show its /join?code= link.
+  const [email, setEmail] = useState('');
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://heirloom.blue';
+  const inviteUrl = inviteCode ? `${origin}/join?code=${inviteCode}` : null;
+
+  const generate = () => {
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setError('Enter the email of the person you are inviting.');
+      return;
+    }
+    setGenerating(true);
+    setError(null);
+    engagementApi
+      .invite({ email: trimmed })
+      .then((res: any) => {
+        const code = (res?.data as any)?.inviteCode as string | undefined;
+        if (!code) throw new Error('no code');
+        setInviteCode(code);
+      })
+      .catch((err: any) => {
+        setError(err?.response?.data?.error ?? 'Could not create the invite. Try again.');
+      })
+      .finally(() => setGenerating(false));
+  };
+
+  const copyLink = () => {
+    if (!inviteUrl) return;
+    copyToClipboard(inviteUrl)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => {
+        setError(`Couldn't reach the clipboard. The link is: ${inviteUrl}`);
+      });
+  };
 
   return (
     <>
@@ -154,7 +201,7 @@ export function InviteCard() {
             Nothing is silently deleted or rewritten.
           </p>
 
-          {/* Access URL — quiet mono block */}
+          {/* Access URL — quiet mono block. Real /join?code= link once generated. */}
           <div
             style={{
               margin: '0 auto 64px',
@@ -172,39 +219,126 @@ export function InviteCard() {
             >
               To read the thread
             </div>
-            <div
-              style={{
-                fontFamily: 'var(--mono)',
-                fontSize: 14,
-                letterSpacing: '0.1em',
-                color: 'var(--bone-dim)',
-              }}
-            >
-              heirloom.blue/signup
-            </div>
+            {inviteUrl ? (
+              <div
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 14,
+                  letterSpacing: '0.1em',
+                  color: 'var(--bone-dim)',
+                  wordBreak: 'break-all',
+                }}
+              >
+                {inviteUrl.replace(/^https?:\/\//, '')}
+              </div>
+            ) : (
+              <div
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 12,
+                  letterSpacing: '0.06em',
+                  color: 'var(--bone-faint)',
+                }}
+              >
+                Generate a personal invite link below.
+              </div>
+            )}
           </div>
 
-          {/* Primary CTA — mono warm pill (pill radius allowed on single primary CTA) */}
+          {/* Generate / share controls — hidden on print */}
           <div className="no-print" style={{ marginBottom: 64 }}>
-            <a
-              href="/signup"
-              style={{
-                display: 'inline-block',
-                fontFamily: 'var(--mono)',
-                fontSize: 11,
-                letterSpacing: '0.26em',
-                textTransform: 'uppercase',
-                color: 'var(--ink)',
-                background: 'var(--warm)',
-                padding: '13px 28px',
-                borderRadius: 999,
-                textDecoration: 'none',
-                minHeight: 44,
-                lineHeight: 1,
-              }}
-            >
-              Join the Thread →
-            </a>
+            {inviteUrl ? (
+              <button
+                type="button"
+                onClick={copyLink}
+                style={{
+                  display: 'inline-block',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--ink)',
+                  background: 'var(--warm)',
+                  border: 'none',
+                  padding: '13px 28px',
+                  borderRadius: 999,
+                  cursor: 'pointer',
+                  minHeight: 44,
+                  lineHeight: 1,
+                }}
+              >
+                {copied ? 'Link copied ✓' : 'Copy invite link →'}
+              </button>
+            ) : (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 16,
+                }}
+              >
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="their email"
+                  autoComplete="email"
+                  style={{
+                    fontFamily: 'var(--serif)',
+                    fontSize: 16,
+                    color: 'var(--bone)',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: '1px solid var(--rule)',
+                    padding: '8px 4px',
+                    textAlign: 'center',
+                    width: '100%',
+                    maxWidth: 320,
+                    outline: 'none',
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={generate}
+                  disabled={generating}
+                  style={{
+                    display: 'inline-block',
+                    fontFamily: 'var(--mono)',
+                    fontSize: 11,
+                    letterSpacing: '0.26em',
+                    textTransform: 'uppercase',
+                    color: 'var(--ink)',
+                    background: 'var(--warm)',
+                    border: 'none',
+                    padding: '13px 28px',
+                    borderRadius: 999,
+                    cursor: generating ? 'default' : 'pointer',
+                    opacity: generating ? 0.6 : 1,
+                    minHeight: 44,
+                    lineHeight: 1,
+                  }}
+                >
+                  {generating ? 'Generating…' : 'Generate invite link →'}
+                </button>
+              </div>
+            )}
+
+            {error && (
+              <p
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 11,
+                  letterSpacing: '0.08em',
+                  color: 'var(--warm)',
+                  margin: '16px auto 0',
+                  maxWidth: 360,
+                  lineHeight: 1.5,
+                }}
+              >
+                {error}
+              </p>
+            )}
           </div>
 
           {/* Serif-italic closing signature */}

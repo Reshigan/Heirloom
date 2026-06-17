@@ -807,7 +807,7 @@ settingsRoutes.get('/exit-quote', async (c) => {
 
   const [memBytes, voiceBytes] = await Promise.all([
     c.env.DB.prepare(`SELECT COALESCE(SUM(file_size), 0) AS total FROM memories WHERE user_id = ? AND deleted_at IS NULL`).bind(userId).first<{ total: number }>(),
-    c.env.DB.prepare(`SELECT COALESCE(SUM(file_size), 0) AS total FROM voice_recordings WHERE user_id = ?`).bind(userId).first<{ total: number }>(),
+    c.env.DB.prepare(`SELECT COALESCE(SUM(file_size), 0) AS total FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL`).bind(userId).first<{ total: number }>(),
   ]);
 
   const totalBytes = (memBytes?.total ?? 0) + (voiceBytes?.total ?? 0);

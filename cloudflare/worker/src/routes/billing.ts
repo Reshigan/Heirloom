@@ -20,6 +20,7 @@ import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
 import { renderBookPdf } from '../services/bookPdf';
+import { FREE_STORAGE_BYTES } from '../lib/quota';
 
 export const billingRoutes = new Hono<AppEnv>();
 
@@ -149,7 +150,7 @@ const TIER_LIMITS = {
   // THREADS only — every feature is available to try, but capped to one thread
   // and 500 MB so families upgrade for room and more threads, not features.
   STARTER: {
-    maxStorage: 512 * 1024 * 1024, // 500 MB
+    maxStorage: FREE_STORAGE_BYTES, // 500 MB — shared with quota.ts enforcement
     maxStorageLabel: '500 MB',
     maxThreads: 1,
     maxMemoriesPerMonth: -1, // unlimited within storage
@@ -440,8 +441,8 @@ billingRoutes.get('/limits', async (c) => {
   const tier = (trialActive ? TRIAL_TIER : rawTier) as keyof typeof TIER_LIMITS;
   const tierLimits = TIER_LIMITS[tier];
   
-  const memoriesResult = await c.env.DB.prepare('SELECT COUNT(*) as count, COALESCE(SUM(file_size), 0) as total FROM memories WHERE user_id = ?').bind(userId).first();
-  const voiceResult = await c.env.DB.prepare('SELECT COUNT(*) as count, COALESCE(SUM(duration), 0) as totalMinutes, COALESCE(SUM(file_size), 0) as total FROM voice_recordings WHERE user_id = ?').bind(userId).first();
+  const memoriesResult = await c.env.DB.prepare('SELECT COUNT(*) as count, COALESCE(SUM(file_size), 0) as total FROM memories WHERE user_id = ? AND deleted_at IS NULL').bind(userId).first();
+  const voiceResult = await c.env.DB.prepare('SELECT COUNT(*) as count, COALESCE(SUM(duration), 0) as totalMinutes, COALESCE(SUM(file_size), 0) as total FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL').bind(userId).first();
   const lettersResult = await c.env.DB.prepare('SELECT COUNT(*) as count FROM letters WHERE user_id = ?').bind(userId).first();
   
   const usedBytes = ((memoriesResult?.total as number) || 0) + ((voiceResult?.total as number) || 0);

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { foundersApi, type FounderCount } from '../services/api';
+import { foundersApi, billingApi, type FounderCount } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
@@ -68,6 +68,11 @@ export function Founder() {
 
   const [count, setCount] = useState<FounderCount | null>(null);
 
+  // Localized Founder one-time price for display. Falls back to "$249" until the
+  // pricing endpoint resolves (or if it fails). Stripe charges the dynamic
+  // price_data amount regardless — this is display source only.
+  const [priceDisplay, setPriceDisplay] = useState('$249');
+
   // pledge form state
   const [name, setName]             = useState('');
   const [email, setEmail]           = useState('');
@@ -81,6 +86,17 @@ export function Founder() {
     foundersApi
       .count()
       .then((r) => setCount(r.data))
+      .catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    billingApi
+      .getPricing()
+      .then((r) => {
+        const founder = (r.data?.tiers ?? []).find((t: any) => t.id === 'FOUNDER');
+        const display = founder?.oneTime?.display;
+        if (typeof display === 'string' && display) setPriceDisplay(display);
+      })
       .catch(() => undefined);
   }, []);
 
@@ -165,7 +181,7 @@ export function Founder() {
             textAlign:     'center',
           }}
         >
-          founder · $249 · once · lifetime
+          founder · {priceDisplay} · once · lifetime
         </p>
 
         {/* ── Giant serif headline ──────────────────────────────────────── */}
@@ -434,7 +450,7 @@ export function Founder() {
                 transition:     'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
               }}
             >
-              {submitting ? 'submitting…' : 'Become a founder · $249 once'}
+              {submitting ? 'submitting…' : `Become a founder · ${priceDisplay} once`}
             </button>
 
             <Link

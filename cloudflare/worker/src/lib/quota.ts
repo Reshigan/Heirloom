@@ -16,13 +16,19 @@ import type { Env } from '../index';
 const MB = 1024 * 1024;
 const GB = 1024 * MB;
 
+/**
+ * The Free (FREE/STARTER) storage cap, in bytes. The single source of truth so
+ * enforcement (here) and display (billing.ts TIER_LIMITS.STARTER) never desync.
+ */
+export const FREE_STORAGE_BYTES = 500 * MB;
+
 /** Bytes a user is allowed, resolved from tier + active-trial state. */
 export function storageCapBytes(tier: string | null | undefined, trialActive: boolean): number {
   if (trialActive) return 50 * GB; // Family trial gets the Family cap
   const t = (tier ?? 'STARTER').toUpperCase();
   if (t === 'LEGACY' || t === 'FOREVER') return 500 * GB; // Founder / lifetime
   if (t === 'FAMILY' || t === 'ESSENTIAL') return 50 * GB; // Family
-  return 500 * MB; // FREE / STARTER
+  return FREE_STORAGE_BYTES; // FREE / STARTER
 }
 
 /** Current storage used by a user, in bytes (memories + voice). */

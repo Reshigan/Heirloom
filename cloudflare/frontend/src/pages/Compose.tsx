@@ -36,6 +36,7 @@ interface ComposeImage {
   progress: number;
   fileKey?: string;
   fileUrl?: string;
+  fileSize?: number;
   mimeType?: string;
   error?: boolean;
 }
@@ -898,7 +899,7 @@ export function Compose() {
           setImages((prev) =>
             prev.map((im) =>
               im.id === id
-                ? { ...im, uploading: false, progress: 100, fileKey: res.fileKey, fileUrl: res.fileUrl }
+                ? { ...im, uploading: false, progress: 100, fileKey: res.fileKey, fileUrl: res.fileUrl, fileSize: res.fileSize }
                 : im,
             ),
           ),
@@ -1008,7 +1009,7 @@ export function Compose() {
                 ...(about.trim() && aboutRelation.trim() ? { aboutRelation: aboutRelation.trim() } : {}),
                 ...(room.trim() ? { room: room.trim() } : {}),
                 ...(emotion ? { emotion } : {}),
-                images: photos.map((p) => ({ fileKey: p.fileKey, fileUrl: p.fileUrl, mimeType: p.mimeType })),
+                images: photos.map((p) => ({ fileKey: p.fileKey, fileUrl: p.fileUrl, fileSize: p.fileSize, mimeType: p.mimeType })),
               },
             })
             .then((r) => r.data);
@@ -1020,6 +1021,7 @@ export function Compose() {
             description: body.trim(),
             fileKey: primary?.fileKey,
             fileUrl: primary?.fileUrl,
+            fileSize: photos.reduce((sum, p) => sum + (p.fileSize ?? 0), 0) || undefined,
             mimeType: primary?.mimeType,
             metadata: {
               visibility,
@@ -1030,7 +1032,7 @@ export function Compose() {
               ...(about.trim() && aboutRelation.trim() ? { aboutRelation: aboutRelation.trim() } : {}),
               ...(room.trim() ? { room: room.trim() } : {}),
               ...(emotion ? { emotion } : {}),
-              images: photos.map((p) => ({ fileKey: p.fileKey, fileUrl: p.fileUrl, mimeType: p.mimeType })),
+              images: photos.map((p) => ({ fileKey: p.fileKey, fileUrl: p.fileUrl, fileSize: p.fileSize, mimeType: p.mimeType })),
             },
           })
           .then((r) => r.data);

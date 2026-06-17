@@ -13,7 +13,7 @@ interface PricingTier {
   description: string;
   storage: string;
   popular?: boolean;
-  quarterly: { amount: number; display: string };
+  quarterly?: { amount: number; display: string };
   yearly: { amount: number; display: string; savings?: string };
 }
 
@@ -29,7 +29,7 @@ export function GiftPurchase() {
   usePageMeta('Give Heirloom', 'Give someone the gift of a family thread.');
   const [pricing, setPricing] = useState<PricingData | null>(null);
   const [selectedTier, setSelectedTier] = useState<string>('FAMILY');
-  const [billingCycle, setBillingCycle] = useState<'quarterly' | 'yearly'>('yearly');
+  const [billingCycle] = useState<'yearly'>('yearly');
   const [isLoading, setIsLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -164,55 +164,30 @@ export function GiftPurchase() {
             </p>
           </header>
 
-          {/* Billing cycle toggle */}
+          {/* Billing — annual only; quarterly is not offered for gifts */}
           <div
             style={{
               display: 'flex',
-              gap: 0,
               justifyContent: 'center',
               margin: '0 0 28px',
+              paddingBottom: 11,
               borderBottom: '1px solid var(--rule)',
             }}
           >
-            {(['quarterly', 'yearly'] as const).map((cycle) => (
-              <button
-                key={cycle}
-                onClick={() => setBillingCycle(cycle)}
-                className="hl-mono"
-                style={{
-                  background: 'transparent',
-                  border: 0,
-                  borderBottom:
-                    billingCycle === cycle
-                      ? '1px solid var(--warm)'
-                      : '1px solid transparent',
-                  marginBottom: -1,
-                  padding: '10px 20px 10px 0',
-                  fontSize: 10,
-                  letterSpacing: '0.28em',
-                  textTransform: 'uppercase',
-                  color:
-                    billingCycle === cycle
-                      ? 'var(--bone)'
-                      : 'var(--bone-faint)',
-                  cursor: 'pointer',
-                  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
-                }}
-              >
-                {cycle === 'quarterly' ? '3 months' : 'annual'}
-                {cycle === 'yearly' && (
-                  <span
-                    style={{
-                      marginLeft: 8,
-                      color: 'var(--warm)',
-                      fontSize: 9,
-                    }}
-                  >
-                    save 2 months
-                  </span>
-                )}
-              </button>
-            ))}
+            <span
+              className="hl-mono"
+              style={{
+                fontSize: 10,
+                letterSpacing: '0.28em',
+                textTransform: 'uppercase',
+                color: 'var(--bone)',
+              }}
+            >
+              annual
+              <span style={{ marginLeft: 8, color: 'var(--warm)', fontSize: 9 }}>
+                save 2 months
+              </span>
+            </span>
           </div>
 
           {/* Tier selection: 2-column grid */}
@@ -230,7 +205,6 @@ export function GiftPurchase() {
                   name: 'Family',
                   description: '1 year of Family plan',
                   storage: '50 GB',
-                  quarterly: { amount: 0, display: '—' },
                   yearly: { amount: 0, display: '—' },
                 },
               ]
@@ -314,7 +288,7 @@ export function GiftPurchase() {
                       marginTop: 4,
                     }}
                   >
-                    {billingCycle === 'yearly' ? '/ year' : '/ 3 months'}
+                    / year
                     {' · '}
                     {tier?.storage ?? '—'} storage
                   </span>
@@ -548,8 +522,7 @@ export function GiftPurchase() {
                 color: 'var(--bone-dim)',
               }}
             >
-              {selectedPricing?.name ?? '—'} &middot;{' '}
-              {billingCycle === 'yearly' ? '1 year' : '3 months'}
+              {selectedPricing?.name ?? '—'} &middot; 1 year
             </span>
             <span
               className="hl-serif"

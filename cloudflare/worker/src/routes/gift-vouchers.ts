@@ -6,15 +6,68 @@
  */
 
 import { Hono } from 'hono';
+import type { Context } from 'hono';
 import type { Env, Variables } from '../index';
 import { giftVoucherPurchaseEmail, giftVoucherReceivedEmail, giftVoucherRedeemedEmail } from '../email-templates';
 import { sendEmail } from '../utils/email';
+
+type GiftVoucherContext = Context<{ Bindings: Env; Variables: Variables }>;
 
 export const giftVoucherRoutes = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 // =============================================================================
 // HELPERS
 // =============================================================================
+
+// Verify a JWT exactly the way the protectedApp middleware does (HS256, header
+// + signature checks, expiry). Mirrors verifyJWT in index.ts so vouchers can
+// authenticate without being mounted behind that middleware.
+async function verifyJWT(token: string, secret: string): Promise<any> {
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['verify'],
+  );
+
+  const [headerB64, payloadB64, signatureB64] = token.split('.');
+
+  // Reject algorithm-confusion / tampered headers before verifying.
+  const header = JSON.parse(atob(headerB64.replace(/-/g, '+').replace(/_/g, '/')));
+  if (header.alg !== 'HS256' || header.typ !== 'JWT') throw new Error('Invalid token header');
+
+  const data = encoder.encode(`${headerB64}.${payloadB64}`);
+  const signature = Uint8Array.from(atob(signatureB64.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
+
+  const valid = await crypto.subtle.verify('HMAC', key, signature, data);
+  if (!valid) throw new Error('Invalid token');
+
+  const payload = JSON.parse(atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/')));
+  if (payload.exp && Date.now() >= payload.exp * 1000) throw new Error('Token expired');
+  return payload;
+}
+
+// Resolve the authenticated user from the Authorization: Bearer header, the
+// same way the protectedApp middleware does (verify JWT + live KV session).
+// Returns the user id (payload.sub) or null. Gift voucher routes are mounted on
+// the PUBLIC app, so they cannot rely on c.get('userId') being set.
+async function resolveUserId(c: GiftVoucherContext): Promise<string | null> {
+  const authHeader = c.req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return null;
+  }
+  const token = authHeader.replace('Bearer ', '');
+  try {
+    const payload = await verifyJWT(token, c.env.JWT_SECRET);
+    const session = await c.env.KV.get(`session:${payload.sessionId}`);
+    if (!session) return null;
+    return payload.sub ?? null;
+  } catch {
+    return null;
+  }
+}
 
 function generateVoucherCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -350,7 +403,7 @@ giftVoucherRoutes.get('/validate/:code', async (c) => {
 
 // Redeem a voucher (requires auth)
 giftVoucherRoutes.post('/redeem', async (c) => {
-  const userId = c.get('userId');
+  const userId = await resolveUserId(c);
   if (!userId) {
     return c.json({ error: 'Authentication required' }, 401);
   }
@@ -402,6 +455,19 @@ giftVoucherRoutes.post('/redeem', async (c) => {
   }
   
   try {
+    // Atomically claim the voucher BEFORE granting anything. The status guard
+    // means only one concurrent request can flip it to REDEEMED; the loser sees
+    // meta.changes === 0 and bails out without granting a second subscription.
+    const claim = await c.env.DB.prepare(`
+      UPDATE gift_vouchers
+      SET status = 'REDEEMED', redeemed_by_user_id = ?, redeemed_at = datetime('now'), updated_at = datetime('now')
+      WHERE id = ? AND status != 'REDEEMED'
+    `).bind(userId, voucher.id).run();
+
+    if (claim.meta.changes !== 1) {
+      return c.json({ error: 'This voucher has already been redeemed' }, 409);
+    }
+
     if (isGoldLegacy) {
       // Gold Legacy: Set lifetime access flag on user and create/update subscription
       await c.env.DB.prepare(`
@@ -452,14 +518,7 @@ giftVoucherRoutes.post('/redeem', async (c) => {
         `).bind(userId, voucher.tier, voucher.billing_cycle, now.toISOString(), periodEnd.toISOString()).run();
       }
     }
-    
-    // Mark voucher as redeemed
-    await c.env.DB.prepare(`
-      UPDATE gift_vouchers 
-      SET status = 'REDEEMED', redeemed_by_user_id = ?, redeemed_at = datetime('now'), updated_at = datetime('now')
-      WHERE id = ?
-    `).bind(userId, voucher.id).run();
-    
+
     // Get user email for confirmation
     const user = await c.env.DB.prepare('SELECT email, first_name FROM users WHERE id = ?').bind(userId).first();
     
@@ -555,7 +614,7 @@ giftVoucherRoutes.post('/redeem', async (c) => {
 
 // Get user's purchased vouchers
 giftVoucherRoutes.get('/purchased', async (c) => {
-  const userId = c.get('userId');
+  const userId = await resolveUserId(c);
   if (!userId) {
     return c.json({ error: 'Authentication required' }, 401);
   }
@@ -573,7 +632,7 @@ giftVoucherRoutes.get('/purchased', async (c) => {
 
 // Send voucher to recipient (if not sent at purchase)
 giftVoucherRoutes.post('/:id/send', async (c) => {
-  const userId = c.get('userId');
+  const userId = await resolveUserId(c);
   if (!userId) {
     return c.json({ error: 'Authentication required' }, 401);
   }

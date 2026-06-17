@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { settingsApi, exportApi, deadmanApi } from '../services/api';
@@ -230,6 +230,11 @@ export function Settings() {
   usePageMeta('Settings');
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  // Stripe checkout redirects back to /settings?tab=subscription&success=true
+  // (or &canceled=true). Entitlement is webhook-driven; this is acknowledgment only.
+  const checkoutSucceeded = searchParams.get('success') === 'true';
+  const checkoutCanceled = searchParams.get('canceled') === 'true';
   const { theme, setTheme } = useLoomTheme();
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
@@ -749,6 +754,20 @@ export function Settings() {
 
           {/* ════════ BILLING ════════ */}
           <SectionLabel>Billing</SectionLabel>
+
+          {checkoutSucceeded && (
+            <div style={{ padding: '4px 0 16px' }}>
+              <div className="hl-eyebrow" style={{ color: 'var(--copper-label)', marginBottom: 8 }}>upgrade confirmed</div>
+              <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: 0, maxWidth: '52ch' }}>
+                Your upgrade is confirmed — welcome to Family. Your new entitlements arrive within a moment.
+              </p>
+            </div>
+          )}
+          {checkoutCanceled && (
+            <p className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.16em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+              checkout canceled — nothing changed
+            </p>
+          )}
 
           <LedgerRow
             label="Subscription"

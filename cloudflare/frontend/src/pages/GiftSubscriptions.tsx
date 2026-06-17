@@ -74,7 +74,12 @@ export function GiftSubscriptions() {
         style:           selectedStyle,
       }),
     onSuccess: (response) => {
-      setGiftResult(response.data);
+      const data = response.data;
+      if (data?.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+        return;
+      }
+      setGiftResult(data);
       setShowSuccess(true);
       queryClient.invalidateQueries({ queryKey: ['purchasedGifts'] });
     },
@@ -897,7 +902,7 @@ export function GiftSubscriptions() {
                 ? `on ${new Date(formData.scheduledDate).toLocaleDateString()}`
                 : 'shortly'}.
             </p>
-            {giftResult.giftCode && (
+            {giftResult.voucherCode && (
               <div
                 style={{
                   borderTop:    '1px solid var(--rule)',
@@ -927,7 +932,7 @@ export function GiftSubscriptions() {
                     margin:        0,
                   }}
                 >
-                  {giftResult.giftCode}
+                  {giftResult.voucherCode}
                 </p>
               </div>
             )}

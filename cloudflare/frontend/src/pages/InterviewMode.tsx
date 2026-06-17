@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { voiceApi, aiApi } from '../services/api';
+import { voiceApi, aiApi, getAuthHeaders } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 
@@ -191,11 +191,14 @@ export function InterviewMode() {
         contentType: 'audio/webm',
       });
 
-      await fetch(uploadData.uploadUrl, {
+      const uploadResponse = await fetch(uploadData.uploadUrl, {
         method: 'PUT',
         body: blob,
-        headers: { 'Content-Type': 'audio/webm' },
+        headers: { 'Content-Type': 'audio/webm', ...getAuthHeaders() },
       });
+      if (!uploadResponse.ok) {
+        throw new Error(`Upload failed: ${uploadResponse.status}`);
+      }
 
       await voiceApi.create({
         title: `Interview - ${new Date().toLocaleDateString()}`,

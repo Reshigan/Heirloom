@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { aiApi, engagementApi } from '../services/api';
+import { aiApi, engagementApi, memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
@@ -300,10 +300,11 @@ export function DailySentence() {
     }
     setSaveState('saving');
     setErrorMsg('');
+    const sentence = draft.trim();
     try {
-      // Persist the sentence — stored locally since no dedicated endpoint exists.
-      // When an API endpoint is wired in, replace this block with the API call.
-      await new Promise<void>((resolve) => setTimeout(resolve, 320));
+      // Persist the sentence as a plain TEXT memory so it enters the family thread.
+      await memoriesApi.create({ type: 'TEXT', description: sentence });
+      // localStorage flag is a local "written today" UX cue, gated on the save above.
       markWrittenToday();
       setAlreadyWrittenToday(true);
       setDraft('');

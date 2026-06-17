@@ -75,28 +75,33 @@ deadmanRoutes.post('/configure', async (c) => {
   }
   
   const now = new Date().toISOString();
-  
+  // Compute when the next check-in falls due, measured from now. This MUST be
+  // persisted: all three cron paths compare against next_check_in_due, and a
+  // NULL never satisfies those comparisons (the switch could never trigger).
+  const nextCheckInDue = new Date(Date.now() + checkInIntervalDays * 24 * 60 * 60 * 1000).toISOString();
+
   // Check if already exists
   const existing = await c.env.DB.prepare(`
     SELECT id FROM dead_man_switches WHERE user_id = ?
   `).bind(userId).first();
-  
+
   if (existing) {
     await c.env.DB.prepare(`
-      UPDATE dead_man_switches 
+      UPDATE dead_man_switches
       SET check_in_interval_days = ?,
           grace_period_days = ?,
           trigger_action = ?,
           notify_contacts = ?,
           status = 'ACTIVE',
+          next_check_in_due = ?,
           updated_at = ?
       WHERE user_id = ?
-    `).bind(checkInIntervalDays, gracePeriodDays, triggerAction, notifyContacts ? 1 : 0, now, userId).run();
+    `).bind(checkInIntervalDays, gracePeriodDays, triggerAction, notifyContacts ? 1 : 0, nextCheckInDue, now, userId).run();
   } else {
     await c.env.DB.prepare(`
-      INSERT INTO dead_man_switches (id, user_id, check_in_interval_days, grace_period_days, trigger_action, notify_contacts, status, last_check_in, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, 'ACTIVE', ?, ?, ?)
-    `).bind(crypto.randomUUID(), userId, checkInIntervalDays, gracePeriodDays, triggerAction, notifyContacts ? 1 : 0, now, now, now).run();
+      INSERT INTO dead_man_switches (id, user_id, check_in_interval_days, grace_period_days, trigger_action, notify_contacts, status, last_check_in, next_check_in_due, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, 'ACTIVE', ?, ?, ?, ?)
+    `).bind(crypto.randomUUID(), userId, checkInIntervalDays, gracePeriodDays, triggerAction, notifyContacts ? 1 : 0, now, nextCheckInDue, now, now).run();
   }
   
   const dms = await c.env.DB.prepare(`
@@ -128,12 +133,18 @@ deadmanRoutes.post('/checkin', async (c) => {
     return c.json({ error: 'Dead Man\'s Switch not configured' }, 404);
   }
   
-  // Update last check-in and reset missed count
+  // Compute the next check-in due date from the configured interval and persist
+  // it — the cron paths trigger off next_check_in_due, so a check-in must push
+  // it forward (and a fresh config must seed it).
+  const intervalDays = dms.check_in_interval_days as number;
+  const nextCheckIn = new Date(new Date().getTime() + intervalDays * 24 * 60 * 60 * 1000);
+
+  // Update last check-in, advance next due date, and reset missed count
   await c.env.DB.prepare(`
-    UPDATE dead_man_switches 
-    SET last_check_in = ?, missed_check_ins = 0, status = 'ACTIVE', updated_at = ?
+    UPDATE dead_man_switches
+    SET last_check_in = ?, next_check_in_due = ?, missed_check_ins = 0, status = 'ACTIVE', updated_at = ?
     WHERE user_id = ?
-  `).bind(now, now, userId).run();
+  `).bind(now, nextCheckIn.toISOString(), now, userId).run();
   
   // Record check-in history. Both user_id and checked_in_at are NOT NULL in the
   // base schema (migration 0001); dead_man_switch_id/check_in_time were added by
@@ -142,11 +153,7 @@ deadmanRoutes.post('/checkin', async (c) => {
     INSERT INTO check_in_history (id, user_id, dead_man_switch_id, checked_in_at, check_in_time, method, created_at)
     VALUES (?, ?, ?, ?, ?, 'MANUAL', ?)
   `).bind(crypto.randomUUID(), userId, dms.id, now, now, now).run();
-  
-  // Calculate next check-in due
-  const intervalDays = dms.check_in_interval_days as number;
-  const nextCheckIn = new Date(new Date().getTime() + intervalDays * 24 * 60 * 60 * 1000);
-  
+
   return c.json({
     success: true,
     lastCheckIn: now,

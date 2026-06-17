@@ -552,12 +552,17 @@ memoriesRoutes.post('/', async (c) => {
     // place/room it belongs to, and a user-chosen feeling (the subtle AI
     // classifier below only fills `emotion` when the author leaves it blank).
     'about', 'aboutRelation', 'room', 'emotion',
+    // Offline provenance — when a note was drafted offline (`offlineAt` ISO
+    // timestamp). `offline` is a boolean flag handled separately below.
+    'offlineAt',
   ]);
   const safeUserMeta: Record<string, unknown> = {};
   if (metadata && typeof metadata === 'object') {
     for (const [k, v] of Object.entries(metadata as Record<string, unknown>)) {
       if (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;
       if (SCALAR_METADATA_KEYS.has(k) && (typeof v === 'string' || typeof v === 'number')) {
+        safeUserMeta[k] = v;
+      } else if (k === 'offline' && typeof v === 'boolean') {
         safeUserMeta[k] = v;
       } else if (k === 'tags' && Array.isArray(v)) {
         safeUserMeta[k] = v.filter((t) => typeof t === 'string').slice(0, 50);
