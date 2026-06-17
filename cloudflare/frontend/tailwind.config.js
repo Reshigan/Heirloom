@@ -4,47 +4,47 @@ export default {
   theme: {
     extend: {
       colors: {
-        // INK — the ground (remapped from the legacy "void" tokens so every
-        // bg-void/text-void utility across the app now resolves to the
-        // Claude Design ink ramp). ink #0e0e0c on bone #f4ecd8.
+        // GROUND — the dark surface (remapped from the legacy "void" tokens so
+        // every bg-void/text-void utility across the app now resolves to the
+        // Heirloom reference ground ramp). ground #0b0907 on cream #f2e6d0.
         void: {
-          abyss: '#0a0a08',
-          deep: '#0a0a08',
-          DEFAULT: '#0e0e0c',
-          surface: '#141412',
-          elevated: '#1a1a17',
-          hover: '#201f1c',
+          abyss: '#090706',
+          deep: '#090706',
+          DEFAULT: '#0b0907',
+          surface: '#16110c',
+          elevated: '#1b1610',
+          hover: '#221c15',
         },
-        // BONE — the cloth (remapped from legacy "paper"). #f4ecd8.
+        // CREAM — the page (remapped from legacy "paper"). #f2e6d0.
         paper: {
-          DEFAULT: '#f4ecd8',
-          bright: '#faf6ee',
-          dim: 'rgba(244, 236, 216, 0.55)',
-          muted: 'rgba(244, 236, 216, 0.40)',
-          90: 'rgba(244, 236, 216, 0.9)',
-          70: 'rgba(244, 236, 216, 0.7)',
-          65: 'rgba(244, 236, 216, 0.65)',
-          60: 'rgba(244, 236, 216, 0.6)',
-          50: 'rgba(244, 236, 216, 0.5)',
-          30: 'rgba(244, 236, 216, 0.32)',
-          15: 'rgba(244, 236, 216, 0.18)',
-          '08': 'rgba(244, 236, 216, 0.08)',
-          '04': 'rgba(244, 236, 216, 0.05)',
-          '02': 'rgba(244, 236, 216, 0.03)',
+          DEFAULT: '#f2e6d0',
+          bright: '#f8efdd',
+          dim: 'rgba(242, 230, 208, 0.55)',
+          muted: 'rgba(242, 230, 208, 0.40)',
+          90: 'rgba(242, 230, 208, 0.9)',
+          70: 'rgba(242, 230, 208, 0.7)',
+          65: 'rgba(242, 230, 208, 0.65)',
+          60: 'rgba(242, 230, 208, 0.6)',
+          50: 'rgba(242, 230, 208, 0.5)',
+          30: 'rgba(242, 230, 208, 0.32)',
+          15: 'rgba(242, 230, 208, 0.18)',
+          '08': 'rgba(242, 230, 208, 0.08)',
+          '04': 'rgba(242, 230, 208, 0.05)',
+          '02': 'rgba(242, 230, 208, 0.03)',
         },
-        // WARM — the single emotional accent (sealing-wax). Remapped from the
-        // legacy bright "gold" to warm #b07a4a so the whole app speaks the
-        // one accent color. Used at <3% surface area per the constitution.
+        // COPPER — the single emotional accent. Remapped from the legacy bright
+        // "gold" to copper #e0a062 so the whole app speaks the one accent color.
+        // Used sparingly per the constitution.
         gold: {
-          DEFAULT: '#b07a4a',
-          light: '#cf935a',
-          bright: '#cf935a',
-          dim: '#8c5a30',
-          deep: '#6b4524',
-          40: 'rgba(176, 122, 74, 0.4)',
-          20: 'rgba(176, 122, 74, 0.2)',
-          10: 'rgba(176, 122, 74, 0.1)',
-          '05': 'rgba(176, 122, 74, 0.05)',
+          DEFAULT: '#e0a062',
+          light: '#f0c074',
+          bright: '#f0c074',
+          dim: '#b07a3e',
+          deep: '#8a5a2a',
+          40: 'rgba(224, 160, 98, 0.4)',
+          20: 'rgba(224, 160, 98, 0.2)',
+          10: 'rgba(224, 160, 98, 0.1)',
+          '05': 'rgba(224, 160, 98, 0.05)',
         },
         // BLOOD — retained only for destructive/record states, retuned to the
         // dye-madder family so it sits inside the natural-dye world.
@@ -60,16 +60,16 @@ export default {
         // ── v3 design tokens (light-mode-first; library, not vault) ──
         // See cloudflare/frontend/src/v3/DESIGN.md for rationale.
         bone: {
-          DEFAULT: '#f4ecd8',
-          2: '#f0e8d4',
+          DEFAULT: '#f2e6d0',
+          2: '#ecdfc9',
         },
-        ink: '#0e0e0c',
-        char: 'rgba(244, 236, 216, 0.55)',
-        edge: 'rgba(244, 236, 216, 0.14)',
+        ink: '#0b0907',
+        char: 'rgba(242, 230, 208, 0.55)',
+        edge: 'rgba(242, 230, 208, 0.14)',
         mark: {
-          DEFAULT: '#b07a4a',
-          deep: '#8c5a30',
-          tint: '#cf935a',
+          DEFAULT: '#e0a062',
+          deep: '#b07a3e',
+          tint: '#f0c074',
         },
         'blood-v3': '#9f3a2a',
 
@@ -95,19 +95,19 @@ export default {
         },
       },
       fontFamily: {
-        // One serif across the whole product: Source Serif 4 (variable optical
-        // sizes), per the Claude Design bundle. The legacy display/body/hand
-        // families all collapse onto it so un-migrated pages inherit the
-        // correct type. "hand" maps to the serif italic — there is no
-        // handwriting face in the system.
-        display: ['"Source Serif 4"', '"Source Serif Pro"', 'Charter', 'Georgia', 'serif'],
-        body: ['"Source Serif 4"', '"Source Serif Pro"', 'Charter', 'Georgia', 'serif'],
-        hand: ['"Source Serif 4"', 'Georgia', 'serif'],
-        news: ['"Source Serif 4"', 'ui-serif', 'Georgia', 'serif'],
-        v3mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
-        'loom-serif': ['"Source Serif 4"', '"Source Serif Pro"', 'Charter', 'Georgia', 'serif'],
+        // Heirloom reference type system. Cormorant Garamond is DISPLAY ONLY
+        // (it turns unreadable below ~24px) — only `display` maps to it. The
+        // readable workhorse for body/reading/hand is Spectral; legacy
+        // un-migrated pages inherit it via `body`/`news`/`loom-serif`. "hand"
+        // is Spectral italic — the prose voice, not a separate handwriting face.
+        display: ['"Cormorant Garamond"', '"Spectral"', 'Charter', 'Georgia', 'serif'],
+        body: ['"Spectral"', 'Charter', 'Georgia', 'serif'],
+        hand: ['"Spectral"', 'Georgia', 'serif'],
+        news: ['"Spectral"', 'ui-serif', 'Georgia', 'serif'],
+        v3mono: ['"Space Mono"', 'ui-monospace', 'monospace'],
+        'loom-serif': ['"Spectral"', 'Charter', 'Georgia', 'serif'],
         'loom-ui': ['Inter', 'system-ui', 'sans-serif'],
-        'loom-mono': ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        'loom-mono': ['"Space Mono"', 'ui-monospace', 'monospace'],
       },
       transitionTimingFunction: {
         'ease-out': 'cubic-bezier(0.16, 1, 0.3, 1)',
@@ -121,12 +121,12 @@ export default {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gold-gradient': 'linear-gradient(135deg, #cf935a, #8c5a30)',
+        'gold-gradient': 'linear-gradient(135deg, #f0c074, #b07a3e)',
         'blood-gradient': 'linear-gradient(135deg, #9f3a2a, #7a1f2b)',
       },
       boxShadow: {
-        'gold': '0 8px 32px -4px rgba(176, 122, 74, 0.4)',
-        'gold-hover': '0 12px 40px -4px rgba(176, 122, 74, 0.5)',
+        'gold': '0 8px 32px -4px rgba(224, 160, 98, 0.4)',
+        'gold-hover': '0 12px 40px -4px rgba(224, 160, 98, 0.5)',
         'blood': '0 8px 32px -4px rgba(159, 58, 42, 0.4)',
         'glass': '0 4px 24px -4px rgba(0, 0, 0, 0.5)',
       },
