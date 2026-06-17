@@ -242,7 +242,14 @@ function LetterRow({ letter }: { letter: Letter }) {
         style={{
           display: 'flex',
           alignItems: 'baseline',
-          gap: 20,
+          // Wrap on narrow viewports: a sealed letter's meta cluster
+          // ("· SEALED · OPENS …") is long + nowrap, so without wrapping it
+          // crushed the title column to one word per line at phone widths.
+          // The 240px title basis keeps title + meta inline on desktop and
+          // drops the long meta to its own line only when there's no room.
+          flexWrap: 'wrap',
+          columnGap: 20,
+          rowGap: 4,
           width: '100%',
           textAlign: 'left',
           padding: '15px 0',
@@ -253,7 +260,7 @@ function LetterRow({ letter }: { letter: Letter }) {
         }}
       >
         {/* title + recipient */}
-        <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ flex: '1 1 240px', minWidth: 0 }}>
           <span className="hl-serif" style={{ fontWeight: 400, fontSize: 19, lineHeight: 1.3, color: 'var(--bone)', display: 'block' }}>
             {sealed ? <span style={{ color: 'var(--warm)', marginRight: 6 }} aria-hidden>∞</span> : null}
             {title}

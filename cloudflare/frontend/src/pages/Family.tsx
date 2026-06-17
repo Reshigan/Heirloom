@@ -502,11 +502,14 @@ export function Family() {
                   key={m.id}
                   style={{
                     borderBottom: '1px solid var(--rule)',
+                    // The dye is the member's identity signal as a 3px left-margin
+                    // thread (constitution: dye is signal only — never a fill/swatch).
+                    borderLeft: `3px solid ${thread}`,
+                    paddingLeft: 16,
                   }}
                 >
-                  {/* roster ledger row — a small solid dye-colour square swatch on the
-                      left carries the member's identity signal (not an avatar circle),
-                      serif name centre, mono relation on the right. Hairline dividers. */}
+                  {/* roster ledger row — the left dye thread carries identity, the
+                      name carries the dye hue, mono relation sits right. Hairlines. */}
                   <Link
                     to={`/person/${m.id}`}
                     style={{
@@ -528,16 +531,6 @@ export function Family() {
                         minWidth: 0,
                       }}
                     >
-                      <span
-                        aria-hidden="true"
-                        style={{
-                          flex: '0 0 auto',
-                          width: 22,
-                          height: 22,
-                          borderRadius: 3,
-                          background: thread,
-                        }}
-                      />
                       <span
                         className="hl-serif"
                         style={{
@@ -570,7 +563,7 @@ export function Family() {
                       </span>
                     )}
                   </Link>
-                  <div style={{ padding: isEditing ? '0 4px 8px 44px' : '0 4px 18px 44px', display: 'grid', gap: 8 }}>
+                  <div style={{ padding: isEditing ? '0 4px 8px 4px' : '0 4px 18px 4px', display: 'grid', gap: 8 }}>
                     {!relMeta && (
                       <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-faint)', lineHeight: 1.2 }}>
                         relationship not set — edit to weave it in
@@ -662,7 +655,7 @@ export function Family() {
 
                   {/* Inline edit form */}
                   {isEditing && (
-                    <div style={{ padding: '0 4px 22px 44px' }}>
+                    <div style={{ padding: '0 4px 22px 4px' }}>
                       <input
                         value={editName}
                         onChange={(e) => { setEditName(e.target.value); setEditError(null); }}

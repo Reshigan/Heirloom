@@ -444,10 +444,10 @@ function useSyncHoldingQueue(online: boolean): { triggerSync: () => void } {
 
     isSyncingRef.current = true;
 
-    // [SW1] We use type: 'LETTER' because it is the only text-content type in
-    // the backend createMemorySchema (the alternatives are PHOTO/VOICE/VIDEO
-    // which are all media). This is semantically the least-wrong option for
-    // freeform text. Identify offline-originated entries via metadata.offline === true.
+    // [SW1] A queued offline note is freeform text, so it syncs as type: 'TEXT'
+    // (a valid memories.type per the DB CHECK + the worker's VALID_TYPES gate).
+    // The old 'LETTER' value was rejected by that gate, so offline notes never
+    // synced. Identify offline-originated entries via metadata.offline === true.
     const results: PromiseSettledResult<string>[] = [];
     for (let i = 0; i < queue.length; i += BATCH_SIZE) {
       // [SW4] Process in batches of 3 to avoid hammering the API
@@ -455,7 +455,7 @@ function useSyncHoldingQueue(online: boolean): { triggerSync: () => void } {
       const batchResults = await Promise.allSettled(
         batch.map(async (entry) => {
           await memoriesApi.create({
-            type: 'LETTER',
+            type: 'TEXT',
             title: 'offline note',
             description: entry.text,
             metadata: { offline: true, offlineAt: entry.at, dye: entry.dye },

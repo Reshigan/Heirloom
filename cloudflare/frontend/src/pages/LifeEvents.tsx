@@ -36,14 +36,14 @@ const QUICK_TEMPLATES = [
     id: 'milestone-birthday',
     title: 'Milestone Birthday',
     description: 'For a special birthday (18, 21, 30…)',
-    eventType: 'BIRTHDAY',
+    eventType: 'BIRTHDAY_MILESTONE',
     suggestedTitle: 'Happy Milestone Birthday!',
   },
   {
     id: 'when-they-miss-me',
     title: 'When They Miss Me',
     description: 'Comfort for difficult moments',
-    eventType: 'LOSS',
+    eventType: 'CUSTOM',
     suggestedTitle: 'When You Need Me Most',
   },
 ];

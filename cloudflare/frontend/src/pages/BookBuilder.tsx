@@ -540,7 +540,11 @@ export function BookBuilder() {
                   justifySelf: 'end',
                   border: '1px solid var(--rule)',
                   borderRadius: 0,
-                  background: 'var(--paper, rgba(244,236,216,0.04))',
+                  // A transparent hairline page-ghost — never a pale fill. Under
+                  // the light/paper theme bridge `var(--paper)` resolves to a
+                  // solid bone panel that breaks ink discipline; the border alone
+                  // reads as the page outline.
+                  background: 'transparent',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',

@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
@@ -106,7 +106,9 @@ function StatBand({
 
 export default function Wrapped() {
   const { year: yearParam } = useParams<{ year?: string }>();
-  const YEAR = yearParam ? parseInt(yearParam, 10) : new Date().getFullYear();
+  // An explicit /wrapped/:year is honoured verbatim; otherwise we pick the year
+  // to review below, once entries have loaded (see YEAR).
+  const explicitYear = yearParam ? parseInt(yearParam, 10) : null;
   const { isAuthenticated, user } = useAuthStore();
   const [copied, setCopied] = useState(false);
   const [visible, setVisible] = useState(false);
@@ -144,13 +146,30 @@ export default function Wrapped() {
     ].filter((e) => !isNaN(e.date.getTime()));
   }, [memoriesData, lettersData, voiceData]);
 
-  const stats = useMemo(() => buildStats(allEntries, YEAR), [allEntries, YEAR]);
+  // A year-in-review should land on a year worth reviewing. With no explicit
+  // year we prefer the current calendar year, but if nothing was woven this
+  // year (a family importing only historical memories, or a December joiner)
+  // we fall back to the most recent year that actually has entries — so the
+  // page shows real figures instead of four giant zeros.
+  const YEAR = useMemo(() => {
+    if (explicitYear != null) return explicitYear;
+    const currentYear = new Date().getFullYear();
+    const years = new Set<number>();
+    for (const e of allEntries) years.add(e.date.getFullYear());
+    if (years.has(currentYear) || years.size === 0) return currentYear;
+    return Math.max(...years);
+  }, [explicitYear, allEntries]);
 
-  // Gentle staggered fade-in on mount.
-  const mounted = useRef(false);
+  const stats = useMemo(() => buildStats(allEntries, YEAR), [allEntries, YEAR]);
+  // Truly nothing for the chosen year (only reachable for an empty archive or an
+  // explicit year with no entries) — show a quiet first-thread state, not zeros.
+  const isEmpty = stats.thisYear.length === 0;
+
+  // Gentle staggered fade-in on mount. No mounted-ref guard: the `[]` deps
+  // already run this once per mount, and a guard would defeat StrictMode's
+  // dev double-invoke (mount→cleanup→mount), leaving `visible` false forever
+  // and the whole page rendered at opacity 0.
   useEffect(() => {
-    if (mounted.current) return;
-    mounted.current = true;
     const t = setTimeout(() => setVisible(true), 60);
     return () => clearTimeout(t);
   }, []);
@@ -206,12 +225,44 @@ export default function Wrapped() {
           The Year Woven · {YEAR}
         </div>
 
-        {/* the four giant stat moments — the page IS the figures */}
-        <div style={{ width: '100%', maxWidth: 560, marginTop: 'clamp(20px,4vh,48px)' }}>
-          {bands.map((b, i) => (
-            <StatBand key={b.caption} value={b.value} caption={b.caption} accent={b.accent} index={i} visible={visible} />
-          ))}
-        </div>
+        {isEmpty ? (
+          // First-thread state — a single quiet serif line, no zeros.
+          <div
+            style={{
+              width: '100%', maxWidth: 520, marginTop: 'clamp(40px,10vh,96px)',
+              textAlign: 'center',
+              opacity: visible ? 1 : 0,
+              transform: visible ? 'translateY(0)' : 'translateY(20px)',
+              transition: `opacity 720ms ${EASE} 180ms, transform 720ms ${EASE} 180ms`,
+            }}
+          >
+            <div
+              style={{
+                fontFamily: 'var(--serif)', fontWeight: 300,
+                fontSize: 'clamp(28px,5vw,40px)', lineHeight: 1.2,
+                letterSpacing: '-0.01em', color: 'var(--bone)',
+              }}
+            >
+              This year is still being woven.
+            </div>
+            <div
+              style={{
+                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
+                textTransform: 'uppercase', color: 'var(--bone-dim)',
+                marginTop: 'clamp(16px,3vh,28px)',
+              }}
+            >
+              Add a memory to begin your {YEAR}
+            </div>
+          </div>
+        ) : (
+          /* the four giant stat moments — the page IS the figures */
+          <div style={{ width: '100%', maxWidth: 560, marginTop: 'clamp(20px,4vh,48px)' }}>
+            {bands.map((b, i) => (
+              <StatBand key={b.caption} value={b.value} caption={b.caption} accent={b.accent} index={i} visible={visible} />
+            ))}
+          </div>
+        )}
 
         {/* single warm ∞ accent */}
         <div
@@ -224,27 +275,29 @@ export default function Wrapped() {
           <WaxSeal size={26} />
         </div>
 
-        {/* quiet share — mono, warm underline */}
-        <button
-          type="button"
-          onClick={handleShare}
-          style={{
-            marginTop: 'clamp(28px,5vh,56px)',
-            background: 'transparent', border: 0, padding: '6px 2px', cursor: 'pointer',
-            opacity: visible ? 1 : 0,
-            transition: `opacity 1400ms ${EASE} 1400ms`,
-          }}
-        >
-          <span
+        {/* quiet share — mono, warm underline (hidden until there's a year to share) */}
+        {!isEmpty && (
+          <button
+            type="button"
+            onClick={handleShare}
             style={{
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.26em',
-              textTransform: 'uppercase', color: 'var(--warm)',
-              borderBottom: '1px solid var(--warm-dim)', paddingBottom: 3,
+              marginTop: 'clamp(28px,5vh,56px)',
+              background: 'transparent', border: 0, padding: '6px 2px', cursor: 'pointer',
+              opacity: visible ? 1 : 0,
+              transition: `opacity 1400ms ${EASE} 1400ms`,
             }}
           >
-            {copied ? 'link copied' : `share your ${YEAR}`}
-          </span>
-        </button>
+            <span
+              style={{
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.26em',
+                textTransform: 'uppercase', color: 'var(--warm)',
+                borderBottom: '1px solid var(--warm-dim)', paddingBottom: 3,
+              }}
+            >
+              {copied ? 'link copied' : `share your ${YEAR}`}
+            </span>
+          </button>
+        )}
       </div>
     </ClothShell>
   );
