@@ -206,15 +206,18 @@
   --ink-translucent: rgba(244, 234, 217, 0.78);
   --bone:         #120d08;
   --bone-dim:     rgba(18, 13, 8, 0.74);
-  --bone-faint:   rgba(18, 13, 8, 0.48);
+  --bone-faint:   rgba(18, 13, 8, 0.60);
   --bone-low:     rgba(18, 13, 8, 0.32);
   --bone-ghost:   rgba(18, 13, 8, 0.18);
   --weave-color:  rgba(18, 13, 8, 0.13);
   --rule:         rgba(18, 13, 8, 0.12);
   --rule-strong:  rgba(18, 13, 8, 0.22);
   --rule-warm:    rgba(150, 80, 26, 0.32);
-  --warm:         #a86220;
-  --warm-bright:  #be7a2e;
+  /* Copper + faint-label tokens mordanted to clear WCAG AA (4.5:1) on
+     parchment — light-mode only; the dark theme's lighter copper already
+     passes. Lifted from #a86220/#be7a2e/0.48α (all <4:1) after a live audit. */
+  --warm:         #965616;
+  --warm-bright:  #8a4d12;
   --warm-dim:     #824a16;
   --warm-glow:    rgba(168, 98, 32, 0.18);
   --glass-bg:     rgba(18, 13, 8, 0.05);
