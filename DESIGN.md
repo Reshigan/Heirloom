@@ -3,28 +3,34 @@
 ## Color tokens (canonical in src/styles/globals.css)
 
 ```css
---ink: #0e0e0c          /* primary background (dark mode) */
---bone: #f4ecd8         /* primary text + background (light mode) */
---bone-dim: rgba(244,236,216,0.55)
---bone-faint: rgba(244,236,216,0.32)
---rule: rgba(244,236,216,0.08)
---warm: #b07a4a         /* sealing-wax accent — <3% surface area */
---warm-bright: #cf935a
---warm-dim: #8c5a30
+--ink: #0b0907          /* ground — primary background (dark mode) */
+--ink-card: #1b1610     /* the rare raised card */
+--ink-deep: #090706     /* abyss — deepest recess */
+--bone: #f2e6d0         /* cream — primary text + background (light mode) */
+--bone-dim: rgba(242,230,208,0.72)
+--bone-faint: rgba(242,230,208,0.44)
+--rule: rgba(242,230,208,0.11)
+--warm: #e0a062         /* copper accent — <3% surface area */
+--warm-bright: #f0c074
+--warm-dim: #b07a3e
 ```
+
+> Mirrored in `tailwind.config.js` (the `void`/`paper`/`gold`/`bone`/`ink`/`mark` static color names). Utility classes bypass globals.css, so both files carry the palette — change one without the other and old colors bleed into the bundle.
 
 ## Typography
 
-- **Source Serif 4** (variable, opsz): display headings + body prose. `hl-h1` through `hl-h4`, `hl-body`, `hl-serif`.
-- **Inter**: UI chrome — topbar labels, button text, form inputs. `hl-ui`.
-- **JetBrains Mono**: archival metadata — timestamps, entry counts, IDs. `hl-mono`.
+- **Cormorant Garamond** — DISPLAY ONLY (≥~24px; unreadable smaller). Reaches the page only via heading tags (`.loom h1–h6`), `.loom-display`/`.loom-h2`/`.loom-serif`/`.loom-mark`, the `--serif-display`/`--font-display` tokens, and Tailwind `font-display`.
+- **Spectral** — the readable workhorse: body, reading prose, inputs, values. `--serif`/`--font-body`, Tailwind `body`/`hand`/`news`/`loom-serif`. `.loom input/textarea/select` are forced to Spectral `!important` — never let Cormorant touch a form field.
+- **Space Mono** — archival/labels: timestamps, counts, eyebrows (uppercase, letterspaced). `--mono`, Tailwind `v3mono`/`loom-mono`.
+- **Inter** — residual UI chrome only. `--sans`, Tailwind `loom-ui`.
+- **Tangerine** — the signature hand alone. `--font-hand`.
 
 Typographic scale (approximate):
-- `hl-h1`: clamp(2.25rem, 5vw, 3.5rem) / opsz 72
-- `hl-h2`: clamp(1.5rem, 3.5vw, 2.25rem) / opsz 48
-- `hl-h3`: 1.25rem / opsz 24
-- `hl-body`: 1rem (16px), line-height 1.6, max-width 65ch
-- `hl-mono`: 0.75rem (12px), letter-spacing 0.04em
+- H1 hero: clamp(2.75rem, 6vw, 4.75rem), Cormorant, weight 300–400
+- H2 section: clamp(1.875rem, 4vw, 2.75rem), Cormorant
+- H3 entry title: 1.625rem, Cormorant
+- Body prose (reader): 1.125rem Spectral, line-height ~1.85, max measure ~60ch
+- Mono label: 0.7–0.78rem Space Mono, letter-spacing 0.04–0.32em UPPER
 
 ## Motion
 
@@ -44,7 +50,7 @@ Durations: 180ms (micro), 360ms (standard), 720ms (ceremony), 1400ms (reveal).
 
 10-stop natural-dye palette (`src/loom/dye.ts`). Each family member owns one dye. Usage:
 - **Left-margin thread**: 3px solid left-border in member's dye. 14px padding. Authorship signal.
-- **Name color**: DYE_TEXT lightened variants (e.g. madder → #d97860).
+- **Name color**: theme-adaptive CSS tokens — `dye.ts` reads `var(--dye-*)` (no hardcoded hex), so dyes mordant per theme (e.g. dark-mode madder `#d94f38`, a lighter mordanted variant in paper/light mode).
 - Dyes are signal only — no dye backgrounds, fills, or buttons.
 
 ## Spacing
@@ -64,10 +70,7 @@ No uniform spacing. Vary for rhythm:
 - Progress spinners: replace with `ProgressHair` (1px hairline).
 - Toasts: replace with inline status text.
 
-## Current violations (from UX_AUDIT.md, fix in priority order)
+## Notes
 
-1. `Echo.tsx:96` — 400ms transition (spec: 360ms). One-line fix.
-2. `globals.css:120` — `--cloth-scrim` radial gradient. Replace with flat rgba.
-3. `Record.tsx:282–334` — concentric breathing circles. Rebuild to cloth/type system.
-4. `globals.css:1254` — `.loom-horizon` atmospheric elliptical glow. Replace with flat.
-5. ~40 authenticated pages missing ClothShell wrapping.
+- This file is a quick-reference companion to [ART_DIRECTION.md](ART_DIRECTION.md), which is the authoritative constitution. When they disagree, verify against the live bundle (`src/styles/globals.css` + `tailwind.config.js`) — docs lag the deployed UI.
+- An earlier `## Current violations` list pointed at `Echo.tsx` and fixed line numbers; those references are dead (the Echo route was deleted; line numbers drifted). Removed rather than left to mislead.

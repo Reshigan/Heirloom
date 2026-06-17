@@ -23,14 +23,14 @@ entry is a weft thread. The cloth is the home surface. Everything else (Composer
 Voice, Settings) sits on top of it via `ClothShell` + `ClothBackdrop`.
 
 **The five rules (from ART_DIRECTION.md):**
-1. Type is the hero — Source Serif 4 (display + prose), Inter (UI), JetBrains Mono (archival). No fourth typeface.
-2. One color has emotion — sealing-wax `warm #b07a4a` at <3% surface area. Everything else is bone `#f4ecd8` on ink `#0e0e0c`.
+1. Type is the hero — Cormorant Garamond (display only, ≥~24px — turns unreadable smaller), Spectral (body/prose/reading/inputs — the readable workhorse), Space Mono (labels/archival, uppercase letterspaced), Inter (residual UI). Tangerine is the lone exception, only for the signature hand.
+2. One color has emotion — copper `warm #e0a062` at <3% surface area. Everything else is cream `#f2e6d0` on ground `#0b0907`.
 3. Negative space is the composition — 60–70% of any view is empty.
 4. Motion has meaning or it's removed — one curve `cubic-bezier(0.16,1,0.3,1)`; durations 180/360/720/1400ms only.
 5. Outside time — if a visual move signals "this is 2026," cut it.
 
 **Color tokens** (canonical in `src/styles/globals.css`):
-`ink #0e0e0c` · `bone #f4ecd8` · `bone-dim rgba(244,236,216,0.55)` · `bone-faint rgba(244,236,216,0.32)` · `rule rgba(244,236,216,0.08)` · `warm #b07a4a` · `warm-bright #cf935a` · `warm-dim #8c5a30`
+`ink #0b0907` · `bone #f2e6d0` · `bone-dim rgba(242,230,208,0.72)` · `bone-faint rgba(242,230,208,0.44)` · `rule rgba(242,230,208,0.11)` · `warm #e0a062` · `warm-bright #f0c074` · `warm-dim #b07a3e`. Tailwind utility classes (`text-paper`/`bg-gold`/`font-display`) read from `tailwind.config.js`, NOT globals.css — keep both files in sync or old palette bleeds into the bundle.
 
 **The 10-stop natural-dye palette** (`src/loom/dye.ts`) is the family's identity system — each member
 owns a dye that travels as signal: left-margin thread (3px left-border), name color (`DYE_TEXT`

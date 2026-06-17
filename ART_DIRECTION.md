@@ -25,8 +25,8 @@ The hearth's emotional payload is **warmth, vigilance, ritual presence**. None o
 
 ## The five rules
 
-1. **Type is the hero.** Newsreader Display at 6..72 optical sizes, set with hand-tuned tracking. Inter for UI. JetBrains Mono for archival timestamps. No third typeface ever.
-2. **One color has emotion.** A single sealing-wax warmth (`#b07a4a`). Used at <3% surface area, always. Everything else is bone (`#f4ecd8`) on ink (`#0e0e0c`) at varying opacity.
+1. **Type is the hero.** Cormorant Garamond for display, set with hand-tuned tracking — DISPLAY ONLY (≥~24px; it turns unreadable smaller). Spectral for body and reading prose (the readable workhorse). Space Mono for archival timestamps and labels. Inter for residual UI chrome. Tangerine is the lone exception, used only for the signature hand.
+2. **One color has emotion.** A single copper warmth (`#e0a062`). Used at <3% surface area, always. Everything else is cream (`#f2e6d0`) on ground (`#0b0907`) at varying opacity.
 3. **Negative space is the composition.** 60–70% of any view is empty. Empty is not "we couldn't think of what goes there"; empty is the design.
 4. **Motion has meaning or it's removed.** One easing curve (`cubic-bezier(0.16, 1, 0.3, 1)`). One duration vocabulary (180 / 360 / 720 / 1400 ms). Anything decorative gets cut.
 5. **Outside time.** The page should look authored in 1970, 2026, and 2076. If a visual move signals "this is the era," kill it.
@@ -35,44 +35,40 @@ The hearth's emotional payload is **warmth, vigilance, ritual presence**. None o
 
 ## Component grammar
 
-### The Horizon (replaces Fire)
+> The grammar below was first written for a pre-cloth era (a "Hearth" page with a `Horizon`/`NameRoll`/`Fire` component set). Those components are gone. The interface is now built on **the cloth** — a 3D woven fabric (`ClothCanvas3D`) where every family entry is a weft thread, with `CosmicLoom` rendering it as a glowing filament web under the copper skin. The principles below survive; the cloth/loom subsystem realizes them.
 
-A single warm light at the bottom 18% of the canvas. Not a gradient mesh. Not a particle system. A flat horizontal warmth that breathes ±2% intensity over 9 seconds. The "fire" is the threshold between dark and warm — the line where heat meets darkness. Looking at the Hearth is looking at a doorway with light spilling under it.
+### The cloth (the home surface)
 
-Composition: think Hammershøi's interior windows, not a campfire.
+`ClothCanvas3D` is the home surface — a woven field, not a feed. `ClothBackdrop` mounts it once globally so every screen sits on the same ambient cloth; `ClothShell` is the app chrome (56px topbar + safe-area + content). Build new screens by extending these — never a global nav bar, tab grid, or dashboard on top of the cloth. The warmth is a single copper light on the weave, abstract — think Hammershøi's interior windows, not a campfire. It breathes slowly (the ambient aura cycle), never flickers.
 
-### The Names (replaces Stones)
+### The Names
 
-Family members are typeset names on a list. Not graphic stones, not avatars. Each name in Newsreader, set right-aligned in two columns: the name itself, and dates of life (or "—" for living). The currently-active member's name is the only one in warmth color; everyone else is bone. No glow, no halo.
+Family members are typeset names, not avatars or graphic stones. Each name in Cormorant; the active member is the only one in copper, everyone else in cream. Recent activity is a single underdot; "currently being read" is the copper color. No glow, no halo, no `rounded-full` chip. Each member also owns a natural dye (see below) that travels as a 3px left-margin thread.
 
-When a member is "warm" (recent activity), their name has a single underdot; when "lit" (currently being read), it's the warmth color. That's it.
+### The Sealed Notes
 
-### The Sealed Notes (replaces Bundles)
-
-Time-locked entries appear as a small typographic block in the margin: a date in mono, an em-dash, the recipient's name in italic. Above each, a single ∞ glyph in warmth color. No cloth, no wax, no animation other than the unlock dissolve.
+Time-locked entries are a small typographic block: a date in Space Mono, an em-dash, the recipient's name in italic, a single ∞ glyph in copper above.
 
 ```
         ∞
 2055 — for Maya, when she turns 18
 ```
 
-### The Unlock (replaces the bundle-unfold sequence)
-
-When a sealed note's date arrives, it doesn't burn or unfold. It **dissolves**. The ∞ fades, the date fades, and the entry's title appears in its place — a single 720ms cross-fade. That's it. Restraint *is* the moment.
+When the date arrives it does not burn or unfold — it **dissolves**. The ∞ fades, the date fades, the entry's title cross-fades into its place over 720ms. Restraint *is* the moment.
 
 ### The Tapestry
 
-Stays in the design language but is now positioned beneath the Hearth as a thin horizontal band — not a tall block. Each entry is one weft pick at 2px height. The whole tapestry is at most 60px tall on desktop. Hover to enlarge to 240px height for inspection. The artifact is implied, not the centerpiece.
+The artifact is implied, not the centerpiece: a thin horizontal band, each entry one weft pick at ~2px height. Compact by default; hover/expand to inspect.
 
-### The Sanctuary Composer
+### The Composer
 
-Stays editorial, becomes more like a printed page than a form. Newsreader 22px body, leading 1.85, max measure 60ch. The textarea is a piece of paper, not a UI element. No borders. No focus glow. The cursor itself is the only signal of attention.
+Editorial, a printed page rather than a form. Spectral body (~22px), leading ~1.85, max measure ~60ch. The textarea is a piece of paper — no borders, no focus glow; the cursor is the only signal of attention. Inputs are forced to Spectral (never Cormorant — display type is unreadable at input size).
 
 ---
 
 ## The first impression test
 
-When a stranger lands on `heirloom.blue/hearth`, in the first 3 seconds, they should feel:
+When a stranger lands on `heirloom.blue` (the cloth), in the first 3 seconds, they should feel:
 
 1. *Quiet.* The page is silent. No movement except the breath.
 2. *Weight.* The darkness has gravity. This is not a feed.
@@ -101,19 +97,23 @@ If those five fail, the page fails.
 
 ## Color & contrast spec
 
+Canonical in `src/styles/globals.css` `:root`, mirrored in `tailwind.config.js` (utility classes bypass globals.css — keep both in sync or old palette bleeds into the bundle).
+
 | Token | Value | Usage |
 |---|---|---|
-| `ink` | `#0e0e0c` | Page surface |
-| `ink-deep` | `#0a0a08` | Cards (the rare ones) |
-| `bone` | `#f4ecd8` | Body, headings |
-| `bone-dim` | `rgba(244,236,216,0.55)` | Secondary text |
-| `bone-faint` | `rgba(244,236,216,0.32)` | Tertiary text |
-| `rule` | `rgba(244,236,216,0.08)` | Hairline dividers |
-| `warm` | `#b07a4a` | Single accent (sealing-wax) |
-| `warm-bright` | `#cf935a` | Hover/active warmth (rare) |
-| `warm-dim` | `#8c5a30` | Pressed warmth (rarer) |
+| `ink` | `#0b0907` | Page surface (ground) |
+| `ink-card` | `#1b1610` | Cards (the rare ones) |
+| `ink-deep` | `#090706` | Deepest recess (abyss) |
+| `bone` | `#f2e6d0` | Body, headings (cream) |
+| `bone-dim` | `rgba(242,230,208,0.72)` | Secondary text |
+| `bone-faint` | `rgba(242,230,208,0.44)` | Tertiary text |
+| `rule` | `rgba(242,230,208,0.11)` | Hairline dividers |
+| `warm` | `#e0a062` | Single accent (copper) |
+| `warm-bright` | `#f0c074` | Hover/active warmth (rare) |
+| `warm-dim` | `#b07a3e` | Pressed warmth (rarer) |
+| `warm-glow` | `rgba(224,160,98,0.18)` | Copper bloom on the weave |
 
-Body text on ink: 16.4:1. Headings: 16.4:1. Warmth on ink: 5.7:1 (passes AA for body, AAA for large). Bone-faint on ink: 6.3:1 (passes AA only at 16px+).
+Cream on ground ≈16:1. Copper on ground ≈8.5:1 (passes AA for all text, AAA for large). bone-faint is tertiary — use at 16px+ only. A `[data-theme="light"]` bridge flips ground→cream and re-mordants copper darker (`#a86220`) for paper mode; both themes carry the full ramp.
 
 ---
 
@@ -121,11 +121,12 @@ Body text on ink: 16.4:1. Headings: 16.4:1. Warmth on ink: 5.7:1 (passes AA for 
 
 | Token | Value | Usage |
 |---|---|---|
-| `ease-vault` | `cubic-bezier(0.16, 1, 0.3, 1)` | The only easing curve. Period. |
-| `dur-fast` | 180ms | Hover, focus, micro-state |
-| `dur-shift` | 360ms | Page transitions, card entry |
-| `dur-veil` | 720ms | Reading view enter, composer enter |
-| `dur-breath` | 9000ms | The horizon's breath cycle |
+| `--ease` | `cubic-bezier(0.16, 1, 0.3, 1)` | The only easing curve. Period. |
+| `--dur-fast` | 180ms | Hover, focus, micro-state |
+| `--dur-mid` | 360ms | Page transitions, card entry |
+| `--dur-slow` | 720ms | Reading view enter, composer enter |
+| `--dur-ceremony` | 1400ms | Reveal / unlock dissolve |
+| ambient | ~9–12s | The cloth's slow aura breath (a loop, not a transition) |
 
 Anything else is a violation.
 
@@ -133,45 +134,49 @@ Anything else is a violation.
 
 ## Typographic spec
 
-### Newsreader Display (heading + display)
+### Cormorant Garamond — DISPLAY ONLY (≥~24px)
 
-| Use | Size | Optical | Tracking | Leading | Weight |
-|---|---|---|---|---|---|
-| H1 hero | clamp(2.75rem, 6vw, 4.75rem) | `opsz 72` | `-0.022em` | 1.04 | 300 |
-| H2 section | clamp(1.875rem, 4vw, 2.75rem) | `opsz 56` | `-0.014em` | 1.1 | 400 |
-| H3 entry title | 1.625rem | `opsz 28` | `-0.008em` | 1.2 | 400 |
-| Body prose (reader) | 1.125rem | `opsz 14` | `-0.001em` | 1.85 | 400 |
-| Italic prose | as above | `opsz 14` italic | `0` | 1.85 | 400 |
+No optical-size axis (Cormorant uses weight + italic). It turns unreadable below ~24px — never set it smaller, and never on a form input.
 
-### Inter (UI)
+| Use | Size | Tracking | Leading | Weight |
+|---|---|---|---|---|
+| H1 hero | clamp(2.75rem, 6vw, 4.75rem) | `-0.022em` | 1.04 | 300–400 |
+| H2 section | clamp(1.875rem, 4vw, 2.75rem) | `-0.014em` | 1.1 | 400 |
+| H3 entry title | 1.625rem | `-0.008em` | 1.2 | 500 |
+
+### Spectral — body & reading (the workhorse)
+
+| Use | Size | Tracking | Leading | Weight |
+|---|---|---|---|---|
+| Body prose (reader) | 1.125rem | `-0.001em` | 1.85 | 400 |
+| Italic prose | 1.125rem italic | `0` | 1.85 | 400 |
+| Inputs / values | 1rem | `0` | 1.5 | 400 |
+
+### Inter — residual UI
 
 | Use | Size | Tracking | Weight |
 |---|---|---|---|
 | Body UI | 0.94rem | `-0.002em` | 400 |
-| Eyebrow | 0.7rem | `0.32em` UPPER | 500 |
 | Button | 0.94rem | `0` | 500 |
 
-### JetBrains Mono (archival)
+### Space Mono — archival & labels
 
 | Use | Size | Tracking |
 |---|---|---|
+| Eyebrow / label | 0.7rem | `0.32em` UPPER |
 | Date | 0.78rem | `0.04em` |
 | Pledge number | 0.94rem | `0.06em` |
 
 ---
 
-## What this changes from the current build
+## Current reality
 
-**Removed:** Fire.tsx canvas particle system, Embers.tsx, the ornamental wax-seal SVG, Bundle.tsx unfold animation, breathing canvas vignette, cursor-light, the radial atmospheric gradient on Founder/Hearth pages.
-
-**Added:** Horizon.tsx (single warm light at bottom 18%), NameRoll.tsx (typeset member list), SealedNote.tsx (typographic time-lock), unified motion tokens in `tailwind.config.js`, refactored EntryReader and SanctuaryComposer for new aesthetic.
-
-**Net:** ~180kB of canvas + animation code deleted. The page is faster, more accessible, more honest, and more designed. A real designer can layer texture and craft on top of this skeleton; what's there now defends itself.
+The live UI (`cloudflare/frontend`, deployed to heirloom.blue) is the **cloth/loom** subsystem skinned in **Cormorant / Spectral / Space Mono + copper-on-ground**. The `Horizon`/`NameRoll`/`Fire`/`Bundle` component set named in older drafts of this file no longer exists — it was superseded by `ClothCanvas3D` + `CosmicLoom` (the glowing filament web). Verify any visual claim against the live bundle (`src/styles/globals.css` + `tailwind.config.js`), not against this prose: docs lag the deployed UI.
 
 ---
 
 ## What this is not
 
-This is not the *final* design. A real designer with paint will still bring craft I cannot — the warmth color may want adjustment toward red, the Newsreader optical sizes may need physical-typography eye-testing, and the eventual Hearth illustration (if any) needs a hand. But what we ship now is **defensible**. It reads as authored. It does not read as amateur because it does not pretend to do what amateurs reach for.
+This is not the *final* design. A real designer with paint will still bring craft I cannot — the copper accent may want fine-tuning, the Cormorant display sizes may need physical-typography eye-testing, and the cloth itself can be deepened. But what we ship now is **defensible**. It reads as authored. It does not read as amateur because it does not pretend to do what amateurs reach for.
 
 — end direction —
