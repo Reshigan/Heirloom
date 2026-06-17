@@ -9,6 +9,7 @@ import { useListener } from '../hooks/useListener';
 import { type Memory } from '../types';
 import { WaxSeal, SectionLabel } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { RoomError } from '../loom/components/RoomError';
 
 const DYE_COLORS: Record<string, string> = {
   memory:    'var(--dye-madder)',
@@ -432,7 +433,7 @@ export function Memories() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const { prompt: listenerPrompt } = useListener();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['memories-mosaic'],
     queryFn: () => memoriesApi.getAll({ limit: 200 }).then((r) => (r.data as any)?.data ?? []),
     enabled: isAuthenticated,
@@ -495,10 +496,19 @@ export function Memories() {
         </div>
       )}
 
+      {/* A failed read must never collapse into the first-run empty state —
+          surface the in-voice retry instead so a returning author isn't told
+          the cloth was never woven. */}
+      {!isLoading && isError && (
+        <div style={{ padding: 'clamp(40px, 8vw, 80px) var(--page-pad-x)' }}>
+          <RoomError onRetry={() => refetch()} />
+        </div>
+      )}
+
       {/* The ledger header — a single quiet mono line naming the thread and the
           span of years it holds, set in centred small-caps over the ledger.
           The quiet filter bar follows beneath it. */}
-      {!isLoading && allMemories.length > 0 && (
+      {!isLoading && !isError && allMemories.length > 0 && (
         <div style={{ padding: 'clamp(40px, 8vw, 72px) var(--page-pad-x) 0' }}>
           <div
             style={{
@@ -517,7 +527,7 @@ export function Memories() {
         </div>
       )}
 
-      {!isLoading && memories.length === 0 && allMemories.length > 0 && (
+      {!isLoading && !isError && memories.length === 0 && allMemories.length > 0 && (
         <div style={{ padding: '0 var(--page-pad-x) 24px' }}>
           <p className="hl-serif" style={{ fontSize: 'clamp(18px, 3vw, 22px)', fontStyle: 'italic', color: 'var(--bone-dim)', lineHeight: 1.6, margin: 0 }}>
             {filters.query
@@ -529,7 +539,7 @@ export function Memories() {
         </div>
       )}
 
-      {!isLoading && allMemories.length === 0 && (
+      {!isLoading && !isError && allMemories.length === 0 && (
         <div style={{ padding: 'clamp(40px, 8vw, 80px) var(--page-pad-x)' }}>
           <p
             style={{ fontFamily: 'var(--serif-display)', fontSize: 'clamp(28px, 5vw, 40px)', fontWeight: 500, color: 'var(--bone)', lineHeight: 1.2, margin: '0 0 12px' }}

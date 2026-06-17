@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { weaveIntoCloth } from './ClothWeave';
 import { DYES, type Dye } from '../dye';
+import { useFocusTrap } from '../../lib/useFocusTrap';
 
 /**
  * LetterOpeningCeremony — the Unlock, for a letter received from another hand.
@@ -42,6 +43,8 @@ export function LetterOpeningCeremony({
   onClose: () => void;
 }) {
   const [phase, setPhase] = useState<'seal' | 'reveal'>('seal');
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, onClose);
 
   const date = entryDate ? new Date(entryDate) : new Date();
   const safeDate = isNaN(date.getTime()) ? new Date() : date;
@@ -61,7 +64,9 @@ export function LetterOpeningCeremony({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
+      aria-modal="true"
       aria-label={`Opening a letter from ${from}`}
       style={{
         position: 'fixed',

@@ -80,6 +80,9 @@ function PwaMenu() {
         </div>
 
         {[
+          { to: '/search',             label: 'search' },
+          { to: '/inbox',              label: 'inbox' },
+          { to: '/on-this-day',        label: 'on this day' },
           { to: '/book',               label: 'the book' },
           { to: '/wrapped',            label: 'wrapped' },
           { to: '/settings',           label: 'settings' },

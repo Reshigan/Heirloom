@@ -11,10 +11,12 @@ import { useNavigate } from 'react-router-dom';
 const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
 const ITEMS: Array<{ label: string; to: string; hint: string }> = [
-  { label: 'search',  to: '/search',  hint: 'find any thread' },
-  { label: 'export',  to: '/export',  hint: 'the cloth, to keep' },
-  { label: 'wrapped', to: '/wrapped', hint: 'your year, read back' },
-  { label: 'book',    to: '/book',    hint: 'the cloth, in print' },
+  { label: 'search',      to: '/search',      hint: 'find any thread' },
+  { label: 'inbox',       to: '/inbox',       hint: 'what has reached you' },
+  { label: 'on this day', to: '/on-this-day', hint: 'this date, before' },
+  { label: 'export',      to: '/export',      hint: 'the cloth, to keep' },
+  { label: 'wrapped',     to: '/wrapped',     hint: 'your year, read back' },
+  { label: 'book',        to: '/book',        hint: 'the cloth, in print' },
 ];
 
 export function InfinityMenu() {

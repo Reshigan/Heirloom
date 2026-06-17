@@ -733,7 +733,7 @@ export function Settings() {
             </span>
           </div>
 
-          <LedgerRow label="Key escrow" hint="shamir-split · zero-knowledge to platform" value={<span className="hl-wordvalue" style={{ fontStyle: 'italic' }}>Enabled · 2 of 3</span>} />
+          <LedgerRow label="Encryption" hint="server-side AES-GCM · access via account + thread membership" value={<span className="hl-wordvalue" style={{ fontStyle: 'italic' }}>At rest</span>} />
           <LedgerRow label="Recovery phrase" hint="print and store offline" value={<span className="hl-wordvalue" style={{ fontStyle: 'italic' }}>Four words · in onboarding</span>} />
 
           {/* Data Export — ledger row with download action + error */}

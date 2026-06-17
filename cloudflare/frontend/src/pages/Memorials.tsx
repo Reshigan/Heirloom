@@ -4,6 +4,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { RoomError } from '../loom/components/RoomError';
 import { dyeColor, dyeFromMetadata, dyeForId } from '../loom/dye';
 import { memorialsApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
@@ -72,7 +73,7 @@ export function Memorials() {
     epitaph: '',
   });
 
-  const { data: memorials, isLoading } = useQuery({
+  const { data: memorials, isLoading, isError, refetch } = useQuery({
     queryKey: ['memorials'],
     queryFn: () => memorialsApi.getAll().then(r => r.data),
   });
@@ -184,6 +185,10 @@ export function Memorials() {
           >
             Gathering the names…
           </p>
+        ) : isError ? (
+          /* A failed read must not read as "no names rest here yet" — the names
+             are sealed and permanent; this is only a reach failure. */
+          <RoomError onRetry={() => refetch()} />
         ) : memorialList.length > 0 ? (
           <div style={{ margin: '0 0 56px' }}>
             {memorialList.map((memorial: any) => {

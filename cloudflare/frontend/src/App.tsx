@@ -1,4 +1,4 @@
-import { useEffect, lazy, Suspense } from 'react';
+import { useEffect, useRef, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -266,8 +266,15 @@ function LoomShellRoot({ children }: { children: React.ReactNode }) {
  */
 function WovenPassage({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  // On navigation, move focus to the incoming room and reset scroll so screen
+  // readers land on fresh content instead of a stale element behind the change.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    wrapperRef.current?.focus();
+  }, [location.pathname]);
   return (
-    <div key={location.pathname} className="woven-route">
+    <div ref={wrapperRef} tabIndex={-1} key={location.pathname} className="woven-route" style={{ outline: 'none' }}>
       {children}
     </div>
   );

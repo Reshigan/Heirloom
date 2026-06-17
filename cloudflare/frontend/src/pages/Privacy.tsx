@@ -7,8 +7,8 @@ import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 const SECTIONS = [
   {
     n: 'one',
-    h: 'We cannot read your entries.',
-    b: 'The architecture forbids it. Entry content is end-to-end encrypted with keys held by your thread — not by us. Our administrators see metadata and account state, never prose. If we are subpoenaed, we hand over what we have, which is account-level metadata. Not your stories.',
+    h: 'Your entries are encrypted at rest.',
+    b: 'Entry content is encrypted at rest with strong server-side AES-GCM, and access is controlled by your account and your thread membership — no one outside the thread can read it. We operate the encryption infrastructure, so this is not end-to-end or zero-knowledge encryption: the platform holds the keys. We never read your prose as a matter of policy, and if we are subpoenaed we hand over only what is genuinely demanded.',
   },
   {
     n: 'two',
@@ -28,7 +28,7 @@ const SECTIONS = [
   {
     n: 'five',
     h: 'Time-locked entries stay locked.',
-    b: "Even from us. The cryptographic keys to a sealed note are released only when the release-condition is met — a date, a member's verified age, an author's verified death. We cannot peek.",
+    b: "A sealed note stays sealed until its release-condition is met — a date, a member's verified age, an author's verified death. The release is enforced server-side: until the condition is satisfied, the contents are withheld from recipients, and we do not surface them.",
   },
   {
     n: 'six',

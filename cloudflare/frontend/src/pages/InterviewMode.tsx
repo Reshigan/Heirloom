@@ -147,11 +147,14 @@ export function InterviewMode() {
         currentQuestion,
         transcriptSoFar: transcript.map((s) => s.text).join(' '),
       });
-      const questions = response.data?.questions || [
-        'Can you tell me more about that?',
-        'How did that make you feel?',
-        'What happened next?',
-      ];
+      const followup = (response.data?.followup || '').trim();
+      const questions = followup
+        ? [followup]
+        : [
+            'Can you tell me more about that?',
+            'How did that make you feel?',
+            'What happened next?',
+          ];
       setFollowUpQuestions(questions);
     } catch {
       setFollowUpQuestions([

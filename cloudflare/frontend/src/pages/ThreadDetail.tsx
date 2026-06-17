@@ -6,6 +6,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { threadsApi, type ThreadRole, type ThreadEntry } from '../services/api';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { RoomError } from '../loom/components/RoomError';
 import { DYES as DYE_PALETTE, dyeVar, type Dye } from '../loom/dye';
 
 /**
@@ -43,7 +44,7 @@ export function ThreadDetail() {
     enabled: !!threadId,
   });
 
-  const { data: entries } = useQuery({
+  const { data: entries, isError: entriesError, refetch: refetchEntries } = useQuery({
     queryKey: ['thread', threadId, 'entries'],
     queryFn: () => threadsApi.listEntries(threadId, { limit: 100 }).then((r) => r.data),
     enabled: !!threadId,
@@ -225,7 +226,14 @@ export function ThreadDetail() {
             </div>
           </header>
 
-          {entryRows.length === 0 ? (
+          {entriesError ? (
+            /* A failed entries read must never read as "the first entry starts
+               the cloth" — the woven entries are permanent; this is only a reach
+               failure. Surface the in-voice retry, keeping the ledger chrome. */
+            <div style={{ padding: '24px 0 64px' }}>
+              <RoomError onRetry={() => refetchEntries()} />
+            </div>
+          ) : entryRows.length === 0 ? (
             /* Empty state — a quiet listener prompt */
             <div style={{ padding: '24px 0 64px' }}>
               <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-dim)', fontSize: 18, margin: 0 }}>

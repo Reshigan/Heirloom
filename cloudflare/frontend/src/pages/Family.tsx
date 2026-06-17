@@ -9,6 +9,7 @@ import { copyToClipboard } from '../utils/clipboard';
 import { type FamilyMember } from '../types';
 import { formatDate } from '../utils/date';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { RoomError } from '../loom/components/RoomError';
 import { dyeForId } from '../loom/dye';
 
 interface PendingInvite {
@@ -63,9 +64,11 @@ export function Family() {
   const [editError, setEditError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['family'],
-    queryFn: () => familyApi.getAll().then((r) => r.data).catch(() => []),
+    // No .catch here — a failed read must surface as isError so the roster
+    // shows the in-voice retry, never the first-run "add the first name" empty.
+    queryFn: () => familyApi.getAll().then((r) => r.data),
   });
   const allMembers: FamilyMember[] = (data ?? []) as FamilyMember[];
   const members = allMembers.filter((m) => !m.pendingDeletion);
@@ -479,6 +482,8 @@ export function Family() {
         {/* member list — the ledger of the bloodline */}
         {isLoading ? (
           <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.4, marginTop: 8 }} />
+        ) : isError ? (
+          <RoomError onRetry={() => refetch()} />
         ) : members.length === 0 ? (
           <div style={{ paddingTop: 8 }}>
             <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-dim)', fontSize: 18, margin: 0, lineHeight: 1.7 }}>

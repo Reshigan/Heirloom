@@ -7,6 +7,7 @@ import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { RoomError } from '../loom/components/RoomError';
 import { dyeForId } from '../loom/dye';
 
 // Quick Create wizard templates
@@ -145,7 +146,7 @@ export function LifeEvents() {
   const [scheduledDate, setScheduledDate] = useState('');
   const [selectedContent, setSelectedContent] = useState<{ type: string; id: string; title: string }[]>([]);
 
-  const { data: triggers, isLoading } = useQuery<{ triggers: LifeEventTrigger[] }>({
+  const { data: triggers, isLoading, isError, refetch } = useQuery<{ triggers: LifeEventTrigger[] }>({
     queryKey: ['life-events'],
     queryFn: () => api.get('/life-events').then((r: { data: { triggers: LifeEventTrigger[] } }) => r.data),
   });
@@ -319,6 +320,18 @@ export function LifeEvents() {
               animation: 'hl-load 1400ms cubic-bezier(0.16,1,0.3,1) forwards',
             }}
           />
+        </div>
+      </ClothShell>
+    );
+  }
+
+  // A failed read must not collapse into "no moments woven yet" — the moments
+  // are kept; this is only a reach failure. Surface the in-voice retry instead.
+  if (isError) {
+    return (
+      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />} topbarRight={<UserMenu />}>
+        <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
+          <RoomError onRetry={() => refetch()} />
         </div>
       </ClothShell>
     );
