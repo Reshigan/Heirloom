@@ -86,7 +86,7 @@ export function Pricing() {
   ];
 
   return (
-    <ClothShell topbarLeft={<HLogo />} topbarCenter="pricing">
+    <ClothShell topbarLeft={<HLogo href="/" />} topbarCenter="pricing">
       <div
         style={{
           maxWidth: 540,

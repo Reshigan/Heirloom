@@ -93,7 +93,7 @@ export function FoundersWall() {
 
   return (
     <ClothShell
-      topbarLeft={<HLogo />}
+      topbarLeft={<HLogo href="/" />}
       topbarCenter="founders wall"
       topbarRight={<Link to="/founder">pledge →</Link>}
     >

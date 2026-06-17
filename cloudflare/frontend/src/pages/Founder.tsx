@@ -115,7 +115,7 @@ export function Founder() {
 
   return (
     <ClothShell
-      topbarLeft={<HLogo size="sm" wordmark />}
+      topbarLeft={<HLogo size="sm" wordmark href="/" />}
       topbarCenter="founders"
       topbarRight={<UserMenu />}
     >

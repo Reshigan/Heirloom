@@ -58,7 +58,7 @@ export function ResetPassword() {
 
   return (
     <ClothShell
-      topbarLeft={<HLogo />}
+      topbarLeft={<HLogo href="/" />}
       topbarCenter="reset password"
       topbarRight={
         <Link

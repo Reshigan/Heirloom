@@ -54,6 +54,16 @@ export function Contact() {
     }
   };
 
+  const labelStyle: React.CSSProperties = {
+    display: 'block',
+    marginBottom: 8,
+    fontFamily: 'var(--mono)',
+    fontSize: 10,
+    letterSpacing: '0.32em',
+    textTransform: 'uppercase',
+    color: 'var(--bone-dim)',
+  };
+
   const inputStyle: React.CSSProperties = {
     width: '100%',
     background: 'transparent',
@@ -72,7 +82,7 @@ export function Contact() {
   };
 
   return (
-    <ClothShell topbarLeft={<HLogo />} topbarCenter="contact">
+    <ClothShell topbarLeft={<HLogo href="/" />} topbarCenter="contact">
       <div
         style={{
           maxWidth: 'var(--page-max-prose)',
@@ -174,45 +184,53 @@ export function Contact() {
               style={{ marginTop: 8 }}
             >
               <div style={{ marginBottom: 20 }}>
+                <label htmlFor="c-name" style={labelStyle}>
+                  Your name
+                </label>
                 <input
                   id="c-name"
                   type="text"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   placeholder="Your name"
-                  aria-label="Your name"
                   style={inputStyle}
                 />
               </div>
               <div style={{ marginBottom: 20 }}>
+                <label htmlFor="c-email" style={labelStyle}>
+                  Email address
+                </label>
                 <input
                   id="c-email"
                   type="email"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   placeholder="Email address"
-                  aria-label="Email address"
                   style={inputStyle}
                 />
               </div>
               <div style={{ marginBottom: 20 }}>
+                <label htmlFor="c-subject" style={labelStyle}>
+                  Subject
+                </label>
                 <input
                   id="c-subject"
                   type="text"
                   value={form.subject}
                   onChange={(e) => setForm({ ...form, subject: e.target.value })}
                   placeholder="Subject"
-                  aria-label="Subject"
                   style={inputStyle}
                 />
               </div>
               <div style={{ marginBottom: 28 }}>
+                <label htmlFor="c-message" style={labelStyle}>
+                  Your message
+                </label>
                 <textarea
                   id="c-message"
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
                   placeholder="Your message"
-                  aria-label="Your message"
                   style={{
                     ...inputStyle,
                     minHeight: 160,

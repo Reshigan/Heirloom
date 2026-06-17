@@ -156,7 +156,7 @@ export function GiftRedeem() {
   });
 
   return (
-    <ClothShell topbarLeft={<HLogo />} topbarCenter="redeem">
+    <ClothShell topbarLeft={<HLogo href="/" />} topbarCenter="redeem">
       {/* centered ceremony field — vast air */}
       <div
         style={{

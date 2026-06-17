@@ -67,7 +67,7 @@ export function VerifyEmail() {
 
   return (
     <ClothShell
-      topbarLeft={<HLogo />}
+      topbarLeft={<HLogo href="/" />}
       topbarCenter="verify email"
     >
       <div

@@ -10,12 +10,19 @@
 // self-contained and theme-aware through the --bone/--warm tokens.
 
 import type React from 'react';
+import { Link } from 'react-router-dom';
 
 type SizeToken = 'sm' | 'md' | 'lg';
 
 interface HLogoProps {
   size?: SizeToken | number;
   wordmark?: boolean;
+  // When set, the whole mark becomes a router link to this path (e.g. "/").
+  // The Link is styled to be visually identical to the bare mark (inline-flex,
+  // no underline, inherited color) so the only change is that it's clickable.
+  // When absent, the mark renders exactly as before — so callers that wrap
+  // HLogo in their own <Link> (Join, Frame) stay unaffected and never double-wrap.
+  href?: string;
   // legacy props — accepted but no longer applied
   tagline?: boolean;
   glow?: boolean;
@@ -33,15 +40,15 @@ function resolveToken(size: SizeToken | number): SizeToken {
   return 'lg';
 }
 
-export function HLogo({ size = 'sm', wordmark = true }: HLogoProps) {
+export function HLogo({ size = 'sm', wordmark = true, href }: HLogoProps) {
   const token = resolveToken(size);
   const dims: Record<SizeToken, [number, number]> = { sm: [17, 20], md: [22, 26], lg: [34, 40] };
   const [w, h] = dims[token];
   const fs: Record<SizeToken, number> = { sm: 10, md: 11, lg: 13 };
   const gap: Record<SizeToken, number> = { sm: 10, md: 12, lg: 16 };
 
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: gap[token], userSelect: 'none' }}>
+  const mark = (
+    <>
       <svg viewBox="0 0 24 28" width={w} height={h} fill="none" aria-hidden>
         {/* Eight bone filaments — the family's threads, converging on the node */}
         <g stroke="var(--bone)" strokeOpacity="0.5" strokeWidth="1.3" strokeLinecap="round">
@@ -66,6 +73,23 @@ export function HLogo({ size = 'sm', wordmark = true }: HLogoProps) {
           Heirloom
         </span>
       )}
-    </div>
+    </>
   );
+
+  const rowBase = { alignItems: 'center', gap: gap[token], userSelect: 'none' } as const;
+
+  // With href: the whole mark is a router link home. inline-flex + inherited
+  // color + no underline keeps it visually identical to the bare mark — this
+  // matches how Frame already styles its external <Link> wrapper.
+  if (href) {
+    return (
+      <Link to={href} style={{ display: 'inline-flex', textDecoration: 'none', color: 'inherit', ...rowBase }}>
+        {mark}
+      </Link>
+    );
+  }
+
+  // No href: render exactly as before (display:flex), so callers that wrap
+  // externally (Join, Frame) are byte-for-byte unaffected.
+  return <div style={{ display: 'flex', ...rowBase }}>{mark}</div>;
 }

@@ -10,7 +10,7 @@ export function NotFound() {
   const home = isAuthenticated ? '/loom/today' : '/';
   return (
     <ClothShell
-      topbarLeft={<HLogo />}
+      topbarLeft={<HLogo href="/" />}
       topbarCenter="not found"
       topbarRight={<Link to={home} className="hl-link warm">the cloth →</Link>}
     >

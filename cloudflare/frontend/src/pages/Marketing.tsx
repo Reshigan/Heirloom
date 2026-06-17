@@ -93,10 +93,10 @@ export function Marketing() {
           <span style={{
             display: 'flex', gap: 'clamp(18px, 3vw, 32px)', alignItems: 'center',
             fontFamily: 'var(--mono)', fontSize: 11.5, letterSpacing: '0.22em',
-            textTransform: 'uppercase', color: 'var(--bone-faint)',
+            textTransform: 'uppercase', color: 'var(--bone-dim)',
           }}>
             <Link to="/pricing"  style={{ color: 'inherit', textDecoration: 'none' }} className="mkt-nav-hide-sm">pricing</Link>
-            <Link to="/founder"  style={{ color: 'inherit', textDecoration: 'none' }} className="mkt-nav-hide-sm">founder</Link>
+            <Link to="/founder"  style={{ color: 'inherit', textDecoration: 'none' }}>founder</Link>
             <Link to="/login"    style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
             <SecurityDot size={6} />
           </span>
@@ -148,6 +148,7 @@ export function Marketing() {
           }}>
             <Link
               to="/signup"
+              className="mkt-begin-cta"
               style={{
                 display: 'inline-block', padding: '13px 38px', minHeight: 44, boxSizing: 'border-box',
                 border: '1px solid var(--warm)',
@@ -481,6 +482,7 @@ export function Marketing() {
       <style>{`
         .mkt-nav-hide-sm { display: inline; }
         @media (max-width: 520px) { .mkt-nav-hide-sm { display: none; } }
+        .loom[data-theme="light"] .mkt-begin-cta { color: var(--warm-dim); }
       `}</style>
     </main>
   );

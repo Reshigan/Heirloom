@@ -46,7 +46,7 @@ export function Terms() {
   usePageMeta('Terms', 'Terms of use for Heirloom.');
   return (
     <ClothShell
-      topbarLeft={<HLogo />}
+      topbarLeft={<HLogo href="/" />}
       topbarCenter="terms"
       topbarRight={<Link to="/privacy">privacy →</Link>}
     >

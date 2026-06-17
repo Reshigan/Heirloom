@@ -83,7 +83,7 @@ function ScenarioPage({
         <SectionLabel>the sealed letter</SectionLabel>
 
         {/* Sealed letter preview as a ledger entry row (static, no onClick) */}
-        <div style={{
+        <div className="scenario-sealed-row" style={{
           display: 'flex',
           alignItems: 'baseline',
           gap: 20,
@@ -115,13 +115,12 @@ function ScenarioPage({
               {sealedTrigger}
             </span>
           </span>
-          <span style={{
+          <span className="scenario-sealed-label" style={{
             fontFamily: 'var(--mono)',
             fontSize: 9,
             letterSpacing: '0.22em',
             textTransform: 'uppercase',
             color: 'var(--bone-faint)',
-            whiteSpace: 'nowrap',
             flex: '0 0 auto',
           }}>
             {sealedLabel}
@@ -185,6 +184,14 @@ function ScenarioPage({
           <WaxSeal />
         </div>
       </div>
+
+      <style>{`
+        .scenario-sealed-label { white-space: nowrap; }
+        @media (max-width: 520px) {
+          .scenario-sealed-row { flex-direction: column; gap: 8px; }
+          .scenario-sealed-label { white-space: normal; }
+        }
+      `}</style>
     </div>
   );
 }

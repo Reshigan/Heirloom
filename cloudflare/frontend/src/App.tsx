@@ -128,8 +128,11 @@ const queryClient = new QueryClient({
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, _hasHydrated } = useAuthStore();
+  const location = useLocation();
   if (!_hasHydrated) return <div style={{ minHeight: '100vh', backgroundColor: 'var(--ink)' }} />;
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
+  return isAuthenticated
+    ? <>{children}</>
+    : <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname + location.search)}`} replace />;
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {

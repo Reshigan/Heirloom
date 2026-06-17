@@ -151,7 +151,7 @@ export function GoldLegacyRedeem() {
   };
 
   return (
-    <ClothShell topbarLeft={<HLogo />} topbarCenter="gold thread">
+    <ClothShell topbarLeft={<HLogo href="/" />} topbarCenter="gold thread">
       {/* Content */}
       <div
         style={{

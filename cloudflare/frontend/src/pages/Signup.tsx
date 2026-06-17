@@ -641,7 +641,7 @@ function Field({
           fontSize: 9,
           letterSpacing: '0.26em',
           textTransform: 'uppercase',
-          color: 'var(--bone-faint)',
+          color: 'var(--bone-dim)',
           marginBottom: 10,
         }}
       >

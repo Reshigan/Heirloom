@@ -703,61 +703,52 @@ html {
    PRINT STYLES
    ============================================ */
 
-/* Print styles for letters and memories */
+/* Print styles for Terms / Privacy / export pages and letters.
+   Targets the LIVE cloth/cosmic chrome (canvas backdrops + ClothShell topbar +
+   BottomNav), not the retired pre-cosmic sanctuary/glass/toast classes. */
 @media print {
-  /* Hide non-essential elements */
-  .sanctuary-bg,
-  .sanctuary-orb,
-  .sanctuary-stars,
-  .sanctuary-mist,
+  /* Hide the cosmic/cloth ambient layers — CosmicLoom/SpineThread/TapestryCanvas
+     paint a <canvas>; the Filament backdrop is an aria-hidden decorative layer.
+     Also hide the ClothShell topbar (<header>), any nav (BottomNav <nav>) and
+     all action buttons — none belong on a printed page. */
+  canvas,
+  [aria-hidden="true"],
+  header,
   nav,
-  .btn,
   button,
-  .glass,
-  .modal-backdrop,
-  .toast {
+  .hl-btn {
     display: none !important;
   }
-  
-  /* Reset background and colors for printing */
-  body {
+
+  /* Ink-on-paper so Terms/Privacy/export print legibly in either theme. */
+  body,
+  .loom,
+  .loom-body,
+  .hl-serif,
+  .hl-mono {
     background: white !important;
     color: black !important;
   }
-  
-  /* Make content readable */
-  .text-paper,
-  .text-paper\/50,
-  .text-paper\/60,
-  .text-paper\/70,
-  .text-paper\/80,
-  .text-gold,
-  h1, h2, h3, h4, h5, h6, p, span, div {
-    color: black !important;
-  }
-  
-  /* Remove shadows and borders */
+
+  /* Remove shadows and force any remaining colored text to black. */
   * {
     box-shadow: none !important;
     text-shadow: none !important;
   }
-  
-  /* Ensure images print */
+  .loom h1, .loom h2, .loom h3, .loom h4, .loom h5, .loom h6,
+  .loom p, .loom span, .loom li, .loom a {
+    color: black !important;
+  }
+
+  /* Ensure images print without overflowing the page. */
   img {
     max-width: 100% !important;
     page-break-inside: avoid;
   }
-  
-  /* Page breaks for letters */
+
+  /* Page breaks between letters. */
   .letter-content {
     page-break-after: always;
-  }
-  
-  /* Ensure text is readable */
-  .card {
-    background: white !important;
-    border: 1px solid #ccc !important;
-    padding: 20px !important;
   }
 }
 
@@ -1009,6 +1000,23 @@ html {
 }
 .hl-btn.text { background: transparent; border: 0; color: var(--warm); padding: 0; border-radius: 0; font-weight: 600; }
 
+/* Light-theme a11y: interactive copper only. Light --warm #a86220 is 3.97:1 on
+   parchment (fails 4.5:1) and .ghost opacity:.8 drops it to ~2.5-2.9:1. Lift
+   buttons/ghost links to --warm-dim (#824a16 ≈ 5.9:1, passes ≥4.5:1) at full
+   opacity. Decorative --warm token / dye threads are untouched. Dark theme keeps
+   its already-passing copper. */
+.loom[data-theme="light"] .hl-btn:not(.text):not(.ghost):not(:disabled):not([aria-disabled="true"]) {
+  color: var(--warm-dim);
+  border-color: var(--warm-dim);
+}
+.loom[data-theme="light"] .hl-btn.text { color: var(--warm-dim); }
+.loom[data-theme="light"] .hl-btn.ghost { opacity: 1; color: var(--warm-dim); }
+/* Parchment solid-ink primary stays bone-on-ink (already passes) — re-assert it
+   after the copper lift so source order keeps the solid primary intact. */
+.loom[data-theme="light"] .hl-screen.parchment .hl-btn:not(.ghost):not(.text) {
+  color: var(--bone); border-color: transparent;
+}
+
 .hl-prose { font-family: var(--font-body); font-size: 17px; line-height: 1.78; max-width: 60ch; font-weight: 400; font-feature-settings: "onum" 1, "liga" 1; }
 .hl-prose.dark { color: var(--parchment-ink); }
 
@@ -1028,7 +1036,8 @@ html {
 }
 /* warm border only when the field actually has content */
 .hl-input:focus:not(:placeholder-shown) { border-color: var(--warm); }
-.hl-input:focus-visible { outline: none; }
+/* Keyboard focus ring (WCAG 2.4.7) — don't suppress it. */
+.hl-input:focus-visible { outline: 2px solid var(--warm); outline-offset: 2px; }
 .hl-input::placeholder { color: var(--parchment-faint); }
 .hl-input:disabled { opacity: 0.45; cursor: not-allowed; }
 
@@ -1960,8 +1969,15 @@ html {
 .loom input:focus,
 .loom textarea:focus,
 .loom select:focus {
-  outline: none !important;
   border-bottom-color: var(--loom-warm) !important;
+}
+/* Keyboard focus shows a real ring (WCAG 2.4.7); !important on outline only,
+   so it beats inline outline:none on Signup/Contact inputs. Mouse focus stays clean. */
+.loom input:focus-visible,
+.loom textarea:focus-visible,
+.loom select:focus-visible {
+  outline: 2px solid var(--warm) !important;
+  outline-offset: 2px;
 }
 .loom input::placeholder,
 .loom textarea::placeholder {

@@ -41,7 +41,7 @@ export function Privacy() {
   usePageMeta('Privacy', "How Heirloom protects your family's stories.");
   return (
     <ClothShell
-      topbarLeft={<HLogo />}
+      topbarLeft={<HLogo href="/" />}
       topbarCenter="privacy"
       topbarRight={<Link to="/terms">terms →</Link>}
     >

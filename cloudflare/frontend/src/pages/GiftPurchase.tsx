@@ -100,7 +100,7 @@ export function GiftPurchase() {
 
   return (
     <ClothShell
-      topbarLeft={<HLogo />}
+      topbarLeft={<HLogo href="/" />}
       topbarCenter="gift a thread"
       topbarRight={<Link to="/login">sign in →</Link>}
     >
@@ -234,12 +234,12 @@ export function GiftPurchase() {
                 },
               ]
             ).map((tier, idx) => {
-              const isSelected = selectedTier === tier.id;
+              const isSelected = selectedTier === tier?.id;
               const isFirst = idx === 0;
               return (
                 <button
-                  key={tier.id}
-                  onClick={() => setSelectedTier(tier.id)}
+                  key={tier?.id ?? idx}
+                  onClick={() => tier?.id && setSelectedTier(tier.id)}
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -265,8 +265,8 @@ export function GiftPurchase() {
                       marginBottom: 8,
                     }}
                   >
-                    {tier.name}
-                    {tier.popular && (
+                    {tier?.name ?? '—'}
+                    {tier?.popular && (
                       <span
                         style={{
                           marginLeft: 8,
@@ -287,7 +287,7 @@ export function GiftPurchase() {
                       marginBottom: 10,
                     }}
                   >
-                    {tier.description}
+                    {tier?.description ?? '—'}
                   </span>
                   <span
                     className="hl-serif hl-tight"
@@ -298,7 +298,7 @@ export function GiftPurchase() {
                       color: isSelected ? 'var(--bone)' : 'var(--bone)',
                     }}
                   >
-                    {tier[billingCycle].display}
+                    {tier?.[billingCycle]?.display ?? '—'}
                   </span>
                   <span
                     className="hl-mono"
@@ -312,7 +312,7 @@ export function GiftPurchase() {
                   >
                     {billingCycle === 'yearly' ? '/ year' : '/ 3 months'}
                     {' · '}
-                    {tier.storage} storage
+                    {tier?.storage ?? '—'} storage
                   </span>
                 </button>
               );
@@ -576,7 +576,7 @@ export function GiftPurchase() {
           <div style={{ textAlign: 'center', marginTop: 32 }}>
             <button
               type="submit"
-              disabled={isLoading || !formData.purchaserEmail}
+              disabled={isLoading || !formData.purchaserEmail || !price}
               className="hl-mono"
               style={{
                 background: 'transparent',
@@ -586,8 +586,8 @@ export function GiftPurchase() {
                 letterSpacing: '0.22em',
                 textTransform: 'uppercase',
                 color: 'var(--warm)',
-                opacity: isLoading || !formData.purchaserEmail ? 0.45 : 1,
-                cursor: isLoading || !formData.purchaserEmail ? 'default' : 'pointer',
+                opacity: isLoading || !formData.purchaserEmail || !price ? 0.45 : 1,
+                cursor: isLoading || !formData.purchaserEmail || !price ? 'default' : 'pointer',
                 transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
               }}
             >

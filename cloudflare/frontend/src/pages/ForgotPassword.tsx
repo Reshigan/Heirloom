@@ -45,7 +45,7 @@ export function ForgotPassword() {
 
   return (
     <ClothShell
-      topbarLeft={<HLogo />}
+      topbarLeft={<HLogo href="/" />}
       topbarCenter="forgot password"
       topbarRight={
         <Link

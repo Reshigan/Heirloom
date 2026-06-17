@@ -113,6 +113,7 @@ export function Login() {
                 <Link to="/forgot-password" className="hl-mono" style={{
                   fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase',
                   color: 'var(--bone-dim)', textDecoration: 'none',
+                  borderBottom: '1px solid var(--rule-strong)', paddingBottom: 2,
                 }}>
                   forgot?
                 </Link>
@@ -166,7 +167,7 @@ export function Login() {
             color: 'var(--bone-faint)',
           }}>
             no thread yet?&nbsp;·&nbsp;
-            <Link to="/signup" style={{ color: 'var(--bone-dim)', textDecoration: 'none' }}>
+            <Link to="/signup" style={{ color: 'var(--bone-dim)', textDecoration: 'none', borderBottom: '1px solid var(--rule-strong)', paddingBottom: 4 }}>
               start one
             </Link>
           </div>

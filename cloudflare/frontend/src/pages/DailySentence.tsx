@@ -189,7 +189,10 @@ export function DailySentence() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Today's question from the real prompt endpoint; fall back silently.
+  // Anon visitors keep FALLBACK_QUESTION — a 401 here would trip the axios
+  // token-refresh interceptor and bounce this public surface to /login.
   useEffect(() => {
+    if (!isAuthenticated) return;
     aiApi
       .getPrompt()
       .then((r) => {
@@ -197,10 +200,12 @@ export function DailySentence() {
         if (text) setQuestion(text);
       })
       .catch(() => undefined);
-  }, []);
+  }, [isAuthenticated]);
 
   // Live family count — only shown if the API actually returns one. Never invented.
+  // Authenticated-only for the same reason: anon stays families=null.
   useEffect(() => {
+    if (!isAuthenticated) return;
     engagementApi
       .getFamilyFeed()
       .then((r) => {
@@ -222,7 +227,7 @@ export function DailySentence() {
         if (Number.isFinite(n) && n > 0) setFamilies(n);
       })
       .catch(() => undefined);
-  }, []);
+  }, [isAuthenticated]);
 
   // Restore draft from localStorage on mount; check already-written-today.
   useEffect(() => {

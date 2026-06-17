@@ -16,7 +16,7 @@ const SAMPLE_ENTRIES = [
 export function Showcase() {
   return (
     <ClothShell
-      topbarLeft={<HLogo size="sm" wordmark />}
+      topbarLeft={<HLogo size="sm" wordmark href="/" />}
       topbarCenter="showcase"
       topbarRight={<UserMenu />}
       backdropOpacity={0.2}
