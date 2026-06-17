@@ -502,14 +502,14 @@ export function Signup() {
           onComplete={() => {
             setShowVaultSetup(false);
             // Founder is a one-time purchase with no trial — route to /founder to
-            // complete payment. Family/Free use the trial-first model (no card on
-            // file) and go to the product tour + first-entry onboarding. A
-            // deep-link redirect always takes precedence.
-            navigate(safeRedirect(redirectUrl, tier === 'founder' ? '/founder' : '/onboarding'));
+            // complete payment. Family/Free first run the First Thread ceremony
+            // (/begin), which then hands off into the product tour + first-entry
+            // onboarding. A deep-link redirect always takes precedence.
+            navigate(safeRedirect(redirectUrl, tier === 'founder' ? '/founder' : '/begin'));
           }}
           onSkip={() => {
             setShowVaultSetup(false);
-            navigate(safeRedirect(redirectUrl, tier === 'founder' ? '/founder' : '/onboarding'));
+            navigate(safeRedirect(redirectUrl, tier === 'founder' ? '/founder' : '/begin'));
           }}
         />
       ) : null}

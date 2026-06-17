@@ -108,6 +108,7 @@ const ScenarioVoiceUnborn   = lazy(() => import('./pages/ScenarioPages').then(m 
 // The Loom — the live marketing + design system.
 // See cloudflare/frontend/src/loom/DESIGN.md.
 const LoomThreshold = lazy(() => import('./pages/Threshold').then(m => ({ default: m.Threshold })));
+const FirstThread = lazy(() => import('./pages/FirstThread').then(m => ({ default: m.FirstThread })));
 const LoomWeft = lazy(() => import('./pages/Weft').then(m => ({ default: m.Weft })));
 const LoomTiedOff = lazy(() => import('./pages/TiedOff').then(m => ({ default: m.TiedOff })));
 const LoomUnlock = lazy(() => import('./pages/Unlock').then(m => ({ default: m.Unlock })));
@@ -575,6 +576,10 @@ export default function App() {
               AI as invisible shuttle. Marketing is mounted at / (above);
               the eight-screen demo lives here. */}
           <Route path="/loom" element={<LoomThreshold />} />
+          {/* The first-run ceremony — unguarded so both a fresh signup (authed)
+              and an anonymous visitor can experience it; it hands off into
+              /onboarding or /signup at the end. */}
+          <Route path="/begin" element={<FirstThread />} />
           <Route path="/loom/today" element={<ProtectedRoute><Today /></ProtectedRoute>} />
           <Route path="/loom/pwa"   element={<PwaHome />} />
           <Route path="/loom/index" element={<ProtectedRoute><LoomIndex /></ProtectedRoute>} />

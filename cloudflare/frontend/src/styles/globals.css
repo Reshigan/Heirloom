@@ -508,6 +508,26 @@ em {
   50%      { opacity: 0.95; }
 }
 
+/* First Thread ceremony keyframes (src/pages/FirstThread.tsx). Ported verbatim
+   from the Claude Design handoff — the one ceremony that owns its own motion
+   vocabulary. Silenced under prefers-reduced-motion via the .hl-first-thread
+   kill switch below. */
+@keyframes hl-fadeup { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes hl-fadein { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hl-wipe   { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes hl-sweep  { 0% { left: -14%; opacity: 0; } 18% { opacity: 1; } 100% { left: 106%; opacity: 0; } }
+@keyframes hl-pulse  { 0%, 100% { opacity: .5; transform: scale(1); } 50% { opacity: .92; transform: scale(1.06); } }
+@keyframes hl-ring   { 0% { transform: translate(-50%,-50%) scale(.35); opacity: .85; } 100% { transform: translate(-50%,-50%) scale(2.7); opacity: 0; } }
+@keyframes hl-stamp  { 0% { transform: translate(-50%,-50%) scale(1.6); opacity: 0; } 38% { opacity: 1; } 62% { transform: translate(-50%,-50%) scale(.86); } 100% { transform: translate(-50%,-50%) scale(1); } }
+@keyframes hl-node   { 0% { transform: scale(0); opacity: 0; } 62% { transform: scale(1.5); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes hl-grow   { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-first-thread *,
+  .hl-first-thread *::before,
+  .hl-first-thread *::after { animation: none !important; }
+}
+
 /* Utility classes: duration controlled by --hl-dur (defaults 700ms) */
 .hl-reveal-rise  { animation: hl-rise  var(--hl-dur, 720ms) var(--ease) both; }
 .hl-reveal-fade  { animation: hl-fade  var(--hl-dur, 720ms) var(--ease) both; }
