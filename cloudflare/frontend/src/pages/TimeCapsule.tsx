@@ -113,7 +113,7 @@ function CapsuleRow({
       onClick={onClick}
       style={{
         width: '100%',
-        background: isSelected ? 'rgba(176,122,74,0.04)' : 'transparent',
+        background: isSelected ? 'rgba(224,160,98,0.04)' : 'transparent',
         border: 0,
         borderBottom: '1px solid var(--rule)',
         padding: '24px 0',
@@ -707,7 +707,7 @@ export function TimeCapsule() {
                     style={{
                       background:
                         newCapsule.cover_style === style.id
-                          ? 'rgba(176,122,74,0.06)'
+                          ? 'rgba(224,160,98,0.06)'
                           : 'transparent',
                       border: `1px solid ${
                         newCapsule.cover_style === style.id ? 'var(--warm)' : 'var(--rule)'

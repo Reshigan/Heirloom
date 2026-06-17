@@ -21,7 +21,7 @@ interface PendingInvite {
 }
 
 // Text-safe lightened dye variants for rendering member names on the ink
-// background — each brightened enough to pass contrast on #0e0e0c. The dye is
+// background — each brightened enough to pass contrast on #0b0907. The dye is
 // the member's identity signal: the 3px left thread carries the dye, the name carries the hue.
 const DYE_TEXT: Record<string, string> = {
   madder:    '#d97860',
@@ -226,7 +226,7 @@ export function Family() {
               type="button"
               className="hl-btn ghost"
               onClick={() => openForm('invite')}
-              style={{ color: 'var(--warm)', borderColor: 'rgba(176,122,74,0.4)' }}
+              style={{ color: 'var(--warm)', borderColor: 'rgba(224,160,98,0.4)' }}
             >
               invite by email →
             </button>
@@ -349,7 +349,7 @@ export function Family() {
                     type="button"
                     className="hl-btn ghost"
                     onClick={() => { setInviteSent(false); setInviteForm({ name: '', email: '' }); }}
-                    style={{ color: 'var(--warm)', borderColor: 'rgba(176,122,74,0.4)' }}
+                    style={{ color: 'var(--warm)', borderColor: 'rgba(224,160,98,0.4)' }}
                   >
                     send another →
                   </button>
@@ -407,7 +407,7 @@ export function Family() {
                     letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-dim)',
                     transition: 'color 180ms var(--ease), border-color 180ms var(--ease)', touchAction: 'manipulation', flexShrink: 0,
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(176,122,74,0.4)'; }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(224,160,98,0.4)'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-dim)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--rule)'; }}
                 >
                   undo

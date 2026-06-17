@@ -110,7 +110,7 @@ export function LetterOpeningCeremony({
               fontSize: 'clamp(76px, 12vw, 108px)',
               lineHeight: 1,
               color: 'var(--warm-bright)',
-              textShadow: '0 0 32px rgba(207,147,90,0.55), 0 0 12px rgba(207,147,90,0.4)',
+              textShadow: '0 0 32px rgba(240,192,116,0.55), 0 0 12px rgba(240,192,116,0.4)',
               animation: 'hl-breathe 1400ms var(--ease) both',
             }}
           >

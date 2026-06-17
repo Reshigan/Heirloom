@@ -784,7 +784,7 @@ export function StoryArtifact() {
                           style={{
                             position: 'absolute',
                             inset: 0,
-                            background: 'rgba(176,122,74,0.35)',
+                            background: 'rgba(224,160,98,0.35)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',

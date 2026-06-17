@@ -25,7 +25,7 @@
   // Keep the mobile status-bar tint honest with the resolved theme.
   try {
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', resolved === 'light' ? '#f5ece0' : '#0e0e0c');
+    if (meta) meta.setAttribute('content', resolved === 'light' ? '#faf3e4' : '#0b0907');
   } catch (e) {
     /* no-op */
   }

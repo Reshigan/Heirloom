@@ -13,7 +13,7 @@ const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
 interface Panel {
   eyebrow: string;
-  line: string;      // the hero line (Source Serif 4, large)
+  line: string;      // the hero line (Spectral, large)
   body: string;      // one quiet supporting sentence
 }
 

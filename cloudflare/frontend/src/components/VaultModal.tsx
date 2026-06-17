@@ -126,7 +126,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
   const labelStyle: React.CSSProperties = {
     display: 'block',
     marginBottom: 10,
-    fontFamily: "'JetBrains Mono', monospace",
+    fontFamily: "'Space Mono', monospace",
     fontSize: 10,
     letterSpacing: '0.22em',
     textTransform: 'uppercase',
@@ -186,7 +186,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
             aria-hidden
             style={{
               display: 'block',
-              fontFamily: "'Source Serif 4', serif",
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
               fontSize: 40,
               color: 'var(--warm)',
               marginBottom: 18,
@@ -276,7 +276,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                   background: 'transparent',
                   border: 0,
                   cursor: 'pointer',
-                  fontFamily: "'JetBrains Mono', monospace",
+                  fontFamily: "'Space Mono', monospace",
                   fontSize: 9.5,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',

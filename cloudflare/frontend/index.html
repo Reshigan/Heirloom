@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260615b" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="Heirloom — the family thread that outlives all of us. Append-only, multi-generational, time-locked. Write today. Lock entries for descendants who don't exist yet." />
-    <meta name="theme-color" content="#0e0e0c" />
+    <meta name="theme-color" content="#0b0907" />
     <title>Heirloom — your family's thousand-year thread</title>
 
     <!-- Theme cold-boot — resolve the saved theme onto <html> BEFORE first
@@ -17,8 +17,8 @@
       /* Root substrate + splash track the resolved theme so the very first
          browser paint already matches (no dark→light flash on the marketing
          page). theme-boot.js sets html[data-theme] before this paints. */
-      html { background: #0e0e0c; }
-      html[data-theme="light"] { background: #f5ece0; }
+      html { background: #0b0907; }
+      html[data-theme="light"] { background: #faf3e4; }
     </style>
 
     <!-- Installable PWA -->
@@ -29,13 +29,14 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Heirloom" />
     
-    <!-- Heirloom type system (per the Claude Design bundle): Source Serif 4
-         (variable optical serif, display + prose), Inter (UI), JetBrains Mono
-         (archival). No 4th typeface — the legacy Cinzel/Cormorant/Caveat are
-         retired. -->
+    <!-- Heirloom type system: Cormorant Garamond (display — headlines, the ∞
+         mark, names), Spectral (reading — prose, inputs, long-form), Space Mono
+         (archival labels, dates, eyebrows), Inter (residual UI chrome),
+         Tangerine (the hand). Cormorant is display-only — it turns unreadable
+         below ~24px, so reading copy rides Spectral. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,300;1,8..60,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Tangerine:wght@400;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600&family=Tangerine:wght@400;700&display=swap" />
     
     <link rel="canonical" href="https://heirloom.blue/" />
 
@@ -59,31 +60,31 @@
   </head>
   <body>
     <!-- Cold-boot splash — shown before React hydrates so a standalone
-         (home-screen) launch never flashes a blank #0e0e0c. ∞ on ink, a
-         hairline warm progress bar, Source Serif 4. No gradient glow.
+         (home-screen) launch never flashes a blank ground. ∞ on ground, a
+         hairline copper progress bar, Cormorant Garamond. No gradient glow.
          Removed by main.tsx (or auto-fades) once the app mounts. -->
     <style>
       #hl-splash {
         position: fixed; inset: 0; z-index: 2147483647;
-        background: #0e0e0c; color: #f4ecd8;
+        background: #0b0907; color: #f2e6d0;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        font-family: 'Source Serif 4', Georgia, serif; -webkit-font-smoothing: antialiased;
+        font-family: 'Cormorant Garamond', Georgia, serif; -webkit-font-smoothing: antialiased;
         transition: opacity 360ms cubic-bezier(0.16, 1, 0.3, 1);
       }
       #hl-splash[data-leaving] { opacity: 0; pointer-events: none; }
-      #hl-splash .hl-splash-mark { font-size: 64px; line-height: 1; font-weight: 300; color: #b07a4a; }
-      #hl-splash .hl-splash-word { margin-top: 22px; font-size: 22px; font-style: italic; font-weight: 400; letter-spacing: -0.01em; color: rgba(244, 236, 216, 0.55); }
-      #hl-splash .hl-splash-track { position: absolute; bottom: 96px; left: 20%; right: 20%; height: 1px; background: rgba(176, 122, 74, 0.18); overflow: hidden; }
-      #hl-splash .hl-splash-fill { height: 1px; width: 30%; background: #b07a4a; animation: hl-splash-shuttle 1400ms cubic-bezier(0.16, 1, 0.3, 1) infinite; }
-      #hl-splash .hl-splash-label { position: absolute; bottom: 64px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(244, 236, 216, 0.32); }
+      #hl-splash .hl-splash-mark { font-size: 72px; line-height: 1; font-weight: 300; color: #e0a062; }
+      #hl-splash .hl-splash-word { margin-top: 20px; font-size: 30px; font-style: italic; font-weight: 400; letter-spacing: -0.01em; color: rgba(242, 230, 208, 0.58); }
+      #hl-splash .hl-splash-track { position: absolute; bottom: 96px; left: 20%; right: 20%; height: 1px; background: rgba(224, 160, 98, 0.18); overflow: hidden; }
+      #hl-splash .hl-splash-fill { height: 1px; width: 30%; background: #e0a062; animation: hl-splash-shuttle 1400ms cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+      #hl-splash .hl-splash-label { position: absolute; bottom: 64px; font-family: 'Space Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(242, 230, 208, 0.32); }
       /* Light theme — paper splash so a light-mode visitor opens onto bone,
-         not a flash of ink. Values mirror .loom[data-theme="light"]. */
-      html[data-theme="light"] #hl-splash { background: #f5ece0; color: #120e0a; }
-      html[data-theme="light"] #hl-splash .hl-splash-mark { color: #a05c20; }
-      html[data-theme="light"] #hl-splash .hl-splash-word { color: rgba(18, 14, 10, 0.58); }
-      html[data-theme="light"] #hl-splash .hl-splash-track { background: rgba(160, 92, 32, 0.18); }
-      html[data-theme="light"] #hl-splash .hl-splash-fill { background: #a05c20; }
-      html[data-theme="light"] #hl-splash .hl-splash-label { color: rgba(18, 14, 10, 0.40); }
+         not a flash of ground. Values mirror .loom[data-theme="light"]. */
+      html[data-theme="light"] #hl-splash { background: #faf3e4; color: #120d08; }
+      html[data-theme="light"] #hl-splash .hl-splash-mark { color: #a86220; }
+      html[data-theme="light"] #hl-splash .hl-splash-word { color: rgba(18, 13, 8, 0.58); }
+      html[data-theme="light"] #hl-splash .hl-splash-track { background: rgba(168, 98, 32, 0.18); }
+      html[data-theme="light"] #hl-splash .hl-splash-fill { background: #a86220; }
+      html[data-theme="light"] #hl-splash .hl-splash-label { color: rgba(18, 13, 8, 0.40); }
       @keyframes hl-splash-shuttle { 0% { transform: translateX(-110%); } 100% { transform: translateX(440%); } }
       @media (prefers-reduced-motion: reduce) {
         #hl-splash .hl-splash-fill { animation: none; width: 62%; }

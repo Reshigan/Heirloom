@@ -335,7 +335,7 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
             <div style={{ display: 'grid', gap: 12, borderTop: '1px solid var(--rule)', paddingTop: 12 }}>
               <span style={eyebrow}>or choose a version</span>
               {variants.map((v) => (
-                <div key={v.id} style={{ display: 'grid', gap: 8, borderLeft: '2px solid var(--rule-warm, rgba(176,122,74,0.22))', paddingLeft: 12 }}>
+                <div key={v.id} style={{ display: 'grid', gap: 8, borderLeft: '2px solid var(--rule-warm, rgba(224,160,98,0.22))', paddingLeft: 12 }}>
                   <span style={{ ...eyebrow, color: 'var(--warm)' }}>{v.label}</span>
                   {nudging === v.id ? (
                     <ProgressHair label="re-shaping…" />

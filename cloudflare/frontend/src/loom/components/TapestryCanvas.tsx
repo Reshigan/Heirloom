@@ -14,7 +14,7 @@ export const HL_DYE_HEX: Record<string, string> = {
   iron:      '#4a4a46',
 };
 
-// Blend hex color toward bone (#f4ecd8) for highlights
+// Blend hex color toward bone (#f2e6d0) for highlights
 function lightenToBone(hex: string, t: number): string {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
@@ -22,7 +22,7 @@ function lightenToBone(hex: string, t: number): string {
   return `rgb(${Math.round(r + (244 - r) * t)},${Math.round(g + (236 - g) * t)},${Math.round(b + (216 - b) * t)})`;
 }
 
-// Darken toward ink (#0e0e0c) for shadows
+// Darken toward ink (#0b0907) for shadows
 function darkenToInk(hex: string, t: number): string {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);
@@ -223,11 +223,11 @@ function drawThread(
 
   // ── 7. Specular ridge — thin bright highlight along the top of the cylinder
   const specGrad = ctx.createLinearGradient(x0, cy, x1, cy);
-  specGrad.addColorStop(0,   'rgba(244,236,216,0)');
-  specGrad.addColorStop(0.12, `rgba(244,236,216,${alpha * 0.32})`);
-  specGrad.addColorStop(0.5,  `rgba(244,236,216,${alpha * 0.42})`);
-  specGrad.addColorStop(0.88, `rgba(244,236,216,${alpha * 0.32})`);
-  specGrad.addColorStop(1,   'rgba(244,236,216,0)');
+  specGrad.addColorStop(0,   'rgba(242,230,208,0)');
+  specGrad.addColorStop(0.12, `rgba(242,230,208,${alpha * 0.32})`);
+  specGrad.addColorStop(0.5,  `rgba(242,230,208,${alpha * 0.42})`);
+  specGrad.addColorStop(0.88, `rgba(242,230,208,${alpha * 0.32})`);
+  specGrad.addColorStop(1,   'rgba(242,230,208,0)');
   ctx.strokeStyle = specGrad;
   ctx.globalAlpha = 1;
   ctx.lineWidth = 0.9;
@@ -239,7 +239,7 @@ function drawThread(
 
   // ── 8. Active selection — warm ring
   if (isActive) {
-    ctx.strokeStyle = 'rgba(207,147,90,0.9)';
+    ctx.strokeStyle = 'rgba(240,192,116,0.9)';
     ctx.globalAlpha = 1;
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
@@ -254,7 +254,7 @@ function drawThread(
   // ── 9. Weave-in flash — burst of warm light as thread is added
   if (flashPow > 0) {
     const p = 1 - Math.pow(1 - flashPow, 3); // cubic-out ease
-    ctx.strokeStyle = '#cf935a';
+    ctx.strokeStyle = '#f0c074';
     ctx.globalAlpha = p * 0.25;
     ctx.lineWidth = thick + 20;
     ctx.lineCap = 'round';
@@ -302,7 +302,7 @@ export function drawCloth(
     showFraySelvedge = true,
     showWarpHair = true,
     nowFrac = null,
-    background = '#0e0e0c',
+    background = '#0b0907',
     warpEvery = 14,
     bandFromTier = true,
     sparkle = 0,
@@ -319,10 +319,10 @@ export function drawCloth(
 
   // ── Very subtle cloth-sheen gradient (diffuse overhead light)
   const sheen = ctx.createLinearGradient(0, 0, 0, H);
-  sheen.addColorStop(0,   'rgba(244,236,216,0.020)');
-  sheen.addColorStop(0.35,'rgba(244,236,216,0.045)');
-  sheen.addColorStop(0.7, 'rgba(244,236,216,0.030)');
-  sheen.addColorStop(1,   'rgba(244,236,216,0.008)');
+  sheen.addColorStop(0,   'rgba(242,230,208,0.020)');
+  sheen.addColorStop(0.35,'rgba(242,230,208,0.045)');
+  sheen.addColorStop(0.7, 'rgba(242,230,208,0.030)');
+  sheen.addColorStop(1,   'rgba(242,230,208,0.008)');
   ctx.fillStyle = sheen;
   ctx.fillRect(0, 0, W, H);
 
@@ -429,11 +429,11 @@ export function drawCloth(
       const segH = w.thick * 0.85;
       // Draw short warp-over-weft segment (bone linen, soft glow + hairline)
       const ovGrad = ctx.createLinearGradient(xx - 1, wy - segH, xx + 1, wy + segH);
-      ovGrad.addColorStop(0,   'rgba(244,236,216,0.04)');
-      ovGrad.addColorStop(0.35,'rgba(244,236,216,0.16)');
-      ovGrad.addColorStop(0.5, 'rgba(244,236,216,0.22)');
-      ovGrad.addColorStop(0.65,'rgba(244,236,216,0.16)');
-      ovGrad.addColorStop(1,   'rgba(244,236,216,0.04)');
+      ovGrad.addColorStop(0,   'rgba(242,230,208,0.04)');
+      ovGrad.addColorStop(0.35,'rgba(242,230,208,0.16)');
+      ovGrad.addColorStop(0.5, 'rgba(242,230,208,0.22)');
+      ovGrad.addColorStop(0.65,'rgba(242,230,208,0.16)');
+      ovGrad.addColorStop(1,   'rgba(242,230,208,0.04)');
       ctx.strokeStyle = ovGrad;
       ctx.lineWidth = 1.4;
       ctx.beginPath();
@@ -441,7 +441,7 @@ export function drawCloth(
       ctx.lineTo(xx, wy + segH);
       ctx.stroke();
       // Specular nub on the crimp where warp passes over weft
-      ctx.strokeStyle = 'rgba(244,236,216,0.18)';
+      ctx.strokeStyle = 'rgba(242,230,208,0.18)';
       ctx.lineWidth = 0.6;
       ctx.beginPath();
       ctx.moveTo(xx - 0.4, wy - segH * 0.5);
@@ -457,7 +457,7 @@ export function drawCloth(
     const cx = targetFrac * W - panX;
     if (cx < -10 || cx > W + 10) continue;
     const cy = 0.07 * H;
-    ctx.strokeStyle = 'rgba(176,122,74,0.45)';
+    ctx.strokeStyle = 'rgba(224,160,98,0.45)';
     ctx.setLineDash([2, 5]);
     ctx.lineWidth = 1;
     ctx.beginPath();
@@ -465,8 +465,8 @@ export function drawCloth(
     ctx.lineTo(cx, 0.34 * H);
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = '#b07a4a';
-    ctx.font = '300 14px "Source Serif 4", serif';
+    ctx.fillStyle = '#e0a062';
+    ctx.font = '300 14px "Spectral", serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('∞', cx, cy);
@@ -476,7 +476,7 @@ export function drawCloth(
   if (showDecadeMarks) {
     const startY = tStart.getFullYear();
     const endY   = tEnd.getFullYear();
-    ctx.font = '500 9px "JetBrains Mono", monospace';
+    ctx.font = '500 9px "Space Mono", monospace';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     for (let y = startY; y <= endY; y++) {
@@ -486,10 +486,10 @@ export function drawCloth(
       const isDecade = y % 10 === 0;
       const isHalf   = y % 5 === 0;
       const col = isDecade
-        ? 'rgba(244,236,216,0.60)'
+        ? 'rgba(242,230,208,0.60)'
         : isHalf
-          ? 'rgba(244,236,216,0.36)'
-          : 'rgba(244,236,216,0.18)';
+          ? 'rgba(242,230,208,0.36)'
+          : 'rgba(242,230,208,0.18)';
       ctx.fillStyle = col;
       ctx.fillText(String(y), cx + 3, H - 15);
       ctx.strokeStyle = col;
@@ -508,7 +508,7 @@ export function drawCloth(
     const sxClamp = Math.min(W - 1, Math.max(0, sx));
 
     // Selvedge column — very faint
-    ctx.strokeStyle = 'rgba(244,236,216,0.07)';
+    ctx.strokeStyle = 'rgba(242,230,208,0.07)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(sxClamp, 0);
@@ -521,7 +521,7 @@ export function drawCloth(
       const yy  = fr() * H;
       const len = 4 + fr() * 26;
       const a   = 0.06 + fr() * 0.17;
-      ctx.strokeStyle = `rgba(244,236,216,${a.toFixed(3)})`;
+      ctx.strokeStyle = `rgba(242,230,208,${a.toFixed(3)})`;
       ctx.lineWidth = 0.4 + fr() * 0.7;
       ctx.lineCap = 'round';
       ctx.beginPath();
@@ -542,7 +542,7 @@ export function drawCloth(
       const cp2x = sxClamp + 72, cp2y = tipY + 10;
 
       // Wide outer halo
-      ctx.strokeStyle = 'rgba(207,147,90,0.06)';
+      ctx.strokeStyle = 'rgba(240,192,116,0.06)';
       ctx.lineWidth = 18;
       ctx.lineCap = 'round';
       ctx.beginPath();
@@ -550,21 +550,21 @@ export function drawCloth(
       ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
       ctx.stroke();
 
-      ctx.strokeStyle = 'rgba(207,147,90,0.18)';
+      ctx.strokeStyle = 'rgba(240,192,116,0.18)';
       ctx.lineWidth = 6;
       ctx.beginPath();
       ctx.moveTo(sxClamp, tipY);
       ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
       ctx.stroke();
 
-      ctx.strokeStyle = 'rgba(207,147,90,0.40)';
+      ctx.strokeStyle = 'rgba(240,192,116,0.40)';
       ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.moveTo(sxClamp, tipY);
       ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
       ctx.stroke();
 
-      ctx.strokeStyle = '#cf935a';
+      ctx.strokeStyle = '#f0c074';
       ctx.lineWidth = 1.2;
       ctx.globalAlpha = 1;
       ctx.beginPath();
@@ -579,14 +579,14 @@ export function drawCloth(
   if (showWarpHair && nowFrac != null) {
     const xx = nowFrac * W - panX;
 
-    ctx.strokeStyle = 'rgba(176,122,74,0.12)';
+    ctx.strokeStyle = 'rgba(224,160,98,0.12)';
     ctx.lineWidth = 6;
     ctx.beginPath();
     ctx.moveTo(xx, 0);
     ctx.lineTo(xx, H);
     ctx.stroke();
 
-    ctx.strokeStyle = '#b07a4a';
+    ctx.strokeStyle = '#e0a062';
     ctx.lineWidth = 1;
     ctx.globalAlpha = 0.88;
     ctx.beginPath();
@@ -604,7 +604,7 @@ export function drawCloth(
       const yy = sr() * H;
       const sz = 0.5 + sr() * 1.8;
       const a  = 0.45 * sparkle * (0.35 + sr() * 0.65);
-      ctx.fillStyle = `rgba(207,147,90,${a.toFixed(3)})`;
+      ctx.fillStyle = `rgba(240,192,116,${a.toFixed(3)})`;
       ctx.beginPath();
       ctx.arc(xx, yy, sz, 0, Math.PI * 2);
       ctx.fill();

@@ -257,8 +257,8 @@ export function MemoryMap() {
                         borderRadius: '50%',
                         background: active ? 'var(--warm-bright)' : 'var(--warm)',
                         boxShadow: active
-                          ? '0 0 14px rgba(176,122,74,0.7)'
-                          : '0 0 8px rgba(176,122,74,0.45)',
+                          ? '0 0 14px rgba(224,160,98,0.7)'
+                          : '0 0 8px rgba(224,160,98,0.45)',
                         transition: 'all 360ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     />

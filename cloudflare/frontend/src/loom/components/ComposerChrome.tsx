@@ -33,7 +33,7 @@ const railWrap: React.CSSProperties = {
   marginTop: 40,
   paddingTop: 16,
   borderTop: '1px solid var(--rule)',
-  fontFamily: "'JetBrains Mono', monospace",
+  fontFamily: "'Space Mono', monospace",
   fontSize: 12,
   letterSpacing: '0.06em',
   color: 'var(--bone-dim)',
@@ -156,7 +156,7 @@ export function ListenerLine({
     <aside
       aria-live="polite"
       style={{
-        fontFamily: "'JetBrains Mono', monospace",
+        fontFamily: "'Space Mono', monospace",
         fontSize: 12,
         lineHeight: 1.75,
         letterSpacing: '0.03em',
@@ -194,7 +194,7 @@ export function ListenerLine({
       {loading ? (
         <span style={{ color: 'var(--bone-faint)', fontStyle: 'italic' }}>listening…</span>
       ) : (
-        <span style={{ color: 'var(--bone)', fontStyle: 'italic', fontSize: 'clamp(15px, 1.6vw, 17px)', fontFamily: "'Source Serif 4', serif", fontWeight: 300, lineHeight: 1.62 }}>
+        <span style={{ color: 'var(--bone)', fontStyle: 'italic', fontSize: 'clamp(15px, 1.6vw, 17px)', fontFamily: "'Spectral', serif", fontWeight: 300, lineHeight: 1.62 }}>
           "{text}"
         </span>
       )}
@@ -209,7 +209,7 @@ export function ListenerLine({
             border: 0,
             padding: 0,
             cursor: 'pointer',
-            fontFamily: "'JetBrains Mono', monospace",
+            fontFamily: "'Space Mono', monospace",
             fontSize: 10,
             letterSpacing: '0.16em',
             textTransform: 'uppercase',

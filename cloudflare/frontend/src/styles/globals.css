@@ -10,42 +10,44 @@
         point at the Heirloom design system: ink ground, bone cloth, warm
         sealing-wax accent. ── */
 
-  /* INK — the ground (was "void") */
-  --void-abyss: #0a0a08;
-  --void-deep: #0a0a08;
-  --void: #0e0e0c;
-  --void-surface: #141412;
-  --void-elevated: #1a1a17;
-  --void-hover: #201f1c;
+  /* INK — the ground (warm-black, per the golive reference: #0b0907 over
+     #090706 abyss; card/elevated surfaces lift toward #1b1610). */
+  --void-abyss: #090706;
+  --void-deep: #090706;
+  --void: #0b0907;
+  --void-surface: #16110c;
+  --void-elevated: #1e1812;
+  --void-hover: #261e15;
 
-  /* BONE — the cloth (was "paper") */
-  --paper: #f4ecd8;
-  --paper-bright: #faf6ee;
-  --paper-dim: rgba(244, 236, 216, 0.55);
-  --paper-muted: rgba(244, 236, 216, 0.40);
+  /* CREAM — the cloth (was "paper"); reference head #f2e6d0, body #ecdfc9. */
+  --paper: #f2e6d0;
+  --paper-bright: #faf3e4;
+  --paper-dim: rgba(242, 230, 208, 0.55);
+  --paper-muted: rgba(242, 230, 208, 0.40);
 
-  /* Bone opacity scales */
-  --paper-90: rgba(244, 236, 216, 0.9);
-  --paper-70: rgba(244, 236, 216, 0.7);
-  --paper-50: rgba(244, 236, 216, 0.5);
-  --paper-30: rgba(244, 236, 216, 0.32);
-  --paper-15: rgba(244, 236, 216, 0.18);
-  --paper-08: rgba(244, 236, 216, 0.08);
-  --paper-04: rgba(244, 236, 216, 0.05);
-  --paper-02: rgba(244, 236, 216, 0.03);
+  /* Cream opacity scales */
+  --paper-90: rgba(242, 230, 208, 0.9);
+  --paper-70: rgba(242, 230, 208, 0.7);
+  --paper-50: rgba(242, 230, 208, 0.5);
+  --paper-30: rgba(242, 230, 208, 0.32);
+  --paper-15: rgba(242, 230, 208, 0.18);
+  --paper-08: rgba(242, 230, 208, 0.08);
+  --paper-04: rgba(242, 230, 208, 0.05);
+  --paper-02: rgba(242, 230, 208, 0.03);
 
-  /* WARM — sealing-wax, the one emotional accent (was "gold") */
-  --gold: #b07a4a;
-  --gold-light: #cf935a;
-  --gold-bright: #cf935a;
-  --gold-dim: #8c5a30;
-  --gold-deep: #6b4524;
+  /* WARM — copper, the one emotional accent (was "gold"). Reference copper
+     family: primary #e0a062, bright #f0c074, deep #b07a3e, shadow #8a5a2a. */
+  --gold: #e0a062;
+  --gold-light: #f0c074;
+  --gold-bright: #f0c074;
+  --gold-dim: #b07a3e;
+  --gold-deep: #8a5a2a;
 
-  /* Warm opacity scales */
-  --gold-40: rgba(176, 122, 74, 0.4);
-  --gold-20: rgba(176, 122, 74, 0.2);
-  --gold-10: rgba(176, 122, 74, 0.1);
-  --gold-05: rgba(176, 122, 74, 0.05);
+  /* Copper opacity scales */
+  --gold-40: rgba(224, 160, 98, 0.4);
+  --gold-20: rgba(224, 160, 98, 0.2);
+  --gold-10: rgba(224, 160, 98, 0.1);
+  --gold-05: rgba(224, 160, 98, 0.05);
 
   /* BLOOD — destructive/record only, tuned into the natural-dye world */
   --blood: #e03428;
@@ -58,47 +60,59 @@
 
   /* Glass retired — solid panels only (§2.6). Kept as opaque ink so any
      lingering reference renders as a flat surface, never a blur. */
-  --glass-bg: #141412;
-  --glass-border: rgba(244, 236, 216, 0.08);
-  --glass-highlight: rgba(244, 236, 216, 0.12);
+  --glass-bg: #16110c;
+  --glass-border: rgba(242, 230, 208, 0.08);
+  --glass-highlight: rgba(242, 230, 208, 0.12);
   --glass-shadow: rgba(0, 0, 0, 0.5);
 
-  /* Typography — one serif (Source Serif 4); display/body/hand all collapse
-     onto it. Inter for UI, JetBrains Mono for archival metadata. */
-  --font-display: 'Source Serif 4', 'Source Serif Pro', Charter, Georgia, serif;
-  --font-body: 'Source Serif 4', 'Source Serif Pro', Charter, Georgia, serif;
+  /* Typography — TWO paired serifs per the golive reference: Cormorant
+     Garamond carries the display voice (headlines, titles, names — only at
+     large sizes, ≥24px in the reference), Spectral carries running body/prose
+     (legible at all sizes). Space Mono for archival/label metadata. The serif
+     workhorse token (--serif, below) leads with Cormorant for the signature
+     display drama; long-form reading surfaces route to --font-body (Spectral)
+     so paragraph legibility never regresses. */
+  --font-display: 'Cormorant Garamond', 'Source Serif 4', Charter, Georgia, serif;
+  --font-body: 'Spectral', 'Source Serif 4', Charter, Georgia, serif;
   /* The one hand face — used ONLY at intimate moments (signoffs, dedications,
-     the sealed-note "who", thread/member names). Body + UI stay Source Serif 4. */
-  --font-hand: 'Tangerine', 'Source Serif 4', 'Snell Roundhand', Georgia, cursive;
+     the sealed-note "who", thread/member names). */
+  --font-hand: 'Tangerine', 'Cormorant Garamond', 'Snell Roundhand', Georgia, cursive;
 
-  /* Canonical aliases (match the Claude Design bundle's heirloom-styles.css) */
-  --ink: #0e0e0c;
-  --ink-card: #171714;
-  --ink-deep: #0a0a08;
+  /* Canonical aliases — warm-black ground, cream cloth, copper accent. */
+  --ink: #0b0907;
+  --ink-card: #1b1610;
+  --ink-deep: #090706;
   /* Translucent ink — themed scrim for floating bars over the living cloth. */
-  --ink-translucent: rgba(14, 14, 12, 0.75);
-  --bone: #f4ecd8;
-  --bone-dim: rgba(244, 236, 216, 0.72);
-  --bone-faint: rgba(244, 236, 216, 0.44);
-  --bone-low: rgba(244, 236, 216, 0.24);
-  --bone-ghost: rgba(244, 236, 216, 0.14);
-  --weave-color: rgba(244, 236, 216, 0.10);
-  --rule: rgba(244, 236, 216, 0.11);
-  --rule-strong: rgba(244, 236, 216, 0.20);
-  --warm: #b07a4a;
-  --warm-bright: #cf935a;
-  --warm-dim: #8c5a30;
-  --warm-glow: rgba(207, 147, 90, 0.18);
-  --rule-warm: rgba(176, 122, 74, 0.22);
-  --parchment: #faf6ee;
-  --parchment-deep: #f0e8d4;
-  --parchment-ink: #1a1916;
-  --parchment-dim: rgba(26, 25, 22, 0.6);
-  --parchment-faint: rgba(26, 25, 22, 0.36);
-  --parchment-rule: rgba(26, 25, 22, 0.12);
-  --serif: 'Source Serif 4', 'Source Serif Pro', 'Charter', 'Iowan Old Style', Garamond, serif;
+  --ink-translucent: rgba(11, 9, 7, 0.78);
+  --bone: #f2e6d0;
+  --bone-dim: rgba(242, 230, 208, 0.72);
+  --bone-faint: rgba(242, 230, 208, 0.44);
+  --bone-low: rgba(242, 230, 208, 0.24);
+  --bone-ghost: rgba(242, 230, 208, 0.14);
+  --weave-color: rgba(242, 230, 208, 0.10);
+  --rule: rgba(242, 230, 208, 0.11);
+  --rule-strong: rgba(242, 230, 208, 0.20);
+  --warm: #e0a062;
+  --warm-bright: #f0c074;
+  --warm-dim: #b07a3e;
+  --warm-glow: rgba(224, 160, 98, 0.18);
+  --rule-warm: rgba(224, 160, 98, 0.24);
+  --parchment: #faf3e4;
+  --parchment-deep: #f0e6d2;
+  --parchment-ink: #1a1611;
+  --parchment-dim: rgba(26, 22, 17, 0.6);
+  --parchment-faint: rgba(26, 22, 17, 0.36);
+  --parchment-rule: rgba(26, 22, 17, 0.12);
+  /* Serif workhorse — Spectral, the READING voice. ~337 inline `var(--serif)`
+     + 209 `.hl-serif` uses carry mostly body/prose at 14–21px, where Cormorant
+     (a thin display face) turns illegible. So the catch-all is Spectral.
+     Display-scale Cormorant comes through heading tags (`.loom h1–h6`) and the
+     explicit display classes (.loom-display/.loom-h2/.loom-serif/.loom-mark) —
+     never from this token. Functionality first: legibility over flourish. */
+  --serif: 'Spectral', 'Source Serif 4', 'Iowan Old Style', Charter, Georgia, serif;
+  --serif-display: 'Cormorant Garamond', 'Spectral', Charter, Georgia, serif;
   --sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --mono: 'JetBrains Mono', 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
+  --mono: 'Space Mono', 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
 
   /* Semantic tokens */
   --danger: #c25a5a;
@@ -120,7 +134,7 @@
   /* Cloth legibility scrim — layered beneath the ambient dye sparks so prose
      stays readable while the living colour shows through. Default = vault ink;
      the light theme overrides it to parchment below. */
-  --cloth-scrim: rgba(14,14,12,0.62);
+  --cloth-scrim: rgba(11,9,7,0.62);
 
   /* Timing */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -177,37 +191,37 @@
    become light surfaces in light mode.                              ──*/
 
 .loom[data-theme="dark"] {
-  --parchment:          #171714;
-  --parchment-deep:     #0a0a08;
-  --parchment-ink:      #f4ecd8;
-  --parchment-dim:      rgba(244, 236, 216, 0.72);
-  --parchment-faint:    rgba(244, 236, 216, 0.44);
-  --parchment-rule:     rgba(244, 236, 216, 0.11);
+  --parchment:          #1b1610;
+  --parchment-deep:     #090706;
+  --parchment-ink:      #f2e6d0;
+  --parchment-dim:      rgba(242, 230, 208, 0.72);
+  --parchment-faint:    rgba(242, 230, 208, 0.44);
+  --parchment-rule:     rgba(242, 230, 208, 0.11);
 }
 
 .loom[data-theme="light"] {
-  --ink:          #f5ece0;
-  --ink-card:     #ede2d0;
-  --ink-deep:     #e8dac8;
-  --ink-translucent: rgba(245, 236, 224, 0.78);
-  --bone:         #120e0a;
-  --bone-dim:     rgba(18, 14, 10, 0.74);
-  --bone-faint:   rgba(18, 14, 10, 0.48);
-  --bone-low:     rgba(18, 14, 10, 0.32);
-  --bone-ghost:   rgba(18, 14, 10, 0.18);
-  --weave-color:  rgba(18, 14, 10, 0.13);
-  --rule:         rgba(18, 14, 10, 0.12);
-  --rule-strong:  rgba(18, 14, 10, 0.22);
-  --rule-warm:    rgba(140, 70, 20, 0.32);
-  --warm:         #a05c20;
-  --warm-bright:  #b87030;
-  --warm-dim:     #7a4318;
-  --warm-glow:    rgba(160, 92, 32, 0.18);
-  --glass-bg:     rgba(18, 14, 10, 0.05);
-  --glass-border: rgba(18, 14, 10, 0.12);
+  --ink:          #f4ead9;
+  --ink-card:     #ece0cb;
+  --ink-deep:     #e6d8c2;
+  --ink-translucent: rgba(244, 234, 217, 0.78);
+  --bone:         #120d08;
+  --bone-dim:     rgba(18, 13, 8, 0.74);
+  --bone-faint:   rgba(18, 13, 8, 0.48);
+  --bone-low:     rgba(18, 13, 8, 0.32);
+  --bone-ghost:   rgba(18, 13, 8, 0.18);
+  --weave-color:  rgba(18, 13, 8, 0.13);
+  --rule:         rgba(18, 13, 8, 0.12);
+  --rule-strong:  rgba(18, 13, 8, 0.22);
+  --rule-warm:    rgba(150, 80, 26, 0.32);
+  --warm:         #a86220;
+  --warm-bright:  #be7a2e;
+  --warm-dim:     #824a16;
+  --warm-glow:    rgba(168, 98, 32, 0.18);
+  --glass-bg:     rgba(18, 13, 8, 0.05);
+  --glass-border: rgba(18, 13, 8, 0.12);
 
   /* Parchment scrim — keeps light mode reading as paper, not ink-washed. */
-  --cloth-scrim: rgba(245,236,224,0.72);
+  --cloth-scrim: rgba(244,234,217,0.72);
 
   /* Parchment-safe dye palette — same dyes, mordanted darker so dye-as-signal
      (member names, left-margin threads, whisper labels) keeps contrast on
@@ -275,8 +289,8 @@ body {
  * raised off the ink, a single 1px hairline, and a brief-compliant radius
  * (≤4px). The blur and the ::before/::after gradient films are gone. */
 .glass {
-  background: rgba(244, 236, 216, 0.035);
-  border: 1px solid rgba(244, 236, 216, 0.10);
+  background: rgba(242, 230, 208, 0.035);
+  border: 1px solid rgba(242, 230, 208, 0.10);
   border-radius: 2px;
   position: relative;
   overflow: hidden;
@@ -292,7 +306,7 @@ body {
 }
 
 .glass-subtle {
-  background: rgba(244, 236, 216, 0.02);
+  background: rgba(242, 230, 208, 0.02);
 }
 
 /* ===== BUTTONS (Eternal Premium) ===== */
@@ -393,7 +407,7 @@ textarea.input {
 /* Select specific */
 select.input {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23b07a4a' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23e0a062' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
   padding-right: 44px;
@@ -755,7 +769,7 @@ html {
   width: 100%;
   height: 1px;
   overflow: hidden;
-  background: rgba(244, 236, 216, 0.12); /* bone, faint */
+  background: rgba(242, 230, 208, 0.12); /* bone, faint */
 }
 .progress-hair::after {
   content: '';
@@ -764,7 +778,7 @@ html {
   left: 0;
   height: 100%;
   width: 38%;
-  background: #b07a4a; /* warm — the single emotional colour */
+  background: #e0a062; /* warm — the single emotional colour */
   will-change: transform;
   animation: progress-hair-sweep 1400ms cubic-bezier(0.16, 1, 0.3, 1) infinite;
 }
@@ -793,7 +807,7 @@ html {
 }
 .warp-loading span {
   width: 1px;
-  background: rgba(244, 236, 216, 0.1); /* bone, faint */
+  background: rgba(242, 230, 208, 0.1); /* bone, faint */
   transform-origin: top;
   animation: warp-string 720ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -872,11 +886,11 @@ html {
 
 /* ── Placeholder contrast fix — bone-dim on ink, parchment-faint on parchment.
    Browser UA applies dark placeholder text (rgba(0,0,0,0.5)) which is invisible
-   on the #0e0e0c ink background. All bare inputs/textareas inside any hl-screen
+   on the #0b0907 ink background. All bare inputs/textareas inside any hl-screen
    context inherit this override so typed text and hints share the same surface. */
 .hl-screen input::placeholder,
 .hl-screen textarea::placeholder {
-  color: var(--bone-dim);   /* rgba(244,236,216,0.55) — dimmer than typed text */
+  color: var(--bone-dim);   /* rgba(242, 230, 208,0.55) — dimmer than typed text */
   opacity: 1;               /* override Firefox default (0.54) so the rule wins */
 }
 .hl-screen.parchment input::placeholder,
@@ -895,7 +909,7 @@ html {
   color: var(--bone-dim);
 }
 .hl-eyebrow.dark { color: var(--parchment-dim); }
-.hl-italic { font-family: var(--serif); font-style: italic; font-weight: 400; }
+.hl-italic { font-family: var(--font-body); font-style: italic; font-weight: 400; }
 
 /* eyebrow top row — lives on every authed screen */
 .hl-topbar {
@@ -972,7 +986,7 @@ html {
 .hl-btn:active { transform: scale(0.97); }
 /* hover — mouse only, never on touch (avoids sticky warm state after tap) */
 @media (hover: hover) and (pointer: fine) {
-  .hl-btn:hover { background: rgba(176,122,74,0.10); }
+  .hl-btn:hover { background: rgba(224, 160, 98,0.10); }
 }
 /* Disabled: warm color is gone — it only appears when the action is ready */
 .hl-btn:disabled,
@@ -995,13 +1009,13 @@ html {
 }
 .hl-btn.text { background: transparent; border: 0; color: var(--warm); padding: 0; border-radius: 0; font-weight: 600; }
 
-.hl-prose { font-family: var(--serif); font-size: 17px; line-height: 1.85; max-width: 60ch; font-weight: 400; font-variation-settings: "opsz" 14; font-feature-settings: "onum" 1, "liga" 1; }
+.hl-prose { font-family: var(--font-body); font-size: 17px; line-height: 1.78; max-width: 60ch; font-weight: 400; font-feature-settings: "onum" 1, "liga" 1; }
 .hl-prose.dark { color: var(--parchment-ink); }
 
 .hl-input {
-  font-family: var(--serif);
+  font-family: var(--font-body);
   font-size: 16px;
-  font-weight: 300;
+  font-weight: 400;
   color: var(--parchment-ink);
   background: transparent;
   border: 0;
@@ -1030,7 +1044,7 @@ html {
 .hl-menu-item {
   display: block;
   padding: 10px 16px;
-  font-family: var(--serif);
+  font-family: var(--font-body);
   font-size: 14px;
   color: var(--bone-dim);
   text-decoration: none;
@@ -1051,7 +1065,7 @@ html {
 
 /* ── Helper text — italic serif below form fields ────────────────────── */
 .hl-helper {
-  font-family: var(--serif);
+  font-family: var(--font-body);
   font-style: italic;
   font-size: 13px;
   line-height: 1.62;
@@ -1097,7 +1111,7 @@ html {
   padding: 3px 8px;
   border: 1px solid var(--rule);
 }
-.hl-tag.warm { color: var(--warm); border-color: rgba(176,122,74,0.35); }
+.hl-tag.warm { color: var(--warm); border-color: rgba(224, 160, 98,0.35); }
 .hl-tag.danger { color: var(--dye-madder); border-color: rgba(232,64,48,0.3); opacity: 0.85; }
 .hl-chip {
   display: inline-block;
@@ -1157,7 +1171,7 @@ html {
     pointer-events: auto !important;
   }
   .family-member-delete {
-    color: rgba(244, 236, 216, 0.28) !important;
+    color: rgba(242, 230, 208, 0.28) !important;
   }
 }
 
@@ -1182,19 +1196,19 @@ html {
 
 :root,
 .loom[data-theme="dark"] {
-  --loom-ink:        #0e0e0c;
-  --loom-ink-card:   #171714;
-  --loom-bone:       #f4ecd8;
-  --loom-bone-dim:   rgba(244, 236, 216, 0.72);
-  --loom-bone-faint: rgba(244, 236, 216, 0.44);
-  --loom-bone-ghost: rgba(244, 236, 216, 0.14);
-  --loom-warp-rgb:   244, 236, 216;
-  --loom-rule:       rgba(244, 236, 216, 0.11);
-  --loom-rule-warm:  rgba(176, 122, 74, 0.24);
-  --loom-warm:       #b07a4a;
-  --loom-warm-bright:#cf935a;
-  --loom-warm-dim:   #8c5a30;
-  --loom-warm-glow:  rgba(207, 147, 90, 0.20);
+  --loom-ink:        #0b0907;
+  --loom-ink-card:   #1b1610;
+  --loom-bone:       #f2e6d0;
+  --loom-bone-dim:   rgba(242, 230, 208, 0.72);
+  --loom-bone-faint: rgba(242, 230, 208, 0.44);
+  --loom-bone-ghost: rgba(242, 230, 208, 0.14);
+  --loom-warp-rgb:   242, 230, 208;
+  --loom-rule:       rgba(242, 230, 208, 0.11);
+  --loom-rule-warm:  rgba(224, 160, 98, 0.24);
+  --loom-warm:       #e0a062;
+  --loom-warm-bright:#f0c074;
+  --loom-warm-dim:   #b07a3e;
+  --loom-warm-glow:  rgba(240, 192, 116, 0.20);
 
   --loom-ease:       cubic-bezier(0.16, 1, 0.3, 1);
   --loom-dur-fast:   180ms;
@@ -1205,19 +1219,19 @@ html {
 }
 
 .loom[data-theme="light"] {
-  --loom-ink:        #f5ece0;
-  --loom-ink-card:   #ede2d0;
-  --loom-bone:       #120e0a;
-  --loom-bone-dim:   rgba(18, 14, 10, 0.74);
-  --loom-bone-faint: rgba(18, 14, 10, 0.48);
-  --loom-bone-ghost: rgba(18, 14, 10, 0.18);
-  --loom-warp-rgb:   18, 14, 10;
-  --loom-rule:       rgba(18, 14, 10, 0.12);
-  --loom-rule-warm:  rgba(140, 70, 20, 0.32);
-  --loom-warm:       #a05c20;
-  --loom-warm-bright:#b87030;
-  --loom-warm-dim:   #7a4318;
-  --loom-warm-glow:  rgba(160, 92, 32, 0.18);
+  --loom-ink:        #f4ead9;
+  --loom-ink-card:   #ece0cb;
+  --loom-bone:       #120d08;
+  --loom-bone-dim:   rgba(18, 13, 8, 0.74);
+  --loom-bone-faint: rgba(18, 13, 8, 0.48);
+  --loom-bone-ghost: rgba(18, 13, 8, 0.18);
+  --loom-warp-rgb:   18, 13, 8;
+  --loom-rule:       rgba(18, 13, 8, 0.12);
+  --loom-rule-warm:  rgba(150, 80, 26, 0.32);
+  --loom-warm:       #a86220;
+  --loom-warm-bright:#be7a2e;
+  --loom-warm-dim:   #824a16;
+  --loom-warm-glow:  rgba(168, 98, 32, 0.18);
 }
 
 /* ─── Surface root ──────────────────────────────────────────────── */
@@ -1235,33 +1249,29 @@ html {
 
 /* ─── Type primitives ───────────────────────────────────────────── */
 .loom-serif {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-variation-settings: 'opsz' 28;
-  font-weight: 300;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
 }
 .loom-display {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-variation-settings: 'opsz' 72;
-  font-weight: 200;
-  letter-spacing: -0.024em;
-  line-height: 0.98;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300;
+  letter-spacing: -0.012em;
+  line-height: 1.0;
 }
 .loom-h2 {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-variation-settings: 'opsz' 56;
-  font-weight: 300;
-  letter-spacing: -0.014em;
-  line-height: 1.04;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 400;
+  letter-spacing: -0.006em;
+  line-height: 1.06;
 }
 .loom-body {
-  font-family: 'Source Serif 4', Georgia, serif;
-  font-variation-settings: 'opsz' 14;
+  font-family: 'Spectral', Georgia, serif;
   font-weight: 400;
-  letter-spacing: -0.001em;
-  line-height: 1.85;
+  letter-spacing: 0;
+  line-height: 1.78;
 }
 .loom-mono {
-  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-family: 'Space Mono', ui-monospace, monospace;
   letter-spacing: 0.18em;
 }
 .hl-cta-warm { transition: opacity 180ms cubic-bezier(0.16,1,0.3,1), transform 180ms cubic-bezier(0.16,1,0.3,1); }
@@ -1271,9 +1281,9 @@ html {
 .hl-cta-warm:active { transform: scale(0.97); }
 
 .loom-eyebrow {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Space Mono', ui-monospace, monospace;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.32em;
   color: var(--loom-bone-faint);
@@ -1301,11 +1311,10 @@ html {
   color: var(--loom-bone-faint);
 }
 .loom-mark {
-  font-family: 'Source Serif 4', serif;
-  font-variation-settings: 'opsz' 16;
-  font-weight: 400;
-  font-size: 17px;
-  letter-spacing: -0.01em;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 500;
+  font-size: 19px;
+  letter-spacing: -0.005em;
   text-transform: none;
   color: var(--loom-bone);
 }
@@ -1356,18 +1365,18 @@ html {
   left: 0; right: 0; bottom: 0;
   height: 36%;
   pointer-events: none;
-  background: linear-gradient(to top, rgba(176, 122, 74, 0.06), transparent 80%);
+  background: linear-gradient(to top, rgba(224, 160, 98, 0.06), transparent 80%);
 }
 
 /* Logo 3D float — applied by HLogo to the icon mark */
 @keyframes hl-logo-float {
   0%, 100% {
     transform: perspective(280px) rotateY(-2deg) rotateX(1deg);
-    filter: drop-shadow(0 2px 5px rgba(176,122,74,0.18));
+    filter: drop-shadow(0 2px 5px rgba(224, 160, 98,0.18));
   }
   50% {
     transform: perspective(280px) rotateY(2deg) rotateX(-0.5deg);
-    filter: drop-shadow(0 4px 10px rgba(176,122,74,0.32));
+    filter: drop-shadow(0 4px 10px rgba(224, 160, 98,0.32));
   }
 }
 
@@ -1450,7 +1459,7 @@ html {
   background: linear-gradient(
     to right,
     transparent,
-    rgba(207, 147, 90, 0.45),
+    rgba(240, 192, 116, 0.45),
     transparent
   );
   transition: opacity var(--loom-dur-veil) var(--loom-ease);
@@ -1459,7 +1468,7 @@ html {
 .loom-weft__year {
   position: absolute;
   bottom: -22px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.04em;
   color: var(--loom-bone-faint);
@@ -1492,25 +1501,23 @@ html {
 .loom-sealed { text-align: center; letter-spacing: 0.02em; }
 .loom-sealed .infmark {
   color: var(--loom-warm);
-  font-family: 'Source Serif 4', serif;
-  font-size: 22px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px;
   display: block;
   margin-bottom: 4px;
-  font-variation-settings: 'opsz' 28;
 }
 .loom-sealed .meta {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', ui-monospace, monospace;
   font-size: 11px;
   color: var(--loom-bone-dim);
   letter-spacing: 0.04em;
 }
 .loom-sealed .for {
-  font-family: 'Source Serif 4', serif;
+  font-family: 'Spectral', serif;
   font-style: italic;
   font-size: 16px;
   color: var(--loom-bone);
   margin-top: 4px;
-  font-variation-settings: 'opsz' 14;
 }
 
 /* ─── Caret cursor (composer) ──────────────────────────────────── */
@@ -1545,8 +1552,8 @@ html {
   animation: hl-fell-breath 14s var(--ease-out) infinite;
 }
 @keyframes hl-fell-breath {
-  0%, 100% { opacity: 0.72; box-shadow: 0 0 12px rgba(176, 122, 74, 0.26); }
-  50% { opacity: 0.9; box-shadow: 0 0 20px rgba(176, 122, 74, 0.4); }
+  0%, 100% { opacity: 0.72; box-shadow: 0 0 12px rgba(224, 160, 98, 0.26); }
+  50% { opacity: 0.9; box-shadow: 0 0 20px rgba(224, 160, 98, 0.4); }
 }
 
 /* The cloth is a living thing — the woven web breathes slowly so the home
@@ -1566,7 +1573,7 @@ html {
 
 /* ─── AI whisper (composer) ────────────────────────────────────── */
 .loom-whisper {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', ui-monospace, monospace;
   font-size: 11px;
   color: var(--loom-bone-faint);
   letter-spacing: 0.04em;
@@ -1591,16 +1598,15 @@ html {
 .loom-nameroll .row {
   display: grid;
   grid-template-columns: 1fr auto;
-  font-family: 'Source Serif 4', serif;
-  font-variation-settings: 'opsz' 28;
-  font-size: 18px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 21px;
   font-weight: 400;
   align-items: baseline;
   padding: 6px 0;
   border-bottom: 1px solid var(--loom-rule);
 }
 .loom-nameroll .row .dates {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', ui-monospace, monospace;
   font-size: 11px;
   color: var(--loom-bone-faint);
   letter-spacing: 0.04em;
@@ -1621,7 +1627,7 @@ html {
   color: var(--loom-warm);
   border: 1px solid var(--loom-warm);
   padding: 11px 22px;
-  font-family: var(--mono), 'JetBrains Mono', monospace;
+  font-family: var(--mono), 'Space Mono', monospace;
   font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.16em;
@@ -1632,15 +1638,15 @@ html {
     background var(--loom-dur-fast) var(--loom-ease),
     transform var(--loom-dur-fast) var(--loom-ease);
 }
-.loom-btn:hover { background: rgba(176,122,74,0.10); }
-.loom-btn:active { transform: scale(0.97); background: rgba(176,122,74,0.06); }
+.loom-btn:hover { background: rgba(224, 160, 98,0.10); }
+.loom-btn:active { transform: scale(0.97); background: rgba(224, 160, 98,0.06); }
 .loom-btn-ghost {
   background: transparent;
   color: var(--loom-bone);
   border: 1px solid var(--loom-rule);
   padding: 11px 22px;
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
+  font-family: 'Space Mono', ui-monospace, monospace;
+  font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -1671,7 +1677,7 @@ html {
   background: transparent;
   border: 0;
   color: var(--loom-bone-dim);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Space Mono', ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1730,7 +1736,7 @@ html {
 
    This file is intentionally surgical. We're not trying to be the v3
    sanctuary; we're matching the Loom: vault dark default + paper light,
-   Source Serif 4 serif, Inter UI, JetBrains Mono labels, hairline rules in
+   Cormorant Garamond display, Spectral reading, Space Mono labels, hairline rules in
    place of card chrome, ∞ as the only icon, the warm accent for
    anything that was previously gold. Reduced motion is honoured.
 
@@ -1819,20 +1825,27 @@ html {
 
 /* ── Color: blood (errors) ─────────────────────────────────────── */
 .loom .bg-blood,
-.loom .bg-blood-light { background-color: #8c2c2c !important; color: #f4ecd8; }
+.loom .bg-blood-light { background-color: #8c2c2c !important; color: #f2e6d0; }
 .loom .text-blood,
 .loom .text-blood-light { color: var(--danger) !important; }
 
-/* ── Type: drop Cinzel/Cormorant/Caveat in favour of Source Serif 4 ── */
-.loom .font-display,
-.loom .font-body,
-.loom .font-hand {
-  font-family: 'Source Serif 4', Georgia, serif !important;
-  font-variation-settings: 'opsz' 28;
+/* ── Type: Cormorant Garamond display, Spectral reading, Space Mono labels.
+   Display and body are split deliberately — Cormorant is a thin display face
+   that turns unreadable below ~24px, so anything that carries prose or input
+   rides Spectral. Functionality first: legibility over flourish. ── */
+.loom .font-display {
+  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-weight: 300;
+  letter-spacing: -0.01em;
 }
-.loom .font-display { font-variation-settings: 'opsz' 56; font-weight: 300; }
-.loom .font-body    { font-variation-settings: 'opsz' 14; }
-.loom .font-mono    { font-family: 'JetBrains Mono', ui-monospace, monospace !important; }
+.loom .font-body {
+  font-family: 'Spectral', Georgia, serif !important;
+  line-height: 1.78;
+}
+.loom .font-hand {
+  font-family: var(--font-hand), 'Cormorant Garamond', cursive !important;
+}
+.loom .font-mono    { font-family: 'Space Mono', ui-monospace, monospace !important; }
 
 /* ── Buttons — re-skin v1/v2 .btn variants to Loom ──────────────── */
 .loom .btn,
@@ -1880,7 +1893,7 @@ html {
 }
 .loom .btn-danger {
   background: #8c2c2c !important;
-  color: #f4ecd8 !important;
+  color: #f2e6d0 !important;
   border: 0 !important;
 }
 .loom .btn-record {
@@ -1895,7 +1908,7 @@ html {
 .loom .legacy-card,
 .loom .reflection-card,
 .loom .sanctuary-object {
-  background: rgba(244, 236, 216, 0.012) !important;
+  background: rgba(242, 230, 208, 0.012) !important;
   border: 1px solid var(--loom-rule) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
@@ -1917,7 +1930,7 @@ html {
 .loom .glass,
 .loom .glass-strong,
 .loom .glass-subtle {
-  background: rgba(244, 236, 216, 0.012) !important;
+  background: rgba(242, 230, 208, 0.012) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   border: 1px solid var(--loom-rule) !important;
@@ -1939,7 +1952,7 @@ html {
   border-bottom: 1px solid var(--loom-rule) !important;
   border-radius: 0 !important;
   color: var(--loom-bone) !important;
-  font-family: 'Source Serif 4', Georgia, serif !important;
+  font-family: 'Spectral', Georgia, serif !important;
   font-size: 17px !important;
   padding: 8px 0 !important;
   transition: border-color var(--loom-dur-fast) var(--loom-ease) !important;
@@ -1956,11 +1969,11 @@ html {
   font-style: italic;
 }
 
-/* ── Headings — Source Serif 4, restrained ──────────────────────────── */
+/* ── Headings — Cormorant Garamond, restrained ──────────────────────── */
 .loom h1, .loom h2, .loom h3, .loom h4, .loom h5, .loom h6 {
-  font-family: 'Source Serif 4', Georgia, serif !important;
-  font-weight: 300;
-  letter-spacing: -0.014em;
+  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-weight: 400;
+  letter-spacing: -0.008em;
 }
 
 /* ── Links — quiet, warm on hover ───────────────────────────────── */
@@ -1978,13 +1991,13 @@ html {
 .loom th, .loom td {
   border-bottom: 1px solid var(--loom-rule) !important;
   padding: 12px 8px;
-  font-family: 'Source Serif 4', Georgia, serif;
+  font-family: 'Spectral', Georgia, serif;
 }
 .loom th {
-  font-family: 'Inter', sans-serif !important;
+  font-family: 'Space Mono', ui-monospace, monospace !important;
   font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.32em;
+  font-weight: 400;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
   color: var(--loom-bone-faint);
   text-align: left;
@@ -2044,7 +2057,7 @@ html {
 
   /* Cooled sealing wax — less orange, more gravitas */
   --wax: #9c6535;
-  --wax-bright: #b07a4a;
+  --wax-bright: #e0a062;
   --wax-dim: #6b3a1a;
   --wax-glow: rgba(156, 101, 53, 0.22);
 }
@@ -2064,8 +2077,8 @@ html {
   color: var(--warm);
   animation: hl-infinity-float 10s linear infinite;
   filter:
-    drop-shadow(0 0 40px rgba(176, 122, 74, 0.18))
-    drop-shadow(0 2px 8px rgba(176, 122, 74, 0.13));
+    drop-shadow(0 0 40px rgba(224, 160, 98, 0.18))
+    drop-shadow(0 2px 8px rgba(224, 160, 98, 0.13));
   transform-origin: center center;
   will-change: transform;
 }
@@ -2148,9 +2161,9 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px var(--ink, #0e0e0c) inset !important;
-  -webkit-text-fill-color: var(--bone, #f4ecd8) !important;
-  caret-color: var(--bone, #f4ecd8);
+  -webkit-box-shadow: 0 0 0 1000px var(--ink, #0b0907) inset !important;
+  -webkit-text-fill-color: var(--bone, #f2e6d0) !important;
+  caret-color: var(--bone, #f2e6d0);
   transition: background-color 0s 9999s; /* prevent flash */
 }
 

@@ -183,12 +183,12 @@ function ToField({
                   background: 'none',
                   border: 'none',
                   borderLeft: `3px solid ${dyeColor(m.id, m.dye)}`,
-                  borderBottom: '1px solid rgba(244,236,216,0.05)',
+                  borderBottom: '1px solid rgba(242,230,208,0.05)',
                   cursor: 'pointer',
                   textAlign: 'left',
                 }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = 'rgba(244,236,216,0.04)')
+                  (e.currentTarget.style.background = 'rgba(242,230,208,0.04)')
                 }
                 onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
               >

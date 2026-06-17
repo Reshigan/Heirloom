@@ -162,7 +162,7 @@ export function TiedOff() {
               height: '100%',
               width: `${todayPct}%`,
               background:
-                'linear-gradient(to right, rgba(244,236,216,0.06), rgba(244,236,216,0.02))',
+                'linear-gradient(to right, rgba(242,230,208,0.06), rgba(242,230,208,0.02))',
             }}
           />
           <div

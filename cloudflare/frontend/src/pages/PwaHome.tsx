@@ -214,8 +214,8 @@ function AuthHome({
         <div style={{
           display: 'flex', flexDirection: 'column', gap: 6,
           padding: '12px 16px 12px 18px',
-          border: '1px solid rgba(244,236,216,0.10)',
-          borderLeft: '2px solid rgba(176,122,74,0.55)',
+          border: '1px solid rgba(242,230,208,0.10)',
+          borderLeft: '2px solid rgba(224,160,98,0.55)',
           marginBottom: 28,
         }}>
           <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
@@ -465,8 +465,8 @@ export function PwaHome() {
             <div style={{
               display: 'flex', flexDirection: 'column', gap: 6,
               padding: '12px 16px 12px 18px',
-              border: '1px solid rgba(244,236,216,0.10)',
-              borderLeft: '2px solid rgba(176,122,74,0.55)',
+              border: '1px solid rgba(242,230,208,0.10)',
+              borderLeft: '2px solid rgba(224,160,98,0.55)',
               marginBottom: 28,
             }}>
               <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>

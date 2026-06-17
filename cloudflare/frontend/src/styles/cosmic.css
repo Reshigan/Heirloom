@@ -20,12 +20,12 @@
   --cosmic-panel-solid: rgba(20, 20, 18, 0.94);
 
   /* luminous hairline border — resting, then warm on focus/hover */
-  --cosmic-edge: rgba(244, 236, 216, 0.10);
-  --cosmic-edge-warm: rgba(207, 147, 90, 0.30);
+  --cosmic-edge: rgba(242, 230, 208, 0.10);
+  --cosmic-edge-warm: rgba(240, 192, 116, 0.30);
 
   /* the outer focal glow that makes a panel read as adrift in the deep */
-  --cosmic-glow: 0 0 40px rgba(207, 147, 90, 0.07), 0 1px 0 rgba(244, 236, 216, 0.04) inset;
-  --cosmic-glow-warm: 0 0 48px rgba(207, 147, 90, 0.16), 0 1px 0 rgba(244, 236, 216, 0.06) inset;
+  --cosmic-glow: 0 0 40px rgba(240, 192, 116, 0.07), 0 1px 0 rgba(242, 230, 208, 0.04) inset;
+  --cosmic-glow-warm: 0 0 48px rgba(240, 192, 116, 0.16), 0 1px 0 rgba(242, 230, 208, 0.06) inset;
 
   /* divider filament + wax knot accent */
   --filament: var(--rule);

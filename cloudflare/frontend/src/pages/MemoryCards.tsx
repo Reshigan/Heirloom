@@ -307,7 +307,7 @@ export function MemoryCards() {
                       style={{
                         padding: '12px 14px',
                         border: `1px solid ${selectedStyle === style.id ? 'var(--warm)' : 'var(--rule)'}`,
-                        background: selectedStyle === style.id ? 'rgba(176,122,74,0.06)' : 'transparent',
+                        background: selectedStyle === style.id ? 'rgba(224,160,98,0.06)' : 'transparent',
                         cursor: 'pointer',
                         textAlign: 'left',
                         transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',

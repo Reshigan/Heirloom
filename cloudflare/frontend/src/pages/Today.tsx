@@ -152,7 +152,7 @@ export function Today() {
           <div style={{
             display: 'inline-flex', flexDirection: 'column', gap: 6,
             padding: '12px 18px',
-            borderLeft: '2px solid rgba(176,122,74,0.55)',
+            borderLeft: '2px solid rgba(224,160,98,0.55)',
             marginBottom: 44, textAlign: 'left',
           }}>
             <div style={{

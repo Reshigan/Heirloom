@@ -37,11 +37,11 @@ function IOSSteps() {
     marginBottom: 10,
   };
   const numStyle: React.CSSProperties = {
-    fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
+    fontFamily: 'var(--mono, "Space Mono", monospace)',
     fontSize: 9,
     letterSpacing: '0.14em',
-    color: 'var(--warm, #b07a4a)',
-    border: '1px solid var(--warm, #b07a4a)',
+    color: 'var(--warm, #e0a062)',
+    border: '1px solid var(--warm, #e0a062)',
     borderRadius: 0,
     width: 18,
     height: 18,
@@ -55,22 +55,22 @@ function IOSSteps() {
     fontFamily: 'var(--sans, Inter, system-ui, sans-serif)',
     fontSize: 13,
     lineHeight: 1.55,
-    color: 'var(--bone-dim, rgba(244,236,216,0.72))',
+    color: 'var(--bone-dim, rgba(242,230,208,0.72))',
   };
 
   return (
     <div style={{ marginTop: 14 }}>
       <div style={stepStyle}>
         <div style={numStyle}>1</div>
-        <p style={textStyle}>Tap the <strong style={{ color: 'var(--bone, #f4ecd8)', fontWeight: 500 }}>Share</strong> button at the bottom of Safari</p>
+        <p style={textStyle}>Tap the <strong style={{ color: 'var(--bone, #f2e6d0)', fontWeight: 500 }}>Share</strong> button at the bottom of Safari</p>
       </div>
       <div style={stepStyle}>
         <div style={numStyle}>2</div>
-        <p style={textStyle}>Scroll down and tap <strong style={{ color: 'var(--bone, #f4ecd8)', fontWeight: 500 }}>Add to Home Screen</strong></p>
+        <p style={textStyle}>Scroll down and tap <strong style={{ color: 'var(--bone, #f2e6d0)', fontWeight: 500 }}>Add to Home Screen</strong></p>
       </div>
       <div style={stepStyle}>
         <div style={numStyle}>3</div>
-        <p style={textStyle}>Tap <strong style={{ color: 'var(--bone, #f4ecd8)', fontWeight: 500 }}>Add</strong> — the thread is yours, one tap away</p>
+        <p style={textStyle}>Tap <strong style={{ color: 'var(--bone, #f2e6d0)', fontWeight: 500 }}>Add</strong> — the thread is yours, one tap away</p>
       </div>
     </div>
   );
@@ -163,8 +163,8 @@ export function PwaNudge() {
           margin: '0 auto',
           pointerEvents: 'auto',
           background: 'var(--ink-card, #171714)',
-          border: '1px solid var(--rule, rgba(244,236,216,0.11))',
-          borderTop: '2px solid var(--warm, #b07a4a)',
+          border: '1px solid var(--rule, rgba(242,230,208,0.11))',
+          borderTop: '2px solid var(--warm, #e0a062)',
           borderRadius: 0,
           overflow: 'hidden',
         }}
@@ -190,11 +190,11 @@ export function PwaNudge() {
               />
               <div>
                 <p style={{
-                  fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
+                  fontFamily: 'var(--mono, "Space Mono", monospace)',
                   fontSize: 9,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
-                  color: 'var(--warm, #b07a4a)',
+                  color: 'var(--warm, #e0a062)',
                   margin: 0,
                   lineHeight: 1,
                   marginBottom: 4,
@@ -202,11 +202,11 @@ export function PwaNudge() {
                   {mode === 'notify' ? 'Stay in the thread' : 'Install on your phone'}
                 </p>
                 <p style={{
-                  fontFamily: 'var(--serif, "Source Serif 4", Georgia, serif)',
+                  fontFamily: 'var(--serif, "Spectral", Georgia, serif)',
                   fontSize: 17,
                   fontWeight: 300,
                   lineHeight: 1.25,
-                  color: 'var(--bone, #f4ecd8)',
+                  color: 'var(--bone, #f2e6d0)',
                   margin: 0,
                   letterSpacing: '-0.01em',
                 }}>
@@ -231,9 +231,9 @@ export function PwaNudge() {
                 justifyContent: 'center',
                 padding: 0,
                 cursor: 'pointer',
-                fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
+                fontFamily: 'var(--mono, "Space Mono", monospace)',
                 fontSize: 14,
-                color: 'var(--bone-dim, rgba(244,236,216,0.55))',
+                color: 'var(--bone-dim, rgba(242,230,208,0.55))',
                 lineHeight: 1,
                 flexShrink: 0,
               }}
@@ -247,7 +247,7 @@ export function PwaNudge() {
             fontFamily: 'var(--sans, Inter, system-ui, sans-serif)',
             fontSize: 14,
             lineHeight: 1.65,
-            color: 'var(--bone-dim, rgba(244,236,216,0.72))',
+            color: 'var(--bone-dim, rgba(242,230,208,0.72))',
             margin: 0,
           }}>
             {mode === 'install' && 'Heirloom lives on your home screen. Full-screen, works offline, always ready for the next entry — no browser chrome in the way.'}
@@ -266,12 +266,12 @@ export function PwaNudge() {
                 onClick={onInstall}
                 disabled={busy}
                 style={{
-                  background: 'var(--warm, #b07a4a)',
-                  color: '#0e0e0c',
+                  background: 'var(--warm, #e0a062)',
+                  color: '#0b0907',
                   border: 0,
                   borderRadius: 0,
                   padding: '9px 20px',
-                  fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
+                  fontFamily: 'var(--mono, "Space Mono", monospace)',
                   fontSize: 11,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
@@ -289,12 +289,12 @@ export function PwaNudge() {
                 onClick={onEnableNotify}
                 disabled={busy}
                 style={{
-                  background: 'var(--warm, #b07a4a)',
-                  color: '#0e0e0c',
+                  background: 'var(--warm, #e0a062)',
+                  color: '#0b0907',
                   border: 0,
                   borderRadius: 0,
                   padding: '9px 20px',
-                  fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
+                  fontFamily: 'var(--mono, "Space Mono", monospace)',
                   fontSize: 11,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
@@ -314,10 +314,10 @@ export function PwaNudge() {
                 border: 0,
                 padding: 0,
                 cursor: 'pointer',
-                fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
+                fontFamily: 'var(--mono, "Space Mono", monospace)',
                 fontSize: 11,
                 letterSpacing: '0.06em',
-                color: 'var(--bone-dim, rgba(244,236,216,0.55))',
+                color: 'var(--bone-dim, rgba(242,230,208,0.55))',
               }}
             >
               {mode === 'ios' ? 'maybe later' : 'not now'}
@@ -329,12 +329,12 @@ export function PwaNudge() {
             <p style={{
               marginTop: 14,
               paddingTop: 12,
-              borderTop: '1px solid var(--rule, rgba(244,236,216,0.11))',
-              fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
+              borderTop: '1px solid var(--rule, rgba(242,230,208,0.11))',
+              fontFamily: 'var(--mono, "Space Mono", monospace)',
               fontSize: 9,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: 'var(--bone-dim, rgba(244,236,216,0.55))',
+              color: 'var(--bone-dim, rgba(242,230,208,0.55))',
               margin: '14px 0 0',
             }}>
               offline · daily prompt · no notifications until you ask

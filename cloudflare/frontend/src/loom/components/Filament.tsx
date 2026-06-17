@@ -184,7 +184,7 @@ export function Filament({ variant = 'none', seed: _seed = 1941, intensity = 1, 
             position: 'absolute',
             inset: 0,
             background:
-              'radial-gradient(120% 80% at 50% -10%, rgba(176,122,74,0.10), rgba(176,122,74,0.03) 38%, transparent 64%)',
+              'radial-gradient(120% 80% at 50% -10%, rgba(224,160,98,0.10), rgba(224,160,98,0.03) 38%, transparent 64%)',
           }}
         />
       )}

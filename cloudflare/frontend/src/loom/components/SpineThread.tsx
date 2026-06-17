@@ -135,9 +135,9 @@ export function SpineThread({
     if (!ctx) return;
 
     const loom = (host.closest('.loom') as HTMLElement) ?? document.documentElement;
-    const warm = cssVar(loom, '--warm', '#b07a4a');
-    const warmBright = cssVar(loom, '--warm-bright', '#cf935a');
-    const ink = cssVar(loom, '--ink', '#0e0e0c');
+    const warm = cssVar(loom, '--warm', '#e0a062');
+    const warmBright = cssVar(loom, '--warm-bright', '#f0c074');
+    const ink = cssVar(loom, '--ink', '#0b0907');
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const { W, H } = size;

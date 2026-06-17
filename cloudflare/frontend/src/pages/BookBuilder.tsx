@@ -141,9 +141,9 @@ function chapterDye(it: { id: string; metadata?: unknown; dye?: unknown }): Dye 
 
 /** placeholder marks inside a template thumbnail — serif/mono rules + a photo block */
 function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }) {
-  const ink = active ? 'var(--warm-dim, rgba(176,122,74,0.5))' : 'var(--rule)';
+  const ink = active ? 'var(--warm-dim, rgba(224,160,98,0.5))' : 'var(--rule)';
   const photo: React.CSSProperties = {
-    background: active ? 'rgba(176,122,74,0.16)' : 'rgba(244,236,216,0.06)',
+    background: active ? 'rgba(224,160,98,0.16)' : 'rgba(242,230,208,0.06)',
     border: `1px solid ${ink}`,
     borderRadius: 0,
   };
@@ -710,9 +710,9 @@ export function BookBuilder() {
                           width: '100%',
                           aspectRatio: '0.78',
                           border: `1px solid ${active ? 'var(--warm)' : 'var(--rule)'}`,
-                          background: active ? 'rgba(176,122,74,0.05)' : 'var(--ink-card)',
+                          background: active ? 'rgba(224,160,98,0.05)' : 'var(--ink-card)',
                           padding: active ? 11 : 12,
-                          outline: active ? '1px solid var(--warm-dim, rgba(176,122,74,0.5))' : 'none',
+                          outline: active ? '1px solid var(--warm-dim, rgba(224,160,98,0.5))' : 'none',
                           outlineOffset: 5,
                           display: 'flex',
                           flexDirection: 'column',

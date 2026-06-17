@@ -44,7 +44,7 @@ function mulberry(seed: number): () => number {
 
 function hexRgb(hex: string): string {
   const h = hex.trim();
-  if (!h.startsWith('#')) return '176,122,74';
+  if (!h.startsWith('#')) return '224,160,98';
   return `${parseInt(h.slice(1, 3), 16)},${parseInt(h.slice(3, 5), 16)},${parseInt(h.slice(5, 7), 16)}`;
 }
 
@@ -92,10 +92,10 @@ export function CosmicLoom({
       const v = (name: string) => cs.getPropertyValue(name).trim();
       const paper = loom.getAttribute('data-theme') === 'light';
       const dyeHex: Record<string, string> = {};
-      for (const d of DYES) dyeHex[d] = v(`--dye-${d}`) || '#b07a4a';
-      const ink = v('--ink') || (paper ? '#f5ece0' : '#0e0e0c');
+      for (const d of DYES) dyeHex[d] = v(`--dye-${d}`) || '#e0a062';
+      const ink = v('--ink') || (paper ? '#faf3e4' : '#0b0907');
       const inkRgb = hexRgb(ink);
-      const warm = v('--warm') || '#b07a4a';
+      const warm = v('--warm') || '#e0a062';
       const warmRgb = hexRgb(v('--warm-bright') || warm);
 
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -266,7 +266,7 @@ export function CosmicLoom({
       if (weaving || !fx || GEO.W === undefined) return;
       const cs = getComputedStyle(loom);
       const dyeName = ((e as CustomEvent).detail?.dye as string) || 'woad';
-      const color = cs.getPropertyValue(`--dye-${dyeName}`).trim() || cs.getPropertyValue('--warm-bright').trim() || '#cf935a';
+      const color = cs.getPropertyValue(`--dye-${dyeName}`).trim() || cs.getPropertyValue('--warm-bright').trim() || '#f0c074';
       const { W, H } = GEO as CosmicGeometry;
       const baseY = H * 0.5 + (Math.random() - 0.5) * H * 0.4;
       const amp = 30 + Math.random() * 50;
@@ -301,9 +301,9 @@ export function CosmicLoom({
         fx.lineWidth = 2.4;
         fx.stroke();
         // the shuttle — a warm point of light leading the new thread
-        fx.shadowColor = '#cf935a';
+        fx.shadowColor = '#f0c074';
         fx.shadowBlur = 22;
-        fx.fillStyle = '#cf935a';
+        fx.fillStyle = '#f0c074';
         fx.beginPath();
         fx.arc(Math.min(xe, W - 2), yAt(Math.min(xe, W - 2)), 3, 0, 7);
         fx.fill();
@@ -371,8 +371,8 @@ export function CosmicLoom({
       for (const sp of G.sealPts) {
         if (Math.hypot(e.clientX - sp.x, e.clientY - sp.y) < 18) {
           fx.globalCompositeOperation = 'lighter';
-          fx.shadowColor = '#cf935a'; fx.shadowBlur = 22;
-          fx.strokeStyle = 'rgba(207,147,90,.9)'; fx.lineWidth = 1.2;
+          fx.shadowColor = '#f0c074'; fx.shadowBlur = 22;
+          fx.strokeStyle = 'rgba(240,192,116,.9)'; fx.lineWidth = 1.2;
           fx.beginPath(); fx.arc(sp.x, sp.y, 12, 0, 7); fx.stroke();
           fx.shadowBlur = 0;
           const from = sp.seal.from ? ` · from ${sp.seal.from}` : '';

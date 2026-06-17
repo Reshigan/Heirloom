@@ -23,7 +23,7 @@ const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 /** Mono uppercase eyebrow / field label. */
 const labelStyle: React.CSSProperties = {
   display: 'block',
-  fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+  fontFamily: "var(--mono, 'Space Mono', monospace)",
   fontSize: 10,
   letterSpacing: '0.26em',
   textTransform: 'uppercase',
@@ -39,7 +39,7 @@ const fieldStyle: React.CSSProperties = {
   borderBottom: '1px solid var(--rule)',
   color: 'var(--bone)',
   caretColor: 'var(--warm)',
-  fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+  fontFamily: "var(--mono, 'Space Mono', monospace)",
   fontSize: 13,
   letterSpacing: '0.04em',
   fontWeight: 400,
@@ -57,7 +57,7 @@ const selectStyle: React.CSSProperties = {
   cursor: 'pointer',
   paddingRight: 24,
   backgroundImage:
-    "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><polyline points='0,0 5,6 10,0' fill='none' stroke='rgba(244,236,216,0.32)' stroke-width='1.2'/></svg>\")",
+    "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><polyline points='0,0 5,6 10,0' fill='none' stroke='rgba(242,230,208,0.32)' stroke-width='1.2'/></svg>\")",
   backgroundRepeat: 'no-repeat',
   backgroundPosition: 'right 4px center',
 };
@@ -74,7 +74,7 @@ function pillStyle(warm: boolean, disabled = false): React.CSSProperties {
     padding: '0 22px',
     minHeight: 44,
     cursor: disabled ? 'default' : 'pointer',
-    fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+    fontFamily: "var(--mono, 'Space Mono', monospace)",
     fontSize: 12,
     letterSpacing: '0.22em',
     textTransform: 'uppercase',
@@ -221,7 +221,7 @@ export function ThreadCompose() {
         border: 0,
         padding: 0,
         cursor: canSave ? 'pointer' : 'default',
-        fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+        fontFamily: "var(--mono, 'Space Mono', monospace)",
         fontSize: 11,
         letterSpacing: '0.22em',
         textTransform: 'uppercase',
@@ -263,7 +263,7 @@ export function ThreadCompose() {
           <header style={{ marginBottom: 40, maxWidth: '16em' }}>
             <div
               style={{
-                fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+                fontFamily: "var(--mono, 'Space Mono', monospace)",
                 fontSize: 11,
                 letterSpacing: '0.28em',
                 textTransform: 'uppercase',
@@ -275,7 +275,7 @@ export function ThreadCompose() {
             </div>
             <h1
               style={{
-                fontFamily: "var(--serif, 'Source Serif 4', serif)",
+                fontFamily: "var(--serif, 'Spectral', serif)",
                 fontSize: 'clamp(30px, 5vw, 44px)',
                 lineHeight: 1.06,
                 letterSpacing: '-0.012em',
@@ -290,7 +290,7 @@ export function ThreadCompose() {
             </h1>
             <p
               style={{
-                fontFamily: "var(--serif, 'Source Serif 4', serif)",
+                fontFamily: "var(--serif, 'Spectral', serif)",
                 fontStyle: 'italic',
                 fontWeight: 300,
                 fontSize: 17,
@@ -322,7 +322,7 @@ export function ThreadCompose() {
                 border: 0,
                 color: 'var(--bone)',
                 caretColor: 'var(--warm)',
-                fontFamily: "var(--serif, 'Source Serif 4', serif)",
+                fontFamily: "var(--serif, 'Spectral', serif)",
                 fontVariationSettings: "'opsz' 40",
                 fontSize: 'clamp(30px, 5vw, 44px)',
                 fontWeight: 380,
@@ -349,7 +349,7 @@ export function ThreadCompose() {
                 border: 0,
                 color: 'var(--bone)',
                 caretColor: 'var(--warm)',
-                fontFamily: "var(--serif, 'Source Serif 4', serif)",
+                fontFamily: "var(--serif, 'Spectral', serif)",
                 fontVariationSettings: "'opsz' 14",
                 fontSize: 18,
                 fontWeight: 300,
@@ -396,7 +396,7 @@ export function ThreadCompose() {
                 <div>
                   <p
                     className="hl-serif"
-                    style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 300, color: 'var(--bone)', fontFamily: "var(--serif, 'Source Serif 4', serif)" }}
+                    style={{ margin: '0 0 4px', fontSize: 17, fontWeight: 300, color: 'var(--bone)', fontFamily: "var(--serif, 'Spectral', serif)" }}
                   >
                     Seal this entry
                   </p>
@@ -406,7 +406,7 @@ export function ThreadCompose() {
                       fontSize: 14,
                       color: 'var(--bone-dim)',
                       lineHeight: 1.65,
-                      fontFamily: "var(--serif, 'Source Serif 4', serif)",
+                      fontFamily: "var(--serif, 'Spectral', serif)",
                       fontWeight: 300,
                     }}
                   >
@@ -573,7 +573,7 @@ export function ThreadCompose() {
                           fontSize: 10,
                           color: 'var(--bone-faint)',
                           letterSpacing: '0.06em',
-                          fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+                          fontFamily: "var(--mono, 'Space Mono', monospace)",
                         }}
                       >
                         +1 = your children · +2 = grandchildren · +3 = great-grandchildren
@@ -590,7 +590,7 @@ export function ThreadCompose() {
                 role="alert"
                 style={{
                   margin: 0,
-                  fontFamily: "var(--serif, 'Source Serif 4', serif)",
+                  fontFamily: "var(--serif, 'Spectral', serif)",
                   fontStyle: 'italic',
                   fontSize: 14,
                   color: 'var(--warm)',
@@ -645,7 +645,7 @@ export function ThreadCompose() {
               <Link
                 to={`/threads/${threadId}`}
                 style={{
-                  fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+                  fontFamily: "var(--mono, 'Space Mono', monospace)",
                   fontSize: 11,
                   letterSpacing: '0.22em',
                   textTransform: 'uppercase',
@@ -674,7 +674,7 @@ export function ThreadCompose() {
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-faint)',
-                fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
+                fontFamily: "var(--mono, 'Space Mono', monospace)",
               }}
             >
               {busy ? 'weaving…' : 'append-only · cannot be altered once woven'}

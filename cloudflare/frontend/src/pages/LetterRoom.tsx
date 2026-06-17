@@ -216,7 +216,7 @@ export function LetterRoom() {
                 border: '1px solid var(--warm-dim)',
                 borderRadius: 4,
                 padding: 'clamp(24px,6vw,44px)',
-                background: 'rgba(176,122,74,0.05)',
+                background: 'rgba(224,160,98,0.05)',
                 boxShadow: '0 0 60px -12px var(--warm-glow), inset 0 0 80px -40px var(--warm-glow)',
                 maxWidth: '38em', margin: '0 auto', textAlign: 'left',
               }}>
@@ -477,7 +477,7 @@ export function LetterRoom() {
                             border: '1px solid var(--warm-dim)',
                             borderRadius: 4,
                             padding: 'clamp(24px,6vw,40px)',
-                            background: 'rgba(176,122,74,0.05)',
+                            background: 'rgba(224,160,98,0.05)',
                             boxShadow: '0 0 60px -12px var(--warm-glow), inset 0 0 80px -40px var(--warm-glow)',
                             maxWidth: '38em', margin: '0 auto',
                           }}>

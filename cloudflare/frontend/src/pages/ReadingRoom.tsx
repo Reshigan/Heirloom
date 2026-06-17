@@ -113,7 +113,7 @@ function SelvedgeHistory({ t }: { t: Thread }) {
   return (
     <div style={{
       marginTop: 28, paddingTop: 14,
-      borderTop: '1px solid rgba(244,236,216,0.07)',
+      borderTop: '1px solid rgba(242,230,208,0.07)',
     }}>
       <button
         type="button"
@@ -137,7 +137,7 @@ function SelvedgeHistory({ t }: { t: Thread }) {
               : (r.snapshot.description ?? r.snapshot.body ?? r.snapshot.transcript ?? '');
             const when = (r.createdAt || '').slice(0, 10).replace(/-/g, '·');
             return (
-              <div key={r.id} style={{ borderLeft: '1px solid rgba(244,236,216,0.14)', paddingLeft: 16 }}>
+              <div key={r.id} style={{ borderLeft: '1px solid rgba(242,230,208,0.14)', paddingLeft: 16 }}>
                 <div style={{
                   fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.12em',
                   color: 'var(--bone-faint)', marginBottom: 6,
@@ -297,7 +297,7 @@ function ReadingContent({
         {/* Time navigation */}
         <div style={{
           width: '100%', paddingTop: 24,
-          borderTop: '1px solid rgba(244,236,216,0.07)',
+          borderTop: '1px solid rgba(242,230,208,0.07)',
           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         }}>
           <button
@@ -306,7 +306,7 @@ function ReadingContent({
               background: 'transparent', border: 0, padding: 0,
               fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
               textTransform: 'uppercase',
-              color: onPrev ? 'var(--bone-faint)' : 'rgba(244,236,216,0.15)',
+              color: onPrev ? 'var(--bone-faint)' : 'rgba(242,230,208,0.15)',
               cursor: onPrev ? 'pointer' : 'default',
             }}
           >
@@ -329,7 +329,7 @@ function ReadingContent({
                 <span style={{
                   display: 'block',
                   width: i === activeIndex ? 20 : 6, height: 2,
-                  background: i === activeIndex ? dye : 'rgba(244,236,216,0.18)',
+                  background: i === activeIndex ? dye : 'rgba(242,230,208,0.18)',
                   transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
                   flexShrink: 0,
                 }} />
@@ -343,7 +343,7 @@ function ReadingContent({
               background: 'transparent', border: 0, padding: 0,
               fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
               textTransform: 'uppercase',
-              color: onNext ? dye : 'rgba(244,236,216,0.15)',
+              color: onNext ? dye : 'rgba(242,230,208,0.15)',
               cursor: onNext ? 'pointer' : 'default',
             }}
           >
@@ -540,13 +540,13 @@ export function ReadingRoom() {
           {t ? (
             <>
               <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dye, letterSpacing: '0.08em' }}>{t.kind}</span>
-              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.3)' }}>·</span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(242,230,208,0.3)' }}>·</span>
               <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dye, letterSpacing: '0.08em' }}>{t.who}</span>
-              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.3)' }}>·</span>
-              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.35)', letterSpacing: '0.08em' }}>{t.date}</span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(242,230,208,0.3)' }}>·</span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(242,230,208,0.35)', letterSpacing: '0.08em' }}>{t.date}</span>
             </>
           ) : (
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(244,236,216,0.3)', letterSpacing: '0.08em' }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(242,230,208,0.3)', letterSpacing: '0.08em' }}>
               the wall
             </span>
           )}
@@ -580,10 +580,10 @@ export function ReadingRoom() {
                 style={{
                   background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                   fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
-                  textTransform: 'uppercase', color: 'rgba(244,236,216,0.25)',
+                  textTransform: 'uppercase', color: 'rgba(242,230,208,0.25)',
                 }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(244,236,216,0.25)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(242,230,208,0.25)'; }}
               >
                 unweave
               </button>
@@ -624,10 +624,10 @@ export function ReadingRoom() {
             onClick={() => setView('book')}
             disabled={entries.length === 0}
             style={{
-              background: 'transparent', border: '1px solid rgba(244,236,216,0.15)', padding: '3px 12px',
+              background: 'transparent', border: '1px solid rgba(242,230,208,0.15)', padding: '3px 12px',
               fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
               textTransform: 'uppercase',
-              color: entries.length === 0 ? 'rgba(244,236,216,0.2)' : 'var(--bone-faint)',
+              color: entries.length === 0 ? 'rgba(242,230,208,0.2)' : 'var(--bone-faint)',
               cursor: entries.length === 0 ? 'default' : 'pointer',
             }}
           >
@@ -680,7 +680,7 @@ export function ReadingRoom() {
           position: 'absolute', top: 56, bottom: 0, left: 0, zIndex: 15,
           width: (navOpen || selvedgeOpen) ? 260 : 6,
           background: (navOpen || selvedgeOpen) ? 'rgba(14,14,12,0.94)' : 'transparent',
-          borderRight: (navOpen || selvedgeOpen) ? '1px solid rgba(244,236,216,0.08)' : '1px solid transparent',
+          borderRight: (navOpen || selvedgeOpen) ? '1px solid rgba(242,230,208,0.08)' : '1px solid transparent',
           transition: `width 360ms ${EASE}, background 360ms ${EASE}, border-color 360ms ${EASE}`,
           overflow: 'hidden', display: 'flex', flexDirection: 'column',
         }}
@@ -816,7 +816,7 @@ export function ReadingRoom() {
  *
  * A book-spread large-type reading surface over the real thread: the left page
  * carries the entry's eyebrow + title + byline, the right page carries the
- * prose set generously in Source Serif 4. Page turns step through real
+ * prose set generously in Spectral. Page turns step through real
  * entries, marked with ∞.
  */
 function BookView({ entries, threadName }: { entries: Thread[]; threadName: string }) {

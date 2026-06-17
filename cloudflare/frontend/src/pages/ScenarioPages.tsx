@@ -108,7 +108,7 @@ function ScenarioPage({
               fontSize: 9,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
-              color: 'rgba(176,122,74,0.65)',
+              color: 'rgba(224,160,98,0.65)',
               display: 'block',
               marginTop: 5,
             }}>

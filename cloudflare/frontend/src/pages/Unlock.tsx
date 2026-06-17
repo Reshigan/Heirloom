@@ -377,7 +377,7 @@ export function Unlock() {
                   <div
                     className="loom-serif"
                     style={{
-                      fontFamily: "'Source Serif 4', serif",
+                      fontFamily: "'Cormorant Garamond', Georgia, serif",
                       fontVariationSettings: "'opsz' 60",
                       fontSize: 'clamp(34px, 6vw, 46px)',
                       lineHeight: 1.05,
@@ -394,7 +394,7 @@ export function Unlock() {
                   <div
                     className="loom-body"
                     style={{
-                      fontFamily: "'Source Serif 4', serif",
+                      fontFamily: "'Spectral', serif",
                       fontSize: 17,
                       color: 'var(--warm-bright)',
                       lineHeight: 1.95,
@@ -409,7 +409,7 @@ export function Unlock() {
                     <div
                       style={{
                         marginTop: 30,
-                        fontFamily: "'Source Serif 4', serif",
+                        fontFamily: "'Spectral', serif",
                         fontVariationSettings: "'opsz' 28",
                         fontSize: 22,
                         fontStyle: 'italic',
@@ -512,7 +512,7 @@ function WaxSeal({ size = 30 }: { size?: number }) {
       style={{
         display: 'inline-grid',
         placeItems: 'center',
-        fontFamily: "'Source Serif 4', serif",
+        fontFamily: "'Cormorant Garamond', Georgia, serif",
         fontVariationSettings: "'opsz' 48",
         fontSize: size,
         fontWeight: 400,
@@ -543,7 +543,7 @@ function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean })
         <div
           aria-hidden
           style={{
-            fontFamily: "'Source Serif 4', serif",
+            fontFamily: "'Cormorant Garamond', Georgia, serif",
             fontVariationSettings: "'opsz' 72",
             fontSize: 88,
             fontWeight: 300,
@@ -628,7 +628,7 @@ function ShareCard({ letter }: { letter: UnlockLetter }) {
         <div>
           <div
             style={{
-              fontFamily: "'Source Serif 4', serif",
+              fontFamily: "'Cormorant Garamond', Georgia, serif",
               fontVariationSettings: "'opsz' 72",
               fontSize: 56,
               fontWeight: 300,
