@@ -343,7 +343,14 @@ lettersRoutes.get('/:id', async (c) => {
     JOIN letter_recipients lr ON fm.id = lr.family_member_id
     WHERE lr.letter_id = ?
   `).bind(letterId).all();
-  
+
+  // Get legacy-contact recipients (named beyond the family roster).
+  const legacyRecipients = await c.env.DB.prepare(`
+    SELECT lc.id, lc.name, lc.email FROM legacy_contacts lc
+    JOIN letter_legacy_recipients llr ON lc.id = llr.legacy_contact_id
+    WHERE llr.letter_id = ?
+  `).bind(letterId).all();
+
   return c.json({
     id: letter.id,
     title: letter.title,
@@ -361,6 +368,11 @@ lettersRoutes.get('/:id', async (c) => {
       id: r.id,
       name: r.name,
       relationship: r.relationship,
+      email: r.email,
+    })),
+    legacyRecipients: legacyRecipients.results.map((r: any) => ({
+      id: r.id,
+      name: r.name,
       email: r.email,
     })),
     createdAt: letter.created_at,
@@ -711,8 +723,8 @@ lettersRoutes.post('/:id/release', async (c) => {
   if (!letter.sealed_at) return c.json({ error: 'Letter must be sealed before it can be released' }, 400);
   if (letter.delivered_at) return c.json({ error: 'Letter has already been released' }, 400);
 
-  // Author name and recipient list are independent reads — fetch in parallel.
-  const [author, recipients] = await Promise.all([
+  // Author name, family list, and legacy list are independent reads — fetch in parallel.
+  const [author, recipients, legacyRecipients] = await Promise.all([
     c.env.DB.prepare(`SELECT first_name, last_name FROM users WHERE id = ?`).bind(userId).first() as Promise<
       { first_name: string; last_name: string } | null
     >,
@@ -721,10 +733,24 @@ lettersRoutes.post('/:id/release', async (c) => {
       JOIN letter_recipients lr ON fm.id = lr.family_member_id
       WHERE lr.letter_id = ?
     `).bind(letterId).all(),
+    c.env.DB.prepare(`
+      SELECT lc.email, lc.name FROM legacy_contacts lc
+      JOIN letter_legacy_recipients llr ON lc.id = llr.legacy_contact_id
+      WHERE llr.letter_id = ?
+    `).bind(letterId).all(),
   ]);
   const senderName = `${author?.first_name ?? ''} ${author?.last_name ?? ''}`.trim() || 'your family';
 
-  const recipientsWithEmail = (recipients.results as any[]).filter((r) => r.email);
+  // Family + legacy contacts, deduped by email (family wins on a clash so nobody is emailed twice).
+  const recipientsWithEmail: { email: string; name: string }[] = [];
+  const seenEmails = new Set<string>();
+  for (const r of [...(recipients.results as any[]), ...(legacyRecipients.results as any[])]) {
+    if (!r.email) continue;
+    const key = String(r.email).toLowerCase();
+    if (seenEmails.has(key)) continue;
+    seenEmails.add(key);
+    recipientsWithEmail.push({ email: r.email, name: r.name });
+  }
   const now = new Date().toISOString();
   const deliveredEmails: string[] = [];
 

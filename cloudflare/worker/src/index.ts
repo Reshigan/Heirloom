@@ -1174,8 +1174,8 @@ async function processScheduledLetters(env: Env): Promise<{ delivered: number; r
 
   for (const letter of due.results as any[]) {
     try {
-      // Author name + recipient list mirror the release path exactly.
-      const [author, recipientRows] = await Promise.all([
+      // Author name + recipient lists mirror the release path exactly.
+      const [author, recipientRows, legacyRecipientRows] = await Promise.all([
         env.DB.prepare(`SELECT first_name, last_name FROM users WHERE id = ?`).bind(letter.user_id).first() as Promise<
           { first_name: string; last_name: string } | null
         >,
@@ -1184,10 +1184,24 @@ async function processScheduledLetters(env: Env): Promise<{ delivered: number; r
           JOIN letter_recipients lr ON fm.id = lr.family_member_id
           WHERE lr.letter_id = ?
         `).bind(letter.id).all(),
+        env.DB.prepare(`
+          SELECT lc.email, lc.name FROM legacy_contacts lc
+          JOIN letter_legacy_recipients llr ON lc.id = llr.legacy_contact_id
+          WHERE llr.letter_id = ?
+        `).bind(letter.id).all(),
       ]);
       const senderName = `${author?.first_name ?? ''} ${author?.last_name ?? ''}`.trim() || 'your family';
 
-      const recipientsWithEmail = (recipientRows.results as any[]).filter((r) => r.email);
+      // Family + legacy contacts, deduped by email (family wins on a clash so nobody is emailed twice).
+      const recipientsWithEmail: { email: string; name: string }[] = [];
+      const seenEmails = new Set<string>();
+      for (const r of [...(recipientRows.results as any[]), ...(legacyRecipientRows.results as any[])]) {
+        if (!r.email) continue;
+        const key = String(r.email).toLowerCase();
+        if (seenEmails.has(key)) continue;
+        seenEmails.add(key);
+        recipientsWithEmail.push({ email: r.email, name: r.name });
+      }
       const deliveredEmails: string[] = [];
 
       for (const recipient of recipientsWithEmail) {

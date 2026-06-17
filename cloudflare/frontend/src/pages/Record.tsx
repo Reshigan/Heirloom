@@ -10,6 +10,8 @@ import { RecipientPicker } from '../loom/components/RecipientPicker';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { VoiceRefine } from '../loom/components/VoiceRefine';
 import { WaxSeal, SectionLabel } from '../loom/cosmic/CosmicUI';
+import LegacyRecipientPicker from '../components/LegacyRecipientPicker';
+import { enqueueVoice } from '../lib/voiceOfflineQueue';
 
 /**
  * Record — ComposerSpeak (Loom 3 · §6.3).
@@ -60,6 +62,8 @@ export function Record() {
   const activePrompt = customPrompt ?? PROMPTS[promptIdx];
   const [addresseeName, setAddresseeName] = useState('');
   const [recipientId, setRecipientId] = useState<string | null>(null);
+  const [legacyRecipientIds, setLegacyRecipientIds] = useState<string[]>([]);
+  const [held, setHeld] = useState(false);
   const [entryDate, setEntryDate] = useState(() => new Date().toISOString().slice(0, 10));
   const [deliveryTrigger, setDeliveryTrigger] = useState<SpeakTrigger>('now');
   const [scheduledDate, setScheduledDate] = useState('');
@@ -241,45 +245,107 @@ export function Record() {
     setShowRefine(false);
     setTranscribing(false);
     setPlaying(false);
+    setHeld(false);
+    setError(null);
   };
 
-  const save = useMutation({
+  const save = useMutation<{ held: boolean }, unknown, void>({
     mutationFn: async () => {
       if (!audioBlob) throw new Error('No recording to save.');
       const mime = mimeTypeRef.current || audioBlob.type || 'audio/webm';
       const ext = mime.includes('mp4') ? 'm4a' : mime.includes('ogg') ? 'ogg' : 'webm';
       const contentType = mime.split(';')[0]; // strip codec params for upload header
       const filename = `recording-${Date.now()}.${ext}`;
-      const { data: upload } = await voiceApi.getUploadUrl({
-        filename,
-        contentType,
-      });
-      const uploadResponse = await fetch(upload.uploadUrl ?? upload.url, {
-        method: 'PUT',
-        body: audioBlob,
-        headers: { 'Content-Type': contentType, ...getAuthHeaders() },
-      });
+      const metadata = {
+        to: addresseeName.trim() || undefined,
+        recipientId: recipientId || undefined,
+        entryDate,
+        deliveryTrigger: deliveryTrigger !== 'now' ? deliveryTrigger : undefined,
+        scheduledDate: deliveryTrigger === 'date' ? scheduledDate : undefined,
+      };
+
+      // Hold the recording in the IndexedDB blob queue so a reconnect drains
+      // it. If even the hold fails (IDB unavailable) we still resolve held —
+      // the recording is gone, but we never trip a hard error for an offline
+      // save. The held copy is the best we can do; surfacing a crash here
+      // would lose the recording AND the calm.
+      const holdToQueue = async () => {
+        try {
+          await enqueueVoice({
+            blob: audioBlob,
+            filename,
+            contentType,
+            title: title.trim() || activePrompt,
+            transcript: transcript.trim() || null,
+            duration: elapsed,
+            metadata,
+            legacyRecipientIds,
+          });
+        } catch {
+          /* degrade quietly — see note above */
+        }
+        return { held: true };
+      };
+
+      // Offline at entry → hold immediately, never touch the network.
+      if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+        return holdToQueue();
+      }
+
+      // Online: run the real upload. A network-class failure (fetch reject /
+      // getUploadUrl reject from a dropped connection) holds the recording
+      // rather than throwing. A genuine server error (non-ok upload, 4xx from
+      // create) still throws and surfaces as before.
+      let upload: any;
+      try {
+        ({ data: upload } = await voiceApi.getUploadUrl({ filename, contentType }));
+      } catch (err) {
+        if (isNetworkError(err)) return holdToQueue();
+        throw err;
+      }
+
+      let uploadResponse: Response;
+      try {
+        uploadResponse = await fetch(upload.uploadUrl ?? upload.url, {
+          method: 'PUT',
+          body: audioBlob,
+          headers: { 'Content-Type': contentType, ...getAuthHeaders() },
+        });
+      } catch (err) {
+        // fetch only rejects on a network failure — hold it.
+        if (isNetworkError(err)) return holdToQueue();
+        throw err;
+      }
       if (!uploadResponse.ok) {
         throw new Error(`Upload failed: ${uploadResponse.status}`);
       }
-      const { data } = await voiceApi.create({
-        title: title.trim() || activePrompt,
-        transcript: transcript.trim() || null,
-        fileKey: upload.fileKey ?? upload.key,
-        fileUrl: upload.publicUrl ?? upload.url,
-        duration: elapsed,
-        fileSize: audioBlob.size,
-        metadata: {
-          to: addresseeName.trim() || undefined,
-          recipientId: recipientId || undefined,
-          entryDate,
-          deliveryTrigger: deliveryTrigger !== 'now' ? deliveryTrigger : undefined,
-          scheduledDate: deliveryTrigger === 'date' ? scheduledDate : undefined,
-        },
-      });
-      return data;
+
+      try {
+        await voiceApi.create({
+          title: title.trim() || activePrompt,
+          transcript: transcript.trim() || null,
+          fileKey: upload.fileKey ?? upload.key,
+          fileUrl: upload.publicUrl ?? upload.url,
+          duration: elapsed,
+          fileSize: audioBlob.size,
+          legacyRecipientIds,
+          metadata,
+        });
+      } catch (err) {
+        if (isNetworkError(err)) return holdToQueue();
+        throw err;
+      }
+      return { held: false };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      if (result.held) {
+        // Held path: no ceremony, no hard error — a calm inline notice and
+        // we step back to the loom. The reconnect drain weaves it in.
+        setError(null);
+        setHeld(true);
+        navigateTimer.current = setTimeout(() => navigate('/loom/index'), 2600);
+        return;
+      }
       queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
       queryClient.invalidateQueries({ queryKey: ['weft-voice'] });
       queryClient.invalidateQueries({ queryKey: ['new-user-check-voice'] });
@@ -555,6 +621,15 @@ export function Record() {
                   setRecipientId(id);
                 }}
                 placeholder="a name (optional)"
+              />
+            </div>
+
+            {/* Legacy bequest — leave this voice to named legacy contacts.
+                Renders its own empty/loading states; we only hold the ids. */}
+            <div style={{ marginBottom: 14, textAlign: 'left' }}>
+              <LegacyRecipientPicker
+                selectedIds={legacyRecipientIds}
+                onChange={setLegacyRecipientIds}
               />
             </div>
 
@@ -908,11 +983,11 @@ export function Record() {
             <button
               type="button"
               onClick={() => save.mutate()}
-              disabled={save.isPending || !audioBlob}
+              disabled={save.isPending || held || !audioBlob}
               className="hl-btn"
-              style={{ borderRadius: 999, opacity: save.isPending || !audioBlob ? 0.5 : 1 }}
+              style={{ borderRadius: 999, opacity: save.isPending || held || !audioBlob ? 0.5 : 1 }}
             >
-              {save.isPending ? 'sealing…' : 'save →'}
+              {save.isPending ? 'sealing…' : held ? 'held' : 'save →'}
             </button>
 
             {/* date pill — the chosen entry date, set pre-recording */}
@@ -953,6 +1028,24 @@ export function Record() {
               re-record
             </button>
           </div>
+        ) : null}
+
+        {/* ── held — offline notice, inline mono, warm (never a hard error) ── */}
+        {held ? (
+          <p
+            role="status"
+            style={{
+              marginTop: 20,
+              fontFamily: 'var(--mono)',
+              fontSize: 11,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--warm)',
+              textAlign: 'center',
+            }}
+          >
+            held — it will weave itself in when you're back online
+          </p>
         ) : null}
 
         {/* ── error — inline mono line, warm (never red, never toast) ── */}
@@ -1004,6 +1097,24 @@ export function Record() {
       )}
     </ClothShell>
   );
+}
+
+/**
+ * isNetworkError — true for the connection-class failures that mean "hold it"
+ * rather than "the server said no". Covers the browser's `fetch` rejection
+ * (TypeError 'Failed to fetch' / 'Load failed'), an axios request with no
+ * response (the connection never completed), and a hard offline signal.
+ */
+function isNetworkError(err: unknown): boolean {
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return true;
+  if (err instanceof TypeError) return true; // fetch network failure
+  const e = err as { code?: string; response?: unknown; request?: unknown; message?: string } | null;
+  if (!e) return false;
+  if (e.code === 'ERR_NETWORK' || e.code === 'ECONNABORTED') return true;
+  // axios: a request was made but no response came back → connection failed.
+  if (e.request && !e.response) return true;
+  const msg = (e.message ?? '').toLowerCase();
+  return msg.includes('failed to fetch') || msg.includes('load failed') || msg.includes('network');
 }
 
 function blobToDataUrl(blob: Blob): Promise<string> {

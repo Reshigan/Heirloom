@@ -385,7 +385,7 @@ voiceRoutes.post('/', async (c) => {
   if (!userId) return c.json({ error: 'Authentication required' }, 401);
   const body = await c.req.json();
   
-    const { title, description, fileUrl, fileKey, duration, fileSize, transcript, emotion, recipientIds, recordingDate } = body;
+    const { title, description, fileUrl, fileKey, duration, fileSize, transcript, emotion, recipientIds, legacyRecipientIds, recordingDate } = body;
   
     if (!title) {
       return c.json({ error: 'Title is required' }, 400);
@@ -438,7 +438,24 @@ voiceRoutes.post('/', async (c) => {
       `).bind(crypto.randomUUID(), id, recipientId, now).run();
     }
   }
-  
+
+  // Add legacy recipients
+  if (legacyRecipientIds && legacyRecipientIds.length > 0) {
+    // Ownership guard — all legacy_contact ids must belong to the authenticated user
+    const ownedLegacyCheck = await c.env.DB.prepare(
+      `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ?`
+    ).bind(...legacyRecipientIds, userId).first() as { n: number } | null;
+    if (!ownedLegacyCheck || ownedLegacyCheck.n !== legacyRecipientIds.length) {
+      return c.json({ error: 'One or more legacy recipients not found' }, 400);
+    }
+    await c.env.DB.batch(
+      legacyRecipientIds.map((legacyContactId: string) =>
+        c.env.DB.prepare(`INSERT OR IGNORE INTO voice_legacy_recipients (voice_recording_id, legacy_contact_id) VALUES (?, ?)`)
+          .bind(id, legacyContactId)
+      )
+    );
+  }
+
   const recording = await c.env.DB.prepare(`
     SELECT * FROM voice_recordings WHERE id = ?
   `).bind(id).first();

@@ -10,6 +10,7 @@ import { HLogo } from '../loom/components/HLogo';
 import { VoiceRefine } from '../loom/components/VoiceRefine';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { uploadMemoryImage, validateImage } from '../utils/uploadImage';
+import LegacyRecipientPicker from '../components/LegacyRecipientPicker';
 import {
   ComposerRail,
   DyeControl,
@@ -709,6 +710,7 @@ export function Compose() {
 
   const [recipientId, setRecipientId] = useState<string | null>(() => draft0.recipientId ?? null);
   const [recipientName, setRecipientName] = useState(() => draft0.recipientName ?? '');
+  const [legacyRecipientIds, setLegacyRecipientIds] = useState<string[]>([]);
   const [deliveryTrigger, setDeliveryTrigger] = useState<DeliveryTrigger>(() => draft0.deliveryTrigger ?? 'now');
   const [scheduledDate, setScheduledDate] = useState(() => draft0.scheduledDate ?? '');
   const [entryDate, setEntryDate] = useState(() => draft0.entryDate ?? new Date().toISOString().slice(0, 10));
@@ -800,6 +802,11 @@ export function Compose() {
       setDeliveryTrigger(triggerMap[String(draftLetter.deliveryTrigger).toUpperCase()] ?? 'now');
     }
     if (draftLetter.scheduledDate) setScheduledDate(draftLetter.scheduledDate);
+    // Rehydrate the legacy-contact bequest so saving an edit doesn't wipe it
+    // (the letters PATCH replaces the full set from whatever we send).
+    if (Array.isArray(draftLetter.legacyRecipients)) {
+      setLegacyRecipientIds(draftLetter.legacyRecipients.map((r: any) => r.id));
+    }
   }, [draftLetter]);
   useEffect(() => {
     const m = (editMemory as any)?.data ?? editMemory;
@@ -813,6 +820,11 @@ export function Compose() {
     if (m.metadata?.aboutRelation) setAboutRelation(m.metadata.aboutRelation);
     if (m.metadata?.room) setRoom(m.metadata.room);
     if (m.metadata?.emotion) setEmotion(m.metadata.emotion);
+    // Rehydrate the legacy-contact bequest so saving an edit doesn't wipe it
+    // (the memories PATCH now replaces the full set from whatever we send).
+    if (Array.isArray(m.legacyRecipients)) {
+      setLegacyRecipientIds(m.legacyRecipients.map((r: any) => r.id));
+    }
   }, [editMemory]);
 
   // isLetter: true when any recipient name is set
@@ -973,6 +985,7 @@ export function Compose() {
             deliveryTrigger: trigger,
             scheduledDate: trigger === 'SCHEDULED' ? scheduledDate : null,
             recipientIds: recipientId ? [recipientId] : [],
+            legacyRecipientIds,
           });
           return data;
         }
@@ -985,6 +998,7 @@ export function Compose() {
           deliveryTrigger: trigger,
           scheduledDate: trigger === 'SCHEDULED' ? scheduledDate : null,
           recipientIds: recipientId ? [recipientId] : [],
+          legacyRecipientIds,
         });
 
         if (trigger !== 'IMMEDIATE' && data?.id) {
@@ -1000,6 +1014,7 @@ export function Compose() {
             .update(editEntryId, {
               title: title.trim() || deriveTitle(body),
               description: body.trim(),
+              legacyRecipientIds,
               metadata: {
                 visibility,
                 dye,
@@ -1023,6 +1038,7 @@ export function Compose() {
             fileUrl: primary?.fileUrl,
             fileSize: photos.reduce((sum, p) => sum + (p.fileSize ?? 0), 0) || undefined,
             mimeType: primary?.mimeType,
+            legacyRecipientIds,
             metadata: {
               visibility,
               dye,
@@ -1304,6 +1320,12 @@ export function Compose() {
             ) : (
               <EntryDateField value={entryDate} onChange={setEntryDate} />
             )}
+
+            {/* Legacy recipients — who inherits this when the time comes (both modes) */}
+            <LegacyRecipientPicker
+              selectedIds={legacyRecipientIds}
+              onChange={setLegacyRecipientIds}
+            />
           </div>
 
           {/* Separator */}

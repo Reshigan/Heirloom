@@ -65,6 +65,7 @@ export interface Letter {
   deliveredAt?: string | null;
   emotion?: string | null;
   recipients?: Array<{ id: string; name: string; relationship: string }>;
+  legacyRecipients?: Array<{ id: string; name: string; email?: string }>;
   createdAt?: string | null;
   /** snake_case from older/raw DB responses */
   created_at?: string | null;

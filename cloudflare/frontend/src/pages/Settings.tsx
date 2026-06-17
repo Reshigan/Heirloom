@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { settingsApi, exportApi, deadmanApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
@@ -229,6 +229,7 @@ const FIELD_INPUT_STYLE: React.CSSProperties = {
 export function Settings() {
   usePageMeta('Settings');
   const { user, logout } = useAuthStore();
+  const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   // Stripe checkout redirects back to /settings?tab=subscription&success=true
@@ -333,6 +334,37 @@ export function Settings() {
     onError: (err: any) => setCheckInError(err?.response?.data?.error ?? 'check-in failed'),
   });
   const dmStatus = (deadmanStatus.data ?? {}) as any;
+
+  // Dead-man's switch configurator — inline expandable form
+  const [dmConfigOpen, setDmConfigOpen] = useState(false);
+  const [dmInterval, setDmInterval] = useState('30');
+  const [dmGrace, setDmGrace] = useState('7');
+  const [dmConfigError, setDmConfigError] = useState<string | null>(null);
+  const dmIntervalNum = Number(dmInterval);
+  const dmGraceNum = Number(dmGrace);
+  const dmIntervalValid = Number.isInteger(dmIntervalNum) && dmIntervalNum >= 7 && dmIntervalNum <= 365;
+  const dmGraceValid = Number.isInteger(dmGraceNum) && dmGraceNum >= 1 && dmGraceNum <= 30;
+  const openDmConfig = () => {
+    setDmInterval(String(dmStatus.checkInIntervalDays ?? 30));
+    setDmGrace(String(dmStatus.gracePeriodDays ?? 7));
+    setDmConfigError(null);
+    setDmConfigOpen(true);
+  };
+  const configureDeadman = useMutation({
+    mutationFn: () => deadmanApi.configure({ intervalDays: dmIntervalNum, gracePeriodDays: dmGraceNum }),
+    onSuccess: () => {
+      setDmConfigError(null);
+      setDmConfigOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['deadman', 'status'] });
+    },
+    onError: (err: any) => setDmConfigError(err?.response?.data?.error ?? 'configuration failed'),
+  });
+  const handleConfigureDeadman = () => {
+    if (!dmIntervalValid) { setDmConfigError('Check-in interval must be 7–365 days.'); return; }
+    if (!dmGraceValid) { setDmConfigError('Grace period must be 1–30 days.'); return; }
+    setDmConfigError(null);
+    configureDeadman.mutate();
+  };
 
   const exitQuoteQ = useQuery({
     queryKey: ['exit-quote'],
@@ -725,13 +757,52 @@ export function Settings() {
                     {checkIn.isPending ? 'Checking in…' : 'Check In'}
                   </button>
                 )}
-                <Link to="/threads" className="hl-wordaction">Configure</Link>
+                <button type="button" className="hl-wordaction" onClick={() => (dmConfigOpen ? setDmConfigOpen(false) : openDmConfig())}>
+                  {dmConfigOpen ? 'Close' : 'Configure'}
+                </button>
                 {checkInError && (
                   <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.12em' }}>{checkInError}</span>
                 )}
               </span>
             </span>
           </div>
+
+          {/* Dead-man's switch — inline configurator */}
+          {dmConfigOpen && (
+            <div style={{ padding: '14px 0', borderBottom: '1px solid var(--rule)', maxWidth: 360 }}>
+              <div className="hl-field-label" style={{ marginBottom: 10 }}>configure switch</div>
+              {([
+                { key: 'interval', label: 'check-in interval (days)', val: dmInterval, set: setDmInterval, min: 7,  max: 365, valid: dmIntervalValid, ariaLabel: 'Check-in interval in days (7 to 365)' },
+                { key: 'grace',    label: 'grace period (days)',     val: dmGrace,    set: setDmGrace,    min: 1,  max: 30,  valid: dmGraceValid,    ariaLabel: 'Grace period in days (1 to 30)' },
+              ] as const).map((f) => (
+                <label key={f.key} style={{ display: 'block', marginBottom: 8 }}>
+                  <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', display: 'block', marginBottom: 2 }}>{f.label}</span>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    aria-label={f.ariaLabel}
+                    min={f.min}
+                    max={f.max}
+                    step={1}
+                    value={f.val}
+                    onChange={(e) => { f.set(e.target.value); setDmConfigError(null); }}
+                    onKeyDown={(e) => e.key === 'Enter' && dmIntervalValid && dmGraceValid && handleConfigureDeadman()}
+                    style={{ ...FIELD_INPUT_STYLE, padding: '6px 0 8px', boxSizing: 'border-box', display: 'block' }}
+                  />
+                </label>
+              ))}
+              {dmConfigError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{dmConfigError}</p>}
+              <div style={{ display: 'flex', gap: 14, marginTop: 4, alignItems: 'center' }}>
+                <button type="button" onClick={handleConfigureDeadman} disabled={!dmIntervalValid || !dmGraceValid || configureDeadman.isPending}
+                  className="hl-monoaction" style={{ opacity: (!dmIntervalValid || !dmGraceValid || configureDeadman.isPending) ? 0.5 : 1 }}>
+                  {configureDeadman.isPending ? 'arming…' : 'arm switch →'}
+                </button>
+                <button type="button" className="hl-monoaction hl-monoaction--quiet" onClick={() => { setDmConfigOpen(false); setDmConfigError(null); }}>
+                  cancel
+                </button>
+              </div>
+            </div>
+          )}
 
           <LedgerRow label="Encryption" hint="server-side AES-GCM · access via account + thread membership" value={<span className="hl-wordvalue" style={{ fontStyle: 'italic' }}>At rest</span>} />
           <LedgerRow label="Recovery phrase" hint="print and store offline" value={<span className="hl-wordvalue" style={{ fontStyle: 'italic' }}>Four words · in onboarding</span>} />

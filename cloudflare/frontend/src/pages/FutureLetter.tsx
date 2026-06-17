@@ -78,7 +78,7 @@ export function FutureLetter() {
     onSuccess: (response) => {
       setGeneratedLetter({
         id: response.data.id,
-        content: response.data.letterContent,
+        content: response.data.letter,
         shareText: response.data.shareText,
       });
       queryClient.invalidateQueries({ queryKey: ['future-letters'] });
@@ -416,7 +416,7 @@ export function FutureLetter() {
                       className="hl-serif"
                       style={{ display: 'block', fontSize: 14, fontStyle: 'italic', color: 'var(--bone-dim)', marginTop: 4 }}
                     >
-                      to {letter.recipientName ?? 'you'}
+                      to your future self
                     </span>
                   </span>
                   <span

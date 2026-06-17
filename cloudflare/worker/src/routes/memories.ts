@@ -479,6 +479,13 @@ memoriesRoutes.get('/:id', async (c) => {
     WHERE mr.memory_id = ?
   `).bind(memoryId).all();
 
+  // Get legacy-contact recipients (so the Composer can rehydrate the bequest on edit).
+  const legacyRecipients = await c.env.DB.prepare(`
+    SELECT lc.id, lc.name, lc.email FROM legacy_contacts lc
+    JOIN memory_legacy_recipients mlr ON lc.id = mlr.legacy_contact_id
+    WHERE mlr.memory_id = ?
+  `).bind(memoryId).all();
+
   return c.json({
     id: memory.id,
     type: memory.type,
@@ -495,6 +502,11 @@ memoriesRoutes.get('/:id', async (c) => {
       name: r.name,
       relationship: r.relationship,
     })),
+    legacyRecipients: legacyRecipients.results.map((r: any) => ({
+      id: r.id,
+      name: r.name,
+      email: r.email,
+    })),
     createdAt: memory.created_at,
     updatedAt: memory.updated_at,
   });
@@ -506,7 +518,7 @@ memoriesRoutes.post('/', async (c) => {
   if (!userId) return c.json({ error: 'Authentication required' }, 401);
   const body = await c.req.json();
   
-    const { type, title, description, fileUrl, fileKey, fileSize, mimeType, metadata, recipientIds, memoryDate, encrypted, encryption_iv } = body;
+    const { type, title, description, fileUrl, fileKey, fileSize, mimeType, metadata, recipientIds, legacyRecipientIds, memoryDate, encrypted, encryption_iv } = body;
   
     if (!type || !title) {
       return c.json({ error: 'Type and title are required' }, 400);
@@ -630,6 +642,22 @@ memoriesRoutes.post('/', async (c) => {
     );
   }
 
+  if (legacyRecipientIds && legacyRecipientIds.length > 0) {
+    // Ownership guard — all legacy_contact ids must belong to the authenticated user
+    const ownedLegacyCheck = await c.env.DB.prepare(
+      `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ?`
+    ).bind(...legacyRecipientIds, userId).first() as { n: number } | null;
+    if (!ownedLegacyCheck || ownedLegacyCheck.n !== legacyRecipientIds.length) {
+      return c.json({ error: 'One or more legacy recipients not found' }, 400);
+    }
+    await c.env.DB.batch(
+      legacyRecipientIds.map((legacyContactId: string) =>
+        c.env.DB.prepare(`INSERT OR IGNORE INTO memory_legacy_recipients (memory_id, legacy_contact_id) VALUES (?, ?)`)
+          .bind(id, legacyContactId)
+      )
+    );
+  }
+
   // Email notification when a memory is explicitly addressed to a family member
   // who has a verified email on file. We look up by recipientId (explicit link)
   // rather than by free-text name, so no name-based matching is ever used here.
@@ -697,7 +725,7 @@ memoriesRoutes.patch('/:id', async (c) => {
     return c.json({ error: 'Memory not found' }, 404);
   }
 
-  const { title, description, metadata } = body;
+  const { title, description, metadata, legacyRecipientIds } = body;
   const now = new Date().toISOString();
 
   // Append-only: snapshot the prior values to the immutable revision log before
@@ -738,6 +766,27 @@ memoriesRoutes.patch('/:id', async (c) => {
 
   if (title !== undefined) {
     await mirrorMemoryUpdate(c.env, memoryId, { title });
+  }
+
+  // Update legacy-contact recipients if provided — replace the full set (mirrors
+  // the letters PATCH bequest logic). Only acts when the field is present, so an
+  // edit that omits it leaves the existing bequest untouched.
+  if (legacyRecipientIds !== undefined) {
+    await c.env.DB.prepare(`DELETE FROM memory_legacy_recipients WHERE memory_id = ?`).bind(memoryId).run();
+    if (Array.isArray(legacyRecipientIds) && legacyRecipientIds.length > 0) {
+      const lcCheck = await c.env.DB.prepare(
+        `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ?`
+      ).bind(...legacyRecipientIds, userId).first() as { n: number } | null;
+      if (!lcCheck || lcCheck.n !== legacyRecipientIds.length) {
+        return c.json({ error: 'One or more legacy recipients not found' }, 400);
+      }
+      await c.env.DB.batch(
+        legacyRecipientIds.map((legacyContactId: string) =>
+          c.env.DB.prepare(`INSERT OR IGNORE INTO memory_legacy_recipients (memory_id, legacy_contact_id) VALUES (?, ?)`)
+            .bind(memoryId, legacyContactId)
+        )
+      );
+    }
   }
 
   const memory = await c.env.DB.prepare(`

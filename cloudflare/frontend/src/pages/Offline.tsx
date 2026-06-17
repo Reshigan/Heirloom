@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { memoriesApi } from '../services/api';
+import { memoriesApi, voiceApi, getAuthHeaders } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+import { listVoice, removeVoice, countVoice, type HeldVoice } from '../lib/voiceOfflineQueue';
 
 /**
  * Offline — the in-app offline experience, matching the PwaOffline
@@ -81,6 +82,16 @@ export function Offline() {
   const [queue, setQueue] = useState<HoldingEntry[]>(() => readQueue());
   const [draft, setDraft] = useState('');
   const [since] = useState<number>(() => readSince());
+  const [voiceCount, setVoiceCount] = useState(0);
+
+  // How many voice recordings are holding in IndexedDB. Refresh on mount —
+  // the count is set elsewhere (Record.tsx) and only ever shrinks here, since
+  // this page can't record. Never throws (countVoice degrades to 0).
+  useEffect(() => {
+    let alive = true;
+    void countVoice().then((n) => { if (alive) setVoiceCount(n); });
+    return () => { alive = false; };
+  }, []);
 
   // Clear the offline-since stamp once we're back online so the next
   // outage starts a fresh clock. The shell handles unmounting us.
@@ -251,6 +262,9 @@ export function Offline() {
               {queue.length > 0
                 ? `${queue.length} ${queue.length === 1 ? 'entry' : 'entries'} holding`
                 : 'not sent until reconnect'}
+              {voiceCount > 0
+                ? ` · ${voiceCount} ${voiceCount === 1 ? 'voice' : 'voices'} holding`
+                : ''}
             </span>
           </div>
         </div>
@@ -409,6 +423,64 @@ export default Offline;
 const BATCH_SIZE = 3;
 
 /**
+ * uploadHeldVoice — replay the exact Record.tsx upload sequence for one held
+ * recording: getUploadUrl → PUT the blob → voiceApi.create (carrying
+ * title/transcript/metadata/legacyRecipientIds). On success the caller drops
+ * it from the queue; a throw here leaves it queued for the next reconnect.
+ */
+async function uploadHeldVoice(item: HeldVoice): Promise<void> {
+  const { data: upload } = await voiceApi.getUploadUrl({
+    filename: item.filename,
+    contentType: item.contentType,
+  });
+  const uploadResponse = await fetch(upload.uploadUrl ?? upload.url, {
+    method: 'PUT',
+    body: item.blob,
+    headers: { 'Content-Type': item.contentType, ...getAuthHeaders() },
+  });
+  if (!uploadResponse.ok) {
+    throw new Error(`Upload failed: ${uploadResponse.status}`);
+  }
+  await voiceApi.create({
+    title: item.title,
+    transcript: item.transcript,
+    fileKey: upload.fileKey ?? upload.key,
+    fileUrl: upload.publicUrl ?? upload.url,
+    duration: item.duration,
+    fileSize: item.blob.size,
+    legacyRecipientIds: item.legacyRecipientIds,
+    metadata: item.metadata,
+  });
+}
+
+/**
+ * drainVoiceQueue — upload every held recording, removing each on success and
+ * leaving failures queued. Sequential (one upload at a time) since each PUTs a
+ * blob; no need to hammer S3. Returns the count successfully drained so the
+ * caller can invalidate the voice views. Never throws.
+ */
+async function drainVoiceQueue(active: { current: boolean }): Promise<number> {
+  let items: HeldVoice[];
+  try {
+    items = await listVoice();
+  } catch {
+    return 0;
+  }
+  let drained = 0;
+  for (const item of items) {
+    if (!active.current) break;
+    try {
+      await uploadHeldVoice(item);
+      await removeVoice(item.id);
+      drained += 1;
+    } catch {
+      // Leave it queued — a later reconnect retries.
+    }
+  }
+  return drained;
+}
+
+/**
  * useSyncHoldingQueue — when the device transitions from offline → online,
  * drain the holding queue by posting entries to the API in batches of 3.
  * Entries that succeed are removed from localStorage; failed ones stay
@@ -428,16 +500,26 @@ function useSyncHoldingQueue(online: boolean): { triggerSync: () => void } {
   // recovers entries that were stranded by a 401/token-expiry during a prior
   // offline period — after the user logs back in, the queue will sync.
   useEffect(() => {
-    if (isAuthenticated && readQueue().length > 0) {
+    if (!isAuthenticated) return;
+    if (readQueue().length > 0) {
       wasOfflineRef.current = true;
+      return;
     }
+    // Held voice recordings can also be stranded by a 401/token-expiry — once
+    // re-authed, mark so the next online effect drains them too.
+    let alive = true;
+    void countVoice().then((n) => {
+      if (alive && n > 0) wasOfflineRef.current = true;
+    });
+    return () => { alive = false; };
   }, [isAuthenticated]);
 
   const runSync = useCallback(async (active: { current: boolean }) => {
     if (!isAuthenticated || isSyncingRef.current) return;
 
     const queue = readQueue();
-    if (queue.length === 0) {
+    const heldVoiceCount = await countVoice();
+    if (queue.length === 0 && heldVoiceCount === 0) {
       wasOfflineRef.current = false;
       return;
     }
@@ -467,20 +549,33 @@ function useSyncHoldingQueue(online: boolean): { triggerSync: () => void } {
       if (!active.current) break;
     }
 
-    isSyncingRef.current = false;
-    wasOfflineRef.current = false;
-
-    if (!active.current) return;
-
     const synced = results
       .filter((r): r is PromiseFulfilledResult<string> => r.status === 'fulfilled')
       .map((r) => r.value);
     if (synced.length > 0) {
       writeQueue(readQueue().filter((e) => !synced.includes(e.id)));
+    }
+
+    // Parallel voice drain — held recordings (IndexedDB blobs) upload via the
+    // same getUploadUrl → PUT → create sequence. Runs under the same syncing
+    // guard so a single reconnect drains both queues.
+    const voiceDrained = active.current ? await drainVoiceQueue(active) : 0;
+
+    isSyncingRef.current = false;
+    wasOfflineRef.current = false;
+
+    if (!active.current) return;
+
+    if (synced.length > 0) {
       queryClient.invalidateQueries({ queryKey: ['memories'] });
       queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
       queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
       queryClient.invalidateQueries({ queryKey: ['new-user-check-memories'] });
+    }
+    if (voiceDrained > 0) {
+      queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
+      queryClient.invalidateQueries({ queryKey: ['weft-voice'] });
+      queryClient.invalidateQueries({ queryKey: ['new-user-check-voice'] });
     }
   }, [isAuthenticated, queryClient]);
 
