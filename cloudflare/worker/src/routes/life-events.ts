@@ -106,6 +106,15 @@ lifeEventsRoutes.post('/', async (c) => {
       return c.json({ error: 'Event type and name are required' }, 400);
     }
 
+    // Must match the life_event_triggers CHECK constraint (migration 0019).
+    // Without this gate an unknown eventType leaked a raw D1 CHECK 500; the
+    // frontend's "Milestone Birthday" (BIRTHDAY) and "When They Miss Me" (LOSS)
+    // templates both hit it. Reject unknown types as a clean 400.
+    const VALID_EVENT_TYPES = ['GRADUATION', 'WEDDING', 'FIRST_CHILD', 'BIRTHDAY_MILESTONE', 'RETIREMENT', 'CUSTOM'];
+    if (!VALID_EVENT_TYPES.includes(eventType)) {
+      return c.json({ error: 'Invalid event type' }, 400);
+    }
+
     // Validate family member if provided
     if (familyMemberId) {
       const familyMember = await c.env.DB.prepare(

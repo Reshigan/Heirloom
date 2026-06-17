@@ -512,7 +512,13 @@ memoriesRoutes.post('/', async (c) => {
       return c.json({ error: 'Type and title are required' }, 400);
     }
 
-    const VALID_TYPES = ['TEXT', 'PHOTO', 'VIDEO', 'AUDIO', 'VOICE', 'LINK', 'DOCUMENT'];
+    // Must match the DB CHECK constraint exactly (migration 0045):
+    // type IN ('PHOTO','VOICE','LETTER','VIDEO','TEXT','NOTE'). When these
+    // drifted apart, valid-here-invalid-there types (AUDIO/LINK/DOCUMENT) passed
+    // this gate then died on a raw D1 CHECK 500, and DB-valid LETTER (used by
+    // the offline-note sync) was wrongly rejected here — so offline notes never
+    // persisted. Keep this list identical to the constraint.
+    const VALID_TYPES = ['TEXT', 'PHOTO', 'VIDEO', 'VOICE', 'LETTER', 'NOTE'];
     if (type && !VALID_TYPES.includes(type)) {
       return c.json({ error: 'Invalid memory type' }, 400);
     }

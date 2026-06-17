@@ -202,7 +202,7 @@ app.use('*', cors({
       'https://heirloom.blue',
       'https://www.heirloom.blue',
       'https://staging.heirloom.blue',
-      ...(isDev ? ['http://localhost:3000'] : []),
+      ...(isDev ? ['http://localhost:3000', 'http://127.0.0.1:3000'] : []),
     ];
     // [W5] Return null for disallowed origins so Hono's cors() middleware
     // omits the Access-Control-Allow-Origin header entirely, rather than
