@@ -1152,7 +1152,7 @@ html {
   position: absolute;
   left: 0; right: 0; bottom: 0;
   height: 8px;
-  background: #0a0a08;
+  background: var(--ink-deep);
   overflow: hidden;
   pointer-events: none;
 }

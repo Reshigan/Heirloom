@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 /**
  * RoomHeader — the single header pattern for every screen.
- * Mono uppercase eyebrow → Source Serif title → optional dim lede.
+ * Mono uppercase eyebrow → Cormorant title → optional dim lede.
  * Left-aligned, uses the page-pad tokens. No icons, no rules of its own.
  */
 export interface RoomHeaderProps {

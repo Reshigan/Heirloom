@@ -164,7 +164,7 @@ function AuthHome({
     return (
       <div style={{ padding: `36px ${P}`, maxWidth: 560, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
         <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 12 }}>preview</span>
-        <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 24px', lineHeight: 1.15 }}>
+        <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(24px, 6vw, 30px)', fontWeight: 300, color: 'var(--bone)', margin: '0 0 24px', lineHeight: 1.15 }}>
           {greeting}
         </h2>
         <Link to="/signup" className="hl-btn" style={{ fontSize: 13 }}>Begin free →</Link>
@@ -179,7 +179,7 @@ function AuthHome({
         <span className="hl-eyebrow" style={{ display: 'block', marginBottom: 18, color: 'var(--warm)' }}>
           {role === 'successor' ? 'heir' : 'reader'}
         </span>
-        <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 300, lineHeight: 1.15, margin: '0 0 18px', color: 'var(--bone)' }}>
+        <h2 className="hl-serif hl-tight" style={{ fontSize: 'clamp(24px, 6vw, 30px)', fontWeight: 300, lineHeight: 1.15, margin: '0 0 18px', color: 'var(--bone)' }}>
           You have been given access to this thread.
         </h2>
         <p style={{ fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone-dim)', lineHeight: 1.75, margin: 0 }}>
@@ -197,7 +197,7 @@ function AuthHome({
           entry no. 0001
         </div>
         <h2 className="hl-serif hl-tight" style={{
-          fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 300, lineHeight: 1.15,
+          fontSize: 'clamp(24px, 6vw, 30px)', fontWeight: 300, lineHeight: 1.15,
           margin: '0 0 18px', color: 'var(--bone)', fontVariationSettings: '"opsz" 30',
         }}>
           There is someone who needs to read this.<br />Just not yet.
@@ -214,8 +214,8 @@ function AuthHome({
         <div style={{
           display: 'flex', flexDirection: 'column', gap: 6,
           padding: '12px 16px 12px 18px',
-          border: '1px solid rgba(242,230,208,0.10)',
-          borderLeft: '2px solid rgba(224,160,98,0.55)',
+          border: '1px solid var(--rule)',
+          borderLeft: '2px solid color-mix(in srgb, var(--warm) 55%, transparent)',
           marginBottom: 28,
         }}>
           <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
@@ -448,7 +448,7 @@ export function PwaHome() {
               entry no. 0001
             </div>
             <h2 className="hl-serif hl-tight" style={{
-              fontSize: 'clamp(22px, 6vw, 30px)', fontWeight: 300, lineHeight: 1.15,
+              fontSize: 'clamp(24px, 6vw, 30px)', fontWeight: 300, lineHeight: 1.15,
               margin: '0 0 18px', color: 'var(--bone)', fontVariationSettings: '"opsz" 30',
             }}>
               There is someone who needs to read this.<br />Just not yet.
@@ -465,8 +465,8 @@ export function PwaHome() {
             <div style={{
               display: 'flex', flexDirection: 'column', gap: 6,
               padding: '12px 16px 12px 18px',
-              border: '1px solid rgba(242,230,208,0.10)',
-              borderLeft: '2px solid rgba(224,160,98,0.55)',
+              border: '1px solid var(--rule)',
+              borderLeft: '2px solid color-mix(in srgb, var(--warm) 55%, transparent)',
               marginBottom: 28,
             }}>
               <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>

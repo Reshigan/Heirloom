@@ -541,7 +541,7 @@ export function Referrals() {
             <h3
               className="hl-serif"
               style={{
-                fontSize: 22,
+                fontSize: 26,
                 fontWeight: 300,
                 fontStyle: 'italic',
                 color: 'var(--bone)',

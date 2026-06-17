@@ -120,7 +120,7 @@ export function RecipientPicker({
             top: '100%',
             left: 0,
             right: 0,
-            background: 'var(--ink, #111)',
+            background: 'var(--ink, #0b0907)',
             border: '1px solid var(--rule)',
             zIndex: 40,
             maxHeight: 200,

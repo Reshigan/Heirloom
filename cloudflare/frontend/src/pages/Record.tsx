@@ -771,9 +771,22 @@ export function Record() {
                 }}
               >
                 {playing ? (
-                  <span style={{ fontSize: 20 }}>❚❚</span>
+                  <span aria-hidden style={{ display: 'flex', gap: 5 }}>
+                    <span style={{ width: 4, height: 20, background: 'currentColor' }} />
+                    <span style={{ width: 4, height: 20, background: 'currentColor' }} />
+                  </span>
                 ) : (
-                  <span style={{ fontSize: 20, marginLeft: 2 }}>▶</span>
+                  <span
+                    aria-hidden
+                    style={{
+                      width: 0,
+                      height: 0,
+                      marginLeft: 4,
+                      borderTop: '10px solid transparent',
+                      borderBottom: '10px solid transparent',
+                      borderLeft: '16px solid currentColor',
+                    }}
+                  />
                 )}
               </button>
             </div>

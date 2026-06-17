@@ -64,7 +64,7 @@ export function Privacy() {
               <h2
                 style={{
                   fontFamily: 'var(--serif)',
-                  fontSize: 'clamp(20px, 3vw, 26px)',
+                  fontSize: 'clamp(24px, 3vw, 26px)',
                   fontWeight: 400,
                   letterSpacing: '-0.012em',
                   color: 'var(--bone)',

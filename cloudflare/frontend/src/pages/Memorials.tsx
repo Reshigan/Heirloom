@@ -252,7 +252,7 @@ export function Memorials() {
             ].map(({ n, h, b }) => (
               <div key={n}>
                 <p className="hl-mono" style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.06em', margin: '0 0 8px' }}>{n}</p>
-                <h3 className="hl-serif" style={{ fontSize: 16, fontWeight: 300, color: 'var(--bone)', margin: '0 0 6px' }}>{h}</h3>
+                <p className="hl-serif" style={{ fontSize: 16, fontWeight: 300, color: 'var(--bone)', margin: '0 0 6px' }}>{h}</p>
                 <p className="hl-prose" style={{ fontSize: 14, color: 'var(--bone-faint)', margin: 0 }}>{b}</p>
               </div>
             ))}

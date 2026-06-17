@@ -641,7 +641,7 @@ function ShareCard({ letter }: { letter: UnlockLetter }) {
             {letter.years}
           </div>
           <div
-            className="loom-serif"
+            className="loom-body"
             style={{
               fontSize: 14,
               fontStyle: 'italic',
@@ -681,7 +681,7 @@ function ShareCard({ letter }: { letter: UnlockLetter }) {
           </div>
 
           <div
-            className="loom-serif"
+            className="loom-body"
             style={{
               fontSize: 13,
               fontStyle: 'italic',

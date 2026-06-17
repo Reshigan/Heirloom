@@ -183,12 +183,12 @@ function ToField({
                   background: 'none',
                   border: 'none',
                   borderLeft: `3px solid ${dyeColor(m.id, m.dye)}`,
-                  borderBottom: '1px solid rgba(242,230,208,0.05)',
+                  borderBottom: '1px solid var(--rule)',
                   cursor: 'pointer',
                   textAlign: 'left',
                 }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.background = 'rgba(242,230,208,0.04)')
+                  (e.currentTarget.style.background = 'color-mix(in srgb, var(--bone) 4%, transparent)')
                 }
                 onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
               >
@@ -454,7 +454,7 @@ function EntryDateField({
         >
           {formatted}
         </span>
-        <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.14em' }}>↗</span>
+        <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>edit</span>
         <input
           type="date"
           value={value}

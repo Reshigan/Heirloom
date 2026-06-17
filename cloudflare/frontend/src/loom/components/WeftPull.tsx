@@ -227,7 +227,7 @@ export function WeftPull({
             }}
           >
             <span
-              className="loom-serif"
+              className="loom-body"
               style={{
                 fontStyle: 'italic',
                 textTransform: 'none',

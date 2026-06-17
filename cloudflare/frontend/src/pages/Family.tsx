@@ -226,7 +226,7 @@ export function Family() {
               type="button"
               className="hl-btn ghost"
               onClick={() => openForm('invite')}
-              style={{ color: 'var(--warm)', borderColor: 'rgba(224,160,98,0.4)' }}
+              style={{ color: 'var(--warm)', borderColor: 'color-mix(in srgb, var(--warm) 40%, transparent)' }}
             >
               invite by email →
             </button>
@@ -349,7 +349,7 @@ export function Family() {
                     type="button"
                     className="hl-btn ghost"
                     onClick={() => { setInviteSent(false); setInviteForm({ name: '', email: '' }); }}
-                    style={{ color: 'var(--warm)', borderColor: 'rgba(224,160,98,0.4)' }}
+                    style={{ color: 'var(--warm)', borderColor: 'color-mix(in srgb, var(--warm) 40%, transparent)' }}
                   >
                     send another →
                   </button>
@@ -407,7 +407,7 @@ export function Family() {
                     letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-dim)',
                     transition: 'color 180ms var(--ease), border-color 180ms var(--ease)', touchAction: 'manipulation', flexShrink: 0,
                   }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(224,160,98,0.4)'; }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'color-mix(in srgb, var(--warm) 40%, transparent)'; }}
                   onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-dim)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--rule)'; }}
                 >
                   undo

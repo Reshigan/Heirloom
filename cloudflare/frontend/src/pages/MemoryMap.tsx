@@ -134,7 +134,7 @@ export function MemoryMap() {
               textAlign: 'center',
             }}
           >
-            <h3
+            <p
               className="hl-serif"
               style={{
                 fontSize: 22,
@@ -145,7 +145,7 @@ export function MemoryMap() {
               }}
             >
               No memories on the map yet.
-            </h3>
+            </p>
             <p
               className="hl-serif"
               style={{

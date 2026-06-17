@@ -307,7 +307,7 @@ export function MemoryCards() {
                       style={{
                         padding: '12px 14px',
                         border: `1px solid ${selectedStyle === style.id ? 'var(--warm)' : 'var(--rule)'}`,
-                        background: selectedStyle === style.id ? 'rgba(224,160,98,0.06)' : 'transparent',
+                        background: selectedStyle === style.id ? 'color-mix(in srgb, var(--warm) 6%, transparent)' : 'transparent',
                         cursor: 'pointer',
                         textAlign: 'left',
                         transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
@@ -612,12 +612,12 @@ export function MemoryCards() {
             {!onThisDay.hasMemories ? (
               <div style={{ border: '1px solid var(--rule)', padding: '64px 32px', textAlign: 'center' }}>
                 <p className="hl-eyebrow" style={{ marginBottom: 14 }}>Nothing from this day yet</p>
-                <h2
+                <p
                   className="hl-serif"
                   style={{ fontSize: 22, fontWeight: 300, fontStyle: 'italic', margin: 0, color: 'var(--bone-dim)' }}
                 >
                   Keep weaving. The anniversaries will come.
-                </h2>
+                </p>
               </div>
             ) : (
               <div style={{ display: 'grid', gap: 48 }}>
