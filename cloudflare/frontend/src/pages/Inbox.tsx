@@ -125,7 +125,7 @@ export function Inbox() {
                   subColor="var(--muted-2)"
                   title={
                     <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <span aria-hidden style={{ width: 7, height: 7, borderRadius: 0, background: 'var(--warm)', flex: '0 0 auto', display: 'inline-block' }} />
+                      <WarmDot size={6} />
                       <span>{m.title}</span>
                     </span>
                   }

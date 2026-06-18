@@ -25,7 +25,11 @@ const ASSET_SEAL = '/ceremony/seal.png';
 import { EASE } from '../loom/motion';
 
 const DOT_ON = 'var(--warm)';
-const DOT_OFF = '#3a3026';
+const DOT_OFF = 'var(--bone-ghost)';
+
+// Years a sealed letter waits before opening. Used by both the seal header
+// and the "Sealed until …" confirmation — one source so they cannot drift.
+const SEAL_YEARS_AHEAD = 19;
 
 export function FirstThread() {
   const navigate = useNavigate();
@@ -155,7 +159,7 @@ export function FirstThread() {
         position: 'fixed',
         inset: 0,
         zIndex: 60,
-        background: '#0b0907',
+        background: 'var(--ink)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -168,7 +172,7 @@ export function FirstThread() {
           maxWidth: 430,
           height: '100%',
           overflow: 'hidden',
-          background: '#0b0907',
+          background: 'var(--ink)',
           fontFamily: "var(--mono)",
         }}
       >
@@ -191,7 +195,7 @@ export function FirstThread() {
               {/* Intentional sub-3% low-alpha (--warm-glow = 0.18) ceremony breath —
                   a one-off radial behind the ∞ mark, not a decorative gradient mesh. */}
               <div style={{ position: 'absolute', inset: -16, borderRadius: '50%', background: 'radial-gradient(circle,var(--warm-glow),transparent 66%)', animation: 'hl-pulse 1400ms infinite' }} />
-              <div style={{ fontFamily: "var(--serif-display)", fontSize: 74, color: 'var(--warm-bright)', textShadow: '0 0 26px rgba(216,150,84,.6)' }}>∞</div>
+              <div style={{ fontFamily: "var(--serif-display)", fontSize: 74, color: 'var(--warm-bright)' }}>∞</div>
             </div>
             <div role="heading" aria-level={1} style={{ fontFamily: 'var(--serif-display)', fontSize: 30, color: 'var(--bone)', marginTop: 30 }}>The Threshold</div>
             <div style={{ fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone-dim)', marginTop: 8 }}>Every thread begins with a touch.</div>
@@ -269,8 +273,8 @@ export function FirstThread() {
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '54px 30px 40px', background: 'var(--ink)', animation: `hl-fadein 720ms ${EASE} both` }}>
             {!sealed && (
               <>
-                <div style={{ fontSize: 11, letterSpacing: '0.32em', color: 'var(--warm-dim)' }}>A LETTER TO ELI · {new Date().getFullYear() + 19}</div>
-                <div style={{ position: 'relative', marginTop: 24, width: '100%', flex: 1, borderRadius: 0, background: 'var(--bg-letter)', boxShadow: '0 0 30px rgba(216,150,84,.36),inset 0 0 0 1px rgba(216,150,84,.22)', padding: '24px 22px' }}>
+                <div style={{ fontSize: 11, letterSpacing: '0.32em', color: 'var(--warm-dim)' }}>A LETTER TO ELI · {new Date().getFullYear() + SEAL_YEARS_AHEAD}</div>
+                <div style={{ position: 'relative', marginTop: 24, width: '100%', flex: 1, borderRadius: 0, background: 'var(--bg-letter)', boxShadow: 'inset 0 0 0 1px rgba(216,150,84,.22)', padding: '24px 22px' }}>
                   <div style={{ fontFamily: 'var(--serif)', fontSize: 16, lineHeight: 1.8, color: 'var(--bone-dim)' }}>
                     My dearest Eli,
                     <br />
@@ -306,7 +310,7 @@ export function FirstThread() {
                     <div style={{ position: 'absolute', inset: -14, borderRadius: '50%', background: 'radial-gradient(circle,var(--warm-glow),transparent 66%)', animation: 'hl-pulse 1400ms infinite' }} />
                     <img src={ASSET_SEAL} alt="" style={{ width: 108, height: 108, animation: `hl-stamp 720ms ${EASE} both` }} />
                   </div>
-                  <div style={{ fontFamily: 'var(--serif-display)', fontSize: 32, color: 'var(--bone)', marginTop: 26, animation: `hl-fadeup 720ms ${EASE} 360ms both` }}>Sealed until {new Date().getFullYear() + 19}.</div>
+                  <div style={{ fontFamily: 'var(--serif-display)', fontSize: 32, color: 'var(--bone)', marginTop: 26, animation: `hl-fadeup 720ms ${EASE} 360ms both` }}>Sealed until {new Date().getFullYear() + SEAL_YEARS_AHEAD}.</div>
                   <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15, color: 'var(--bone-faint)', marginTop: 10, animation: `hl-fadeup 720ms ${EASE} 360ms both` }}>For generations to come.</div>
                   <button type="button" onClick={enterThread} style={{ marginTop: 32, border: '1px solid var(--warm)', background: 'transparent', borderRadius: 0, padding: '13px 32px', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.22em', cursor: 'pointer', animation: `hl-fadeup 720ms ${EASE} 720ms both` }}>ENTER YOUR THREAD</button>
                 </div>

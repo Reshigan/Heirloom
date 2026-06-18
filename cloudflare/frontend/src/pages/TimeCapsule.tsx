@@ -583,7 +583,7 @@ export function TimeCapsule() {
                 onChange={(e) =>
                   setNewCapsule((prev) => ({ ...prev, title: e.target.value }))
                 }
-                placeholder="Family Christmas 2025"
+                placeholder="Family Christmas"
                 style={inputStyle}
               />
             </div>
@@ -617,10 +617,10 @@ export function TimeCapsule() {
                           marginTop: 7,
                           width: 16,
                           height: 16,
-                          borderRadius: '50%',
+                          borderRadius: 0,
                           flexShrink: 0,
                           border: `1px solid ${active ? 'var(--warm)' : 'var(--rule)'}`,
-                          background: active ? 'var(--warm-glow)' : 'transparent',
+                          background: 'transparent',
                           transition: `border-color 180ms ${EASE}`,
                         }}
                       />

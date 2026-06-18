@@ -8,11 +8,11 @@
  * Date.now) so it can be unit-tested exhaustively and reused from both the
  * Worker (API) and the Pages Function (crawler OG injection).
  *
- * Design constitution it must honour (STITCH_BRIEF section 2):
- *   - Type is the hero. Newsreader serif headline, no icon library, the only
- *     mark allowed is the infinity glyph (the U+221E character).
- *   - ONE emotional colour: warm #b07a4a, used sparingly (a single hairline).
- *   - Bone #f4ecd8 on ink #0e0e0c. 0px radius. 1px hairlines.
+ * Design constitution it must honour (ART_DIRECTION.md):
+ *   - Type is the hero. Cormorant Garamond serif headline, no icon library, the
+ *     only mark allowed is the infinity glyph (the U+221E character).
+ *   - ONE emotional colour: warm #e0a062, used sparingly (a single hairline).
+ *   - Bone #f2e6d0 on ink #0b0907. 0px radius. 1px hairlines.
  *   - Voice (marketing/automation voice.ts): never the word "legacy", never
  *     gift-product framing. Evocative restraint.
  *
@@ -227,9 +227,9 @@ export function renderMetaTags(meta: ShareMeta): string {
  * follow-up — see VIRAL_MECHANICS.md.)
  */
 export function renderShareCardSvg(meta: ShareMeta): string {
-  const ink = '#0e0e0c';
-  const bone = '#f4ecd8';
-  const warm = '#b07a4a';
+  const ink = '#0b0907';
+  const bone = '#f2e6d0';
+  const warm = '#e0a062';
   const muted = '#9b9486';
 
   // Wrap the headline onto at most three lines for the serif display setting.
@@ -245,11 +245,11 @@ export function renderShareCardSvg(meta: ShareMeta): string {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="${escapeHtml(meta.title)}">
   <rect width="1200" height="630" fill="${ink}"/>
   <line x1="100" y1="120" x2="1100" y2="120" stroke="${warm}" stroke-width="1"/>
-  <text x="100" y="100" font-family="'JetBrains Mono', ui-monospace, monospace" font-size="22" letter-spacing="3" fill="${muted}">${eyebrow}</text>
-  <text font-family="Newsreader, 'Times New Roman', serif" font-size="60" fill="${bone}" font-weight="400">${tspans}</text>
+  <text x="100" y="100" font-family="'Space Mono', ui-monospace, monospace" font-size="22" letter-spacing="3" fill="${muted}">${eyebrow}</text>
+  <text font-family="'Cormorant Garamond', 'Times New Roman', serif" font-size="60" fill="${bone}" font-weight="400">${tspans}</text>
   <line x1="100" y1="500" x2="1100" y2="500" stroke="${bone}" stroke-width="1" opacity="0.18"/>
   <text x="100" y="548" font-family="Inter, system-ui, sans-serif" font-size="24" fill="${muted}">${escapeHtml(SITE_NAME)} — the family thread that outlives all of us</text>
-  <text x="1100" y="552" text-anchor="end" font-family="Newsreader, serif" font-size="44" fill="${warm}">${INFINITY}</text>
+  <text x="1100" y="552" text-anchor="end" font-family="'Cormorant Garamond', serif" font-size="44" fill="${warm}">${INFINITY}</text>
 </svg>`;
 }
 

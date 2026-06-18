@@ -214,7 +214,6 @@ export function FutureLetter() {
             borderRadius: 0,
             border: '1px solid var(--rule)',
             background: 'color-mix(in srgb, var(--bone) 3%, var(--ink))',
-            boxShadow: '0 0 60px -28px color-mix(in srgb, var(--warm) 60%, transparent)',
             padding: 'clamp(24px, 6vw, 40px)',
           }}
         >

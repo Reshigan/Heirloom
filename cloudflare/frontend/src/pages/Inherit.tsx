@@ -503,7 +503,7 @@ export function Inherit() {
           ...monoEyebrow({ marginBottom: 0, letterSpacing: '0.22em', fontSize: 10.5 }),
         }}
       >
-        <span>inherit · token {token ? `${token.slice(0, 8)}…` : '—'}</span>
+        <span>inherit</span>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
           <WarmDot size={6} />
           <span>the {threadName} thread</span>
@@ -1131,7 +1131,7 @@ export function Inherit() {
             alignItems: 'center',
             justifyContent: 'center',
             padding: 24,
-            background: 'rgba(14,14,12,0.82)',
+            background: 'var(--ink-translucent)',
           }}
           onClick={() => !sendingReaction && setShowReactionModal(false)}
         >

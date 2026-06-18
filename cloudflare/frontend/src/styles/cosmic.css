@@ -4,8 +4,9 @@
 
    This layer adds NO new colour — it maps the canonical ink/bone/warm/dye
    primitives (globals.css) to cosmic semantics. "Floating in the deep" is built
-   from translucent-ink fill + a 1px luminous border + an outer warm glow —
-   NEVER backdrop-filter / frosted glass (ART_DIRECTION §2.6 anti-pattern).
+   from translucent-ink fill + a 1px luminous border (warm only on focus) —
+   NEVER an outer copper aura (Rule 2), NEVER backdrop-filter / frosted glass
+   (ART_DIRECTION §2.6 anti-pattern).
 
    Vault (default) values live in :root; the paper theme overrides them under
    .loom[data-theme="light"] so the theme toggle stays honest. ──────────────── */
@@ -23,9 +24,10 @@
   --cosmic-edge: rgba(242, 230, 208, 0.10);
   --cosmic-edge-warm: rgba(240, 192, 116, 0.30);
 
-  /* the outer focal glow that makes a panel read as adrift in the deep */
-  --cosmic-glow: 0 0 40px rgba(240, 192, 116, 0.07), 0 1px 0 rgba(242, 230, 208, 0.04) inset;
-  --cosmic-glow-warm: 0 0 48px rgba(240, 192, 116, 0.16), 0 1px 0 rgba(242, 230, 208, 0.06) inset;
+  /* inset top-highlight only — Rule 2: copper is signal, never an outer aura.
+     Panel depth comes from the 1px hairline border (warm border on focus). */
+  --cosmic-glow: 0 1px 0 rgba(242, 230, 208, 0.04) inset;
+  --cosmic-glow-warm: 0 1px 0 rgba(242, 230, 208, 0.06) inset;
 
   /* divider filament + wax knot accent */
   --filament: var(--rule);
@@ -41,8 +43,8 @@
   --cosmic-panel-solid: rgba(250, 246, 238, 0.96);
   --cosmic-edge: rgba(18, 14, 10, 0.12);
   --cosmic-edge-warm: rgba(160, 92, 32, 0.34);
-  --cosmic-glow: 0 0 40px rgba(160, 92, 32, 0.06), 0 1px 0 rgba(18, 14, 10, 0.03) inset;
-  --cosmic-glow-warm: 0 0 48px rgba(160, 92, 32, 0.14), 0 1px 0 rgba(18, 14, 10, 0.05) inset;
+  --cosmic-glow: 0 1px 0 rgba(18, 14, 10, 0.03) inset;
+  --cosmic-glow-warm: 0 1px 0 rgba(18, 14, 10, 0.05) inset;
 }
 
 /* ── Cosmic primitive base classes — consumed by src/loom/cosmic/* ─────────── */
@@ -124,13 +126,6 @@
 }
 
 /* page header chrome */
-.cosmic-eyebrow {
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: var(--warm);
-}
 .cosmic-title {
   font-family: var(--serif);
   font-weight: 300;

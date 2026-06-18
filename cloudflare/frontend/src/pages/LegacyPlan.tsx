@@ -7,7 +7,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
-import api from '../services/api';
+import api, { deadmanApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 
 // ── Types (all preserved) ─────────────────────────────────────────────────────
@@ -39,6 +39,14 @@ interface LegacyPlan {
 export function LegacyPlan() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  // The dead-man's switch is armed in Settings; here we read its live state so
+  // the plan tells the truth instead of a hardcoded "not armed". Shares the
+  // TanStack key with Settings — one fetch serves both screens.
+  const { data: dmStatus } = useQuery({
+    queryKey: ['deadman', 'status'],
+    queryFn: () => deadmanApi.getStatus().then(r => r.data).catch(() => null),
+  });
+  const dmArmed = dmStatus?.status === 'active' || dmStatus?.status === 'warning';
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(['PEOPLE', 'STORIES']));
   const [showAddItem, setShowAddItem] = useState<string | null>(null);
   const [newItemTitle, setNewItemTitle] = useState('');
@@ -521,8 +529,8 @@ export function LegacyPlan() {
           <p style={{ fontFamily: 'var(--serif)', fontSize: 19, lineHeight: 1.3, color: 'var(--bone)', margin: 0 }}>
             Check-in interval
           </p>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.14em', textTransform: 'uppercase', flex: '0 0 auto' }}>
-            not armed
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: dmArmed ? 'var(--warm)' : 'var(--bone-dim)', letterSpacing: '0.14em', textTransform: 'uppercase', flex: '0 0 auto' }}>
+            {dmArmed ? `every ${dmStatus?.checkInIntervalDays ?? '—'} days` : 'not armed'}
           </span>
         </div>
 

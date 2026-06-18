@@ -5,7 +5,7 @@ import { billingApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
-import { PLAN_PRICE_NUM } from '../lib/plans';
+import { PLAN_PRICE_NUM, PLAN_FEATURES } from '../lib/plans';
 
 const META_TITLE = 'Plans & Pricing';
 const META_DESCRIPTION = 'Choose the plan that fits your family. Start free, upgrade when you\'re ready.';
@@ -60,7 +60,7 @@ export function Pricing() {
       price: fmt(s, 0),
       cadence: null as string | null,
       note: 'One thread · 500MB',
-      lines: ['Basic access', 'Limited sharing'],
+      lines: PLAN_FEATURES.STARTER,
       cta: 'Start',
       to: '/signup',
       emphasized: false,

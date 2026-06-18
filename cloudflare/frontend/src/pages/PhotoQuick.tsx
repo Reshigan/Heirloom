@@ -5,7 +5,7 @@ import { memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
-import { uploadMemoryImage, validateImage, type UploadedImage } from '../utils/uploadImage';
+import { uploadMemoryImage, validateImage, MAX_IMAGE_BYTES, type UploadedImage } from '../utils/uploadImage';
 import { CosmicHeader, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { dyeVar } from '../loom/dye';
 
@@ -220,7 +220,7 @@ export function PhotoQuick() {
                 color: 'var(--bone-faint)',
               }}
             >
-              jpg · png · webp · up to 25 mb
+              jpg · png · webp · up to {MAX_IMAGE_BYTES / 1024 / 1024} mb
             </span>
           </button>
         ) : (

@@ -176,7 +176,8 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.36, ease: EASE_ARRAY }}
-          className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 flex items-center justify-center z-50 p-4"
+          style={{ background: 'var(--ink-translucent)' }}
           onClick={onDismiss}
         >
           <motion.div
@@ -188,19 +189,23 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.36, ease: EASE_ARRAY }}
-            className="bg-void-surface border border-paper-15 rounded-none p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="rounded-none p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            style={{ background: 'var(--ink-card)', border: '1px solid var(--rule)' }}
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
             <div className="flex items-start justify-between mb-6 gap-6">
               <div>
-                <p className="loom-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-2">Walkthrough</p>
+                <p className="loom-mono text-[0.7rem] tracking-[0.32em] uppercase mb-2" style={{ color: 'var(--copper-label)' }}>Walkthrough</p>
                 <h2 id="feature-onboarding-title" className="font-body font-light text-xl md:text-2xl tracking-[-0.014em]">{config.title}</h2>
-                <p className="text-sm text-paper-65 mt-1">{config.subtitle}</p>
+                <p className="text-sm mt-1" style={{ color: 'var(--bone-dim)' }}>{config.subtitle}</p>
               </div>
               <button
                 onClick={onDismiss}
-                className="text-paper-50 hover:text-paper transition-colors duration-fast ease-out text-sm shrink-0"
+                className="transition-colors duration-fast ease-out text-sm shrink-0"
+                style={{ color: 'var(--bone-faint)' }}
+                onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone)')}
+                onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
                 aria-label="Close walkthrough"
               >
                 Close
@@ -216,11 +221,11 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                   aria-label={`Go to step ${index + 1}`}
                   className={`h-[2px] rounded-none transition-all duration-fast ease-out ${
                     index === currentStep ? 'w-10' : 'w-6'
-                  } ${index > currentStep ? 'bg-paper-15' : ''}`}
+                  }`}
                   style={
                     index <= currentStep
                       ? { backgroundColor: 'var(--warm)', opacity: index === currentStep ? 1 : 0.5 }
-                      : undefined
+                      : { backgroundColor: 'var(--bone-ghost)' }
                   }
                 />
               ))}
@@ -240,24 +245,24 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                   {/* hl-serif keeps this 18px title in Spectral — without it the
                       .loom h1–h6 Cormorant !important rule renders the display
                       face below its 24px legibility floor (the heading trap). */}
-                  <h3 className="hl-serif font-body text-lg text-paper mb-2">{step.title}</h3>
-                  <p className="text-paper-70 leading-relaxed">{step.description}</p>
+                  <h3 className="hl-serif font-body text-lg mb-2" style={{ color: 'var(--bone)' }}>{step.title}</h3>
+                  <p className="leading-relaxed" style={{ color: 'var(--bone-dim)' }}>{step.description}</p>
                 </div>
 
-                <div className="p-4 bg-void-elevated border border-gold-40 rounded-none">
-                  <p className="loom-mono text-[0.65rem] uppercase tracking-[0.22em] text-gold mb-1.5">Why this matters</p>
-                  <p className="text-paper-70 leading-relaxed">{step.whyItMatters}</p>
+                <div className="p-4 rounded-none" style={{ background: 'var(--ink-card)', border: '1px solid var(--rule-warm)' }}>
+                  <p className="loom-mono text-[0.65rem] uppercase tracking-[0.22em] mb-1.5" style={{ color: 'var(--copper-label)' }}>Why this matters</p>
+                  <p className="leading-relaxed" style={{ color: 'var(--bone-dim)' }}>{step.whyItMatters}</p>
                 </div>
 
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-none">
-                  <p className="loom-mono text-[0.65rem] uppercase tracking-[0.22em] text-paper-50 mb-1.5">How to start</p>
-                  <p className="text-paper-70 leading-relaxed">{step.howToStart}</p>
+                <div className="p-4 rounded-none" style={{ background: 'var(--ink-card)', border: '1px solid var(--rule)' }}>
+                  <p className="loom-mono text-[0.65rem] uppercase tracking-[0.22em] mb-1.5" style={{ color: 'var(--bone-faint)' }}>How to start</p>
+                  <p className="leading-relaxed" style={{ color: 'var(--bone-dim)' }}>{step.howToStart}</p>
                 </div>
               </motion.div>
             </AnimatePresence>
 
             {/* Navigation */}
-            <div className="flex items-center justify-between mt-8 pt-6 border-t border-paper-15">
+            <div className="flex items-center justify-between mt-8 pt-6 border-t" style={{ borderColor: 'var(--rule)' }}>
               <button
                 onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
                 disabled={currentStep === 0}
@@ -328,7 +333,10 @@ export function OnboardingHelpButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-20 md:bottom-6 right-6 z-40 px-4 py-2.5 bg-void-surface border border-gold-40 rounded-none text-gold hover:text-gold-bright transition-colors duration-fast ease-out text-[0.7rem] loom-mono uppercase tracking-[0.22em]"
+      className="fixed bottom-20 md:bottom-6 right-6 z-40 px-4 py-2.5 rounded-none transition-colors duration-fast ease-out text-[0.7rem] loom-mono uppercase tracking-[0.22em]"
+      style={{ background: 'var(--ink-card)', border: '1px solid var(--rule-warm)', color: 'var(--warm)' }}
+      onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm-bright)')}
+      onMouseLeave={e => (e.currentTarget.style.color = 'var(--warm)')}
       title="How does this work?"
       aria-label="How does this work?"
     >

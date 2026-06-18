@@ -234,7 +234,7 @@ export function Billing() {
           If Heirloom ends, the successor non-profit named in our bylaws inherits the archive. The family export is always free.
         </p>
         <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--copper-label)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 12 }}>
-          pledge no. 0001 — jun 2026
+          pledge no. 0001
         </div>
 
         {/* ── Ending the subscription ───────────────── */}

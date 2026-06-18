@@ -7,18 +7,10 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { Link } from 'react-router-dom';
 import { useListener } from '../hooks/useListener';
 import { type Memory } from '../types';
+import { dyeColor, dyeVar, type Dye } from '../loom/dye';
 import { WaxSeal, SectionLabel } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { RoomError } from '../loom/components/RoomError';
-
-const DYE_COLORS: Record<string, string> = {
-  memory:    'var(--dye-madder)',
-  letter:    'var(--dye-indigo)',
-  voice:     'var(--dye-saffron)',
-  event:     'var(--dye-weld)',
-  milestone: 'var(--dye-cochineal)',
-};
-
 
 /** The lived date the author assigned (entryDate) wins over the row's createdAt. */
 function entryDateOf(m: Memory): string {
@@ -98,8 +90,9 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
     onError: () => setMutError('Could not restore this entry.'),
   });
 
-  const typeKey = (m.type as string) ?? 'memory';
-  const dyeColor = DYE_COLORS[typeKey] ?? DYE_COLORS['memory'];
+  // Dye = the family-member signal (single-source dye.ts), not a content-type
+  // palette — the 3px left-thread tells you *whose* memory this is, like the Weft.
+  const threadColor = dyeColor(m.id, m.metadata);
   const entryDate = new Date(entryDateOf(m));
   const monthYear = isNaN(entryDate.getTime())
     ? ''
@@ -111,7 +104,7 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
   // Unwoven, but not gone — a 7-day undo strip stands in the row's place.
   if (deleteMut.isSuccess && !restoreMut.isSuccess) {
     return (
-      <div style={{ borderLeft: `3px solid ${dyeColor}`, paddingLeft: 14 }}>
+      <div style={{ borderLeft: `3px solid ${threadColor}`, paddingLeft: 14 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, padding: '15px 0', borderBottom: '1px solid var(--rule)' }}>
           <span className="hl-serif" style={{ fontStyle: 'italic', fontWeight: 300, fontSize: 15, lineHeight: 1.5, color: 'var(--bone-dim)' }}>
             Unwoven — recoverable for 7 days.
@@ -140,7 +133,7 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
     <div
       ref={rowRef}
       style={{
-        borderLeft: `3px solid ${dyeColor}`,
+        borderLeft: `3px solid ${threadColor}`,
         paddingLeft: 14,
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(10px)',
@@ -217,7 +210,7 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
               <span style={{
                 display: 'inline-block', fontFamily: 'var(--mono)', fontSize: 9,
                 letterSpacing: '0.18em', textTransform: 'uppercase',
-                color: em.dye, borderLeft: `2px solid ${em.dye}`,
+                color: dyeVar(em.dye), borderLeft: `2px solid ${dyeVar(em.dye)}`,
                 paddingLeft: 6, marginBottom: 10, opacity: 0.85,
               }}>
                 {em.label}
@@ -315,14 +308,14 @@ const ENTRY_TYPES = [
 ];
 
 // Emotion chips — each maps to a dye color + keyword set for fallback matching
-const EMOTIONS: { value: string; label: string; dye: string; keywords: string[] }[] = [
-  { value: 'joy',       label: 'joy',       dye: 'var(--dye-saffron)',   keywords: ['happy','joy','laugh','smile','celebrat','wonderful','fun','delight','excit','gleeful','cheer'] },
-  { value: 'love',      label: 'love',      dye: 'var(--dye-madder)',    keywords: ['love','adore','cherish','dear','beloved','heart','tender','together','miss you','closeness'] },
-  { value: 'grief',     label: 'grief',     dye: 'var(--dye-indigo)',    keywords: ['grief','sad','loss','miss','cry','tear','hurt','pain','difficult','passed','died','mourn','ache'] },
-  { value: 'pride',     label: 'pride',     dye: 'var(--dye-cochineal)', keywords: ['proud','pride','accompl','achiev','graduat','success','earned','grew','strong'] },
-  { value: 'nostalgia', label: 'nostalgia', dye: 'var(--dye-walnut)',    keywords: ['remember','long ago','childhood','used to','when i was','back then','old days','years ago','once','still recall'] },
-  { value: 'gratitude', label: 'gratitude', dye: 'var(--dye-weld)',      keywords: ['grateful','thank','blessed','appreci','fortune','lucky','gift','fortune'] },
-  { value: 'wonder',    label: 'wonder',    dye: 'var(--dye-woad)',      keywords: ['amaz','wonder','incredible','beautiful','unexpect','surprised','magical','astonish','awe','breathtaking'] },
+const EMOTIONS: { value: string; label: string; dye: Dye; keywords: string[] }[] = [
+  { value: 'joy',       label: 'joy',       dye: 'saffron',   keywords: ['happy','joy','laugh','smile','celebrat','wonderful','fun','delight','excit','gleeful','cheer'] },
+  { value: 'love',      label: 'love',      dye: 'madder',    keywords: ['love','adore','cherish','dear','beloved','heart','tender','together','miss you','closeness'] },
+  { value: 'grief',     label: 'grief',     dye: 'indigo',    keywords: ['grief','sad','loss','miss','cry','tear','hurt','pain','difficult','passed','died','mourn','ache'] },
+  { value: 'pride',     label: 'pride',     dye: 'cochineal', keywords: ['proud','pride','accompl','achiev','graduat','success','earned','grew','strong'] },
+  { value: 'nostalgia', label: 'nostalgia', dye: 'walnut',    keywords: ['remember','long ago','childhood','used to','when i was','back then','old days','years ago','once','still recall'] },
+  { value: 'gratitude', label: 'gratitude', dye: 'weld',      keywords: ['grateful','thank','blessed','appreci','fortune','lucky','gift','fortune'] },
+  { value: 'wonder',    label: 'wonder',    dye: 'woad',      keywords: ['amaz','wonder','incredible','beautiful','unexpect','surprised','magical','astonish','awe','breathtaking'] },
 ];
 
 function emotionMatchesMemory(m: Memory, emotionValue: string): boolean {
@@ -444,7 +437,7 @@ function FilterBar({ memories, filters, setFilters }: {
                 fontSize: 10,
                 letterSpacing: '0.16em',
                 textTransform: 'uppercase',
-                color: isOn ? em.dye : 'var(--bone-faint)',
+                color: isOn ? dyeVar(em.dye) : 'var(--bone-faint)',
                 transition: 'color 180ms var(--ease)',
                 // 44px tap target for the mobile PWA without detaching the
                 // active underline from the label — the rule rides an inner
@@ -457,7 +450,7 @@ function FilterBar({ memories, filters, setFilters }: {
               }}
             >
               <span style={{
-                borderBottom: `1px solid ${isOn ? em.dye : 'transparent'}`,
+                borderBottom: `1px solid ${isOn ? dyeVar(em.dye) : 'transparent'}`,
                 paddingBottom: 3,
                 transition: 'border-color 180ms var(--ease)',
               }}>

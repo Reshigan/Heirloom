@@ -97,7 +97,6 @@ export function Today() {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    transition: `border-color 360ms ${ease}, color 360ms ${ease}`,
   });
 
   // A centred recent line — small serif, a faint warm diamond mark before it.
@@ -132,7 +131,7 @@ export function Today() {
       <ClothShell topbarLeft={todayTopbar}>
         <div style={{
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
-          maxWidth: 600,
+          maxWidth: 'var(--page-max-focus)',
           margin: '0 auto',
           textAlign: 'center',
           opacity: revealed ? 1 : 0,
@@ -217,7 +216,7 @@ export function Today() {
         position: 'relative',
         zIndex: 1,
         padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
-        maxWidth: 600,
+        maxWidth: 'var(--page-max-focus)',
         width: '100%',
         margin: '0 auto',
         textAlign: 'center',

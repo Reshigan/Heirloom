@@ -182,9 +182,9 @@ describe('renderShareCardSvg', () => {
     expect(svg).toContain('width="1200"');
     expect(svg).toContain('height="630"');
     // Brand constitution: ink bg, bone text, single warm accent, infinity mark.
-    expect(svg).toContain('#0e0e0c');
-    expect(svg).toContain('#f4ecd8');
-    expect(svg).toContain('#b07a4a');
+    expect(svg).toContain('#0b0907');
+    expect(svg).toContain('#f2e6d0');
+    expect(svg).toContain('#e0a062');
     expect(svg).toContain('∞');
     expect(svg).toContain('No. 1,000');
     // Balanced tags (no obviously broken markup from interpolation).

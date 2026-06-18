@@ -263,7 +263,7 @@ export function DailySentence() {
 
   const now = new Date();
   const stamp = now
-    .toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+    .toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
     .toLowerCase();
   const audience = families
     ? `tonight, across ${families.toLocaleString()} families`
@@ -271,7 +271,7 @@ export function DailySentence() {
 
   // Format date pill: "16 JUN"
   const datePill = now
-    .toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
+    .toLocaleDateString(undefined, { day: 'numeric', month: 'short' })
     .toUpperCase();
 
   function handleDraftChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
@@ -465,14 +465,14 @@ export function DailySentence() {
                   fontSize: 11,
                   letterSpacing: '0.26em',
                   textTransform: 'uppercase',
-                  color: saveState === 'saved' ? 'var(--bone-dim)' : 'var(--ink)',
-                  background: saveState === 'saved' ? 'transparent' : 'var(--gold-text)',
-                  border: saveState === 'saved' ? '1px solid var(--rule)' : 'none',
+                  color: saveState === 'saved' ? 'var(--bone-dim)' : 'var(--gold-text)',
+                  background: 'transparent',
+                  border: saveState === 'saved' ? '1px solid var(--rule)' : '1px solid var(--copper-border)',
                   borderRadius: 0,
                   padding: '10px 22px',
                   cursor: saveState === 'saving' ? 'default' : 'pointer',
                   opacity: saveState === 'saving' ? 0.5 : 1,
-                  transition: 'opacity 180ms var(--ease), background 360ms var(--ease)',
+                  transition: 'opacity 180ms var(--ease)',
                   minHeight: 44,
                   display: 'flex',
                   alignItems: 'center',

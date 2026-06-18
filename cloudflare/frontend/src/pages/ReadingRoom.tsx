@@ -306,7 +306,7 @@ function ReadingContent({
               background: 'transparent', border: 0, padding: 0,
               fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
               textTransform: 'uppercase',
-              color: onPrev ? 'var(--bone-faint)' : 'rgba(242,230,208,0.15)',
+              color: onPrev ? 'var(--bone-faint)' : 'var(--bone-ghost)',
               cursor: onPrev ? 'pointer' : 'default',
             }}
           >
@@ -329,7 +329,7 @@ function ReadingContent({
                 <span style={{
                   display: 'block',
                   width: i === activeIndex ? 20 : 6, height: 2,
-                  background: i === activeIndex ? dye : 'rgba(242,230,208,0.18)',
+                  background: i === activeIndex ? dye : 'var(--bone-ghost)',
                   transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
                   flexShrink: 0,
                 }} />
@@ -343,7 +343,7 @@ function ReadingContent({
               background: 'transparent', border: 0, padding: 0,
               fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
               textTransform: 'uppercase',
-              color: onNext ? dye : 'rgba(242,230,208,0.15)',
+              color: onNext ? dye : 'var(--bone-ghost)',
               cursor: onNext ? 'pointer' : 'default',
             }}
           >
@@ -627,7 +627,7 @@ export function ReadingRoom() {
               background: 'transparent', border: '1px solid var(--rule-strong)', padding: '3px 12px',
               fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
               textTransform: 'uppercase',
-              color: entries.length === 0 ? 'rgba(242,230,208,0.2)' : 'var(--bone-faint)',
+              color: entries.length === 0 ? 'var(--bone-ghost)' : 'var(--bone-faint)',
               cursor: entries.length === 0 ? 'default' : 'pointer',
             }}
           >
