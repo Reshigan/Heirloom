@@ -8,6 +8,7 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { RoomError } from '../loom/components/RoomError';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { dyeForId } from '../loom/dye';
 import { useFocusTrap } from '../lib/useFocusTrap';
 
@@ -321,14 +322,7 @@ export function LifeEvents() {
     return (
       <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />} topbarRight={<UserMenu />}>
         <div style={{ padding: 'clamp(16px, 4vw, 48px)' }}>
-          <div
-            style={{
-              height: 1,
-              background: 'var(--warm)',
-              width: 0,
-              animation: 'hl-load 1400ms var(--ease) forwards',
-            }}
-          />
+          <ProgressHair />
         </div>
       </ClothShell>
     );

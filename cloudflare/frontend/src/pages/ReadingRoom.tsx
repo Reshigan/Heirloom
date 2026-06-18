@@ -834,7 +834,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
         position: 'absolute', inset: 0, display: 'flex',
         alignItems: 'center', justifyContent: 'center',
         background: 'linear-gradient(160deg, #1c160f, #120d08)',
-        color: 'var(--text-warm)',
+        color: '#e6d8c2',
         fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 18,
       }}>
         nothing has been woven yet.
@@ -851,7 +851,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
       background: 'linear-gradient(160deg, #1c160f, #120d08)',
       border: '1px solid #b9772f', borderRadius: 0,
       boxShadow: '0 0 30px rgba(216,150,84,0.35), inset 0 0 40px rgba(0,0,0,0.6)',
-      color: 'var(--text-warm)', overflow: 'hidden',
+      color: '#e6d8c2', overflow: 'hidden',
     }}>
       {/* gilt corner triangles — top-right + bottom-left */}
       <div aria-hidden style={{
@@ -869,10 +869,10 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
       <div style={{
         display: 'flex', justifyContent: 'space-between', padding: '22px 64px 0',
         fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
-        color: 'var(--text-warm)', fontFamily: 'var(--mono)',
+        color: '#e6d8c2', fontFamily: 'var(--mono)',
       }}>
         <span>book mode · {threadName}</span>
-        <span style={{ color: 'var(--gold-text)' }}>
+        <span style={{ color: '#e8c79a' }}>
           ∞ &nbsp; {numeral(ch)} · {c.title.replace(/\.$/, '')}
         </span>
       </div>
@@ -886,19 +886,19 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
           display: 'flex', flexDirection: 'column',
         }}>
           <div style={{
-            fontSize: 10, color: 'var(--copper-label)', letterSpacing: '0.32em',
+            fontSize: 10, color: '#cfa46a', letterSpacing: '0.32em',
             textTransform: 'uppercase', marginBottom: 36, fontFamily: 'var(--mono)',
           }}>
             {numeral(ch)} · {c.kind} · {c.year}
           </div>
           <h2 style={{
             fontSize: 46, fontStyle: 'italic', margin: 0, maxWidth: '14ch',
-            color: 'var(--gold-text)', fontFamily: 'var(--serif)', fontWeight: 300,
+            color: '#e8c79a', fontFamily: 'var(--serif)', fontWeight: 300,
           }}>
             {c.title}
           </h2>
           <div style={{
-            fontStyle: 'italic', fontSize: 17, color: 'var(--text-warm)',
+            fontStyle: 'italic', fontSize: 17, color: '#e6d8c2',
             marginTop: 32, maxWidth: '38ch', lineHeight: 1.7, fontFamily: 'var(--serif)',
           }}>
             Written by {c.who} · {c.date}.
@@ -907,7 +907,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
           {/* page number — ember dot */}
           <span aria-hidden style={{
             display: 'inline-block', width: 14, height: 14, borderRadius: '50%',
-            background: 'radial-gradient(circle at 35% 30%, #c8884f, #7a4e22)',
+            background: 'var(--warm)',
           }} title={`p. ${ch * 2 + 1}`} />
         </div>
 
@@ -921,7 +921,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
               }}>
                 {body.map((p, i) => (
                   <p key={i} style={{
-                    fontSize: 19, lineHeight: 1.9, color: 'var(--text-warm)',
+                    fontSize: 19, lineHeight: 1.9, color: '#e6d8c2',
                     margin: '0 0 18px', fontFamily: 'var(--serif)',
                     textAlign: 'justify', textJustify: 'inter-word', hyphens: 'auto',
                   }}>
@@ -930,7 +930,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
                       <>
                         <span style={{
                           float: 'left', fontFamily: 'var(--serif-display)',
-                          fontSize: 36, lineHeight: 0.9, color: 'var(--gold-text)',
+                          fontSize: 36, lineHeight: 0.9, color: '#e8c79a',
                           paddingRight: 6, marginTop: 2,
                         }}>
                           {p.charAt(0)}
@@ -945,7 +945,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
               </div>
             ) : (
               <p style={{
-                fontSize: 18, lineHeight: 1.9, color: 'var(--text-warm)',
+                fontSize: 18, lineHeight: 1.9, color: '#e6d8c2',
                 fontStyle: 'italic', margin: 0, fontFamily: 'var(--serif)',
               }}>
                 {c.kind === 'voice' ? 'A recording with no transcript yet.' : 'No words yet.'}
@@ -957,7 +957,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <span aria-hidden style={{
               display: 'inline-block', width: 14, height: 14, borderRadius: '50%',
-              background: 'radial-gradient(circle at 35% 30%, #c8884f, #7a4e22)',
+              background: 'var(--warm)',
             }} title={`p. ${ch * 2 + 2}`} />
           </div>
         </div>
@@ -974,7 +974,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
             background: 'transparent', border: 0, padding: 0,
             cursor: ch === 0 ? 'default' : 'pointer',
             fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
-            color: ch === 0 ? 'rgba(216,150,84,0.3)' : 'var(--text-warm)',
+            color: ch === 0 ? 'rgba(216,150,84,0.3)' : '#e6d8c2',
             fontFamily: 'var(--mono)',
           }}
         >
@@ -1001,7 +1001,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
                 style={{
                   display: 'block', height: 2,
                   width: i === ch ? 20 : 6,
-                  background: i === ch ? 'var(--gold-text)' : 'rgba(216,150,84,0.3)',
+                  background: i === ch ? '#e8c79a' : 'rgba(216,150,84,0.3)',
                   transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
                 }}
               />
@@ -1015,7 +1015,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
             background: 'transparent', border: 0, padding: 0,
             cursor: ch === entries.length - 1 ? 'default' : 'pointer',
             fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
-            color: ch === entries.length - 1 ? 'rgba(216,150,84,0.3)' : 'var(--gold-text)',
+            color: ch === entries.length - 1 ? 'rgba(216,150,84,0.3)' : '#e8c79a',
             fontFamily: 'var(--mono)',
           }}
         >

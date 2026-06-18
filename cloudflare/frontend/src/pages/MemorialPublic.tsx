@@ -187,7 +187,6 @@ export function MemorialPublic() {
                     fontFamily: 'var(--serif-display)',
                     fontSize: 'clamp(30px, 6vw, 44px)',
                     fontWeight: 500,
-                    fontVariationSettings: '"opsz" 32',
                     letterSpacing: '-0.01em',
                     color: 'var(--bone)',
                     margin: '0 0 16px',

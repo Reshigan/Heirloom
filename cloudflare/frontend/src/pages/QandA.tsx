@@ -156,7 +156,6 @@ export function QandA() {
               letterSpacing: '-0.012em',
               color: 'var(--bone)',
               margin: '0 0 32px',
-              fontVariationSettings: '"opsz" 40',
             }}
           >
             {leadQuestion ?? 'What do you want to know?'}
@@ -259,7 +258,6 @@ export function QandA() {
                       color: 'var(--text-warm)',
                       lineHeight: 1.75,
                       fontWeight: 400,
-                      fontVariationSettings: '"opsz" 18',
                     }}
                   >
                     {state.sources.length > 0 ? (

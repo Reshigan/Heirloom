@@ -288,7 +288,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
             style={{
               fontFamily: 'var(--serif)',
               fontSize: 13,
-              color: 'var(--gold-text)',
+              color: '#e8c79a',
               textAlign: 'center',
               lineHeight: 1.2,
               padding: '0 8px',
@@ -304,7 +304,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
               fontSize: 8,
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
-              color: 'var(--gold-text)',
+              color: '#cfa46a',
               textShadow: '0 1px 1px rgba(0,0,0,0.55)',
             }}
           >

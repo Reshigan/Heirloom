@@ -117,26 +117,27 @@ export function EntryRow({
   const fontFor = (f: 'serif' | 'sans' | 'display') =>
     f === 'sans' ? 'var(--sans)' : f === 'display' ? 'var(--serif-display)' : 'var(--serif)';
 
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={!onClick}
-      className="hl-ledger-row"
-      style={{
-        display: 'flex',
-        alignItems: 'baseline',
-        gap: 20,
-        width: '100%',
-        textAlign: 'left',
-        padding: '15px 0',
-        background: 'none',
-        borderWidth: 0,
-        borderBottom: noBorder ? 'none' : '1px solid var(--rule)',
-        cursor: onClick ? 'pointer' : 'default',
-        transition: 'opacity 180ms var(--ease)',
-      }}
-    >
+  // Only the whole-row click target is a <button>. When there is no onClick the
+  // row is a passive container — render a <div> so callers can place focusable
+  // controls in `meta` (e.g. LegacyPlan's weave/remove) without nesting a
+  // button inside a button (invalid interactive content + an a11y failure).
+  const interactive = !!onClick;
+  const containerStyle = {
+    display: 'flex',
+    alignItems: 'baseline',
+    gap: 20,
+    width: '100%',
+    textAlign: 'left' as const,
+    padding: '15px 0',
+    background: 'none',
+    borderWidth: 0,
+    borderBottom: noBorder ? 'none' : '1px solid var(--rule)',
+    cursor: interactive ? 'pointer' : 'default',
+    transition: 'opacity 180ms var(--ease)',
+  };
+
+  const inner = (
+    <>
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ fontFamily: fontFor(titleFont), fontStyle: italic ? 'italic' : 'normal', fontWeight: 400, fontSize: titleFont === 'display' ? Math.max(titleSize, 24) : titleSize, lineHeight: 1.3, color: titleColor, display: 'block' }}>
           {title}
@@ -155,7 +156,17 @@ export function EntryRow({
           <span style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', color: dateColor, whiteSpace: 'nowrap', flex: '0 0 auto' }}>{meta}</span>
         )
       )}
+    </>
+  );
+
+  return interactive ? (
+    <button type="button" onClick={onClick} className="hl-ledger-row" style={containerStyle}>
+      {inner}
     </button>
+  ) : (
+    <div className="hl-ledger-row" style={containerStyle}>
+      {inner}
+    </div>
   );
 }
 

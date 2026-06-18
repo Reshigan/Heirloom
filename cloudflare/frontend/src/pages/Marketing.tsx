@@ -327,7 +327,6 @@ export function Marketing() {
                 fontSize: 'clamp(16px, 1.8vw, 22px)',
                 fontWeight: 380, lineHeight: 1.2,
                 margin: '0 0 14px',
-                fontVariationSettings: '"opsz" 24',
                 color: 'var(--bone)',
               }}>{q}</p>
               <p style={{

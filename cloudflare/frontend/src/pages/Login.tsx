@@ -84,7 +84,6 @@ export function Login() {
             letterSpacing: '-0.022em',
             margin: sessionExpired ? '0 0 24px' : '0 0 56px',
             color: 'var(--bone)',
-            fontVariationSettings: '"opsz" 40',
           }}>
             Return to the thread
           </h1>
@@ -119,7 +118,7 @@ export function Login() {
               {/* static gradient underline */}
               <div aria-hidden style={{
                 height: 1, marginTop: 0,
-                background: 'linear-gradient(90deg, var(--copper-border), #5a4326)',
+                background: 'var(--rule)',
               }} />
             </div>
 
@@ -148,7 +147,7 @@ export function Login() {
               {/* static gradient underline */}
               <div aria-hidden style={{
                 height: 1, marginTop: 0,
-                background: 'linear-gradient(90deg, var(--copper-border), #5a4326)',
+                background: 'var(--rule)',
               }} />
             </div>
 

@@ -172,8 +172,8 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
                 </button>
                 <button type="button" onClick={() => setConfirmDelete(true)}
                   className="hl-mono"
-                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm)' }}>
-                  delete
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                  unweave
                 </button>
               </div>
             )}

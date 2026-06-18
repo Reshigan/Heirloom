@@ -70,7 +70,6 @@ export function Threshold() {
               letterSpacing: '-0.012em',
               color: 'var(--bone)',
               margin: 0,
-              fontVariationSettings: '"opsz" 40',
             }}
           >
             Start your family&rsquo;s<br />thousand-year thread,

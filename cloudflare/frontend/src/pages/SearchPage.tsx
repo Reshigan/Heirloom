@@ -132,7 +132,6 @@ export function SearchPage() {
               color: 'var(--bone)',
               margin: 0,
               fontWeight: 380,
-              fontVariationSettings: '"opsz" 40',
             }}
           >
             Search<br />

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
@@ -32,35 +33,6 @@ interface LegacyPlan {
   };
   items: PlanItem[];
   itemsByCategory: Record<string, PlanItem[]>;
-}
-
-// ── Inline hairline progress loader ──────────────────────────────────────────
-function HairlineLoader() {
-  return (
-    <div style={{ padding: '80px 0 40px' }}>
-      <div
-        style={{
-          height: 1,
-          background: 'var(--rule)',
-          position: 'relative',
-          overflow: 'hidden',
-          maxWidth: 180,
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            height: '100%',
-            width: '40%',
-            background: 'var(--warm)',
-            animation: 'loom-shuttle var(--dur-ceremony) var(--ease) infinite',
-          }}
-        />
-      </div>
-    </div>
-  );
 }
 
 // ── LegacyPlan ────────────────────────────────────────────────────────────────
@@ -141,7 +113,7 @@ export function LegacyPlan() {
         topbarRight={<UserMenu />}
       >
         <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
-          <HairlineLoader />
+          <ProgressHair />
         </div>
       </ClothShell>
     );
@@ -155,7 +127,6 @@ export function LegacyPlan() {
     borderBottom: '1px solid var(--rule)',
     color: 'var(--bone)',
     fontFamily: 'var(--serif)',
-    fontVariationSettings: "'opsz' 14",
     fontSize: 16,
     padding: '8px 0',
     outline: 'none',

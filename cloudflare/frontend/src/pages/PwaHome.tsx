@@ -201,7 +201,7 @@ function AuthHome({
         </div>
         <h2 className="loom-display hl-tight" style={{
           fontSize: 'clamp(24px, 6vw, 30px)', fontWeight: 500, lineHeight: 1.15,
-          margin: '0 0 18px', color: 'var(--bone)', fontVariationSettings: '"opsz" 30',
+          margin: '0 0 18px', color: 'var(--bone)',
         }}>
           There is someone who needs to read this.<br />Just not yet.
         </h2>
@@ -304,7 +304,6 @@ function AuthHome({
           letterSpacing: '-0.018em',
           margin: '0 0 40px',
           color: 'var(--bone)',
-          fontVariationSettings: '"opsz" 40',
         }}>
           {isReadOnly ? `${count} ${count === 1 ? 'memory' : 'memories'} woven so far.` : prompt}
         </h1>
@@ -452,7 +451,7 @@ export function PwaHome() {
             </div>
             <h2 className="loom-display hl-tight" style={{
               fontSize: 'clamp(24px, 6vw, 30px)', fontWeight: 500, lineHeight: 1.15,
-              margin: '0 0 18px', color: 'var(--bone)', fontVariationSettings: '"opsz" 30',
+              margin: '0 0 18px', color: 'var(--bone)',
             }}>
               There is someone who needs to read this.<br />Just not yet.
             </h2>

@@ -8,6 +8,8 @@ const META_TITLE = 'Privacy';
 const META_DESCRIPTION = "How Heirloom protects your family's stories.";
 const OG_IMAGE = 'https://heirloom.blue/og-image.png?v=20260615b';
 const CANONICAL = 'https://heirloom.blue/privacy';
+const LAST_UPDATED = '14 nov 2025';
+const POLICY_VERSION = 'v 3.2';
 
 const SECTIONS = [
   {
@@ -144,7 +146,7 @@ export function Privacy() {
               flexShrink: 0,
             }}
           >
-            last updated · 14 nov 2025 · v 3.2
+            last updated · {LAST_UPDATED} · {POLICY_VERSION}
           </div>
         </div>
 

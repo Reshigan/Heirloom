@@ -163,7 +163,6 @@ export function Pricing() {
             letterSpacing: '-0.012em',
             color: 'var(--bone)',
             margin: '0 0 clamp(36px,8vh,72px)',
-            fontVariationSettings: '"opsz" 40',
           }}
         >
           Choose how you keep it

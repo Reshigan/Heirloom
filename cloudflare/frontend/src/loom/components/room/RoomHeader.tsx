@@ -38,7 +38,6 @@ export function RoomHeader({ eyebrow, title, lede, warmEyebrow, className }: Roo
           fontSize: 'clamp(24px, 6vw, 34px)',
           lineHeight: 1.15,
           color: 'var(--bone)',
-          fontVariationSettings: '"opsz" 32',
         }}
       >
         {title}

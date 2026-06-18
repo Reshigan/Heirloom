@@ -16,11 +16,16 @@ import { useAuthStore } from '../../stores/authStore';
  * "cloth · memory · ∞" bar over the logged-out landing/login pages).
  */
 
+// memory and letter both open the unified composer (/compose). They carry
+// distinct URLs (letter adds ?as=letter) so the bar can light the tab the
+// member actually tapped — without ?as the old /loom/compose-letter href
+// 308-redirected to /compose, so `letter` could never match and `memory`
+// wrongly lit instead.
 const NAV = [
   { label: 'cloth',  href: '/loom/weft' },
   { label: 'memory', href: '/compose' },
   { label: '∞',      href: '/loom/index',  center: true },
-  { label: 'letter', href: '/loom/compose-letter' },
+  { label: 'letter', href: '/compose?as=letter' },
   { label: 'voice',  href: '/record' },
 ] as const;
 
@@ -32,8 +37,9 @@ const HIDE_PREFIXES = ['/login', '/signup', '/pricing', '/privacy', '/terms', '/
 export const BOTTOM_NAV_CLEARANCE = 'calc(76px + env(safe-area-inset-bottom, 0px))';
 
 export function BottomNav() {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const { isAuthenticated } = useAuthStore();
+  const isLetterMode = new URLSearchParams(search).get('as') === 'letter';
 
   const hidden =
     !isAuthenticated ||
@@ -63,7 +69,12 @@ export function BottomNav() {
     >
       {NAV.map((item) => {
         const isCenter = 'center' in item && item.center;
-        const isActive = pathname === item.href;
+        // memory and letter share the /compose pathname — split them on ?as=letter
+        // so exactly one lights; all other tabs are a plain pathname match.
+        const isActive =
+          item.href === '/compose'           ? pathname === '/compose' && !isLetterMode :
+          item.href === '/compose?as=letter' ? pathname === '/compose' && isLetterMode  :
+          pathname === item.href;
         return (
           <Link
             key={item.href}

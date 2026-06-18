@@ -619,7 +619,7 @@ export function TimeCapsule() {
                           height: 16,
                           borderRadius: '50%',
                           flexShrink: 0,
-                          border: `1px solid ${active ? 'var(--copper-border)' : '#5a4326'}`,
+                          border: `1px solid ${active ? 'var(--copper-border)' : 'var(--rule)'}`,
                           background: active
                             ? 'radial-gradient(circle, var(--warm) 42%, transparent 46%)'
                             : 'transparent',

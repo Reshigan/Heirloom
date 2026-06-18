@@ -80,8 +80,7 @@ function StatBand({
           fontSize: 'clamp(54px,9vw,84px)',
           lineHeight: 0.86,
           letterSpacing: '-0.03em',
-          fontVariationSettings: '"opsz" 48',
-          color: accent ? '#c8884f' : 'var(--bone)',
+          color: accent ? 'var(--warm)' : 'var(--bone)',
         }}
       >
         {value}

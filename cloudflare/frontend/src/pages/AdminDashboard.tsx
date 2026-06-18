@@ -328,12 +328,15 @@ export function AdminDashboard() {
             <Panel title="Subscription Breakdown">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 1, border: '1px solid var(--rule)' }}>
                 {[
-                  { key: 'starter', label: 'Starter · $1/mo' },
-                  { key: 'family', label: 'Family · $2/mo' },
-                  { key: 'forever', label: 'Forever · $5/mo' },
+                  // Tier names mirror PLAN_DISPLAY (free/family/founder) in lib/plans.ts.
+                  // No prices here — live amounts are localized (ZAR) and owned by the
+                  // pricing source, never duplicated as static literals in admin chrome.
+                  { key: 'starter', label: 'Free' },
+                  { key: 'family', label: 'Family' },
+                  { key: 'forever', label: 'Founder' },
                 ].map(({ key, label }) => (
                   <div key={key} style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                    <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>
+                    <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>
                       {overview?.subscriptions?.[key] || overview?.subscriptions?.[key.toUpperCase()] || 0}
                     </div>
                     <div className="loom-eyebrow">{label}</div>
@@ -363,7 +366,7 @@ export function AdminDashboard() {
             <Panel title="Revenue & Discounts">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 1, border: '1px solid var(--rule)' }}>
                 <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>${revenue?.mrr?.toFixed(2) || '0.00'}</div>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>${revenue?.mrr?.toFixed(2) || '0.00'}</div>
                   <div className="loom-eyebrow">Monthly Recurring Revenue</div>
                 </div>
                 <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
@@ -484,15 +487,15 @@ export function AdminDashboard() {
             <Panel title="Succession Switch Status">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--rule)', marginBottom: 16 }}>
                 <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.activeSwitches || 0}</div>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.activeSwitches || 0}</div>
                   <div className="loom-eyebrow">Active</div>
                 </div>
                 <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.warningSwitches || 0}</div>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.warningSwitches || 0}</div>
                   <div className="loom-eyebrow">Warning</div>
                 </div>
                 <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.triggeredSwitches || 0}</div>
+                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.triggeredSwitches || 0}</div>
                   <div className="loom-eyebrow">Triggered</div>
                 </div>
               </div>
@@ -531,12 +534,12 @@ export function AdminDashboard() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 1, border: '1px solid var(--rule)' }}>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{encryptionStats?.encryptedUsers || 0}</div>
+                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{encryptionStats?.encryptedUsers || 0}</div>
                 <div className="loom-eyebrow">Users with Encryption</div>
                 <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 4 }}>{encryptionStats?.adoptionRate || 0}% adoption</div>
               </div>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{encryptionStats?.escrowConfigured || 0}</div>
+                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{encryptionStats?.escrowConfigured || 0}</div>
                 <div className="loom-eyebrow">Key Escrow Configured</div>
               </div>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
@@ -599,7 +602,7 @@ export function AdminDashboard() {
             </Panel>
 
             <Panel>
-              <p className="loom-eyebrow" style={{ color: 'var(--warm)', marginBottom: 12 }}>Encryption Architecture</p>
+              <p className="loom-eyebrow" style={{ color: 'var(--bone-dim)', marginBottom: 12 }}>Encryption Architecture</p>
               <p className="loom-body" style={{ fontSize: 14, color: 'var(--bone-dim)', marginBottom: 12 }}>
                 Heirloom encrypts entry content at rest with server-side AES-256-GCM. This is not zero-knowledge or end-to-end: the platform holds the keys, so a family never loses its archive to a forgotten password.
               </p>

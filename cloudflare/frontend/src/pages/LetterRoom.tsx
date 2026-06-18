@@ -158,7 +158,6 @@ export function LetterRoom() {
               fontSize: 'clamp(30px,7vw,52px)', lineHeight: 1.06,
               letterSpacing: '-0.012em', color: 'var(--bone)',
               margin: '0 auto', maxWidth: '12em',
-              fontVariationSettings: '"opsz" 40',
             }}>
               Someone who isn’t ready to read it yet.
             </h1>
@@ -205,7 +204,6 @@ export function LetterRoom() {
                 fontSize: 'clamp(30px,7vw,52px)', lineHeight: 1.06,
                 letterSpacing: '-0.012em', color: 'var(--bone)',
                 margin: '0 auto 32px', maxWidth: '13em',
-                fontVariationSettings: '"opsz" 40',
               }}>
                 {letterTitle(featured)}
               </h1>
@@ -475,7 +473,6 @@ export function LetterRoom() {
                             fontSize: 'clamp(28px,6vw,40px)', lineHeight: 1.08,
                             letterSpacing: '-0.012em', color: 'var(--bone)',
                             textAlign: 'center', margin: '0 auto 30px', maxWidth: '14em',
-                            fontVariationSettings: '"opsz" 40',
                           }}>
                             {letterTitle(letter)}
                           </h3>

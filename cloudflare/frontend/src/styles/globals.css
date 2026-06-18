@@ -72,8 +72,8 @@
      workhorse token (--serif, below) leads with Cormorant for the signature
      display drama; long-form reading surfaces route to --font-body (Spectral)
      so paragraph legibility never regresses. */
-  --font-display: 'Cormorant Garamond', 'Source Serif 4', Charter, Georgia, serif;
-  --font-body: 'Spectral', 'Source Serif 4', Charter, Georgia, serif;
+  --font-display: 'Cormorant Garamond', Charter, Georgia, serif;
+  --font-body: 'Spectral', Charter, Georgia, serif;
   /* The one hand face — used ONLY at intimate moments (signoffs, dedications,
      the sealed-note "who", thread/member names). */
   --font-hand: 'Tangerine', 'Cormorant Garamond', 'Snell Roundhand', Georgia, cursive;
@@ -135,7 +135,7 @@
      Display-scale Cormorant comes through heading tags (`.loom h1–h6`) and the
      explicit display classes (.loom-display/.loom-h2/.loom-serif/.loom-mark) —
      never from this token. Functionality first: legibility over flourish. */
-  --serif: 'Spectral', 'Source Serif 4', 'Iowan Old Style', Charter, Georgia, serif;
+  --serif: 'Spectral', 'Iowan Old Style', Charter, Georgia, serif;
   --serif-display: 'Cormorant Garamond', 'Spectral', Charter, Georgia, serif;
   --sans: 'Inter', system-ui, -apple-system, sans-serif;
   --mono: 'Space Mono', 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
@@ -217,17 +217,17 @@
      whole type system scales as one. Default = 1 (no change). */
   --text-scale: 1;
 
-  /* Display type-scale tokens — Source Serif 4 variable optical sizing.
-     "opsz" 12 = caption, 18 = text, 28 = subhead, 40 = display, 72 = hero.
-     Pair each size with the matching opsz setting for optical correctness.
+  /* Display type-scale tokens. Cormorant/Spectral load as static per-weight
+     @fontsource faces — there is no `opsz` axis, so optical-size hints would be
+     inert; weight + line-height carry the optical intent instead.
      Each clamp() is wrapped in calc(... * var(--text-scale)) for the lever. */
-  --type-hero:     calc(clamp(52px, 8vw, 96px) * var(--text-scale));     /* opsz 72, weight 200 */
-  --type-display:  calc(clamp(36px, 5.5vw, 64px) * var(--text-scale));   /* opsz 40, weight 300 */
-  --type-title:    calc(clamp(26px, 3.5vw, 40px) * var(--text-scale));   /* opsz 32, weight 300 */
-  --type-subhead:  calc(clamp(20px, 2.5vw, 28px) * var(--text-scale));   /* opsz 24, weight 400 */
-  --type-body-lg:  calc(clamp(18px, 2vw, 21px) * var(--text-scale));     /* opsz 18, weight 400, lh 1.9 */
-  --type-body:     calc(clamp(15px, 1.5vw, 17px) * var(--text-scale));   /* opsz 14, weight 400, lh 1.8 */
-  --type-caption:  calc(clamp(12px, 1.2vw, 14px) * var(--text-scale));   /* opsz 12, weight 400 */
+  --type-hero:     calc(clamp(52px, 8vw, 96px) * var(--text-scale));     /* weight 200 */
+  --type-display:  calc(clamp(36px, 5.5vw, 64px) * var(--text-scale));   /* weight 300 */
+  --type-title:    calc(clamp(26px, 3.5vw, 40px) * var(--text-scale));   /* weight 300 */
+  --type-subhead:  calc(clamp(20px, 2.5vw, 28px) * var(--text-scale));   /* weight 400 */
+  --type-body-lg:  calc(clamp(18px, 2vw, 21px) * var(--text-scale));     /* weight 400, lh 1.9 */
+  --type-body:     calc(clamp(15px, 1.5vw, 17px) * var(--text-scale));   /* weight 400, lh 1.8 */
+  --type-caption:  calc(clamp(12px, 1.2vw, 14px) * var(--text-scale));   /* weight 400 */
   --type-label:    calc(11px * var(--text-scale));                        /* mono uppercase, ls 0.18em */
   --type-micro:    calc(10px * var(--text-scale));                        /* mono uppercase, ls 0.22em */
 
@@ -556,7 +556,6 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
   font-weight: 300;
   line-height: 1.06;
-  font-variation-settings: "opsz" 32;
 }
 
 h1 { font-size: 3.5rem; letter-spacing: -0.02em; }
@@ -782,7 +781,7 @@ em {
 
 /* Focus states for keyboard navigation */
 *:focus-visible {
-  outline: 1px solid var(--warm);
+  outline: 2px solid var(--warm);
   outline-offset: 2px;
 }
 
@@ -791,7 +790,7 @@ a:focus-visible,
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
-  outline: 1px solid var(--warm);
+  outline: 2px solid var(--warm);
   outline-offset: 2px;
 }
 
@@ -1034,12 +1033,16 @@ html {
   opacity: 1;
 }
 
-.hl-serif { font-family: var(--serif); font-weight: 300; font-variation-settings: "opsz" 14; }
+.hl-serif { font-family: var(--serif); font-weight: 300; }
 .hl-mono  { font-family: var(--mono);  font-weight: 400; letter-spacing: 0.04em; }
+/* Canonical eyebrow — 11px / 0.26em mono uppercase. `.loom-eyebrow` and the
+   CosmicHeader inline eyebrow share this geometry; section eyebrows stay cream
+   (bone-dim) — copper is reserved for the single per-page-header signal, so a
+   bare section eyebrow never reads as the one warm accent (rule 2). */
 .hl-eyebrow {
   font-family: var(--mono);
   font-size: 11px;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.26em;
   text-transform: uppercase;
   color: var(--bone-dim);
 }
@@ -1106,7 +1109,9 @@ html {
 .hl-btn {
   display: inline-flex; align-items: center; justify-content: center;
   font-family: var(--mono); font-size: 11px; font-weight: 600;
-  letter-spacing: 0.16em; text-transform: uppercase;
+  letter-spacing: 0.26em; text-transform: uppercase;
+  /* WCAG 2.5.5 target size — 44px floor so every pill is a clean tap on touch */
+  min-height: 44px;
   padding: 12px 24px; border-radius: 0; border: 1px solid var(--warm); cursor: pointer;
   background: transparent; color: var(--warm); text-decoration: none;
   touch-action: manipulation;
@@ -1505,13 +1510,16 @@ html {
 }
 .hl-cta-warm:active { transform: scale(0.97); }
 
+/* Alias of .hl-eyebrow — same canonical geometry/color (was a gratuitous
+   0.32em / loom-bone-faint fork; loom-bone-faint resolves identically to
+   bone-dim's family in dark, so the divergence carried no signal). */
 .loom-eyebrow {
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: var(--mono);
   font-size: 11px;
   font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.32em;
-  color: var(--loom-bone-faint);
+  letter-spacing: 0.26em;
+  color: var(--bone-dim);
 }
 
 .loom-warm-text  { color: var(--loom-warm); }
@@ -2326,7 +2334,6 @@ html {
 .hl-infinity-3d {
   display: inline-block;
   font-family: var(--serif);
-  font-variation-settings: 'opsz' 72, 'wght' 200;
   color: var(--warm);
   animation: hl-infinity-float 10s linear infinite;
   filter:
@@ -2376,7 +2383,6 @@ html {
   font-family: var(--serif);
   font-size: clamp(16px, 1.6vw, 19px);
   font-weight: 400;
-  font-variation-settings: 'opsz' 18;
   line-height: 1.72;
   color: var(--bone);
 }
@@ -2388,7 +2394,6 @@ html {
 .hl-reading p:first-of-type::first-letter {
   font-size: 3.4em;
   font-weight: 300;
-  font-variation-settings: 'opsz' 72, 'wght' 300;
   line-height: 0.75;
   float: left;
   margin: 0.06em 0.12em 0 0;

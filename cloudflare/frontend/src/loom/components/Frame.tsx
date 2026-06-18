@@ -289,7 +289,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
           {entryCount !== null ? (
             <span className="hl-counter">{entryCount.toLocaleString()}</span>
           ) : (
-            <span style={{ fontFamily: 'var(--serif)', fontWeight: 300, fontSize: 18, fontVariationSettings: '"opsz" 20', color: 'var(--bone-dim)', letterSpacing: 0 }}>∞</span>
+            <span style={{ fontFamily: 'var(--serif)', fontWeight: 300, fontSize: 18, color: 'var(--bone-dim)', letterSpacing: 0 }}>∞</span>
           )}
         </span>
 

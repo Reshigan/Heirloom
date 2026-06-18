@@ -452,7 +452,6 @@ export function Record() {
             letterSpacing: '-0.012em',
             color: 'var(--bone)',
             margin: '0 0 18px',
-            fontVariationSettings: '"opsz" 40',
             maxWidth: '16em',
           }}
         >
@@ -752,7 +751,6 @@ export function Record() {
                 color: 'var(--bone-faint)',
                 textAlign: 'center',
                 lineHeight: 1.45,
-                fontVariationSettings: '"opsz" 20',
                 margin: '8px 0 0',
               }}
             >

@@ -202,7 +202,6 @@ export function Signup() {
               lineHeight: 1.08,
               margin: 0,
               color: 'var(--bone)',
-              fontVariationSettings: '"opsz" 40',
             }}
           >
             Start your family's thousand-year thread.

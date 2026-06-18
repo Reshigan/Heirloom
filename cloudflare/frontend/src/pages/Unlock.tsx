@@ -297,7 +297,6 @@ export function Unlock() {
                       style={{
                         margin: 0,
                         fontFamily: 'var(--serif)',
-                        fontVariationSettings: "'opsz' 48",
                         fontSize: 'clamp(30px, 6vw, 44px)',
                         fontWeight: 380,
                         lineHeight: 1.08,
@@ -403,7 +402,6 @@ export function Unlock() {
                     className="loom-serif"
                     style={{
                       fontFamily: 'var(--serif-display)',
-                      fontVariationSettings: "'opsz' 60",
                       fontSize: 'clamp(34px, 6vw, 46px)',
                       lineHeight: 1.05,
                       marginBottom: 34,
@@ -424,7 +422,6 @@ export function Unlock() {
                       color: 'var(--warm-bright)',
                       lineHeight: 1.95,
                       textWrap: 'pretty',
-                      fontVariationSettings: "'opsz' 16",
                       whiteSpace: 'pre-wrap',
                     }}
                   >
@@ -435,7 +432,6 @@ export function Unlock() {
                       style={{
                         marginTop: 30,
                         fontFamily: 'var(--serif)',
-                        fontVariationSettings: "'opsz' 28",
                         fontSize: 22,
                         fontStyle: 'italic',
                         fontWeight: 300,
@@ -538,7 +534,6 @@ function WaxSeal({ size = 30 }: { size?: number }) {
         display: 'inline-grid',
         placeItems: 'center',
         fontFamily: 'var(--serif-display)',
-        fontVariationSettings: "'opsz' 48",
         fontSize: size,
         fontWeight: 400,
         lineHeight: 1,
@@ -569,7 +564,6 @@ function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean })
           aria-hidden
           style={{
             fontFamily: 'var(--serif-display)',
-            fontVariationSettings: "'opsz' 72",
             fontSize: 88,
             fontWeight: 300,
             lineHeight: 1,
@@ -654,7 +648,6 @@ function ShareCard({ letter }: { letter: UnlockLetter }) {
           <div
             style={{
               fontFamily: 'var(--serif-display)',
-              fontVariationSettings: "'opsz' 72",
               fontSize: 56,
               fontWeight: 300,
               color: 'var(--warm)',

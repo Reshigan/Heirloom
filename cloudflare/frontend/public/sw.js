@@ -24,7 +24,7 @@
  * cache.addAll() reject on the redirected response and the whole install fails.
  * Precache `/offline` (the served URL) — never the redirecting alias.
  */
-const CACHE = 'heirloom-v145';
+const CACHE = 'heirloom-v146';
 const API_CACHE = 'heirloom-api-v1'; // preserved across shell bumps — offline read data
 // Canonical shell URL. Cloudflare Pages 308-redirects `/index.html` → `/`, and
 // the Cache API rejects redirected responses — so precaching `/index.html`
@@ -112,7 +112,7 @@ self.addEventListener('fetch', (event) => {
   // api.heirloom.blue (see src/services/api.ts API_URL); in dev it may be the
   // same origin under /api/*. We treat both as API traffic so offline reads
   // survive reload/cold-start regardless of where the API is hosted.
-  const isApiHost = url.hostname === 'api.heirloom.blue' || url.hostname.endsWith('.heirloom.blue');
+  const isApiHost = url.hostname === 'api.heirloom.blue';
   const isSameOriginApi = url.origin === self.location.origin && url.pathname.startsWith('/api/');
   const isApiRequest = isApiHost || isSameOriginApi;
 

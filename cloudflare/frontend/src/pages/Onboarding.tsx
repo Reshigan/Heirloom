@@ -67,7 +67,6 @@ const heroHeadlineStyle: React.CSSProperties = {
   color: 'var(--bone)',
   textAlign: 'center',
   margin: 0,
-  fontVariationSettings: '"opsz" 40',
 };
 
 const questionStyle: React.CSSProperties = {
@@ -79,7 +78,6 @@ const questionStyle: React.CSSProperties = {
   color: 'var(--bone)',
   textAlign: 'center',
   margin: 0,
-  fontVariationSettings: '"opsz" 40',
 };
 
 // Serif-italic byline — dim, the confidential-space promise spoken quietly
@@ -189,7 +187,6 @@ const welcomeTitle: React.CSSProperties = {
   color: 'var(--bone)',
   textAlign: 'center',
   margin: '0 0 18px',
-  fontVariationSettings: '"opsz" 40',
 };
 
 // Spectral subhead under the welcome title — the quiet promise of the product.

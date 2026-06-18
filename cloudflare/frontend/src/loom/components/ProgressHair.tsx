@@ -26,7 +26,7 @@ export function ProgressHair({ label, width, className }: ProgressHairProps) {
       {label ? (
         <span
           style={{
-            fontFamily: "'Space Mono', monospace",
+            fontFamily: 'var(--mono)',
             fontSize: 11,
             letterSpacing: '0.08em',
             color: 'var(--bone-faint)',

@@ -339,6 +339,7 @@ export function Memorials() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="In loving memory of…"
+                  aria-required="true"
                   style={fieldStyle}
                 />
               </div>

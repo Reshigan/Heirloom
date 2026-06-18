@@ -189,7 +189,7 @@ export function Inbox() {
                     subColor="var(--muted-2)"
                     title={
                       <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <WarmDot filled={false} size={5} color="#5a4326" />
+                        <WarmDot filled={false} size={5} color="var(--copper-border)" />
                         <span>{u.entry_title ?? 'An entry has opened'}</span>
                       </span>
                     }

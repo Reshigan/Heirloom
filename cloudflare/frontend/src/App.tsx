@@ -1,5 +1,6 @@
 import { useEffect, useRef, lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { MotionConfig } from 'framer-motion';
 import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
@@ -302,6 +303,9 @@ export default function App() {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+          {/* Honour the OS "reduce motion" setting across every framer-motion
+              animation in the app — rule 4: motion only when it carries meaning. */}
+          <MotionConfig reducedMotion="user">
           <AuthBoot />
           <PushNotificationHandler />
           <PendingInviteAcceptor />
@@ -612,6 +616,7 @@ export default function App() {
           </WovenPassage>
           <BottomNav />
           </LoomShellRoot>
+          </MotionConfig>
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>

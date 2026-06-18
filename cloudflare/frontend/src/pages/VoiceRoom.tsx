@@ -458,7 +458,7 @@ export function VoiceRoom() {
                           letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-dim)',
                         }}
                       >
-                        delete
+                        unweave
                       </button>
                     )}
                   </div>
@@ -474,7 +474,7 @@ export function VoiceRoom() {
                         what you said
                       </div>
                       <div style={{
-                        fontFamily: 'var(--serif)', fontWeight: 300, fontVariationSettings: '"opsz" 40',
+                        fontFamily: 'var(--serif)', fontWeight: 300,
                         fontSize: 'clamp(40px, 11vw, 66px)', lineHeight: 1, letterSpacing: '-0.01em',
                         color: 'var(--bone)', marginBottom: 28,
                       }}>

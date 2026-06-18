@@ -122,11 +122,6 @@ export default {
         'slow': '720ms',
         'glacial': '1400ms',
       },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gold-gradient': 'linear-gradient(135deg, #f0c074, #b07a3e)',
-        'blood-gradient': 'linear-gradient(135deg, #9f3a2a, #7a1f2b)',
-      },
       boxShadow: {
         'gold': '0 8px 32px -4px rgba(224, 160, 98, 0.4)',
         'gold-hover': '0 12px 40px -4px rgba(224, 160, 98, 0.5)',

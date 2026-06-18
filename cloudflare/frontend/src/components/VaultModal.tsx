@@ -88,7 +88,7 @@ export function VaultModal({ isOpen, onComplete }: VaultModalProps) {
   const labelStyle: React.CSSProperties = {
     display: 'block',
     marginBottom: 10,
-    fontFamily: "'Space Mono', monospace",
+    fontFamily: 'var(--mono)',
     fontSize: 10,
     letterSpacing: '0.22em',
     textTransform: 'uppercase',
@@ -102,7 +102,7 @@ export function VaultModal({ isOpen, onComplete }: VaultModalProps) {
     borderRadius: 0,
     color: 'var(--bone)',
     padding: '11px 14px',
-    fontFamily: "'Inter', sans-serif",
+    fontFamily: 'var(--sans)',
     fontSize: 16,
     outline: 'none',
     boxSizing: 'border-box',
@@ -129,6 +129,7 @@ export function VaultModal({ isOpen, onComplete }: VaultModalProps) {
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
+        aria-labelledby="vault-modal-title"
         style={{
           width: '100%',
           maxWidth: 460,
@@ -148,7 +149,7 @@ export function VaultModal({ isOpen, onComplete }: VaultModalProps) {
             aria-hidden
             style={{
               display: 'block',
-              fontFamily: "'Cormorant Garamond', Georgia, serif",
+              fontFamily: 'var(--serif-display)',
               fontSize: 40,
               color: 'var(--warm)',
               marginBottom: 18,
@@ -157,6 +158,7 @@ export function VaultModal({ isOpen, onComplete }: VaultModalProps) {
             ∞
           </span>
           <h2
+            id="vault-modal-title"
             className="loom-h2"
             style={{ fontSize: 26, fontWeight: 300, margin: '0 0 10px', letterSpacing: '-0.014em' }}
           >
@@ -217,7 +219,7 @@ export function VaultModal({ isOpen, onComplete }: VaultModalProps) {
                   background: 'transparent',
                   border: 0,
                   cursor: 'pointer',
-                  fontFamily: "'Space Mono', monospace",
+                  fontFamily: 'var(--mono)',
                   fontSize: 9.5,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
