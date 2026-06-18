@@ -106,6 +106,64 @@ CREATE TABLE IF NOT EXISTS password_resets (
   expires_at TEXT NOT NULL,
   created_at TEXT DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS dead_man_switches (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  user_id TEXT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  enabled INTEGER DEFAULT 1,
+  status TEXT DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'WARNING', 'TRIGGERED', 'VERIFIED', 'RELEASED', 'CANCELLED')),
+  check_in_interval_days INTEGER DEFAULT 30,
+  grace_period_days INTEGER DEFAULT 7,
+  required_verifications INTEGER DEFAULT 2,
+  last_check_in TEXT,
+  next_check_in_due TEXT,
+  missed_check_ins INTEGER DEFAULT 0,
+  triggered_at TEXT,
+  verified_at TEXT,
+  released_at TEXT,
+  reminder_sent_at TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS legacy_contacts (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  relationship TEXT NOT NULL,
+  verification_status TEXT DEFAULT 'PENDING' CHECK (verification_status IN ('PENDING', 'VERIFIED', 'REJECTED')),
+  verification_token TEXT UNIQUE,
+  verified_at TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS founder_pledges (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  family_name TEXT,
+  notes TEXT,
+  status TEXT NOT NULL DEFAULT 'PLEDGED' CHECK (status IN ('PLEDGED', 'PAID', 'ENGRAVED', 'REVOKED')),
+  stripe_session_id TEXT,
+  thread_id TEXT,
+  pledge_number INTEGER UNIQUE,
+  paid_at TEXT,
+  engraved_at TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS switch_verifications (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  dead_man_switch_id TEXT NOT NULL,
+  legacy_contact_id TEXT NOT NULL,
+  verification_token TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now'))
+);
 `;
 
 export async function applyMigrations(db: D1Database): Promise<void> {

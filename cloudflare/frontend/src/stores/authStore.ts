@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
-import { authApi, setTokens, clearTokens } from '../services/api';
+import { authApi, setTokens, clearTokens, clearApiCache } from '../services/api';
 import { checkForServiceWorkerUpdate } from '../lib/registerSW';
 
 export interface User {
@@ -84,6 +84,10 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         try {
           const { data } = await authApi.login({ email, password });
+          // Wipe any prior account's cached API responses before this user's
+          // data lands — the previous user may have closed the tab without a
+          // clean logout, leaving their reads in the URL-keyed SW cache.
+          clearApiCache();
           setTokens(data.token ?? data.accessToken, data.refreshToken);
           set({ user: data.user, isAuthenticated: true, isLoading: false });
           // Force-adopt the latest deployed shell on login so an installed PWA
@@ -105,6 +109,8 @@ export const useAuthStore = create<AuthState>()(
             lastName,
             ...consent,
           });
+          // New account on this device → wipe any prior user's URL-keyed API cache.
+          clearApiCache();
           setTokens(data.token ?? data.accessToken, data.refreshToken);
           set({ user: data.user, isAuthenticated: true, isLoading: false });
           // New account on this device → same freshness guarantee as login.

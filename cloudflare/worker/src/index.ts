@@ -1283,7 +1283,7 @@ async function verifyJWT(token: string, secret: string): Promise<any> {
   return payload;
 }
 
-async function checkMissedCheckIns(env: Env) {
+export async function checkMissedCheckIns(env: Env) {
   const now = new Date().toISOString();
   
   // Find switches that need action
@@ -1291,8 +1291,8 @@ async function checkMissedCheckIns(env: Env) {
     SELECT dms.*, u.email, u.first_name
     FROM dead_man_switches dms
     JOIN users u ON dms.user_id = u.id
-    WHERE dms.enabled = 1 
-    AND dms.status = 'ACTIVE'
+    WHERE dms.enabled = 1
+    AND dms.status IN ('ACTIVE', 'WARNING')
     AND dms.next_check_in_due < ?
   `).bind(now).all();
   
@@ -1313,14 +1313,21 @@ async function checkMissedCheckIns(env: Env) {
       // Send notifications to legacy contacts
       await sendTriggerNotifications(env, row.user_id as string);
     } else {
-      // Update missed count and send warning
+      // Update missed count, send warning, and push next_check_in_due out by
+      // the grace period. Without advancing the due date the row would re-fire
+      // on every cron tick and rocket through all three misses in minutes; and
+      // because the widened sweep above keeps WARNING rows in scope, the count
+      // still climbs toward the trigger on each subsequent missed window.
+      const grace = (row.grace_period_days as number) || 7;
+      const nextDue = new Date(Date.now() + grace * 24 * 60 * 60 * 1000).toISOString();
       await env.DB.prepare(`
-        UPDATE dead_man_switches 
+        UPDATE dead_man_switches
         SET status = 'WARNING',
-            missed_check_ins = ?
+            missed_check_ins = ?,
+            next_check_in_due = ?
         WHERE id = ?
-      `).bind(missed, row.id).run();
-      
+      `).bind(missed, nextDue, row.id).run();
+
       // Send warning email to user
       await sendWarningEmail(env, row.email as string, row.first_name as string, missed);
     }

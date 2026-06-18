@@ -888,30 +888,6 @@ async function verifyStripeSignature(
   return computedSignature === expectedSignature;
 }
 
-// Validate that metadata.tier is consistent with the amount actually charged.
-// Stripe metadata is attacker-controlled so we cross-check against amount_total.
-// USD reference amounts (cents): FAMILY monthly = 699, FOUNDER lifetime = 24900.
-// We accept any amount >= 24900 as FOUNDER and any amount < 24900 as FAMILY,
-// regardless of metadata, so localised non-USD amounts are handled gracefully.
-function validateTierFromAmount(metadataTier: string, amountTotal: number): 'FAMILY' | 'FOUNDER' {
-  const upper = (metadataTier || '').toUpperCase();
-  const claimedFounder = upper === 'FOUNDER' || upper === 'LEGACY' || upper === 'FOREVER';
-  // Threshold: $249 USD in cents. Non-USD amounts for Founder are always >> 699.
-  const paidEnoughForFounder = amountTotal >= 24900;
-
-  if (claimedFounder && !paidEnoughForFounder) {
-    // Claimed Founder but only paid Family-level — downgrade to FAMILY
-    console.warn(`Tier spoof attempt: metadata says ${metadataTier} but amount_total=${amountTotal}; granting FAMILY`);
-    return 'FAMILY';
-  }
-  if (!claimedFounder && paidEnoughForFounder) {
-    // Claimed Family but paid Founder-level — upgrade to FOUNDER
-    console.warn(`Tier under-claim: metadata says ${metadataTier} but amount_total=${amountTotal}; granting FOUNDER`);
-    return 'FOUNDER';
-  }
-  return claimedFounder ? 'FOUNDER' : 'FAMILY';
-}
-
 // Stripe webhook handler
 billingRoutes.post('/webhook', async (c) => {
   const signature = c.req.header('stripe-signature');
@@ -1007,6 +983,38 @@ billingRoutes.post('/webhook', async (c) => {
                           </div>
                         `,
                       }, 'FOUNDER_WELCOME');
+                    }
+
+                    // Grant lifetime Family-tier access (FOREVER) if this
+                    // pledge's email already has an account. Founder pledges
+                    // never reach the regular-subscription branch below, so
+                    // without this the payment was taken and no tier was ever
+                    // granted. If the pledger has no account yet, the grant
+                    // happens at registration (auth.ts register Founder-claim).
+                    if (pledge?.email) {
+                      const founderUser = await c.env.DB.prepare(
+                        'SELECT id FROM users WHERE LOWER(email) = LOWER(?)'
+                      ).bind(pledge.email).first<{ id: string }>();
+                      if (founderUser?.id) {
+                        const lifetimeEnd = new Date();
+                        lifetimeEnd.setFullYear(lifetimeEnd.getFullYear() + 100);
+                        const existingSub = await c.env.DB.prepare(
+                          'SELECT id FROM subscriptions WHERE user_id = ?'
+                        ).bind(founderUser.id).first();
+                        if (existingSub) {
+                          await c.env.DB.prepare(`
+                            UPDATE subscriptions
+                            SET tier = 'FOREVER', status = 'ACTIVE', billing_cycle = 'lifetime',
+                                current_period_end = ?, trial_ends_at = NULL, updated_at = ?
+                            WHERE user_id = ?
+                          `).bind(lifetimeEnd.toISOString(), now, founderUser.id).run();
+                        } else {
+                          await c.env.DB.prepare(`
+                            INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, current_period_start, current_period_end, created_at, updated_at)
+                            VALUES (?, ?, 'FOREVER', 'ACTIVE', 'lifetime', ?, ?, ?, ?)
+                          `).bind(crypto.randomUUID(), founderUser.id, now, lifetimeEnd.toISOString(), now, now).run();
+                        }
+                      }
                     }
                   } catch (err) {
                     console.error('Founder pledge webhook error', err);
@@ -1118,12 +1126,17 @@ billingRoutes.post('/webhook', async (c) => {
                 break;
               }
         
-              // Handle regular subscription checkout
+              // Handle regular subscription checkout.
+              // This branch only ever grants FAMILY: Founder pledges, gift
+              // vouchers, and book orders each `break` in their own branches
+              // above, and /checkout rejects any tier !== 'FAMILY' with a 400.
+              // The old amount-derived cross-check could return 'FOUNDER', which
+              // is NOT a valid subscriptions.tier (the CHECK constraint rejects
+              // it) — so a localised (non-USD) Family payment whose amount
+              // crossed the $249 threshold 500'd and never granted the tier.
+              // FAMILY is the only tier that reaches here, so grant it directly.
               const userId = session.metadata?.user_id;
-              const rawTierMeta = session.metadata?.tier || 'STARTER';
-              // Cross-validate metadata.tier against the amount actually charged
-              // to prevent tier-spoofing via manipulated session metadata.
-              const tier = validateTierFromAmount(rawTierMeta, session.amount_total ?? 0);
+              const tier = 'FAMILY';
               const billingCycle = session.metadata?.billing_cycle || 'monthly';
 
               if (userId) {

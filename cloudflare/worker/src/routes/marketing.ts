@@ -396,28 +396,57 @@ marketingRoutes.post('/campaigns/:id/send', adminAuth, async (c) => {
 // ============================================
 
 marketingRoutes.get('/unsubscribe', async (c) => {
-  const email = c.req.query('email');
+  // Accept either a plain ?email= or a base64 ?token= (the engagement-link form).
+  // The frontend /unsubscribe page calls this with Accept: application/json and
+  // renders its own on-brand confirmation; a direct browser hit gets the HTML.
+  let email = c.req.query('email');
   const tracking = c.req.query('tracking');
-  
+  const token = c.req.query('token');
+  if (!email && token) {
+    try {
+      const decoded = atob(token);
+      if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(decoded)) email = decoded;
+    } catch { /* malformed token → falls through to the Email required guard */ }
+  }
+
+  const wantsJson = (c.req.header('accept') || '').includes('application/json');
+
   if (!email) {
     return c.json({ error: 'Email required' }, 400);
   }
-  
+
   await c.env.DB.prepare(`
     INSERT OR IGNORE INTO marketing_suppression (id, email, reason)
     VALUES (?, ?, 'UNSUBSCRIBE')
   `).bind(crypto.randomUUID().replace(/-/g, ''), email).run();
-  
+
   await c.env.DB.prepare(`
     UPDATE influencers SET status = 'UNSUBSCRIBED' WHERE email = ?
   `).bind(email).run();
-  
+
+  // Clear the account-level consent flag too — the admin broadcast path gates on
+  // users.marketing_consent, so suppression alone would not stop those sends.
+  await c.env.DB.prepare(`
+    UPDATE users SET marketing_consent = 0 WHERE LOWER(email) = LOWER(?)
+  `).bind(email).run();
+
+  // And flip the per-category preferences if the user has a row, so every
+  // suppression system resolves to the same opt-out.
+  await c.env.DB.prepare(`
+    UPDATE email_preferences SET marketing_emails = 0, drip_campaigns = 0, product_updates = 0
+    WHERE user_id = (SELECT id FROM users WHERE LOWER(email) = LOWER(?))
+  `).bind(email).run();
+
   if (tracking) {
     await c.env.DB.prepare(`
       UPDATE marketing_outreach SET status = 'UNSUBSCRIBED' WHERE tracking_id = ?
     `).bind(tracking).run();
   }
-  
+
+  if (wantsJson) {
+    return c.json({ success: true });
+  }
+
   return c.html(`
     <!DOCTYPE html>
     <html>

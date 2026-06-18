@@ -19,7 +19,7 @@
  * cache.addAll() reject on the redirected response and the whole install fails.
  * Precache `/offline` (the served URL) — never the redirecting alias.
  */
-const CACHE = 'heirloom-v136';
+const CACHE = 'heirloom-v137';
 const API_CACHE = 'heirloom-api-v1'; // preserved across shell bumps — offline read data
 // Canonical shell URL. Cloudflare Pages 308-redirects `/index.html` → `/`, and
 // the Cache API rejects redirected responses — so precaching `/index.html`
@@ -66,9 +66,11 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') self.skipWaiting();
-  // Wipe the per-user API cache on logout so the next user on the device
-  // never reads a previous user's memories/letters from the cache.
-  if (event.data === 'CLEAR_API_CACHE') caches.delete(API_CACHE);
+  // Wipe the per-user API cache on logout, login, register, and silent 401
+  // force-logout so the next user on the device never reads a previous user's
+  // memories/letters from the URL-keyed cache. waitUntil keeps the SW alive
+  // until the delete resolves — a bare caches.delete() can be killed mid-flight.
+  if (event.data === 'CLEAR_API_CACHE') event.waitUntil(caches.delete(API_CACHE));
 });
 
 self.addEventListener('fetch', (event) => {

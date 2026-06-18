@@ -42,6 +42,7 @@ const GiftRedeem = lazy(() => import('./pages/GiftRedeem').then(m => ({ default:
 const GiftSuccess = lazy(() => import('./pages/GiftSuccess').then(m => ({ default: m.GiftSuccess })));
 const GoldLegacyRedeem = lazy(() => import('./pages/GoldLegacyRedeem').then(m => ({ default: m.GoldLegacyRedeem })));
 const Contact = lazy(() => import('./pages/Contact').then(m => ({ default: m.Contact })));
+const Unsubscribe = lazy(() => import('./pages/Unsubscribe').then(m => ({ default: m.Unsubscribe })));
 const LegacyPlan = lazy(() => import('./pages/LegacyPlan').then(m => ({ default: m.LegacyPlan })));
 const StoryArtifact = lazy(() => import('./pages/StoryArtifact').then(m => ({ default: m.StoryArtifact })));
 const LifeEvents = lazy(() => import('./pages/LifeEvents').then(m => ({ default: m.LifeEvents })));
@@ -315,6 +316,7 @@ export default function App() {
                               <Route path="/privacy" element={<Privacy />} />
                               <Route path="/terms" element={<Terms />} />
                               <Route path="/contact" element={<Contact />} />
+                              <Route path="/unsubscribe" element={<Unsubscribe />} />
                                                             <Route path="/founder" element={<Founder />} />
                                                             <Route path="/founder/welcome" element={<FounderWelcome />} />
                                                             <Route path="/memory-room/:token" element={<MemoryRoom />} />

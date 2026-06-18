@@ -13,10 +13,24 @@ export const setTokens = (accessToken: string, refreshToken: string) => {
   localStorage.setItem('refreshToken', refreshToken);
 };
 
+// Tell the service worker to wipe the per-user API response cache. The SW
+// caches every successful GET /api/* keyed by URL only (no per-user key), so
+// without this the next account on a shared device — or this account after a
+// silent 401 force-logout — could read the previous user's memories/letters
+// from the offline cache. Fire-and-forget; a no-op when no SW controls the page.
+export const clearApiCache = () => {
+  try {
+    navigator.serviceWorker?.controller?.postMessage('CLEAR_API_CACHE');
+  } catch { /* SW unavailable in this context */ }
+};
+
 export const clearTokens = () => {
   localStorage.removeItem('token');
   localStorage.removeItem('refreshToken');
   localStorage.removeItem('heirloom-auth');
+  // Any path that drops the tokens (logout, 401 force-logout) must also purge
+  // the API cache so a stale session's data can't outlive its tokens.
+  clearApiCache();
 };
 
 // Get current auth token (for use with raw fetch calls that bypass axios)

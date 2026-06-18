@@ -53,17 +53,40 @@ authRoutes.post('/register', async (c) => {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).bind(userId, email.toLowerCase(), passwordHash, firstName, lastName, now, marketingConsent ? 1 : 0, now, now).run();
   
+  // Check for a paid Founder pledge made before this account existed. The
+  // pledge webhook grants FOREVER when the email already has an account; this
+  // covers the reverse order (pledge first, register later). Founder wins over
+  // any voucher or trial — it's the strongest grant.
+  // Defensive: a failure looking up the (optional) Founder pledge must never
+  // break core registration — fall through to voucher/trial on any error.
+  const founderPledge = await c.env.DB.prepare(`
+    SELECT id FROM founder_pledges
+    WHERE LOWER(email) = ?
+    AND status IN ('PAID', 'ENGRAVED')
+    ORDER BY created_at ASC
+    LIMIT 1
+  `).bind(email.toLowerCase()).first().catch(() => null);
+
   // Check for pending vouchers sent to this email address
   const pendingVoucher = await c.env.DB.prepare(`
-    SELECT * FROM gift_vouchers 
-    WHERE LOWER(recipient_email) = ? 
-    AND status IN ('PAID', 'SENT') 
+    SELECT * FROM gift_vouchers
+    WHERE LOWER(recipient_email) = ?
+    AND status IN ('PAID', 'SENT')
     AND expires_at > datetime('now')
     ORDER BY created_at ASC
     LIMIT 1
   `).bind(email.toLowerCase()).first();
-  
-  if (pendingVoucher) {
+
+  if (founderPledge) {
+    // Lifetime Family-tier access (FOREVER), 100-year period — mirrors the
+    // Gold Legacy voucher grant.
+    const lifetimeEnd = new Date();
+    lifetimeEnd.setFullYear(lifetimeEnd.getFullYear() + 100);
+    await c.env.DB.prepare(`
+      INSERT INTO subscriptions (id, user_id, tier, status, billing_cycle, current_period_start, current_period_end, created_at, updated_at)
+      VALUES (?, ?, 'FOREVER', 'ACTIVE', 'lifetime', ?, ?, ?, ?)
+    `).bind(crypto.randomUUID(), userId, now, lifetimeEnd.toISOString(), now, now).run();
+  } else if (pendingVoucher) {
     // Auto-redeem the voucher for this new user
     const isGoldLegacy = pendingVoucher.voucher_type === 'GOLD_LEGACY';
     const periodStart = now;
@@ -361,11 +384,20 @@ authRoutes.post('/refresh', async (c) => {
     return c.json({ error: 'Invalid refresh token' }, 401);
   }
   
-  const { userId, sessionId } = data as { userId: string; sessionId: string };
-  
+  const { userId, sessionId, issuedAt } = data as { userId: string; sessionId: string; issuedAt?: number };
+
+  // Reject refresh tokens minted before a password-reset revocation. The reset
+  // stamps revoked_before:<userId> with its epoch; any token issued earlier —
+  // or pre-dating this field (issuedAt undefined → treated as 0) — is dead.
+  const revokedBeforeRaw = await c.env.KV.get(`revoked_before:${userId}`);
+  if (revokedBeforeRaw && (issuedAt ?? 0) < parseInt(revokedBeforeRaw, 10)) {
+    await c.env.KV.delete(`refresh:${refreshToken}`);
+    return c.json({ error: 'Session expired. Please log in again.' }, 401);
+  }
+
   // Delete old refresh token
   await c.env.KV.delete(`refresh:${refreshToken}`);
-  
+
   // Create new tokens
   const tokens = await createSession(c.env, userId, sessionId);
   
@@ -580,11 +612,28 @@ authRoutes.post('/reset-password', async (c) => {
     'UPDATE password_resets SET used_at = ? WHERE id = ?'
   ).bind(new Date().toISOString(), resetRecord.id).run();
   
-  // Invalidate all existing sessions for this user
+  // Invalidate all existing sessions for this user. KV is the authoritative
+  // session store (authz only checks session:<id>), so deleting the D1 rows
+  // alone would leave live access tokens working — we must evict the KV keys.
+  const sessionRows = await c.env.DB.prepare(
+    'SELECT id FROM sessions WHERE user_id = ?'
+  ).bind(resetRecord.user_id).all<{ id: string }>();
+  await Promise.all(
+    sessionRows.results.map((s) => c.env.KV.delete(`session:${s.id}`))
+  );
   await c.env.DB.prepare(
     'DELETE FROM sessions WHERE user_id = ?'
   ).bind(resetRecord.user_id).run();
-  
+
+  // Stamp a revocation epoch so any 30-day refresh token minted before this
+  // reset can no longer re-mint a session (enforced in /refresh). Covers the
+  // stolen-refresh-token case where the D1 session row was already evicted.
+  await c.env.KV.put(
+    `revoked_before:${resetRecord.user_id}`,
+    String(Math.floor(Date.now() / 1000)),
+    { expirationTtl: 30 * 24 * 3600 }
+  );
+
   return c.json({ message: 'Password has been reset successfully. Please log in with your new password.' });
 });
 
@@ -817,8 +866,10 @@ async function createSession(env: Env, userId: string, existingSessionId?: strin
     expirationTtl: 3600,
   });
   
-  // Store refresh token in KV (30 days TTL)
-  await env.KV.put(`refresh:${refreshToken}`, JSON.stringify({ userId, sessionId }), {
+  // Store refresh token in KV (30 days TTL). issuedAt (epoch seconds) lets
+  // /refresh reject tokens minted before a password-reset revocation
+  // (revoked_before:<userId>).
+  await env.KV.put(`refresh:${refreshToken}`, JSON.stringify({ userId, sessionId, issuedAt: now }), {
     expirationTtl: 30 * 24 * 3600,
   });
   
