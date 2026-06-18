@@ -43,9 +43,10 @@ interface VoiceEntry {
 
 import { EASE } from '../loom/motion';
 
-// A deterministic warm-filament waveform derived from the recording id, scrubbed
-// by playback progress. This IS the audio's content (not backdrop) — amber bars
-// that the elapsed portion lights to warm-bright as the recording plays.
+// A deterministic waveform derived from the recording id, scrubbed by playback
+// progress. This IS the audio's content (not backdrop) — neutral bone bars where
+// the elapsed (lit) portion sits at bone-dim and the remainder at bone-faint.
+// Bars are area fills, so they carry no copper (copper is signal/stroke only).
 function VoiceWaveform({ seed, progress }: { seed: string; progress: number }) {
   const bars = 56;
   // Hash the id into a stable pseudo-random sequence so each recording owns its
@@ -79,7 +80,7 @@ function VoiceWaveform({ seed, progress }: { seed: string; progress: number }) {
             style={{
               flex: '1 1 0', height: `${Math.round(ratio * 100)}%`,
               minWidth: 1, borderRadius: 0,
-              background: lit ? 'var(--warm)' : 'var(--copper-label)',
+              background: lit ? 'var(--bone-dim)' : 'var(--bone-faint)',
               opacity: lit ? 0.95 : 0.55,
               transition: `opacity 180ms ${EASE}, background 180ms ${EASE}`,
             }}

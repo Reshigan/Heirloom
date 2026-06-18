@@ -145,11 +145,11 @@ function chapterDye(it: { id: string; metadata?: unknown; dye?: unknown }): Dye 
 function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }) {
   const ink = active ? 'var(--warm-dim, rgba(224,160,98,0.5))' : 'var(--rule)';
   const photo: React.CSSProperties = {
-    // photo-plate placeholder — a warm-tinted leaf of the page surface so it
-    // theme-flips (token mix, never a fixed dark hex).
-    background:
-      'linear-gradient(135deg, color-mix(in srgb, var(--warm-dim) 42%, var(--ink-card)), color-mix(in srgb, var(--ink-card) 88%, var(--warm-dim)))',
-    border: `1px solid ${ink}`,
+    // photo-plate placeholder — a FLAT leaf of the page surface (Rule 2: copper
+    // never fills a surface). Warmth is carried by the hairline border alone, so
+    // it still theme-flips via the token fill and the warm rule.
+    background: 'var(--bg-template)',
+    border: `1px solid ${active ? 'var(--rule-warm)' : ink}`,
     borderRadius: 0,
   };
   const line = (w: string): React.CSSProperties => ({ height: 2, width: w, background: ink, borderRadius: 0 });
@@ -235,12 +235,15 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
           position: 'relative',
           width: 184,
           height: 248,
-          // 3-D embossed leather cover — built from the dark card surface warmed
-          // by copper so the volume theme-flips with the rest of the loom.
-          background:
-            'linear-gradient(135deg, color-mix(in srgb, var(--warm-dim) 28%, var(--ink-card)), color-mix(in srgb, var(--ink-card) 84%, var(--warm-dim)) 58%, var(--ink-card))',
+          // The volume cover — a FLAT card surface (Rule 2: copper never fills a
+          // surface). Warmth is carried by a single 1px copper emboss stroke, not
+          // a copper-tinted gradient; the fill theme-flips via var(--ink-card).
+          background: 'var(--ink-card)',
+          border: '1px solid var(--rule-warm)',
           borderRadius: 0,
-          boxShadow: '0 18px 40px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.4), inset 0 1px 1px var(--warm-glow)',
+          // neutral depth only — no copper glow layer. Softer than full-black so
+          // it doesn't bruise the paper ground.
+          boxShadow: '0 14px 30px rgba(0,0,0,0.32), 0 2px 6px rgba(0,0,0,0.22)',
         }}
       >
         {/* darker spine stripe on the left */}
@@ -299,7 +302,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
               textAlign: 'center',
               lineHeight: 1.2,
               padding: '0 8px',
-              textShadow: '0 1px 1px rgba(0,0,0,0.6), 0 -1px 0 var(--warm-glow)',
+              textShadow: '0 1px 1px rgba(0,0,0,0.32)',
             }}
           >
             {title}
@@ -312,7 +315,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--gold-text)',
-              textShadow: '0 1px 1px rgba(0,0,0,0.55)',
+              textShadow: '0 1px 1px rgba(0,0,0,0.3)',
             }}
           >
             VOL. I · {yearsLabel}
@@ -801,7 +804,10 @@ export function BookBuilder() {
                           width: '100%',
                           aspectRatio: '0.78',
                           border: active ? '1.5px solid var(--warm)' : '1px solid var(--rule-warm)',
-                          background: active ? 'color-mix(in srgb, var(--warm) 3%, transparent)' : 'var(--bg-template)',
+                          // selected state is marked by the 1px warm border alone
+                          // (Rule 2: no copper-tint surface fill). Fill stays the
+                          // flat template surface in both states.
+                          background: 'var(--bg-template)',
                           borderRadius: 0,
                           padding: active ? 11 : 12,
                           display: 'flex',

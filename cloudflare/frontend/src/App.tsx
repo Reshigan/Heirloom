@@ -159,7 +159,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
     // Honor a ?redirect= param so gift/redeem flows land on the right page after login.
     // Sanitized via safeRedirect to prevent open redirect (same-origin paths only).
     const params = new URLSearchParams(window.location.search);
-    const to = safeRedirect(params.get('redirect'), '/loom');
+    const to = safeRedirect(params.get('redirect'), '/loom/weft');
     return <Navigate to={to} replace />;
   }
   return <>{children}</>;

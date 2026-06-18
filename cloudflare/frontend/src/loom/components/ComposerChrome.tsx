@@ -196,8 +196,11 @@ export function ListenerLine({
             width: 5,
             height: 5,
             borderRadius: 0,
-            background: 'var(--warm)',
-            opacity: loading ? 1 : 0.55,
+            // DOT pattern: warm/active = 1px copper stroke, transparent fill;
+            // neutral/idle = filled var(--bone-dim) square. Never a copper fill.
+            background: loading ? 'transparent' : 'var(--bone-dim)',
+            border: loading ? '1px solid var(--warm)' : '0',
+            boxSizing: 'border-box',
             animation: loading ? 'hl-listener-pulse 1400ms var(--ease) infinite' : 'none',
           }}
         />

@@ -1257,7 +1257,7 @@ export function Inherit() {
                         <span
                           style={{
                             display: 'block',
-                            fontFamily: 'var(--sans)',
+                            fontFamily: 'var(--serif)',
                             fontSize: 12,
                             color: 'var(--bone-dim)',
                             lineHeight: 1.5,

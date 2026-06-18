@@ -193,7 +193,8 @@ export function SearchPage() {
                 key={f.label}
                 className="hl-filter-btn"
                 onClick={() => setTypeFilter(f.value)}
-                style={{ position: 'relative', color: active ? 'var(--warm)' : '#c9b89c' }}
+                aria-pressed={active}
+                style={{ position: 'relative', color: active ? 'var(--warm)' : 'var(--bone-dim)' }}
               >
                 {f.label}
                 {active && (
@@ -204,7 +205,7 @@ export function SearchPage() {
                       left: 0,
                       right: 0,
                       bottom: -7,
-                      height: 2,
+                      height: 1,
                       background: 'var(--warm)',
                     }}
                   />

@@ -999,7 +999,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
               <span
                 aria-hidden
                 style={{
-                  display: 'block', height: 2,
+                  display: 'block', height: 1,
                   width: i === ch ? 20 : 6,
                   background: i === ch ? 'var(--letter-gold)' : 'rgba(var(--letter-copper-rgb), 0.3)',
                   transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
@@ -1023,20 +1023,12 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
         </button>
       </div>
 
-      {/* gilt page edge */}
+      {/* gilt page edge — a hairline gilt cue, a stroke not a copper fill band */}
       <div aria-hidden style={{
-        position: 'absolute', bottom: 0, left: 0, right: 0, height: 6,
-        background: 'var(--letter-edge)',
-        borderTop: '1px solid rgba(var(--letter-copper-rgb), 0.25)', opacity: 0.6,
-        overflow: 'hidden', pointerEvents: 'none',
-      }}>
-        {Array.from({ length: 144 }, (_, k) => (
-          <span key={k} style={{
-            position: 'absolute', top: 0, bottom: 0, left: `${(k / 144) * 100}%`,
-            width: 1, background: 'rgba(0,0,0,0.18)',
-          }} />
-        ))}
-      </div>
+        position: 'absolute', bottom: 0, left: 0, right: 0, height: 1,
+        background: 'var(--letter-edge)', opacity: 0.6,
+        pointerEvents: 'none',
+      }} />
     </div>
   );
 }

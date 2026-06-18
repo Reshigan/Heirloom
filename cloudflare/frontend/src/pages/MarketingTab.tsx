@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { marketingApi } from '../services/api';
+import { useFocusTrap } from '../lib/useFocusTrap';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 
@@ -463,11 +464,14 @@ function StatusBadge({ status }: { status: string }) {
 
 /* ── Loom modal shell ────────────────────────────────────────────── */
 function ModalShell({ title, onClose, wide, children }: { title: string; onClose: () => void; wide?: boolean; children: React.ReactNode }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useFocusTrap(dialogRef, onClose);
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'var(--ink-translucent)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-      <div className="cosmic-panel cosmic-panel--solid" style={{ width: '100%', maxWidth: wide ? 900 : 560, maxHeight: '90vh', overflowY: 'auto', padding: '36px 40px' }}>
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} className="cosmic-panel cosmic-panel--solid" style={{ width: '100%', maxWidth: wide ? 900 : 560, maxHeight: '90vh', overflowY: 'auto', padding: '36px 40px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, borderBottom: '1px solid var(--rule)', paddingBottom: 20 }}>
-          <h3 className="loom-h2" style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: 0 }}>{title}</h3>
+          <h3 id={titleId} className="loom-h2" style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: 0 }}>{title}</h3>
           <button
             onClick={onClose}
             className="loom-mono"

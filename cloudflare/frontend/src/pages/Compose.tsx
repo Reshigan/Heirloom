@@ -1772,7 +1772,7 @@ export function Compose() {
                             bottom: 0,
                             height: 2,
                             width: `${im.progress}%`,
-                            background: 'var(--warm)',
+                            background: sealFill,
                             transition: 'width 180ms var(--ease)',
                           }}
                         />

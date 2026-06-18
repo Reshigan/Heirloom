@@ -46,16 +46,20 @@ function useSystemStatus(): 'green' | 'red' | null {
 export function SecurityDot({ size = 6 }: { size?: number }) {
   const status = useSystemStatus();
   if (!status) return null;
+  const isGreen = status === 'green';
   return (
     <span
       role="img"
-      title={status === 'green' ? 'All systems secure' : 'System issue — please check status'}
-      aria-label={status === 'green' ? 'Secure' : 'System issue'}
+      title={isGreen ? 'All systems secure' : 'System issue — please check status'}
+      aria-label={isGreen ? 'Secure' : 'System issue'}
       style={{
         display: 'inline-block',
         width: size,
         height: size,
-        background: status === 'green' ? 'var(--bone-dim)' : 'var(--warm)',
+        // ok: small filled neutral square. alert: WarmDot pattern — square,
+        // 1px copper stroke, transparent fill (copper as signal stroke, never fill).
+        background: isGreen ? 'var(--bone-dim)' : 'transparent',
+        border: isGreen ? 'none' : '1px solid var(--warm)',
         borderRadius: 0,
         flexShrink: 0,
         verticalAlign: 'middle',

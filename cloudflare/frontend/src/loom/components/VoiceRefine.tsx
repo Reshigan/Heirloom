@@ -285,12 +285,17 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
             {[0, 1, 2, 3, 4, 5, 6].map((i) => {
               // Center bars react most — a soft bell so the meter reads as a voice, not a VU strip.
               const weight = 1 - Math.abs(i - 3) / 4;
-              const h = 3 + level * weight * 19;
+              const lift = level * weight * 19;
+              const h = 3 + lift;
+              // Bars carry signal, not colour: a bar lifted by voice reads lit
+              // (bone-dim); a resting bar stays faint (bone-faint). No copper fill.
+              const lit = lift > 1.5;
               return (
                 <span
                   key={i}
                   style={{
-                    width: 2, height: h, background: 'var(--warm)',
+                    width: 2, height: h,
+                    background: lit ? 'var(--bone-dim)' : 'var(--bone-faint)',
                     transition: 'height 180ms var(--ease)',
                   }}
                 />

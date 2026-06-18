@@ -57,9 +57,8 @@ export function HLogo({ size = 'sm', wordmark = true, href }: HLogoProps) {
           <line x1="5" y1="7"    x2="19" y2="21" />
           <line x1="19" y1="7"   x2="5" y2="21" />
         </g>
-        {/* The convergence node — the one warm point: glow halo then core */}
-        <circle cx="12" cy="14" r="4.4" fill="var(--warm)" fillOpacity="0.22" />
-        <circle cx="12" cy="14" r="2.1" fill="var(--warm)" />
+        {/* The convergence node — the one warm point: a 1px copper stroke, no fill */}
+        <circle cx="12" cy="14" r="2.1" stroke="var(--warm)" strokeWidth="1" fill="none" />
       </svg>
       {wordmark && (
         <span style={{

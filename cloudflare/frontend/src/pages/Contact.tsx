@@ -155,7 +155,7 @@ export function Contact() {
             >
               <span
                 style={{
-                  fontFamily: 'var(--sans)',
+                  fontFamily: 'var(--serif)',
                   fontSize: 14,
                   color: 'var(--bone)',
                 }}

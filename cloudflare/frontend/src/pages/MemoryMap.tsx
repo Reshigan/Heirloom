@@ -256,7 +256,7 @@ export function MemoryMap() {
                         display: 'block',
                         width: active ? 4 : 3,
                         height: active ? 4 : 3,
-                        borderRadius: '50%',
+                        borderRadius: 0,
                         background: 'var(--bone-faint)',
                         border: active ? '1px solid var(--warm)' : '1px solid var(--rule)',
                         transition: 'width 360ms var(--ease), height 360ms var(--ease), border-color 360ms var(--ease)',

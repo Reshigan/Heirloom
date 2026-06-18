@@ -87,8 +87,11 @@ export function FirstThread() {
     const t = reduce.current ? 0.6 : performance.now() / 1000;
     // Canvas fillStyle cannot resolve var() — read the canonical copper tokens
     // at draw time (document is mounted by now) so the waveform tracks the brand
-    // palette and theme rather than hardcoded bespoke copper.
-    const cs = getComputedStyle(document.documentElement);
+    // palette and theme rather than hardcoded bespoke copper. data-theme lives on
+    // .loom, not :root, so read from the .loom root to pick up the AA-lifted light
+    // copper on the paper ground (else we'd always get the dark :root copper).
+    const root = document.querySelector('.loom') ?? document.documentElement;
+    const cs = getComputedStyle(root);
     const warmTop = cs.getPropertyValue('--warm-bright').trim() || '#f0c074';
     const warmBottom = cs.getPropertyValue('--warm-dim').trim() || '#b07a3e';
     x.clearRect(0, 0, W, H);
@@ -249,7 +252,7 @@ export function FirstThread() {
             <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--bone-dim)', textAlign: 'center', minHeight: 40 }}>“…the scent of rain on dry earth carried us back to that summer.”</div>
             <div style={{ flex: 1 }} />
             <button type="button" onClick={stopRec} style={{ display: 'flex', alignItems: 'center', gap: 10, border: '1px solid var(--copper-border)', background: 'transparent', borderRadius: 0, padding: '13px 26px', color: 'var(--warm-bright)', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.24em', cursor: 'pointer' }}>
-              <span style={{ width: 11, height: 11, background: 'var(--warm)', borderRadius: 0, display: 'inline-block' }} />
+              <span style={{ width: 11, height: 11, border: '1px solid var(--warm)', background: 'transparent', borderRadius: 0, display: 'inline-block' }} />
               STOP &amp; WEAVE
             </button>
           </div>

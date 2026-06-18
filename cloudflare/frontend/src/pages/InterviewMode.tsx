@@ -303,7 +303,8 @@ export function InterviewMode() {
             display: 'inline-block',
             width: 4,
             height: 4,
-            background: 'var(--warm)',
+            background: 'transparent',
+            border: '1px solid var(--warm)',
             borderRadius: 0,
             animation: 'hl-blink 1400ms steps(1) infinite',
           }}
@@ -455,19 +456,29 @@ export function InterviewMode() {
                 marginTop: 22,
               }}
             >
-              {waveformBars.map((h, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: 1,
-                    height: `${h * 32}px`,
-                    background: isPaused ? 'var(--bone-faint)' : 'var(--warm)',
-                    opacity: 0.7,
-                    transition: 'height 180ms var(--ease)',
-                    borderRadius: 0,
-                  }}
-                />
-              ))}
+              {waveformBars.map((h, i) => {
+                // A single 1px playhead may stay copper — the live leading edge
+                // while actually recording. Every other bar is bone: lit (active,
+                // not paused) reads var(--bone-dim), unlit reads var(--bone-faint).
+                const isPlayhead = !isPaused && i === waveformBars.length - 1;
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      width: 1,
+                      height: `${h * 32}px`,
+                      background: isPlayhead
+                        ? 'var(--warm)'
+                        : isPaused
+                          ? 'var(--bone-faint)'
+                          : 'var(--bone-dim)',
+                      opacity: 0.7,
+                      transition: 'height 180ms var(--ease)',
+                      borderRadius: 0,
+                    }}
+                  />
+                );
+              })}
             </div>
           )}
 

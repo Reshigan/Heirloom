@@ -258,7 +258,7 @@ function SelectRow({
         {sub && (
           <span
             style={{
-              fontFamily: 'var(--sans)',
+              fontFamily: 'var(--serif)',
               fontSize: 13,
               color: 'var(--bone-dim)',
               display: 'block',

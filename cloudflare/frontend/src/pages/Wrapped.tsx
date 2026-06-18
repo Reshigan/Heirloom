@@ -232,14 +232,17 @@ export default function Wrapped() {
             }}
           />
         </picture>
-        {/* radial vignette — focuses the eye on the centred numerals */}
+        {/* radial vignette — focuses the eye on the centred numerals. Stops ride
+            the theme-flipping vignette token so the centre dims toward parchment
+            in light mode (no near-black blotch behind dark numerals) and toward
+            ink in dark mode; fades to transparent at the edge in both. */}
         <div
           aria-hidden
           style={{
             position: 'absolute',
             inset: 0,
             background:
-              'radial-gradient(58% 64% at 50% 50%, rgba(11,9,7,0.82), rgba(11,9,7,0.3) 68%, transparent)',
+              'radial-gradient(58% 64% at 50% 50%, color-mix(in srgb, var(--vignette-core) 82%, transparent), color-mix(in srgb, var(--vignette-core) 30%, transparent) 68%, transparent)',
             pointerEvents: 'none',
             zIndex: 0,
           }}

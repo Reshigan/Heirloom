@@ -15,7 +15,7 @@ export function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login } = useAuthStore();
-  const redirectUrl = safeRedirect(searchParams.get('redirect'), '/loom/index');
+  const redirectUrl = safeRedirect(searchParams.get('redirect'), '/loom/weft');
   const sessionExpired = searchParams.get('session_expired') === 'true';
 
   const [email, setEmail] = useState('');
@@ -34,7 +34,7 @@ export function Login() {
       if (encryptionStatus.enabled && !encryptionStatus.unlocked) {
         setShowVaultUnlock(true);
       } else {
-        navigate(redirectUrl || '/loom/pwa');
+        navigate(redirectUrl || '/loom/weft');
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid email or password.');
@@ -210,7 +210,7 @@ export function Login() {
           isOpen={showVaultUnlock}
           onComplete={() => {
             setShowVaultUnlock(false);
-            navigate(redirectUrl || '/loom/pwa');
+            navigate(redirectUrl || '/loom/weft');
           }}
         />
       ) : null}

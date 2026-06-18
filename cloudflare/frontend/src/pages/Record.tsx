@@ -694,6 +694,7 @@ export function Record() {
                       key={opt.value}
                       role="button"
                       tabIndex={0}
+                      aria-pressed={active}
                       onClick={() => setDeliveryTrigger(opt.value)}
                       onKeyDown={e => {
                         if (e.key === 'Enter' || e.key === ' ') {
@@ -837,17 +838,18 @@ export function Record() {
               }}
             >
               {waveBars.map((amp, i) => {
-                // Copper is signal, not a band: tint only the leading 1–2 bars
-                // at the live playback edge; the rest stay calm bone.
+                // No copper fill: the bars carry the waveform shape in bone.
+                // Lit (already-played) bars are bone-dim, the rest bone-faint —
+                // copper stays signal-only (a 1px playhead may stay copper).
                 const lead = playing ? Math.round(playPos * (waveBars.length - 1)) : -1;
-                const active = lead >= 0 && (i === lead || i === lead - 1);
+                const lit = lead >= 0 && i <= lead;
                 return (
                   <span
                     key={i}
                     style={{
                       flex: '1 1 0',
                       height: `${amp * 100}%`,
-                      background: active ? 'var(--warm)' : 'var(--bone-faint)',
+                      background: lit ? 'var(--bone-dim)' : 'var(--bone-faint)',
                       transition: 'height 360ms var(--ease), background 180ms var(--ease)',
                     }}
                   />

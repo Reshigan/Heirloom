@@ -22,9 +22,9 @@ export function Threshold() {
   // `/loom` is wired as "home" across the whole app — breadcrumbs, back-links,
   // post-login, post-join, post-purchase. This screen is the anonymous brand
   // splash, not the visitor's own home. Forward a signed-in visitor to their
-  // real home so every one of those links lands correctly from this single
-  // guard. Anonymous visitors keep the splash.
-  if (isAuthenticated) return <Navigate to="/loom/pwa" replace />;
+  // real home — the cloth (/loom/weft) — so every one of those links lands
+  // correctly from this single guard. Anonymous visitors keep the splash.
+  if (isAuthenticated) return <Navigate to="/loom/weft" replace />;
 
   // The one door — the entry ceremony begins a new thread. (Preserved from the
   // original threshold CTA: addRoute="/signup".)

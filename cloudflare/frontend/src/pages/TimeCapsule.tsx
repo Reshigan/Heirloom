@@ -114,17 +114,18 @@ function CapsuleRow({
       onClick={onClick}
       style={{
         width: '100%',
-        background: isSelected ? 'color-mix(in srgb, var(--warm) 4%, transparent)' : 'transparent',
+        background: 'transparent',
         border: 0,
+        borderLeft: isSelected ? '1px solid var(--warm)' : '1px solid transparent',
         borderBottom: '1px solid var(--hairline)',
-        padding: '24px 0',
+        padding: isSelected ? '24px 0 24px 16px' : '24px 0',
         cursor: 'pointer',
         textAlign: 'left',
         display: 'grid',
         gridTemplateColumns: '1fr auto',
         gap: 24,
         alignItems: 'baseline',
-        transition: `background 180ms ${EASE}`,
+        transition: `border-color 180ms ${EASE}, padding 180ms ${EASE}`,
       }}
     >
       {/* Serif title + warm dye dot */}
@@ -150,7 +151,11 @@ function CapsuleRow({
             width: 6,
             height: 6,
             borderRadius: 0,
-            background: status === 'unlocked' ? 'var(--bone-faint)' : 'var(--warm)',
+            // DOT pattern: copper = 1px stroke + transparent fill (sealed/warn);
+            // neutral = filled bone-dim square.
+            border: status === 'unlocked' ? 0 : '1px solid var(--warm)',
+            background: status === 'unlocked' ? 'var(--bone-dim)' : 'transparent',
+            boxSizing: 'border-box',
             display: 'inline-block',
             flexShrink: 0,
             transform: 'translateY(-2px)',

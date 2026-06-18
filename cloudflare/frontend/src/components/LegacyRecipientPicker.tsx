@@ -102,7 +102,7 @@ export default function LegacyRecipientPicker({
   return (
     <div style={{ marginBottom: 28 }}>
       {labelEl}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+      <div role="group" aria-label={label} style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         {contacts.map((c) => {
           const on = selectedIds.includes(c.id);
           return (

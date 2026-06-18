@@ -219,7 +219,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                   key={index}
                   onClick={() => setCurrentStep(index)}
                   aria-label={`Go to step ${index + 1}`}
-                  className={`h-[2px] rounded-none transition-all duration-fast ease-out ${
+                  className={`h-px rounded-none transition-all duration-fast ease-out ${
                     index === currentStep ? 'w-10' : 'w-6'
                   }`}
                   style={

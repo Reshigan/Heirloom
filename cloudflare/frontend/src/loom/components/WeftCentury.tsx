@@ -103,7 +103,9 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
                 display: 'inline-block',
                 width: 2,
                 height: 18,
-                background: hoveredEntry.kind === 'milestone' ? 'var(--warm)' : `var(--dye-${hoveredEntry.dye ?? (hoveredEntry.kind === 'letter' ? 'walnut' : hoveredEntry.kind === 'voice' ? 'woad' : 'indigo')})`,
+                ...(hoveredEntry.kind === 'milestone'
+                  ? { background: 'transparent', borderLeft: '1px solid var(--warm)' }
+                  : { background: `var(--dye-${hoveredEntry.dye ?? (hoveredEntry.kind === 'letter' ? 'walnut' : hoveredEntry.kind === 'voice' ? 'woad' : 'indigo')})` }),
                 flexShrink: 0,
               }}
             />

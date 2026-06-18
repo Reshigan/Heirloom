@@ -102,7 +102,7 @@ export function VaultModal({ isOpen, onComplete }: VaultModalProps) {
     borderRadius: 0,
     color: 'var(--bone)',
     padding: '11px 14px',
-    fontFamily: 'var(--sans)',
+    fontFamily: 'var(--serif)',
     fontSize: 16,
     outline: 'none',
     boxSizing: 'border-box',

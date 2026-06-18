@@ -92,7 +92,6 @@ export default {
           warm: 'var(--loom-warm)',
           'warm-bright': 'var(--loom-warm-bright)',
           'warm-dim': 'var(--loom-warm-dim)',
-          'warm-glow': 'var(--loom-warm-glow)',
         },
       },
       fontFamily: {
@@ -122,12 +121,6 @@ export default {
         'normal': '360ms',
         'slow': '720ms',
         'glacial': '1400ms',
-      },
-      boxShadow: {
-        'gold': '0 8px 32px -4px rgba(224, 160, 98, 0.4)',
-        'gold-hover': '0 12px 40px -4px rgba(224, 160, 98, 0.5)',
-        'blood': '0 8px 32px -4px rgba(159, 58, 42, 0.4)',
-        'glass': '0 4px 24px -4px rgba(0, 0, 0, 0.5)',
       },
       animation: {
         // Off-spec animations float/glow/aura-breathe/record-ring/page-in were
