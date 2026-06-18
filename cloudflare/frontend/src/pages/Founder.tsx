@@ -5,6 +5,7 @@ import { foundersApi, billingApi, type FounderCount } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
+import { PLAN_PRICE } from '../lib/plans';
 
 const META_TITLE = 'Founder Access';
 const META_DESCRIPTION = 'Permanent access to Heirloom — one lifetime fee for the whole family thread.';
@@ -75,7 +76,7 @@ export function Founder() {
   // Localized Founder one-time price for display. Falls back to "$249" until the
   // pricing endpoint resolves (or if it fails). Stripe charges the dynamic
   // price_data amount regardless — this is display source only.
-  const [priceDisplay, setPriceDisplay] = useState('$249');
+  const [priceDisplay, setPriceDisplay] = useState<string>(PLAN_PRICE.FOUNDER.amount);
 
   // pledge form state
   const [name, setName]             = useState('');

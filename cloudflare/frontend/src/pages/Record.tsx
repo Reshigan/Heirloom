@@ -70,6 +70,8 @@ export function Record() {
   const [transcribing, setTranscribing] = useState(false);
   const [showRefine, setShowRefine] = useState(false);
   const [playing, setPlaying] = useState(false);
+  // Display-only playback position (0..1) — drives the leading copper bar.
+  const [playPos, setPlayPos] = useState(0);
 
   // Static amber waveform — deterministic bars derived from the recording so the
   // shape is stable across re-renders (no audio-analyser dependency).
@@ -826,17 +828,23 @@ export function Record() {
                 transition: 'opacity 360ms var(--ease)',
               }}
             >
-              {waveBars.map((amp, i) => (
-                <span
-                  key={i}
-                  style={{
-                    flex: '1 1 0',
-                    height: `${amp * 100}%`,
-                    background: 'var(--warm)',
-                    transition: 'height 360ms var(--ease)',
-                  }}
-                />
-              ))}
+              {waveBars.map((amp, i) => {
+                // Copper is signal, not a band: tint only the leading 1–2 bars
+                // at the live playback edge; the rest stay calm bone.
+                const lead = playing ? Math.round(playPos * (waveBars.length - 1)) : -1;
+                const active = lead >= 0 && (i === lead || i === lead - 1);
+                return (
+                  <span
+                    key={i}
+                    style={{
+                      flex: '1 1 0',
+                      height: `${amp * 100}%`,
+                      background: active ? 'var(--warm)' : 'var(--bone-faint)',
+                      transition: 'height 360ms var(--ease), background 180ms var(--ease)',
+                    }}
+                  />
+                );
+              })}
             </div>
 
             {/* warm-outline transport — play triangle / pause bars */}
@@ -884,7 +892,11 @@ export function Record() {
             <audio
               ref={audioElRef}
               src={audioUrl}
-              onEnded={() => setPlaying(false)}
+              onTimeUpdate={(e) => {
+                const el = e.currentTarget;
+                setPlayPos(el.duration > 0 ? el.currentTime / el.duration : 0);
+              }}
+              onEnded={() => { setPlaying(false); setPlayPos(0); }}
               onPause={() => setPlaying(false)}
               style={{ display: 'none' }}
             />

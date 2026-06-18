@@ -7,6 +7,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 import { EASE } from '../loom/motion';
+import { copyToClipboard } from '../utils/clipboard';
 
 // Sanctioned stagger ladder — only the four allowed motion durations, used as
 // the reveal delays so each stat moment lands on a legal beat.
@@ -179,9 +180,11 @@ export default function Wrapped() {
     if (navigator.share) {
       await navigator.share({ title: `${YEAR} — Heirloom`, text, url }).catch(() => null);
     } else {
-      await navigator.clipboard.writeText(url).catch(() => null);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2400);
+      const ok = await copyToClipboard(url).then(() => true).catch(() => false);
+      if (ok) {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2400);
+      }
     }
   };
 

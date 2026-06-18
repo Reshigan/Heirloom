@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+import { copyToClipboard } from '../utils/clipboard';
 
 /**
  * Screen 05 — The Unlock
@@ -747,7 +748,7 @@ function ShareCard({ letter }: { letter: UnlockLetter }) {
             if (navigator.share) {
               await navigator.share({ text, title: 'Heirloom' }).catch(() => {});
             } else {
-              await navigator.clipboard.writeText(text).catch(() => {});
+              await copyToClipboard(text).catch(() => {});
             }
           }}
           style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', background: 'none', border: 'none', borderBottom: '1px solid var(--rule)', cursor: 'pointer', marginTop: 24, paddingBottom: 2 }}

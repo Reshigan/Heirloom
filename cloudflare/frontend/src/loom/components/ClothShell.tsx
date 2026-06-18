@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react';
 import { CLOTH_BG_ENTRIES } from './ClothBackdrop';
 import { BOTTOM_NAV_CLEARANCE } from './BottomNav';
+import { UserMenu } from './Frame';
 
 // Re-exported for back-compat — the canonical source now lives in ClothBackdrop.
 export { CLOTH_BG_ENTRIES };
@@ -68,7 +69,12 @@ export function ClothShell({
             {topbarCenter}
           </div>
           <div style={{ flex: '1 1 0', minWidth: 0, overflow: 'hidden', display: 'flex', justifyContent: 'flex-end' }}>
-            {topbarRight}
+            {/* Default the right slot to the account menu so every authed screen
+                (Today and other hubs that pass no right slot) carries account +
+                sign-out. UserMenu self-guards: it renders null when logged-out,
+                so public ClothShell pages stay clean. Pages that pass their own
+                topbarRight (e.g. a CTA) keep it. */}
+            {topbarRight ?? <UserMenu />}
           </div>
         </header>
       )}

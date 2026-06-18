@@ -96,12 +96,12 @@ export function GiftSubscriptions() {
     },
     {
       id: 'FAMILY', name: 'Family', description: 'The full thread — for the whole bloodline', storage: '50 GB', popular: true,
-      monthly: { amount: 6.29, display: '$6.29', listAmount: PLAN_PRICE_NUM.FAMILY.monthly, listDisplay: '$6.99', giftDiscount: '10% off' },
-      yearly:  { amount: 62.1, display: '$62.10', listAmount: PLAN_PRICE_NUM.FAMILY.annual, listDisplay: '$69.00', giftDiscount: '10% off', savings: '2 months free' },
+      monthly: { amount: 6.29, display: '$6.29', listAmount: PLAN_PRICE_NUM.FAMILY.monthly, listDisplay: `$${PLAN_PRICE_NUM.FAMILY.monthly.toFixed(2)}`, giftDiscount: '10% off' },
+      yearly:  { amount: 62.1, display: '$62.10', listAmount: PLAN_PRICE_NUM.FAMILY.annual, listDisplay: `$${PLAN_PRICE_NUM.FAMILY.annual.toFixed(2)}`, giftDiscount: '10% off', savings: '2 months free' },
     },
     {
       id: 'LEGACY', name: 'Founder', description: 'Lifetime, for every generation — paid once', storage: '500 GB',
-      lifetime: { amount: 224.1, display: '$224.10', listAmount: PLAN_PRICE_NUM.FOUNDER.lifetime, listDisplay: '$249.00', giftDiscount: '10% off', note: 'once · lifetime' },
+      lifetime: { amount: 224.1, display: '$224.10', listAmount: PLAN_PRICE_NUM.FOUNDER.lifetime, listDisplay: `$${PLAN_PRICE_NUM.FOUNDER.lifetime.toFixed(2)}`, giftDiscount: '10% off', note: 'once · lifetime' },
     },
   ];
 

@@ -85,6 +85,19 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
     onError: () => setMutError('Could not remove this entry.'),
   });
 
+  // An unwoven thread is soft-deleted, not erased — the worker keeps it
+  // restorable for 7 days (memories.ts restore route). Surface that window as a
+  // first-class undo so the archive's permanence promise holds in the UI too.
+  const restoreMut = useMutation({
+    mutationFn: () => memoriesApi.restore(m.id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
+      deleteMut.reset();
+      setMutError(null);
+    },
+    onError: () => setMutError('Could not restore this entry.'),
+  });
+
   const typeKey = (m.type as string) ?? 'memory';
   const dyeColor = DYE_COLORS[typeKey] ?? DYE_COLORS['memory'];
   const entryDate = new Date(entryDateOf(m));
@@ -95,7 +108,26 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
     ? ''
     : entryDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 
-  if (deleteMut.isSuccess) return null;
+  // Unwoven, but not gone — a 7-day undo strip stands in the row's place.
+  if (deleteMut.isSuccess && !restoreMut.isSuccess) {
+    return (
+      <div style={{ borderLeft: `3px solid ${dyeColor}`, paddingLeft: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, padding: '15px 0', borderBottom: '1px solid var(--rule)' }}>
+          <span className="hl-serif" style={{ fontStyle: 'italic', fontWeight: 300, fontSize: 15, lineHeight: 1.5, color: 'var(--bone-dim)' }}>
+            Unwoven — recoverable for 7 days.
+          </span>
+          <button type="button" onClick={() => restoreMut.mutate()} disabled={restoreMut.isPending}
+            className="hl-mono"
+            style={{ marginLeft: 'auto', background: 'transparent', border: 0, padding: '6px 0', cursor: restoreMut.isPending ? 'wait' : 'pointer', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', opacity: restoreMut.isPending ? 0.6 : 1, touchAction: 'manipulation', minHeight: 44 }}>
+            {restoreMut.isPending ? 'reweaving…' : 'undo'}
+          </button>
+        </div>
+        {mutError && (
+          <p className="hl-mono" role="alert" style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.1em', marginTop: 10 }}>{mutError}</p>
+        )}
+      </div>
+    );
+  }
 
   const delay = Math.min(index % 8, 7) * 56; // stagger within each "batch"
   const title = m.title || (m.description ? (m.description as string).slice(0, 64) : 'Untitled');
@@ -405,21 +437,32 @@ function FilterBar({ memories, filters, setFilters }: {
               style={{
                 background: 'transparent',
                 border: 0,
-                borderBottom: `1px solid ${isOn ? em.dye : 'transparent'}`,
                 borderRadius: 0,
-                padding: '2px 0',
+                padding: '0 2px',
                 cursor: 'pointer',
                 fontFamily: 'var(--mono)',
                 fontSize: 10,
                 letterSpacing: '0.16em',
                 textTransform: 'uppercase',
                 color: isOn ? em.dye : 'var(--bone-faint)',
-                transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
-                minHeight: 28,
+                transition: 'color 180ms var(--ease)',
+                // 44px tap target for the mobile PWA without detaching the
+                // active underline from the label — the rule rides an inner
+                // span so the hit area can grow while the mark stays on the word.
+                minHeight: 44,
+                display: 'inline-flex',
+                alignItems: 'center',
+                touchAction: 'manipulation',
                 whiteSpace: 'nowrap',
               }}
             >
-              {em.label}
+              <span style={{
+                borderBottom: `1px solid ${isOn ? em.dye : 'transparent'}`,
+                paddingBottom: 3,
+                transition: 'border-color 180ms var(--ease)',
+              }}>
+                {em.label}
+              </span>
             </button>
           );
         })}

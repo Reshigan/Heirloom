@@ -189,8 +189,8 @@ type LockType = 'date' | 'eighteen' | 'generation' | 'gone';
 const LOCK_TYPES: { id: LockType; label: string; descriptor: string }[] = [
   { id: 'date', label: 'On a date', descriptor: 'Select a specific time and day' },
   { id: 'eighteen', label: 'When they turn 18', descriptor: 'Automatic unlocking on birthday' },
-  { id: 'generation', label: 'A future generation', descriptor: 'Set a long-term reveal' },
-  { id: 'gone', label: 'After I am gone', descriptor: 'Release upon my passing' },
+  { id: 'generation', label: 'A future generation', descriptor: `Approximate — opens ${new Date().getFullYear() + 25} (a generation hence)` },
+  { id: 'gone', label: 'After I am gone', descriptor: `Approximate — opens ${new Date().getFullYear() + 60} (a lifetime horizon)` },
 ];
 
 function isoDaysFromNow(days: number): string {

@@ -18,7 +18,7 @@ const SECTIONS = [
   {
     n: 'ii',
     h: 'Append-only, with grace.',
-    b: 'Entries cannot be silently edited. Amendments are visible. There is a 30-day delete grace window for the original author only. After 30 days, the entry is immutable until the thread\'s end-of-time.',
+    b: 'Entries cannot be silently edited. For 30 days the original author may correct an entry in place; after that, every change is kept as a visible amendment, not a silent rewrite. A deleted entry is recoverable for 7 days, then it is released. Beyond these windows the entry stands until the thread\'s end-of-time.',
   },
   {
     n: 'iii',

@@ -101,6 +101,7 @@
   --warm-dim: #b07a3e;
   --warm-glow: rgba(224, 160, 98, 0.18);
   --rule-warm: rgba(224, 160, 98, 0.24);
+  --thread-warm: rgba(224, 160, 98, 0.55);
 
   /* ── Hi-fi handoff tokens (23-screen design) ───────────────────────
      The design dims the bright copper to a label-copper on eyebrows /
@@ -296,6 +297,7 @@
   --rule:         rgba(18, 13, 8, 0.12);
   --rule-strong:  rgba(18, 13, 8, 0.22);
   --rule-warm:    rgba(150, 80, 26, 0.32);
+  --thread-warm:  rgba(150, 80, 26, 0.55);
   /* Copper + faint-label tokens mordanted to clear WCAG AA (4.5:1) on
      parchment — light-mode only; the dark theme's lighter copper already
      passes. Lifted from #a86220/#be7a2e/0.48α (all <4:1) after a live audit.
@@ -2073,7 +2075,7 @@ html {
 
 /* ── Color: blood (errors) ─────────────────────────────────────── */
 .loom .bg-blood,
-.loom .bg-blood-light { background-color: #8c2c2c !important; color: #f2e6d0; }
+.loom .bg-blood-light { background-color: var(--blood) !important; color: var(--paper); }
 .loom .text-blood,
 .loom .text-blood-light { color: var(--danger) !important; }
 
@@ -2148,8 +2150,8 @@ html {
   color: var(--loom-warm) !important;
 }
 .loom .btn-danger {
-  background: #8c2c2c !important;
-  color: #f2e6d0 !important;
+  background: var(--blood) !important;
+  color: var(--paper) !important;
   border: 0 !important;
 }
 

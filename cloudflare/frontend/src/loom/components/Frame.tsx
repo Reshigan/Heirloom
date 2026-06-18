@@ -161,7 +161,7 @@ export function TapestryEdge({ nowFrac = 0.78 }: { nowFrac?: number }) {
         position: 'absolute',
         left: 0, right: 0, bottom: 0,
         height: 8,
-        background: 'var(--void-abyss)',
+        background: 'var(--ink-deep)',
         overflow: 'hidden',
         pointerEvents: 'none',
       }}

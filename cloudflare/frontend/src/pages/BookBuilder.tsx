@@ -796,7 +796,6 @@ export function BookBuilder() {
                           border: active ? '1.5px solid var(--warm)' : '1px solid #3a2c1c',
                           background: active ? 'color-mix(in srgb, var(--warm) 3%, transparent)' : 'var(--bg-template)',
                           borderRadius: 0,
-                          boxShadow: active ? '0 0 14px rgba(224,160,98,0.5)' : 'none',
                           padding: active ? 11 : 12,
                           display: 'flex',
                           flexDirection: 'column',

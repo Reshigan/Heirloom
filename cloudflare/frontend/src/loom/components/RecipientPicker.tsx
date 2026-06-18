@@ -23,7 +23,7 @@ interface RecipientPickerProps {
   label?: string;
 }
 
-const MONO = "'Space Mono', monospace";
+const MONO = 'var(--mono)';
 
 /**
  * RecipientPicker — autocomplete over existing friends & family, with the

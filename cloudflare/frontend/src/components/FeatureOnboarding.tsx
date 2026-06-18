@@ -175,6 +175,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
+          transition={{ duration: 0.36, ease: EASE_ARRAY }}
           className="fixed inset-0 bg-void/80 flex items-center justify-center z-50 p-4"
           onClick={onDismiss}
         >
@@ -199,7 +200,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
               </div>
               <button
                 onClick={onDismiss}
-                className="text-paper-50 hover:text-paper transition-colors duration-fast text-sm shrink-0"
+                className="text-paper-50 hover:text-paper transition-colors duration-fast ease-out text-sm shrink-0"
                 aria-label="Close walkthrough"
               >
                 Close
@@ -213,7 +214,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                   key={index}
                   onClick={() => setCurrentStep(index)}
                   aria-label={`Go to step ${index + 1}`}
-                  className={`h-[2px] rounded-none transition-all duration-fast ${
+                  className={`h-[2px] rounded-none transition-all duration-fast ease-out ${
                     index === currentStep ? 'w-10' : 'w-6'
                   } ${index > currentStep ? 'bg-paper-15' : ''}`}
                   style={
@@ -327,7 +328,7 @@ export function OnboardingHelpButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-20 md:bottom-6 right-6 z-40 px-4 py-2.5 bg-void-surface border border-gold-40 rounded-none text-gold hover:text-gold-bright transition-colors duration-fast text-[0.7rem] loom-mono uppercase tracking-[0.22em]"
+      className="fixed bottom-20 md:bottom-6 right-6 z-40 px-4 py-2.5 bg-void-surface border border-gold-40 rounded-none text-gold hover:text-gold-bright transition-colors duration-fast ease-out text-[0.7rem] loom-mono uppercase tracking-[0.22em]"
       title="How does this work?"
       aria-label="How does this work?"
     >

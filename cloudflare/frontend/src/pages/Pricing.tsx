@@ -180,7 +180,6 @@ export function Pricing() {
                   ? '1px solid var(--copper-border)'
                   : '1px solid var(--hairline-3)',
                 borderRadius: 0,
-                boxShadow: tier.emphasized ? '0 0 24px -6px rgba(216,150,84,0.4)' : undefined,
               }}
             >
               {/* Tier name */}
