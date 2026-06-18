@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { challengesApi } from '../services/api';
-import { copyToClipboard } from '../utils/clipboard';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { useFocusTrap } from '../lib/useFocusTrap';
 
@@ -13,7 +12,6 @@ export function Challenges() {
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [submissionContent, setSubmissionContent] = useState('');
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null);
 
   // Modal overlays: canonical focus trap + Escape close, focus first field on open.
   const submitRef = useRef<HTMLDivElement>(null);
@@ -51,43 +49,6 @@ export function Challenges() {
       setSubmitError('Submission failed. Please try again.');
     },
   });
-
-  const handleShare = (platform: string) => {
-    const challenge = currentChallenge;
-    if (!challenge) return;
-    const text = `I just shared a memory for the ${challenge.title} challenge on Heirloom! ${challenge.hashtag}`;
-    const url = `${window.location.origin}/challenges`;
-    let shareUrl = '';
-    switch (platform) {
-      case 'instagram':
-        copyToClipboard(`${text}\n\n${url}`).then(() => {
-          setCopiedPlatform('instagram');
-          setTimeout(() => setCopiedPlatform(null), 2000);
-        }).catch(() => {});
-        break;
-      case 'tiktok':
-        copyToClipboard(`${text}\n\n${url}`).then(() => {
-          setCopiedPlatform('tiktok');
-          setTimeout(() => setCopiedPlatform(null), 2000);
-        }).catch(() => {});
-        break;
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(text)}`;
-        window.open(shareUrl, '_blank');
-        break;
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
-        window.open(shareUrl, '_blank');
-        break;
-    }
-  };
-
-  const getDaysRemaining = (endDate: string) => {
-    const end = new Date(endDate);
-    const now = new Date();
-    const diff = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    return Math.max(0, diff);
-  };
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
@@ -176,7 +137,7 @@ export function Challenges() {
             {/* Active challenge — the prompt as a ledger entry, its meta on the right */}
             {currentChallenge ? (
               <section>
-                <SectionLabel>This week</SectionLabel>
+                <SectionLabel>This week's thread</SectionLabel>
 
                 <div style={{ borderBottom: '1px solid var(--rule)', padding: '15px 0' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 20, flexWrap: 'wrap' }}>
@@ -186,9 +147,11 @@ export function Challenges() {
                     >
                       {currentChallenge.title}
                     </h2>
-                    <span style={{ ...metaText, color: 'var(--bone-faint)', whiteSpace: 'nowrap', flex: '0 0 auto' }}>
-                      {getDaysRemaining(currentChallenge.end_date)} days · {currentChallenge.submissionCount || 0} entries
-                    </span>
+                    {(currentChallenge.submissionCount || 0) > 0 && (
+                      <span style={{ ...metaText, color: 'var(--bone-faint)', whiteSpace: 'nowrap', flex: '0 0 auto' }}>
+                        {currentChallenge.submissionCount} woven
+                      </span>
+                    )}
                   </div>
 
                   <p
@@ -205,22 +168,9 @@ export function Challenges() {
                     "{currentChallenge.prompt}"
                   </p>
 
-                  <p style={{ ...metaText, color: 'var(--copper-label)', margin: '14px 0 0' }}>
-                    {currentChallenge.hashtag}
-                  </p>
-
                   <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap', marginTop: 20, alignItems: 'baseline' }}>
                     <button type="button" onClick={() => setShowSubmitModal(true)} style={affordance}>
                       add to thread →
-                    </button>
-                    <button type="button" onClick={() => handleShare('twitter')} style={affordanceQuiet}>
-                      share · X
-                    </button>
-                    <button type="button" onClick={() => handleShare('instagram')} style={affordanceQuiet}>
-                      {copiedPlatform === 'instagram' ? 'copied' : 'share · Instagram'}
-                    </button>
-                    <button type="button" onClick={() => handleShare('facebook')} style={affordanceQuiet}>
-                      share · Facebook
                     </button>
                   </div>
                 </div>
@@ -293,7 +243,7 @@ export function Challenges() {
               {[
                 { n: '01', h: 'A theme arrives.', b: 'Each week a new prompt surfaces — something to bring from memory into the thread.' },
                 { n: '02', h: 'You write into it.', b: 'Add an entry, a voice note, or a letter. The prompt is the door; what you bring is the thread.' },
-                { n: '03', h: 'The thread continues.', b: 'Share with your bloodline or across platforms. The weaving never stops.' },
+                { n: '03', h: 'It joins the bloodline.', b: 'What you weave stays in your family’s thread — kept for the generations who come after.' },
               ].map(({ n, h, b }) => (
                 <div
                   key={n}
@@ -324,7 +274,7 @@ export function Challenges() {
         <div
           style={{
             position: 'fixed', inset: 0,
-            background: 'rgba(14,14,12,0.82)',
+            background: 'var(--ink-translucent)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 200, padding: 24,
           }}
@@ -417,7 +367,7 @@ export function Challenges() {
         <div
           style={{
             position: 'fixed', inset: 0,
-            background: 'rgba(14,14,12,0.82)',
+            background: 'var(--ink-translucent)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 200, padding: 24,
           }}
@@ -461,17 +411,6 @@ export function Challenges() {
               >
                 "{selectedChallenge.prompt}"
               </p>
-            </div>
-
-            <div style={{ display: 'flex', gap: 20 }}>
-              <span style={{ ...metaText, color: 'var(--bone-faint)' }}>{selectedChallenge.hashtag}</span>
-              <span style={{ ...metaText, color: 'var(--bone-faint)' }}>
-                {selectedChallenge.duration_days
-                  ? `${selectedChallenge.duration_days} days`
-                  : selectedChallenge.start_date && selectedChallenge.end_date
-                  ? `${Math.max(1, Math.round((new Date(selectedChallenge.end_date).getTime() - new Date(selectedChallenge.start_date).getTime()) / (1000 * 60 * 60 * 24)))} days`
-                  : '7 days'}
-              </span>
             </div>
 
             <div style={{ marginTop: 24, textAlign: 'right' }}>

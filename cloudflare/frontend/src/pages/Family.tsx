@@ -668,12 +668,14 @@ export function Family() {
                         value={editName}
                         onChange={(e) => { setEditName(e.target.value); setEditError(null); }}
                         placeholder="name"
+                        aria-label="Name"
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
                       />
                       <input
                         value={editRelationship}
                         onChange={(e) => { setEditRelationship(e.target.value); setEditError(null); }}
                         placeholder="relationship"
+                        aria-label="Relationship"
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
                       />
                       <input
@@ -681,6 +683,7 @@ export function Family() {
                         value={editEmail}
                         onChange={(e) => { setEditEmail(e.target.value); setEditError(null); }}
                         placeholder="email — optional"
+                        aria-label="Email"
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
                       />
                       <input
@@ -688,6 +691,7 @@ export function Family() {
                         value={editBirthDate}
                         onChange={(e) => { setEditBirthDate(e.target.value); setEditError(null); }}
                         placeholder="birthday — optional"
+                        aria-label="Birthday"
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--mono)', fontSize: 13, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
                       />
                       {editError && (

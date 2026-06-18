@@ -15,6 +15,16 @@
         --serif: 'Spectral', Georgia, serif;
         --mono: 'Space Mono', ui-monospace, monospace;
       }
+      /* Frozen precached surface, but honor the user's theme: light-mode
+         inverts to ink-on-cream with an AA copper. Same var names overridden. */
+      @media (prefers-color-scheme: light) {
+        :root {
+          --ink: #f4ead9; --ink-card: #ece0cb; --bone: #0b0907;
+          --bone-dim: rgba(11, 9, 7, 0.66); --bone-faint: rgba(11, 9, 7, 0.42);
+          --rule: rgba(11, 9, 7, 0.1); --rule-warm: rgba(150, 86, 22, 0.24);
+          --warm: #965616;
+        }
+      }
       * { box-sizing: border-box; }
       html, body { margin: 0; min-height: 100%; background: var(--ink); color: var(--bone); }
       body {
@@ -37,7 +47,7 @@
       }
       .row { display: flex; align-items: center; gap: 18px; margin-top: 12px; flex-wrap: wrap; }
       button.hold {
-        background: var(--warm); color: var(--ink); border: 0; border-radius: 0;
+        background: none; color: var(--warm); border: 0; border-radius: 0;
         padding: 10px 18px; font-family: 'Inter', system-ui, sans-serif; font-size: 13px; font-weight: 500;
         cursor: pointer; transition: opacity 180ms var(--ease);
       }

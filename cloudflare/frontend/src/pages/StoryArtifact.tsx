@@ -516,7 +516,7 @@ export function StoryArtifact() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(14,14,12,0.88)',
+            background: 'var(--ink-translucent)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -597,7 +597,7 @@ export function StoryArtifact() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(14,14,12,0.88)',
+            background: 'var(--ink-translucent)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -637,7 +637,7 @@ export function StoryArtifact() {
                   </button>
                 )}
                 <div>
-                  <h3 id="create-wizard-title" style={{ fontFamily: 'var(--serif)', fontSize: 24, fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px', lineHeight: 1.1 }}>
+                  <h3 id="create-wizard-title" className="hl-serif" style={{ fontFamily: 'var(--serif)', fontSize: 24, fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px', lineHeight: 1.1 }}>
                     {wizardStep === 1 && 'What kind of story?'}
                     {wizardStep === 2 && 'Select your photos'}
                     {wizardStep === 3 && 'Review and create'}

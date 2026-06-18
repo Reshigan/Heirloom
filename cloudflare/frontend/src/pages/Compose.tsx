@@ -411,10 +411,20 @@ function DeliveryField({
         {TRIGGER_OPTIONS.map((opt, i) => {
           const active = opt.value === trigger;
           return (
-            <button
+            <div
               key={opt.value}
-              type="button"
+              role="button"
+              tabIndex={0}
+              aria-pressed={active}
               onClick={() => onTriggerChange(opt.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  onTriggerChange(opt.value);
+                } else if (e.key === ' ') {
+                  e.preventDefault();
+                  onTriggerChange(opt.value);
+                }
+              }}
               style={{
                 display: 'block',
                 width: '100%',
@@ -461,12 +471,9 @@ function DeliveryField({
                 </span>
               )}
 
-              {/* Date input — inline inside the row when 'date' is selected */}
+              {/* Date input — inline sibling within the row when 'date' is selected */}
               {opt.value === 'date' && active && (
-                <div
-                  style={{ marginTop: 10 }}
-                  onClick={(e) => e.stopPropagation()}
-                >
+                <div style={{ marginTop: 10 }}>
                   <input
                     type="date"
                     value={scheduledDate}
@@ -493,7 +500,7 @@ function DeliveryField({
                   />
                 </div>
               )}
-            </button>
+            </div>
           );
         })}
       </div>
@@ -1587,7 +1594,7 @@ export function Compose() {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          background: 'rgba(14,14,12,0.7)',
+                          background: 'var(--ink-translucent)',
                           border: 0,
                           color: 'var(--bone)',
                           fontFamily: 'var(--mono)',

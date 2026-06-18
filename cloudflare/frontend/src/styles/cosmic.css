@@ -68,27 +68,15 @@
 /* dye left-thread on cards — the family identity signal (3px) */
 .cosmic-card { border-left: 3px solid var(--cosmic-dye, var(--rule)); }
 
-/* filament divider with an optional wax node */
+/* filament divider — a plain 1px warm-faint rule (the dead --node copper-glow
+   variant was removed: it shipped an off-spec 0 0 8px copper halo, was never
+   applied in any component, and is exactly the revival hazard the bench flagged) */
 .cosmic-rule {
   position: relative;
   height: 1px;
   border: 0;
   background: var(--filament);
   margin: 0;
-}
-.cosmic-rule--node::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 4px;
-  height: 4px;
-  margin: -2px 0 0 -2px;
-  /* ceremonial wax-knot node on the filament divider — a sealing-wax dot,
-     not a UI chip; round is intentional (radius exception, like progress dots) */
-  border-radius: 50%;
-  background: var(--wax);
-  box-shadow: 0 0 8px var(--warm-glow);
 }
 
 /* buttons — warm hairline that fills with glow, never a solid warm slab */

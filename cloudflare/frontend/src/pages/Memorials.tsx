@@ -307,7 +307,7 @@ export function Memorials() {
         <div
           style={{
             position: 'fixed', inset: 0,
-            background: 'rgba(14,14,12,0.88)',
+            background: 'var(--ink-translucent)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 200, padding: 24, overflowY: 'auto',
           }}
@@ -510,7 +510,7 @@ export function Memorials() {
         <div
           style={{
             position: 'fixed', inset: 0,
-            background: 'rgba(14,14,12,0.88)',
+            background: 'var(--ink-translucent)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 200, padding: 24,
           }}

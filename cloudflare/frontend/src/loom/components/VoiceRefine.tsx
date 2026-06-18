@@ -291,7 +291,6 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
                   key={i}
                   style={{
                     width: 2, height: h, background: 'var(--warm)',
-                    boxShadow: level > 0.08 ? '0 0 6px var(--warm)' : 'none',
                     transition: 'height 180ms var(--ease)',
                   }}
                 />

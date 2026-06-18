@@ -2073,7 +2073,7 @@ The Heirloom Team`;
 
 function ModalShell({ onClose, title, children, wide }: { onClose: () => void; title: string; children: React.ReactNode; wide?: boolean }) {
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(14,14,12,0.88)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 50, padding: '32px 16px', overflowY: 'auto' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'var(--ink-translucent)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 50, padding: '32px 16px', overflowY: 'auto' }}>
       <div style={{ background: 'var(--ink-card)', border: '1px solid var(--rule)', width: '100%', maxWidth: wide ? 720 : 480, padding: 28 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid var(--rule)', paddingBottom: 16 }}>
           <p className="loom-eyebrow" style={{ color: 'var(--bone-dim)' }}>{title}</p>

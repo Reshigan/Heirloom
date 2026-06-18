@@ -202,14 +202,14 @@ export function LetterRoom() {
                 {letterTitle(featured)}
               </h1>
 
-              {/* The glowing letter card — warm-edged glow, ink fill. This IS the
-                  content; sealed letters show a quiet kept-words line instead. */}
+              {/* The letter card — bone hairline + inset depth, ink fill. This IS
+                  the content; sealed letters show a quiet kept-words line instead. */}
               <div style={{
-                border: '1px solid var(--warm-dim)',
+                border: '1px solid var(--rule)',
                 borderRadius: 0,
                 padding: 'clamp(24px,6vw,44px)',
                 background: 'var(--bg-letter)',
-                boxShadow: '0 0 34px rgba(var(--letter-copper-rgb),0.42), inset 0 0 0 1px rgba(var(--letter-copper-rgb),0.25)',
+                boxShadow: 'var(--cosmic-glow)',
                 maxWidth: '38em', margin: '0 auto', textAlign: 'left',
               }}>
                 {isSealed && !body ? (
@@ -462,7 +462,7 @@ export function LetterRoom() {
                           }}>
                             a letter to
                           </div>
-                          <h3 style={{
+                          <h3 className="hl-serif" style={{
                             fontFamily: 'var(--serif)', fontWeight: 380,
                             fontSize: 'clamp(28px,6vw,40px)', lineHeight: 1.08,
                             letterSpacing: '-0.012em', color: 'var(--bone)',
@@ -471,13 +471,13 @@ export function LetterRoom() {
                             {letterTitle(letter)}
                           </h3>
 
-                          {/* The glowing letter card — this card IS the content. */}
+                          {/* The letter card — bone hairline + inset depth; this card IS the content. */}
                           <div style={{
-                            border: '1px solid var(--warm-dim)',
+                            border: '1px solid var(--rule)',
                             borderRadius: 0,
                             padding: 'clamp(24px,6vw,40px)',
                             background: 'var(--bg-letter)',
-                            boxShadow: '0 0 34px rgba(var(--letter-copper-rgb),0.42), inset 0 0 0 1px rgba(var(--letter-copper-rgb),0.25)',
+                            boxShadow: 'var(--cosmic-glow)',
                             maxWidth: '38em', margin: '0 auto',
                           }}>
                             <p style={{

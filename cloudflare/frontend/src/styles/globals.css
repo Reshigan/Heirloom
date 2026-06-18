@@ -84,6 +84,11 @@
   --ink: #0b0907;
   --ink-card: #1b1610;
   --ink-deep: #090706;
+  /* Full-page radial vignette (Constellation / Unlock backdrops). Single-sourced
+     so the page ground flips with the theme instead of freezing dark — core is a
+     hair warmer than --ink, edge is the deep ground. */
+  --vignette-core: #15110c;
+  --vignette-edge: #0b0907;
   /* Translucent ink — themed scrim for floating bars over the living cloth. */
   --ink-translucent: rgba(11, 9, 7, 0.78);
   --bone: #f2e6d0;
@@ -287,6 +292,11 @@
   --ink:          #f4ead9;
   --ink-card:     #ece0cb;
   --ink-deep:     #e6d8c2;
+  /* Light mirror of the page vignette — core is a hair brighter than --ink,
+     edge dims toward --ink-card so the parchment ground gets the same gentle
+     center-glow the dark theme has, inverted. */
+  --vignette-core: #f6ecdb;
+  --vignette-edge: #ece0cb;
   --ink-translucent: rgba(244, 234, 217, 0.78);
   --bone:         #120d08;
   --bone-dim:     rgba(18, 13, 8, 0.74);
@@ -1368,19 +1378,23 @@ html {
 
 :root,
 .loom[data-theme="dark"] {
-  --loom-ink:        #0b0907;
-  --loom-ink-card:   #1b1610;
-  --loom-bone:       #f2e6d0;
-  --loom-bone-dim:   rgba(242, 230, 208, 0.72);
-  /* AA twin of --bone-faint: 0.44α = 3.73:1 (fail) → 0.52α = 4.81:1 on --loom-ink. */
-  --loom-bone-faint: rgba(242, 230, 208, 0.52);
-  --loom-bone-ghost: rgba(242, 230, 208, 0.14);
+  /* Single-sourced aliases of the canonical token family (:root, ~line 84) so
+     the --loom-* surfaces can NEVER drift from --ink/--bone/--warm/--rule. Each
+     theme scope re-declares the alias so var() resolves against that scope's
+     canonical token. Only --loom-warp-rgb (an rgb triplet) and --loom-warm-glow
+     (no canonical twin) stay literal. */
+  --loom-ink:        var(--ink);
+  --loom-ink-card:   var(--ink-card);
+  --loom-bone:       var(--bone);
+  --loom-bone-dim:   var(--bone-dim);
+  --loom-bone-faint: var(--bone-faint);
+  --loom-bone-ghost: var(--bone-ghost);
   --loom-warp-rgb:   242, 230, 208;
-  --loom-rule:       rgba(242, 230, 208, 0.11);
-  --loom-rule-warm:  rgba(224, 160, 98, 0.24);
-  --loom-warm:       #e0a062;
-  --loom-warm-bright:#f0c074;
-  --loom-warm-dim:   #b07a3e;
+  --loom-rule:       var(--rule);
+  --loom-rule-warm:  var(--rule-warm);
+  --loom-warm:       var(--warm);
+  --loom-warm-bright:var(--warm-bright);
+  --loom-warm-dim:   var(--warm-dim);
   --loom-warm-glow:  rgba(240, 192, 116, 0.20);
 
   /* Aliases of the canonical --ease / --dur-* family (see :root). Single-
@@ -1395,20 +1409,20 @@ html {
 }
 
 .loom[data-theme="light"] {
-  --loom-ink:        #f4ead9;
-  --loom-ink-card:   #ece0cb;
-  --loom-bone:       #120d08;
-  --loom-bone-dim:   rgba(18, 13, 8, 0.74);
-  --loom-bone-faint: rgba(18, 13, 8, 0.60);
-  --loom-bone-ghost: rgba(18, 13, 8, 0.18);
+  /* Re-declared here (light scope) so the alias resolves against the light
+     canonical tokens (block at ~line 286). Same single-source contract as dark. */
+  --loom-ink:        var(--ink);
+  --loom-ink-card:   var(--ink-card);
+  --loom-bone:       var(--bone);
+  --loom-bone-dim:   var(--bone-dim);
+  --loom-bone-faint: var(--bone-faint);
+  --loom-bone-ghost: var(--bone-ghost);
   --loom-warp-rgb:   18, 13, 8;
-  --loom-rule:       rgba(18, 13, 8, 0.12);
-  --loom-rule-warm:  rgba(150, 80, 26, 0.32);
-  /* AA on parchment — mirrors the --warm family lift above (light only).
-     #965616 = 4.42:1 on --loom-ink-card (fail); #8a4e12 = 5.06:1 (pass). */
-  --loom-warm:       #8a4e12;
-  --loom-warm-bright:#8a4d12;
-  --loom-warm-dim:   #824a16;
+  --loom-rule:       var(--rule);
+  --loom-rule-warm:  var(--rule-warm);
+  --loom-warm:       var(--warm);
+  --loom-warm-bright:var(--warm-bright);
+  --loom-warm-dim:   var(--warm-dim);
   --loom-warm-glow:  rgba(168, 98, 32, 0.18);
 }
 
@@ -1620,18 +1634,6 @@ html {
   background: linear-gradient(to top, rgba(224, 160, 98, 0.06), transparent 80%);
 }
 
-/* Logo 3D float — applied by HLogo to the icon mark */
-@keyframes hl-logo-float {
-  0%, 100% {
-    transform: perspective(280px) rotateY(-2deg) rotateX(1deg);
-    filter: drop-shadow(0 2px 5px rgba(224, 160, 98,0.18));
-  }
-  50% {
-    transform: perspective(280px) rotateY(2deg) rotateX(-0.5deg);
-    filter: drop-shadow(0 4px 10px rgba(224, 160, 98,0.32));
-  }
-}
-
 /* .loom-grain removed — feTurbulence noise is an ART_DIRECTION anti-pattern */
 
 /* ─── The Weft (the central novel primitive) ───────────────────── */
@@ -1797,18 +1799,6 @@ html {
   animation: hl-hero-blink 1400ms steps(1) infinite;
 }
 @keyframes hl-hero-blink { 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0; } }
-.hl-fell-line {
-  position: absolute;
-  left: 0; right: 0;
-  height: 2px;
-  background: var(--warm);
-  animation: hl-fell-breath 14s var(--ease-out) infinite;
-}
-@keyframes hl-fell-breath {
-  0%, 100% { opacity: 0.72; box-shadow: 0 0 12px rgba(224, 160, 98, 0.26); }
-  50% { opacity: 0.9; box-shadow: 0 0 20px rgba(224, 160, 98, 0.4); }
-}
-
 /* The cloth is a living thing — the woven web breathes slowly so the home
    surface reads as alive, not a static print. Tiny amplitude, long period,
    one curve. Silenced under prefers-reduced-motion. */
@@ -1960,18 +1950,6 @@ html {
 .loom-today-headline { animation: loom-fadein-up var(--loom-dur-shift) var(--loom-ease) both; animation-delay:  50ms; }
 .loom-today-cta      { animation: loom-fadein-up var(--loom-dur-shift) var(--loom-ease) both; animation-delay: 100ms; }
 .loom-today-family   { animation: loom-fadein-up var(--loom-dur-shift) var(--loom-ease) both; animation-delay: 160ms; }
-
-/* ─── Menu entrance ─────────────────────────────────────────────── */
-@keyframes loom-menu-in {
-  from {
-    opacity: 0;
-    transform: scale(0.97) translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
 
 /* ─── Reduced motion ───────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
@@ -2416,12 +2394,6 @@ html {
   color: var(--warm);
 }
 
-/* ── CSS cloth breathe — landing fallback / CSS 3D rotation ──────────── */
-@keyframes hl-cloth-breathe {
-  0%,  100% { transform: perspective(900px) rotateX(5deg) rotateY(-1.2deg); }
-  50%        { transform: perspective(900px) rotateX(8deg) rotateY( 1.2deg); }
-}
-
 /* ── Reduced motion overrides ─────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .hl-infinity-3d              { animation: none; }
@@ -2439,11 +2411,6 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: var(--bone, #f2e6d0) !important;
   caret-color: var(--bone, #f2e6d0);
   transition: background-color 0s 9999s; /* prevent flash */
-}
-
-@keyframes hl-echo-breath {
-  0%, 100% { filter: brightness(1); }
-  50% { filter: brightness(1.06); }
 }
 
 /* ── Cloth parallax — responds to --cloth-parallax CSS var set by PwaHome scroll listener ── */

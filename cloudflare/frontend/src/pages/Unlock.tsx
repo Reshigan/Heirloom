@@ -243,7 +243,7 @@ export function Unlock() {
                   display: 'grid',
                   gridTemplateRows: 'auto 1fr',
                   textAlign: 'center',
-                  background: 'radial-gradient(120% 60% at 50% 40%, #16110b, #070605 72%)',
+                  background: 'radial-gradient(120% 60% at 50% 40%, var(--vignette-core), var(--vignette-edge) 72%)',
                   opacity: sealedRest ? 1 : 0,
                   transform: sealedRest ? 'scale(1)' : 'scale(1.08)',
                   transition: `opacity 1400ms var(--loom-ease), transform 1400ms var(--loom-ease)`,

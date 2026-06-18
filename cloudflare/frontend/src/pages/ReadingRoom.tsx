@@ -665,7 +665,7 @@ export function ReadingRoom() {
           onClick={() => setSelvedgeOpen(false)}
           style={{
             position: 'fixed', inset: 0, zIndex: 14,
-            background: 'rgba(14,14,12,0.6)',
+            background: 'var(--ink-translucent)',
             transition: `opacity 360ms ${EASE}`,
           }}
         />
@@ -679,7 +679,7 @@ export function ReadingRoom() {
         style={{
           position: 'absolute', top: 56, bottom: 0, left: 0, zIndex: 15,
           width: (navOpen || selvedgeOpen) ? 260 : 6,
-          background: (navOpen || selvedgeOpen) ? 'rgba(14,14,12,0.94)' : 'transparent',
+          background: (navOpen || selvedgeOpen) ? 'var(--ink-translucent)' : 'transparent',
           borderRight: (navOpen || selvedgeOpen) ? '1px solid var(--rule)' : '1px solid transparent',
           transition: `width 360ms ${EASE}, background 360ms ${EASE}, border-color 360ms ${EASE}`,
           overflow: 'hidden', display: 'flex', flexDirection: 'column',
@@ -849,8 +849,8 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
       position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
       // Dark gilt volume card — the descendant opens a bound, gilded book.
       background: 'linear-gradient(160deg, var(--letter-bg-top), var(--letter-bg-bottom))',
-      border: '1px solid var(--letter-edge)', borderRadius: 0,
-      boxShadow: '0 0 30px rgba(var(--letter-copper-rgb), 0.35), inset 0 0 40px rgba(0,0,0,0.6)',
+      border: '1px solid var(--rule)', borderRadius: 0,
+      boxShadow: '0 1px 0 rgba(242,230,208,0.04) inset, inset 0 0 40px rgba(0,0,0,0.6)',
       color: 'var(--letter-body)', overflow: 'hidden',
     }}>
       {/* gilt corner triangles — top-right + bottom-left */}

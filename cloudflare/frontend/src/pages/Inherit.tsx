@@ -636,8 +636,8 @@ export function Inherit() {
               lineHeight: 1.7,
             }}
           >
-            This thread is sealed to its bloodline — no one outside it can read it. No content can
-            be removed, only added by those who love you.
+            This thread is sealed to its bloodline — no one outside it can read it. Within the
+            bloodline, entries are added — never overwritten by those who love you.
           </p>
         </div>
 

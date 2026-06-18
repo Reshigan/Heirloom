@@ -689,10 +689,17 @@ export function Record() {
                 {SPEAK_TRIGGERS.map((opt, i) => {
                   const active = opt.value === deliveryTrigger;
                   return (
-                    <button
+                    <div
                       key={opt.value}
-                      type="button"
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setDeliveryTrigger(opt.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          if (e.key === ' ') e.preventDefault();
+                          setDeliveryTrigger(opt.value);
+                        }
+                      }}
                       style={{
                         display: 'block', width: '100%', textAlign: 'left',
                         background: 'transparent', border: 0,
@@ -722,7 +729,7 @@ export function Record() {
                         </span>
                       )}
                       {opt.value === 'date' && active && (
-                        <div style={{ marginTop: 8 }} onClick={e => e.stopPropagation()}>
+                        <div style={{ marginTop: 8 }}>
                           <input
                             type="date"
                             aria-label="Scheduled date"
@@ -739,7 +746,7 @@ export function Record() {
                           />
                         </div>
                       )}
-                    </button>
+                    </div>
                   );
                 })}
               </div>

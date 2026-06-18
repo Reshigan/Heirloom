@@ -462,7 +462,7 @@ function StatusBadge({ status }: { status: string }) {
 /* ── Loom modal shell ────────────────────────────────────────────── */
 function ModalShell({ title, onClose, wide, children }: { title: string; onClose: () => void; wide?: boolean; children: React.ReactNode }) {
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(14,14,12,0.88)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'var(--ink-translucent)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
       <div className="cosmic-panel cosmic-panel--solid" style={{ width: '100%', maxWidth: wide ? 900 : 560, maxHeight: '90vh', overflowY: 'auto', padding: '36px 40px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, borderBottom: '1px solid var(--rule)', paddingBottom: 20 }}>
           <h3 className="loom-h2" style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: 0 }}>{title}</h3>

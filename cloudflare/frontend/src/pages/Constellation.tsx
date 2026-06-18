@@ -222,7 +222,7 @@ export function Constellation() {
           flexDirection: 'column',
           alignItems: 'center',
           padding: 'clamp(40px, 9vh, 96px) 24px clamp(40px, 8vh, 88px)',
-          background: 'radial-gradient(120% 80% at 50% 30%, #15110c, #0b0907 72%)',
+          background: 'radial-gradient(120% 80% at 50% 30%, var(--vignette-core), var(--vignette-edge) 72%)',
         }}
       >
         {/* Centred mono eyebrow — the warm wing-sprays above it belong to the

@@ -229,7 +229,7 @@ export function MemoryMap() {
                 />
               </picture>
 
-              {/* Warm points — the only accent, glow restrained via box-shadow. */}
+              {/* Bone hairline point markers — copper reserved for a ≤1px active stroke only. */}
               {mapDots.map((d) => {
                 const active = selectedMemory?.id === d.id;
                 return (
@@ -254,14 +254,12 @@ export function MemoryMap() {
                       aria-hidden
                       style={{
                         display: 'block',
-                        width: active ? 8 : 6,
-                        height: active ? 8 : 6,
+                        width: active ? 4 : 3,
+                        height: active ? 4 : 3,
                         borderRadius: '50%',
-                        background: 'var(--ember)',
-                        boxShadow: active
-                          ? '0 0 14px var(--ember)'
-                          : '0 0 8px var(--ember)',
-                        transition: 'width 360ms var(--ease), height 360ms var(--ease), box-shadow 360ms var(--ease)',
+                        background: 'var(--bone-faint)',
+                        border: active ? '1px solid var(--warm)' : '1px solid var(--rule)',
+                        transition: 'width 360ms var(--ease), height 360ms var(--ease), border-color 360ms var(--ease)',
                       }}
                     />
                   </button>

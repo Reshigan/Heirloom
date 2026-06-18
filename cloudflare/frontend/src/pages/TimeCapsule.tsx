@@ -507,7 +507,7 @@ export function TimeCapsule() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(14,14,12,0.82)',
+            background: 'var(--ink-translucent)',
             padding: 24,
           }}
           onClick={() => setShowCreateModal(false)}

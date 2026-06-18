@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { searchApi } from '../services/api';
+import { DYES, dyeVar, type Dye } from '../loom/dye';
 import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
@@ -36,23 +37,6 @@ interface SourceEntry {
   /** A real dye/category value off the entry, if the search result carries one. Never invented. */
   dye?: string | null;
 }
-
-/**
- * Natural-dye palette (§2.7) — the only place a dye color may appear.
- * Mapped ONLY from a real `dye` value on a result; never fabricated.
- */
-const DYE_VARS: Record<string, string> = {
-  madder: 'var(--dye-madder)',
-  cochineal: 'var(--dye-cochineal)',
-  kermes: 'var(--dye-kermes)',
-  saffron: 'var(--dye-saffron)',
-  weld: 'var(--dye-weld)',
-  walnut: 'var(--dye-walnut)',
-  oakgall: 'var(--dye-oakgall)',
-  woad: 'var(--dye-woad)',
-  indigo: 'var(--dye-indigo)',
-  iron: 'var(--dye-iron)',
-};
 
 type AskState =
   | { phase: 'idle' }
@@ -396,7 +380,12 @@ export function QandA() {
 function Citation({ source }: { source: SourceEntry }) {
   const to = sourceHref(source);
   const snippet = stripMarks(source.snippet);
-  const dyeColor = source.dye ? DYE_VARS[source.dye.toLowerCase()] : undefined;
+  // Resolve via the canonical dye→token source (dye.ts). `source.dye` is an
+  // arbitrary string (dye id OR free-form category), so guard against DYES and
+  // keep the honest blank for anything that is not a real palette dye.
+  const dyeId = source.dye?.toLowerCase();
+  const dyeColor =
+    dyeId && DYES.includes(dyeId as Dye) ? dyeVar(dyeId as Dye) : undefined;
   return (
     <li style={{ margin: '0 0 8px' }}>
       <Link

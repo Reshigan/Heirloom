@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { lettersApi, aiApi } from '../../services/api';
+import { DYES, dyeVar, DYE_MOTIF, type Dye } from '../dye';
 
 /**
  * ComposerChrome — shared primitives for the two Composer surfaces
@@ -12,19 +13,30 @@ import { lettersApi, aiApi } from '../../services/api';
  * design's signature chrome, recreated as real, wired controls.
  */
 
-/* ─── Natural-dye palette (§2.7) ───────────────────────────────────────── */
-export const DYES: { key: string; token: string; motif: string }[] = [
-  { key: 'weld',     token: 'var(--dye-weld)',     motif: 'daily' },
-  { key: 'walnut',   token: 'var(--dye-walnut)',   motif: 'travel' },
-  { key: 'saffron',  token: 'var(--dye-saffron)',  motif: 'achievement' },
-  { key: 'woad',     token: 'var(--dye-woad)',     motif: 'contemplation' },
-  { key: 'madder',   token: 'var(--dye-madder)',   motif: 'joy' },
-  { key: 'kermes',   token: 'var(--dye-kermes)',   motif: 'love' },
-  { key: 'cochineal',token: 'var(--dye-cochineal)',motif: 'grief' },
-  { key: 'indigo',   token: 'var(--dye-indigo)',   motif: 'reflection' },
-  { key: 'oakgall',  token: 'var(--dye-oakgall)',  motif: 'record' },
-  { key: 'iron',     token: 'var(--dye-iron)',     motif: 'ending' },
-];
+/* ─── Natural-dye palette (§2.7) ───────────────────────────────────────────
+ * Identity colours come ONLY from the canonical src/loom/dye.ts. The Composer's
+ * picker walks the dyes in a curated mood order; tokens (dyeVar) and motif words
+ * (DYE_MOTIF) are derived from the single source. Every entry is typed `Dye`
+ * (`as const satisfies readonly Dye[]`), so a dye rename in dye.ts breaks this
+ * literal at compile time — the exact drift this refactor closes. */
+const DYE_ORDER = [
+  'weld', 'walnut', 'saffron', 'woad', 'madder',
+  'kermes', 'cochineal', 'indigo', 'oakgall', 'iron',
+] as const satisfies readonly Dye[];
+
+/* Runtime guard against a dye being ADDED or REMOVED in dye.ts (a count change
+ * can't be a literal-type mismatch since DYES is a Dye[]): keep the picker in
+ * lockstep with the canonical palette so no dye silently vanishes from the UI. */
+if (
+  import.meta.env.DEV &&
+  (DYE_ORDER.length !== DYES.length ||
+    !DYES.every((d) => (DYE_ORDER as readonly Dye[]).includes(d)))
+) {
+  console.error(
+    '[ComposerChrome] DYE_ORDER drifted from the canonical DYES in dye.ts — ' +
+      'add/remove the dye to keep the picker in lockstep.',
+  );
+}
 
 export const VISIBILITIES = ['private', 'family', 'descendants', 'historian'] as const;
 export type Visibility = (typeof VISIBILITIES)[number];
@@ -270,10 +282,12 @@ export function DyeControl({
   value: string;
   onChange: (key: string) => void;
 }) {
-  const dye = DYES.find((d) => d.key === value) ?? DYES[0];
+  const dye: Dye = (DYE_ORDER as readonly string[]).includes(value)
+    ? (value as Dye)
+    : DYE_ORDER[0];
   const cycle = () => {
-    const idx = DYES.findIndex((d) => d.key === dye.key);
-    onChange(DYES[(idx + 1) % DYES.length].key);
+    const idx = DYE_ORDER.indexOf(dye);
+    onChange(DYE_ORDER[(idx + 1) % DYE_ORDER.length]);
   };
   return (
     <button
@@ -300,13 +314,13 @@ export function DyeControl({
           display: 'inline-block',
           width: 9,
           height: 9,
-          background: dye.token,
+          background: dyeVar(dye),
           margin: '0 6px',
           alignSelf: 'center',
         }}
       />
       <span style={{ color: 'var(--warm)' }}>
-        {dye.key} · {dye.motif}
+        {dye} · {DYE_MOTIF[dye]}
       </span>
     </button>
   );
