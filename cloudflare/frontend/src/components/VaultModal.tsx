@@ -1,14 +1,21 @@
 /**
- * VaultModal — sealing / unlocking the thread's encryption.
+ * VaultModal — unlocking the thread's DORMANT client-side vault.
  *
- * Two ceremonies:
- * 1. After signup — set the passphrase that seals the thread (mode="setup")
- * 2. After login — unlock the thread with the existing passphrase (mode="unlock")
+ * Heirloom's live encryption is server-held AES-GCM: entries are encrypted at
+ * rest with a platform-held key, so a forgotten passphrase never loses the
+ * family archive. New signups therefore provision NO client passphrase vault.
+ *
+ * This modal exists for back-compat only: an existing user who PREVIOUSLY
+ * enabled the dormant client vault still has client-encrypted entries and must
+ * be able to unlock them. It is rendered solely from Login when the server
+ * reports encryptionEnabled && !unlocked. It NEVER provisions a new client key
+ * (the old mode="setup" / encryptionService.setupEncryption flow is removed) so
+ * it cannot contradict the server-held model.
  *
  * Loom-native: a hairline-framed panel over a solid ink scrim (no glass, no
  * backdrop-blur, no floating card). Open/close + error reveal are CSS-driven
- * with the loom tokens (180/360/720ms, var(--loom-ease)). All encryption logic
- * (encryptionService.setupEncryption / unlockVault) is preserved verbatim.
+ * with the loom tokens (180/360/720ms, var(--loom-ease)). The unlock logic
+ * (encryptionService.unlockVault) is preserved verbatim.
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -16,21 +23,11 @@ import { encryptionService } from '../services/encryptionService';
 
 interface VaultModalProps {
   isOpen: boolean;
-  mode: 'setup' | 'unlock';
   onComplete: () => void;
-  onSkip?: () => void; // Only for setup mode — allows skipping encryption
 }
 
-// A passphrase is three or four words you choose — easier to remember, harder
-// to crack. We require four-plus words and a reasonable floor of characters so
-// the derived key keeps its strength (PBKDF2 input is the raw string).
-const MIN_WORDS = 4;
-const MIN_CHARS = 16;
-const countWords = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
-
-export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps) {
+export function VaultModal({ isOpen, onComplete }: VaultModalProps) {
   const [passphrase, setPassphrase] = useState('');
-  const [confirmPassphrase, setConfirmPassphrase] = useState('');
   const [showPassphrase, setShowPassphrase] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -45,7 +42,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
     );
     if (focusable.length) focusable[0].focus();
     const trap = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { if (onSkip) onSkip(); return; }
+      // Unlock is mandatory for client-vault users — Escape does not dismiss.
       if (e.key !== 'Tab') return;
       const nodes = Array.from(focusable);
       if (!nodes.length) return;
@@ -58,38 +55,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
     };
     document.addEventListener('keydown', trap);
     return () => document.removeEventListener('keydown', trap);
-  }, [isOpen, onSkip]);
-
-  const words = countWords(passphrase);
-  const passphraseChecks = [
-    { label: 'Four or more words', valid: words >= MIN_WORDS },
-    { label: 'At least 16 characters', valid: passphrase.length >= MIN_CHARS },
-  ];
-
-  const isPassphraseValid = passphraseChecks.every((check) => check.valid);
-
-  const handleSetup = async () => {
-    if (!isPassphraseValid) {
-      setError('Choose a passphrase of four or more words.');
-      return;
-    }
-    if (passphrase !== confirmPassphrase) {
-      setError('The two passphrases do not match.');
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
-
-    try {
-      await encryptionService.setupEncryption(passphrase);
-      onComplete();
-    } catch (err: any) {
-      setError(err.message || 'Could not seal the thread.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [isOpen]);
 
   const handleUnlock = async () => {
     if (!passphrase) {
@@ -116,11 +82,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (mode === 'setup') {
-      handleSetup();
-    } else {
-      handleUnlock();
-    }
+    handleUnlock();
   };
 
   const labelStyle: React.CSSProperties = {
@@ -198,34 +160,13 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
             className="loom-h2"
             style={{ fontSize: 26, fontWeight: 300, margin: '0 0 10px', letterSpacing: '-0.014em' }}
           >
-            {mode === 'setup' ? 'Seal your thread' : 'Unlock your thread'}
+            Unlock your thread
           </h2>
           <p
             className="loom-body"
             style={{ fontSize: 14, color: 'var(--bone-dim)', lineHeight: 1.6, margin: 0 }}
           >
-            {mode === 'setup'
-              ? 'Choose a passphrase to encrypt every entry. It is separate from your sign-in password.'
-              : 'Enter your passphrase to read your encrypted entries.'}
-          </p>
-        </div>
-
-        {/* Encryption assurance — truthful to the server-held AES-GCM model */}
-        <div
-          style={{
-            marginBottom: 24,
-            padding: '14px 16px',
-            background: 'var(--ink)',
-            border: '1px solid var(--rule-warm)',
-            borderRadius: 2,
-          }}
-        >
-          <p
-            className="loom-body"
-            style={{ fontSize: 12.5, color: 'var(--bone-dim)', lineHeight: 1.6, margin: 0 }}
-          >
-            <strong style={{ color: 'var(--warm)', fontWeight: 600 }}>Encrypted at rest.</strong>{' '}
-            Your entries are encrypted with AES-GCM. We hold the keys — so if you forget a password, your family's archive is never lost.
+            Enter the passphrase you set when you sealed this thread, to read your encrypted entries.
           </p>
         </div>
 
@@ -252,7 +193,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
 
           <div>
             <label htmlFor="thread-passphrase" style={labelStyle}>
-              {mode === 'setup' ? 'Set your passphrase' : 'Passphrase'}
+              Passphrase
             </label>
             <div style={{ position: 'relative' }}>
               <input
@@ -260,7 +201,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                 type={showPassphrase ? 'text' : 'password'}
                 value={passphrase}
                 onChange={(e) => setPassphrase(e.target.value)}
-                placeholder={mode === 'setup' ? 'four words you choose' : 'your passphrase'}
+                placeholder="your passphrase"
                 style={{ ...inputStyle, paddingRight: 64 }}
                 autoFocus
               />
@@ -286,138 +227,26 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                 {showPassphrase ? 'hide' : 'show'}
               </button>
             </div>
-            {mode === 'unlock' ? (
-              <p
-                className="loom-body"
-                style={{ margin: '12px 0 0', fontSize: 13, fontStyle: 'italic', color: 'var(--bone-dim)' }}
-              >
-                The three or four words you chose when you sealed the thread.
-              </p>
-            ) : null}
+            <p
+              className="loom-body"
+              style={{ margin: '12px 0 0', fontSize: 13, fontStyle: 'italic', color: 'var(--bone-dim)' }}
+            >
+              The three or four words you chose when you sealed the thread.
+            </p>
           </div>
-
-          {/* Setup-only: word-passphrase guidance + confirm */}
-          {mode === 'setup' ? (
-            <>
-              <p
-                className="loom-body"
-                style={{ margin: 0, fontSize: 13, fontStyle: 'italic', color: 'var(--bone-dim)', lineHeight: 1.6 }}
-              >
-                Use three or four words you choose — easier to remember, harder to crack.
-              </p>
-
-              <div style={{ display: 'grid', gap: 8 }}>
-                {passphraseChecks.map(({ label, valid }) => (
-                  <div
-                    key={label}
-                    className="loom-mono"
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 11 }}
-                  >
-                    <span
-                      aria-hidden
-                      style={{
-                        color: valid ? 'var(--warm)' : 'var(--bone-dim)',
-                        transition: 'color var(--loom-dur-fast) var(--loom-ease)',
-                      }}
-                    >
-                      {valid ? '∞' : '·'}
-                    </span>
-                    <span style={{ color: valid ? 'var(--bone-dim)' : 'var(--bone-dim)' }}>
-                      {label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div>
-                <label htmlFor="thread-confirm" style={labelStyle}>
-                  Repeat it
-                </label>
-                <input
-                  id="thread-confirm"
-                  type="password"
-                  value={confirmPassphrase}
-                  onChange={(e) => setConfirmPassphrase(e.target.value)}
-                  placeholder="the same passphrase"
-                  style={{
-                    ...inputStyle,
-                    borderColor:
-                      confirmPassphrase && passphrase !== confirmPassphrase
-                        ? 'var(--rule-warm)'
-                        : 'var(--rule)',
-                  }}
-                />
-                {confirmPassphrase && passphrase !== confirmPassphrase ? (
-                  <p
-                    className="loom-body"
-                    style={{ margin: '8px 0 0', fontSize: 12.5, fontStyle: 'italic', color: 'var(--warm)' }}
-                  >
-                    The two passphrases do not match.
-                  </p>
-                ) : null}
-              </div>
-
-              <div
-                style={{
-                  padding: '14px 16px',
-                  background: 'var(--ink)',
-                  border: '1px solid var(--rule-warm)',
-                  borderRadius: 2,
-                }}
-              >
-                <p
-                  className="loom-body"
-                  style={{ fontSize: 12.5, color: 'var(--bone-dim)', lineHeight: 1.6, margin: 0 }}
-                >
-                  <strong style={{ color: 'var(--warm)', fontWeight: 600 }}>Write it down.</strong> Store
-                  it somewhere safe so you can unlock quickly. Forget it and you can reset it through your account — we hold the keys, so your archive is never lost.
-                </p>
-              </div>
-            </>
-          ) : null}
 
           <button
             type="submit"
-            disabled={isLoading || (mode === 'setup' && (!isPassphraseValid || passphrase !== confirmPassphrase))}
+            disabled={isLoading}
             className="loom-btn"
             style={{
               width: '100%',
               marginTop: 6,
-              opacity:
-                isLoading || (mode === 'setup' && (!isPassphraseValid || passphrase !== confirmPassphrase))
-                  ? 0.5
-                  : 1,
+              opacity: isLoading ? 0.5 : 1,
             }}
           >
-            {isLoading
-              ? mode === 'setup'
-                ? 'sealing…'
-                : 'unlocking…'
-              : mode === 'setup'
-                ? 'seal the thread'
-                : 'unlock'}
+            {isLoading ? 'unlocking…' : 'unlock'}
           </button>
-
-          {mode === 'setup' && onSkip ? (
-            <button
-              type="button"
-              onClick={onSkip}
-              className="loom-mono"
-              style={{
-                width: '100%',
-                background: 'transparent',
-                border: 0,
-                cursor: 'pointer',
-                padding: '8px 0',
-                fontSize: 10,
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-dim)',
-              }}
-            >
-              seal it later
-            </button>
-          ) : null}
         </form>
       </div>
     </div>

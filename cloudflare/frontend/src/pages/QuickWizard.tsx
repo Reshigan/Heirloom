@@ -319,14 +319,14 @@ function ActionPill({ label, onClick }: { label: string; onClick: () => void }) 
         fontSize: 11,
         letterSpacing: '0.22em',
         textTransform: 'uppercase',
-        color: 'var(--ink)',
-        background: 'var(--warm)',
-        border: 'none',
+        color: 'var(--warm)',
+        background: 'transparent',
+        border: '1px solid var(--warm)',
         borderRadius: 0,
         padding: '13px 26px',
         minHeight: 44,
         cursor: 'pointer',
-        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+        transition: 'color 180ms cubic-bezier(0.16,1,0.3,1), border-color 180ms cubic-bezier(0.16,1,0.3,1)',
       }}
     >
       {label}

@@ -110,14 +110,17 @@ export default {
         'loom-mono': ['"Space Mono"', 'ui-monospace', 'monospace'],
       },
       transitionTimingFunction: {
+        // ONE easing only (design law). The off-spec ease-in-out
+        // cubic-bezier(0.65,0,0.35,1) was unused in src and is removed.
         'ease-out': 'cubic-bezier(0.16, 1, 0.3, 1)',
-        'ease-in-out': 'cubic-bezier(0.65, 0, 0.35, 1)',
       },
       transitionDuration: {
-        'fast': '200ms',
-        'normal': '400ms',
-        'slow': '800ms',
-        'glacial': '1600ms',
+        // Spec ladder only: 180 / 360 / 720 / 1400. The prior 200/400/800/1600
+        // values were off-spec and unreferenced in src — re-pointed to the ladder.
+        'fast': '180ms',
+        'normal': '360ms',
+        'slow': '720ms',
+        'glacial': '1400ms',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
@@ -131,27 +134,14 @@ export default {
         'glass': '0 4px 24px -4px rgba(0, 0, 0, 0.5)',
       },
       animation: {
-        'float': 'float 6s ease-in-out infinite',
-        'glow': 'glow 2s ease-in-out infinite',
-        'aura-breathe': 'aura-breathe 12s ease-in-out infinite',
+        // Off-spec animations float/glow/aura-breathe/record-ring/page-in were
+        // unreferenced in src (zero `animate-*` usage) and used the off-spec
+        // ease-in-out — removed. stars-drift / particle-ascend are ambient
+        // continuous drifts (long-duration, linear/var) and are retained.
         'stars-drift': 'stars-drift 120s linear infinite',
         'particle-ascend': 'particle-ascend var(--dur, 20s) cubic-bezier(0.65, 0, 0.35, 1) infinite',
-        'record-ring': 'record-ring 1.5s ease-out infinite',
-        'page-in': 'page-in 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
       },
       keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
-        },
-        glow: {
-          '0%, 100%': { opacity: '0.5' },
-          '50%': { opacity: '1' },
-        },
-        'aura-breathe': {
-          '0%, 100%': { opacity: '0.6', transform: 'translateX(-50%) scale(1)' },
-          '50%': { opacity: '1', transform: 'translateX(-50%) scale(1.05)' },
-        },
         'stars-drift': {
           '0%': { transform: 'translateY(0)' },
           '100%': { transform: 'translateY(-5%)' },
@@ -161,14 +151,6 @@ export default {
           '10%': { opacity: 'var(--opacity, 0.6)' },
           '90%': { opacity: 'var(--opacity, 0.6)' },
           '100%': { opacity: '0', transform: 'translateY(-10vh) scale(1)' },
-        },
-        'record-ring': {
-          '0%': { transform: 'scale(1)', opacity: '0.8' },
-          '100%': { transform: 'scale(1.4)', opacity: '0' },
-        },
-        'page-in': {
-          'from': { opacity: '0', transform: 'translateY(20px)' },
-          'to': { opacity: '1', transform: 'translateY(0)' },
         },
       },
       letterSpacing: {

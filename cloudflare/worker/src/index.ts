@@ -1187,7 +1187,7 @@ async function processScheduledLetters(env: Env): Promise<{ delivered: number; r
         env.DB.prepare(`
           SELECT lc.email, lc.name FROM legacy_contacts lc
           JOIN letter_legacy_recipients llr ON lc.id = llr.legacy_contact_id
-          WHERE llr.letter_id = ?
+          WHERE llr.letter_id = ? AND lc.deleted_at IS NULL
         `).bind(letter.id).all(),
       ]);
       const senderName = `${author?.first_name ?? ''} ${author?.last_name ?? ''}`.trim() || 'your family';
@@ -1424,7 +1424,7 @@ async function sendTriggerNotifications(env: Env, userId: string) {
     SELECT lc.*, u.first_name as user_name
     FROM legacy_contacts lc
     JOIN users u ON lc.user_id = u.id
-    WHERE lc.user_id = ? AND lc.verification_status = 'VERIFIED'
+    WHERE lc.user_id = ? AND lc.verification_status = 'VERIFIED' AND lc.deleted_at IS NULL
   `).bind(userId).all();
   
   // Send verification requests to each

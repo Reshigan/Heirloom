@@ -186,7 +186,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
-            className="bg-void-surface border border-paper-15 rounded-[2px] p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            className="bg-void-surface border border-paper-15 rounded-none p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
             {/* Header */}
@@ -212,7 +212,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                   key={index}
                   onClick={() => setCurrentStep(index)}
                   aria-label={`Go to step ${index + 1}`}
-                  className={`h-[2px] rounded-[2px] transition-all ${
+                  className={`h-[2px] rounded-none transition-all ${
                     index === currentStep
                       ? 'bg-gold w-10'
                       : index < currentStep
@@ -238,12 +238,12 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                   <p className="text-paper-70 leading-relaxed">{step.description}</p>
                 </div>
 
-                <div className="p-4 bg-void-elevated border border-gold-40 rounded-[2px]">
+                <div className="p-4 bg-void-elevated border border-gold-40 rounded-none">
                   <p className="text-[0.65rem] uppercase tracking-[0.22em] text-gold mb-1.5">Why this matters</p>
                   <p className="text-paper-70 leading-relaxed">{step.whyItMatters}</p>
                 </div>
 
-                <div className="p-4 bg-void-elevated border border-paper-15 rounded-[2px]">
+                <div className="p-4 bg-void-elevated border border-paper-15 rounded-none">
                   <p className="text-[0.65rem] uppercase tracking-[0.22em] text-paper-50 mb-1.5">How to start</p>
                   <p className="text-paper-70 leading-relaxed">{step.howToStart}</p>
                 </div>
@@ -325,7 +325,7 @@ export function OnboardingHelpButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-20 md:bottom-6 right-6 z-40 px-4 py-2.5 bg-void-surface border border-gold-40 rounded-[2px] text-gold hover:text-gold-bright transition-colors text-[0.7rem] font-mono uppercase tracking-[0.22em]"
+      className="fixed bottom-20 md:bottom-6 right-6 z-40 px-4 py-2.5 bg-void-surface border border-gold-40 rounded-none text-gold hover:text-gold-bright transition-colors text-[0.7rem] font-mono uppercase tracking-[0.22em]"
       title="How does this work?"
       aria-label="How does this work?"
     >

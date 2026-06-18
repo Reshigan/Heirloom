@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { CosmicHeader, SectionLabel } from '../loom/cosmic/CosmicUI';
 import { capsulesApi, threadsApi } from '../services/api';
+import { useFocusTrap } from '../lib/useFocusTrap';
 
 type CapsuleStatus = 'open' | 'sealed' | 'unlocked';
 
@@ -244,6 +245,10 @@ export function TimeCapsule() {
     unlock_date: '',
     cover_style: 'classic',
   });
+
+  // Create overlay: canonical focus trap + Escape close, focus first field on open.
+  const createRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(createRef, () => setShowCreateModal(false), showCreateModal);
 
   const { data: capsules, isLoading } = useQuery({
     queryKey: ['capsules'],
@@ -508,6 +513,9 @@ export function TimeCapsule() {
           onClick={() => setShowCreateModal(false)}
         >
           <div
+            ref={createRef}
+            role="dialog"
+            aria-modal="true"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               width: '100%',

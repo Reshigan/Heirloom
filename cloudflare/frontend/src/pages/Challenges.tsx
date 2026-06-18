@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { challengesApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { useFocusTrap } from '../lib/useFocusTrap';
 
 export function Challenges() {
   const queryClient = useQueryClient();
@@ -13,6 +14,12 @@ export function Challenges() {
   const [submissionContent, setSubmissionContent] = useState('');
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [copiedPlatform, setCopiedPlatform] = useState<string | null>(null);
+
+  // Modal overlays: canonical focus trap + Escape close, focus first field on open.
+  const submitRef = useRef<HTMLDivElement>(null);
+  const detailRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(submitRef, () => setShowSubmitModal(false), showSubmitModal);
+  useFocusTrap(detailRef, () => setSelectedChallenge(null), !!selectedChallenge);
 
   const { data: currentChallenge, isLoading } = useQuery({
     queryKey: ['currentChallenge'],
@@ -324,6 +331,9 @@ export function Challenges() {
           onClick={() => setShowSubmitModal(false)}
         >
           <div
+            ref={submitRef}
+            role="dialog"
+            aria-modal="true"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,
@@ -412,6 +422,9 @@ export function Challenges() {
           onClick={() => setSelectedChallenge(null)}
         >
           <div
+            ref={detailRef}
+            role="dialog"
+            aria-modal="true"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,

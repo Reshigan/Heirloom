@@ -179,8 +179,23 @@ export function CardView() {
       <Helmet>
         <title>{`${cardTitle} · Heirloom`}</title>
         <meta name="description" content={metaDescription} />
-        <meta property="og:title" content={cardTitle} />
-        <meta property="og:description" content={metaDescription} />
+        {/*
+         * PRIVACY-SAFE share meta. A shared card link is reachable by anyone
+         * holding it, so the scraper-facing og:* / twitter:* tags name no entry
+         * and reveal no content — they reuse the static "card" share copy.
+         * The real title/quote still render on-page below; the image stays
+         * guarded by isShareSafe above.
+         */}
+        <meta property="og:title" content="A keepsake from a family thread." />
+        <meta
+          property="og:description"
+          content="Someone made you a card from their family’s archive — a single thread, set aside to be passed on."
+        />
+        <meta name="twitter:title" content="A keepsake from a family thread." />
+        <meta
+          name="twitter:description"
+          content="Someone made you a card from their family’s archive — a single thread, set aside to be passed on."
+        />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={window.location.href} />
         <meta property="og:image" content={metaImage} />

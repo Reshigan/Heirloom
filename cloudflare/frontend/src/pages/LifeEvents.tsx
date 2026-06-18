@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
@@ -9,6 +9,7 @@ import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/a
 import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { RoomError } from '../loom/components/RoomError';
 import { dyeForId } from '../loom/dye';
+import { useFocusTrap } from '../lib/useFocusTrap';
 
 // Quick Create wizard templates
 const QUICK_TEMPLATES = [
@@ -132,6 +133,14 @@ export function LifeEvents() {
   const [showCreate, setShowCreate] = useState(false);
   const [showContentPicker, setShowContentPicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Modal overlays: canonical focus trap + Escape close, focus first field on open.
+  // The content picker stacks above the create wizard; while it is open it owns the
+  // trap (and Escape), so the wizard trap is suspended to avoid a double close.
+  const createRef = useRef<HTMLDivElement>(null);
+  const contentPickerRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(createRef, () => resetForm(), showCreate && !showContentPicker);
+  useFocusTrap(contentPickerRef, () => setShowContentPicker(false), showContentPicker);
 
   const [wizardStep, setWizardStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState<typeof QUICK_TEMPLATES[0] | null>(null);
@@ -491,6 +500,9 @@ export function LifeEvents() {
           onClick={() => resetForm()}
         >
           <div
+            ref={createRef}
+            role="dialog"
+            aria-modal="true"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,
@@ -805,6 +817,9 @@ export function LifeEvents() {
           onClick={() => setShowContentPicker(false)}
         >
           <div
+            ref={contentPickerRef}
+            role="dialog"
+            aria-modal="true"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,

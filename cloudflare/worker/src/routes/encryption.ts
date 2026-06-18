@@ -509,7 +509,7 @@ encryptionRoutes.get('/shamir/status', async (c) => {
            lc.name as contact_name, lc.email as contact_email
     FROM shamir_shares ss
     JOIN legacy_contacts lc ON ss.legacy_contact_id = lc.id
-    WHERE ss.user_id = ?
+    WHERE ss.user_id = ? AND lc.deleted_at IS NULL
     ORDER BY ss.share_index
   `).bind(userId).all();
   
@@ -593,10 +593,10 @@ encryptionRoutes.get('/shamir/share/:contactId', async (c) => {
   
   // Verify session
   const session = await c.env.DB.prepare(`
-    SELECT rs.*, lc.user_id 
+    SELECT rs.*, lc.user_id
     FROM recipient_sessions rs
     JOIN legacy_contacts lc ON rs.legacy_contact_id = lc.id
-    WHERE rs.session_token = ? AND rs.legacy_contact_id = ? AND rs.expires_at > datetime('now')
+    WHERE rs.session_token = ? AND rs.legacy_contact_id = ? AND rs.expires_at > datetime('now') AND lc.deleted_at IS NULL
   `).bind(sessionToken, contactId).first();
   
   if (!session) {

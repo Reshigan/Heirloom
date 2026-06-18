@@ -795,7 +795,7 @@ export function BookBuilder() {
                           aspectRatio: '0.78',
                           border: active ? '1.5px solid var(--warm)' : '1px solid #3a2c1c',
                           background: active ? 'color-mix(in srgb, var(--warm) 5%, transparent)' : 'var(--bg-template)',
-                          borderRadius: active ? 8 : 6,
+                          borderRadius: 0,
                           boxShadow: active ? '0 0 14px rgba(224,160,98,0.5)' : 'none',
                           padding: active ? 11 : 12,
                           display: 'flex',

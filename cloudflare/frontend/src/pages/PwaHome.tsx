@@ -14,7 +14,7 @@ import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
 import { EntryRow, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
 import type { UserRole } from '../hooks/useRole';
 import { dyeVar, type Dye } from '../loom/dye';
-import type { CanvasEntry } from '../loom/components/TapestryCanvas';
+import type { CanvasEntry } from '../hooks/useTapestryEntries';
 
 /* ─── PWA profile menu ────────────────────────────────────────────────────── */
 function PwaMenu() {

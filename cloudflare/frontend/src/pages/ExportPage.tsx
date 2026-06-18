@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { exportApi, type ExportJob } from '../services/api';
+import JSZip from 'jszip';
+import { exportApi, getAuthToken, type ExportJob } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
@@ -68,9 +69,206 @@ async function saveBlob(exportId: string): Promise<void> {
   URL.revokeObjectURL(url);
 }
 
+/** Drop a blob to disk under the given filename via the anchor-download pattern. */
+function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ── whole-thread ZIP bundling ────────────────────────────────────────────── */
+
+/**
+ * The worker's exportData ships a `fileManifest` array of
+ * `{ type, key, url }` — auth-gated API URLs, NOT bytes. To make the archive a
+ * self-contained offline copy we fetch every file (with the user's bearer
+ * token), drop the bytes into `files/<name>` inside the zip, and rewrite each
+ * manifest entry's `url` to that relative path. Without this the prose survives
+ * but every photo/voice recording dies the moment the token expires.
+ */
+interface ManifestFile {
+  type?: string;
+  key?: string;
+  url?: string;
+  /** Rewritten in place to the relative zip path (files/<name>). */
+  path?: string;
+  /** Recorded when a fetch fails so the archive is honest about gaps. */
+  exportError?: string;
+}
+
+const EXT_FOR_MIME: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/png': 'png',
+  'image/gif': 'gif',
+  'image/webp': 'webp',
+  'image/heic': 'heic',
+  'audio/mpeg': 'mp3',
+  'audio/mp4': 'm4a',
+  'audio/m4a': 'm4a',
+  'audio/wav': 'wav',
+  'audio/webm': 'webm',
+  'audio/ogg': 'ogg',
+  'video/mp4': 'mp4',
+  'video/quicktime': 'mov',
+  'video/webm': 'webm',
+  'application/pdf': 'pdf',
+};
+
+/** Strip path/query noise so a manifest key is safe as a flat filename. */
+function safeName(raw: string): string {
+  const base = raw.split('/').pop()?.split('?')[0] ?? raw;
+  return base.replace(/[^A-Za-z0-9._-]/g, '_').slice(0, 120) || 'file';
+}
+
+/** Best filename for a media entry: the key's basename, else <type>-<i>.<ext-from-mime>. */
+function fileNameFor(entry: ManifestFile, index: number, contentType: string | null): string {
+  const keyBase = entry.key ? safeName(entry.key) : '';
+  if (keyBase && keyBase.includes('.')) return keyBase;
+  const ext = (contentType && EXT_FOR_MIME[contentType.split(';')[0].trim()]) || 'bin';
+  const stem = keyBase || `${entry.type || 'file'}-${index + 1}`;
+  return `${stem}.${ext}`;
+}
+
+/** Run async tasks with a bounded number in flight (no hundreds of open sockets). */
+async function mapWithConcurrency<T>(
+  items: T[],
+  limit: number,
+  worker: (item: T, index: number) => Promise<void>,
+): Promise<void> {
+  let cursor = 0;
+  const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (cursor < items.length) {
+      const i = cursor++;
+      await worker(items[i], i);
+    }
+  });
+  await Promise.all(runners);
+}
+
+/**
+ * Build the self-contained thread ZIP: manifest.json (paths rewritten to the
+ * bundled bytes), README.txt, and every reachable media file under files/.
+ * Individual fetch failures are tolerated and recorded — a partial archive
+ * beats none. `onProgress` drives the inline ProgressHair label only.
+ */
+async function buildThreadZip(
+  data: any,
+  onProgress: (label: string) => void,
+): Promise<Blob> {
+  const zip = new JSZip();
+  const manifest: ManifestFile[] = Array.isArray(data?.fileManifest) ? data.fileManifest : [];
+  const token = getAuthToken();
+
+  const usedNames = new Set<string>();
+  const failures: { url: string; reason: string }[] = [];
+  let fetched = 0;
+  const total = manifest.length;
+
+  onProgress(total ? `gathering 0 of ${total} files…` : 'binding the archive…');
+
+  await mapWithConcurrency(manifest, 5, async (entry: ManifestFile, index) => {
+    if (!entry?.url) {
+      entry.exportError = 'no source url';
+      failures.push({ url: '(missing)', reason: 'no source url' });
+      return;
+    }
+    try {
+      const res = await fetch(entry.url, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+
+      let name = fileNameFor(entry, index, res.headers.get('Content-Type'));
+      // Guarantee uniqueness inside files/ even if two keys collapse to one name.
+      if (usedNames.has(name)) {
+        const dot = name.lastIndexOf('.');
+        const stem = dot > 0 ? name.slice(0, dot) : name;
+        const ext = dot > 0 ? name.slice(dot) : '';
+        name = `${stem}-${index + 1}${ext}`;
+      }
+      usedNames.add(name);
+
+      zip.file(`files/${name}`, blob);
+      // Rewrite to the relative in-zip path so the offline copy is
+      // self-referential rather than dependent on the expiring API URL.
+      entry.path = `files/${name}`;
+      entry.url = `files/${name}`;
+    } catch (err: any) {
+      const reason = err?.message || 'fetch failed';
+      entry.exportError = reason;
+      failures.push({ url: entry.url || '(unknown)', reason });
+    } finally {
+      fetched += 1;
+      if (total) onProgress(`gathering ${fetched} of ${total} files…`);
+    }
+  });
+
+  onProgress('binding the archive…');
+
+  // manifest.json carries the rewritten (relative) paths.
+  zip.file('manifest.json', JSON.stringify(data, null, 2));
+
+  const failureNote = failures.length
+    ? [
+        '',
+        `NOTE: ${failures.length} file(s) could not be retrieved and are absent from this`,
+        'archive (their manifest entries carry an "exportError"). This is usually a',
+        'transient network issue — re-export to try again.',
+        ...failures.slice(0, 50).map((f) => `  · ${f.url} — ${f.reason}`),
+        failures.length > 50 ? `  · …and ${failures.length - 50} more` : '',
+      ]
+        .filter(Boolean)
+        .join('\n')
+    : '';
+
+  const readme = [
+    'HEIRLOOM — THE WHOLE THREAD',
+    '===========================',
+    '',
+    `Exported ${new Date().toISOString()}`,
+    `Schema version: ${data?.schemaVersion ?? 'unknown'}`,
+    '',
+    'This archive is a self-contained, offline copy of your family thread.',
+    'It needs no account, no login, and no internet connection to read — every',
+    'photo, voice recording, and written entry is included here as actual files,',
+    'not links. It will outlive your subscription and your access token.',
+    '',
+    'WHAT IS INSIDE',
+    '  manifest.json   The complete archive: people, memories, letters, voice',
+    '                  transcripts, bequests, and revision history. File entries',
+    '                  point at the bundled copies under files/ (relative paths).',
+    '  files/          The binary media — photos, audio, video — referenced by',
+    '                  manifest.json. Open them with any normal viewer.',
+    '  README.txt      This file.',
+    '',
+    'HOW TO READ IT',
+    '  Unzip anywhere. Open manifest.json in any text editor or JSON viewer to',
+    '  read the prose, then open the matching file under files/ for the media.',
+    failureNote,
+    '',
+    'This archive is yours — it leaves with you, whole, to pass on.',
+  ]
+    .filter((l) => l !== undefined)
+    .join('\n');
+
+  zip.file('README.txt', readme);
+
+  return zip.generateAsync({ type: 'blob' });
+}
+
 export function ExportPage() {
   const qc = useQueryClient();
   const [format, setFormat] = useState<ExportFormat>('pdf');
+  // Live status for the whole-thread bundle — drives the inline ProgressHair
+  // label as media is gathered. No spinner, no toast.
+  const [progress, setProgress] = useState<string | null>(null);
 
   const historyQ = useQuery({
     queryKey: ['export', 'history'],
@@ -79,20 +277,14 @@ export function ExportPage() {
 
   const bind = useMutation({
     mutationFn: async () => {
-      // The whole thread → the full raw data export, saved as JSON.
+      // The whole thread → a REAL, self-contained ZIP: manifest.json (with
+      // every media path rewritten to a bundled relative file), README.txt, and
+      // the actual binary bytes under files/. Fetched client-side with the
+      // user's token so the archive survives token expiry / account closure.
       if (format === 'zip') {
         const res = await exportApi.exportData();
-        const blob = new Blob([JSON.stringify(res.data, null, 2)], {
-          type: 'application/json',
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `heirloom-thread-${new Date().toISOString().slice(0, 10)}.json`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
+        const blob = await buildThreadZip(res.data, setProgress);
+        downloadBlob(blob, `heirloom-thread-${new Date().toISOString().slice(0, 10)}.zip`);
         return;
       }
       // The bound book — printed, digital, or plain — rendered to a PDF blob.
@@ -101,6 +293,9 @@ export function ExportPage() {
         coverStyle: COVER_FOR[format],
       });
       await saveBlob(res.data.exportId);
+    },
+    onSettled: () => {
+      setProgress(null);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['export', 'history'] });
@@ -167,7 +362,7 @@ export function ExportPage() {
 
           {bind.isPending && (
             <div style={{ marginTop: 18 }}>
-              <ProgressHair label="setting your family in type…" />
+              <ProgressHair label={progress ?? 'setting your family in type…'} />
             </div>
           )}
 

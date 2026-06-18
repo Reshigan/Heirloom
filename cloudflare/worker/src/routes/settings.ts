@@ -5,7 +5,7 @@
 
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
-import { readDescription } from '../lib/legacyArchive';
+import { readDescription, decryptText } from '../lib/legacyArchive';
 import { sendEmail } from '../utils/email';
 
 export const settingsRoutes = new Hono<AppEnv>();
@@ -1085,6 +1085,42 @@ settingsRoutes.get('/export', async (c) => {
       m.description = await readDescription(c.env, m);
     }
 
+    // Decrypt revision snapshots the same way the live read path (listRevisions)
+    // does — parse the stored JSON, swap any at-rest-encrypted description back
+    // to plaintext, and drop the cipher fields. Without this the archive would
+    // carry unreadable ciphertext for any revision recorded while at-rest
+    // encryption was on, defeating the offline-copy promise. Client-side E2E
+    // ciphertext (where the server never held the key) decrypts to null and is
+    // left as-is. Parse failures fall back to the raw string.
+    const decryptedRevisions: any[] = [];
+    for (const r of legacyRevisions.results as any[]) {
+      let snapshot: unknown = r.snapshot;
+      try {
+        const parsed = JSON.parse(r.snapshot as string) as Record<string, unknown>;
+        if (parsed.description_enc && parsed.description_iv) {
+          const plain = await decryptText(
+            c.env,
+            parsed.description_enc as string,
+            parsed.description_iv as string,
+          );
+          if (plain !== null) parsed.description = plain;
+          delete parsed.description_enc;
+          delete parsed.description_iv;
+        }
+        snapshot = parsed;
+      } catch {
+        // Corrupt/non-JSON snapshot rows still surface as their raw value.
+      }
+      decryptedRevisions.push({
+        id: r.id,
+        entityType: r.entity_type,
+        entityId: r.entity_id,
+        snapshot,
+        reason: r.reason,
+        createdAt: r.created_at,
+      });
+    }
+
     // Build file manifest with R2 URLs
     const fileManifest: { type: string; key: string; url: string }[] = [];
     
@@ -1112,6 +1148,9 @@ settingsRoutes.get('/export', async (c) => {
     
     // Build export data
     const exportData = {
+      // Forward-compat marker for offline readers / future importers. Bump when
+      // the export shape changes in a non-additive way.
+      schemaVersion: '1',
       exportedAt: new Date().toISOString(),
       user: user ? {
         id: user.id,
@@ -1213,15 +1252,9 @@ settingsRoutes.get('/export', async (c) => {
           addedAt: b.added_at,
         })),
       },
-      // Append-only revision history (prior versions of every legacy entry).
-      revisions: (legacyRevisions.results as any[]).map((r: any) => ({
-        id: r.id,
-        entityType: r.entity_type,
-        entityId: r.entity_id,
-        snapshot: r.snapshot,
-        reason: r.reason,
-        createdAt: r.created_at,
-      })),
+      // Append-only revision history (prior versions of every legacy entry),
+      // snapshots decrypted above to readable prose where the server holds the key.
+      revisions: decryptedRevisions,
       fileManifest,
     };
     

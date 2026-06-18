@@ -2,7 +2,19 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
-import type { CanvasEntry } from '../loom/components/TapestryCanvas';
+
+/** One weft thread on the cloth — the shape every tapestry surface reads. */
+export interface CanvasEntry {
+  date: Date;
+  n: number;
+  dye: string;
+  tier?: 'family' | 'descendants' | 'historian';
+  author?: string;
+  sealed?: boolean;
+  sealUntil?: Date;
+  /** The entry's own title — the cloth whispers it on hover. */
+  title?: string;
+}
 
 const DYE_MAP: Record<string, string> = {
   memory: 'madder',

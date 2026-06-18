@@ -117,21 +117,22 @@ export function MemorialPublic() {
           {!isLoading && data && (
             <>
               <Helmet>
-                <title>{`${data.memorial_name} · Heirloom`}</title>
+                {/*
+                 * PRIVACY-SAFE share meta. A memorial link is reachable by
+                 * anyone holding it, so the scraper-facing tags name no one and
+                 * reveal no epitaph. The real name still shows in the on-page
+                 * <h1> below — only the og:* / twitter:* / <title> tags that
+                 * unfurlers and search crawlers read are kept generic.
+                 */}
+                <title>A life remembered · Heirloom</title>
                 <meta
                   name="description"
-                  content={(data.epitaph || data.memorial_description || `In memory of ${data.memorial_name}.`)
-                    .replace(/\s+/g, ' ')
-                    .trim()
-                    .slice(0, 200)}
+                  content="A memorial kept inside a perpetual family thread — permanent, in order, and meant to be carried forward."
                 />
-                <meta property="og:title" content={`In memory of ${data.memorial_name}`} />
+                <meta property="og:title" content="A life remembered · Heirloom" />
                 <meta
                   property="og:description"
-                  content={(data.epitaph || data.memorial_description || `In memory of ${data.memorial_name}.`)
-                    .replace(/\s+/g, ' ')
-                    .trim()
-                    .slice(0, 200)}
+                  content="A memorial kept inside a perpetual family thread — permanent, in order, and meant to be carried forward."
                 />
                 <meta property="og:type" content="article" />
                 <meta property="og:url" content={window.location.href} />
@@ -139,6 +140,11 @@ export function MemorialPublic() {
                 <meta property="og:image:width" content="1200" />
                 <meta property="og:image:height" content="630" />
                 <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:title" content="A life remembered · Heirloom" />
+                <meta
+                  name="twitter:description"
+                  content="A memorial kept inside a perpetual family thread — permanent, in order, and meant to be carried forward."
+                />
                 <meta name="twitter:image" content="https://heirloom.blue/og-image.png" />
                 <link rel="canonical" href={window.location.href} />
               </Helmet>

@@ -257,9 +257,9 @@ export function InviteCard() {
                   fontSize: 11,
                   letterSpacing: '0.26em',
                   textTransform: 'uppercase',
-                  color: 'var(--ink)',
-                  background: 'var(--warm)',
-                  border: 'none',
+                  color: 'var(--warm)',
+                  background: 'transparent',
+                  border: '1px solid var(--warm)',
                   padding: '13px 28px',
                   borderRadius: 0,
                   cursor: 'pointer',
@@ -267,7 +267,7 @@ export function InviteCard() {
                   lineHeight: 1,
                 }}
               >
-                {copied ? 'Link copied ✓' : 'Copy invite link →'}
+                {copied ? 'Link copied' : 'Copy invite link →'}
               </button>
             ) : (
               <div
@@ -308,9 +308,9 @@ export function InviteCard() {
                     fontSize: 11,
                     letterSpacing: '0.26em',
                     textTransform: 'uppercase',
-                    color: 'var(--ink)',
-                    background: 'var(--warm)',
-                    border: 'none',
+                    color: 'var(--warm)',
+                    background: 'transparent',
+                    border: '1px solid var(--warm)',
                     padding: '13px 28px',
                     borderRadius: 0,
                     cursor: generating ? 'default' : 'pointer',

@@ -5,9 +5,9 @@ import { type Letter, type Memory, type VoiceRecording } from '../types';
 import { formatDate, formatDuration } from '../utils/date';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal, WarmDot } from '../loom/cosmic/CosmicUI';
 import { dyeColor } from '../loom/dye';
+import { useFocusTrap } from '../lib/useFocusTrap';
 
-// @ts-ignore - Vite env types
-const API_URL = import.meta.env?.VITE_API_URL || 'https://api.heirloom.blue/api';
+const API_URL = import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api';
 
 type ReactionType = 'THANK_YOU' | 'REMEMBER_THIS' | 'LOVE_THIS' | 'CUSTOM';
 
@@ -125,6 +125,14 @@ export function Inherit() {
   const [sendingReaction, setSendingReaction] = useState(false);
   const [reactionSent, setReactionSent] = useState(false);
   const [reactionError, setReactionError] = useState<string | null>(null);
+  const reactionRef = useRef<HTMLDivElement>(null);
+
+  // Reaction modal: canonical focus trap + Escape close (Escape is ignored mid-send, mirroring the backdrop guard).
+  useFocusTrap(
+    reactionRef,
+    () => { if (!sendingReaction) setShowReactionModal(false); },
+    showReactionModal,
+  );
 
   const reactionOptions: ReactionOption[] = [
     { type: 'THANK_YOU', label: 'Thank you', description: 'Let them know this meant something to you' },
@@ -1113,6 +1121,9 @@ export function Inherit() {
           onClick={() => !sendingReaction && setShowReactionModal(false)}
         >
           <div
+            ref={reactionRef}
+            role="dialog"
+            aria-modal="true"
             style={{
               width: '100%',
               maxWidth: 480,

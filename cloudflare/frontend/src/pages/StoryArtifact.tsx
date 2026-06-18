@@ -8,6 +8,7 @@ import { copyToClipboard } from '../utils/clipboard';
 import { type Memory, type VoiceRecording } from '../types';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { dyeForId } from '../loom/dye';
+import { useFocusTrap } from '../lib/useFocusTrap';
 
 // Quick Create wizard templates
 const STORY_TEMPLATES = [
@@ -114,6 +115,12 @@ export function StoryArtifact() {
   const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
   const [theme, setTheme] = useState('classic');
   const [musicTrack, setMusicTrack] = useState<string | null>(null);
+
+  // Modal overlays: canonical focus trap + Escape close, focus first field on open.
+  const shareRef = useRef<HTMLDivElement>(null);
+  const createRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(shareRef, () => setShareUrl(null), !!shareUrl);
+  useFocusTrap(createRef, () => resetForm(), showCreate);
 
   const { data: artifacts, isLoading } = useQuery<{ artifacts: StoryArtifactItem[] }>({
     queryKey: ['story-artifacts'],
@@ -532,6 +539,9 @@ export function StoryArtifact() {
           onClick={() => setShareUrl(null)}
         >
           <div
+            ref={shareRef}
+            role="dialog"
+            aria-modal="true"
             style={{
               background: 'var(--ink)',
               border: '1px solid var(--rule)',
@@ -609,6 +619,9 @@ export function StoryArtifact() {
           onClick={() => resetForm()}
         >
           <div
+            ref={createRef}
+            role="dialog"
+            aria-modal="true"
             style={{
               background: 'var(--ink)',
               border: '1px solid var(--rule)',

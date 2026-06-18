@@ -139,8 +139,23 @@ export function StoryView() {
       <Helmet>
         <title>{metaTitle}</title>
         <meta name="description" content={metaDescription} />
-        <meta property="og:title" content={artifact.title} />
-        <meta property="og:description" content={metaDescription} />
+        {/*
+         * PRIVACY-SAFE share meta. A shared story link is reachable by anyone
+         * holding it, so the scraper-facing og:* / twitter:* tags name no entry
+         * and reveal no content — they reuse the static "story" share card copy.
+         * The real title/description still render on-page below; the image stays
+         * guarded by isShareSafe above.
+         */}
+        <meta property="og:title" content="A family story has been shared with you." />
+        <meta
+          property="og:description"
+          content="An entry from a perpetual family thread, kept in order and meant to last. Open the link to read it."
+        />
+        <meta name="twitter:title" content="A family story has been shared with you." />
+        <meta
+          name="twitter:description"
+          content="An entry from a perpetual family thread, kept in order and meant to last. Open the link to read it."
+        />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={canonical} />
         <meta property="og:image" content={metaImage} />

@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { dyeForId } from '../loom/dye';
+import { useFocusTrap } from '../lib/useFocusTrap';
 import { milestonesApi } from '../services/api';
 
 const milestoneTypes = [
@@ -59,6 +60,7 @@ export function Milestones() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const createModalRef = useRef<HTMLDivElement>(null);
   const [formData, setFormData] = useState({
     type: 'birthday',
     name: '',
@@ -67,6 +69,9 @@ export function Milestones() {
     reminderDays: 7,
     promptSuggestion: '',
   });
+
+  // Create overlay = a modal: canonical focus trap, close on Escape, focus first field.
+  useFocusTrap(createModalRef, () => setShowCreateModal(false), showCreateModal);
 
   const { data: milestones, isLoading } = useQuery({
     queryKey: ['milestones'],
@@ -303,6 +308,9 @@ export function Milestones() {
           onClick={() => setShowCreateModal(false)}
         >
           <div
+            ref={createModalRef}
+            role="dialog"
+            aria-modal="true"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,
@@ -438,9 +446,9 @@ export function Milestones() {
                   disabled={!formData.name.trim() || !formData.date || createMutation.isPending}
                   style={{
                     flex: 1,
-                    background: 'var(--warm)',
+                    background: 'transparent',
                     border: '1px solid var(--warm)',
-                    color: 'var(--ink)',
+                    color: 'var(--warm)',
                     fontFamily: 'var(--mono)',
                     fontSize: 10,
                     letterSpacing: '0.22em',

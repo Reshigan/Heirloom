@@ -31,8 +31,8 @@
   --filament: var(--rule);
   --wax: var(--warm);
 
-  /* panel geometry — quiet, archival. No pill rounding (anti rounded-full). */
-  --cosmic-radius: 4px;
+  /* panel geometry — quiet, archival. Sharp corners are the design law. */
+  --cosmic-radius: 0;
 }
 
 .loom[data-theme="light"] {

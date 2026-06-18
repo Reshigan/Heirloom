@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
@@ -8,6 +8,7 @@ import { RoomError } from '../loom/components/RoomError';
 import { dyeColor, dyeFromMetadata, dyeForId } from '../loom/dye';
 import { memorialsApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
+import { useFocusTrap } from '../lib/useFocusTrap';
 
 // Design styles kept for API compatibility; not displayed as a visual style chooser
 const designStyles = [
@@ -82,6 +83,12 @@ export function Memorials() {
   // Which memorial's link was just copied — drives inline "link copied" feedback
   // when navigator.share is unavailable (the clipboard fallback is otherwise silent).
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  // Modal overlays: canonical focus trap + Escape close, focus first field on open.
+  const createRef = useRef<HTMLDivElement>(null);
+  const viewRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(createRef, () => { setShowCreateModal(false); setFormError(null); }, showCreateModal);
+  useFocusTrap(viewRef, () => setSelectedMemorial(null), !!selectedMemorial);
 
   const createMutation = useMutation({
     mutationFn: () => memorialsApi.create(formData),
@@ -304,6 +311,9 @@ export function Memorials() {
           onClick={() => setShowCreateModal(false)}
         >
           <div
+            ref={createRef}
+            role="dialog"
+            aria-modal="true"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,
@@ -502,6 +512,9 @@ export function Memorials() {
           onClick={() => setSelectedMemorial(null)}
         >
           <div
+            ref={viewRef}
+            role="dialog"
+            aria-modal="true"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,

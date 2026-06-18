@@ -137,7 +137,10 @@ CREATE TABLE IF NOT EXISTS legacy_contacts (
   verification_token TEXT UNIQUE,
   verified_at TEXT,
   created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now'))
+  updated_at TEXT DEFAULT (datetime('now')),
+  -- migration 0066 append-only soft-delete. A removed contact (deleted_at NOT
+  -- NULL) must never receive a new delivery token, so trigger fan-out filters it
+  deleted_at TEXT
 );
 
 CREATE TABLE IF NOT EXISTS founder_pledges (

@@ -209,7 +209,6 @@ export function Login() {
       {showVaultUnlock ? (
         <VaultModal
           isOpen={showVaultUnlock}
-          mode="unlock"
           onComplete={() => {
             setShowVaultUnlock(false);
             navigate(redirectUrl || '/loom/pwa');

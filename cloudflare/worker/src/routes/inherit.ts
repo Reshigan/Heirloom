@@ -100,13 +100,14 @@ const validateRecipientSession = async (c: any, next: any) => {
   const sessionToken = authHeader.slice(7);
   
   const session = await c.env.DB.prepare(`
-    SELECT 
+    SELECT
       rs.id,
       rs.owner_id,
       rs.legacy_contact_id,
       rs.expires_at
     FROM recipient_sessions rs
-    WHERE rs.session_token = ?
+    JOIN legacy_contacts lc ON lc.id = rs.legacy_contact_id
+    WHERE rs.session_token = ? AND lc.deleted_at IS NULL
   `).bind(sessionToken).first();
   
   if (!session) {

@@ -3,7 +3,6 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
 import { safeRedirect } from '../lib/safeRedirect';
-import { VaultModal } from '../components/VaultModal';
 import { threadsApi } from '../services/api';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
@@ -76,7 +75,6 @@ export function Signup() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<SignupErrors>({});
-  const [showVaultSetup, setShowVaultSetup] = useState(false);
   const [threadError, setThreadError] = useState<string | null>(null);
 
   const set = (patch: Partial<typeof form>) => setForm((f) => ({ ...f, ...patch }));
@@ -138,7 +136,13 @@ export function Signup() {
           setThreadError('Account created — thread setup will complete on first login.');
         }
       }
-      setShowVaultSetup(true);
+      // Server-held AES-GCM: entries are encrypted at rest with a platform-held
+      // key, so signup provisions NO client passphrase vault. Route straight on.
+      // Founder is a one-time purchase with no trial — route to /founder to
+      // complete payment. Family/Free first run the First Thread ceremony
+      // (/begin), which then hands off into the product tour + first-entry
+      // onboarding. A deep-link redirect always takes precedence.
+      navigate(safeRedirect(redirectUrl, tier === 'founder' ? '/founder' : '/begin'));
     } catch (err: any) {
       setErrors({ submit: err.response?.data?.error || 'Failed to create account' });
     } finally {
@@ -509,25 +513,6 @@ export function Signup() {
           </div>
         </div>
       </div>
-
-      {showVaultSetup ? (
-        <VaultModal
-          isOpen={showVaultSetup}
-          mode="setup"
-          onComplete={() => {
-            setShowVaultSetup(false);
-            // Founder is a one-time purchase with no trial — route to /founder to
-            // complete payment. Family/Free first run the First Thread ceremony
-            // (/begin), which then hands off into the product tour + first-entry
-            // onboarding. A deep-link redirect always takes precedence.
-            navigate(safeRedirect(redirectUrl, tier === 'founder' ? '/founder' : '/begin'));
-          }}
-          onSkip={() => {
-            setShowVaultSetup(false);
-            navigate(safeRedirect(redirectUrl, tier === 'founder' ? '/founder' : '/begin'));
-          }}
-        />
-      ) : null}
     </div>
   );
 }
