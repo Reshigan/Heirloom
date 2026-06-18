@@ -49,7 +49,9 @@ export function InfinityMenu() {
         onClick={() => setOpen((o) => !o)}
         className="loom-serif"
         style={{
-          background: 'none', border: 0, padding: '2px 6px', cursor: 'pointer',
+          background: 'none', border: 0, padding: 0, cursor: 'pointer',
+          minWidth: 44, minHeight: 44,
+          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
           fontFamily: 'var(--serif)', fontSize: 16, lineHeight: 1,
           color: open ? 'var(--warm)' : 'var(--bone-dim)',
           transition: `color 180ms ${EASE}`,

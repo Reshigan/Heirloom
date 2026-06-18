@@ -362,7 +362,7 @@ export function Signup() {
                         className="hl-serif"
                         style={{ fontSize: 26, fontWeight: 300, letterSpacing: '-0.018em', lineHeight: 1, color: 'var(--bone)' }}
                       >
-                        {t.id === 'family' && cycle === 'annual' ? '$99' : t.price}
+                        {t.id === 'family' && cycle === 'annual' ? PLAN_PRICE.FAMILY.annual : t.price}
                       </div>
                       <div
                         className="hl-mono"
@@ -374,7 +374,7 @@ export function Signup() {
                           marginTop: 6,
                         }}
                       >
-                        {t.id === 'family' && cycle === 'annual' ? '/ year · 2 mo free' : t.sub}
+                        {t.id === 'family' && cycle === 'annual' ? `${PLAN_PRICE.FAMILY.perYear} · 2 mo free` : t.sub}
                       </div>
                     </div>
                   </button>

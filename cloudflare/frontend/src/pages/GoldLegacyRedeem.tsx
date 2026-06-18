@@ -7,6 +7,7 @@ import { TapestryEdge } from '../loom/components/Frame';
 import { ClothShell } from '../loom/components/ClothShell';
 import { SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import api from '../services/api';
+import { PLAN_PRICE } from '../lib/plans';
 
 interface GoldLegacyVoucherInfo {
   code: string;
@@ -287,7 +288,7 @@ export function GoldLegacyRedeem() {
                   margin: '0 0 28px',
                 }}
               >
-                gold legacy · $249 lifetime
+                {`gold legacy · ${PLAN_PRICE.FOUNDER.amount} lifetime`}
               </p>
 
               {/* Code input */}

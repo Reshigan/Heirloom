@@ -193,7 +193,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
             {/* Header */}
             <div className="flex items-start justify-between mb-6 gap-6">
               <div>
-                <p className="font-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-2">Walkthrough</p>
+                <p className="loom-mono text-[0.7rem] tracking-[0.32em] uppercase text-gold mb-2">Walkthrough</p>
                 <h2 id="feature-onboarding-title" className="font-body font-light text-xl md:text-2xl tracking-[-0.014em]">{config.title}</h2>
                 <p className="text-sm text-paper-65 mt-1">{config.subtitle}</p>
               </div>
@@ -244,12 +244,12 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                 </div>
 
                 <div className="p-4 bg-void-elevated border border-gold-40 rounded-none">
-                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-gold mb-1.5">Why this matters</p>
+                  <p className="loom-mono text-[0.65rem] uppercase tracking-[0.22em] text-gold mb-1.5">Why this matters</p>
                   <p className="text-paper-70 leading-relaxed">{step.whyItMatters}</p>
                 </div>
 
                 <div className="p-4 bg-void-elevated border border-paper-15 rounded-none">
-                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-paper-50 mb-1.5">How to start</p>
+                  <p className="loom-mono text-[0.65rem] uppercase tracking-[0.22em] text-paper-50 mb-1.5">How to start</p>
                   <p className="text-paper-70 leading-relaxed">{step.howToStart}</p>
                 </div>
               </motion.div>
@@ -260,21 +260,18 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
               <button
                 onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
                 disabled={currentStep === 0}
-                className={`btn btn-ghost ${currentStep === 0 ? 'opacity-30 cursor-not-allowed' : ''}`}
+                className={`hl-btn ${currentStep === 0 ? 'opacity-30 cursor-not-allowed' : ''}`}
               >
-                <span aria-hidden>←</span>
                 Previous
               </button>
 
               {isLastStep ? (
-                <button onClick={onComplete} className="btn btn-primary">
+                <button onClick={onComplete} className="hl-btn">
                   Got it, let's start
-                  <span aria-hidden>→</span>
                 </button>
               ) : (
-                <button onClick={() => setCurrentStep(currentStep + 1)} className="btn btn-primary">
+                <button onClick={() => setCurrentStep(currentStep + 1)} className="hl-btn">
                   Next
-                  <span aria-hidden>→</span>
                 </button>
               )}
             </div>
@@ -330,7 +327,7 @@ export function OnboardingHelpButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-20 md:bottom-6 right-6 z-40 px-4 py-2.5 bg-void-surface border border-gold-40 rounded-none text-gold hover:text-gold-bright transition-colors duration-fast text-[0.7rem] font-mono uppercase tracking-[0.22em]"
+      className="fixed bottom-20 md:bottom-6 right-6 z-40 px-4 py-2.5 bg-void-surface border border-gold-40 rounded-none text-gold hover:text-gold-bright transition-colors duration-fast text-[0.7rem] loom-mono uppercase tracking-[0.22em]"
       title="How does this work?"
       aria-label="How does this work?"
     >

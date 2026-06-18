@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { foundersApi, type FounderCount } from '../services/api';
+import { PLAN_PRICE_NUM } from '../lib/plans';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
@@ -63,7 +64,7 @@ export function FoundersWall() {
   const engraved       = count ? count.paid              : null;
   const remaining      = count ? count.remaining         : null;
   const capValue       = count ? count.cap               : 100;
-  const amount         = count ? count.pledge_amount_usd : 999;
+  const amount         = count ? count.pledge_amount_usd : PLAN_PRICE_NUM.FOUNDER.lifetime;
 
   const headline =
     engraved === null

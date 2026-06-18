@@ -551,7 +551,7 @@ export const referralApi = {
   trackShare: (platform: string) => api.post('/marketing/share/track', { platform }),
 };
 
-// Q4 2025 Features APIs
+// Engagement feature APIs
 
 // Memory Streaks API
 export const streaksApi = {

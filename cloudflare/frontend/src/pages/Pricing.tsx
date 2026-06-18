@@ -5,6 +5,7 @@ import { billingApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { PLAN_PRICE_NUM } from '../lib/plans';
 
 const META_TITLE = 'Plans & Pricing';
 const META_DESCRIPTION = 'Choose the plan that fits your family. Start free, upgrade when you\'re ready.';
@@ -20,8 +21,8 @@ interface PricingData {
 
 const FALLBACK: PricingData = {
   symbol: '$', code: 'USD',
-  FAMILY: { monthly: 6.99, yearly: 69 },
-  FOUNDER: { lifetime: 249 },
+  FAMILY: { monthly: PLAN_PRICE_NUM.FAMILY.monthly, yearly: PLAN_PRICE_NUM.FAMILY.annual },
+  FOUNDER: { lifetime: PLAN_PRICE_NUM.FOUNDER.lifetime },
 };
 
 function fmt(symbol: string, n: number): string {
@@ -48,8 +49,8 @@ export function Pricing() {
   const annualOnly = !pricing.FAMILY?.monthly;
   const showAnnual = annual || annualOnly;
 
-  const familyMonthly = fmt(s, pricing.FAMILY?.monthly ?? 6.99);
-  const familyYearly = fmt(s, pricing.FAMILY?.yearly ?? 69);
+  const familyMonthly = fmt(s, pricing.FAMILY?.monthly ?? PLAN_PRICE_NUM.FAMILY.monthly);
+  const familyYearly = fmt(s, pricing.FAMILY?.yearly ?? PLAN_PRICE_NUM.FAMILY.annual);
 
   const tiers = [
     {
@@ -79,7 +80,7 @@ export function Pricing() {
     {
       id: 'FOUNDER',
       name: 'Founder',
-      price: fmt(s, pricing.FOUNDER?.lifetime ?? 249),
+      price: fmt(s, pricing.FOUNDER?.lifetime ?? PLAN_PRICE_NUM.FOUNDER.lifetime),
       cadence: 'once',
       note: 'Lifetime · All features',
       lines: [] as string[],

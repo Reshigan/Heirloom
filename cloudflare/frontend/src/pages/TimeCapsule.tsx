@@ -619,10 +619,8 @@ export function TimeCapsule() {
                           height: 16,
                           borderRadius: '50%',
                           flexShrink: 0,
-                          border: `1px solid ${active ? 'var(--copper-border)' : 'var(--rule)'}`,
-                          background: active
-                            ? 'radial-gradient(circle, var(--warm) 42%, transparent 46%)'
-                            : 'transparent',
+                          border: `1px solid ${active ? 'var(--warm)' : 'var(--rule)'}`,
+                          background: active ? 'var(--warm-glow)' : 'transparent',
                           transition: `border-color 180ms ${EASE}`,
                         }}
                       />

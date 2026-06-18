@@ -261,7 +261,7 @@ export function Today() {
         {contributors.length > 0 && (
           <div style={{
             opacity: revealed ? 1 : 0,
-            transition: `opacity 1400ms ${ease}`,
+            transition: `opacity 720ms ${ease}`,
             transitionDelay: '360ms',
             marginBottom: 8,
           }}>
@@ -275,7 +275,7 @@ export function Today() {
         {(onThisDay.length > 0 || onThisDayError) && (
           <div style={{
             opacity: revealed ? 1 : 0,
-            transition: `opacity 1400ms ${ease}`,
+            transition: `opacity 720ms ${ease}`,
             transitionDelay: '720ms',
           }}>
             {onThisDayError ? (

@@ -209,7 +209,7 @@ export function LetterRoom() {
                 borderRadius: 0,
                 padding: 'clamp(24px,6vw,44px)',
                 background: 'var(--bg-letter)',
-                boxShadow: '0 0 34px rgba(216,150,84,0.42), inset 0 0 0 1px rgba(216,150,84,0.25)',
+                boxShadow: '0 0 34px rgba(var(--letter-copper-rgb),0.42), inset 0 0 0 1px rgba(var(--letter-copper-rgb),0.25)',
                 maxWidth: '38em', margin: '0 auto', textAlign: 'left',
               }}>
                 {isSealed && !body ? (
@@ -225,7 +225,7 @@ export function LetterRoom() {
                   <>
                     <p style={{
                       fontFamily: 'var(--serif)', fontSize: 17, fontWeight: 300,
-                      color: '#d8c7aa', lineHeight: 1.85, margin: 0,
+                      color: 'var(--letter-body-dim)', lineHeight: 1.85, margin: 0,
                       whiteSpace: 'pre-wrap',
                     }}>
                       {body}
@@ -477,12 +477,12 @@ export function LetterRoom() {
                             borderRadius: 0,
                             padding: 'clamp(24px,6vw,40px)',
                             background: 'var(--bg-letter)',
-                            boxShadow: '0 0 34px rgba(216,150,84,0.42), inset 0 0 0 1px rgba(216,150,84,0.25)',
+                            boxShadow: '0 0 34px rgba(var(--letter-copper-rgb),0.42), inset 0 0 0 1px rgba(var(--letter-copper-rgb),0.25)',
                             maxWidth: '38em', margin: '0 auto',
                           }}>
                             <p style={{
                               fontFamily: 'var(--serif)', fontSize: 17, fontWeight: 300,
-                              color: '#d8c7aa', lineHeight: 1.85, margin: 0,
+                              color: 'var(--letter-body-dim)', lineHeight: 1.85, margin: 0,
                               whiteSpace: 'pre-wrap',
                             }}>
                               {fullBodies[letter.id] || letter.bodyPreview}

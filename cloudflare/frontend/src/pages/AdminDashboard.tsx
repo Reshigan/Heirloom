@@ -6,6 +6,8 @@ import { MarketingTab } from './MarketingTab';
 import { SocialCalendarTab } from './SocialCalendarTab';
 import { AppFrame } from '../loom/components/AppFrame';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { PLAN_PRICE } from '../lib/plans';
+import { copyToClipboard } from '../utils/clipboard';
 
 // Admin auth check
 const useAdminAuth = () => {
@@ -672,7 +674,7 @@ export function AdminDashboard() {
                       <td style={tdStyle}>
                         <span className="loom-mono" style={{ color: 'var(--warm)', fontSize: 12 }}>{voucher.code}</span>
                         {' '}
-                        <button className="loom-btn-ghost" style={{ fontSize: 10, padding: '1px 6px' }} onClick={() => { navigator.clipboard.writeText(voucher.code); status.ok('code copied'); }}>copy</button>
+                        <button className="loom-btn-ghost" style={{ fontSize: 10, padding: '1px 6px' }} onClick={() => copyToClipboard(voucher.code).then(() => status.ok('code copied')).catch(() => status.err('copy failed'))}>copy</button>
                       </td>
                       <td style={tdStyle}><StatusWord value={voucher.tier} /></td>
                       <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--bone-dim)' }}>{voucher.purchaser_email}</td>
@@ -694,7 +696,7 @@ export function AdminDashboard() {
                               }
                             }}>Resend</button>
                           )}
-                          <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/gift/redeem?code=${voucher.code}`); status.ok('redeem link copied'); }}>Link</button>
+                          <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => copyToClipboard(`${window.location.origin}/gift/redeem?code=${voucher.code}`).then(() => status.ok('redeem link copied')).catch(() => status.err('copy failed'))}>Link</button>
                         </div>
                       </td>
                     </tr>
@@ -742,7 +744,7 @@ export function AdminDashboard() {
                       <td style={tdStyle}>
                         <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>{voucher.code}</span>
                         {' '}
-                        <button className="loom-btn-ghost" style={{ fontSize: 10, padding: '1px 6px' }} onClick={() => { navigator.clipboard.writeText(voucher.code); status.ok('code copied'); }}>copy</button>
+                        <button className="loom-btn-ghost" style={{ fontSize: 10, padding: '1px 6px' }} onClick={() => copyToClipboard(voucher.code).then(() => status.ok('code copied')).catch(() => status.err('copy failed'))}>copy</button>
                       </td>
                       <td style={tdStyle}>
                         <div style={{ color: 'var(--bone)' }}>{voucher.recipient_name || '—'}</div>
@@ -751,7 +753,7 @@ export function AdminDashboard() {
                       <td style={tdStyle}><StatusWord value={voucher.status} /></td>
                       <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--bone-faint)' }}>{new Date(voucher.created_at).toLocaleDateString()}</td>
                       <td style={{ ...tdStyle, textAlign: 'right' }}>
-                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/gold/redeem?code=${voucher.code}`); status.ok('redeem link copied'); }}>Link</button>
+                        <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => copyToClipboard(`${window.location.origin}/gold/redeem?code=${voucher.code}`).then(() => status.ok('redeem link copied')).catch(() => status.err('copy failed'))}>Link</button>
                       </td>
                     </tr>
                   ))}
@@ -1602,9 +1604,9 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
           <div style={{ display: 'flex', gap: 8 }}>
             <LoomSelect value={selectedTier} onChange={(e) => setSelectedTier(e.target.value)} style={{ flex: 1 }}>
               <option value="FREE">Free</option>
-              <option value="STARTER">Starter ($1/mo)</option>
-              <option value="FAMILY">Family ($2/mo)</option>
-              <option value="FOREVER">Forever ($5/mo)</option>
+              <option value="STARTER">Starter (free)</option>
+              <option value="FAMILY">Family ({PLAN_PRICE.FAMILY.monthly}/mo)</option>
+              <option value="FOREVER">Forever ({PLAN_PRICE.FOUNDER.amount} lifetime)</option>
             </LoomSelect>
             <button className="loom-btn-ghost" onClick={() => updateTierMutation.mutate()} disabled={updateTierMutation.isPending || selectedTier === user.tier}>{updateTierMutation.isPending ? '…' : 'Update'}</button>
           </div>
@@ -1893,8 +1895,8 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
             {createdCodes.map((code, i) => <p key={i} className="loom-mono" style={{ fontSize: 16, color: 'var(--warm)', marginBottom: 4, letterSpacing: '0.12em' }}>{code}</p>)}
           </div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="loom-btn-ghost" onClick={() => { navigator.clipboard.writeText(createdCodes.join('\n')); status.ok('codes copied'); }}>Copy All Codes</button>
-            <button className="loom-btn-ghost" onClick={() => { navigator.clipboard.writeText(createdCodes.map(c => `https://heirloom.blue/gift/redeem?code=${c}`).join('\n')); status.ok('links copied'); }}>Copy All Links</button>
+            <button className="loom-btn-ghost" onClick={() => copyToClipboard(createdCodes.join('\n')).then(() => status.ok('codes copied')).catch(() => status.err('copy failed'))}>Copy All Codes</button>
+            <button className="loom-btn-ghost" onClick={() => copyToClipboard(createdCodes.map(c => `https://heirloom.blue/gift/redeem?code=${c}`).join('\n')).then(() => status.ok('links copied')).catch(() => status.err('copy failed'))}>Copy All Links</button>
             <button className="loom-btn" onClick={onClose}>Done</button>
           </div>
         </div>
@@ -2028,8 +2030,8 @@ The Heirloom Team`;
           </div>
           {createdVoucher.emailSent && <p className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)', marginBottom: 16 }}>Invitation email sent to {createdVoucher.recipientEmail}</p>}
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="loom-btn-ghost" onClick={() => { navigator.clipboard.writeText(createdVoucher.code); status.ok('code copied'); }}>Copy Code</button>
-            <button className="loom-btn" onClick={() => { navigator.clipboard.writeText(`https://heirloom.blue/gold/redeem?code=${createdVoucher.code}`); status.ok('invitation link copied'); }}>Copy Invitation Link</button>
+            <button className="loom-btn-ghost" onClick={() => copyToClipboard(createdVoucher.code).then(() => status.ok('code copied')).catch(() => status.err('copy failed'))}>Copy Code</button>
+            <button className="loom-btn" onClick={() => copyToClipboard(`https://heirloom.blue/gold/redeem?code=${createdVoucher.code}`).then(() => status.ok('invitation link copied')).catch(() => status.err('copy failed'))}>Copy Invitation Link</button>
             <button className="loom-btn-ghost" onClick={onClose}>Done</button>
           </div>
         </div>

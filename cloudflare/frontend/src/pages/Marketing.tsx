@@ -242,7 +242,7 @@ export function Marketing() {
               opacity: pillars.visible ? 1 : 0,
               transform: pillars.visible ? 'translateY(0)' : 'translateY(20px)',
               transition: reduceMotion ? 'none' : `opacity 720ms ${ease}, transform 720ms ${ease}`,
-              transitionDelay: `${i * 160}ms`,
+              transitionDelay: `${i * 180}ms`,
             }}>
               <h2 style={{
                 fontFamily: 'var(--serif-display)',
@@ -284,7 +284,7 @@ export function Marketing() {
               opacity: arc.visible ? 1 : 0,
               transform: arc.visible ? 'translateY(0)' : 'translateY(20px)',
               transition: reduceMotion ? 'none' : `opacity 720ms ${ease}, transform 720ms ${ease}`,
-              transitionDelay: `${i * 160}ms`,
+              transitionDelay: `${i * 180}ms`,
             }}>
               <img
                 src={src}

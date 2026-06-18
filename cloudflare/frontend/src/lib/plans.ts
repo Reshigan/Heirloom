@@ -76,6 +76,18 @@ export const PLAN_PRICE = {
   FOUNDER: { amount: '$249', cycle: 'once · lifetime' },
 } as const;
 
+/**
+ * Numeric companions to PLAN_PRICE (USD), LOCKED — see CLAUDE.md pricing.
+ * Use these for API-failure fallbacks and anywhere a raw number is needed, so
+ * the locked amounts live in exactly ONE file and parallel fallback tables can
+ * never drift from the canonical values. Live ZAR/localized amounts come from
+ * the worker /billing/tiers endpoint and are deliberately NOT here.
+ */
+export const PLAN_PRICE_NUM = {
+  FAMILY:  { monthly: 6.99, annual: 69 },
+  FOUNDER: { lifetime: 249 },
+} as const;
+
 /** Convert any API tier string to the display label shown in UI. */
 export function planLabel(apiTier: string): string {
   return PLAN_DISPLAY[apiTier?.toUpperCase()] ?? apiTier?.toLowerCase() ?? 'free';

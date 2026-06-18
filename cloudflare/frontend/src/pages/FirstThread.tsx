@@ -81,6 +81,12 @@ export function FirstThread() {
     if (!x) return;
     const W = c.width, H = c.height, N = 42;
     const t = reduce.current ? 0.6 : performance.now() / 1000;
+    // Canvas fillStyle cannot resolve var() — read the canonical copper tokens
+    // at draw time (document is mounted by now) so the waveform tracks the brand
+    // palette and theme rather than hardcoded bespoke copper.
+    const cs = getComputedStyle(document.documentElement);
+    const warmTop = cs.getPropertyValue('--warm-bright').trim() || '#f0c074';
+    const warmBottom = cs.getPropertyValue('--warm-dim').trim() || '#b07a3e';
     x.clearRect(0, 0, W, H);
     x.lineCap = 'round';
     for (let i = 0; i < N; i++) {
@@ -88,8 +94,8 @@ export function FirstThread() {
       const h = (0.12 + 0.88 * Math.abs(Math.sin(i * 0.7 + t * 6) * Math.cos(i * 0.3 + t * 2.1))) * env * H * 0.92;
       const px = (W * (i + 0.5)) / N;
       const g = x.createLinearGradient(0, (H - h) / 2, 0, (H + h) / 2);
-      g.addColorStop(0, '#f5ca80');
-      g.addColorStop(1, '#a85c28');
+      g.addColorStop(0, warmTop);
+      g.addColorStop(1, warmBottom);
       x.strokeStyle = g;
       x.lineWidth = Math.max(2.4, (W / N) * 0.42);
       x.beginPath();
@@ -182,6 +188,8 @@ export function FirstThread() {
             }}
           >
             <div style={{ position: 'relative', width: 150, height: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {/* Intentional sub-3% low-alpha (--warm-glow = 0.18) ceremony breath —
+                  a one-off radial behind the ∞ mark, not a decorative gradient mesh. */}
               <div style={{ position: 'absolute', inset: -16, borderRadius: '50%', background: 'radial-gradient(circle,var(--warm-glow),transparent 66%)', animation: 'hl-pulse 1400ms infinite' }} />
               <div style={{ fontFamily: "var(--serif-display)", fontSize: 74, color: 'var(--warm-bright)', textShadow: '0 0 26px rgba(216,150,84,.6)' }}>∞</div>
             </div>
@@ -293,6 +301,8 @@ export function FirstThread() {
               <>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                   <div style={{ position: 'relative', width: 120, height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {/* Intentional sub-3% low-alpha (--warm-glow = 0.18) ceremony breath —
+                        a one-off radial behind the sealed mark, not a decorative gradient mesh. */}
                     <div style={{ position: 'absolute', inset: -14, borderRadius: '50%', background: 'radial-gradient(circle,var(--warm-glow),transparent 66%)', animation: 'hl-pulse 1400ms infinite' }} />
                     <img src={ASSET_SEAL} alt="" style={{ width: 108, height: 108, animation: `hl-stamp 720ms ${EASE} both` }} />
                   </div>

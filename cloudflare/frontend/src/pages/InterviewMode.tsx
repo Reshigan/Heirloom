@@ -41,6 +41,7 @@ export function InterviewMode() {
   const [saveError, setSaveError] = useState<string | null>(null);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const mimeTypeRef = useRef<string>('audio/webm');
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -87,11 +88,18 @@ export function InterviewMode() {
     setRecordingError(null);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+      const supportedType = ['audio/webm', 'audio/mp4', 'audio/ogg'].find((t) =>
+        MediaRecorder.isTypeSupported(t),
+      );
+      const mediaRecorder = supportedType
+        ? new MediaRecorder(stream, { mimeType: supportedType })
+        : new MediaRecorder(stream);
+      mimeTypeRef.current = mediaRecorder.mimeType || supportedType || 'audio/webm';
       mediaRecorderRef.current = mediaRecorder;
       chunksRef.current = [];
 
-      const audioContext = new AudioContext();
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const audioContext = new Ctx();
       audioContextRef.current = audioContext;
       const source = audioContext.createMediaStreamSource(stream);
       const analyser = audioContext.createAnalyser();
@@ -187,18 +195,21 @@ export function InterviewMode() {
     if (audioContextRef.current) audioContextRef.current.close();
 
     await new Promise((resolve) => setTimeout(resolve, 500));
-    const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+    const mime = mediaRecorderRef.current?.mimeType || mimeTypeRef.current || 'audio/webm';
+    const contentType = mime.split(';')[0];
+    const ext = contentType.includes('mp4') ? 'm4a' : contentType.includes('ogg') ? 'ogg' : 'webm';
+    const blob = new Blob(chunksRef.current, { type: contentType });
 
     try {
       const { data: uploadData } = await voiceApi.getUploadUrl({
-        filename: `interview-${Date.now()}.webm`,
-        contentType: 'audio/webm',
+        filename: `interview-${Date.now()}.${ext}`,
+        contentType,
       });
 
       const uploadResponse = await fetch(uploadData.uploadUrl, {
         method: 'PUT',
         body: blob,
-        headers: { 'Content-Type': 'audio/webm', ...getAuthHeaders() },
+        headers: { 'Content-Type': contentType, ...getAuthHeaders() },
       });
       if (!uploadResponse.ok) {
         throw new Error(`Upload failed: ${uploadResponse.status}`);

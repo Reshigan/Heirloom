@@ -6,6 +6,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
 import { SectionLabel } from '../loom/cosmic/CosmicUI';
+import { copyToClipboard } from '../utils/clipboard';
 
 /**
  * FutureLetter — CEREMONY archetype.
@@ -105,10 +106,13 @@ export function FutureLetter() {
 
   const handleShare = async () => {
     if (!generatedLetter) return;
-    navigator.clipboard.writeText(generatedLetter.shareText).catch(() => {});
-    setCopied(true);
+    copyToClipboard(generatedLetter.shareText)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(() => { /* leave label unchanged on failure */ });
     shareMutation.mutate(generatedLetter.id);
-    setTimeout(() => setCopied(false), 2000);
   };
 
   const set = (patch: Partial<typeof formData>) => setFormData({ ...formData, ...patch });

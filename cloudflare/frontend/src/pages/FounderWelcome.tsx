@@ -4,6 +4,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { PLAN_PRICE } from '../lib/plans';
 
 /**
  * /founder/welcome — CEREMONY archetype.
@@ -149,7 +150,7 @@ export function FounderWelcome() {
               marginBottom: 32,
             }}
           >
-            FOUNDER · #{pledgeDisplay} · $249 LIFETIME
+            FOUNDER · #{pledgeDisplay} · {PLAN_PRICE.FOUNDER.amount} LIFETIME
           </div>
 
           {/* Serif-italic dim byline */}

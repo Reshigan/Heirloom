@@ -53,7 +53,7 @@ function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | 'trigger' |
           </span>
         </div>
         <div className="hl-mono" style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm-dim)', marginTop: 10 }}>
-          awaiting · est. 2041
+          awaiting · est. {new Date().getFullYear() + 18}
         </div>
       </div>
     );
@@ -61,7 +61,7 @@ function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | 'trigger' |
 
   if (kind === 'trigger') {
     const triggers = [
-      { label: 'on a specific date', hint: '14 June 2041', active: false },
+      { label: 'on a specific date', hint: `14 June ${new Date().getFullYear() + 18}`, active: false },
       { label: 'on their 18th birthday', hint: 'milestone', active: true },
       { label: 'on my death', hint: 'testament', active: false },
       { label: 'on a named event', hint: 'their wedding', active: false },

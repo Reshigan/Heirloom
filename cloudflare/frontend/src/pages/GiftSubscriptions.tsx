@@ -4,7 +4,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, SectionLabel, WaxSeal, EntryRow } from '../loom/cosmic/CosmicUI';
 import { giftSubscriptionsApi, settingsApi } from '../services/api';
-import { PLAN_FEATURES } from '../lib/plans';
+import { PLAN_FEATURES, PLAN_PRICE_NUM } from '../lib/plans';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const OCCASION_STYLES = [
@@ -96,12 +96,12 @@ export function GiftSubscriptions() {
     },
     {
       id: 'FAMILY', name: 'Family', description: 'The full thread — for the whole bloodline', storage: '50 GB', popular: true,
-      monthly: { amount: 6.29, display: '$6.29', listAmount: 6.99, listDisplay: '$6.99', giftDiscount: '10% off' },
-      yearly:  { amount: 62.1, display: '$62.10', listAmount: 69, listDisplay: '$69.00', giftDiscount: '10% off', savings: '2 months free' },
+      monthly: { amount: 6.29, display: '$6.29', listAmount: PLAN_PRICE_NUM.FAMILY.monthly, listDisplay: '$6.99', giftDiscount: '10% off' },
+      yearly:  { amount: 62.1, display: '$62.10', listAmount: PLAN_PRICE_NUM.FAMILY.annual, listDisplay: '$69.00', giftDiscount: '10% off', savings: '2 months free' },
     },
     {
       id: 'LEGACY', name: 'Founder', description: 'Lifetime, for every generation — paid once', storage: '500 GB',
-      lifetime: { amount: 224.1, display: '$224.10', listAmount: 249, listDisplay: '$249.00', giftDiscount: '10% off', note: 'once · lifetime' },
+      lifetime: { amount: 224.1, display: '$224.10', listAmount: PLAN_PRICE_NUM.FOUNDER.lifetime, listDisplay: '$249.00', giftDiscount: '10% off', note: 'once · lifetime' },
     },
   ];
 

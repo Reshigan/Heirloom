@@ -119,11 +119,29 @@
   --text-warm:     #cdbd9f;  /* warm body / read-state text */
   --text-excerpt:  #a3917a;  /* unseal excerpt */
   --muted-2:       #8a7d6a;  /* captions, sub-lines, sources — 4.94:1 on ink, AA */
-  --muted-3:       #877b67;  /* dates, secondary roles — lifted from #6b6053 (3.2:1) to 4.79:1, AA */
-  --muted-4:       #857a66;  /* group labels, decade dividers — lifted from #5a5142 (2.55:1) to 4.71:1, AA */
+  --muted-3:       #8d8270;  /* dates, secondary roles — AA on the card fill --bg-letter/#1b1610 (4.76:1), not just on pure ink */
+  --muted-4:       #8f8472;  /* group labels, decade dividers — AA on the card fill --bg-letter/#1b1610 (4.8:1), not just on pure ink */
   --hairline:      #1c160f;  /* row dividers on warm ground */
   --hairline-2:    #221c15;
   --hairline-3:    #2c2418;  /* entry left-rules, input hairlines */
+
+  /* Sealed-letter / book reader palette (ReadingRoom, LetterRoom). The reader
+     is an intentionally theme-INDEPENDENT immersive surface — aged vellum read
+     in a dark room — so these are defined ONLY here at :root with no light
+     override: the letter reads identically in vault and parchment themes, which
+     keeps its warm-on-dark contrast intact instead of half-inheriting the light
+     palette (where a few elements would flip to dark copper on a still-dark
+     surface and vanish). Single-sourced so a brand copper move still reaches the
+     reader; copper carried as an rgb tri-let so the varied letter alphas hold
+     one hue. */
+  --letter-bg-top:     #1c160f;  /* letter/page gradient top */
+  --letter-bg-bottom:  #120d08;  /* letter/page gradient bottom */
+  --letter-body:       #e6d8c2;  /* ReadingRoom body + heads */
+  --letter-body-dim:   #d8c7aa;  /* LetterRoom warm body */
+  --letter-edge:       #b9772f;  /* gilt edges, borders, rules */
+  --letter-gold:       #e8c79a;  /* running-head, drop-cap, pager, active gold */
+  --letter-eyebrow:    #cfa46a;  /* eyebrow labels */
+  --letter-copper-rgb: 216, 150, 84;  /* reader copper hue for rgba(var(--letter-copper-rgb), α) */
 
   --parchment: #faf3e4;
   --parchment-deep: #f0e6d2;
@@ -175,11 +193,6 @@
   --dye-woad-text:      #4f8a8a;
   --dye-indigo-text:    #577bb4;
   --dye-iron-text:      #617e8a;
-
-  /* Cloth legibility scrim — layered beneath the ambient dye sparks so prose
-     stays readable while the living colour shows through. Default = vault ink;
-     the light theme overrides it to parchment below. */
-  --cloth-scrim: rgba(11,9,7,0.62);
 
   /* Timing — aliases of the canonical --ease / --dur-* family defined just
      below. Single-sourced so future motion edits change ONE place. */
@@ -312,9 +325,6 @@
   --hairline:      #dcccb4;
   --hairline-2:    #d4c4ac;
   --hairline-3:    #cab896;
-
-  /* Parchment scrim — keeps light mode reading as paper, not ink-washed. */
-  --cloth-scrim: rgba(244,234,217,0.72);
 
   /* Parchment-safe dye palette — same dyes, mordanted darker so dye-as-signal
      (member names, left-margin threads, whisper labels) keeps contrast on
@@ -2075,6 +2085,10 @@ html {
   font-family: 'Cormorant Garamond', Georgia, serif !important;
   font-weight: 300;
   letter-spacing: -0.01em;
+  /* Cormorant is a thin display face that turns unreadable below ~24px. Floor
+     the size so .font-display can never render prose-small: at least 1.5rem,
+     or the inherited size when that is already larger. */
+  font-size: max(1.5rem, 1em);
 }
 .loom .font-body {
   font-family: 'Spectral', Georgia, serif !important;

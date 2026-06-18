@@ -521,7 +521,7 @@ export default function App() {
                                                                                                                                                                   }
                                                                                                                                                                 />
 
-                                                                                                    {/* Q4 2025 Features ( /streaks + /referrals retired — no golive screen ) */}
+                                                                                                    {/* Engagement features ( /streaks + /referrals retired — no golive screen ) */}
                                                                                                     <Route
                                                                                                       path="/challenges"
                                                                                                       element={

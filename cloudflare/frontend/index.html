@@ -101,6 +101,39 @@
          this splash covering the whole app. src/main.tsx removes #hl-splash on
          mount (the fast path); splash-boot.js is the load-event safety net. -->
     <script src="/splash-boot.js"></script>
+    <!-- No-JS fallback. The app is a woven, script-driven surface, so with
+         JavaScript off the splash above would hang forever. This noscript paints
+         over it with an on-voice, theme-aware message. Inline <style> is used
+         deliberately — same as the splash above — and is permitted by the prod
+         CSP (style-src allows inline; only script-src is locked to 'self'). -->
+    <noscript>
+      <style>
+        #hl-noscript {
+          position: fixed; inset: 0; z-index: 2147483647;
+          background: #0b0907; color: #f2e6d0;
+          display: flex; flex-direction: column; align-items: center; justify-content: center;
+          text-align: center; padding: 24px;
+          font-family: 'Spectral', Georgia, serif;
+        }
+        html[data-theme="light"] #hl-noscript { background: #faf3e4; color: #120d08; }
+        #hl-noscript .hl-noscript-mark {
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: 72px; line-height: 1; font-weight: 300; color: #e0a062;
+        }
+        html[data-theme="light"] #hl-noscript .hl-noscript-mark { color: #a86220; }
+        #hl-noscript h1 {
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-weight: 300; font-size: 30px; letter-spacing: -0.01em; margin: 20px 0 12px;
+        }
+        #hl-noscript p { max-width: 34ch; font-size: 16px; line-height: 1.7; color: rgba(242, 230, 208, 0.72); }
+        html[data-theme="light"] #hl-noscript p { color: rgba(18, 13, 8, 0.72); }
+      </style>
+      <div id="hl-noscript">
+        <div class="hl-noscript-mark">∞</div>
+        <h1>Heirloom needs JavaScript</h1>
+        <p>The family thread is a living, woven surface — it needs JavaScript to open. Enable it, then reload to begin your thousand-year thread.</p>
+      </div>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
