@@ -509,12 +509,12 @@ export function Record() {
               onClick={stop}
               aria-label="Stop recording"
               style={{
-                background: recordingState === 'recording' ? 'var(--warm-dim)' : 'transparent',
+                background: 'transparent',
                 border: '1px solid var(--warm)',
                 borderRadius: 0,
                 padding: '16px 48px',
                 cursor: 'pointer',
-                color: recordingState === 'recording' ? 'var(--bone)' : 'var(--warm)',
+                color: 'var(--warm)',
                 fontFamily: 'var(--mono)',
                 fontSize: 13,
                 fontWeight: 600,

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { voiceApi, aiApi, getAuthHeaders } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { ProgressHair } from '../loom/components/ProgressHair';
 
 const SILENCE_THRESHOLD = 0.01;
 
@@ -303,7 +304,6 @@ export function InterviewMode() {
 
   // Step progress — count of questions the listener has asked so far.
   const askedCount = transcript.filter((s) => s.isQuestion).length;
-  const stepCount = Math.max(askedCount, 1);
 
   const endLink = (
     <Link
@@ -462,12 +462,7 @@ export function InterviewMode() {
 
           {/* Step progress — hairline bar, never a spinner */}
           <div style={{ marginTop: 40 }}>
-            <progress
-              value={askedCount}
-              max={stepCount}
-              aria-label="Interview progress"
-              style={{ width: '100%', height: 1, display: 'block', appearance: 'none', border: 'none', background: 'var(--rule)' }}
-            />
+            <ProgressHair label="Interview progress" />
             <div
               style={{
                 marginTop: 8,

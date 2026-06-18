@@ -587,13 +587,12 @@ export function VoiceRoom() {
                       <div style={{ display: 'flex', gap: 16, marginTop: 20, alignItems: 'center' }}>
                         <button
                           type="button"
+                          className="hl-btn"
                           onClick={() => updateVoice.mutate({ id: entry.id, title: editTitle, description: editDesc })}
                           disabled={updateVoice.isPending}
                           style={{
-                            background: 'transparent', border: '1px solid var(--warm)', padding: '8px 16px',
                             cursor: updateVoice.isPending ? 'wait' : 'pointer',
-                            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
-                            textTransform: 'uppercase', color: 'var(--warm)',
+                            fontSize: 10, letterSpacing: '0.18em',
                             opacity: updateVoice.isPending ? 0.6 : 1,
                           }}
                         >

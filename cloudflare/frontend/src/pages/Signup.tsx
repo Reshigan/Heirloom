@@ -6,6 +6,7 @@ import { safeRedirect } from '../lib/safeRedirect';
 import { threadsApi } from '../services/api';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { PLAN_PRICE } from '../lib/plans';
 
 // Signup — FORM archetype. Underlined fields, mono micro-labels, giant serif
 // headline, one warm primary CTA, WaxSeal foot. All data/auth/validation preserved.
@@ -41,9 +42,9 @@ const TIERS: {
   sub: string;
   body: string;
 }[] = [
-  { id: 'free', name: 'Free', price: 'free', sub: 'forever', body: '1 thread · 500 MB · every feature' },
-  { id: 'family', name: 'Family', price: '$6.99', sub: '/ month', body: 'unlimited · all members · voice · sealed notes' },
-  { id: 'founder', name: 'Founder', price: '$249', sub: 'once · lifetime', body: 'family forever · name in continuity record' },
+  { id: 'free', name: 'Free', price: PLAN_PRICE.FREE.amount, sub: PLAN_PRICE.FREE.cycle, body: '1 thread · 500 MB · every feature' },
+  { id: 'family', name: 'Family', price: PLAN_PRICE.FAMILY.monthly, sub: PLAN_PRICE.FAMILY.perMonth, body: 'unlimited · all members · voice · sealed notes' },
+  { id: 'founder', name: 'Founder', price: PLAN_PRICE.FOUNDER.amount, sub: PLAN_PRICE.FOUNDER.cycle, body: 'family forever · name in continuity record' },
 ];
 
 import { EASE } from '../loom/motion';

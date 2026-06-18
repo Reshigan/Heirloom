@@ -3,6 +3,7 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { engagementApi } from '../services/api';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
@@ -144,30 +145,9 @@ export function Join() {
           ) : accepting ? (
             /* ── Accepting / loading ── */
             <div style={{ textAlign: 'center' }}>
-              <progress
-                style={{
-                  appearance: 'none',
-                  WebkitAppearance: 'none',
-                  width: 32,
-                  height: 1,
-                  border: 'none',
-                  background: 'var(--rule)',
-                  display: 'block',
-                  margin: '0 auto 32px',
-                  opacity: 0.6,
-                }}
-              />
-              <p
-                style={{
-                  fontFamily: 'var(--mono)',
-                  fontSize: 11,
-                  letterSpacing: '0.26em',
-                  textTransform: 'uppercase',
-                  color: 'var(--bone-faint)',
-                }}
-              >
-                joining…
-              </p>
+              <div style={{ width: 120, margin: '0 auto' }}>
+                <ProgressHair label="joining…" width={120} />
+              </div>
             </div>
 
           ) : done ? (

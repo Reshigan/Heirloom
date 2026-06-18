@@ -64,6 +64,18 @@ export const PLAN_LIMITS: Record<string, Array<[string, string]>> = {
   ],
 };
 
+/**
+ * Canonical DISPLAY prices (USD). Amounts are LOCKED — see CLAUDE.md pricing.
+ * Single source of truth for the static plan cards (Signup, Billing) so the
+ * numbers can never drift apart. Live currency-localized amounts (e.g. ZAR)
+ * come from the worker /billing/tiers endpoint and are deliberately NOT here.
+ */
+export const PLAN_PRICE = {
+  FREE:    { amount: 'free',  cycle: 'forever' },
+  FAMILY:  { monthly: '$6.99', annual: '$69', perMonth: '/ month', perYear: '/ year' },
+  FOUNDER: { amount: '$249', cycle: 'once · lifetime' },
+} as const;
+
 /** Convert any API tier string to the display label shown in UI. */
 export function planLabel(apiTier: string): string {
   return PLAN_DISPLAY[apiTier?.toUpperCase()] ?? apiTier?.toLowerCase() ?? 'free';
@@ -72,13 +84,15 @@ export function planLabel(apiTier: string): string {
 /** Returns true if the API tier has access to paid features. */
 export function isPaidTier(apiTier: string): boolean {
   const t = apiTier?.toUpperCase();
-  return t === 'FAMILY' || t === 'LEGACY' || t === 'FOREVER' || t === 'ESSENTIAL';
+  return t === 'FAMILY' || t === 'LEGACY' || t === 'FOREVER' || t === 'ESSENTIAL' || t === 'FOUNDER';
 }
 
-/** Returns true if this is the founder/lifetime tier. */
+/** Returns true if this is the founder/lifetime tier. The worker stores this
+ *  as FOREVER (LEGACY normalizes to FOREVER); 'FOUNDER' is accepted defensively
+ *  for any legacy record so role detection never misses a lifetime member. */
 export function isFounderTier(apiTier: string): boolean {
   const t = apiTier?.toUpperCase();
-  return t === 'LEGACY' || t === 'FOREVER';
+  return t === 'LEGACY' || t === 'FOREVER' || t === 'FOUNDER';
 }
 
 /** Returns true if this is the free/starter tier. */

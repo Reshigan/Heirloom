@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import api, { memoriesApi, voiceApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 import { type Memory, type VoiceRecording } from '../types';
@@ -267,23 +268,9 @@ export function StoryArtifact() {
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'story artifacts' }]} />} topbarRight={<UserMenu />}>
       {/* ProgressHair — 1px hairline while loading, no spinner */}
       {isLoading && (
-        <progress
-          aria-hidden
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            width: '100%',
-            height: 1,
-            appearance: 'none',
-            WebkitAppearance: 'none',
-            border: 0,
-            background: 'transparent',
-            accentColor: 'var(--warm)',
-            opacity: 0.7,
-          }}
-        />
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, width: '100%' }}>
+          <ProgressHair />
+        </div>
       )}
 
       {/* Reading column */}
@@ -815,7 +802,7 @@ export function StoryArtifact() {
                             padding: '4px 6px',
                           }}
                         >
-                          ✓
+                          done
                         </span>
                       )}
                     </button>

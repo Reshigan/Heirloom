@@ -15,6 +15,8 @@ import { legacyContactsApi } from '../services/api';
  * uppercase label, copper signal on the chosen, hairline rules, no icons.
  */
 
+const MONO = 'var(--mono)';
+
 export interface LegacyContact {
   id: string;
   name: string;
@@ -56,7 +58,7 @@ export default function LegacyRecipientPicker({
       aria-hidden
       style={{
         display: 'block',
-        fontFamily: 'var(--mono)',
+        fontFamily: MONO,
         fontSize: 12,
         letterSpacing: '0.22em',
         textTransform: 'uppercase',
@@ -75,7 +77,7 @@ export default function LegacyRecipientPicker({
         {labelEl}
         <p
           style={{
-            fontFamily: 'var(--mono)',
+            fontFamily: MONO,
             fontSize: 11,
             letterSpacing: '0.08em',
             color: 'var(--bone-faint)',
@@ -118,7 +120,7 @@ export default function LegacyRecipientPicker({
                 border: `1px solid ${on ? 'var(--warm)' : 'var(--rule)'}`,
                 color: on ? 'var(--bone)' : 'var(--bone-faint)',
                 cursor: 'pointer',
-                fontFamily: 'var(--mono)',
+                fontFamily: MONO,
                 fontSize: 13,
                 letterSpacing: '0.06em',
                 transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',

@@ -48,6 +48,7 @@ export default {
         },
         // BLOOD — retained only for destructive/record states, retuned to the
         // dye-madder family so it sits inside the natural-dye world.
+        // Mirror of globals.css `--blood` (keep both in sync).
         blood: {
           DEFAULT: '#9f3a2a',
           light: '#b14a4a',

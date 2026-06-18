@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { billingApi, threadsApi } from '../services/api';
+import { isFounderTier, isPaidTier, isFreeTier } from '../lib/plans';
 
 export type UserRole =
   | 'visitor'
@@ -45,13 +46,13 @@ export function useRole(): UserRole {
     return readOnlyThread.role === 'SUCCESSOR' ? 'successor' : 'reader';
   }
 
-  if (tier === 'FOUNDER') return 'founder';
-  if (tier === 'FAMILY' && !isTrialing) return 'family';
+  if (isFounderTier(tier)) return 'founder';
+  if (isPaidTier(tier) && !isTrialing) return 'family';
   if (isTrialing) return 'trial';
   // An authenticated FREE/STARTER account is a real writing member (gated by
   // quota, not by role) — never a 'visitor'. 'visitor' is the signed-out case
   // only (handled above). This also covers the moment before the subscription
   // query resolves, so a logged-in user never flashes the "Begin free" invite.
-  if (tier === 'FREE' || tier === 'STARTER') return 'free';
+  if (isFreeTier(tier)) return 'free';
   return 'family';
 }

@@ -505,6 +505,7 @@ export function Memories() {
         </div>
       )}
 
+      <div style={{ maxWidth: 720, margin: '0 auto' }}>
       {/* The ledger header — a single quiet mono line naming the thread and the
           span of years it holds, set in centred small-caps over the ledger.
           The quiet filter bar follows beneath it. */}
@@ -601,6 +602,7 @@ export function Memories() {
           })}
         </div>
       )}
+      </div>
 
       {allMemories.length > 0 && (
         <div style={{

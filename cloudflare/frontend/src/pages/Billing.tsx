@@ -5,7 +5,7 @@ import { billingApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
-import { planLabel, isPaidTier, isFounderTier, isFreeTier, PLAN_LIMITS } from '../lib/plans';
+import { planLabel, isPaidTier, isFounderTier, isFreeTier, PLAN_LIMITS, PLAN_PRICE } from '../lib/plans';
 
 const ROW: React.CSSProperties = {
   display: 'flex',
@@ -96,14 +96,14 @@ export function Billing() {
   const trialEndsAt = (subscription as any)?.trial_ends_at ?? null;
   const trialDaysRemaining = (subscription as any)?.trialDaysRemaining ?? 0;
   const isTrialing = status === 'TRIALING';
-  const priceLabel = isFounderTier(currentTier) ? 'lifetime' : isFreeTier(currentTier) ? 'free' : '$6.99';
+  const priceLabel = isFounderTier(currentTier) ? 'lifetime' : isFreeTier(currentTier) ? 'free' : PLAN_PRICE.FAMILY.monthly;
   const isFounder = isFounderTier(currentTier);
   const counterText = isFounder
     ? 'founder · once · lifetime'
     : isTrialing
     ? `trial · ${trialDaysRemaining}d left`
     : currentTier === 'FAMILY'
-    ? 'family · $6.99/mo'
+    ? `family · ${PLAN_PRICE.FAMILY.monthly}/mo`
     : 'free plan';
 
   const dateLabel = isTrialing && trialEndsAt ? 'trial ends' : renews ? 'next charge' : 'status';

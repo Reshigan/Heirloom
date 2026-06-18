@@ -8,6 +8,8 @@ import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { engagementApi } from '../services/api';
 import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { ProgressHair } from '../loom/components/ProgressHair';
+import { dyeForId } from '../loom/dye';
 import type { Dye } from '../loom/dye';
 
 interface FeedItem {
@@ -15,6 +17,8 @@ interface FeedItem {
   type: 'memory' | 'voice' | 'letter';
   title: string;
   preview: string;
+  author_member_id?: string;
+  author_id?: string;
   author_name: string;
   author_avatar: string | null;
   created_at: string;
@@ -27,15 +31,9 @@ const typeVerb: Record<string, string> = {
   letter: 'sealed a letter',
 };
 
-// 10-stop natural-dye palette cycled by type + id hash
-const dyeByType: Record<string, Dye> = {
-  memory: 'madder',
-  voice: 'woad',
-  letter: 'walnut',
-};
-
+// Dye is the AUTHOR's personal signal — keyed on identity, never entry type.
 function itemDye(item: FeedItem): Dye {
-  return dyeByType[item.type] ?? 'oakgall';
+  return dyeForId(item.author_member_id ?? item.author_id ?? item.author_name);
 }
 
 function itemTo(item: FeedItem): string {
@@ -94,19 +92,7 @@ export function FamilyFeed() {
             could not load feed
           </p>
         ) : isLoading ? (
-          <progress
-            aria-label="Loading feed"
-            style={{
-              display: 'block',
-              width: '100%',
-              height: 1,
-              margin: '28px 0',
-              appearance: 'none',
-              border: 'none',
-              background: 'var(--rule)',
-              color: 'var(--copper-border)',
-            }}
-          />
+          <ProgressHair />
         ) : !items.length ? (
           <p
             style={{

@@ -248,7 +248,7 @@ export function FirstThread() {
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 34px', background: 'var(--ink)', animation: `hl-fadein 720ms ${EASE} both` }}>
             <div style={{ position: 'relative', width: '100%', height: 60, display: 'flex', alignItems: 'center' }}>
               <div style={{ height: 1, width: '100%', background: 'linear-gradient(90deg,transparent,var(--copper-border),transparent)', transformOrigin: 'left', animation: `hl-grow 1400ms ${EASE} both` }} />
-              <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', width: 18, height: 18, borderRadius: '50%', background: 'radial-gradient(circle at 35% 30%,var(--warm-bright),var(--warm-dim))', boxShadow: '0 0 16px rgba(240,192,116,.8)', animation: `hl-node 720ms ${EASE} 720ms both` }} />
+              <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', fontFamily: 'var(--mono)', fontSize: 18, lineHeight: 1, color: 'var(--warm)', animation: `hl-node 720ms ${EASE} 720ms both` }}>∞</div>
             </div>
             <div style={{ fontFamily: 'var(--serif-display)', fontSize: 34, color: 'var(--bone)', marginTop: 30, textAlign: 'center', animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>Woven into the thread.</div>
             <div style={{ fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone-faint)', marginTop: 10, textAlign: 'center', animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>Now part of your family's story.</div>

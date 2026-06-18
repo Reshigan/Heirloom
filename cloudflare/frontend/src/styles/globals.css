@@ -49,10 +49,12 @@
   --gold-10: rgba(224, 160, 98, 0.1);
   --gold-05: rgba(224, 160, 98, 0.05);
 
-  /* BLOOD — destructive/record only, tuned into the natural-dye world */
-  --blood: #e03428;
-  --blood-light: #ec4458;
-  --blood-glow: rgba(224, 52, 40, 0.4);
+  /* BLOOD — destructive/record only, tuned into the natural-dye world.
+     Kept in sync with tailwind.config.js `blood` (the deep-madder family);
+     bright #e03428 read as "2026", so both files now share the muted dye tone. */
+  --blood: #9f3a2a;
+  --blood-light: #b14a4a;
+  --blood-glow: rgba(159, 58, 42, 0.4);
 
   /* STATUS COLORS */
   --emerald: #5ab88a;
@@ -912,7 +914,7 @@ html {
   left: 0;
   height: 100%;
   width: 38%;
-  background: #e0a062; /* warm — the single emotional colour */
+  background: var(--warm); /* warm — single emotional colour; var() so light-scope lifts the shuttle to AA */
   will-change: transform;
   animation: progress-hair-sweep 1400ms var(--ease) infinite;
 }
@@ -1931,8 +1933,10 @@ html {
 }
 .loom-theme-pill button:active { transform: scale(0.95); }
 .loom-theme-pill button.on {
-  background: var(--loom-warm);
-  color: var(--loom-ink);
+  /* copper is signal, never a fill — the active pill is marked by an
+     underline + warm text, not a copper slab. */
+  color: var(--loom-warm);
+  border-bottom: 2px solid var(--loom-warm);
 }
 
 /* ─── Today page: staggered content entry ───────────────────────── */
@@ -2133,10 +2137,6 @@ html {
   background: #8c2c2c !important;
   color: #f2e6d0 !important;
   border: 0 !important;
-}
-.loom .btn-record {
-  background: var(--loom-warm) !important;
-  color: var(--loom-ink) !important;
 }
 
 /* ── Cards / surfaces ──────────────────────────────────────────── */

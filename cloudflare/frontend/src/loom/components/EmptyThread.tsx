@@ -23,8 +23,8 @@ interface EmptyThreadProps {
 }
 
 export function EmptyThread({
-  startYear = 2026,
-  endYear = 2032,
+  startYear = new Date().getFullYear(),
+  endYear = new Date().getFullYear() + 6,
   onWeave,
   onRecord,
 }: EmptyThreadProps) {

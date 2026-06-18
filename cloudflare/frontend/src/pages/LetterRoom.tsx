@@ -172,13 +172,7 @@ export function LetterRoom() {
             <div style={{ marginTop: 40, display: 'flex', justifyContent: 'center' }}>
               <Link
                 to="/loom/compose-letter"
-                style={{
-                  display: 'inline-flex', alignItems: 'center',
-                  background: 'transparent', border: '1px solid var(--warm)',
-                  borderRadius: 0, color: 'var(--warm)', textDecoration: 'none',
-                  fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
-                  textTransform: 'uppercase', padding: '13px 28px',
-                }}
+                className="hl-btn"
               >
                 write a letter
               </Link>

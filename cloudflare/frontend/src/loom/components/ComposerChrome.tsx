@@ -350,7 +350,7 @@ export function DyeSuggestButton({
         letterSpacing: 'inherit',
         color: loading ? 'var(--bone-faint)' : 'var(--warm)',
         opacity: body.length < 20 ? 0.35 : 1,
-        transition: 'color 180ms var(--ease), opacity 180ms',
+        transition: 'color 180ms var(--ease), opacity 180ms var(--ease)',
       }}
     >
       {loading ? 'reading…' : 'suggest →'}

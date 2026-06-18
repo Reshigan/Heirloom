@@ -540,13 +540,13 @@ export function ReadingRoom() {
           {t ? (
             <>
               <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dye, letterSpacing: '0.08em' }}>{t.kind}</span>
-              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(242,230,208,0.3)' }}>·</span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)' }}>·</span>
               <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dye, letterSpacing: '0.08em' }}>{t.who}</span>
-              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(242,230,208,0.3)' }}>·</span>
-              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(242,230,208,0.35)', letterSpacing: '0.08em' }}>{t.date}</span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)' }}>·</span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.08em' }}>{t.date}</span>
             </>
           ) : (
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'rgba(242,230,208,0.3)', letterSpacing: '0.08em' }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.08em' }}>
               the wall
             </span>
           )}
@@ -580,10 +580,10 @@ export function ReadingRoom() {
                 style={{
                   background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                   fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
-                  textTransform: 'uppercase', color: 'rgba(242,230,208,0.25)',
+                  textTransform: 'uppercase', color: 'var(--bone-faint)',
                 }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'rgba(242,230,208,0.25)'; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
               >
                 unweave
               </button>
@@ -904,11 +904,11 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
             Written by {c.who} · {c.date}.
           </div>
           <div style={{ flex: 1 }} />
-          {/* page number — ember dot */}
-          <span aria-hidden style={{
-            display: 'inline-block', width: 14, height: 14, borderRadius: '50%',
-            background: 'var(--warm)',
-          }} title={`p. ${ch * 2 + 1}`} />
+          {/* page number — bare mono numeral */}
+          <span style={{
+            fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)',
+            letterSpacing: '0.08em',
+          }}>{ch * 2 + 1}</span>
         </div>
 
         {/* right page — body set in two justified columns with a center gutter rule */}
@@ -953,12 +953,12 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
             )}
           </div>
           <div style={{ flex: 1 }} />
-          {/* page number — ember dot */}
+          {/* page number — bare mono numeral */}
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <span aria-hidden style={{
-              display: 'inline-block', width: 14, height: 14, borderRadius: '50%',
-              background: 'var(--warm)',
-            }} title={`p. ${ch * 2 + 2}`} />
+            <span style={{
+              fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)',
+              letterSpacing: '0.08em',
+            }}>{ch * 2 + 2}</span>
           </div>
         </div>
       </div>
