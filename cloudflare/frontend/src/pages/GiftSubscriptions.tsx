@@ -460,6 +460,7 @@ export function GiftSubscriptions() {
               </div>
               <div>
                 <label
+                  htmlFor="gift-delivery-date"
                   className="hl-mono"
                   style={{
                     display:       'block',
@@ -473,6 +474,7 @@ export function GiftSubscriptions() {
                   schedule delivery (optional)
                 </label>
                 <input
+                  id="gift-delivery-date"
                   type="date"
                   value={formData.scheduledDate}
                   onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
@@ -735,16 +737,17 @@ export function GiftSubscriptions() {
               </p>
             )}
 
+            <style>{`.gift-submit-cta:focus-visible { outline: 2px solid var(--warm); outline-offset: 2px; }`}</style>
             <button
               type="button"
               onClick={() => purchaseMutation.mutate()}
               disabled={purchaseMutation.isPending}
-              className="hl-mono"
+              className="hl-mono gift-submit-cta"
               style={{
-                background:    'var(--warm)',
-                color:         'var(--ink)',
-                border:        0,
-                borderRadius:  999,
+                background:    'transparent',
+                color:         'var(--warm)',
+                border:        '1px solid var(--warm)',
+                borderRadius:  0,
                 padding:       '13px 28px',
                 minHeight:     44,
                 fontSize:      11,

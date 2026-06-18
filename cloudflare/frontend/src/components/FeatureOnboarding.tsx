@@ -4,8 +4,9 @@
  * explaining "why" users should use each feature and "how" to get started
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useFocusTrap } from '../lib/useFocusTrap';
 
 interface OnboardingStep {
   title: string;
@@ -150,6 +151,7 @@ const FEATURE_CONFIGS: Record<string, {
 
 export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }: FeatureOnboardingProps) {
   const [currentStep, setCurrentStep] = useState(0);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const config = FEATURE_CONFIGS[featureKey];
 
   useEffect(() => {
@@ -157,6 +159,8 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
       setCurrentStep(0);
     }
   }, [isOpen]);
+
+  useFocusTrap(dialogRef, onDismiss, isOpen);
 
   if (!config) return null;
 
@@ -174,6 +178,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
           onClick={onDismiss}
         >
           <motion.div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="feature-onboarding-title"

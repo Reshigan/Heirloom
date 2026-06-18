@@ -4,6 +4,33 @@ import App from './App';
 import { installChunkReloadHandlers } from './lib/chunkReload';
 import { registerServiceWorker } from './lib/registerSW';
 import { initSentry } from './lib/sentry';
+
+// Self-hosted typefaces (no render-blocking third-party font requests). Weights
+// mirror what was previously requested from Google Fonts. Cormorant Garamond is
+// display-only (≥24px); Spectral is the reading workhorse; Space Mono labels;
+// Inter residual UI; Tangerine the signature hand.
+import '@fontsource/cormorant-garamond/300.css';
+import '@fontsource/cormorant-garamond/400.css';
+import '@fontsource/cormorant-garamond/500.css';
+import '@fontsource/cormorant-garamond/600.css';
+import '@fontsource/cormorant-garamond/700.css';
+import '@fontsource/cormorant-garamond/400-italic.css';
+import '@fontsource/cormorant-garamond/500-italic.css';
+import '@fontsource/spectral/300.css';
+import '@fontsource/spectral/400.css';
+import '@fontsource/spectral/500.css';
+import '@fontsource/spectral/600.css';
+import '@fontsource/spectral/300-italic.css';
+import '@fontsource/spectral/400-italic.css';
+import '@fontsource/space-mono/400.css';
+import '@fontsource/space-mono/700.css';
+import '@fontsource/inter/300.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/tangerine/400.css';
+import '@fontsource/tangerine/700.css';
+
 import './styles/globals.css';
 import './styles/cosmic.css';
 

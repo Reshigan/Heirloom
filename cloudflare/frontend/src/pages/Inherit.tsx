@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { type Letter, type Memory, type VoiceRecording } from '../types';
 import { formatDate, formatDuration } from '../utils/date';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal, WarmDot } from '../loom/cosmic/CosmicUI';
@@ -429,11 +430,35 @@ export function Inherit() {
   /* ── First letter preview for right column ──────────────────────── */
   const firstLetter = content?.letters[0] ?? null;
 
+  const inheritTitle = ownerName
+    ? `A thread from ${ownerName} · Heirloom`
+    : 'You have inherited a thread · Heirloom';
+  const inheritDescription = (
+    ownerName
+      ? `${ownerName} prepared this sealed thread${recipientName ? ` for ${recipientName}` : ''}. Read it when you're ready.`
+      : 'Someone in your line left this sealed thread for you. Read it when you\'re ready.'
+  )
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 200);
+
   return (
     <div
       className="hl-screen"
       style={{ position: 'absolute', inset: 0, background: 'var(--ink)', overflow: 'auto' }}
     >
+      <Helmet>
+        <title>{inheritTitle}</title>
+        <meta name="description" content={inheritDescription} />
+        <meta property="og:title" content={inheritTitle.replace(' · Heirloom', '')} />
+        <meta property="og:description" content={inheritDescription} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:image" content="https://heirloom.blue/woven/seal.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <link rel="canonical" href={window.location.href} />
+      </Helmet>
+
       {/* ── Topbar ───────────────────────────────────────────────────── */}
       <div
         style={{
@@ -466,22 +491,26 @@ export function Inherit() {
         }}
       >
         {/* Woven inheritance seal — behind, ambient, decorative only */}
-        <img
-          src="/woven/seal.png"
-          alt=""
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%,-50%)',
-            width: isMobile ? 280 : 380,
-            height: 'auto',
-            opacity: 0.12,
-            pointerEvents: 'none',
-            userSelect: 'none',
-          }}
-        />
+        <picture style={{ display: 'contents' }}>
+          <source type="image/avif" srcSet="/woven/seal.avif" />
+          <source type="image/webp" srcSet="/woven/seal.webp" />
+          <img
+            src="/woven/seal.png"
+            alt=""
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%,-50%)',
+              width: isMobile ? 280 : 380,
+              height: 'auto',
+              opacity: 0.12,
+              pointerEvents: 'none',
+              userSelect: 'none',
+            }}
+          />
+        </picture>
         <div style={{ position: 'relative', textAlign: 'center', animation: `hl-fadeup 1400ms ${EASE} both` }}>
           <CosmicHeader
             align="center"

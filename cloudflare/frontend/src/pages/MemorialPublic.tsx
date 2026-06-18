@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
@@ -60,22 +61,26 @@ export function MemorialPublic() {
         }}
       >
         {/* woven seal — centered ceremonial mark behind the page */}
-        <img
-          src="/woven/seal.png"
-          alt=""
-          aria-hidden
-          style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 'min(60vw, 480px)',
-            maxWidth: '90%',
-            opacity: 0.05,
-            pointerEvents: 'none',
-            zIndex: 0,
-          }}
-        />
+        <picture style={{ display: 'contents' }}>
+          <source type="image/avif" srcSet="/woven/seal.avif" />
+          <source type="image/webp" srcSet="/woven/seal.webp" />
+          <img
+            src="/woven/seal.png"
+            alt=""
+            aria-hidden
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 'min(60vw, 480px)',
+              maxWidth: '90%',
+              opacity: 0.05,
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+          />
+        </picture>
         <div
           style={{
             position: 'relative',
@@ -111,6 +116,29 @@ export function MemorialPublic() {
           {/* ── SUCCESS ── */}
           {!isLoading && data && (
             <>
+              <Helmet>
+                <title>{`${data.memorial_name} · Heirloom`}</title>
+                <meta
+                  name="description"
+                  content={(data.epitaph || data.memorial_description || `In memory of ${data.memorial_name}.`)
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    .slice(0, 200)}
+                />
+                <meta property="og:title" content={`In memory of ${data.memorial_name}`} />
+                <meta
+                  property="og:description"
+                  content={(data.epitaph || data.memorial_description || `In memory of ${data.memorial_name}.`)
+                    .replace(/\s+/g, ' ')
+                    .trim()
+                    .slice(0, 200)}
+                />
+                <meta property="og:type" content="article" />
+                <meta property="og:url" content={window.location.href} />
+                <meta property="og:image" content="https://heirloom.blue/woven/seal.png" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <link rel="canonical" href={window.location.href} />
+              </Helmet>
               {/*
                * CARE / ceremony archetype:
                * centered composition, generous negative space — no dye

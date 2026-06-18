@@ -154,7 +154,11 @@ export function Inbox() {
                     subColor="var(--muted-2)"
                     title={
                       <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <img src="/woven/seal.png" width={22} alt="" aria-hidden style={{ flex: '0 0 auto', display: 'inline-block' }} />
+                        <picture style={{ display: 'contents' }}>
+                          <source type="image/avif" srcSet="/woven/seal.avif" />
+                          <source type="image/webp" srcSet="/woven/seal.webp" />
+                          <img src="/woven/seal.png" width={22} alt="" aria-hidden style={{ flex: '0 0 auto', display: 'inline-block' }} />
+                        </picture>
                         <span>{u.entry_title ?? 'A sealed note for the future'}</span>
                       </span>
                     }

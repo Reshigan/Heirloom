@@ -208,20 +208,24 @@ export function MemoryMap() {
               }}
             >
               {/* Woven worldmap — the base coordinate plate, quiet behind the points. */}
-              <img
-                src="/woven/worldmap.png"
-                alt=""
-                aria-hidden
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'contain',
-                  opacity: 0.32,
-                  pointerEvents: 'none',
-                }}
-              />
+              <picture style={{ display: 'contents' }}>
+                <source type="image/avif" srcSet="/woven/worldmap.avif" />
+                <source type="image/webp" srcSet="/woven/worldmap.webp" />
+                <img
+                  src="/woven/worldmap.png"
+                  alt=""
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    opacity: 0.32,
+                    pointerEvents: 'none',
+                  }}
+                />
+              </picture>
 
               {/* Warm points — the only accent, glow restrained via box-shadow. */}
               {mapDots.map((d) => {

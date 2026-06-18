@@ -208,7 +208,7 @@ export function Filament({ variant = 'none', seed: _seed = 1941, intensity = 1, 
             // Edge-fade so the screen-blended box never reads as a rectangle.
             WebkitMaskImage: place.cover ? COVER_MASK : MASK,
             maskImage: place.cover ? COVER_MASK : MASK,
-            animation: reduced ? undefined : 'filabreath 7200ms cubic-bezier(0.16,1,0.3,1) infinite alternate',
+            animation: reduced ? undefined : 'filabreath 1400ms cubic-bezier(0.16,1,0.3,1) infinite alternate',
             ...place.style,
           }}
         />

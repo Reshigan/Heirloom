@@ -55,22 +55,26 @@ export function FounderWelcome() {
         }}
       >
         {/* Woven founder mark — centered, behind the ceremony */}
-        <img
-          src="/woven/seal.png"
-          alt=""
-          aria-hidden
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 'clamp(320px, 56vw, 560px)',
-            height: 'auto',
-            opacity: 0.06,
-            pointerEvents: 'none',
-            userSelect: 'none',
-          }}
-        />
+        <picture style={{ display: 'contents' }}>
+          <source type="image/avif" srcSet="/woven/seal.avif" />
+          <source type="image/webp" srcSet="/woven/seal.webp" />
+          <img
+            src="/woven/seal.png"
+            alt=""
+            aria-hidden
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: 'clamp(320px, 56vw, 560px)',
+              height: 'auto',
+              opacity: 0.06,
+              pointerEvents: 'none',
+              userSelect: 'none',
+            }}
+          />
+        </picture>
         {/* ── Ceremony frame ────────────────────────────────────────── */}
         <div
           style={{

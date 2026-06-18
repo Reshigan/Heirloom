@@ -183,7 +183,7 @@ export function ListenerLine({
           style={{
             width: 5,
             height: 5,
-            borderRadius: '50%',
+            borderRadius: 0,
             background: 'var(--warm)',
             opacity: loading ? 1 : 0.55,
             animation: loading ? 'hl-listener-pulse 1400ms cubic-bezier(0.16,1,0.3,1) infinite' : 'none',

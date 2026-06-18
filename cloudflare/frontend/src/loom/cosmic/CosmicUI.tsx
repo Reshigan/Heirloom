@@ -86,7 +86,7 @@ export function EntryRow({
   titleColor = 'var(--bone)',
   titleSize = 19,
   titleFont = 'serif',
-  subFont = 'sans',
+  subFont = 'serif',
   subColor = 'var(--bone-dim)',
   subItalic = false,
   dateColor = 'var(--bone-faint)',

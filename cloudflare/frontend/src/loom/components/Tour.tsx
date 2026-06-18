@@ -92,7 +92,7 @@ export function Tour({ onDone }: { onDone: () => void }) {
           {panel.eyebrow}
         </div>
         <h1 style={{
-          fontFamily: 'var(--serif)', fontWeight: 300,
+          fontFamily: 'var(--serif-display)', fontWeight: 300,
           fontSize: 'clamp(30px,6.5vw,52px)', lineHeight: 1.1,
           letterSpacing: '-0.018em', color: 'var(--bone)', margin: '0 0 22px',
         }}>

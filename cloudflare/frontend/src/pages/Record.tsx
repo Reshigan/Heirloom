@@ -723,6 +723,7 @@ export function Record() {
                         <div style={{ marginTop: 8 }} onClick={e => e.stopPropagation()}>
                           <input
                             type="date"
+                            aria-label="Scheduled date"
                             value={scheduledDate}
                             onChange={e => setScheduledDate(e.target.value)}
                             style={{

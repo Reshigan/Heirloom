@@ -211,21 +211,25 @@ export default function Wrapped() {
         }}
       >
         {/* woven thread-swoosh — decorative backdrop behind the figures */}
-        <img
-          src="/woven/thread-swoosh.png"
-          alt=""
-          aria-hidden
-          style={{
-            position: 'absolute',
-            top: 0, left: '50%',
-            height: '100%',
-            transform: 'translateX(-50%)',
-            objectFit: 'cover',
-            opacity: 0.38,
-            pointerEvents: 'none',
-            zIndex: 0,
-          }}
-        />
+        <picture style={{ display: 'contents' }}>
+          <source type="image/avif" srcSet="/woven/thread-swoosh.avif" />
+          <source type="image/webp" srcSet="/woven/thread-swoosh.webp" />
+          <img
+            src="/woven/thread-swoosh.png"
+            alt=""
+            aria-hidden
+            style={{
+              position: 'absolute',
+              top: 0, left: '50%',
+              height: '100%',
+              transform: 'translateX(-50%)',
+              objectFit: 'cover',
+              opacity: 0.38,
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+          />
+        </picture>
         {/* radial vignette — focuses the eye on the centred numerals */}
         <div
           aria-hidden

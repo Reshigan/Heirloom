@@ -119,22 +119,26 @@ export function TiedOff() {
       backdropOpacity={0.35}
     >
       {/* completion flourish — woven thread, behind everything */}
-      <img
-        src="/woven/thread-swoosh.png"
-        alt=""
-        aria-hidden
-        style={{
-          position: 'absolute',
-          left: '50%',
-          bottom: '4%',
-          transform: 'translateX(-50%)',
-          width: 'min(820px, 88vw)',
-          maxHeight: '46%',
-          objectFit: 'contain',
-          opacity: 0.07,
-          pointerEvents: 'none',
-        }}
-      />
+      <picture style={{ display: 'contents' }}>
+        <source type="image/avif" srcSet="/woven/thread-swoosh.avif" />
+        <source type="image/webp" srcSet="/woven/thread-swoosh.webp" />
+        <img
+          src="/woven/thread-swoosh.png"
+          alt=""
+          aria-hidden
+          style={{
+            position: 'absolute',
+            left: '50%',
+            bottom: '4%',
+            transform: 'translateX(-50%)',
+            width: 'min(820px, 88vw)',
+            maxHeight: '46%',
+            objectFit: 'contain',
+            opacity: 0.07,
+            pointerEvents: 'none',
+          }}
+        />
+      </picture>
       <div
         style={{
           position: 'absolute',

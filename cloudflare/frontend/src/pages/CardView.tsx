@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { ClothShell } from '../loom/components/ClothShell';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
@@ -160,8 +161,26 @@ export function CardView() {
     ? `A MEMORY BY ${card.authorName.toUpperCase()} · ${year}`
     : `A MEMORY BY ${card.authorName.toUpperCase()}`;
 
+  const cardTitle = card.memoryTitle || 'A Memory';
+  const metaDescription = (card.quote || `A memory by ${card.authorName}, preserved on Heirloom.`)
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 200);
+  const metaImage = card.photoUrl || 'https://heirloom.blue/woven/seal.png';
+
   return (
     <ClothShell topbarCenter="card">
+      <Helmet>
+        <title>{`${cardTitle} · Heirloom`}</title>
+        <meta name="description" content={metaDescription} />
+        <meta property="og:title" content={cardTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:image" content={metaImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <link rel="canonical" href={window.location.href} />
+      </Helmet>
       <div
         style={{
           position: 'absolute',

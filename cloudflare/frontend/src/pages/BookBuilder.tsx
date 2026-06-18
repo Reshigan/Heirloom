@@ -276,7 +276,11 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
           }}
         >
           {/* woven ∞ seal centred on the cover */}
-          <img src="/woven/seal.png" width={72} alt="" aria-hidden style={{ opacity: 0.92 }} />
+          <picture style={{ display: 'contents' }}>
+            <source type="image/avif" srcSet="/woven/seal.avif" />
+            <source type="image/webp" srcSet="/woven/seal.webp" />
+            <img src="/woven/seal.png" width={72} alt="" aria-hidden style={{ opacity: 0.92 }} />
+          </picture>
           {/* embossed cover title */}
           <span
             style={{

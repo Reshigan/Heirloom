@@ -12,13 +12,13 @@ export default {
           deep: '#090706',
           DEFAULT: '#0b0907',
           surface: '#16110c',
-          elevated: '#1b1610',
-          hover: '#221c15',
+          elevated: '#1e1812',
+          hover: '#261e15',
         },
         // CREAM — the page (remapped from legacy "paper"). #f2e6d0.
         paper: {
           DEFAULT: '#f2e6d0',
-          bright: '#f8efdd',
+          bright: '#faf3e4',
           dim: 'rgba(242, 230, 208, 0.55)',
           muted: 'rgba(242, 230, 208, 0.40)',
           90: 'rgba(242, 230, 208, 0.9)',
@@ -170,9 +170,6 @@ export default {
           'from': { opacity: '0', transform: 'translateY(20px)' },
           'to': { opacity: '1', transform: 'translateY(0)' },
         },
-      },
-      borderRadius: {
-        'pill': '100px',
       },
       letterSpacing: {
         'display': '0.35em',

@@ -174,18 +174,25 @@
   --dur-slow: 720ms;
   --dur-ceremony: 1400ms;
 
+  /* Future-axis: text-scale lever. The .loom root may carry
+     data-text-scale="80|100|120|140|160"; the binding rules below set
+     --text-scale, and every --type-* token multiplies through it so the
+     whole type system scales as one. Default = 1 (no change). */
+  --text-scale: 1;
+
   /* Display type-scale tokens — Source Serif 4 variable optical sizing.
      "opsz" 12 = caption, 18 = text, 28 = subhead, 40 = display, 72 = hero.
-     Pair each size with the matching opsz setting for optical correctness. */
-  --type-hero:     clamp(52px, 8vw, 96px);     /* opsz 72, weight 200 */
-  --type-display:  clamp(36px, 5.5vw, 64px);   /* opsz 40, weight 300 */
-  --type-title:    clamp(26px, 3.5vw, 40px);   /* opsz 32, weight 300 */
-  --type-subhead:  clamp(20px, 2.5vw, 28px);   /* opsz 24, weight 400 */
-  --type-body-lg:  clamp(18px, 2vw, 21px);     /* opsz 18, weight 400, lh 1.9 */
-  --type-body:     clamp(15px, 1.5vw, 17px);   /* opsz 14, weight 400, lh 1.8 */
-  --type-caption:  clamp(12px, 1.2vw, 14px);   /* opsz 12, weight 400 */
-  --type-label:    11px;                        /* mono uppercase, ls 0.18em */
-  --type-micro:    10px;                        /* mono uppercase, ls 0.22em */
+     Pair each size with the matching opsz setting for optical correctness.
+     Each clamp() is wrapped in calc(... * var(--text-scale)) for the lever. */
+  --type-hero:     calc(clamp(52px, 8vw, 96px) * var(--text-scale));     /* opsz 72, weight 200 */
+  --type-display:  calc(clamp(36px, 5.5vw, 64px) * var(--text-scale));   /* opsz 40, weight 300 */
+  --type-title:    calc(clamp(26px, 3.5vw, 40px) * var(--text-scale));   /* opsz 32, weight 300 */
+  --type-subhead:  calc(clamp(20px, 2.5vw, 28px) * var(--text-scale));   /* opsz 24, weight 400 */
+  --type-body-lg:  calc(clamp(18px, 2vw, 21px) * var(--text-scale));     /* opsz 18, weight 400, lh 1.9 */
+  --type-body:     calc(clamp(15px, 1.5vw, 17px) * var(--text-scale));   /* opsz 14, weight 400, lh 1.8 */
+  --type-caption:  calc(clamp(12px, 1.2vw, 14px) * var(--text-scale));   /* opsz 12, weight 400 */
+  --type-label:    calc(11px * var(--text-scale));                        /* mono uppercase, ls 0.18em */
+  --type-micro:    calc(10px * var(--text-scale));                        /* mono uppercase, ls 0.22em */
 
   /* Layout — one set of page-width + clearance tokens so every authed page
      reads as one product, not a pile of bespoke wrappers. */
@@ -1311,6 +1318,64 @@ html {
   --loom-warm-glow:  rgba(168, 98, 32, 0.18);
 }
 
+/* ─── Future-axis: text-scale lever ─────────────────────────────────
+   The .loom root carries data-text-scale (80/100/120/140/160). Each value
+   sets --text-scale, which every --type-* token multiplies through (see the
+   :root type block). 100 is the neutral baseline (= 1). Theme-agnostic. */
+.loom[data-text-scale="80"]  { --text-scale: .8;  }
+.loom[data-text-scale="100"] { --text-scale: 1;   }
+.loom[data-text-scale="120"] { --text-scale: 1.2; }
+.loom[data-text-scale="140"] { --text-scale: 1.4; }
+.loom[data-text-scale="160"] { --text-scale: 1.6; }
+
+/* ─── Future-axis: high-contrast lever ──────────────────────────────
+   The .loom root carries data-contrast="true". Lifts contrast beyond the AA
+   floor by pushing bone toward pure white, raising the dimmed/faint bone
+   opacities, darkening muted surfaces, and widening body letter-spacing.
+   Covers both the canonical token names and the parallel --loom-* set, in
+   both dark and light scopes. */
+.loom[data-contrast="true"] {
+  --bone:        #ffffff;
+  --bone-dim:    rgba(255, 255, 255, 0.90);
+  --bone-faint:  rgba(255, 255, 255, 0.66);
+  --bone-low:    rgba(255, 255, 255, 0.40);
+  --bone-ghost:  rgba(255, 255, 255, 0.22);
+  --rule:        rgba(255, 255, 255, 0.22);
+  --rule-strong: rgba(255, 255, 255, 0.34);
+  /* parallel loom token set */
+  --loom-bone:       #ffffff;
+  --loom-bone-dim:   rgba(255, 255, 255, 0.90);
+  --loom-bone-faint: rgba(255, 255, 255, 0.66);
+  --loom-bone-ghost: rgba(255, 255, 255, 0.22);
+  --loom-rule:       rgba(255, 255, 255, 0.22);
+  /* darken muted surfaces so text sits on a deeper ground */
+  --void-surface:  #110c08;
+  --void-elevated: #161009;
+  --ink-card:      #15100a;
+  --loom-ink-card: #15100a;
+  letter-spacing: 0.02em;
+}
+
+/* Light scope — invert toward pure black ink on parchment, darken the muted
+   ramp, and darken paper surfaces for crisper edges. */
+.loom[data-theme="light"][data-contrast="true"] {
+  --bone:        #000000;
+  --bone-dim:    rgba(0, 0, 0, 0.92);
+  --bone-faint:  rgba(0, 0, 0, 0.74);
+  --bone-low:    rgba(0, 0, 0, 0.46);
+  --bone-ghost:  rgba(0, 0, 0, 0.26);
+  --rule:        rgba(0, 0, 0, 0.26);
+  --rule-strong: rgba(0, 0, 0, 0.40);
+  --loom-bone:       #000000;
+  --loom-bone-dim:   rgba(0, 0, 0, 0.92);
+  --loom-bone-faint: rgba(0, 0, 0, 0.74);
+  --loom-bone-ghost: rgba(0, 0, 0, 0.26);
+  --loom-rule:       rgba(0, 0, 0, 0.26);
+  --ink-card:      #e2d4bc;
+  --loom-ink-card: #e2d4bc;
+  letter-spacing: 0.02em;
+}
+
 /* ─── Surface root ──────────────────────────────────────────────── */
 .loom {
   background: var(--loom-ink);
@@ -2269,7 +2334,7 @@ input:-webkit-autofill:active {
 /* ── Cloth parallax — responds to --cloth-parallax CSS var set by PwaHome scroll listener ── */
 .loom canvas {
   transform: rotateX(var(--cloth-parallax, 0deg));
-  transition: transform 400ms cubic-bezier(0.16,1,0.3,1);
+  transition: transform 360ms cubic-bezier(0.16,1,0.3,1);
 }
 
 /* ── Mobile responsiveness ──────────────────────────────────────────────── */

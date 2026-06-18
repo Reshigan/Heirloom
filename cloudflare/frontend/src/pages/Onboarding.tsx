@@ -59,7 +59,7 @@ const eyebrowStyle: React.CSSProperties = {
 // The ceremony title — serif, centered, the moment's name in the bloodline's
 // own voice. CEREMONY scale: clamp(24px, 5vw, 34px).
 const heroHeadlineStyle: React.CSSProperties = {
-  fontFamily: 'var(--serif)',
+  fontFamily: 'var(--serif-display)',
   fontWeight: 400,
   fontSize: 'clamp(24px, 5vw, 34px)',
   lineHeight: 1.1,
@@ -71,7 +71,7 @@ const heroHeadlineStyle: React.CSSProperties = {
 };
 
 const questionStyle: React.CSSProperties = {
-  fontFamily: 'var(--serif)',
+  fontFamily: 'var(--serif-display)',
   fontWeight: 400,
   fontSize: 'clamp(24px, 5vw, 34px)',
   lineHeight: 1.12,
@@ -79,6 +79,7 @@ const questionStyle: React.CSSProperties = {
   color: 'var(--bone)',
   textAlign: 'center',
   margin: 0,
+  fontVariationSettings: '"opsz" 40',
 };
 
 // Serif-italic byline — dim, the confidential-space promise spoken quietly
@@ -220,7 +221,7 @@ const welcomeWovenBand: React.CSSProperties = {
   right: 0,
   bottom: 0,
   height: '38vh',
-  backgroundImage: 'url(/woven/thread-band.png)',
+  backgroundImage: 'image-set(url("/woven/thread-band.avif") type("image/avif"), url("/woven/thread-band.webp") type("image/webp"), url("/woven/thread-band.png") type("image/png"))',
   backgroundSize: 'cover',
   backgroundPosition: 'bottom center',
   backgroundRepeat: 'no-repeat',
@@ -263,7 +264,7 @@ const pillStyle: React.CSSProperties = {
   justifyContent: 'center',
   minWidth: 200,
   padding: '13px 30px',
-  borderRadius: 999,
+  borderRadius: 0,
   border: '1px solid var(--warm-dim)',
   background: 'transparent',
   color: 'var(--warm-bright)',
@@ -483,6 +484,7 @@ export function Onboarding() {
             onFocus={onFocus}
             onBlur={onBlur}
             placeholder="The first line of a thousand-year thread"
+            aria-label="Your first entry"
           />
         </div>
       </>
@@ -506,6 +508,7 @@ export function Onboarding() {
             onBlur={onBlur}
             onKeyDown={(e) => e.key === 'Enter' && handleNext()}
             placeholder="name@example.com"
+            aria-label="Invite someone's email address"
             autoFocus
           />
         </div>
@@ -516,7 +519,7 @@ export function Onboarding() {
   // ── CTA label ────────────────────────────────────────────────────────
   // Entry is the hero step; its CTA is the mono "START YOUR THREAD".
   const ctaLabel = busy
-    ? step === 'entry' ? 'sealing…' : 'inviting…'
+    ? step === 'entry' ? 'saving…' : 'inviting…'
     : inviteSent
     ? 'invitation sent'
     : step === 'entry' ? 'start your thread' : 'invite →';
@@ -551,7 +554,7 @@ export function Onboarding() {
           <div style={{ ...welcomeActions, position: 'relative', zIndex: 1 }}>
             <button
               type="button"
-              style={{ ...pillStyle, borderColor: 'var(--copper-border)' }}
+              style={pillStyle}
               onClick={() => goTo('tour')}
               onMouseEnter={pillHover}
               onMouseLeave={pillLeave}

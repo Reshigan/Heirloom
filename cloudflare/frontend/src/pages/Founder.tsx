@@ -51,6 +51,7 @@ const inputFocusStyle = `
   .founder-input::placeholder { color: var(--bone-faint); }
   .founder-textarea:focus { border-bottom-color: var(--warm) !important; }
   .founder-textarea::placeholder { color: var(--bone-faint); }
+  .founder-cta:focus-visible { outline: 2px solid var(--warm); outline-offset: 2px; }
 `;
 
 const labelBase: React.CSSProperties = {
@@ -153,22 +154,26 @@ export function Founder() {
         }}
       >
         {/* ── Woven accent — corner, behind, rotated ─────────────────────── */}
-        <img
-          src="/woven/thread-band.png"
-          alt=""
-          aria-hidden
-          style={{
-            position:      'absolute',
-            top:           -40,
-            right:         -60,
-            width:         320,
-            maxWidth:      '40vw',
-            opacity:       0.06,
-            transform:     'rotate(-18deg)',
-            pointerEvents: 'none',
-            zIndex:        0,
-          }}
-        />
+        <picture style={{ display: 'contents' }}>
+          <source type="image/avif" srcSet="/woven/thread-band.avif" />
+          <source type="image/webp" srcSet="/woven/thread-band.webp" />
+          <img
+            src="/woven/thread-band.png"
+            alt=""
+            aria-hidden
+            style={{
+              position:      'absolute',
+              top:           -40,
+              right:         -60,
+              width:         320,
+              maxWidth:      '40vw',
+              opacity:       0.06,
+              transform:     'rotate(-18deg)',
+              pointerEvents: 'none',
+              zIndex:        0,
+            }}
+          />
+        </picture>
         {/* ── Mono eyebrow ─────────────────────────────────────────────── */}
         <p
           style={{
@@ -322,6 +327,7 @@ export function Founder() {
             </p>
             <Link
               to="/"
+              className="founder-cta"
               style={{
                 fontFamily:     'var(--mono)',
                 fontSize:        10,
@@ -432,6 +438,7 @@ export function Founder() {
             {/* Primary CTA — mono uppercase pill, warm */}
             <button
               type="submit"
+              className="founder-cta"
               disabled={submitting || !name.trim() || !email.trim()}
               style={{
                 fontFamily:     'var(--mono)',
@@ -441,7 +448,7 @@ export function Founder() {
                 color:          'var(--ink)',
                 background:     'var(--warm)',
                 border:          'none',
-                borderRadius:    40,
+                borderRadius:    0,
                 padding:        '14px 32px',
                 minHeight:       44,
                 cursor:          submitting || !name.trim() || !email.trim() ? 'not-allowed' : 'pointer',
@@ -455,6 +462,7 @@ export function Founder() {
 
             <Link
               to="/gift"
+              className="founder-cta"
               style={{
                 fontFamily:     'var(--mono)',
                 fontSize:        10,

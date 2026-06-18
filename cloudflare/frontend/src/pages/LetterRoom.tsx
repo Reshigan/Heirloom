@@ -256,7 +256,11 @@ export function LetterRoom() {
                 marginTop: 28, display: 'flex', alignItems: 'center',
                 justifyContent: 'center', gap: 18, flexWrap: 'wrap',
               }}>
-                <img src="/woven/seal.png" width="54" height="54" alt="" aria-hidden />
+                <picture style={{ display: 'contents' }}>
+                  <source type="image/avif" srcSet="/woven/seal.avif" />
+                  <source type="image/webp" srcSet="/woven/seal.webp" />
+                  <img src="/woven/seal.png" width="54" height="54" alt="" aria-hidden />
+                </picture>
                 {isSealed ? (
                   <Link
                     to={`/loom/compose-letter?id=${featured.id}`}
@@ -429,7 +433,11 @@ export function LetterRoom() {
                             animation: `hl-fade 360ms ${EASE}`,
                           }}
                         >
-                          <img src="/woven/seal.png" width="54" height="54" alt="" aria-hidden />
+                          <picture style={{ display: 'contents' }}>
+                  <source type="image/avif" srcSet="/woven/seal.avif" />
+                  <source type="image/webp" srcSet="/woven/seal.webp" />
+                  <img src="/woven/seal.png" width="54" height="54" alt="" aria-hidden />
+                </picture>
                           <div style={{
                             marginTop: 18,
                             fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
@@ -504,7 +512,11 @@ export function LetterRoom() {
                             marginTop: 28, display: 'flex', alignItems: 'center',
                             justifyContent: 'center', gap: 18, flexWrap: 'wrap',
                           }}>
-                            <img src="/woven/seal.png" width="54" height="54" alt="" aria-hidden />
+                            <picture style={{ display: 'contents' }}>
+                  <source type="image/avif" srcSet="/woven/seal.avif" />
+                  <source type="image/webp" srcSet="/woven/seal.webp" />
+                  <img src="/woven/seal.png" width="54" height="54" alt="" aria-hidden />
+                </picture>
                             <button
                               type="button"
                               disabled={sealMutation.isPending}

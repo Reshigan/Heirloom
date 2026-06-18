@@ -52,7 +52,7 @@ export function Login() {
         transform: 'scaleY(-1)',
         opacity: 0.7,
         // ink fade sits over the band; after scaleY(-1) the fade lands on the visual bottom edge
-        backgroundImage: 'linear-gradient(to top, var(--ink) 0%, rgba(11,9,7,0) 62%), url(/woven/thread-band.png)',
+        backgroundImage: 'linear-gradient(to top, var(--ink) 0%, rgba(11,9,7,0) 62%), image-set(url("/woven/thread-band.avif") type("image/avif"), url("/woven/thread-band.webp") type("image/webp"), url("/woven/thread-band.png") type("image/png"))',
         backgroundSize: 'cover, cover',
         backgroundPosition: 'center, center top',
         backgroundRepeat: 'no-repeat, no-repeat',

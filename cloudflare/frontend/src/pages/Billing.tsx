@@ -119,6 +119,9 @@ export function Billing() {
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'billing' }]} />}
     >
+      <style>{`
+        .billing-action:focus-visible { outline: 2px solid var(--warm); outline-offset: 2px; }
+      `}</style>
       <div style={{ maxWidth: '46rem', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
         {subscriptionError && (
@@ -157,13 +160,13 @@ export function Billing() {
           {!isFounder && (
             <div style={ROW}>
               <span style={LABEL}>founder · lifetime</span>
-              <Link to="/founder" style={ACTION}>become a founder →</Link>
+              <Link to="/founder" className="billing-action" style={ACTION}>become a founder →</Link>
             </div>
           )}
           {currentTier === 'FAMILY' && (
             <div style={ROW}>
               <span style={LABEL}>annual billing</span>
-              <button type="button" onClick={() => { setBusy('FAMILY_ANNUAL'); checkout.mutate('yearly'); }} disabled={!!busy} style={ACTION}>
+              <button type="button" className="billing-action" onClick={() => { setBusy('FAMILY_ANNUAL'); checkout.mutate('yearly'); }} disabled={!!busy} style={{ ...ACTION, ...(busy ? { opacity: 0.5, cursor: 'default' } : null) }}>
                 {busy === 'FAMILY_ANNUAL' ? 'opening…' : 'switch to annual →'}
               </button>
             </div>
@@ -171,7 +174,7 @@ export function Billing() {
           {isFreeTier(currentTier) && (
             <div style={ROW}>
               <span style={LABEL}>upgrade to family</span>
-              <button type="button" onClick={() => { setBusy('FAMILY'); checkout.mutate('monthly'); }} disabled={!!busy} style={ACTION}>
+              <button type="button" className="billing-action" onClick={() => { setBusy('FAMILY'); checkout.mutate('monthly'); }} disabled={!!busy} style={{ ...ACTION, ...(busy ? { opacity: 0.5, cursor: 'default' } : null) }}>
                 {busy === 'FAMILY' ? 'opening…' : 'start 30-day trial →'}
               </button>
             </div>
@@ -179,7 +182,7 @@ export function Billing() {
           {isPaidTier(currentTier) && (
             <div style={ROW}>
               <span style={LABEL}>change plan</span>
-              <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending} style={ACTION_QUIET}>
+              <button type="button" className="billing-action" onClick={() => portal.mutate()} disabled={portal.isPending} style={{ ...ACTION_QUIET, ...(portal.isPending ? { opacity: 0.5, cursor: 'default' } : null) }}>
                 {portal.isPending ? 'opening…' : 'downgrade →'}
               </button>
             </div>
@@ -208,7 +211,7 @@ export function Billing() {
           </div>
           <div style={ROW}>
             <span style={LABEL}>card on file</span>
-            <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending} style={ACTION}>
+            <button type="button" className="billing-action" onClick={() => portal.mutate()} disabled={portal.isPending} style={{ ...ACTION, ...(portal.isPending ? { opacity: 0.5, cursor: 'default' } : null) }}>
               {portal.isPending ? 'opening…' : 'replace card →'}
             </button>
           </div>
@@ -219,7 +222,7 @@ export function Billing() {
         <div>
           <div style={ROW}>
             <span style={LABEL}>Receipts and full invoice history live in the Stripe portal.</span>
-            <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending} style={ACTION}>
+            <button type="button" className="billing-action" onClick={() => portal.mutate()} disabled={portal.isPending} style={{ ...ACTION, ...(portal.isPending ? { opacity: 0.5, cursor: 'default' } : null) }}>
               {portal.isPending ? 'opening…' : 'open portal →'}
             </button>
           </div>
@@ -240,7 +243,7 @@ export function Billing() {
           Your thread is never deleted. It freezes in place and is downloadable for life.
         </p>
         <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--rule)', display: 'flex', justifyContent: 'flex-end' }}>
-          <button type="button" onClick={() => portal.mutate()} disabled={portal.isPending} style={ACTION_QUIET}>
+          <button type="button" className="billing-action" onClick={() => portal.mutate()} disabled={portal.isPending} style={{ ...ACTION_QUIET, ...(portal.isPending ? { opacity: 0.5, cursor: 'default' } : null) }}>
             {portal.isPending ? 'opening…' : 'cancel · gentle exit →'}
           </button>
         </div>

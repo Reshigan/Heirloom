@@ -250,22 +250,26 @@ export function Unlock() {
                 }}
               >
                 {/* woven embers — behind the opening content, decorative only */}
-                <img
-                  src="/woven/unseal.png"
-                  alt=""
-                  aria-hidden
-                  style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: 'clamp(150px, 32vw, 200px)',
-                    height: 'auto',
-                    opacity: 0.16,
-                    pointerEvents: 'none',
-                    zIndex: 0,
-                  }}
-                />
+                <picture style={{ display: 'contents' }}>
+                  <source type="image/avif" srcSet="/woven/unseal.avif" />
+                  <source type="image/webp" srcSet="/woven/unseal.webp" />
+                  <img
+                    src="/woven/unseal.png"
+                    alt=""
+                    aria-hidden
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: 'clamp(150px, 32vw, 200px)',
+                      height: 'auto',
+                      opacity: 0.16,
+                      pointerEvents: 'none',
+                      zIndex: 0,
+                    }}
+                  />
+                </picture>
 
                 {/* mono eyebrow — SEALED <date> · OPENED TODAY / OPENS yyyy */}
                 <div

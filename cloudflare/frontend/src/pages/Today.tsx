@@ -87,7 +87,7 @@ export function Today() {
     padding: '12px 30px',
     background: 'transparent',
     border: '1px solid var(--copper-border)',
-    borderRadius: 999,
+    borderRadius: 0,
     color: 'var(--warm)',
     fontFamily: 'var(--mono)',
     fontSize: 11,
@@ -205,7 +205,7 @@ export function Today() {
           left: 0,
           right: 0,
           height: 240,
-          backgroundImage: `linear-gradient(180deg, transparent 55%, var(--ink)), url(/woven/thread-band.png)`,
+          backgroundImage: `linear-gradient(180deg, transparent 55%, var(--ink)), image-set(url("/woven/thread-band.avif") type("image/avif"), url("/woven/thread-band.webp") type("image/webp"), url("/woven/thread-band.png") type("image/png"))`,
           backgroundSize: 'cover, cover',
           backgroundPosition: 'center, center',
           backgroundRepeat: 'no-repeat, no-repeat',
@@ -277,7 +277,7 @@ export function Today() {
           <div style={{
             opacity: revealed ? 1 : 0,
             transition: `opacity 1400ms ${ease}`,
-            transitionDelay: '540ms',
+            transitionDelay: '720ms',
           }}>
             {onThisDayError ? (
               <p style={{

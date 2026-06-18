@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useFocusTrap } from '../../lib/useFocusTrap';
 const WIZARD_KEY = 'hl-pwa-onboarded-v1';
 
 interface Step {
@@ -103,6 +104,7 @@ function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | 'trigger' |
 
 export function PwaWizard({ onDone }: { onDone: () => void }) {
   const [step, setStep] = useState(0);
+  const dialogRef = useRef<HTMLDivElement>(null);
   const current = STEPS[step];
   const isLast = step === STEPS.length - 1;
 
@@ -120,7 +122,10 @@ export function PwaWizard({ onDone }: { onDone: () => void }) {
     onDone();
   }, [onDone]);
 
-  // swipe-to-advance (touch) + Escape-to-skip (keyboard)
+  // focus trap + Escape-to-skip (keyboard)
+  useFocusTrap(dialogRef, skip, true);
+
+  // swipe-to-advance (touch)
   useEffect(() => {
     let startX = 0;
     const onStart = (e: TouchEvent) => { startX = e.touches[0].clientX; };
@@ -129,19 +134,17 @@ export function PwaWizard({ onDone }: { onDone: () => void }) {
       if (dx < -50) advance();
       if (dx > 50 && step > 0) setStep(s => s - 1);
     };
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') skip(); };
     window.addEventListener('touchstart', onStart, { passive: true });
     window.addEventListener('touchend', onEnd, { passive: true });
-    window.addEventListener('keydown', onKey);
     return () => {
       window.removeEventListener('touchstart', onStart);
       window.removeEventListener('touchend', onEnd);
-      window.removeEventListener('keydown', onKey);
     };
-  }, [advance, step, skip]);
+  }, [advance, step]);
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="pwa-wizard-heading"

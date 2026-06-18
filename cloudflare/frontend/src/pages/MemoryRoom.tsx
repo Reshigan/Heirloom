@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { RoomHeader } from '../loom/components/room';
@@ -165,6 +166,14 @@ export function MemoryRoom() {
   const count = contributions.length;
   const ledgerEyebrow = `${count} ${count === 1 ? 'MEMORY' : 'MEMORIES'} SHARED`;
 
+  const roomTitle = room.name || 'A room in the cloth';
+  const metaDescription = (
+    room.description || `A memory room by ${room.ownerName} — share your memories on Heirloom.`
+  )
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 200);
+
   return (
     <ClothShell
       topbarCenter="memory room"
@@ -188,6 +197,18 @@ export function MemoryRoom() {
         </button>
       }
     >
+      <Helmet>
+        <title>{`${roomTitle} · Heirloom`}</title>
+        <meta name="description" content={metaDescription} />
+        <meta property="og:title" content={roomTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={window.location.href} />
+        <meta property="og:image" content="https://heirloom.blue/woven/seal.png" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <link rel="canonical" href={window.location.href} />
+      </Helmet>
+
       {/* Content area — ClothShell already offsets topbar height */}
       <div style={{
         padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',

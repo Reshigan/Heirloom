@@ -56,6 +56,8 @@ export function Marketing() {
   const finalCta = useReveal(0.1);
   const ease = 'cubic-bezier(0.16,1,0.3,1)';
   const narrow = vpW < 680;
+  const reduceMotion = typeof window !== 'undefined'
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   useEffect(() => {
     const sync = () => { setVpH(window.innerHeight); setVpW(window.innerWidth); };
@@ -86,7 +88,7 @@ export function Marketing() {
         {/* Woven hero backdrop — thread-swoosh behind everything, vignette to ink */}
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
-          backgroundImage: 'url(/woven/thread-swoosh.png)',
+          backgroundImage: 'image-set(url("/woven/thread-swoosh.avif") type("image/avif"), url("/woven/thread-swoosh.webp") type("image/webp"), url("/woven/thread-swoosh.png") type("image/png"))',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           backgroundSize: 'cover',
@@ -132,7 +134,7 @@ export function Marketing() {
             maxWidth: '16ch',
             opacity: taglineIn ? 1 : 0,
             transform: taglineIn ? 'translateY(0)' : 'translateY(24px)',
-            transition: `opacity 1400ms ${ease}, transform 1400ms ${ease}`,
+            transition: reduceMotion ? 'none' : `opacity 1400ms ${ease}, transform 1400ms ${ease}`,
           }}>
             Start your family's thousand-year thread.
           </h1>
@@ -147,8 +149,8 @@ export function Marketing() {
             maxWidth: '32ch',
             color: 'var(--bone-dim)',
             opacity: taglineIn ? 1 : 0,
-            transition: `opacity 1400ms ${ease}`,
-            transitionDelay: '220ms',
+            transition: reduceMotion ? 'none' : `opacity 1400ms ${ease}`,
+            transitionDelay: '180ms',
           }}>
             A journal of shared history, preserved for generations.
           </p>
@@ -156,7 +158,7 @@ export function Marketing() {
           <div style={{
             display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap',
             opacity: taglineIn ? 1 : 0,
-            transition: `opacity 1400ms ${ease}`,
+            transition: reduceMotion ? 'none' : `opacity 1400ms ${ease}`,
             transitionDelay: '360ms',
           }}>
             <Link
@@ -165,7 +167,7 @@ export function Marketing() {
               style={{
                 display: 'inline-block', padding: '13px 38px', minHeight: 44, boxSizing: 'border-box',
                 border: '1px solid var(--warm)',
-                borderRadius: 999,
+                borderRadius: 0,
                 color: 'var(--warm-bright, var(--warm))',
                 background: 'transparent',
                 fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.30em',
@@ -182,7 +184,7 @@ export function Marketing() {
                 onClick={() => promptInstall()}
                 style={{
                   background: 'transparent', border: '1px solid var(--rule)',
-                  borderRadius: 999,
+                  borderRadius: 0,
                   color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 10,
                   letterSpacing: '0.24em', textTransform: 'uppercase',
                   cursor: 'pointer', padding: '12px 26px', minHeight: 44, boxSizing: 'border-box',
@@ -239,7 +241,7 @@ export function Marketing() {
               gap: narrow ? '18px' : 'clamp(40px, 8vw, 120px)',
               opacity: pillars.visible ? 1 : 0,
               transform: pillars.visible ? 'translateY(0)' : 'translateY(20px)',
-              transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
+              transition: reduceMotion ? 'none' : `opacity 720ms ${ease}, transform 720ms ${ease}`,
               transitionDelay: `${i * 160}ms`,
             }}>
               <h2 style={{
@@ -281,7 +283,7 @@ export function Marketing() {
               margin: 0,
               opacity: arc.visible ? 1 : 0,
               transform: arc.visible ? 'translateY(0)' : 'translateY(20px)',
-              transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
+              transition: reduceMotion ? 'none' : `opacity 720ms ${ease}, transform 720ms ${ease}`,
               transitionDelay: `${i * 160}ms`,
             }}>
               <img
@@ -308,7 +310,7 @@ export function Marketing() {
           borderTop: '1px solid var(--rule)',
           opacity: permSect.visible ? 1 : 0,
           transform: permSect.visible ? 'translateY(0)' : 'translateY(24px)',
-          transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
+          transition: reduceMotion ? 'none' : `opacity 720ms ${ease}, transform 720ms ${ease}`,
         }}
       >
         <SectionLabel>permanence</SectionLabel>
@@ -349,7 +351,7 @@ export function Marketing() {
           borderTop: '1px solid var(--rule)',
           opacity: bookSect.visible ? 1 : 0,
           transform: bookSect.visible ? 'translateY(0)' : 'translateY(24px)',
-          transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
+          transition: reduceMotion ? 'none' : `opacity 720ms ${ease}, transform 720ms ${ease}`,
           display: 'grid',
           gridTemplateColumns: narrow ? '1fr' : '1fr 1fr',
           gap: 'clamp(40px, 6vw, 80px)',
@@ -432,7 +434,7 @@ export function Marketing() {
           borderTop: '1px solid var(--rule)',
           opacity: finalCta.visible ? 1 : 0,
           transform: finalCta.visible ? 'translateY(0)' : 'translateY(24px)',
-          transition: `opacity 720ms ${ease}, transform 720ms ${ease}`,
+          transition: reduceMotion ? 'none' : `opacity 720ms ${ease}, transform 720ms ${ease}`,
         }}
       >
         <div style={{ marginBottom: 'clamp(28px, 4.5vh, 44px)' }}>

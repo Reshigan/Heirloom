@@ -8,6 +8,16 @@ import { usePageMeta } from '../lib/usePageMeta';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { useLoomTheme } from '../loom/theme';
+import { useDisplayPreferences } from '../loom/useDisplayPreferences';
+
+/** Inline status error — one shared style across every error span in this page. */
+const ERROR_STYLE: React.CSSProperties = {
+  fontSize: 10,
+  color: 'var(--warm)',
+  letterSpacing: '0.12em',
+  textTransform: 'uppercase',
+  margin: '0 0 10px',
+};
 
 const RESPONSIVE_CSS = `
 /* Ledger row — serif label left, mono value/control right. */
@@ -237,6 +247,7 @@ export function Settings() {
   const checkoutSucceeded = searchParams.get('success') === 'true';
   const checkoutCanceled = searchParams.get('canceled') === 'true';
   const { theme, setTheme } = useLoomTheme();
+  const { textScale, setTextScale, highContrast, setHighContrast } = useDisplayPreferences();
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
   const [birthDate, setBirthDate] = useState('');
@@ -494,7 +505,7 @@ export function Settings() {
               <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)' }}>∞ saved</span>
             )}
             {saveError && (
-              <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.12em' }}>{saveError}</span>
+              <span className="hl-mono" style={{ ...ERROR_STYLE, margin: 0 }}>{saveError}</span>
             )}
           </div>
 
@@ -530,7 +541,7 @@ export function Settings() {
                   style={{ ...FIELD_INPUT_STYLE, padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
                 />
               ))}
-              {emailError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{emailError}</p>}
+              {emailError && <p className="hl-mono" style={ERROR_STYLE}>{emailError}</p>}
               <div style={{ display: 'flex', gap: 14, marginTop: 4, alignItems: 'center' }}>
                 <button type="button" onClick={handleChangeEmail} disabled={!newEmail || !emailPassword || changeEmail.isPending}
                   className="hl-monoaction" style={{ opacity: (!newEmail || !emailPassword || changeEmail.isPending) ? 0.5 : 1 }}>
@@ -574,7 +585,7 @@ export function Settings() {
                   style={{ ...FIELD_INPUT_STYLE, padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
                 />
               ))}
-              {pwError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{pwError}</p>}
+              {pwError && <p className="hl-mono" style={ERROR_STYLE}>{pwError}</p>}
               <div style={{ display: 'flex', gap: 14, marginTop: 4, alignItems: 'center' }}>
                 <button type="button" onClick={handleChangePw} disabled={!pwCurrent || !pwNew || !pwConfirm || changePw.isPending}
                   className="hl-monoaction" style={{ opacity: (!pwCurrent || !pwNew || !pwConfirm || changePw.isPending) ? 0.5 : 1 }}>
@@ -611,7 +622,7 @@ export function Settings() {
             />
           ))}
           {notifError && (
-            <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.12em', display: 'block', paddingTop: 6 }}>{notifError}</span>
+            <span className="hl-mono" style={{ ...ERROR_STYLE, margin: 0, display: 'block', paddingTop: 6 }}>{notifError}</span>
           )}
 
           {/* ════════ APPEARANCE ════════ */}
@@ -635,6 +646,41 @@ export function Settings() {
                   </button>
                 ))}
               </span>
+            }
+          />
+
+          {/* Text Size — for elderly / low-vision readers (multi-generational positioning) */}
+          <LedgerRow
+            label="Text Size"
+            hint="larger type for easier reading — carries across the thread"
+            value={
+              <span style={{ display: 'inline-flex', gap: 16 }}>
+                {([80, 100, 120, 140, 160] as const).map((pct) => (
+                  <button
+                    key={pct}
+                    type="button"
+                    onClick={() => setTextScale(pct)}
+                    aria-pressed={textScale === pct}
+                    className="hl-monoaction"
+                    style={{ color: textScale === pct ? 'var(--warm)' : 'var(--bone-dim)' }}
+                  >
+                    {pct}%
+                  </button>
+                ))}
+              </span>
+            }
+          />
+
+          {/* High Contrast — for low-vision readers */}
+          <LedgerRow
+            label="High Contrast"
+            hint="stronger ink-on-ground for easier reading"
+            value={
+              <StateToggle
+                ariaLabel="Enable high contrast display"
+                checked={highContrast}
+                onChange={(next) => setHighContrast(next)}
+              />
             }
           />
 
@@ -699,7 +745,7 @@ export function Settings() {
               </div>
               <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
                 {guardianEmailError && (
-                  <span className="hl-mono" style={{ width: '100%', fontSize: 10, color: 'var(--warm)', letterSpacing: '0.12em' }}>{guardianEmailError}</span>
+                  <span className="hl-mono" style={{ ...ERROR_STYLE, margin: 0, width: '100%' }}>{guardianEmailError}</span>
                 )}
                 <button
                   type="button"
@@ -761,7 +807,7 @@ export function Settings() {
                   {dmConfigOpen ? 'Close' : 'Configure'}
                 </button>
                 {checkInError && (
-                  <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.12em' }}>{checkInError}</span>
+                  <span className="hl-mono" style={{ ...ERROR_STYLE, margin: 0 }}>{checkInError}</span>
                 )}
               </span>
             </span>
@@ -791,7 +837,7 @@ export function Settings() {
                   />
                 </label>
               ))}
-              {dmConfigError && <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{dmConfigError}</p>}
+              {dmConfigError && <p className="hl-mono" style={ERROR_STYLE}>{dmConfigError}</p>}
               <div style={{ display: 'flex', gap: 14, marginTop: 4, alignItems: 'center' }}>
                 <button type="button" onClick={handleConfigureDeadman} disabled={!dmIntervalValid || !dmGraceValid || configureDeadman.isPending}
                   className="hl-monoaction" style={{ opacity: (!dmIntervalValid || !dmGraceValid || configureDeadman.isPending) ? 0.5 : 1 }}>
@@ -818,7 +864,7 @@ export function Settings() {
                 {exportLoading ? 'Preparing…' : 'Request'}
               </button>
               {exportError && (
-                <span className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.12em' }}>{exportError}</span>
+                <span className="hl-mono" style={{ ...ERROR_STYLE, margin: 0 }}>{exportError}</span>
               )}
             </span>
           </div>
@@ -878,8 +924,7 @@ export function Settings() {
                   Your thread will be archived for 90 days. During that window you can download a full export of everything you have ever written. After 90 days it is permanently erased.
                 </p>
                 <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-                  <button type="button" onClick={() => setDeleteStage('quote')}
-                    style={{ background: 'transparent', border: '1px solid var(--warm)', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer' }}>
+                  <button type="button" className="hl-btn" onClick={() => setDeleteStage('quote')}>
                     continue →
                   </button>
                   <button type="button" className="hl-monoaction hl-monoaction--quiet" onClick={() => setDeleteStage('idle')}>
@@ -893,7 +938,10 @@ export function Settings() {
               <div style={{ maxWidth: 480 }}>
                 <div className="hl-eyebrow" style={{ color: 'var(--copper-label)', marginBottom: 14 }}>export fee</div>
                 {exitQuoteQ.isLoading ? (
-                  <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.5, margin: '24px 0' }} />
+                  <div style={{ margin: '24px 0' }}>
+                    <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.5, marginBottom: 8 }} />
+                    <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>preparing export…</span>
+                  </div>
                 ) : (
                   <>
                     <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 10px' }}>
@@ -911,8 +959,7 @@ export function Settings() {
                   </>
                 )}
                 <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
-                  <button type="button" onClick={() => setDeleteStage('password')}
-                    style={{ background: 'transparent', border: '1px solid var(--warm)', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer' }}>
+                  <button type="button" className="hl-btn" onClick={() => setDeleteStage('password')}>
                     archive my account →
                   </button>
                   <button type="button" className="hl-monoaction hl-monoaction--quiet" onClick={() => setDeleteStage('idle')}>
@@ -939,11 +986,10 @@ export function Settings() {
                   style={{ ...FIELD_INPUT_STYLE, fontSize: 15, padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8 }}
                 />
                 {deleteError && (
-                  <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 14px' }}>{deleteError}</p>
+                  <p className="hl-mono" style={{ ...ERROR_STYLE, margin: '0 0 14px' }}>{deleteError}</p>
                 )}
                 <div style={{ display: 'flex', gap: 14, marginTop: 20, flexWrap: 'wrap' }}>
-                  <button type="button" onClick={() => archiveMutation.mutate()} disabled={!deletePassword || archiveMutation.isPending}
-                    style={{ background: 'transparent', border: '1px solid var(--warm)', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer', opacity: (!deletePassword || archiveMutation.isPending) ? 0.5 : 1 }}>
+                  <button type="button" className="hl-btn" onClick={() => archiveMutation.mutate()} disabled={!deletePassword || archiveMutation.isPending}>
                     {archiveMutation.isPending ? 'archiving…' : 'archive account'}
                   </button>
                   <button type="button" className="hl-monoaction hl-monoaction--quiet" onClick={() => { setDeleteStage('idle'); setDeletePassword(''); setDeleteError(null); }}>
@@ -961,9 +1007,10 @@ export function Settings() {
                 </p>
                 <button
                   type="button"
+                  className="hl-btn"
                   onClick={handleExport}
                   disabled={exportLoading}
-                  style={{ background: 'transparent', border: '1px solid var(--warm)', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', padding: '10px 18px', cursor: 'pointer', marginBottom: 14, opacity: exportLoading ? 0.5 : 1 }}
+                  style={{ marginBottom: 14 }}
                 >
                   {exportLoading ? 'preparing…' : 'download archive now →'}
                 </button>

@@ -82,7 +82,10 @@ export function Letters() {
         }}
       >
         {/* The wax seal — the letters mark, resting behind the ledger. */}
-        <img
+        <picture style={{ display: 'contents' }}>
+          <source type="image/avif" srcSet="/woven/seal.avif" />
+          <source type="image/webp" srcSet="/woven/seal.webp" />
+          <img
           src="/woven/seal.png"
           alt=""
           aria-hidden
@@ -98,6 +101,7 @@ export function Letters() {
             zIndex: 0,
           }}
         />
+        </picture>
 
         <div style={{ position: 'relative', zIndex: 1 }}>
 

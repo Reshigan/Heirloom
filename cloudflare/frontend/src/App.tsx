@@ -15,6 +15,7 @@ import { ClothBackdrop } from './loom/components/ClothBackdrop';
 import { WarpThreads } from './loom/components/WarpThreads';
 import { OfflineGate } from './pages/Offline';
 import { useLoomTheme } from './loom/theme';
+import { useDisplayPreferences } from './loom/useDisplayPreferences';
 
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
@@ -238,8 +239,9 @@ function PushNotificationHandler() {
  */
 function LoomShellRoot({ children }: { children: React.ReactNode }) {
   const { theme } = useLoomTheme();
+  const { textScale, highContrast } = useDisplayPreferences();
   return (
-    <div className="loom" data-theme={theme} style={{ minHeight: '100vh', position: 'relative', background: 'var(--ink)' }}>
+    <div className="loom" data-theme={theme} data-text-scale={String(textScale)} data-contrast={highContrast ? 'true' : undefined} style={{ minHeight: '100vh', position: 'relative', background: 'var(--ink)' }}>
       {/* Global cloth substrate — the woven canvas behind every screen,
           mounted once. On home surfaces the cloth is the screen and answers
           touch (whispers route via window-level listeners, so pointer-events

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { useQuery } from '@tanstack/react-query';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { TapestryEdge } from '../loom/components/Frame';
@@ -113,9 +114,32 @@ export function StoryView() {
   // same story always wears the same thread.
   const thread = dyeColor(token ?? artifact.title);
 
+  // ── Share / SEO metadata ──────────────────────────────────────────────────
+  const metaTitle = `${artifact.title} · Heirloom`;
+  const metaDescription = (artifact.description || `A story by ${artifact.creatorName}, woven into the family thread.`)
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 200);
+  const metaImage =
+    memories.find((m) => m.thumbnailUrl || m.fileUrl)?.thumbnailUrl ||
+    memories.find((m) => m.fileUrl)?.fileUrl ||
+    'https://heirloom.blue/woven/seal.png';
+  const canonical = window.location.href;
+
   // ── Main render ──────────────────────────────────────────────────────────
   return (
     <ClothShell topbarCenter="story">
+      <Helmet>
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <meta property="og:title" content={artifact.title} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={canonical} />
+        <meta property="og:image" content={metaImage} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <link rel="canonical" href={canonical} />
+      </Helmet>
       <div
         style={{
           position: 'absolute',

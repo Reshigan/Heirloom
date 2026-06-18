@@ -648,6 +648,7 @@ export function TimeCapsule() {
                       <div style={{ padding: '0 0 22px 27px' }}>
                         <input
                           type="date"
+                          aria-label="Unlock date"
                           value={newCapsule.unlock_date}
                           onChange={(e) =>
                             setNewCapsule((prev) => ({ ...prev, unlock_date: e.target.value }))
@@ -769,7 +770,11 @@ export function TimeCapsule() {
                 gap: 22,
               }}
             >
-              <img src="/woven/seal.png" width={50} alt="" aria-hidden style={{ flexShrink: 0 }} />
+              <picture style={{ display: 'contents' }}>
+                <source type="image/avif" srcSet="/woven/seal.avif" />
+                <source type="image/webp" srcSet="/woven/seal.webp" />
+                <img src="/woven/seal.png" width={50} alt="" aria-hidden style={{ flexShrink: 0 }} />
+              </picture>
               <button
                 type="button"
                 onClick={handleSeal}

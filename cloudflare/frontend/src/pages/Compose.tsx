@@ -55,6 +55,11 @@ function ToField({
   onChange: (id: string | null, name: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  // Active descendant for keyboard navigation of the suggestion listbox.
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const optionRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const listboxId = 'compose-recipient-listbox';
 
   const filtered = useMemo(() => {
     const q = recipientName.toLowerCase().trim();
@@ -68,10 +73,75 @@ function ToField({
       .slice(0, 6);
   }, [recipientName, recipientId, members]);
 
+  // Whether the listbox is currently shown — keep keyboard + render logic in sync.
+  const listOpen = open && filtered.length > 0;
+
+  // Reset the highlight whenever the option set changes or the list closes.
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [recipientName, recipientId, open]);
+
+  const commit = (m: FamilyMember) => {
+    onChange(m.id, m.name);
+    setOpen(false);
+    setActiveIndex(-1);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown') {
+      if (!listOpen) return;
+      e.preventDefault();
+      const next = activeIndex < filtered.length - 1 ? activeIndex + 1 : 0;
+      setActiveIndex(next);
+      optionRefs.current[next]?.focus();
+    } else if (e.key === 'ArrowUp') {
+      if (!listOpen) return;
+      e.preventDefault();
+      const prev = activeIndex > 0 ? activeIndex - 1 : filtered.length - 1;
+      setActiveIndex(prev);
+      optionRefs.current[prev]?.focus();
+    } else if (e.key === 'Enter') {
+      if (listOpen && activeIndex >= 0 && filtered[activeIndex]) {
+        e.preventDefault();
+        commit(filtered[activeIndex]);
+      }
+    } else if (e.key === 'Escape') {
+      if (!listOpen) return;
+      e.preventDefault();
+      setOpen(false);
+      setActiveIndex(-1);
+      inputRef.current?.focus();
+    }
+  };
+
+  // Keyboard handling while focus is inside the option list — mirror the input's
+  // navigation, then restore focus to the input on Escape.
+  const handleOptionKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, i: number) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = i < filtered.length - 1 ? i + 1 : 0;
+      setActiveIndex(next);
+      optionRefs.current[next]?.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prev = i > 0 ? i - 1 : filtered.length - 1;
+      setActiveIndex(prev);
+      optionRefs.current[prev]?.focus();
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (filtered[i]) commit(filtered[i]);
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setOpen(false);
+      setActiveIndex(-1);
+      inputRef.current?.focus();
+    }
+  };
+
   const selectedMember = recipientId ? members.find((m) => m.id === recipientId) : null;
 
   return (
-    <div style={{ marginBottom: 28 }}>
+    <div style={{ marginBottom: 32 }}>
       <div style={{ position: 'relative' }}>
         <div
           style={{
@@ -96,6 +166,7 @@ function ToField({
             to
           </span>
           <input
+            ref={inputRef}
             value={recipientName}
             onChange={(e) => {
               onChange(null, e.target.value);
@@ -103,8 +174,14 @@ function ToField({
             }}
             onFocus={(e) => { setOpen(true); e.currentTarget.parentElement && (e.currentTarget.parentElement.style.borderBottomColor = 'var(--warm)'); }}
             onBlur={(e) => { e.currentTarget.parentElement && (e.currentTarget.parentElement.style.borderBottomColor = ''); setTimeout(() => setOpen(false), 200); }}
+            onKeyDown={handleKeyDown}
             placeholder="e.g. Grandpa"
             aria-label="Recipient name"
+            role="combobox"
+            aria-expanded={listOpen}
+            aria-controls={listboxId}
+            aria-autocomplete="list"
+            aria-activedescendant={listOpen && activeIndex >= 0 ? `${listboxId}-opt-${activeIndex}` : undefined}
             style={{
               border: 0,
               background: 'transparent',
@@ -157,8 +234,11 @@ function ToField({
           )}
         </div>
 
-        {open && filtered.length > 0 && (
+        {listOpen && (
           <div
+            id={listboxId}
+            role="listbox"
+            aria-label="Family member suggestions"
             style={{
               position: 'absolute',
               top: 'calc(100% + 2px)',
@@ -171,11 +251,17 @@ function ToField({
               overflowY: 'auto',
             }}
           >
-            {filtered.map((m) => (
+            {filtered.map((m, i) => (
               <button
                 key={m.id}
+                ref={(el) => { optionRefs.current[i] = el; }}
+                id={`${listboxId}-opt-${i}`}
+                role="option"
+                aria-selected={i === activeIndex}
+                tabIndex={-1}
                 type="button"
-                onMouseDown={() => { onChange(m.id, m.name); setOpen(false); }}
+                onMouseDown={(e) => { e.preventDefault(); commit(m); }}
+                onKeyDown={(e) => handleOptionKeyDown(e, i)}
                 style={{
                   display: 'flex',
                   width: '100%',
@@ -611,6 +697,7 @@ function EmotionField({
             <button
               key={e}
               type="button"
+              aria-pressed={active}
               onClick={() => { setAiNamed(false); onChange(active ? '' : e); }}
               style={{
                 background: 'transparent',
@@ -948,7 +1035,7 @@ export function Compose() {
 
   // Compute submit label
   const submitLabel = useMemo(() => {
-    if (!isLetter) return 'weave into cloth →';
+    if (!isLetter) return 'weave it in →';
     if (deliveryTrigger === 'now') return 'send letter →';
     if (deliveryTrigger === 'date' && scheduledDate) {
       const d = new Date(`${scheduledDate}T00:00:00`);
@@ -1161,7 +1248,7 @@ export function Compose() {
           left: 0,
           right: 0,
           height: 'clamp(160px, 28vh, 280px)',
-          backgroundImage: 'url(/woven/thread-band.png)',
+          backgroundImage: 'image-set(url("/woven/thread-band.avif") type("image/avif"), url("/woven/thread-band.webp") type("image/webp"), url("/woven/thread-band.png") type("image/png"))',
           backgroundSize: 'cover',
           backgroundPosition: 'top center',
           backgroundRepeat: 'no-repeat',
@@ -1247,7 +1334,7 @@ export function Compose() {
               alignItems: 'baseline',
               justifyContent: 'space-between',
               gap: 'clamp(16px, 4vw, 40px)',
-              margin: '0 0 36px',
+              margin: '0 0 40px',
               flexWrap: 'wrap',
               opacity: writingFocused ? 0.4 : 1,
               transition: `opacity 720ms ${ease}`,
@@ -1332,7 +1419,7 @@ export function Compose() {
           <div
             style={{
               borderTop: '1px solid var(--rule)',
-              marginBottom: 36,
+              marginBottom: 40,
               opacity: writingFocused ? 0.3 : 0.7,
               transition: `opacity 720ms ${ease}`,
             }}
@@ -1388,7 +1475,7 @@ export function Compose() {
                 fontSize: 'clamp(17px, 2.2vw, 18px)',
                 fontWeight: 400,
                 lineHeight: 1.75,
-                color: '#d8c7aa',
+                color: 'var(--bone-dim)',
                 minHeight: 300,
                 outline: 'none',
                 resize: 'none',
@@ -1398,7 +1485,7 @@ export function Compose() {
             />
 
             {bodyError && (
-              <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.1em', marginTop: 6 }}>
+              <p className="hl-mono" aria-live="polite" aria-atomic="true" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.1em', marginTop: 6 }}>
                 {bodyError}
               </p>
             )}
@@ -1414,7 +1501,7 @@ export function Compose() {
 
           {/* ── Photos (memory mode only) ─────────────────────────────── */}
           {!isLetter && (
-            <div style={{ marginTop: 28 }}>
+            <div style={{ marginTop: 32 }}>
               <input
                 ref={fileInputRef}
                 type="file"
@@ -1551,7 +1638,7 @@ export function Compose() {
           {!isLetter && (
             <div
               style={{
-                marginTop: 44,
+                marginTop: 48,
                 paddingTop: 24,
                 borderTop: '1px solid var(--rule)',
                 opacity: writingFocused ? 0.45 : 1,
@@ -1570,7 +1657,7 @@ export function Compose() {
           )}
 
           {/* Listener */}
-          <div style={{ marginTop: 28 }}>
+          <div style={{ marginTop: 32 }}>
             <ListenerLine
               text={suggestion}
               loading={listenerLoading}
@@ -1581,6 +1668,8 @@ export function Compose() {
           {error && (
             <p
               role="alert"
+              aria-live="polite"
+              aria-atomic="true"
               style={{
                 marginTop: 20,
                 fontFamily: 'var(--mono)',
@@ -1618,10 +1707,10 @@ export function Compose() {
             </ComposerRail>
           )}
 
-          {/* Footer — quiet word-count left, outlined WEAVE IT IN pill right (cosmic-composer mockup) */}
+          {/* Footer — quiet word-count left, outlined WEAVE IT IN cta right (cosmic-composer mockup) */}
           <div
             style={{
-              marginTop: 36,
+              marginTop: 40,
               paddingTop: 24,
               borderTop: '1px solid var(--rule)',
               display: 'flex',
@@ -1691,7 +1780,7 @@ export function Compose() {
               style={{
                 background: 'transparent',
                 border: '1px solid var(--copper-border)',
-                borderRadius: 999,
+                borderRadius: 0,
                 padding: '12px 32px',
                 minHeight: 44,
                 fontFamily: 'var(--mono)',

@@ -87,6 +87,9 @@ export function Pricing() {
 
   return (
     <ClothShell topbarLeft={<HLogo href="/" />} topbarCenter="pricing">
+      <style>{`
+        .pricing-cta:focus-visible { outline: 2px solid var(--warm); outline-offset: 2px; }
+      `}</style>
       <div
         style={{
           position: 'relative',
@@ -97,21 +100,25 @@ export function Pricing() {
         }}
       >
         {/* WOVEN — decorative thread-band, bottom-left, behind cards */}
-        <img
-          src="/woven/thread-band.png"
-          alt=""
-          aria-hidden="true"
-          style={{
-            position: 'absolute',
-            left: -40,
-            bottom: 24,
-            width: 'clamp(220px,42vw,340px)',
-            transform: 'rotate(-12deg)',
-            opacity: 0.5,
-            pointerEvents: 'none',
-            zIndex: 0,
-          }}
-        />
+        <picture style={{ display: 'contents' }}>
+          <source type="image/avif" srcSet="/woven/thread-band.avif" />
+          <source type="image/webp" srcSet="/woven/thread-band.webp" />
+          <img
+            src="/woven/thread-band.png"
+            alt=""
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              left: -40,
+              bottom: 24,
+              width: 'clamp(220px,42vw,340px)',
+              transform: 'rotate(-12deg)',
+              opacity: 0.5,
+              pointerEvents: 'none',
+              zIndex: 0,
+            }}
+          />
+        </picture>
         {/* Eyebrow + centred serif headline */}
         <div
           className="hl-mono"
@@ -154,7 +161,7 @@ export function Pricing() {
                 border: tier.emphasized
                   ? '1px solid var(--copper-border)'
                   : '1px solid var(--hairline-3)',
-                borderRadius: 14,
+                borderRadius: 0,
                 boxShadow: tier.emphasized ? '0 0 24px -6px rgba(216,150,84,0.4)' : undefined,
               }}
             >
@@ -247,12 +254,13 @@ export function Pricing() {
               <div style={{ marginTop: 'clamp(20px,4vh,28px)' }}>
                 <Link
                   to={tier.to}
+                  className="pricing-cta"
                   style={{
                     display: 'inline-block',
                     padding: '11px 28px',
                     background: 'transparent',
                     border: `1px solid var(--warm${tier.emphasized ? '' : '-dim'})`,
-                    borderRadius: 999,
+                    borderRadius: 0,
                     color: 'var(--warm)',
                     fontFamily: 'var(--mono)',
                     fontSize: 11,
