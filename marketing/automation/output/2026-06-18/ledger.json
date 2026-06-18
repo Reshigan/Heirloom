@@ -8,5 +8,10 @@
     "hour": 16,
     "hook": "Your parent has a story from a strange night",
     "saying": "What was the one night that still spooks your dad?"
+  },
+  {
+    "hour": 19,
+    "hook": "You're sorting old photos with your parent",
+    "saying": "What was your dad doing at your age"
   }
 ]
