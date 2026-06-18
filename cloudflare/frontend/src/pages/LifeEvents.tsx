@@ -651,6 +651,7 @@ export function LifeEvents() {
                       value={recipientName}
                       onChange={(e) => setRecipientName(e.target.value)}
                       placeholder="Recipient name"
+                      aria-label="Recipient name"
                       style={fieldStyle}
                     />
                     <input
@@ -658,6 +659,7 @@ export function LifeEvents() {
                       value={recipientEmail}
                       onChange={(e) => setRecipientEmail(e.target.value)}
                       placeholder="Recipient email"
+                      aria-label="Recipient email"
                       style={fieldStyle}
                     />
                   </div>

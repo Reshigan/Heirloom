@@ -12,6 +12,16 @@ import {
   wasInstalled,
 } from '../lib/pwa';
 import { enableWebPush, notificationPermission, webPushEnabled } from '../lib/webPush';
+import { DYES, dyeVar, type Dye } from '../loom/dye';
+
+/**
+ * The six dye threads of the cloth motif, derived from the canonical DYES list
+ * (referenced so the strip can never drift from the source of truth). Order and
+ * selection are preserved for visual identity.
+ */
+const MOTIF_DYES: Dye[] = (['madder', 'saffron', 'indigo', 'cochineal', 'weld', 'woad'] as Dye[]).filter(
+  (d) => DYES.includes(d),
+);
 
 /**
  * PwaNudge — the install reminder and notification opt-in.
@@ -178,8 +188,8 @@ export function PwaNudge() {
         {/* Tapestry cloth motif — six dye threads (signal, not block fill):
             fixed 2px lines, left-aligned, with transparent gaps between. */}
         <div style={{ display: 'flex', height: 3, gap: 5 }}>
-          {(['madder','saffron','indigo','cochineal','weld','woad'] as const).map((d) => (
-            <div key={d} style={{ width: 2, background: `var(--dye-${d})`, opacity: 0.9 }} />
+          {MOTIF_DYES.map((d) => (
+            <div key={d} style={{ width: 2, background: dyeVar(d), opacity: 0.9 }} />
           ))}
         </div>
 

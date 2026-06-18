@@ -227,7 +227,7 @@ export function Marketing() {
         <div style={{ marginTop: 'clamp(24px, 4vh, 44px)', borderTop: '1px solid var(--rule)' }}>
           {([
             ['Write now. Let it arrive then.',
-             'Seal a letter for a date, a milestone, or a death. Time-locked by design — cryptographic commitment, permanent delivery. It holds safe and finds them exactly when you intended.'],
+             'Seal a letter for a date, a milestone, or a death. Time-locked by design — sealed until its day, permanent delivery. It holds safe and finds them exactly when you intended.'],
             ['A thousand-year horizon.',
              'Not a season. Not a subscription cycle. An archive that outlives its founders and holds the record of a bloodline — perpetually, structurally, by design.'],
             ['Entries only append.',

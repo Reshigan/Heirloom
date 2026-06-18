@@ -655,6 +655,7 @@ export function Inherit() {
             <div style={{ position: 'relative' }}>
               <input
                 type="text"
+                aria-label="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder={ownerName ? `Ask about ${ownerName}'s memories…` : 'Search the thread…'}
@@ -750,6 +751,7 @@ export function Inherit() {
                 >
                   <header style={{ marginBottom: 20 }}>
                     <h2
+                      className="hl-serif"
                       style={{
                         fontFamily: 'var(--serif)',
                         fontSize: 'clamp(26px,5vw,34px)',
@@ -1153,6 +1155,7 @@ export function Inherit() {
               <div style={{ textAlign: 'center', padding: '24px 0' }}>
                 <WaxSeal size={36} />
                 <h3
+                  className="hl-serif"
                   style={{
                     fontFamily: 'var(--serif)',
                     fontStyle: 'italic',
@@ -1180,6 +1183,7 @@ export function Inherit() {
                   }}
                 >
                   <h3
+                    className="hl-serif"
                     style={{
                       fontFamily: 'var(--serif)',
                       fontSize: 'clamp(20px,4vw,26px)',
@@ -1270,6 +1274,7 @@ export function Inherit() {
                 {(selectedReaction === 'CUSTOM' || selectedReaction === 'REMEMBER_THIS') ? (
                   <div style={{ marginBottom: 24 }}>
                     <textarea
+                      aria-label="Your note"
                       value={reactionMessage}
                       onChange={(e) => setReactionMessage(e.target.value)}
                       placeholder={

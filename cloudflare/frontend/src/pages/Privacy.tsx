@@ -40,7 +40,7 @@ const SECTIONS = [
   {
     n: 'six',
     h: 'You can ask us to forget you.',
-    b: 'A request to delete the account erases personal identifiers within 30 days. Content remains in the thread under whatever recipient grants you set. The 30-day grace exists because grief sometimes asks for things grief later regrets.',
+    b: 'A request to delete the account erases personal identifiers within 90 days. Content remains in the thread under whatever recipient grants you set. The 90-day grace exists because grief sometimes asks for things grief later regrets.',
   },
 ];
 

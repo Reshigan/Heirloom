@@ -101,6 +101,7 @@ export function AdminLogin() {
           type="email"
           required
           autoComplete="email"
+          aria-label="Email"
           placeholder="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -117,6 +118,7 @@ export function AdminLogin() {
           type="password"
           required
           autoComplete="current-password"
+          aria-label="Password"
           placeholder="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

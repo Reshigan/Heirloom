@@ -2086,11 +2086,14 @@ function ModalShell({ onClose, title, children, wide }: { onClose: () => void; t
 }
 
 function LoomField({ label, children }: { label: string; children: React.ReactNode }) {
+  // Wrapping <label> implicitly associates the visible eyebrow text with the
+  // contained form control (direct or nested), giving every LoomField input/
+  // select/textarea an accessible name without per-call id wiring.
   return (
-    <div>
+    <label style={{ display: 'block' }}>
       <div className="loom-eyebrow" style={{ marginBottom: 6 }}>{label}</div>
       {children}
-    </div>
+    </label>
   );
 }
 

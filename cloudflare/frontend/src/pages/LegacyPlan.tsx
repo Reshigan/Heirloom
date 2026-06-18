@@ -430,6 +430,7 @@ export function LegacyPlan() {
                         value={newItemTitle}
                         onChange={(e) => setNewItemTitle(e.target.value)}
                         placeholder="What do you want to accomplish?"
+                        aria-label="Goal"
                         autoFocus
                         style={inputStyle}
                         onFocus={e => (e.currentTarget.style.borderBottomColor = 'var(--warm)')}
@@ -440,6 +441,7 @@ export function LegacyPlan() {
                         value={newItemDescription}
                         onChange={(e) => setNewItemDescription(e.target.value)}
                         placeholder="Description (optional)"
+                        aria-label="Description"
                         style={{ ...inputStyle, color: 'var(--bone-dim)', fontSize: 16 }}
                         onFocus={e => (e.currentTarget.style.borderBottomColor = 'var(--warm)')}
                         onBlur={e => (e.currentTarget.style.borderBottomColor = 'var(--rule)')}

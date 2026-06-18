@@ -24,7 +24,7 @@ interface GoldLegacyVoucherInfo {
 
 const BENEFITS = [
   'lifetime access to every feature',
-  'unlimited thread storage',
+  '500 GB thread storage',
   'priority support',
   'gold legacy member designation',
   'early access to new features',
@@ -294,6 +294,7 @@ export function GoldLegacyRedeem() {
               {/* Code input */}
               <input
                 id="gold-code"
+                aria-label="Gold Legacy code"
                 type="text"
                 value={code}
                 onChange={(e) => {
@@ -396,7 +397,7 @@ export function GoldLegacyRedeem() {
                   <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--rule)' }}>
                     <SectionLabel>lifetime benefits</SectionLabel>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 4 }}>
-                      {['Lifetime Access', 'Unlimited Storage', 'Priority Support', 'Gold Designation'].map(
+                      {['Lifetime Access', '500 GB Storage', 'Priority Support', 'Gold Designation'].map(
                         (b, i) => (
                           <div
                             key={i}

@@ -277,6 +277,7 @@ export function MarketingTab() {
               value={selectedSegment}
               onChange={(e) => setSelectedSegment(e.target.value)}
               style={{ ...inputStyle, width: 180 }}
+              aria-label="Filter threads by segment"
             >
               <option value="">All Segments</option>
               {SEGMENTS.map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
@@ -285,6 +286,7 @@ export function MarketingTab() {
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
               style={{ ...inputStyle, width: 180 }}
+              aria-label="Filter threads by status"
             >
               <option value="">All Statuses</option>
               {INFLUENCER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}

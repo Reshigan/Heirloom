@@ -124,6 +124,7 @@ export function SearchPage() {
         {/* ── LEDGER header: two-tone giant serif title ── */}
         <header style={{ marginBottom: 40 }}>
           <h1
+            className="hl-serif"
             style={{
               fontFamily: 'var(--serif)',
               fontSize: 'clamp(34px, 7vw, 58px)',

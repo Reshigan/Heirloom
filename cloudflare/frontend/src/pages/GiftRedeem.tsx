@@ -241,6 +241,7 @@ export function GiftRedeem() {
               {/* Code input — underline-only, centered, warm caret */}
               <input
                 type="text"
+                aria-label="Gift code"
                 value={code}
                 onChange={(e) => {
                   setCode(e.target.value.toUpperCase());

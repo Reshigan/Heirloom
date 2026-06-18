@@ -325,6 +325,13 @@
   --copper-label:  #824a16;
   --copper-border: #965616;
   --gold-text:     #7a4410;
+  /* Theme-flip the legacy --gold copper family (defined only in :root with the
+     DARK copper #e0a062) so AdminDashboard borders invert on parchment instead
+     of carrying dark-copper alpha into light. #965616 = the light copper border
+     value (matches --copper-border). Dark :root values untouched. */
+  --gold:    #965616;
+  --gold-20: rgba(150, 86, 22, 0.2);
+  --gold-40: rgba(150, 86, 22, 0.4);
   --ember:         #965616;
   --bg-letter:     #ece0cb;
   --bg-template:   #e6d8c2;

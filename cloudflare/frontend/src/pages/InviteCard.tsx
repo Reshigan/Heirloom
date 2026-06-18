@@ -283,6 +283,7 @@ export function InviteCard() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="their email"
+                  aria-label="Invitee email"
                   autoComplete="email"
                   style={{
                     fontFamily: 'var(--serif)',

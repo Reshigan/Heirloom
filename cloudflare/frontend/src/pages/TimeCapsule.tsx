@@ -579,6 +579,7 @@ export function TimeCapsule() {
               <SectionLabel>Capsule name</SectionLabel>
               <input
                 type="text"
+                aria-label="Capsule name"
                 value={newCapsule.title}
                 onChange={(e) =>
                   setNewCapsule((prev) => ({ ...prev, title: e.target.value }))
@@ -670,6 +671,7 @@ export function TimeCapsule() {
                       <div style={{ padding: '0 0 22px 27px' }}>
                         <input
                           type="number"
+                          aria-label="Their age today"
                           min={0}
                           max={17}
                           value={turnAge}
@@ -702,6 +704,7 @@ export function TimeCapsule() {
             <div style={{ marginTop: 14 }}>
               <SectionLabel>Description (optional)</SectionLabel>
               <textarea
+                aria-label="Description"
                 value={newCapsule.description}
                 onChange={(e) =>
                   setNewCapsule((prev) => ({ ...prev, description: e.target.value }))

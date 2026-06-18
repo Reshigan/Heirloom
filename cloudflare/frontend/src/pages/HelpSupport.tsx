@@ -305,6 +305,7 @@ export function HelpSupport() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
+            aria-label="Your question"
             placeholder="Type your question…"
             rows={1}
             style={{

@@ -126,11 +126,6 @@ export function MemoryCards() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleSocialShare = (platform: string, url: string) => {
-    shareMutation.mutate(platform);
-    window.open(url, '_blank', 'width=600,height=400');
-  };
-
   const styles = stylesData?.styles || [];
   const memories: any[] = Array.isArray((memoriesData as any)?.data)
     ? (memoriesData as any).data
@@ -347,6 +342,7 @@ export function MemoryCards() {
                     <textarea
                       value={customText}
                       onChange={(e) => setCustomText(e.target.value)}
+                      aria-label="Custom quote"
                       placeholder="Leave empty to auto-extract from memory…"
                       maxLength={200}
                       style={{
@@ -492,29 +488,6 @@ export function MemoryCards() {
                     >
                       {copied ? 'Link copied' : 'Copy share link'}
                     </button>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                      {(['twitter', 'facebook', 'whatsapp', 'linkedin'] as const).map((p) => (
-                        <button
-                          key={p}
-                          type="button"
-                          onClick={() => handleSocialShare(p, generatedCard.socialShareUrls[p])}
-                          style={{
-                            background: 'transparent',
-                            border: '1px solid var(--rule)',
-                            padding: '10px 18px',
-                            cursor: 'pointer',
-                            fontFamily: 'var(--mono)',
-                            fontSize: 11,
-                            letterSpacing: '0.18em',
-                            textTransform: 'uppercase',
-                            color: 'var(--bone-dim)',
-                            transition: 'border-color 180ms var(--ease)',
-                          }}
-                        >
-                          {p}
-                        </button>
-                      ))}
-                    </div>
                   </div>
                 </div>
               ) : (

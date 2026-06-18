@@ -758,7 +758,7 @@ export function StoryArtifact() {
                     gap: 4,
                     maxHeight: 240,
                     overflowY: 'auto',
-                    background: 'rgba(14,14,12,0.4)',
+                    background: 'var(--ink-card)',
                     padding: 4,
                   }}
                 >

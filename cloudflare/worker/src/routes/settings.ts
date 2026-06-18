@@ -872,11 +872,12 @@ settingsRoutes.get('/exit-quote', async (c) => {
   const totalBytes = (memBytes?.total ?? 0) + (voiceBytes?.total ?? 0);
   const totalMB = totalBytes / (1024 * 1024);
 
-  let feeCents = 0;
+  // Data export / account-exit is FREE at every size.
+  const feeCents = 0;
   let tier = 'free';
-  if (totalMB >= 2048) { feeCents = 2500; tier = '>2 GB'; }
-  else if (totalMB >= 500) { feeCents = 1000; tier = '500 MB – 2 GB'; }
-  else if (totalMB >= 100) { feeCents = 500; tier = '100 – 500 MB'; }
+  if (totalMB >= 2048) { tier = '>2 GB'; }
+  else if (totalMB >= 500) { tier = '500 MB – 2 GB'; }
+  else if (totalMB >= 100) { tier = '100 – 500 MB'; }
 
   return c.json({ totalBytes, totalMB: Math.round(totalMB * 10) / 10, feeCents, tier });
 });

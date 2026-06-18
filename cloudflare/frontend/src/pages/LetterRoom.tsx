@@ -153,7 +153,7 @@ export function LetterRoom() {
             }}>
               a letter to
             </div>
-            <h1 style={{
+            <h1 className="hl-serif" style={{
               fontFamily: 'var(--serif)', fontWeight: 380,
               fontSize: 'clamp(30px,7vw,52px)', lineHeight: 1.06,
               letterSpacing: '-0.012em', color: 'var(--bone)',
@@ -193,7 +193,7 @@ export function LetterRoom() {
               }}>
                 a letter to
               </div>
-              <h1 style={{
+              <h1 className="hl-serif" style={{
                 fontFamily: 'var(--serif)', fontWeight: 380,
                 fontSize: 'clamp(30px,7vw,52px)', lineHeight: 1.06,
                 letterSpacing: '-0.012em', color: 'var(--bone)',
@@ -351,7 +351,7 @@ export function LetterRoom() {
                     {/* Header row — serif headline + mono affordances */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
                       <div style={{ minWidth: 0, flex: 1 }}>
-                        <h2 style={{
+                        <h2 className="hl-serif" style={{
                           fontFamily: 'var(--serif)', fontSize: 'clamp(22px,4vw,30px)',
                           fontWeight: 400, color: 'var(--bone)', lineHeight: 1.12,
                           letterSpacing: '-0.01em', margin: 0,

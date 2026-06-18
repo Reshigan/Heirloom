@@ -19,8 +19,8 @@ import { copyToClipboard } from '../utils/clipboard';
  *   phase 2  the letter — the prose, readable
  *   phase 3  the artifact — a portrait card to pass to descendants
  *
- * Nothing burns, melts, sparks, or glows beyond the ∞'s own textShadow. The
- * fire/wax/key/vault family of literal-metaphor objects, glassmorphism,
+ * Nothing burns, melts, sparks, or glows: the ∞ rests as plain warm type, no
+ * halo. The fire/wax/key/vault family of literal-metaphor objects, glassmorphism,
  * gradient meshes, drop shadows, and floating cards are all forbidden.
  *
  * The letter is the signed-in author's own: we surface the next one in the
@@ -295,6 +295,7 @@ export function Unlock() {
                 <div style={{ display: 'grid', placeItems: 'center', position: 'relative', zIndex: 1 }}>
                   <div style={{ maxWidth: 460, width: '100%' }}>
                     <h1
+                      className="hl-serif"
                       style={{
                         margin: 0,
                         fontFamily: 'var(--serif)',
@@ -525,8 +526,8 @@ export function Unlock() {
 }
 
 /* ─── The wax seal — the ∞ mark resting warm, the product's ONE emotional
-   accent, lit only by --warm-glow via textShadow. No disc, no circle, no
-   border-radius identity chip — the sanctioned bare ∞ glyph alone. ──────── */
+   accent, as plain warm type. No glow, no disc, no circle, no border-radius
+   identity chip — the sanctioned bare ∞ glyph alone. ──────────────────────── */
 function WaxSeal({ size = 30 }: { size?: number }) {
   return (
     <span
@@ -539,7 +540,6 @@ function WaxSeal({ size = 30 }: { size?: number }) {
         fontWeight: 400,
         lineHeight: 1,
         color: 'var(--warm)',
-        textShadow: `0 0 ${size * 0.6}px var(--warm-glow), 0 0 ${size * 0.25}px var(--warm-glow)`,
       }}
     >
       ∞
@@ -569,7 +569,6 @@ function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean })
             fontWeight: 300,
             lineHeight: 1,
             color: 'var(--warm)',
-            textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
             marginBottom: 28,
           }}
         >

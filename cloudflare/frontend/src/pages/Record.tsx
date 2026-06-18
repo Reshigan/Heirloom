@@ -446,6 +446,7 @@ export function Record() {
 
         {/* ── giant serif prompt ───────────────────────────────────── */}
         <h1
+          className="hl-serif"
           style={{
             fontFamily: 'var(--serif)',
             fontSize: 'clamp(30px, 6vw, 48px)',
@@ -945,6 +946,7 @@ export function Record() {
           <textarea
             value={transcript}
             onChange={(e) => setTranscript(e.target.value)}
+            aria-label="Transcript"
             placeholder="Transcript will appear here — or write your own."
             rows={3}
             style={{
@@ -979,6 +981,7 @@ export function Record() {
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            aria-label="Entry title"
             placeholder={activePrompt}
             style={{
               marginTop: 32,

@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { type Dye } from '../dye';
 
 /**
  * Loom (the Weft) — the central novel primitive.
@@ -26,9 +27,7 @@ export type LoomKind = 'letter' | 'photo' | 'voice' | 'memory' | 'milestone';
  * its kind (or by an explicit `dye` override) so the cloth reads as
  * coloured cloth, not bone-on-ink hairlines. Tokens live in globals.css.
  */
-export type LoomDye =
-  | 'madder' | 'cochineal' | 'kermes' | 'saffron' | 'weld'
-  | 'walnut' | 'oakgall' | 'woad' | 'indigo' | 'iron';
+export type LoomDye = Dye;
 
 export interface LoomEntry {
   id?: string;           // entity id, so a tapped thread can open its room
@@ -41,7 +40,7 @@ export interface LoomEntry {
   date?: string;         // full ISO lived-date, for the highlight readout
   recipient?: string;    // who it's addressed to (letters/voice), for the readout
   width?: number;        // px override for the pick
-  dye?: LoomDye;         // explicit dye override; otherwise keyed off kind
+  dye?: Dye;             // explicit dye override; otherwise keyed off kind
 }
 
 export interface LoomLigature {
@@ -178,9 +177,18 @@ export function Loom({
           return (
             <div
               key={i}
+              role={onClick ? 'button' : undefined}
+              tabIndex={onClick ? 0 : undefined}
+              aria-label={`Sealed ${e.kind}${e.title ? `: ${e.title}` : ''}, ${e.year}`}
               onMouseEnter={() => onHover?.(i)}
               onMouseLeave={() => onHover?.(null)}
               onClick={() => onClick?.(i)}
+              onKeyDown={(ev) => {
+                if (ev.key === 'Enter' || ev.key === ' ') {
+                  if (ev.key === ' ') ev.preventDefault();
+                  onClick?.(i);
+                }
+              }}
               title={e.title}
               style={{
                 position: 'absolute',
@@ -225,9 +233,18 @@ export function Loom({
           <div
             key={i}
             className="loom-weft__pick"
+            role={onClick ? 'button' : undefined}
+            tabIndex={onClick ? 0 : undefined}
+            aria-label={`${e.kind}${e.title ? `: ${e.title}` : ''}, ${e.year}`}
             onMouseEnter={() => onHover?.(i)}
             onMouseLeave={() => onHover?.(null)}
             onClick={() => onClick?.(i)}
+            onKeyDown={(ev) => {
+              if (ev.key === 'Enter' || ev.key === ' ') {
+                if (ev.key === ' ') ev.preventDefault();
+                onClick?.(i);
+              }
+            }}
             style={{
               left: `${x}%`,
               top: `${y}px`,

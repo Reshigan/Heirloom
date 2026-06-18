@@ -623,6 +623,7 @@ export function QuickWizard() {
                         value={customPrompt}
                         onChange={(e) => setCustomPrompt(e.target.value)}
                         placeholder="write your own beginning…"
+                        aria-label="Your own beginning"
                         style={{
                           width: '100%',
                           background: 'transparent',

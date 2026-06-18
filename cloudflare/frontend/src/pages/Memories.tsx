@@ -367,6 +367,7 @@ function FilterBar({ memories, filters, setFilters }: {
       <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center' }}>
         <input
           type="text"
+          aria-label="Search memories"
           placeholder="search"
           value={filters.query}
           onChange={e => setFilters({ ...filters, query: e.target.value })}

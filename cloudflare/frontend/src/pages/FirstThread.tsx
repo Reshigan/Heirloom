@@ -192,14 +192,11 @@ export function FirstThread() {
             }}
           >
             <div style={{ position: 'relative', width: 150, height: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {/* Intentional sub-3% low-alpha (--warm-glow = 0.18) ceremony breath —
-                  a one-off radial behind the ∞ mark, not a decorative gradient mesh. */}
-              <div style={{ position: 'absolute', inset: -16, borderRadius: '50%', background: 'radial-gradient(circle,var(--warm-glow),transparent 66%)', animation: 'hl-pulse 1400ms infinite' }} />
               <div style={{ fontFamily: "var(--serif-display)", fontSize: 74, color: 'var(--warm-bright)' }}>∞</div>
             </div>
             <div role="heading" aria-level={1} style={{ fontFamily: 'var(--serif-display)', fontSize: 30, color: 'var(--bone)', marginTop: 30 }}>The Threshold</div>
             <div style={{ fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone-dim)', marginTop: 8 }}>Every thread begins with a touch.</div>
-            <div style={{ position: 'absolute', bottom: 46, fontSize: 10, letterSpacing: '0.32em', color: 'var(--bone-faint)', animation: 'hl-pulse 1400ms infinite' }}>PRESS TO BEGIN</div>
+            <div style={{ position: 'absolute', bottom: 46, fontSize: 10, letterSpacing: '0.32em', color: 'var(--bone-faint)', animation: 'hl-pulse 1400ms var(--ease) infinite' }}>PRESS TO BEGIN</div>
           </div>
         )}
 
@@ -305,9 +302,6 @@ export function FirstThread() {
               <>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                   <div style={{ position: 'relative', width: 120, height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {/* Intentional sub-3% low-alpha (--warm-glow = 0.18) ceremony breath —
-                        a one-off radial behind the sealed mark, not a decorative gradient mesh. */}
-                    <div style={{ position: 'absolute', inset: -14, borderRadius: '50%', background: 'radial-gradient(circle,var(--warm-glow),transparent 66%)', animation: 'hl-pulse 1400ms infinite' }} />
                     <img src={ASSET_SEAL} alt="" style={{ width: 108, height: 108, animation: `hl-stamp 720ms ${EASE} both` }} />
                   </div>
                   <div style={{ fontFamily: 'var(--serif-display)', fontSize: 32, color: 'var(--bone)', marginTop: 26, animation: `hl-fadeup 720ms ${EASE} 360ms both` }}>Sealed until {new Date().getFullYear() + SEAL_YEARS_AHEAD}.</div>

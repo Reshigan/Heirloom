@@ -91,6 +91,7 @@ export function RecipientPicker({
       )}
       <input
         value={name}
+        aria-label="Name"
         onChange={(e) => {
           onChange(e.target.value, null);
           setOpen(true);
@@ -190,6 +191,7 @@ export function RecipientPicker({
           </div>
           <input
             value={rel}
+            aria-label="Relationship"
             onChange={(e) => setRel(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && rel.trim()) {
@@ -217,6 +219,7 @@ export function RecipientPicker({
             <input
               value={email}
               type="email"
+              aria-label="Email"
               onChange={(e) => setEmail(e.target.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && rel.trim()) {

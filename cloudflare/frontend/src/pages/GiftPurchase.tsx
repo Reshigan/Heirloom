@@ -310,6 +310,7 @@ export function GiftPurchase() {
           {/* Recipient email */}
           <div style={{ marginBottom: 18 }}>
             <label
+              htmlFor="gift-recipient-email"
               className="hl-mono"
               style={{
                 display: 'block',
@@ -323,6 +324,7 @@ export function GiftPurchase() {
               recipient email
             </label>
             <input
+              id="gift-recipient-email"
               type="email"
               value={formData.recipientEmail}
               onChange={(e) =>
@@ -347,6 +349,7 @@ export function GiftPurchase() {
           {/* Recipient name */}
           <div style={{ marginBottom: 18 }}>
             <label
+              htmlFor="gift-recipient-name"
               className="hl-mono"
               style={{
                 display: 'block',
@@ -360,6 +363,7 @@ export function GiftPurchase() {
               recipient name
             </label>
             <input
+              id="gift-recipient-name"
               type="text"
               value={formData.recipientName}
               onChange={(e) =>
@@ -384,6 +388,7 @@ export function GiftPurchase() {
           {/* Personal note */}
           <div style={{ marginBottom: 18 }}>
             <label
+              htmlFor="gift-personal-note"
               className="hl-mono"
               style={{
                 display: 'block',
@@ -397,6 +402,7 @@ export function GiftPurchase() {
               personal note
             </label>
             <textarea
+              id="gift-personal-note"
               value={formData.recipientMessage}
               onChange={(e) =>
                 setFormData({ ...formData, recipientMessage: e.target.value })
@@ -431,6 +437,7 @@ export function GiftPurchase() {
 
           <div style={{ marginBottom: 18 }}>
             <label
+              htmlFor="gift-purchaser-email"
               className="hl-mono"
               style={{
                 display: 'block',
@@ -444,6 +451,7 @@ export function GiftPurchase() {
               your email <span style={{ color: 'var(--warm)' }}>*</span>
             </label>
             <input
+              id="gift-purchaser-email"
               type="email"
               value={formData.purchaserEmail}
               onChange={(e) =>
@@ -468,6 +476,7 @@ export function GiftPurchase() {
 
           <div style={{ marginBottom: 18 }}>
             <label
+              htmlFor="gift-purchaser-name"
               className="hl-mono"
               style={{
                 display: 'block',
@@ -481,6 +490,7 @@ export function GiftPurchase() {
               your name
             </label>
             <input
+              id="gift-purchaser-name"
               type="text"
               value={formData.purchaserName}
               onChange={(e) =>

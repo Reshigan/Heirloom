@@ -397,6 +397,7 @@ export function GiftSubscriptions() {
             <div style={{ display: 'grid', gap: 28, marginTop: 28 }}>
               <div>
                 <label
+                  htmlFor="gift-recipient-name"
                   className="hl-mono"
                   style={{
                     display:       'block',
@@ -410,6 +411,7 @@ export function GiftSubscriptions() {
                   recipient's name
                 </label>
                 <input
+                  id="gift-recipient-name"
                   type="text"
                   value={formData.recipientName}
                   onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
@@ -418,6 +420,7 @@ export function GiftSubscriptions() {
               </div>
               <div>
                 <label
+                  htmlFor="gift-recipient-email"
                   className="hl-mono"
                   style={{
                     display:       'block',
@@ -431,6 +434,7 @@ export function GiftSubscriptions() {
                   recipient's email
                 </label>
                 <input
+                  id="gift-recipient-email"
                   type="email"
                   value={formData.recipientEmail}
                   onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
@@ -439,6 +443,7 @@ export function GiftSubscriptions() {
               </div>
               <div>
                 <label
+                  htmlFor="gift-personal-message"
                   className="hl-mono"
                   style={{
                     display:       'block',
@@ -452,6 +457,7 @@ export function GiftSubscriptions() {
                   a note (optional)
                 </label>
                 <textarea
+                  id="gift-personal-message"
                   value={formData.personalMessage}
                   onChange={(e) => setFormData({ ...formData, personalMessage: e.target.value })}
                   placeholder="a few quiet words…"
@@ -502,6 +508,7 @@ export function GiftSubscriptions() {
             <div style={{ display: 'grid', gap: 28, marginTop: 28 }}>
               <div>
                 <label
+                  htmlFor="gift-purchaser-name"
                   className="hl-mono"
                   style={{
                     display:       'block',
@@ -515,6 +522,7 @@ export function GiftSubscriptions() {
                   your name
                 </label>
                 <input
+                  id="gift-purchaser-name"
                   type="text"
                   value={formData.purchaserName}
                   onChange={(e) => setFormData({ ...formData, purchaserName: e.target.value })}
@@ -523,6 +531,7 @@ export function GiftSubscriptions() {
               </div>
               <div>
                 <label
+                  htmlFor="gift-purchaser-email"
                   className="hl-mono"
                   style={{
                     display:       'block',
@@ -536,6 +545,7 @@ export function GiftSubscriptions() {
                   your email
                 </label>
                 <input
+                  id="gift-purchaser-email"
                   type="email"
                   value={formData.purchaserEmail}
                   onChange={(e) => setFormData({ ...formData, purchaserEmail: e.target.value })}

@@ -950,15 +950,9 @@ export function Settings() {
                     <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '0 0 10px' }}>
                       Your archive is <strong style={{ color: 'var(--bone)' }}>{exitQuoteQ.data?.totalMB ?? 0} MB</strong>.
                     </p>
-                    {(exitQuoteQ.data?.feeCents ?? 0) > 0 ? (
-                      <p className="hl-serif" style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
-                        A one-time export fee of <strong style={{ color: 'var(--warm)' }}>${((exitQuoteQ.data?.feeCents ?? 0) / 100).toFixed(2)}</strong> applies for archives over 100 MB. Contact <a href="mailto:support@heirloom.blue" style={{ color: 'var(--warm)' }}>support@heirloom.blue</a> to arrange payment, then return here to proceed.
-                      </p>
-                    ) : (
-                      <p className="hl-serif" style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
-                        Your archive is under 100 MB — no export fee applies.
-                      </p>
-                    )}
+                    <p className="hl-serif" style={{ fontSize: 14, lineHeight: 1.6, color: 'var(--bone-dim)', margin: '0 0 24px' }}>
+                      Your full archive exports free — no fee, at any size. It's yours to take.
+                    </p>
                   </>
                 )}
                 <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>

@@ -301,7 +301,6 @@ export function Constellation() {
                   strokeLinecap="round"
                   style={{
                     opacity: p.lit ? 0.85 : 0.5,
-                    filter: p.lit ? 'drop-shadow(0 0 6px var(--warm-glow))' : 'none',
                     transition: 'opacity 360ms var(--ease), stroke 360ms var(--ease)',
                   }}
                 />

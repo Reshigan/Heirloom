@@ -73,6 +73,7 @@ export function StoryView() {
         >
           <WaxSeal size={26} />
           <h1
+            className="hl-serif"
             style={{
               fontFamily: 'var(--serif)',
               fontSize: 'clamp(30px, 6vw, 44px)',
@@ -332,7 +333,6 @@ export function StoryView() {
                         fontSize: 13,
                         lineHeight: 1,
                         color: index === currentIndex ? 'var(--warm)' : 'var(--rule)',
-                        textShadow: index === currentIndex ? '0 0 12px var(--warm-glow)' : 'none',
                         transition: `color 180ms ${EASE}`,
                       }}
                     >

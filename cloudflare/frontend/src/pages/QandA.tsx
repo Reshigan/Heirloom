@@ -132,6 +132,7 @@ export function QandA() {
 
           {/* ── the asked question, as a giant serif prompt ── */}
           <h1
+            className="hl-serif"
             style={{
               fontFamily: 'var(--serif)',
               fontSize: 'clamp(30px, 6vw, 46px)',

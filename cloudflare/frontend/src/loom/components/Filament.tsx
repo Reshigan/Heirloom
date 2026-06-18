@@ -177,17 +177,7 @@ export function Filament({ variant = 'none', intensity = 1, className, style }: 
       aria-hidden
       style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', ...style }}
     >
-      {/* ambient fallback — a single faint warm bloom, no artwork */}
-      {variant === 'ambient' && !paper && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            background:
-              'radial-gradient(120% 80% at 50% -10%, rgba(224,160,98,0.10), rgba(224,160,98,0.03) 38%, transparent 64%)',
-          }}
-        />
-      )}
+      {/* ambient fallback — bare ink ground; copper bloom removed (Rule 2: copper is signal only, never a panel fill) */}
 
       {place && !paper && (
         <div

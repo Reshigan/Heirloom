@@ -225,7 +225,7 @@ function ReadingContent({
         </div>
 
         {/* Title — the hero */}
-        <h1 style={{
+        <h1 className="hl-serif" style={{
           fontFamily: 'var(--serif)', fontWeight: 400,
           fontSize: 'clamp(30px, 6vw, 44px)', lineHeight: 1.1,
           letterSpacing: '-0.01em', color: 'var(--bone)',
@@ -891,7 +891,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
           }}>
             {numeral(ch)} · {c.kind} · {c.year}
           </div>
-          <h2 style={{
+          <h2 className="hl-serif" style={{
             fontSize: 46, fontStyle: 'italic', margin: 0, maxWidth: '14ch',
             color: 'var(--letter-gold)', fontFamily: 'var(--serif)', fontWeight: 300,
           }}>

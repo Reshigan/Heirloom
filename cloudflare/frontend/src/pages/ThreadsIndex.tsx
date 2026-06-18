@@ -179,6 +179,7 @@ export function ThreadsIndex() {
                   }
                 }}
                 placeholder="Name this thread"
+                aria-label="Thread name"
                 style={{
                   width: '100%',
                   background: 'transparent',

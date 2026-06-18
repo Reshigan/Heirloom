@@ -109,6 +109,7 @@ export function CardView() {
         >
           <WaxSeal size={32} />
           <h1
+            className="hl-serif"
             style={{
               fontFamily: 'var(--serif)',
               fontStyle: 'italic',

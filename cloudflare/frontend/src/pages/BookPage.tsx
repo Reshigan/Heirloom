@@ -49,7 +49,6 @@ export function BookPage() {
             width: 168,
             height: 196,
             margin: '8px 0 64px',
-            filter: 'drop-shadow(0 0 32px var(--warm-glow)) drop-shadow(0 0 10px var(--warm-glow))',
           }}
         >
           {/* spine — the bound edge */}
