@@ -241,7 +241,7 @@ export function MemoryMap() {
                     style={{
                       position: 'absolute',
                       left: `${d.x}%`,
-                      top: `${(d.y / 94) * 100}%`,
+                      top: `${d.y}%`,
                       transform: 'translate(-50%, -50%)',
                       padding: 0,
                       border: 0,
@@ -310,6 +310,7 @@ export function MemoryMap() {
                     key={f}
                     type="button"
                     onClick={() => setFilter(f)}
+                    aria-pressed={filter === f}
                     style={{
                       background: 'transparent',
                       border: 0,

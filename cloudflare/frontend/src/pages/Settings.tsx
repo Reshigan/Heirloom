@@ -486,7 +486,7 @@ export function Settings() {
               max={new Date().toISOString().slice(0, 10)}
               onChange={(e) => { setBirthDate(e.target.value); setSavedFlash(false); }}
               onClick={(e) => { try { (e.currentTarget as any).showPicker?.(); } catch {} }}
-              style={{ ...FIELD_INPUT_STYLE, colorScheme: 'dark' }}
+              style={{ ...FIELD_INPUT_STYLE, colorScheme: theme === 'light' ? 'light' : 'dark' }}
             />
           </div>
           <div className="hl-fieldrow">

@@ -389,7 +389,7 @@ export function Signup() {
               type="checkbox"
               checked={form.acceptedTerms}
               onChange={(e) => set({ acceptedTerms: e.target.checked })}
-              style={{ accentColor: 'var(--warm)', marginTop: 4 }}
+              style={{ marginTop: 4 }}
             />
             <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', lineHeight: 1.6, fontWeight: 400 }}>
               I accept the{' '}
@@ -405,7 +405,7 @@ export function Signup() {
               type="checkbox"
               checked={form.marketingConsent}
               onChange={(e) => set({ marketingConsent: e.target.checked })}
-              style={{ accentColor: 'var(--warm)', marginTop: 4 }}
+              style={{ marginTop: 4 }}
             />
             <span className="hl-serif" style={{ fontSize: 13, color: 'var(--bone-dim)', lineHeight: 1.6, fontWeight: 400 }}>
               I'm happy to receive occasional updates and prompts from Heirloom (optional).

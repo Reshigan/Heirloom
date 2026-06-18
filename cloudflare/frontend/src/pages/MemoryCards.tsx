@@ -169,30 +169,34 @@ export function MemoryCards() {
             borderBottom: '1px solid var(--rule)',
           }}
         >
-          {TABS.map((t) => (
-            <button
-              key={t.value}
-              type="button"
-              onClick={() => setActiveTab(t.value)}
-              style={{
-                background: 'transparent',
-                border: 0,
-                borderBottom: '1px solid',
-                borderColor: activeTab === t.value ? 'var(--warm)' : 'transparent',
-                padding: '0 0 6px',
-                cursor: 'pointer',
-                fontFamily: 'var(--mono)',
-                fontSize: 10,
-                fontWeight: 500,
-                letterSpacing: '0.32em',
-                textTransform: 'uppercase',
-                color: activeTab === t.value ? 'var(--warm)' : 'var(--bone-faint)',
-                transition: 'color 180ms var(--ease)',
-              }}
-            >
-              {t.label}
-            </button>
-          ))}
+          <div role="tablist" aria-label="Memory cards views" style={{ display: 'flex', gap: 24 }}>
+            {TABS.map((t) => (
+              <button
+                key={t.value}
+                type="button"
+                role="tab"
+                aria-selected={activeTab === t.value}
+                onClick={() => setActiveTab(t.value)}
+                style={{
+                  background: 'transparent',
+                  border: 0,
+                  borderBottom: '1px solid',
+                  borderColor: activeTab === t.value ? 'var(--warm)' : 'transparent',
+                  padding: '0 0 6px',
+                  cursor: 'pointer',
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  fontWeight: 500,
+                  letterSpacing: '0.32em',
+                  textTransform: 'uppercase',
+                  color: activeTab === t.value ? 'var(--warm)' : 'var(--bone-faint)',
+                  transition: 'color 180ms var(--ease)',
+                }}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
           <button
             type="button"
             onClick={() => navigate('/loom/index')}
@@ -412,13 +416,17 @@ export function MemoryCards() {
                 <div>
                   <p className="hl-eyebrow" style={{ marginBottom: 18 }}>Your card</p>
 
+                  {/* On-screen preview rides theme tokens so it tracks paper/vault.
+                      The raw worker hex (styleConfig.bgColor/.textColor) is reserved
+                      for the exported/served share image only — baking it here would
+                      paint a fixed-dark slab on the paper ground that never flips. */}
                   <div
                     style={{
                       border: '1px solid var(--rule)',
                       padding: 32,
                       marginBottom: 24,
-                      background: generatedCard.styleConfig.bgColor,
-                      color: generatedCard.styleConfig.textColor,
+                      background: 'var(--ink-card)',
+                      color: 'var(--bone)',
                     }}
                   >
                     {generatedCard.photoUrl && (
@@ -444,7 +452,7 @@ export function MemoryCards() {
                         fontSize: 19,
                         lineHeight: 1.6,
                         margin: '0 0 18px',
-                        borderLeft: '2px solid var(--warm)',
+                        borderLeft: '1px solid var(--warm)',
                         paddingLeft: 16,
                       }}
                     >

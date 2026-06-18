@@ -487,7 +487,6 @@ function DeliveryField({
                       fontSize: 13,
                       letterSpacing: '0.06em',
                       padding: '8px 10px',
-                      colorScheme: 'dark',
                       borderRadius: 0,
                       outline: 'none',
                       width: '100%',

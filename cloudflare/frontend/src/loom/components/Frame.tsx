@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -71,18 +71,35 @@ export function SecurityDot({ size = 6 }: { size?: number }) {
 export function UserMenu() {
   const { user, logout } = useAuthStore();
   const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Dismiss on outside click or Escape (mirrors InfinityMenu).
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
   if (!user) return null;
   const initials =
     `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || '∞';
   return (
-    <div style={{ position: 'relative' }}>
+    <div ref={ref} style={{ position: 'relative' }}>
       <button
         type="button"
         className="hl-topbar-user-btn"
+        aria-haspopup="menu"
         aria-expanded={open}
         aria-label="User menu"
         onClick={() => setOpen((v) => !v)}
-        onBlur={() => setTimeout(() => setOpen(false), 200)}
         style={{
           position: 'relative',
           width: 32, height: 32,
@@ -103,6 +120,7 @@ export function UserMenu() {
         {initials}
       </button>
       <div
+        role="menu"
         aria-hidden={!open}
         style={{
           position: 'absolute',
@@ -118,7 +136,7 @@ export function UserMenu() {
           transform: open ? 'scale(1) translateY(0)' : 'scale(0.98) translateY(-6px)',
           pointerEvents: open ? 'auto' : 'none',
           visibility: open ? 'visible' : 'hidden',
-          transition: 'opacity 180ms var(--ease), transform 180ms var(--ease), visibility 0ms linear ' + (open ? '0ms' : '180ms'),
+          transition: 'opacity 180ms var(--ease), transform 180ms var(--ease), visibility 0ms',
         }}
       >
         <div style={{ padding: '14px 16px 12px', borderBottom: '1px solid var(--rule)' }}>
@@ -130,14 +148,14 @@ export function UserMenu() {
           </p>
         </div>
         <div style={{ padding: '6px 0', borderBottom: '1px solid var(--rule)' }}>
-          <Link to="/family"             className="hl-menu-item" onClick={() => setOpen(false)}>family</Link>
-          <Link to="/settings"           className="hl-menu-item" onClick={() => setOpen(false)}>settings</Link>
-          <Link to="/billing"            className="hl-menu-item" onClick={() => setOpen(false)}>billing</Link>
-          <Link to="/gift-subscriptions" className="hl-menu-item" onClick={() => setOpen(false)}>gift a membership</Link>
-          <Link to="/help"               className="hl-menu-item" onClick={() => setOpen(false)}>help &amp; support</Link>
+          <Link to="/family"             role="menuitem" className="hl-menu-item" onClick={() => setOpen(false)}>family</Link>
+          <Link to="/settings"           role="menuitem" className="hl-menu-item" onClick={() => setOpen(false)}>settings</Link>
+          <Link to="/billing"            role="menuitem" className="hl-menu-item" onClick={() => setOpen(false)}>billing</Link>
+          <Link to="/gift-subscriptions" role="menuitem" className="hl-menu-item" onClick={() => setOpen(false)}>gift a membership</Link>
+          <Link to="/help"               role="menuitem" className="hl-menu-item" onClick={() => setOpen(false)}>help &amp; support</Link>
         </div>
         <div style={{ padding: '6px 0' }}>
-          <button type="button" className="hl-menu-item danger"
+          <button type="button" role="menuitem" className="hl-menu-item danger"
             onClick={() => { setOpen(false); logout(); }}>
             sign out
           </button>

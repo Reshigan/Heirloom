@@ -28,6 +28,9 @@ function PwaMenu() {
     <div style={{ position: 'relative' }}>
       <button
         type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label="Account menu"
         onClick={() => setOpen(v => !v)}
         onBlur={() => setTimeout(() => setOpen(false), 220)}
         style={{
@@ -51,6 +54,7 @@ function PwaMenu() {
       </button>
 
       <div
+        role="menu"
         aria-hidden={!open}
         style={{
           position: 'absolute',
@@ -218,7 +222,7 @@ function AuthHome({
           display: 'flex', flexDirection: 'column', gap: 6,
           padding: '12px 16px 12px 18px',
           border: '1px solid var(--rule)',
-          borderLeft: '2px solid color-mix(in srgb, var(--warm) 55%, transparent)',
+          borderLeft: '1px solid color-mix(in srgb, var(--warm) 55%, transparent)',
           marginBottom: 28,
         }}>
           <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
@@ -468,7 +472,7 @@ export function PwaHome() {
               display: 'flex', flexDirection: 'column', gap: 6,
               padding: '12px 16px 12px 18px',
               border: '1px solid var(--rule)',
-              borderLeft: '2px solid color-mix(in srgb, var(--warm) 55%, transparent)',
+              borderLeft: '1px solid color-mix(in srgb, var(--warm) 55%, transparent)',
               marginBottom: 28,
             }}>
               <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>

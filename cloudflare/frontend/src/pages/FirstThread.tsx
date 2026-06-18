@@ -24,7 +24,6 @@ const ASSET_SEAL = '/ceremony/seal.png';
 // easing — the ignition sweep and woven hairline included.
 import { EASE } from '../loom/motion';
 
-const DOT_ON = 'var(--warm)';
 const DOT_OFF = 'var(--bone-ghost)';
 
 // Years a sealed letter waits before opening. Used by both the seal header
@@ -77,7 +76,9 @@ export function FirstThread() {
     }
   }, [isAuthenticated, checkingNew, isNewUser, navigate]);
 
-  // The waveform — 42 envelope-shaped bars, copper gradient, animated by time.
+  // The waveform — 42 envelope-shaped bars. Bars are AREA FILLS, so they ride
+  // bone, not copper (copper is signal-only, <3% surface). Copper is reserved
+  // for a single 1px leading-edge playhead line.
   const draw = useCallback(() => {
     const c = canvasRef.current;
     if (!c) return;
@@ -85,31 +86,42 @@ export function FirstThread() {
     if (!x) return;
     const W = c.width, H = c.height, N = 42;
     const t = reduce.current ? 0.6 : performance.now() / 1000;
-    // Canvas fillStyle cannot resolve var() — read the canonical copper tokens
+    // Canvas strokeStyle cannot resolve var() — read the canonical bone tokens
     // at draw time (document is mounted by now) so the waveform tracks the brand
-    // palette and theme rather than hardcoded bespoke copper. data-theme lives on
-    // .loom, not :root, so read from the .loom root to pick up the AA-lifted light
-    // copper on the paper ground (else we'd always get the dark :root copper).
+    // palette and theme rather than hardcoded bespoke colour. data-theme lives on
+    // .loom, not :root, so read from the .loom root to pick up the theme-correct
+    // bone on the paper ground (else we'd always get the dark :root values).
     const root = document.querySelector('.loom') ?? document.documentElement;
     const cs = getComputedStyle(root);
-    const warmTop = cs.getPropertyValue('--warm-bright').trim() || '#f0c074';
-    const warmBottom = cs.getPropertyValue('--warm-dim').trim() || '#b07a3e';
+    const boneLit = cs.getPropertyValue('--bone-dim').trim() || 'rgba(242,230,208,0.72)';
+    const boneUnlit = cs.getPropertyValue('--bone-faint').trim() || 'rgba(242,230,208,0.44)';
+    const warm = cs.getPropertyValue('--warm').trim() || '#e0a062';
     x.clearRect(0, 0, W, H);
     x.lineCap = 'round';
+    // The playhead sweeps across the bar field over a ~2.6s loop — the lone
+    // copper element, a single 1px vertical hairline at the leading edge.
+    const playFrac = reduce.current ? 0.62 : (t / 2.6) % 1;
+    const playX = W * playFrac;
     for (let i = 0; i < N; i++) {
       const env = Math.sin((i / N) * Math.PI);
       const h = (0.12 + 0.88 * Math.abs(Math.sin(i * 0.7 + t * 6) * Math.cos(i * 0.3 + t * 2.1))) * env * H * 0.92;
       const px = (W * (i + 0.5)) / N;
-      const g = x.createLinearGradient(0, (H - h) / 2, 0, (H + h) / 2);
-      g.addColorStop(0, warmTop);
-      g.addColorStop(1, warmBottom);
-      x.strokeStyle = g;
+      // A bar is "lit" once the playhead has passed it; ahead of the playhead it
+      // sits unlit. Both are bone — fills, never copper.
+      x.strokeStyle = px <= playX ? boneLit : boneUnlit;
       x.lineWidth = Math.max(2.4, (W / N) * 0.42);
       x.beginPath();
       x.moveTo(px, (H - h) / 2);
       x.lineTo(px, (H + h) / 2);
       x.stroke();
     }
+    // Leading-edge playhead — the only copper. A single 1px hairline.
+    x.strokeStyle = warm;
+    x.lineWidth = 1;
+    x.beginPath();
+    x.moveTo(playX, 0);
+    x.lineTo(playX, H);
+    x.stroke();
   }, []);
 
   // Recording lifecycle is driven by the step, so the canvas is guaranteed
@@ -333,9 +345,22 @@ export function FirstThread() {
 
         {/* progress dots */}
         <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, display: 'flex', justifyContent: 'center', gap: 8, zIndex: 8 }}>
-          {[1, 2, 3, 4, 5].map((n) => (
-            <span key={n} style={{ width: 6, height: 6, background: step >= n ? DOT_ON : DOT_OFF }} />
-          ))}
+          {[1, 2, 3, 4, 5].map((n) => {
+            const active = step >= n;
+            // DOT pattern: an active step is a 1px copper SQUARE stroke with a
+            // transparent fill (radius 0) — never a filled copper disc/square.
+            // Inactive steps keep the neutral --bone-ghost fill.
+            return (
+              <span
+                key={n}
+                style={
+                  active
+                    ? { width: 6, height: 6, border: '1px solid var(--warm)', background: 'transparent', boxSizing: 'border-box' }
+                    : { width: 6, height: 6, background: DOT_OFF }
+                }
+              />
+            );
+          })}
         </div>
       </div>
     </div>

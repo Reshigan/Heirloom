@@ -803,13 +803,13 @@ export function BookBuilder() {
                         style={{
                           width: '100%',
                           aspectRatio: '0.78',
-                          border: active ? '1.5px solid var(--warm)' : '1px solid var(--rule-warm)',
+                          border: active ? '1px solid var(--warm)' : '1px solid var(--rule-warm)',
                           // selected state is marked by the 1px warm border alone
                           // (Rule 2: no copper-tint surface fill). Fill stays the
                           // flat template surface in both states.
                           background: 'var(--bg-template)',
                           borderRadius: 0,
-                          padding: active ? 11 : 12,
+                          padding: 12,
                           display: 'flex',
                           flexDirection: 'column',
                           gap: 6,
@@ -1241,7 +1241,7 @@ export function BookBuilder() {
                       color: 'var(--warm)',
                       fontStyle: 'italic',
                       margin: 0,
-                      borderLeft: '3px solid var(--warm)',
+                      borderLeft: '1px solid var(--warm)',
                       paddingLeft: 14,
                     }}
                   >

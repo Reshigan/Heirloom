@@ -1,42 +1,52 @@
 import { useEffect, useRef, useState } from 'react';
 
 /**
- * Filament — a contained glowing-filament treatment for a single screen.
+ * Filament — the global ambient backdrop (rendered via ClothBackdrop).
  *
- * The Cosmic Loom direction (Higgsfield "B") renders the family thread as warm
- * woven light. Rather than approximate those gestures procedurally, this layer
- * ships the *actual artwork* extracted from the golive reference screens
- * (`.higgsfield/golive/today/`): each gesture's warm filament region was lifted
- * out of its reference render, isolated from the bone text + phone bezel by a
- * warm-hue mask, and saved as a black-backed WebP. We composite that artwork
- * onto the ink page with `mix-blend-mode: screen`, so the near-black drops out
- * and only the warm light remains — pixel-for-pixel the reference filament.
+ * HISTORY / WHY THIS IS QUIET NOW.
+ * The original Cosmic Loom direction shipped the *actual warm artwork* lifted
+ * from the golive reference renders and composited it with `mix-blend-mode:
+ * screen` so the near-black dropped out and only the warm light remained. That
+ * read as a viewport-scale COPPER AURORA — a crown bloom over the top third, a
+ * full-width bottom wave, centred ∞/ember/seal/book blooms — copper as
+ * aura/glow/bloom across a large fraction of the surface.
  *
- * One gesture per screen, placed in the same zone the reference puts it (a
- * crescent hung from the top of the sign-in, a radiating crown over the home
- * prompt, woven waves across the bottom of the hero, a centred ∞ at the
- * threshold, wing-sprays over the lineage). The layer is purely decorative —
- * `pointer-events: none`, `aria-hidden` — so it never touches functionality.
+ * ART_DIRECTION Rule 2 forbids that: copper (var(--warm)) is SIGNAL ONLY, kept
+ * under ~3% of surface and never used as a fill/glow/aura/bloom. So the warm
+ * screen-blended artwork is gone. What remains is a token-built woven GROUND:
  *
- * The golive references are all dark-themed, so on the paper/light theme the
- * filament hides (warm-on-black has no honest reading over bone). A subtle
- * opacity breath keeps the light alive; it answers the `heirloom:weave` ritual
- * with a brief brightening, and respects `prefers-reduced-motion`.
+ *   • a per-variant ambient wash in ink/bone tones at very low alpha — it sits
+ *     in the same zone the old gesture occupied (crown over the top, wave along
+ *     the bottom, centred for the knot/seal/book, etc.) so the composition's
+ *     spatial soul survives, but it reads as a faint quiet weave, NOT a light
+ *     source. Built from var(--ink)/var(--bone-faint), so it theme-flips.
+ *   • a single fine bone hairline per gesture (≤1px, var(--bone-faint)) — the
+ *     one literal "thread", the woven mark, never copper.
+ *
+ * No copper anywhere: no warm fill, no warm glow, no screen-blended warm WebP.
+ * If a warm accent ever returns it must be a tiny contained gesture (a few px,
+ * a ≤1px stroke), never a viewport-scale bloom.
+ *
+ * The layer is purely decorative — `pointer-events: none`, `aria-hidden` — so
+ * it never touches functionality. A subtle opacity breath keeps it alive, it
+ * answers the `heirloom:weave` ritual with a brief brightening, and it respects
+ * `prefers-reduced-motion`. Because the ground is token-built it reads honestly
+ * on BOTH the ink (dark) and paper (light) themes.
  */
 
 export type FilamentVariant =
-  | 'arc'       // crescent ring hanging from the top — sign-in, composer, pricing, thread, threshold
-  | 'crown'     // radiating aurora crown over the top third — home prompt
-  | 'wave'      // horizontal woven waves across the bottom third — landing hero
+  | 'arc'       // crescent hung from the top — sign-in, composer, pricing, thread, threshold
+  | 'crown'     // a faint woven crown over the top third — home prompt
+  | 'wave'      // a horizontal woven band along the bottom third — landing hero
   | 'infinity'  // a centred ∞ lemniscate knot — the threshold ceremony
-  | 'ember'     // ∞ wax knot breaking open into rising embers — a letter unsealed
+  | 'ember'     // a centred knot — a letter unsealed
   | 'scurve'    // one vast faint S-curve behind giant numbers — the year wrapped
-  | 'tree'      // two wing-sprays of light rising from the top — the lineage
-  | 'waveform'  // a centred glowing audio waveform — voice / record / interview
-  | 'book'      // a luminous bound volume floating in warm bloom — the book rooms
-  | 'seal'      // a warm wax-seal ring with an ∞ core — letters / sealed notes
-  | 'map'       // scattered glowing place-lights over faint latitudes — memory map
-  | 'ambient'   // a single faint warm bloom, no strokes — quiet reading/utility rooms
+  | 'tree'      // two faint sprays rising from the top — the lineage
+  | 'waveform'  // a centred low band — voice / record / interview
+  | 'book'      // a centred quiet bloom — the book rooms
+  | 'seal'      // a centred ∞-cored mark — letters / sealed notes
+  | 'map'       // a faint scattered ground — memory map
+  | 'ambient'   // a single faint bloom, no strokes — quiet reading/utility rooms
   | 'none';     // pure ink — opt-out only
 
 interface FilamentProps {
@@ -50,66 +60,61 @@ interface FilamentProps {
 }
 
 type Place = {
-  /** WebP filename under /filaments (without extension). */
-  src: string;
-  /** intrinsic width / height of the artwork — drives the box aspect. */
-  ar: number;
-  /** base luminance for the gesture (multiplied by `intensity`). */
-  opacity: number;
-  /** placement of the gesture box inside the full-viewport host. */
+  /** placement of the ambient zone inside the full-viewport host. */
   style: React.CSSProperties;
-  /** cover gestures fill the whole viewport instead of holding their aspect. */
-  cover?: boolean;
   /**
-   * Resting luminance gain. CSS `opacity` clamps at 1, so a gesture already at
-   * full opacity can't be pushed brighter that way; `mix-blend-mode: screen`
-   * means a brighter source reads brighter, so we lift faint top/centre
-   * gestures with a `filter: brightness()` to match the golive references.
+   * base luminance for the gesture's ambient wash (multiplied by `intensity`).
+   * Kept deliberately low — this is a quiet ground, not a light source.
    */
-  boost?: number;
+  opacity: number;
+  /**
+   * The woven hairline drawn through the zone. `none` for cover/diffuse zones
+   * that read as a field rather than a single thread.
+   */
+  thread?: 'h' | 'v' | 'cross' | 'none';
 };
 
-// Each gesture sits in the same zone its golive reference puts it. Centred and
-// top gestures hold a max width so they read on wide desktops; the hero waves
-// and the cover gestures (map, scurve) bleed full width.
-const CENTER_TOP = (top: string): React.CSSProperties => ({
+// Placement helpers — each zone sits where its old gesture lived, so the
+// composition keeps its spatial memory while shedding the copper light.
+const CENTER = (top: string): React.CSSProperties => ({
   top,
   left: '50%',
   transform: 'translate(-50%, -50%)',
 });
-const HANG_TOP: React.CSSProperties = { top: 0, left: '50%', transform: 'translateX(-50%)' };
+const TOP_BAND: React.CSSProperties = { top: 0, left: '50%', transform: 'translateX(-50%)' };
 
-// NOTE on `boost`: `mix-blend-mode: screen` renders every non-black pixel of the
-// artwork, and the lossy WebP carries a faint non-zero field around the warm
-// strands. `filter: brightness()` MULTIPLIES that field, so a boost >~1.15 lifts
-// the field enough that the gesture's rectangular bounding box reads as a visible
-// panel sitting on top of the page content. Boosts are kept ≤1.1 for that reason;
-// the soft edge-fade mask below (MASK / COVER_MASK) erases the box corners so the
-// gesture never reads as a rectangle even where the field survives.
-const PLACE: Record<Exclude<FilamentVariant, 'ambient' | 'none'>, Place> = {
-  // ── top-hung gestures ──
-  arc: { src: 'arc', ar: 1100 / 523, opacity: 1, boost: 1.0, style: { ...HANG_TOP, width: 'clamp(360px, 102vw, 900px)' } },
-  crown: { src: 'crown', ar: 848 / 543, opacity: 1, boost: 1.1, style: { ...HANG_TOP, width: 'clamp(360px, 100vw, 880px)' } },
-  tree: { src: 'tree', ar: 1100 / 635, opacity: 1, boost: 1.1, style: { top: '1%', left: '50%', transform: 'translateX(-50%)', width: 'clamp(360px, 100vw, 840px)' } },
-  // ── bottom gesture ──
-  wave: { src: 'wave', ar: 768 / 606, opacity: 1, boost: 1.05, style: { bottom: 0, left: 0, width: '100%' } },
-  // ── centred gestures ──
-  infinity: { src: 'infinity', ar: 452 / 308, opacity: 1, boost: 1.1, style: { ...CENTER_TOP('40%'), width: 'clamp(220px, 60vw, 400px)' } },
-  ember: { src: 'ember', ar: 808 / 867, opacity: 1, boost: 1.1, style: { ...CENTER_TOP('44%'), width: 'clamp(280px, 70vw, 460px)' } },
-  waveform: { src: 'waveform', ar: 1100 / 445, opacity: 1, boost: 1.05, style: { ...CENTER_TOP('50%'), width: 'clamp(360px, 94vw, 860px)' } },
-  seal: { src: 'seal', ar: 476 / 409, opacity: 1, boost: 1.05, style: { ...CENTER_TOP('50%'), width: 'clamp(180px, 46vw, 300px)' } },
-  book: { src: 'book', ar: 323 / 347, opacity: 1, boost: 1.05, style: { ...CENTER_TOP('46%'), width: 'clamp(190px, 48vw, 320px)' } },
-  // ── cover gestures (full-viewport, faint) ──
-  map: { src: 'map', ar: 653 / 1100, opacity: 0.9, boost: 1.1, cover: true, style: { inset: 0, backgroundSize: 'cover', backgroundPosition: 'center' } },
-  scurve: { src: 'scurve', ar: 624 / 1100, opacity: 0.75, boost: 1.05, cover: true, style: { inset: 0, backgroundSize: 'cover', backgroundPosition: 'right center' } },
+// A wash painted in INK/BONE tokens only — no warm. Very low alpha so it reads
+// as a breath of woven ground, never as an aurora. `--fo` carries the live
+// opacity (intensity × base) so the breath/weave ritual can modulate it.
+const INK_WASH =
+  'radial-gradient(ellipse 70% 64% at 50% 46%, rgba(242,230,208,0.05), transparent 72%)';
+const COVER_WASH =
+  'radial-gradient(ellipse 96% 86% at 50% 42%, rgba(242,230,208,0.035), transparent 80%)';
+
+const PLACE: Record<Exclude<FilamentVariant, 'none'>, Place> = {
+  // ── top-hung zones ──
+  arc: { style: { ...TOP_BAND, top: 0, width: 'clamp(360px, 100vw, 900px)', height: '40vh' }, opacity: 0.7, thread: 'h' },
+  crown: { style: { ...TOP_BAND, top: 0, width: 'clamp(360px, 100vw, 880px)', height: '38vh' }, opacity: 0.7, thread: 'h' },
+  tree: { style: { ...TOP_BAND, top: '1%', width: 'clamp(360px, 100vw, 840px)', height: '42vh' }, opacity: 0.7, thread: 'cross' },
+  // ── bottom zone ──
+  wave: { style: { bottom: 0, left: 0, width: '100%', height: '34vh' }, opacity: 0.65, thread: 'h' },
+  // ── centred zones ──
+  infinity: { style: { ...CENTER('40%'), width: 'clamp(220px, 60vw, 400px)', height: '34vh' }, opacity: 0.7, thread: 'cross' },
+  ember: { style: { ...CENTER('44%'), width: 'clamp(280px, 70vw, 460px)', height: '40vh' }, opacity: 0.7, thread: 'cross' },
+  waveform: { style: { ...CENTER('50%'), width: 'clamp(360px, 94vw, 860px)', height: '26vh' }, opacity: 0.6, thread: 'h' },
+  seal: { style: { ...CENTER('50%'), width: 'clamp(180px, 46vw, 300px)', height: '30vh' }, opacity: 0.7, thread: 'cross' },
+  book: { style: { ...CENTER('46%'), width: 'clamp(190px, 48vw, 320px)', height: '34vh' }, opacity: 0.65, thread: 'v' },
+  // ── diffuse cover zones (full-viewport, faintest) ──
+  map: { style: { inset: 0 }, opacity: 0.55, thread: 'none' },
+  scurve: { style: { inset: 0 }, opacity: 0.5, thread: 'none' },
+  // ── bare quiet bloom ──
+  ambient: { style: { ...CENTER('50%'), width: 'clamp(280px, 64vw, 640px)', height: '40vh' }, opacity: 0.55, thread: 'none' },
 };
 
-// Edge-fade masks. The artwork's warm light always lives in the centre of its
-// box; these radial masks drop the box's alpha to 0 before its rectangular edge,
-// so even when the screen-blended field survives there is no visible rectangle —
-// the gesture dissolves into the ink instead of sitting on it as a panel.
-const MASK = 'radial-gradient(ellipse 72% 70% at 50% 46%, #000 42%, rgba(0,0,0,0.28) 74%, transparent 100%)';
-const COVER_MASK = 'radial-gradient(ellipse 96% 86% at 50% 42%, #000 50%, transparent 100%)';
+// Edge-fade mask so the zone dissolves into the ground instead of reading as a
+// rectangle even where the wash survives.
+const MASK = 'radial-gradient(ellipse 80% 76% at 50% 46%, #000 46%, transparent 100%)';
+const COVER_MASK = 'radial-gradient(ellipse 98% 90% at 50% 42%, #000 56%, transparent 100%)';
 
 // Inject the breath keyframes once. Subtle: a slow opacity sway on the one
 // canonical curve. Gated at the element level by prefers-reduced-motion.
@@ -118,28 +123,25 @@ function ensureKeyframes() {
   if (typeof document === 'undefined' || document.getElementById(STYLE_ID)) return;
   const s = document.createElement('style');
   s.id = STYLE_ID;
-  s.textContent = '@keyframes filabreath{from{opacity:var(--fo)}to{opacity:calc(var(--fo) * 0.86)}}';
+  s.textContent = '@keyframes filabreath{from{opacity:var(--fo)}to{opacity:calc(var(--fo) * 0.78)}}';
   document.head.appendChild(s);
+}
+
+// The woven hairline(s) for a zone — a single ≤1px bone thread, never copper.
+// Returns the linear-gradient layers that draw the thread(s) inside the zone.
+function threadLayers(kind: NonNullable<Place['thread']>): string[] {
+  if (kind === 'none') return [];
+  const H = 'linear-gradient(to right, transparent, var(--bone-faint) 22%, var(--bone-faint) 78%, transparent)';
+  const V = 'linear-gradient(to bottom, transparent, var(--bone-faint) 22%, var(--bone-faint) 78%, transparent)';
+  if (kind === 'h') return [H];
+  if (kind === 'v') return [V];
+  return [H, V]; // cross
 }
 
 export function Filament({ variant = 'none', intensity = 1, className, style }: FilamentProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const gestureRef = useRef<HTMLDivElement>(null);
-  const [paper, setPaper] = useState(false);
   const [reduced, setReduced] = useState(false);
-
-  // Track theme (filaments are dark-only) by watching the nearest .loom root.
-  useEffect(() => {
-    const host = hostRef.current;
-    if (!host) return;
-    const loom = host.closest('.loom') as HTMLElement | null;
-    const read = () => setPaper((loom?.getAttribute('data-theme') ?? 'dark') === 'light');
-    read();
-    if (!loom) return;
-    const mo = new MutationObserver(read);
-    mo.observe(loom, { attributes: true, attributeFilter: ['data-theme'] });
-    return () => mo.disconnect();
-  }, [variant]);
 
   // Respect reduced-motion for the breath.
   useEffect(() => {
@@ -153,22 +155,27 @@ export function Filament({ variant = 'none', intensity = 1, className, style }: 
 
   useEffect(() => ensureKeyframes(), []);
 
-  // The weave ritual: brighten the gesture briefly when a memory is woven.
+  // The weave ritual: brighten the ground briefly when a memory is woven.
+  // A modest lift only — never a copper flash.
   useEffect(() => {
     const onWeave = () => {
       const g = gestureRef.current;
       if (!g) return;
-      g.style.filter = 'brightness(1.85)';
+      g.style.filter = 'brightness(1.5)';
       window.setTimeout(() => {
-        if (gestureRef.current) gestureRef.current.style.filter = 'brightness(var(--fb))';
+        if (gestureRef.current) gestureRef.current.style.filter = 'none';
       }, 80);
     };
     window.addEventListener('heirloom:weave', onWeave);
     return () => window.removeEventListener('heirloom:weave', onWeave);
   }, []);
 
-  const place = variant === 'none' || variant === 'ambient' ? null : PLACE[variant];
-  const op = Math.max(0, Math.min(1.4, intensity)) * (place?.opacity ?? 1);
+  const place = variant === 'none' ? null : PLACE[variant];
+  // The whole ground is intentionally faint — clamp the live opacity well below
+  // 1 so even at full intensity it reads as a quiet weave, not a light source.
+  const op = place ? Math.max(0, Math.min(0.85, intensity * place.opacity)) : 0;
+  const cover = variant === 'map' || variant === 'scurve';
+  const threads = place ? threadLayers(place.thread ?? 'none') : [];
 
   return (
     <div
@@ -177,27 +184,33 @@ export function Filament({ variant = 'none', intensity = 1, className, style }: 
       aria-hidden
       style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', ...style }}
     >
-      {/* ambient fallback — bare ink ground; copper bloom removed (Rule 2: copper is signal only, never a panel fill) */}
-
-      {place && !paper && (
+      {place && (
         <div
           ref={gestureRef}
           style={{
             position: 'absolute',
-            backgroundImage: `url(/filaments/${place.src}.webp)`,
+            // The woven ground: faint ink/bone wash + (optionally) one fine
+            // bone hairline. No warm anywhere; all colour rides tokens that
+            // remap in the light scope, so it theme-flips honestly.
+            backgroundImage: [...threads, cover ? COVER_WASH : INK_WASH].join(', '),
             backgroundRepeat: 'no-repeat',
-            backgroundSize: place.cover ? undefined : '100% 100%',
-            aspectRatio: place.cover ? undefined : `${place.ar}`,
-            mixBlendMode: 'screen',
+            // hairline(s) ~1px centred; the wash fills the box.
+            backgroundSize: threads.length
+              ? [
+                  ...threads.map((_, i) => (place.thread === 'cross' ? (i === 0 ? '100% 1px' : '1px 100%') : place.thread === 'v' ? '1px 100%' : '100% 1px')),
+                  '100% 100%',
+                ].join(', ')
+              : '100% 100%',
+            backgroundPosition: threads.length
+              ? [...threads.map(() => 'center'), 'center'].join(', ')
+              : 'center',
             transition: 'filter 1400ms var(--ease)',
             willChange: 'opacity',
             ['--fo' as string]: String(op),
-            ['--fb' as string]: String(place.boost ?? 1),
-            filter: 'brightness(var(--fb))',
             opacity: op,
-            // Edge-fade so the screen-blended box never reads as a rectangle.
-            WebkitMaskImage: place.cover ? COVER_MASK : MASK,
-            maskImage: place.cover ? COVER_MASK : MASK,
+            // Edge-fade so the box never reads as a rectangle.
+            WebkitMaskImage: cover ? COVER_MASK : MASK,
+            maskImage: cover ? COVER_MASK : MASK,
             animation: reduced ? undefined : 'filabreath 1400ms var(--ease) infinite alternate',
             ...place.style,
           }}

@@ -741,7 +741,7 @@ export function Record() {
                               background: 'transparent', border: '1px solid var(--rule)',
                               color: 'var(--bone)',
                               fontFamily: 'var(--mono)',
-                              fontSize: 13, padding: '6px 10px', colorScheme: 'dark',
+                              fontSize: 13, padding: '6px 10px',
                               borderRadius: 0, outline: 'none', width: '100%', maxWidth: 180,
                               boxSizing: 'border-box',
                             }}

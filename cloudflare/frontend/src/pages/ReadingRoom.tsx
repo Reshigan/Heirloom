@@ -765,7 +765,7 @@ export function ReadingRoom() {
               <Link to="/compose" style={{
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
                 textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none',
-                borderLeft: '3px solid var(--warm)', paddingLeft: 14, display: 'inline-block',
+                borderLeft: '1px solid var(--warm)', paddingLeft: 14, display: 'inline-block',
               }}>
                 weave the first thread →
               </Link>
@@ -853,15 +853,15 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
       boxShadow: '0 1px 0 rgba(242,230,208,0.04) inset, inset 0 0 40px rgba(0,0,0,0.6)',
       color: 'var(--letter-body)', overflow: 'hidden',
     }}>
-      {/* gilt corner triangles — top-right + bottom-left */}
+      {/* gilt corner cues — top-right + bottom-left, hairline gilt rules (no filled wedge) */}
       <div aria-hidden style={{
-        position: 'absolute', top: 0, right: 0, width: 0, height: 0,
-        borderTop: '46px solid var(--letter-edge)', borderLeft: '46px solid transparent',
+        position: 'absolute', top: 0, right: 0, width: 46, height: 46,
+        borderTop: '1px solid var(--letter-edge)', borderRight: '1px solid var(--letter-edge)',
         opacity: 0.55, pointerEvents: 'none',
       }} />
       <div aria-hidden style={{
-        position: 'absolute', bottom: 0, left: 0, width: 0, height: 0,
-        borderBottom: '46px solid var(--letter-edge)', borderRight: '46px solid transparent',
+        position: 'absolute', bottom: 0, left: 0, width: 46, height: 46,
+        borderBottom: '1px solid var(--letter-edge)', borderLeft: '1px solid var(--letter-edge)',
         opacity: 0.55, pointerEvents: 'none',
       }} />
 

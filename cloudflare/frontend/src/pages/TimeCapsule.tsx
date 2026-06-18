@@ -730,11 +730,9 @@ export function TimeCapsule() {
                     onClick={() =>
                       setNewCapsule((prev) => ({ ...prev, cover_style: style.id }))
                     }
+                    aria-pressed={newCapsule.cover_style === style.id}
                     style={{
-                      background:
-                        newCapsule.cover_style === style.id
-                          ? 'color-mix(in srgb, var(--warm) 3%, transparent)'
-                          : 'transparent',
+                      background: 'transparent',
                       border: `1px solid ${
                         newCapsule.cover_style === style.id ? 'var(--warm)' : 'var(--rule)'
                       }`,

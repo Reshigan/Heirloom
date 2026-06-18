@@ -102,6 +102,9 @@ function stepConfig(
 }
 
 // ── Voice rings placeholder ─────────────────────────────────────────────────
+// Static waveform bars — area fills in bone-dim (no copper, no animation).
+// Previously referenced an undefined `hl-waveform` keyframe (dead token);
+// removed so the bars render intentionally still.
 function VoiceRings() {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, height: 64 }}>
@@ -111,9 +114,8 @@ function VoiceRings() {
           style={{
             width: 4,
             height: 12 + i * 10,
-            background: 'var(--bone-faint)',
+            background: 'var(--bone-dim)',
             borderRadius: 0,
-            animation: `hl-waveform 1400ms var(--ease) ${i * 0.15}s infinite alternate`,
           }}
         />
       ))}
@@ -136,14 +138,16 @@ function StepProgress({ current, total, label }: { current: number; total: numbe
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-          {Array.from({ length: total }).map((_, i) => (
-            <WarmDot
-              key={i}
-              size={5}
-              filled={i < current}
-              color={i < current ? 'var(--warm)' : 'var(--bone-faint)'}
-            />
-          ))}
+          {Array.from({ length: total }).map((_, i) =>
+            i < current ? (
+              // Completed step: copper is signal-only — a 1px copper stroke,
+              // transparent fill (filled={false}). Never a filled copper square.
+              <WarmDot key={i} size={5} filled={false} />
+            ) : (
+              // Pending step: a neutral dot fills bone-dim.
+              <WarmDot key={i} size={5} filled color="var(--bone-dim)" />
+            ),
+          )}
         </div>
         <span
           style={{

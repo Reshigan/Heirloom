@@ -405,6 +405,14 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Light theme flips the document substrate to parchment ground + ink text
+   (mirrors index.html's `html[data-theme="light"] { background }`). The default
+   body rule above stays the dark ground; this remaps it via theme tokens. */
+html[data-theme="light"] body {
+  background: var(--ink);
+  color: var(--bone);
+}
+
 /* Scrollbar - Barely visible, precious */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -728,8 +736,8 @@ em {
 
 /* ===== SELECTION ===== */
 ::selection {
-  background: rgba(201, 169, 89, 0.3);
-  color: var(--paper);
+  background: var(--rule-strong);
+  color: var(--bone);
 }
 
 /* ===== UTILITY CLASSES ===== */
@@ -822,8 +830,9 @@ select:focus-visible {
   position: absolute;
   top: -40px;
   left: 0;
-  background: var(--warm);
-  color: var(--ink);
+  background: var(--ink);
+  color: var(--warm);
+  border: 1px solid var(--warm);
   padding: 8px 16px;
   z-index: 100;
   transition: top 180ms var(--ease);
@@ -831,6 +840,19 @@ select:focus-visible {
 
 .skip-to-content:focus {
   top: 0;
+}
+
+/* Native date/time pickers track the active theme (Compose/Record removed
+   their inline colorScheme:'dark' so the picker UI flips with the document). */
+.loom[data-theme="light"] input[type="date"],
+.loom[data-theme="light"] input[type="datetime-local"],
+.loom[data-theme="light"] input[type="time"] {
+  color-scheme: light;
+}
+.loom[data-theme="dark"] input[type="date"],
+.loom[data-theme="dark"] input[type="datetime-local"],
+.loom[data-theme="dark"] input[type="time"] {
+  color-scheme: dark;
 }
 
 /* ============================================
@@ -1682,9 +1704,20 @@ html {
   opacity: 1;
   cursor: pointer;
 }
+/* 'Locked / tied-off' pick: keep the weft on its own dye colour — copper is
+   signal only, never a fill. Mark the tie-off with a 1px copper hairline cap at
+   the pick's leading edge (a stroke, not a copper-filled bar). */
 .loom-weft__pick.is-locked {
-  background: var(--loom-warm) !important;
   opacity: 1;
+}
+.loom-weft__pick.is-locked::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--loom-warm);
 }
 .loom-weft__ligature {
   position: absolute;
@@ -1701,12 +1734,15 @@ html {
   pointer-events: none;
 }
 .loom-weft__ligature.show { opacity: 0.55; }
+/* Resonance node — a neutral cloth mark on the ligature line. Copper stays
+   only on the 1px hairline above; the node itself fills --bone-dim (no copper
+   fill block). */
 .loom-weft__ligature .dot {
   position: absolute;
-  width: 4px; height: 4px;
-  background: var(--loom-warm);
+  width: 1px; height: 1px;
+  background: var(--loom-bone-dim);
   border-radius: 0;
-  left: -1.5px;
+  left: 0;
 }
 .loom-weft__bridge {
   position: absolute;
@@ -1714,7 +1750,7 @@ html {
   background: linear-gradient(
     to right,
     transparent,
-    rgba(240, 192, 116, 0.45),
+    color-mix(in srgb, var(--warm-bright) 45%, transparent),
     transparent
   );
   transition: opacity var(--loom-dur-veil) var(--loom-ease);
@@ -1856,14 +1892,12 @@ html {
   color: var(--loom-bone-faint);
   letter-spacing: 0.04em;
 }
+/* Warm-row marker — a copper TEXT glyph, not a filled copper square. Copper as
+   ink only (signal), never a fill block. */
 .loom-nameroll .row.warm .name::after {
-  content: "";
-  display: inline-block;
-  width: 3px; height: 3px;
-  border-radius: 0;
-  background: var(--loom-warm);
+  content: "·";
   margin-left: 8px;
-  vertical-align: 3px;
+  color: var(--loom-warm);
 }
 
 /* ─── Buttons ───────────────────────────────────────────────────── */

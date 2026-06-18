@@ -262,6 +262,7 @@ export function AdminDashboard() {
           <button
             key={id}
             onClick={() => setActiveTab(id)}
+            aria-current={activeTab === id ? 'page' : undefined}
             style={{
               background: 'transparent', border: 0, borderBottom: '1px solid',
               borderColor: activeTab === id ? 'var(--warm)' : 'transparent',
@@ -290,6 +291,7 @@ export function AdminDashboard() {
                 key={id}
                 type="button"
                 onClick={() => setLegacySub(id)}
+                aria-current={legacySub === id ? 'page' : undefined}
                 style={{
                   background: 'transparent', border: 0, cursor: 'pointer', padding: '12px 18px',
                   fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'lowercase',
@@ -419,7 +421,7 @@ export function AdminDashboard() {
                     <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                       <div className="loom-mono" style={{ width: 160, fontSize: 11, color: 'var(--bone-dim)' }}>{step.label}</div>
                       <div style={{ flex: 1, height: 4, background: 'var(--rule)', position: 'relative' }}>
-                        <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${percentage}%`, background: 'var(--warm)', transition: 'width 360ms var(--loom-ease)' }} />
+                        <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${percentage}%`, background: 'var(--bone-dim)', transition: 'width 360ms var(--loom-ease)' }} />
                       </div>
                       <div className="loom-mono" style={{ width: 80, textAlign: 'right', fontSize: 11 }}>
                         <span style={{ color: 'var(--bone)' }}>{step.value}</span>
@@ -459,7 +461,7 @@ export function AdminDashboard() {
                   const height = maxLogins > 0 ? (count / maxLogins) * 100 : 0;
                   return (
                     <div key={hour} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <div style={{ width: '100%', height: `${Math.max(height, 2)}%`, background: 'var(--warm)', opacity: 0.6 }} title={`${hour}:00 — ${count} logins`} />
+                      <div style={{ width: '100%', height: `${Math.max(height, 2)}%`, background: 'var(--bone-dim)' }} title={`${hour}:00 — ${count} logins`} />
                       {hour % 4 === 0 && <div className="loom-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', marginTop: 4 }}>{hour}h</div>}
                     </div>
                   );
@@ -478,7 +480,7 @@ export function AdminDashboard() {
                   const height = maxLogins > 0 ? (count / maxLogins) * 100 : 0;
                   return (
                     <div key={day} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                      <div style={{ width: '100%', height: `${Math.max(height, 5)}%`, background: 'var(--warm)', opacity: 0.6 }} title={`${day} — ${count} logins`} />
+                      <div style={{ width: '100%', height: `${Math.max(height, 5)}%`, background: 'var(--bone-dim)' }} title={`${day} — ${count} logins`} />
                       <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 6 }}>{day}</div>
                     </div>
                   );
@@ -565,7 +567,7 @@ export function AdminDashboard() {
                   <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     <div className="loom-mono" style={{ width: 160, fontSize: 11, color: 'var(--bone-dim)' }}>{label}</div>
                     <div style={{ flex: 1, height: 4, background: 'var(--rule)', position: 'relative' }}>
-                      <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${pct}%`, background: 'var(--warm)', transition: 'width 360ms var(--loom-ease)' }} />
+                      <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${pct}%`, background: 'var(--bone-dim)', transition: 'width 360ms var(--loom-ease)' }} />
                     </div>
                     <div className="loom-mono" style={{ width: 80, textAlign: 'right', fontSize: 11 }}>
                       <span style={{ color: 'var(--bone)' }}>{value}</span>
@@ -902,7 +904,7 @@ export function AdminDashboard() {
                           style={{
                             borderBottom: '1px solid var(--rule)',
                             cursor: 'pointer',
-                            borderLeft: isEscalated ? '2px solid var(--warm)' : '2px solid transparent',
+                            borderLeft: isEscalated ? '1px solid var(--warm)' : '1px solid transparent',
                           }}
                           onMouseOver={(e) => (e.currentTarget.style.background = 'var(--ink-card)')}
                           onMouseOut={(e) => (e.currentTarget.style.background = 'transparent')}
@@ -1085,7 +1087,7 @@ export function AdminDashboard() {
                       const vals = userGrowth?.data?.slice(-14) || [];
                       const maxSig = Math.max(...vals.map((d: any) => d.signups), 1);
                       return vals.map((day: any, i: number) => (
-                        <div key={i} style={{ flex: 1, background: 'var(--warm)', opacity: 0.6, height: `${Math.max(10, (day.signups / maxSig) * 100)}%` }} title={`${day.date}: ${day.signups}`} />
+                        <div key={i} style={{ flex: 1, background: 'var(--bone-dim)', height: `${Math.max(10, (day.signups / maxSig) * 100)}%` }} title={`${day.date}: ${day.signups}`} />
                       ));
                     })()}
                   </div>
