@@ -840,7 +840,7 @@ export function Record() {
               ))}
             </div>
 
-            {/* circular warm ring — play triangle / pause bars */}
+            {/* warm-outline transport — play triangle / pause bars */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 40 }}>
               <button
                 type="button"
@@ -850,7 +850,7 @@ export function Record() {
                   width: 64,
                   height: 64,
                   border: '1px solid var(--warm)',
-                  borderRadius: '50%',
+                  borderRadius: 0,
                   background: 'transparent',
                   display: 'inline-flex',
                   alignItems: 'center',

@@ -317,7 +317,7 @@ encryptionRoutes.get('/escrow', async (c) => {
   let trustedContact = null;
   if (escrow.trusted_contact_id) {
     trustedContact = await c.env.DB.prepare(`
-      SELECT id, name, email FROM legacy_contacts WHERE id = ?
+      SELECT id, name, email FROM legacy_contacts WHERE id = ? AND deleted_at IS NULL
     `).bind(escrow.trusted_contact_id).first();
   }
   

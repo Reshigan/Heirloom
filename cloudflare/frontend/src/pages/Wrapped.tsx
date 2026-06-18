@@ -6,7 +6,7 @@ import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 // Sanctioned stagger ladder — only the four allowed motion durations, used as
 // the reveal delays so each stat moment lands on a legal beat.

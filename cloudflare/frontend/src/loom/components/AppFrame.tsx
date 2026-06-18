@@ -21,7 +21,8 @@ export function AppFrame({
   left,
   right,
   nav = true,
-  role: _role, // TODO(wave-3): consumed by PwaHome role-keyed rendering
+  // `role` is accepted in the prop type below (TODO(wave-3): PwaHome role-keyed
+  // rendering) but not yet read in the body — intentionally not destructured.
 }: {
   children: ReactNode;
   width?: 'reading' | 'wide' | 'prose' | 'focus';

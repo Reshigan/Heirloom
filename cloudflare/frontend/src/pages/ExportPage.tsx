@@ -10,11 +10,17 @@ import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 /**
  * ExportPage — take the thread with you.
  *
- * Four ways to leave with the archive whole:
+ * Four ways to leave:
  *   · the printed book   (HARDCOVER — elegant cover PDF, ready for the press)
  *   · the digital archive (PDF      — the family book, bound on screen)
  *   · plain text          (TXT      — the unadorned family book)
  *   · the whole thread    (ZIP      — every record, dumped raw)
+ *
+ * Scope differs by format, and the copy on the page must stay honest about it:
+ * only the ZIP is the COMPLETE, self-contained archive (every live entry plus
+ * revision history, all bequests + their recipients, and all voice). The three
+ * book formats are a curated KEEPSAKE — live entries only, voice needs a
+ * transcript, no bequests/revisions.
  *
  * The first three render through exportApi.familyBook (synchronous PDF
  * generation); the finished blob is fetched and saved straight to disk. The
@@ -335,6 +341,24 @@ export function ExportPage() {
           ))}
         </div>
 
+        {/* Honest scope of each format. The ZIP is the complete, self-contained
+            archive (every revision, every bequest, all voice). The printed-book
+            formats are a curated keepsake of the live thread. */}
+        <p
+          className="hl-serif"
+          style={{
+            marginTop: 18,
+            fontStyle: 'italic',
+            fontSize: 13,
+            lineHeight: 1.6,
+            color: 'var(--bone-faint)',
+          }}
+        >
+          The whole thread is the complete archive — every entry, revision,
+          bequest, and recording, kept whole. The printed-book formats are a
+          curated keepsake of the living thread.
+        </p>
+
         {/* ── export action — the single warm pill ── */}
         <div style={{ marginTop: 48, marginBottom: 8 }}>
           <button
@@ -398,9 +422,9 @@ export function ExportPage() {
           this archive is yours — it leaves with you, whole, to pass on.
         </p>
 
-        {/* Scope note — every export carries the whole thread, bequeathed
-            entries included. The book binds all memories, letters, and voice;
-            the whole-thread export is the complete archive with its recipients. */}
+        {/* Scope note — the whole-thread archive carries bequeathed entries and
+            their recipients; the printed book binds the live entries it can set
+            in type. Honest about the difference, no overpromise. */}
         <p
           className="hl-serif"
           style={{
@@ -414,8 +438,9 @@ export function ExportPage() {
             marginInline: 'auto',
           }}
         >
-          Entries you have bequeathed to others are included — nothing left to
-          an heir is held back from your own archive.
+          In the whole-thread archive, entries you have bequeathed to others are
+          included with their recipients — nothing left to an heir is held back
+          from your own archive.
         </p>
 
         {/* ── past bindings ── */}

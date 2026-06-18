@@ -21,7 +21,7 @@ import { SectionLabel } from '../loom/cosmic/CosmicUI';
  * inside one faint rounded-rect frame. No icons, no glass; ∞ is the only mark.
  */
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 /** the year this letter is meant to be opened — the far end of a life */
 const OPEN_YEAR = (age: number) => new Date().getFullYear() + Math.max(0, 90 - age);

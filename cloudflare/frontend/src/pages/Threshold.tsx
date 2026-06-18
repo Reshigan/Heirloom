@@ -9,8 +9,10 @@ import { useAuthStore } from '../stores/authStore';
  * threshold; the global filament backdrop carries the single glowing ∞ behind
  * the column (we paint none of our own so they don't double up); the thesis is
  * set large in serif with its quiet bloodline sub beneath; then the entry
- * ceremony — a solid filled amber ENTER bar that runs the one door, "start
- * your thread." We do not ask for an account or a name here.
+ * ceremony — a copper-outline ENTER affordance (transparent fill, 1px
+ * var(--warm) border + var(--warm) text; hover brightens the border/text, never
+ * a fill) that runs the one door, "start your thread." We do not ask for an
+ * account or a name here.
  */
 
 export function Threshold() {
@@ -90,7 +92,8 @@ export function Threshold() {
             a perpetual archive owned by a bloodline.
           </p>
 
-          {/* Entry ceremony — mono label, then the solid amber ENTER bar */}
+          {/* Entry ceremony — mono label, then the copper-outline ENTER bar
+              (transparent fill, 1px var(--warm) border + text — never a fill) */}
           <div
             className="hl-mono"
             style={{

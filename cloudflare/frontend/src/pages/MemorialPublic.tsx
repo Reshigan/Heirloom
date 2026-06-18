@@ -136,7 +136,7 @@ export function MemorialPublic() {
                 />
                 <meta property="og:type" content="article" />
                 <meta property="og:url" content={window.location.href} />
-                <meta property="og:image" content="https://heirloom.blue/og-image.png" />
+                <meta property="og:image" content="https://heirloom.blue/og/milestone.png" />
                 <meta property="og:image:width" content="1200" />
                 <meta property="og:image:height" content="630" />
                 <meta name="twitter:card" content="summary_large_image" />
@@ -145,7 +145,7 @@ export function MemorialPublic() {
                   name="twitter:description"
                   content="A memorial kept inside a perpetual family thread — permanent, in order, and meant to be carried forward."
                 />
-                <meta name="twitter:image" content="https://heirloom.blue/og-image.png" />
+                <meta name="twitter:image" content="https://heirloom.blue/og/milestone.png" />
                 <link rel="canonical" href={window.location.href} />
               </Helmet>
               {/*

@@ -29,7 +29,7 @@ const BENEFITS = [
   'early access to new features',
 ];
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 /** The ceremonial glowing warm ∞ at the head of the ritual. */
 function GlowMark() {

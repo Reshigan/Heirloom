@@ -179,12 +179,13 @@
      the light theme overrides it to parchment below. */
   --cloth-scrim: rgba(11,9,7,0.62);
 
-  /* Timing */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --duration-fast: 180ms;
-  --duration-normal: 360ms;
-  --duration-slow: 720ms;
-  --duration-glacial: 1400ms;
+  /* Timing — aliases of the canonical --ease / --dur-* family defined just
+     below. Single-sourced so future motion edits change ONE place. */
+  --ease-out: var(--ease);
+  --duration-fast: var(--dur-fast);
+  --duration-normal: var(--dur-mid);
+  --duration-slow: var(--dur-slow);
+  --duration-glacial: var(--dur-ceremony);
 
   /* Heirloom motion tokens — these are the ONLY permitted durations for
      INTERACTION feedback (hover/focus/press/reveal/transition).
@@ -192,7 +193,11 @@
      Ambient tier: infinite background loops (cloth-breath, shuttle, fell-breath,
      infinity-float) are exempt from the interaction duration ladder — slow
      durations (>=6s), linear easing for continuous drift, ease-in-out for
-     breathing. Their meaning is perpetuity, not interaction feedback. */
+     breathing. Their meaning is perpetuity, not interaction feedback.
+
+     CANONICAL SOURCE: --ease and the --dur-* tokens are the single source of
+     truth for motion. The --ease-out/--duration-* and --loom-ease/--loom-dur-*
+     families alias these via var(); edit timing/easing HERE only. */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
   --dur-fast: 180ms;
   --dur-mid: 360ms;
@@ -550,7 +555,10 @@ h1, h2, h3, h4, h5, h6 {
 h1 { font-size: 3.5rem; letter-spacing: -0.02em; }
 h2 { font-size: 2.5rem; letter-spacing: -0.01em; }
 h3 { font-size: 1.75rem; }
-h4 { font-size: 1.25rem; }
+/* Cormorant floor — var(--font-display) turns unreadable below ~24px, so no
+   global heading tag may render smaller. h4 was 1.25rem (20px) and h5/h6 were
+   unsized (~16px); floor all three to 1.5rem (24px), mirroring the .loom fix. */
+h4, h5, h6 { font-size: 1.5rem; }
 
 .text-gold { color: var(--gold); }
 .text-muted { color: rgba(245, 243, 238, 0.5); }
@@ -1346,12 +1354,15 @@ html {
   --loom-warm-dim:   #b07a3e;
   --loom-warm-glow:  rgba(240, 192, 116, 0.20);
 
-  --loom-ease:       cubic-bezier(0.16, 1, 0.3, 1);
-  --loom-dur-fast:   180ms;
-  --loom-dur-shift:  360ms;
-  --loom-dur-veil:   720ms;
-  --loom-dur-breath: 9000ms;
-  --loom-dur-loom:   1400ms;
+  /* Aliases of the canonical --ease / --dur-* family (see :root). Single-
+     sourced so motion edits change ONE place. --loom-dur-breath has no
+     canonical twin (ambient-tier 9s loop) so it stays a literal. */
+  --loom-ease:       var(--ease);
+  --loom-dur-fast:   var(--dur-fast);
+  --loom-dur-shift:  var(--dur-mid);
+  --loom-dur-veil:   var(--dur-slow);
+  --loom-dur-breath: 9000ms; /* ambient tier — no canonical token; --ease is canonical for easing */
+  --loom-dur-loom:   var(--dur-ceremony);
 }
 
 .loom[data-theme="light"] {
@@ -1359,7 +1370,7 @@ html {
   --loom-ink-card:   #ece0cb;
   --loom-bone:       #120d08;
   --loom-bone-dim:   rgba(18, 13, 8, 0.74);
-  --loom-bone-faint: rgba(18, 13, 8, 0.48);
+  --loom-bone-faint: rgba(18, 13, 8, 0.60);
   --loom-bone-ghost: rgba(18, 13, 8, 0.18);
   --loom-warp-rgb:   18, 13, 8;
   --loom-rule:       rgba(18, 13, 8, 0.12);
@@ -1457,12 +1468,16 @@ html {
   font-weight: 300;
   letter-spacing: -0.012em;
   line-height: 1.0;
+  /* Cormorant floor — sizeless callers fall back here, never below 24px. */
+  font-size: 1.5rem;
 }
 .loom-h2 {
   font-family: 'Cormorant Garamond', Georgia, serif;
   font-weight: 400;
   letter-spacing: -0.006em;
   line-height: 1.06;
+  /* Cormorant floor — sizeless callers fall back here, never below 24px. */
+  font-size: 1.5rem;
 }
 .loom-body {
   font-family: 'Spectral', Georgia, serif;
@@ -1622,7 +1637,7 @@ html {
 .loom-weft__pick {
   position: absolute;
   height: 2px;
-  border-radius: 1px;
+  border-radius: 0;
   transition:
     height var(--loom-dur-fast) var(--loom-ease),
     opacity var(--loom-dur-fast) var(--loom-ease);
@@ -1805,7 +1820,8 @@ html {
   display: grid;
   grid-template-columns: 1fr auto;
   font-family: 'Cormorant Garamond', serif;
-  font-size: 21px;
+  /* Cormorant floor — must stay >=24px or the display face turns unreadable. */
+  font-size: 1.5rem;
   font-weight: 400;
   align-items: baseline;
   padding: 6px 0;

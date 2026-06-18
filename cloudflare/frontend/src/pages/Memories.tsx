@@ -196,7 +196,7 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
           {imageOf(m) && (
             <img
               src={imageOf(m) as string}
-              alt={m.title ?? ''}
+              alt={m.title ?? 'Memory photo'}
               loading="lazy"
               style={{
                 display: 'block',

@@ -16,7 +16,7 @@ interface GiftConfig {
   unlockDate: string;
 }
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 const eyebrow: React.CSSProperties = {
   fontFamily: 'var(--mono)',

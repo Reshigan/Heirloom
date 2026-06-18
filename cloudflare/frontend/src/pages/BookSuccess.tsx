@@ -4,7 +4,7 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 export function BookSuccess() {
   const [params] = useSearchParams();

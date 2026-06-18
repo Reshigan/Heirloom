@@ -37,7 +37,7 @@ function LoadingHair() {
   );
 }
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 // ── The kind word for a memory type, set in the READING subline ──────────────
 function kindWord(memoryType: string): string {

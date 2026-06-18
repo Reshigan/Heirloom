@@ -41,7 +41,7 @@ interface VoiceEntry {
   metadata?: { dye?: string } | null;
 }
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 // A deterministic warm-filament waveform derived from the recording id, scrubbed
 // by playback progress. This IS the audio's content (not backdrop) — amber bars
@@ -78,7 +78,7 @@ function VoiceWaveform({ seed, progress }: { seed: string; progress: number }) {
             key={i}
             style={{
               flex: '1 1 0', height: `${Math.round(ratio * 100)}%`,
-              minWidth: 1, borderRadius: 1,
+              minWidth: 1, borderRadius: 0,
               background: lit ? 'var(--warm)' : 'var(--copper-label)',
               opacity: lit ? 0.95 : 0.55,
               transition: `opacity 180ms ${EASE}, background 180ms ${EASE}`,
@@ -96,7 +96,7 @@ function PlayRing({ playing }: { playing: boolean }) {
     <span
       aria-hidden
       style={{
-        width: 64, height: 64, borderRadius: '50%',
+        width: 64, height: 64, borderRadius: 0,
         border: '1px solid var(--warm)', display: 'flex',
         alignItems: 'center', justifyContent: 'center', flex: '0 0 auto',
         color: 'var(--warm)', transition: `border-color 180ms ${EASE}, color 180ms ${EASE}`,

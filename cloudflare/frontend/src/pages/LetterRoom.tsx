@@ -46,7 +46,7 @@ function opensCondition(letter: Letter): string {
   return year ? `opens ${year}` : 'opens when the day comes';
 }
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 /**
  * Choose the letter the room leads with as a full seal ceremony. We surface the
@@ -139,7 +139,7 @@ export function LetterRoom() {
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, height: 1,
           background: 'var(--warm)', opacity: isLoading ? 0.6 : 0,
-          transition: 'opacity 360ms', zIndex: 30, pointerEvents: 'none',
+          transition: `opacity 360ms ${EASE}`, zIndex: 30, pointerEvents: 'none',
         }}
       />
 

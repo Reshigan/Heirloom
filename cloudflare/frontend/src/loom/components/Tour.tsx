@@ -9,7 +9,7 @@ import { useState } from 'react';
  * re-runs it. Calls onDone when the reader finishes or skips.
  */
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../motion';
 
 interface Panel {
   eyebrow: string;

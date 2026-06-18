@@ -122,7 +122,7 @@ function ensureKeyframes() {
   document.head.appendChild(s);
 }
 
-export function Filament({ variant = 'none', seed: _seed = 1941, intensity = 1, className, style }: FilamentProps) {
+export function Filament({ variant = 'none', intensity = 1, className, style }: FilamentProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const gestureRef = useRef<HTMLDivElement>(null);
   const [paper, setPaper] = useState(false);

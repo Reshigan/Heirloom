@@ -9,6 +9,7 @@ import { useAuthStore } from '../stores/authStore';
 import { aiApi, engagementApi } from '../services/api';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { EASE as ease } from '../loom/motion';
 
 interface OnThisDayEntry {
   id: string;
@@ -74,8 +75,6 @@ export function Today() {
   const contributors = [...new Map(
     [...entries].filter(e => e.author).reverse().map(e => [e.author, e])
   ).values()].slice(0, 3);
-
-  const ease = 'cubic-bezier(0.16,1,0.3,1)';
 
   const todayTopbar = (
     <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'today' }]} />

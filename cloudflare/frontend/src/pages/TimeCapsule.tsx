@@ -8,7 +8,7 @@ import { useFocusTrap } from '../lib/useFocusTrap';
 
 type CapsuleStatus = 'open' | 'sealed' | 'unlocked';
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 /** Quiet banner linking to the thread compose flow when a thread exists. */
 function ThreadComposeBanner() {

@@ -24,6 +24,7 @@ const HANDLED_PREFIXES = [
   'card',
   'inherit',
   'inheritance',
+  'gift-memory',
   'memory-room',
   'wrapped',
   'founder',

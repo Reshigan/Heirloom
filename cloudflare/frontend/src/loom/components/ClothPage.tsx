@@ -17,8 +17,9 @@ interface Props {
   onClose?: () => void;
 }
 
+import { EASE } from '../motion';
+
 const DUR  = '360ms';
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
 export function ClothPage({ isOpen, page, children, onClose }: Props) {
   return (

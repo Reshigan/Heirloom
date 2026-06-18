@@ -7,6 +7,7 @@ import {
   getDeferredPrompt, isIOS, isStandalone,
   onInstallStateChange, promptInstall, wasInstalled,
 } from '../lib/pwa';
+import { EASE as ease } from '../loom/motion';
 
 // ── Permanence answers ────────────────────────────────────────────────
 const PERMANENCE = [
@@ -54,7 +55,6 @@ export function Marketing() {
   const permSect = useReveal(0.06);
   const bookSect = useReveal(0.08);
   const finalCta = useReveal(0.1);
-  const ease = 'cubic-bezier(0.16,1,0.3,1)';
   const narrow = vpW < 680;
   const reduceMotion = typeof window !== 'undefined'
     && window.matchMedia('(prefers-reduced-motion: reduce)').matches;

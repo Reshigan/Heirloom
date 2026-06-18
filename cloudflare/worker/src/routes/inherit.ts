@@ -506,9 +506,10 @@ inheritRoutes.post('/reply', validateRecipientSession, async (c) => {
     return c.json({ error: 'Please provide a reaction or message' }, 400);
   }
   
-  // Get the legacy contact info for sender details
+  // Get the legacy contact info for sender details (live rows only —
+  // a soft-deleted contact must not surface as a sender; defense-in-depth)
   const legacyContact = await c.env.DB.prepare(`
-    SELECT name, email, relationship FROM legacy_contacts WHERE id = ?
+    SELECT name, email, relationship FROM legacy_contacts WHERE id = ? AND deleted_at IS NULL
   `).bind(legacyContactId).first();
   
   if (!legacyContact) {

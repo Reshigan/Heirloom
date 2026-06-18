@@ -16,7 +16,7 @@ import { dyeVar } from '../loom/dye';
  * picker — the quickest path from a phone photo to a thread in the cloth. The full
  * Compose surface remains for writing; this is for the moment you just want the picture in.
  */
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 interface QuickImage {
   id: string;
@@ -233,11 +233,11 @@ export function PhotoQuick() {
                 marginBottom: 36,
               }}
             >
-              {images.map((im) => (
+              {images.map((im, i) => (
                 <div key={im.id} style={{ position: 'relative', aspectRatio: '1 / 1', overflow: 'hidden', borderRadius: 0 }}>
                   <img
                     src={im.url}
-                    alt=""
+                    alt={`Photo ${i + 1}`}
                     loading="lazy"
                     style={{
                       width: '100%',

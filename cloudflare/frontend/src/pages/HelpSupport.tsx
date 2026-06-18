@@ -14,7 +14,7 @@ import { settingsApi } from '../services/api';
  * mono uppercase warm affordances, WaxSeal foot.
  */
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 interface ChatMessage { role: 'user' | 'assistant'; content: string; }
 interface PastConversation {

@@ -21,7 +21,7 @@ import { dyeVar, dyeFromMetadata, dyeForId, type Dye } from '../loom/dye';
  * picks yet.
  */
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 // ── Thread type ───────────────────────────────────────────────────────────────
 type Thread = {

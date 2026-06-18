@@ -5,7 +5,7 @@
 
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
-import { readDescription, decryptText } from '../lib/legacyArchive';
+import { readDescription, decryptText, withinGrace } from '../lib/legacyArchive';
 import { sendEmail } from '../utils/email';
 
 export const settingsRoutes = new Hono<AppEnv>();
@@ -667,10 +667,34 @@ settingsRoutes.patch('/legacy-contacts/:id', async (c) => {
 
   const { name, email, phone, relationship, role } = body;
   const now = new Date().toISOString();
-  
+
+  // Append-only: classify the edit the same way the memories/letters/voice
+  // surface does — within the mutability grace window it's an in-place 'edit';
+  // after it, an 'amendment'. The shared legacy_revisions log can't hold a
+  // snapshot here (its entity_type CHECK is fixed to memory|letter|voice, 0040),
+  // so an amendment is recorded as a contemporaneous prior-value audit line
+  // rather than silently overwriting — and the grace window (mutable_until) is
+  // NOT extended on amendment, so the row's append-only character is preserved.
+  const reason = withinGrace(existing.mutable_until as string | null) ? 'edit' : 'amendment';
+  if (reason === 'amendment') {
+    console.log('[legacy-contact] amendment past grace', JSON.stringify({
+      contactId,
+      userId,
+      prior: {
+        name: existing.name,
+        email: existing.email,
+        phone: existing.phone,
+        relationship: existing.relationship,
+        role: existing.role,
+        updated_at: existing.updated_at,
+      },
+      at: now,
+    }));
+  }
+
   // Convert undefined to null for D1 compatibility
   await c.env.DB.prepare(`
-    UPDATE legacy_contacts 
+    UPDATE legacy_contacts
     SET name = COALESCE(?, name),
         email = COALESCE(?, email),
         phone = COALESCE(?, phone),
@@ -679,12 +703,12 @@ settingsRoutes.patch('/legacy-contacts/:id', async (c) => {
         updated_at = ?
     WHERE id = ?
   `).bind(
-    name ?? null, 
-    email ?? null, 
-    phone ?? null, 
-    relationship ?? null, 
-    role ?? null, 
-    now, 
+    name ?? null,
+    email ?? null,
+    phone ?? null,
+    relationship ?? null,
+    role ?? null,
+    now,
     contactId
   ).run();
   
@@ -1198,6 +1222,12 @@ settingsRoutes.get('/export', async (c) => {
         description: m.description,
         fileKey: m.file_key,
         metadata: m.metadata ? JSON.parse(m.metadata) : null,
+        // At-rest encryption indicators — forward-portability so a future
+        // client-side-key option can round-trip ciphertext + IV instead of
+        // exporting undecryptable bytes labelled as prose. No behavior change
+        // today (the server-held model decrypts in place before reads).
+        encrypted: !!m.encrypted,
+        encryptionIv: m.encryption_iv ?? null,
         createdAt: m.created_at,
         updatedAt: m.updated_at,
       })),
@@ -1208,6 +1238,8 @@ settingsRoutes.get('/export', async (c) => {
         fileKey: v.file_key,
         duration: v.duration,
         transcript: v.transcript,
+        encrypted: !!v.encrypted,
+        encryptionIv: v.encryption_iv ?? null,
         createdAt: v.created_at,
         updatedAt: v.updated_at,
       })),
@@ -1220,6 +1252,8 @@ settingsRoutes.get('/export', async (c) => {
         deliveryTrigger: l.delivery_trigger,
         scheduledDate: l.scheduled_date,
         sealedAt: l.sealed_at,
+        encrypted: !!l.encrypted,
+        encryptionIv: l.encryption_iv ?? null,
         createdAt: l.created_at,
         updatedAt: l.updated_at,
       })),

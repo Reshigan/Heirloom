@@ -14,8 +14,8 @@ import { DYES, type Dye } from '../dye';
  */
 export function WeaveCeremony({
   dye,
-  entryDate: _entryDate,
-  seed: _seed,
+  // entryDate + seed are accepted in the prop type below (part of the shared
+  // save-path call shape) but not yet read in the body — not destructured.
   eyebrow,
   headline,
   footer,

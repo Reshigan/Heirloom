@@ -68,7 +68,7 @@ const SUGGESTIONS = [
   'The years with the most about grief.',
 ];
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 export function QandA() {
   const [question, setQuestion] = useState('');

@@ -19,7 +19,7 @@ interface VoucherInfo {
   expiresAt: string;
 }
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 // The glowing warm ∞ — the ceremony mark at the top of the rite.
 function CeremonyMark() {

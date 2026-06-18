@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
  * opens a quiet hairline menu — never a chatbot, never an icon row.
  */
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../motion';
 
 const ITEMS: Array<{ label: string; to: string; hint: string }> = [
   { label: 'search',      to: '/search',      hint: 'find any thread' },

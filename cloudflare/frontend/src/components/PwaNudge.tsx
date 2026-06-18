@@ -175,10 +175,11 @@ export function PwaNudge() {
           overflow: 'hidden',
         }}
       >
-        {/* Tapestry cloth stripe — six dye bands at top */}
-        <div style={{ display: 'flex', height: 3 }}>
+        {/* Tapestry cloth motif — six dye threads (signal, not block fill):
+            fixed 2px lines, left-aligned, with transparent gaps between. */}
+        <div style={{ display: 'flex', height: 3, gap: 5 }}>
           {(['madder','saffron','indigo','cochineal','weld','woad'] as const).map((d) => (
-            <div key={d} style={{ flex: 1, background: `var(--dye-${d})`, opacity: 0.9 }} />
+            <div key={d} style={{ width: 2, background: `var(--dye-${d})`, opacity: 0.9 }} />
           ))}
         </div>
 

@@ -22,6 +22,7 @@ export interface OgCard {
 
 export const OG_CARDS: Record<
   | 'inherit'
+  | 'giftMemory'
   | 'wrapped'
   | 'pricing'
   | 'terms'
@@ -37,6 +38,12 @@ export const OG_CARDS: Record<
     title: 'Someone has been writing to you.',
     description:
       'A thread was set aside for you to read when the time came. Open it when you are ready - it has been waiting.',
+    image: '/og/inherit.png',
+  },
+  giftMemory: {
+    title: 'Someone is giving you a memory.',
+    description:
+      'A memory from a family thread has been set aside as a gift for you. Open it when you are ready.',
     image: '/og/inherit.png',
   },
   wrapped: {

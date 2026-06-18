@@ -6,6 +6,7 @@ import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
 import { type FamilyMember } from '../types';
 import { dyeColor, dyeTextColor } from '../loom/dye';
+import { EASE as ease } from '../loom/motion';
 import { HLogo } from '../loom/components/HLogo';
 import { VoiceRefine } from '../loom/components/VoiceRefine';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
@@ -973,7 +974,6 @@ export function Compose() {
   }, [body, woven]);
 
   const wordCount = body.trim() ? body.trim().split(/\s+/).length : 0;
-  const ease = 'cubic-bezier(0.16,1,0.3,1)';
 
   const handleBodyChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setBody(e.target.value);

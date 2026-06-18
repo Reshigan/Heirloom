@@ -46,7 +46,7 @@ const TIERS: {
   { id: 'founder', name: 'Founder', price: '$249', sub: 'once · lifetime', body: 'family forever · name in continuity record' },
 ];
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 export function Signup() {
   usePageMeta('Start your thread', "Begin your family's thousand-year thread. Free to start.");

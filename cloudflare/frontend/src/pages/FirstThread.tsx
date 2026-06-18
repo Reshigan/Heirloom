@@ -22,7 +22,7 @@ const ASSET_SEAL = '/ceremony/seal.png';
 
 // The single permitted curve. Every motion in the ceremony rides this one
 // easing — the ignition sweep and woven hairline included.
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 const DOT_ON = 'var(--warm)';
 const DOT_OFF = '#3a3026';

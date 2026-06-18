@@ -42,7 +42,7 @@ interface IndexEntry {
   href: string;
 }
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 const GROUPS = ['time', 'recipient', 'mood'] as const;
 type GroupBy = (typeof GROUPS)[number];
 

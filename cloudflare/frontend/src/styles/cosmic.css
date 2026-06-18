@@ -106,13 +106,13 @@
 }
 .cosmic-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .cosmic-btn--primary { border-color: var(--rule-warm); color: var(--warm-bright); }
-.cosmic-btn--primary:hover:not(:disabled) { background: var(--warm-glow); border-color: var(--cosmic-edge-warm); }
+.cosmic-btn--primary:hover:not(:disabled) { border-color: var(--warm-bright); color: var(--warm-bright); }
 .cosmic-btn--ghost { border-color: var(--cosmic-edge); color: var(--bone-dim); }
 .cosmic-btn--ghost:hover:not(:disabled) { border-color: var(--cosmic-edge-warm); color: var(--bone); }
 .cosmic-btn--text { padding: 4px 0; color: var(--bone-dim); }
 .cosmic-btn--text:hover:not(:disabled) { color: var(--warm-bright); }
 
-/* fields — transparent, bottom filament that warms on focus */
+/* fields — label only */
 .cosmic-field-label {
   display: block;
   font-family: var(--mono);
@@ -122,19 +122,6 @@
   color: var(--bone-faint);
   margin-bottom: 8px;
 }
-.cosmic-field-input {
-  width: 100%;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--cosmic-edge);
-  color: var(--bone);
-  font-family: var(--serif);
-  font-size: 17px;
-  padding: 8px 0;
-  transition: border-color var(--dur-fast) var(--ease);
-}
-.cosmic-field-input::placeholder { color: var(--bone-faint); }
-.cosmic-field-input:focus { outline: none; border-bottom-color: var(--cosmic-edge-warm); }
 
 /* page header chrome */
 .cosmic-eyebrow {

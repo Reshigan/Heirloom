@@ -18,7 +18,7 @@ import { threadsApi, type ThreadVisibility, type ThreadLockType } from '../servi
  * encryption envelope arrives in a later phase). The worker accepts this.
  */
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 /** Mono uppercase eyebrow / field label. */
 const labelStyle: React.CSSProperties = {

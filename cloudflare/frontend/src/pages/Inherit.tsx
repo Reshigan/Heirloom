@@ -44,7 +44,7 @@ interface SearchResponse {
   totalItems: number;
 }
 
-const EASE = 'cubic-bezier(0.16,1,0.3,1)';
+import { EASE } from '../loom/motion';
 
 /* ── Hairline loading bar ──────────────────────────────────────────────────── */
 function ShuttleBar() {
@@ -59,13 +59,23 @@ function ShuttleBar() {
         margin: '0 auto',
       }}
     >
+      {/* Local keyframes — distinct from the global 11s ambient `loom-shuttle`.
+          This is a contained 1.4s sweep across the 180px hairline loader. */}
+      <style>{`
+        @keyframes loom-shuttle-quick {
+          0%   { transform: translateX(-100%); opacity: 0; }
+          10%  { opacity: 0.6; }
+          85%  { opacity: 0.6; }
+          100% { transform: translateX(250%); opacity: 0; }
+        }
+      `}</style>
       <div
         style={{
           position: 'absolute',
           inset: 0,
           width: '40%',
           background: 'var(--warm)',
-          animation: `loom-shuttle 1.4s ${EASE} infinite`,
+          animation: `loom-shuttle-quick 1.4s ${EASE} infinite`,
         }}
       />
     </div>
@@ -885,7 +895,7 @@ export function Inherit() {
                       {memory.fileUrl ? (
                         <img
                           src={memory.fileUrl ?? undefined}
-                          alt={memory.title ?? undefined}
+                          alt={memory.title ?? 'Memory photo'}
                           loading="lazy"
                           style={{ width: 72, height: 72, objectFit: 'cover', display: 'block', borderRadius: 0 }}
                         />
