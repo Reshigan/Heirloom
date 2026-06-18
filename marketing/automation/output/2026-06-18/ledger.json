@@ -3,5 +3,10 @@
     "hour": 0,
     "hook": "He'll go his whole life without being asked about his dad.",
     "saying": "Ask your dad how he knew his own dad loved him"
+  },
+  {
+    "hour": 16,
+    "hook": "Your parent has a story from a strange night",
+    "saying": "What was the one night that still spooks your dad?"
   }
 ]
