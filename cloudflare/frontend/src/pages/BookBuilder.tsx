@@ -145,7 +145,10 @@ function chapterDye(it: { id: string; metadata?: unknown; dye?: unknown }): Dye 
 function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }) {
   const ink = active ? 'var(--warm-dim, rgba(224,160,98,0.5))' : 'var(--rule)';
   const photo: React.CSSProperties = {
-    background: 'linear-gradient(135deg, #5a4023, #33240f)',
+    // photo-plate placeholder — a warm-tinted leaf of the page surface so it
+    // theme-flips (token mix, never a fixed dark hex).
+    background:
+      'linear-gradient(135deg, color-mix(in srgb, var(--warm-dim) 42%, var(--ink-card)), color-mix(in srgb, var(--ink-card) 88%, var(--warm-dim)))',
     border: `1px solid ${ink}`,
     borderRadius: 0,
   };
@@ -232,10 +235,12 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
           position: 'relative',
           width: 184,
           height: 248,
-          // 3-D embossed leather cover
-          background: 'linear-gradient(135deg, #3a2817, #23170d 58%, #19100a)',
+          // 3-D embossed leather cover — built from the dark card surface warmed
+          // by copper so the volume theme-flips with the rest of the loom.
+          background:
+            'linear-gradient(135deg, color-mix(in srgb, var(--warm-dim) 28%, var(--ink-card)), color-mix(in srgb, var(--ink-card) 84%, var(--warm-dim)) 58%, var(--ink-card))',
           borderRadius: 0,
-          boxShadow: '0 18px 40px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(216,150,84,0.18)',
+          boxShadow: '0 18px 40px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.4), inset 0 1px 1px var(--warm-glow)',
         }}
       >
         {/* darker spine stripe on the left */}
@@ -246,7 +251,8 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
             top: 0,
             bottom: 0,
             width: 15,
-            background: 'linear-gradient(90deg, #140c06, #1e130a)',
+            background:
+              'linear-gradient(90deg, color-mix(in srgb, var(--ink-card) 70%, #000), color-mix(in srgb, var(--ink-card) 88%, #000))',
             borderRadius: 0,
             boxShadow: 'inset -2px 0 4px rgba(0,0,0,0.5)',
           }}
@@ -259,7 +265,8 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
             top: 0,
             bottom: 0,
             width: 5,
-            background: 'linear-gradient(90deg, #2a1c0f, #120b05)',
+            background:
+              'linear-gradient(90deg, color-mix(in srgb, var(--ink-card) 82%, #000), color-mix(in srgb, var(--ink-card) 64%, #000))',
             borderRadius: 0,
           }}
         />
@@ -268,7 +275,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
           style={{
             position: 'absolute',
             inset: '14px 12px 14px 24px',
-            border: '1px solid rgba(216,150,84,0.26)',
+            border: '1px solid var(--rule-warm)',
             borderRadius: 0,
             display: 'flex',
             flexDirection: 'column',
@@ -288,11 +295,11 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
             style={{
               fontFamily: 'var(--serif)',
               fontSize: 13,
-              color: '#e8c79a',
+              color: 'var(--gold-text)',
               textAlign: 'center',
               lineHeight: 1.2,
               padding: '0 8px',
-              textShadow: '0 1px 1px rgba(0,0,0,0.6), 0 -1px 0 rgba(216,150,84,0.12)',
+              textShadow: '0 1px 1px rgba(0,0,0,0.6), 0 -1px 0 var(--warm-glow)',
             }}
           >
             {title}
@@ -304,7 +311,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
               fontSize: 8,
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
-              color: '#cfa46a',
+              color: 'var(--gold-text)',
               textShadow: '0 1px 1px rgba(0,0,0,0.55)',
             }}
           >
@@ -793,7 +800,7 @@ export function BookBuilder() {
                         style={{
                           width: '100%',
                           aspectRatio: '0.78',
-                          border: active ? '1.5px solid var(--warm)' : '1px solid #3a2c1c',
+                          border: active ? '1.5px solid var(--warm)' : '1px solid var(--rule-warm)',
                           background: active ? 'color-mix(in srgb, var(--warm) 3%, transparent)' : 'var(--bg-template)',
                           borderRadius: 0,
                           padding: active ? 11 : 12,

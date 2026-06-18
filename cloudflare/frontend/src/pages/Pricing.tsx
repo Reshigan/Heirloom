@@ -72,7 +72,7 @@ export function Pricing() {
       cadence: showAnnual ? '/year' : '/month',
       // Surface the complementary cycle as a quiet mono line.
       note: showAnnual ? `or ${familyMonthly}/month` : `or ${familyYearly}/year`,
-      lines: ['Unlimited threads', '50 GB storage', 'Sealed notes'],
+      lines: PLAN_FEATURES.FAMILY,
       cta: 'Choose Family',
       to: showAnnual ? '/signup?tier=family&cycle=annual' : '/signup?tier=family',
       emphasized: true,

@@ -336,7 +336,6 @@ function SealedCeremony({ deliverYear, title, author, writtenYear }: TiedEntry) 
           fontFamily: 'var(--serif)',
           fontSize: 'clamp(40px, 10vw, 64px)',
           lineHeight: 1,
-          textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
         }}
       >
         ∞

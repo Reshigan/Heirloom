@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { TapestryEdge } from '../loom/components/Frame';
@@ -50,17 +50,26 @@ const fieldStyle: React.CSSProperties = {
   transition: `border-color 180ms ${EASE}`,
 };
 
-/** Underline-only mono select — same skin, native dropdown caret. */
-const selectStyle: React.CSSProperties = {
-  ...fieldStyle,
-  appearance: 'none',
-  cursor: 'pointer',
-  paddingRight: 24,
-  backgroundImage:
-    "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><polyline points='0,0 5,6 10,0' fill='none' stroke='rgba(242,230,208,0.32)' stroke-width='1.2'/></svg>\")",
-  backgroundRepeat: 'no-repeat',
-  backgroundPosition: 'right 4px center',
-};
+/**
+ * Underline-only mono select — same skin, native dropdown caret.
+ *
+ * The dropdown chevron is a data-URI SVG; a data URI cannot read CSS `var()`,
+ * so its stroke colour is injected from the live, theme-resolved `--bone`
+ * token (see useTokenColor) instead of being baked to a fixed cream rgba.
+ * This lets the chevron flip with dark / light (paper) themes.
+ */
+function selectStyle(chevron: string): React.CSSProperties {
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><polyline points='0,0 5,6 10,0' fill='none' stroke='${chevron}' stroke-width='1.2'/></svg>`;
+  return {
+    ...fieldStyle,
+    appearance: 'none',
+    cursor: 'pointer',
+    paddingRight: 24,
+    backgroundImage: `url("data:image/svg+xml;utf8,${svg}")`,
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 4px center',
+  };
+}
 
 /** A bottom-bar pill: mono, uppercase, hairline-bordered. */
 function pillStyle(warm: boolean, disabled = false): React.CSSProperties {
@@ -85,10 +94,42 @@ function pillStyle(warm: boolean, disabled = false): React.CSSProperties {
   };
 }
 
+/**
+ * Resolve a CSS custom property (e.g. `--bone`) to a concrete colour from the
+ * live `.loom` theme root, re-reading whenever the root's `data-theme` flips
+ * (dark ↔ light/paper). A data URI cannot read `var()`, so the select chevron
+ * needs the resolved value injected — this keeps it token-driven and
+ * theme-aware without baking a fixed colour. Returns a data-URI-safe string
+ * (`#` encoded so hex tokens don't read as a URL fragment).
+ */
+function useTokenColor(token: string, fallback: string): string {
+  const read = () => {
+    if (typeof document === 'undefined') return fallback;
+    const root = document.querySelector('.loom') ?? document.documentElement;
+    const v = getComputedStyle(root).getPropertyValue(token).trim();
+    return (v || fallback).replace(/#/g, '%23');
+  };
+  const [color, setColor] = useState<string>(read);
+  useEffect(() => {
+    const root = document.querySelector('.loom') ?? document.documentElement;
+    setColor(read());
+    const obs = new MutationObserver(() => setColor(read()));
+    obs.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => obs.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, fallback]);
+  return color;
+}
+
 export function ThreadCompose() {
   const { id } = useParams<{ id: string }>();
   const threadId = id ?? '';
   const navigate = useNavigate();
+
+  // Theme-resolved colour for the data-URI select chevron (token-driven so it
+  // flips with dark / light instead of the old baked cream rgba).
+  const chevronColor = useTokenColor('--bone-low', 'rgba(242,230,208,0.32)');
+  const selStyle = selectStyle(chevronColor);
 
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
@@ -370,7 +411,7 @@ export function ThreadCompose() {
                 aria-label="Who can read this"
                 value={visibility}
                 onChange={(e) => setVisibility(e.target.value as ThreadVisibility)}
-                style={{ ...selectStyle, maxWidth: 480 }}
+                style={{ ...selStyle, maxWidth: 480 }}
               >
                 <option value="FAMILY">Family — anyone in the thread, now and later</option>
                 <option value="DESCENDANTS">Descendants only — generations after yours</option>
@@ -423,7 +464,7 @@ export function ThreadCompose() {
                       id="t-lock-type"
                       value={lockType}
                       onChange={(e) => setLockType(e.target.value as ThreadLockType)}
-                      style={{ ...selectStyle, maxWidth: 360 }}
+                      style={{ ...selStyle, maxWidth: 360 }}
                     >
                       <option value="DATE">A specific date</option>
                       <option value="AGE">When someone reaches an age</option>
@@ -469,7 +510,7 @@ export function ThreadCompose() {
                           id="t-lock-member"
                           value={lockTargetMemberId}
                           onChange={(e) => setLockTargetMemberId(e.target.value)}
-                          style={selectStyle}
+                          style={selStyle}
                         >
                           <option value="">— pick a member —</option>
                           {members.map((m) => (
@@ -518,7 +559,7 @@ export function ThreadCompose() {
                           id="t-lock-event-member"
                           value={lockTargetMemberId}
                           onChange={(e) => setLockTargetMemberId(e.target.value)}
-                          style={selectStyle}
+                          style={selStyle}
                         >
                           <option value="">— pick a member —</option>
                           {members.map((m) => (

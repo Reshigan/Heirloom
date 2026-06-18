@@ -115,7 +115,6 @@ export function LetterOpeningCeremony({
               fontSize: 'clamp(76px, 12vw, 108px)',
               lineHeight: 1,
               color: 'var(--warm-bright)',
-              textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
               animation: 'hl-breathe 1400ms var(--ease) both',
             }}
           >

@@ -185,6 +185,7 @@ export function ForgotPassword() {
                 <input
                   id="fp-email"
                   type="email"
+                  className="hl-input"
                   required
                   autoComplete="email"
                   placeholder="your@email.com"
@@ -199,7 +200,6 @@ export function ForgotPassword() {
                     outline: 'none',
                     color: 'var(--bone)',
                     caretColor: 'var(--warm)',
-                    fontFamily: 'var(--sans)',
                     fontSize: 18,
                     padding: '10px 0 12px',
                     marginBottom: 32,

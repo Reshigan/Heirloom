@@ -32,7 +32,6 @@ function CeremonyMark() {
         fontWeight: 200,
         lineHeight: 1,
         color: 'var(--warm)',
-        textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
         marginBottom: 30,
       }}
     >

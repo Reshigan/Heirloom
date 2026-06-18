@@ -98,7 +98,6 @@ export function ResetPassword() {
               color: 'var(--warm)',
               lineHeight: 1,
               marginBottom: 40,
-              textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
             }}
           >
             ∞
@@ -299,6 +298,7 @@ export function ResetPassword() {
                   <input
                     id="rp-password"
                     type="password"
+                    className="hl-input"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -312,7 +312,6 @@ export function ResetPassword() {
                       borderBottom: '1px solid var(--rule)',
                       color: 'var(--bone)',
                       caretColor: 'var(--warm)',
-                      fontFamily: 'var(--sans)',
                       fontSize: 18,
                       padding: '8px 0 10px',
                       textAlign: 'center',
@@ -355,6 +354,7 @@ export function ResetPassword() {
                   <input
                     id="rp-confirm"
                     type="password"
+                    className="hl-input"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
@@ -367,7 +367,6 @@ export function ResetPassword() {
                       borderBottom: '1px solid var(--rule)',
                       color: 'var(--bone)',
                       caretColor: 'var(--warm)',
-                      fontFamily: 'var(--sans)',
                       fontSize: 18,
                       padding: '8px 0 10px',
                       textAlign: 'center',

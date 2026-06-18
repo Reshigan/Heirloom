@@ -44,7 +44,6 @@ function GlowMark() {
         color: 'var(--warm)',
         lineHeight: 1,
         marginBottom: 28,
-        textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
       }}
     >
       ∞

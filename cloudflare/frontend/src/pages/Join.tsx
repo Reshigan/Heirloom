@@ -256,7 +256,6 @@ export function Join() {
                   color: 'var(--ember)',
                   lineHeight: 1,
                   marginBottom: 40,
-                  textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
                 }}
               >
                 ∞

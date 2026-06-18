@@ -692,19 +692,8 @@ em {
 
 /* Custom cursor removed per UI polish spec (accessibility) */
 
-/* ===== SKELETON LOADING ===== */
-.skeleton {
-  background: linear-gradient(90deg, var(--paper-08) 25%, var(--paper-15) 50%, var(--paper-08) 75%);
-  background-size: 200% 100%;
-  /* loading sweep — linear is intentional */
-  animation: skeleton-shimmer 1400ms linear infinite;
-  border-radius: 0;
-}
-
-@keyframes skeleton-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
+/* Removed: the dead `.skeleton` shimmer + `@keyframes skeleton-shimmer` — no JSX
+ * call sites; ProgressHair (the 1px shuttle) is the only loading affordance. */
 
 /* ===== CSS FADE-IN (replaces simple Framer Motion fade) ===== */
 .fade-in {
@@ -2222,11 +2211,26 @@ html {
   font-weight: 400;
   letter-spacing: -0.008em;
 }
-/* Cormorant floor — it turns unreadable below ~24px. The base scale leaves
-   h4 at 1.25rem (20px) and h5/h6 unsized (~1rem), so within .loom force every
-   heading tag to at least 1.5rem (24px) so the display face is never tiny.
-   Genuine smaller "heading" text is retagged to .hl-serif (Spectral) above. */
-.loom h4, .loom h5, .loom h6 { font-size: 1.5rem; }
+/* Cormorant floor — it turns unreadable below ~24px. The Cormorant !important
+   trap above hits ALL of h1–h6, but the size floor previously covered only
+   h4–h6, leaving h1–h3 unprotected: a utility/inline shrink on a .loom h1–h3
+   would render display Cormorant prose-tiny. max(1.5rem, …) is a true FLOOR —
+   it keeps each tag's intended display size (h1 3.5 / h2 2.5 / h3 1.75rem; the
+   responsive shrink below restates h1/h2) yet never drops below 24px, so no
+   heading tag can fall under the floor. h4 base is 1.25rem (20px) and h5/h6 are
+   ~1rem, so they too clamp up to 1.5rem.
+   Genuine smaller "heading" text is retagged to .hl-serif (Spectral) below. */
+.loom h1 { font-size: max(1.5rem, 3.5rem); }
+.loom h2 { font-size: max(1.5rem, 2.5rem); }
+.loom h3 { font-size: max(1.5rem, 1.75rem); }
+.loom h4, .loom h5, .loom h6 { font-size: max(1.5rem, 1em); }
+/* .loom mirror of the global responsive heading shrink (h1→2.5 / h2→2rem),
+   restated so the .loom-specificity floor above does not freeze the desktop
+   size on small screens; both targets stay ≥24px. */
+@media (max-width: 768px) {
+  .loom h1 { font-size: max(1.5rem, 2.5rem); }
+  .loom h2 { font-size: max(1.5rem, 2rem); }
+}
 /* Escape hatch — .hl-serif must beat the display-face heading rule so any
    heading tag below the 24px Cormorant floor (BookBuilder h3, Streaks,
    Challenges, Inherit, …) reads in Spectral, the legible body voice. The
@@ -2324,26 +2328,6 @@ html {
   --wax-glow: rgba(156, 101, 53, 0.22);
 }
 
-/* ── ∞ mark — 3D float animation ───────────────────────────────────── */
-@keyframes hl-infinity-float {
-  0%   { transform: perspective(800px) rotateY(-4deg) rotateX(2deg)  translateY(0px); }
-  33%  { transform: perspective(800px) rotateY( 4deg) rotateX(-3deg) translateY(-4px); }
-  66%  { transform: perspective(800px) rotateY(-2deg) rotateX( 4deg) translateY(-2px); }
-  100% { transform: perspective(800px) rotateY(-4deg) rotateX(2deg)  translateY(0px); }
-}
-
-.hl-infinity-3d {
-  display: inline-block;
-  font-family: var(--serif);
-  color: var(--warm);
-  animation: hl-infinity-float 10s linear infinite;
-  filter:
-    drop-shadow(0 0 40px rgba(224, 160, 98, 0.18))
-    drop-shadow(0 2px 8px rgba(224, 160, 98, 0.13));
-  transform-origin: center center;
-  will-change: transform;
-}
-
 /* ── Thread-weave — new entries appear woven in ─────────────────────── */
 @keyframes hl-thread-weave {
   0%   { clip-path: inset(0 100% 0 0); opacity: 0.5; }
@@ -2403,7 +2387,6 @@ html {
 
 /* ── Reduced motion overrides ─────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .hl-infinity-3d              { animation: none; }
   .hl-thread-new               { animation: none; clip-path: none; opacity: 1; }
   .hl-composer-cursor-after::after { animation: none; }
   .hl-cloth-breathe-el        { animation: none; }

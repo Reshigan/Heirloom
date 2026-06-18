@@ -314,8 +314,7 @@ export function Founder() {
                 fontSize:    'clamp(40px,10vw,64px)',
                 color:       'var(--warm)',
                 lineHeight:   1,
-                textShadow:  '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
-              }}
+                }}
             >
               ∞
             </span>
@@ -601,7 +600,6 @@ export function Founder() {
               fontSize:    'clamp(32px,6vw,48px)',
               color:       'var(--warm)',
               lineHeight:   1,
-              textShadow:  '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
             }}
           >
             ∞

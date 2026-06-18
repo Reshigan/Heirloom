@@ -42,8 +42,8 @@ const TIERS: {
   sub: string;
   body: string;
 }[] = [
-  { id: 'free', name: 'Free', price: PLAN_PRICE.FREE.amount, sub: PLAN_PRICE.FREE.cycle, body: '1 thread · 500 MB · every feature' },
-  { id: 'family', name: 'Family', price: PLAN_PRICE.FAMILY.monthly, sub: PLAN_PRICE.FAMILY.perMonth, body: 'unlimited · all members · voice · sealed notes' },
+  { id: 'free', name: 'Free', price: PLAN_PRICE.FREE.amount, sub: PLAN_PRICE.FREE.cycle, body: '1 thread · 500 MB · try every feature' },
+  { id: 'family', name: 'Family', price: PLAN_PRICE.FAMILY.monthly, sub: PLAN_PRICE.FAMILY.perMonth, body: 'unlimited · up to 5 members · voice · sealed notes' },
   { id: 'founder', name: 'Founder', price: PLAN_PRICE.FOUNDER.amount, sub: PLAN_PRICE.FOUNDER.cycle, body: 'family forever · name in continuity record' },
 ];
 

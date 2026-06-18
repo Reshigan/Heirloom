@@ -3,8 +3,8 @@ import { useEffect, useState, useCallback } from 'react';
 /**
  * Loom theme management — three modes: light · dark · system.
  *
- * Default is 'dark'. Persisted to localStorage. Applied as
- * `data-theme` on every `.loom` root in the document.
+ * Default is 'light' (the warm paper ground). Persisted to localStorage.
+ * Applied as `data-theme` on every `.loom` root in the document.
  */
 export type LoomTheme = 'light' | 'dark' | 'system';
 const KEY = 'heirloom-theme';
@@ -23,7 +23,7 @@ function readInitial(): LoomTheme {
   } catch {
     /* ignore */
   }
-  return 'dark';
+  return 'light';
 }
 
 function applyTheme(theme: LoomTheme): void {

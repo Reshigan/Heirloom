@@ -520,10 +520,11 @@ function ImportInfluencersModal({ onClose, onImport, isLoading }: {
     <ModalShell title="Import from CSV." onClose={onClose} wide>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div>
-          <label style={labelStyle}>
+          <label htmlFor="mt-csv-import" style={labelStyle}>
             CSV format: name, email, platform, handle, segment, followers, profile_url, notes
           </label>
           <textarea
+            id="mt-csv-import"
             value={csvData}
             onChange={(e) => setCsvData(e.target.value)}
             placeholder={"name,email,platform,handle,segment,followers,profile_url,notes\nYour Name,contact@example.com,INSTAGRAM,yourusername,GENEALOGY,50000,https://instagram.com/yourusername,Family history enthusiast"}
@@ -660,8 +661,9 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
       {step === 'setup' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div>
-            <label style={labelStyle}>Campaign Name</label>
+            <label htmlFor="mt-campaign-name" style={labelStyle}>Campaign Name</label>
             <input
+              id="mt-campaign-name"
               type="text"
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
@@ -671,8 +673,9 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
           </div>
 
           <div>
-            <label style={labelStyle}>Target Segment (optional)</label>
+            <label htmlFor="mt-target-segment" style={labelStyle}>Target Segment (optional)</label>
             <select
+              id="mt-target-segment"
               value={formData.targetSegment}
               onChange={(e) => {
                 setFormData(prev => ({ ...prev, targetSegment: e.target.value }));
@@ -712,8 +715,9 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
       {step === 'compose' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div>
-            <label style={labelStyle}>Subject Line</label>
+            <label htmlFor="mt-subject-line" style={labelStyle}>Subject Line</label>
             <input
+              id="mt-subject-line"
               type="text"
               value={formData.subjectLine}
               onChange={(e) => setFormData(prev => ({ ...prev, subjectLine: e.target.value }))}
@@ -724,8 +728,9 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
           </div>
 
           <div>
-            <label style={labelStyle}>Email Body (HTML)</label>
+            <label htmlFor="mt-email-body" style={labelStyle}>Email Body (HTML)</label>
             <textarea
+              id="mt-email-body"
               value={formData.bodyHtml}
               onChange={(e) => setFormData(prev => ({ ...prev, bodyHtml: e.target.value }))}
               placeholder="<p>Hi [Name],</p><p>Your email content here…</p>"

@@ -6,10 +6,10 @@
 // External (not inline) because the production CSP is `script-src 'self'` with
 // no 'unsafe-inline' — an inline <script> is blocked. A same-origin file is
 // allowed by 'self'. Mirrors the resolution logic in src/loom/theme.ts:
-//   saved 'dark' | 'light' | 'system'  (default 'dark'); 'system' → matchMedia.
+//   saved 'dark' | 'light' | 'system'  (default 'light'); 'system' → matchMedia.
 (function () {
   var KEY = 'heirloom-theme';
-  var resolved = 'dark';
+  var resolved = 'light';
   try {
     var saved = localStorage.getItem(KEY);
     if (saved === 'light' || saved === 'dark') {
@@ -18,7 +18,7 @@
       resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
   } catch (e) {
-    /* localStorage blocked — keep the dark default */
+    /* localStorage blocked — keep the light default */
   }
   // Drive the splash + root substrate CSS (html[data-theme="light"] overrides).
   document.documentElement.setAttribute('data-theme', resolved);

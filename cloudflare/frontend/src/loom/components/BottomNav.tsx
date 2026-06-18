@@ -5,10 +5,10 @@ import { useAuthStore } from '../../stores/authStore';
  * BottomNav — the persistent 5-item typographic bar at the foot of the
  * authenticated loom PWA shell.
  *
- * Five destinations: cloth · memory · ∞ (home) · letter · voice.
+ * Five destinations: cloth · memory · ∞ (home) · voice · profile.
  * The ∞ center item is the only mark — no icons, per §2.6.
  * Anchored above the iPhone home indicator via env(safe-area-inset-bottom).
- * Active route: bone. Inactive: bone at 32% opacity.
+ * Active route: bone. Inactive: bone-dim.
  * Center ∞: warm when active, warm-dim when inactive.
  *
  * Only renders for authenticated users on app surfaces — never on the
@@ -16,17 +16,12 @@ import { useAuthStore } from '../../stores/authStore';
  * "cloth · memory · ∞" bar over the logged-out landing/login pages).
  */
 
-// memory and letter both open the unified composer (/compose). They carry
-// distinct URLs (letter adds ?as=letter) so the bar can light the tab the
-// member actually tapped — without ?as the old /loom/compose-letter href
-// 308-redirected to /compose, so `letter` could never match and `memory`
-// wrongly lit instead.
 const NAV = [
-  { label: 'cloth',  href: '/loom/weft' },
-  { label: 'memory', href: '/compose' },
-  { label: '∞',      href: '/loom/index',  center: true },
-  { label: 'letter', href: '/compose?as=letter' },
-  { label: 'voice',  href: '/record' },
+  { label: 'cloth',   href: '/loom/weft' },
+  { label: 'memory',  href: '/compose' },
+  { label: '∞',       href: '/loom/index', center: true },
+  { label: 'voice',   href: '/record' },
+  { label: 'profile', href: '/loom/profile' },
 ] as const;
 
 // Public / chrome-free surfaces where the persistent nav must not appear.
@@ -37,9 +32,8 @@ const HIDE_PREFIXES = ['/login', '/signup', '/pricing', '/privacy', '/terms', '/
 export const BOTTOM_NAV_CLEARANCE = 'calc(76px + env(safe-area-inset-bottom, 0px))';
 
 export function BottomNav() {
-  const { pathname, search } = useLocation();
+  const { pathname } = useLocation();
   const { isAuthenticated } = useAuthStore();
-  const isLetterMode = new URLSearchParams(search).get('as') === 'letter';
 
   const hidden =
     !isAuthenticated ||
@@ -69,12 +63,8 @@ export function BottomNav() {
     >
       {NAV.map((item) => {
         const isCenter = 'center' in item && item.center;
-        // memory and letter share the /compose pathname — split them on ?as=letter
-        // so exactly one lights; all other tabs are a plain pathname match.
-        const isActive =
-          item.href === '/compose'           ? pathname === '/compose' && !isLetterMode :
-          item.href === '/compose?as=letter' ? pathname === '/compose' && isLetterMode  :
-          pathname === item.href;
+        // Plain pathname match for every item; the center ∞ matches /loom/index.
+        const isActive = pathname === item.href;
         return (
           <Link
             key={item.href}
@@ -93,12 +83,12 @@ export function BottomNav() {
               paddingTop: isActive ? 0 : 2,
               color: isCenter
                 ? isActive ? 'var(--warm)' : 'var(--warm-dim)'
-                : isActive ? 'var(--bone)' : 'var(--bone-faint)',
+                : isActive ? 'var(--bone)' : 'var(--bone-dim)',
               fontFamily: isCenter ? 'var(--serif)' : 'var(--mono)',
-              fontSize: isCenter ? 38 : 10.5,
+              fontSize: isCenter ? 38 : 12,
               fontWeight: isCenter ? 300 : undefined,
               lineHeight: isCenter ? 0.8 : undefined,
-              letterSpacing: isCenter ? undefined : '0.2em',
+              letterSpacing: isCenter ? undefined : '0.16em',
               textTransform: isCenter ? undefined : 'uppercase',
               transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
             }}

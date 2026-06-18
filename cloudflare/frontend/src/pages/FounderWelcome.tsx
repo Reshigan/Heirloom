@@ -100,7 +100,6 @@ export function FounderWelcome() {
               fontFamily: 'var(--serif)',
               fontSize: 'clamp(40px, 10vw, 64px)',
               color: 'var(--warm)',
-              textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
               lineHeight: 1,
               marginBottom: 36,
             }}

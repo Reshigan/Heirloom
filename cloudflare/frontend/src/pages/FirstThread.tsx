@@ -211,7 +211,10 @@ export function FirstThread() {
           >
             <div style={{ position: 'relative', width: 290, height: 200, overflow: 'hidden' }}>
               <img src={ASSET_BAND} alt="" style={{ position: 'absolute', top: 0, left: '-5%', width: '110%', height: '100%', objectFit: 'cover', animation: `hl-wipe 1400ms ${EASE} forwards` }} />
-              <div style={{ position: 'absolute', top: 0, bottom: 0, width: 60, background: 'radial-gradient(closest-side,rgba(255,222,160,.85),transparent 75%)', animation: `hl-sweep 1400ms ${EASE} forwards` }} />
+              {/* Ignition reveal — a single travelling hairline of cream light
+                  feathered at its edges. Rule-2 safe: no copper disc/bloom,
+                  the brightness is var(--bone) so it theme-flips on paper. */}
+              <div style={{ position: 'absolute', top: 0, bottom: 0, width: 2, background: 'linear-gradient(180deg,transparent,var(--bone),transparent)', animation: `hl-sweep 1400ms ${EASE} forwards` }} />
             </div>
             <div style={{ fontFamily: 'var(--serif-display)', fontSize: 34, color: 'var(--bone)', marginTop: 18, animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>Your thread begins.</div>
             <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15, color: 'var(--bone-faint)', marginTop: 10, textAlign: 'center', padding: '0 28px', animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>A line your family will follow for a thousand years.</div>
@@ -271,7 +274,7 @@ export function FirstThread() {
             {!sealed && (
               <>
                 <div style={{ fontSize: 11, letterSpacing: '0.32em', color: 'var(--warm-dim)' }}>A LETTER TO ELI · {new Date().getFullYear() + SEAL_YEARS_AHEAD}</div>
-                <div style={{ position: 'relative', marginTop: 24, width: '100%', flex: 1, borderRadius: 0, background: 'var(--bg-letter)', boxShadow: 'inset 0 0 0 1px rgba(216,150,84,.22)', padding: '24px 22px' }}>
+                <div style={{ position: 'relative', marginTop: 24, width: '100%', flex: 1, borderRadius: 0, background: 'var(--bg-letter)', border: '1px solid var(--copper-border)', padding: '24px 22px' }}>
                   <div style={{ fontFamily: 'var(--serif)', fontSize: 16, lineHeight: 1.8, color: 'var(--bone-dim)' }}>
                     My dearest Eli,
                     <br />
@@ -291,8 +294,11 @@ export function FirstThread() {
                   <img src={ASSET_SEAL} alt="" style={{ width: 96, height: 96, display: 'block' }} />
                   {burst && (
                     <>
-                      <div style={{ position: 'absolute', left: '50%', top: '50%', width: 96, height: 96, borderRadius: '50%', border: '2px solid rgba(240,192,116,.8)', animation: `hl-ring 720ms ${EASE} forwards` }} />
-                      <div style={{ position: 'absolute', left: '50%', top: '50%', width: 96, height: 96, borderRadius: '50%', border: '1px solid rgba(240,192,116,.6)', animation: `hl-ring 720ms ${EASE} 180ms forwards` }} />
+                      {/* Seal burst — expanding SQUARE hairline strokes, radius 0,
+                          in var(--rule) (cream hairline). No copper rings/auras;
+                          the impact reads as the cloth's own grid flexing out. */}
+                      <div style={{ position: 'absolute', left: '50%', top: '50%', width: 96, height: 96, borderRadius: 0, border: '1px solid var(--rule-strong)', animation: `hl-ring 720ms ${EASE} forwards` }} />
+                      <div style={{ position: 'absolute', left: '50%', top: '50%', width: 96, height: 96, borderRadius: 0, border: '1px solid var(--rule)', animation: `hl-ring 720ms ${EASE} 180ms forwards` }} />
                     </>
                   )}
                 </div>

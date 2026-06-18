@@ -61,10 +61,31 @@ export function CosmicHeader({
   );
 }
 
-/** A small filled dye/warm dot — the ledger's only mark beside a name. */
+/**
+ * The ledger's only mark beside a name — a square (radius 0) of size px.
+ * Copper is signal-only and never filled: with no `color` it renders a 1px
+ * copper stroke on a transparent ground. A passed dye is the sanctioned
+ * identity colour, so it renders a small filled square (or a 1px stroke of
+ * that dye when `filled={false}`).
+ */
 export function WarmDot({ filled = true, size = 5, color }: { filled?: boolean; size?: number; color?: string }) {
   const c = color ?? 'var(--warm)';
-  return <span aria-hidden style={{ width: size, height: size, borderRadius: '50%', background: filled ? c : 'transparent', border: filled ? 'none' : `1px solid ${c}`, flex: '0 0 auto', display: 'inline-block' }} />;
+  // Copper (no dye passed) is signal-only: never a fill, always a 1px stroke.
+  const isFill = color != null && filled;
+  return (
+    <span
+      aria-hidden
+      style={{
+        width: size,
+        height: size,
+        borderRadius: 0,
+        background: isFill ? c : 'transparent',
+        border: isFill ? 'none' : `1px solid ${c}`,
+        flex: '0 0 auto',
+        display: 'inline-block',
+      }}
+    />
+  );
 }
 
 /**

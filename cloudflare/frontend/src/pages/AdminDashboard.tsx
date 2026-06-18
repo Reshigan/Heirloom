@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useId } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '../services/api';
@@ -8,6 +8,7 @@ import { AppFrame } from '../loom/components/AppFrame';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { PLAN_PRICE } from '../lib/plans';
 import { copyToClipboard } from '../utils/clipboard';
+import { useFocusTrap } from '../lib/useFocusTrap';
 
 // Admin auth check
 const useAdminAuth = () => {
@@ -825,6 +826,7 @@ export function AdminDashboard() {
               <input
                 type="text"
                 placeholder="Search users…"
+                aria-label="Search users"
                 value={userSearch}
                 onChange={(e) => setUserSearch(e.target.value)}
                 style={{
@@ -1789,7 +1791,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Type your reply…" style={{ width: '100%', height: 80, background: 'var(--ink)', border: '1px solid var(--rule)', color: 'var(--bone)', padding: '8px 12px', fontFamily: 'var(--sans)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+        <textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Type your reply…" aria-label="Ticket reply" style={{ width: '100%', height: 80, background: 'var(--ink)', border: '1px solid var(--rule)', color: 'var(--bone)', padding: '8px 12px', fontFamily: 'var(--serif)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
         <div style={{ display: 'flex', gap: 8 }}>
           <button className="loom-btn" onClick={() => replyMutation.mutate()} disabled={!reply || replyMutation.isPending}>Send Reply</button>
           {ticket?.status !== 'RESOLVED' && !showResolveForm && (
@@ -1801,7 +1803,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
       {showResolveForm && ticket?.status !== 'RESOLVED' && (
         <div style={{ marginTop: 16, padding: 16, background: 'var(--ink)', border: '1px solid var(--rule)', display: 'flex', flexDirection: 'column', gap: 8 }}>
           <p className="loom-eyebrow" style={{ color: 'var(--warm)' }}>Resolve Ticket</p>
-          <textarea value={resolutionNote} onChange={(e) => setResolutionNote(e.target.value)} placeholder="Optional: resolution note for the user…" style={{ width: '100%', height: 64, background: 'var(--ink-card)', border: '1px solid var(--rule)', color: 'var(--bone)', padding: '8px 12px', fontFamily: 'var(--sans)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+          <textarea value={resolutionNote} onChange={(e) => setResolutionNote(e.target.value)} placeholder="Optional: resolution note for the user…" aria-label="Resolution note" style={{ width: '100%', height: 64, background: 'var(--ink-card)', border: '1px solid var(--rule)', color: 'var(--bone)', padding: '8px 12px', fontFamily: 'var(--serif)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
           <div style={{ display: 'flex', gap: 8 }}>
             <button className="loom-btn" onClick={() => updateStatusMutation.mutate({ status: 'RESOLVED', resolutionNote: resolutionNote || undefined })} disabled={updateStatusMutation.isPending}>{updateStatusMutation.isPending ? 'Resolving…' : 'Confirm Resolution'}</button>
             <button className="loom-btn-ghost" onClick={() => { setShowResolveForm(false); setResolutionNote(''); }}>Cancel</button>
@@ -2072,11 +2074,14 @@ The Heirloom Team`;
 // ─── Shared Modal Primitives ──────────────────────────────────────────
 
 function ModalShell({ onClose, title, children, wide }: { onClose: () => void; title: string; children: React.ReactNode; wide?: boolean }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  useFocusTrap(dialogRef, onClose);
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'var(--ink-translucent)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 50, padding: '32px 16px', overflowY: 'auto' }}>
-      <div style={{ background: 'var(--ink-card)', border: '1px solid var(--rule)', width: '100%', maxWidth: wide ? 720 : 480, padding: 28 }}>
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={titleId} style={{ background: 'var(--ink-card)', border: '1px solid var(--rule)', width: '100%', maxWidth: wide ? 720 : 480, padding: 28 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, borderBottom: '1px solid var(--rule)', paddingBottom: 16 }}>
-          <p className="loom-eyebrow" style={{ color: 'var(--bone-dim)' }}>{title}</p>
+          <p id={titleId} className="loom-eyebrow" style={{ color: 'var(--bone-dim)' }}>{title}</p>
           <button onClick={onClose} className="loom-mono" style={{ background: 'transparent', border: 0, color: 'var(--bone-faint)', cursor: 'pointer', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', padding: 0, lineHeight: 1 }} aria-label="Close">close</button>
         </div>
         {children}

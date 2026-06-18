@@ -117,7 +117,6 @@ export function GiftPurchase() {
                 color: 'var(--warm)',
                 fontSize: 'clamp(40px, 10vw, 64px)',
                 lineHeight: 1,
-                textShadow: '0 0 32px var(--warm-glow), 0 0 12px var(--warm-glow)',
                 marginBottom: 24,
               }}
             >

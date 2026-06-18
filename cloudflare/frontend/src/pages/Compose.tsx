@@ -5,7 +5,7 @@ import { memoriesApi, lettersApi, familyApi, aiApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
 import { type FamilyMember } from '../types';
-import { dyeColor, dyeTextColor } from '../loom/dye';
+import { dyeColor, dyeTextColor, dyeVar, DYES, type Dye } from '../loom/dye';
 import { EASE as ease } from '../loom/motion';
 import { HLogo } from '../loom/components/HLogo';
 import { VoiceRefine } from '../loom/components/VoiceRefine';
@@ -754,6 +754,23 @@ function EmotionField({
   );
 }
 
+/* ─── Witness: who this memory is for (the address to the future) ────── */
+// Relationship words that read as a descendant / younger generation. We only
+// ever NAME members we can recognise this way — never fabricate. If none match,
+// the composer shows the evocative line alone.
+const DESCENDANT_WORDS = [
+  'child', 'children', 'son', 'daughter', 'kid',
+  'grandchild', 'grandson', 'granddaughter', 'grandkid',
+  'great-grandchild', 'great-grandson', 'great-granddaughter',
+  'niece', 'nephew',
+];
+
+function isDescendant(member: FamilyMember): boolean {
+  const rel = (member.relationship ?? '').toLowerCase();
+  if (!rel) return false;
+  return DESCENDANT_WORDS.some((w) => rel.includes(w));
+}
+
 /* ─── Draft persistence ─────────────────────────────────────────────── */
 const DRAFT_PREFIX = 'hl-compose-draft:';
 
@@ -799,6 +816,14 @@ export function Compose() {
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { user, isAuthenticated } = useAuthStore();
+  // CONSOLIDATION (§6.3): the distinct "letter" compose surface is eliminated as
+  // a duplicate — the composer is just "a memory" now. The legacy `?as=letter`
+  // signal is fully inert: it does NOT open a separate letter mode, change copy,
+  // or alter the save path — a visitor arriving with `?as=letter` lands in the
+  // ordinary memory compose. (Letter receiving/reading/future-delivery live in
+  // other files and are untouched; recipient-driven future delivery via the
+  // "to:" field still works on its own — that is not the `?as=letter` surface.)
+  void searchParams.get('as'); // intentionally inert — no letter-mode branch
   const isLetterDraft = !!(searchParams.get('id'));
   const draftKey = `${DRAFT_PREFIX}${isLetterDraft ? 'letter' : 'memory'}:${user?.id ?? 'anon'}`;
 
@@ -821,6 +846,9 @@ export function Compose() {
   const [error, setError] = useState<string | null>(null);
   const [bodyError, setBodyError] = useState<string | null>(null);
   const [woven, setWoven] = useState(false);
+  // Brief beat between a successful seal and the full weave ceremony — drives the
+  // inline "woven ∞" confirmation in the seal area.
+  const [sealed, setSealed] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [writingFocused, setWritingFocused] = useState(false);
   const [images, setImages] = useState<ComposeImage[]>([]);
@@ -838,6 +866,15 @@ export function Compose() {
   const members: FamilyMember[] = useMemo(
     () => (Array.isArray(familyData) ? familyData : []),
     [familyData],
+  );
+
+  // WITNESS — the younger members this memory is, in part, addressed to. Drawn
+  // straight from the family store; we only name members whose relationship
+  // reads as a descendant, and show at most two. No data → the evocative line
+  // stands alone. We never invent a name.
+  const witnesses: FamilyMember[] = useMemo(
+    () => members.filter((m) => !m.deletedAt && isDescendant(m)).slice(0, 2),
+    [members],
   );
 
   // Pre-select recipient from ?recipientId or ?for URL param (family profile / QuickWizard shortcut)
@@ -1160,8 +1197,10 @@ export function Compose() {
         queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
         queryClient.invalidateQueries({ queryKey: ['weft-memories'] });
       }
+      // Brief "woven ∞" confirmation in the seal area, then the full ceremony.
       // Every authored entry ends in the cloth — letters now weave too (invariant A).
-      setWoven(true);
+      setSealed(true);
+      setTimeout(() => setWoven(true), 720);
     },
     onError: (err: any) => {
       setError(err?.response?.data?.error ?? 'Could not save the entry.');
@@ -1169,6 +1208,82 @@ export function Compose() {
   });
 
   const submitDisabled = save.isPending || !hasContent || uploadingCount > 0;
+
+  // ── SEAL — the commit gesture ────────────────────────────────────────
+  // The plain submit is replaced by a press-and-hold "Seal". Validation is
+  // unchanged (same guards, same save.mutate); only the trigger UX moves. The
+  // hold fills a SQUARE bar over 720ms with var(--ease); completing the hold
+  // commits, releasing early cancels. Keyboard/AT users seal immediately via
+  // Enter/Space — no hold required.
+  const [holding, setHolding] = useState(false); // drives the fill (0 → 100%)
+  const sealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // The author's own dye paints the fill — a real palette token, never copper.
+  const sealFill = useMemo(
+    () => ((DYES as string[]).includes(dye) ? dyeVar(dye as Dye) : 'var(--bone)'),
+    [dye],
+  );
+
+  // Run the validation guards once. Returns true when the entry is ready to
+  // commit; otherwise surfaces the same inline errors the old button used.
+  const validateForSeal = useCallback((): boolean => {
+    setError(null);
+    if (uploadingCount > 0) {
+      setError('Wait for photos to finish uploading.');
+      return false;
+    }
+    if (!body.trim()) {
+      setBodyError('write something first');
+      return false;
+    }
+    if (!hasContent) {
+      setError(isLetter ? 'Write something — even a sentence.' : 'Write something, or add a photo.');
+      return false;
+    }
+    if (isLetter && deliveryTrigger === 'date' && !scheduledDate) {
+      setError('Choose the date this letter unseals.');
+      return false;
+    }
+    return true;
+  }, [uploadingCount, body, hasContent, isLetter, deliveryTrigger, scheduledDate]);
+
+  const clearSealTimer = useCallback(() => {
+    if (sealTimerRef.current) {
+      clearTimeout(sealTimerRef.current);
+      sealTimerRef.current = null;
+    }
+  }, []);
+
+  // Commit immediately — used by the completed hold and by keyboard activation.
+  const commitSeal = useCallback(() => {
+    clearSealTimer();
+    setHolding(false);
+    if (submitDisabled) return;
+    if (!validateForSeal()) return;
+    save.mutate();
+  }, [clearSealTimer, submitDisabled, validateForSeal, save]);
+
+  // Pointer press begins the hold. Guards run up front so an invalid entry shows
+  // its error instead of starting a fill that can never complete.
+  const startHold = useCallback(() => {
+    if (submitDisabled || save.isPending) return;
+    if (!validateForSeal()) return;
+    clearSealTimer();
+    setHolding(true);
+    sealTimerRef.current = setTimeout(() => {
+      sealTimerRef.current = null;
+      setHolding(false);
+      save.mutate();
+    }, 720);
+  }, [submitDisabled, save, validateForSeal, clearSealTimer]);
+
+  // Releasing (or leaving) before the 720ms elapses cancels the seal.
+  const cancelHold = useCallback(() => {
+    clearSealTimer();
+    setHolding(false);
+  }, [clearSealTimer]);
+
+  useEffect(() => () => clearSealTimer(), [clearSealTimer]);
 
   const handleCancel = useCallback(() => {
     if (draftTimerRef.current) clearTimeout(draftTimerRef.current);
@@ -1382,6 +1497,107 @@ export function Compose() {
               })}
             </span>
           </header>
+
+          {/* ── Witness + Speak — top of screen, above the fold ───────────
+              WITNESS: a quiet presence line addressing who this is for, naming a
+              couple of younger members in their dye when the family store has
+              them. SPEAK: a primary, scroll-free route to recording aloud.
+              Both fade with the masthead when the author drops into writing. */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'flex-end',
+              justifyContent: 'space-between',
+              gap: 'clamp(16px, 4vw, 40px)',
+              flexWrap: 'wrap',
+              margin: '0 0 36px',
+              opacity: writingFocused ? 0.35 : 1,
+              transition: `opacity 720ms ${ease}`,
+            }}
+          >
+            <div style={{ flex: '1 1 280px', minWidth: 0 }}>
+              <p
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 10,
+                  letterSpacing: '0.22em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  margin: '0 0 8px',
+                }}
+              >
+                for those not yet born
+              </p>
+              <p
+                className="hl-serif"
+                style={{
+                  fontFamily: 'var(--serif)',
+                  fontStyle: 'italic',
+                  fontSize: 'clamp(15px, 2vw, 17px)',
+                  lineHeight: 1.6,
+                  color: 'var(--bone-dim)',
+                  margin: 0,
+                  maxWidth: '46ch',
+                }}
+              >
+                {witnesses.length > 0 ? (
+                  <>
+                    You are writing to those who come after —{' '}
+                    {witnesses.map((m, i) => (
+                      <span key={m.id}>
+                        {i > 0 && (
+                          <span style={{ color: 'var(--bone-faint)' }}>{' and '}</span>
+                        )}
+                        <span
+                          className="hl-signature"
+                          style={{
+                            fontStyle: 'normal',
+                            fontSize: '1.4em',
+                            color: dyeTextColor(m.id, m.dye),
+                          }}
+                        >
+                          {m.name}
+                        </span>
+                      </span>
+                    ))}
+                    {', and the ones whose names you will never know.'}
+                  </>
+                ) : (
+                  <>You are writing to hands that have not yet been born. Address them.</>
+                )}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => navigate('/record')}
+              style={{
+                flexShrink: 0,
+                background: 'transparent',
+                border: '1px solid var(--rule)',
+                borderRadius: 0,
+                padding: '11px 18px',
+                minHeight: 44,
+                cursor: 'pointer',
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.18em',
+                textTransform: 'uppercase',
+                color: 'var(--bone-dim)',
+                transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = 'var(--bone)';
+                e.currentTarget.style.borderColor = 'var(--bone-dim)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = 'var(--bone-dim)';
+                e.currentTarget.style.borderColor = 'var(--rule)';
+              }}
+            >
+              speak it aloud instead →
+            </button>
+          </div>
 
           {/* ── Step 1: Who is this for? ──────────────────────────────── */}
           <div style={{ opacity: writingFocused ? 0.5 : 1, transition: `opacity 720ms ${ease}` }}>
@@ -1762,57 +1978,127 @@ export function Compose() {
                 cancel
               </button>
             </div>
-            <button
-              type="button"
-              onClick={() => {
-                setError(null);
-                if (uploadingCount > 0) {
-                  setError('Wait for photos to finish uploading.');
-                  return;
-                }
-                if (!body.trim()) {
-                  setBodyError('write something first');
-                  return;
-                }
-                if (!hasContent) {
-                  setError(isLetter ? 'Write something — even a sentence.' : 'Write something, or add a photo.');
-                  return;
-                }
-                if (isLetter && deliveryTrigger === 'date' && !scheduledDate) {
-                  setError('Choose the date this letter unseals.');
-                  return;
-                }
-                save.mutate();
-              }}
-              disabled={submitDisabled}
+            {/* SEAL — press-and-hold commit. The square dye fill grows behind the
+                label over 720ms (var(--ease)); a completed hold or keyboard
+                Enter/Space commits, releasing early cancels. No copper disc /
+                ring / halo / radial — RULE 2: the fill is a flat dye/bone bar. */}
+            <div
               style={{
-                background: 'transparent',
-                border: '1px solid var(--copper-border)',
-                borderRadius: 0,
-                padding: '12px 32px',
-                minHeight: 44,
-                fontFamily: 'var(--mono)',
-                fontSize: 12,
-                letterSpacing: '0.26em',
-                textTransform: 'uppercase',
-                color: 'var(--gold-text)',
-                cursor: submitDisabled ? 'default' : 'pointer',
-                opacity: submitDisabled ? 0.4 : 1,
-                transition: 'background 180ms var(--ease), color 180ms var(--ease), opacity 180ms var(--ease)',
-              }}
-              onMouseEnter={(e) => {
-                if (submitDisabled) return;
-                e.currentTarget.style.borderColor = 'var(--warm-bright)';
-                e.currentTarget.style.color = 'var(--warm-bright)';
-              }}
-              onMouseLeave={(e) => {
-                if (submitDisabled) return;
-                e.currentTarget.style.borderColor = 'var(--copper-border)';
-                e.currentTarget.style.color = 'var(--gold-text)';
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                gap: 8,
+                flexShrink: 0,
               }}
             >
-              {save.isPending ? (isLetter ? 'sealing…' : 'weaving…') : (isLetter ? submitLabel : 'weave it in')}
-            </button>
+              <button
+                type="button"
+                disabled={submitDisabled}
+                aria-label="Seal this entry — press and hold, or press Enter to seal immediately"
+                // Keyboard / assistive tech: a real activation seals at once — no
+                // hold gesture is required for non-pointer users.
+                onClick={(e) => {
+                  // Pointer "clicks" are already handled by the hold lifecycle;
+                  // only act on genuine keyboard activation (detail === 0).
+                  if (e.detail === 0) commitSeal();
+                }}
+                // Pointer hold lifecycle.
+                onPointerDown={(e) => {
+                  if (e.pointerType === 'mouse' && e.button !== 0) return;
+                  startHold();
+                }}
+                onPointerUp={cancelHold}
+                onPointerLeave={cancelHold}
+                onPointerCancel={cancelHold}
+                style={{
+                  position: 'relative',
+                  overflow: 'hidden',
+                  isolation: 'isolate',
+                  background: 'transparent',
+                  border: '1px solid var(--copper-border)',
+                  borderRadius: 0,
+                  padding: '12px 32px',
+                  minHeight: 44,
+                  fontFamily: 'var(--mono)',
+                  fontSize: 12,
+                  letterSpacing: '0.26em',
+                  textTransform: 'uppercase',
+                  color: 'var(--gold-text)',
+                  cursor: submitDisabled ? 'default' : 'pointer',
+                  opacity: submitDisabled ? 0.4 : 1,
+                  touchAction: 'none',
+                  userSelect: 'none',
+                  WebkitUserSelect: 'none',
+                  transition: 'border-color 180ms var(--ease), color 180ms var(--ease), opacity 180ms var(--ease)',
+                }}
+                onMouseEnter={(e) => {
+                  if (submitDisabled) return;
+                  e.currentTarget.style.borderColor = 'var(--warm-bright)';
+                }}
+                onMouseLeave={(e) => {
+                  if (submitDisabled) return;
+                  e.currentTarget.style.borderColor = 'var(--copper-border)';
+                }}
+              >
+                {/* Square progress fill — dye (or bone), flat, radius 0. */}
+                <span
+                  aria-hidden
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: holding || sealed || save.isPending ? '100%' : '0%',
+                    background: sealFill,
+                    opacity: sealed ? 0.4 : 0.28,
+                    borderRadius: 0,
+                    zIndex: -1,
+                    transition: holding ? `width 720ms ${ease}` : `opacity 360ms ${ease}`,
+                    pointerEvents: 'none',
+                  }}
+                />
+                <span style={{ position: 'relative' }}>
+                  {sealed ? (
+                    // Brief confirmation — ∞ as text, copper colour, no glow.
+                    <>
+                      woven{' '}
+                      <span aria-hidden style={{ color: 'var(--warm)' }}>∞</span>
+                    </>
+                  ) : save.isPending ? (
+                    isLetter ? 'sealing…' : 'weaving…'
+                  ) : holding ? (
+                    'sealing…'
+                  ) : (
+                    'seal'
+                  )}
+                </span>
+              </button>
+
+              {/* The vow — quiet, beneath the gesture. For a future-delivery
+                  letter we keep the WHEN context (submitLabel) so the hold's
+                  meaning isn't lost; otherwise the irreversibility vow. */}
+              <span
+                aria-hidden
+                style={{
+                  fontFamily: 'var(--mono)',
+                  fontSize: 9.5,
+                  letterSpacing: '0.16em',
+                  textTransform: 'uppercase',
+                  color: 'var(--bone-faint)',
+                  textAlign: 'right',
+                  maxWidth: 260,
+                  lineHeight: 1.5,
+                }}
+              >
+                press and hold to seal — this cannot be unwritten
+                {isLetter && deliveryTrigger !== 'now' && (
+                  <>
+                    {' · '}
+                    {submitLabel.replace(/\s*→\s*$/, '')}
+                  </>
+                )}
+              </span>
+            </div>
           </div>
         </div>
       </div>

@@ -15,8 +15,6 @@ const ITEMS: Array<{ label: string; to: string; hint: string }> = [
   { label: 'inbox',       to: '/inbox',       hint: 'what has reached you' },
   { label: 'on this day', to: '/on-this-day', hint: 'this date, before' },
   { label: 'export',      to: '/export',      hint: 'the cloth, to keep' },
-  { label: 'wrapped',     to: '/wrapped',     hint: 'your year, read back' },
-  { label: 'book',        to: '/book',        hint: 'the cloth, in print' },
 ];
 
 export function InfinityMenu() {
@@ -88,7 +86,7 @@ export function InfinityMenu() {
               <span
                 className="loom-mono"
                 style={{
-                  display: 'block', fontFamily: 'var(--mono)', fontSize: 10,
+                  display: 'block', fontFamily: 'var(--mono)', fontSize: 11,
                   letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone)',
                   marginBottom: 3,
                 }}
@@ -98,7 +96,7 @@ export function InfinityMenu() {
               <span
                 style={{
                   display: 'block', fontFamily: 'var(--serif)', fontStyle: 'italic',
-                  fontSize: 12, color: 'var(--bone-faint)',
+                  fontSize: 12, color: 'var(--bone-dim)',
                 }}
               >
                 {it.hint}

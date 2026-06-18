@@ -9,28 +9,34 @@ import { ViewToggle } from '../loom/components/ViewToggle';
 import { EmptyThread } from '../loom/components/EmptyThread';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { WeftCentury } from '../loom/components/WeftCentury';
-import { EntryRow, SectionLabel } from '../loom/cosmic/CosmicUI';
-import { dyeVar } from '../loom/dye';
+import { SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { dyeVar, dyeTextVar, dyeForId } from '../loom/dye';
 import { memoriesApi, lettersApi, voiceApi, threadsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { dyeFromMetadata } from '../loom/dye';
 
 /**
- * Screen 02 — The Weft
+ * Screen 02 — The Weft · THE HOME (default landing).
  *
- * The user's life as a horizontal woven band. Fetches real data from
- * the memories, letters, and voice APIs; falls back to the EmptyThread
- * warp-only view when the cloth has no picks yet.
+ * The home reads the family thread as TIME — "The Inheritance Horizon":
+ *   · faint, unwoven FUTURE years sit ABOVE the present (ghost hairline rows
+ *     labelled "not yet lived · for those not yet born") — the member's thread
+ *     continuing past their own lifetime,
+ *   · the PRESENT is marked "you are here" (copper only as a ≤1px stroke / text),
+ *   · WOVEN years fall below, each authored row tinted by its dye.
  *
- * Three view-modes (ViewToggle in top bar):
- *   pull    — one thread at a time, vertical paging (WeftPull) [default]
- *   century — the whole archive compressed (WeftCentury)
- *   empty   — warp-only, forced (for reviewers)
+ * Beneath the Horizon: a quiet card row (Book / Wrapped / Challenges) that
+ * migrated off the ∞ menu, and a single Family ("the bloodline") row.
  *
- * Token audit (2.1): ambientShuttle confirmed, EmptyThread on empty state
- * confirmed, zero raw hex colors, zero icon-library imports.
+ * Real data is still fetched from the memories, letters and voice APIs and
+ * woven into the Horizon; the EmptyThread warp-only view holds an empty cloth.
+ *
+ * Two extra view-modes survive in the ViewToggle:
+ *   horizon  — the inheritance timeline (the home) [default]
+ *   century  — the whole archive compressed (WeftCentury)
+ *   empty    — warp-only, forced (for reviewers)
  */
-type WeftMode = 'pull' | 'century' | 'empty';
+type WeftMode = 'horizon' | 'century' | 'empty';
 
 /** The author-assigned dye if it's a real palette stop, else undefined (kind default). */
 const dyeOf = (metadata: any): LoomDye | undefined => dyeFromMetadata(metadata) as LoomDye | undefined;
@@ -88,8 +94,13 @@ function toEntries(
   return all.sort((a, b) => (a.year * 12 + (a.month ?? 1)) - (b.year * 12 + (b.month ?? 1)));
 }
 
+/** The author dye for an entry — the saved dye, else a stable hash off its id. */
+function dyeFor(entry: LoomEntry): LoomDye {
+  return (entry.dye ?? dyeForId(entry.id ?? `${entry.year}-${entry.title ?? ''}`)) as LoomDye;
+}
+
 export function Weft() {
-  const [mode, setMode] = useState<WeftMode>('pull');
+  const [mode, setMode] = useState<WeftMode>('horizon');
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
 
@@ -163,7 +174,7 @@ export function Weft() {
       value={mode}
       onChange={setMode}
       options={[
-        { value: 'pull', label: 'threads' },
+        { value: 'horizon', label: 'horizon' },
         { value: 'century', label: 'century' },
       ]}
     />
@@ -171,8 +182,8 @@ export function Weft() {
 
   // The view toggle lives in the body (a right-aligned control over the
   // content), never the topbar — at 430px a 2-option toggle + UserMenu
-  // overflowed the right column and clipped "THREADS" to "READS". The reference
-  // tapestry has a clean topbar (wordmark + menu only); the toggle is ours.
+  // overflowed the right column. The reference tapestry keeps a clean topbar
+  // (wordmark + menu only); the toggle is ours.
   const toggleRow = (
     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 20 }}>
       {toggle}
@@ -222,25 +233,36 @@ export function Weft() {
     );
   }
 
-  // Threads mode — "The Thread": the woven family thread (cosmic-thread mockup).
-  // One chronological list, newest first, with faint decade dividers between groups.
-  const recent = [...allEntries].reverse();
+  // ── HORIZON MODE — the home. The thread read as TIME, present at the spine. ──
 
-  // Eyebrow span — "THE VANCE THREAD · 1947–2026" from the bloodline name + year range.
+  const nowYear = new Date().getFullYear();
+
+  // Woven years (with their entries), newest-first downward into the past.
+  const byYearDesc = (() => {
+    const map = new Map<number, LoomEntry[]>();
+    for (const e of allEntries) {
+      if (!Number.isFinite(e.year)) continue;
+      (map.get(e.year) ?? map.set(e.year, []).get(e.year)!).push(e);
+    }
+    return [...map.entries()].sort((a, b) => b[0] - a[0]);
+  })();
+
+  // Eyebrow span — "THE VANCE THREAD · 1947–2026 · 4 KIN".
   const years = allEntries.map((e) => e.year).filter((y) => Number.isFinite(y));
   const spanLo = years.length ? Math.min(...years) : null;
-  const spanHi = years.length ? Math.max(...years) : null;
-  // Strip a trailing "thread" so a stored "Vance Thread" never becomes "THE VANCE THREAD THREAD".
+  const spanHi = years.length ? Math.max(...years, nowYear) : null;
+  // Strip a trailing "thread" so a stored "Vance Thread" never becomes "...THREAD THREAD".
   const fam = (threadData?.name || '').trim().replace(/\s*thread$/i, '').trim();
   const label = fam ? `THE ${fam.toUpperCase()} THREAD` : 'THE THREAD';
   const eyebrow = (spanLo != null && spanHi != null
     ? `${label} · ${spanLo}–${spanHi}`
     : label) + (memberCount != null ? ` · ${memberCount} KIN` : '');
 
-  // Decade of a year, e.g. 1998 → "1990s" — drives the faint year-divider labels.
-  const decadeOf = (y: number) => `${Math.floor(y / 10) * 10}s`;
+  // The unwoven future — ghost rows ABOVE the present. These are the years the
+  // member's thread continues into, for hands not yet born.
+  const FUTURE_OFFSETS = [90, 60, 30];
 
-  // One-line dim subtitle: recipient for letters, else the kind, sentence-cased.
+  // One-line dim subtitle: recipient for letters, else the kind.
   const subOf = (entry: LoomEntry) => {
     if (entry.kind === 'letter' && entry.recipient) return `Letter to ${entry.recipient}`;
     if (entry.kind === 'letter') return 'A sealed letter';
@@ -261,64 +283,264 @@ export function Weft() {
           flexDirection: 'column',
           alignItems: 'center',
           background: 'transparent',
-          padding: '64px 24px 96px',
+          padding: '56px 24px 96px',
         }}
       >
-        <div style={{ width: '100%', maxWidth: 460 }}>
-          {/* The design carries no large "The Thread" H1 — only a centered
-              copper eyebrow naming the bloodline and its year span. The
-              heading role gives it screen-reader heading semantics without
-              altering the SectionLabel's visual styling. */}
+        <div style={{ width: '100%', maxWidth: 480 }}>
+          {/* The bloodline eyebrow — no large H1; the centred copper-label span
+              carries the heading role for screen readers. */}
           <div role="heading" aria-level={1} style={{ textAlign: 'center' }}>
             <SectionLabel tone="copper">{eyebrow}</SectionLabel>
           </div>
 
           {toggleRow}
 
-          {/* The woven thread — each row is a quiet ledger entry: serif title on a
-              neutral hairline left-filament, one-line Spectral subtitle, and a
-              date-only right column; muted decade dividers. The member dye survives
-              as the name tint on the title, not as a heavy left bar. */}
-          <div>
-            {recent.map((entry, i) => {
-              const prev = recent[i - 1];
-              const showDecade = !prev || decadeOf(prev.year) !== decadeOf(entry.year);
-              // Per-member dye if the author set one, else the signature warm thread —
-              // carried as the title tint, the surviving identity signal.
-              const thread = entry.dye ? dyeVar(entry.dye) : 'var(--bone)';
-              return (
-                <div key={entry.id ?? `${entry.year}-${entry.month}-${entry.title}`}>
-                  {showDecade && <SectionLabel>{decadeOf(entry.year)}</SectionLabel>}
-                  <div style={{ borderLeft: '1px solid var(--hairline-3)', paddingLeft: 14 }}>
-                    <EntryRow
-                      italic={false}
-                      title={
-                        <>
-                          {entry.locked ? <span style={{ color: 'var(--warm)', marginRight: 6 }}>∞</span> : null}
-                          {entry.title || 'an entry'}
-                        </>
-                      }
-                      sub={subOf(entry)}
-                      year={fmtRowDate(entry.date)}
-                      titleColor={thread}
-                      subFont="serif"
-                      subColor="var(--muted-2)"
-                      dateColor="var(--muted-3)"
-                      noBorder
-                      onClick={() => handleSelectEntry(entry)}
-                    />
+          {/* ───────────── A · THE INHERITANCE HORIZON ───────────── */}
+          <SectionLabel>The Inheritance Horizon</SectionLabel>
+
+          {/* The vertical timeline. A single faint warp runs down the left as
+              the spine; future ghost rows sit at the top, the present marker
+              in the middle, woven years fall below into the past. */}
+          <div style={{ position: 'relative', marginTop: 6 }}>
+            {/* the spine — one bone hairline, theme-aware */}
+            <div
+              aria-hidden
+              style={{
+                position: 'absolute', left: 0, top: 6, bottom: 6,
+                width: 1, background: 'var(--rule-strong)',
+              }}
+            />
+
+            {/* — the unwoven future (ghost / not-yet-lived) — */}
+            <div style={{ paddingLeft: 22 }}>
+              {FUTURE_OFFSETS.map((off, i) => (
+                <FutureRow key={off} year={nowYear + off} offset={off} first={i === 0} />
+              ))}
+              <p
+                className="hl-serif"
+                style={{
+                  fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+                  fontSize: 13, lineHeight: 1.5, color: 'var(--bone-faint)',
+                  margin: '6px 0 0',
+                }}
+              >
+                not yet lived · for those not yet born
+              </p>
+            </div>
+
+            {/* — the present marker: "you are here" — copper only as text + a
+                ≤1px stroke node on the spine. No fill, no disc, no aura. */}
+            <div style={{ position: 'relative', paddingLeft: 22, margin: '26px 0 8px' }}>
+              <span
+                aria-hidden
+                style={{
+                  position: 'absolute', left: -3, top: '50%', marginTop: -3.5,
+                  width: 7, height: 7,
+                  border: '1px solid var(--warm)', background: 'transparent',
+                  transform: 'rotate(45deg)',
+                }}
+              />
+              <span
+                className="hl-mono"
+                style={{
+                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em',
+                  textTransform: 'uppercase', color: 'var(--warm)',
+                }}
+              >
+                {nowYear} · you are here
+              </span>
+            </div>
+
+            {/* — the woven past, newest-first downward — each year a group, each
+                row authored & dye-tinted (name/title tint = the family colour). */}
+            <div style={{ paddingLeft: 22 }}>
+              {byYearDesc.map(([year, group]) => (
+                <div key={year} style={{ marginTop: 18 }}>
+                  <div
+                    className="hl-mono"
+                    style={{
+                      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.28em',
+                      textTransform: 'uppercase', color: 'var(--muted-4)', marginBottom: 2,
+                    }}
+                  >
+                    {year}
                   </div>
+                  {group.map((entry) => {
+                    const dye = dyeFor(entry);
+                    return (
+                      <div
+                        key={entry.id ?? `${entry.year}-${entry.month}-${entry.title}`}
+                        style={{ borderLeft: `2px solid ${dyeVar(dye)}`, paddingLeft: 12, marginLeft: -22 }}
+                      >
+                        <div style={{ paddingLeft: 10 }}>
+                          <EntryRow
+                            italic={false}
+                            title={
+                              <>
+                                {entry.locked ? <span style={{ color: 'var(--warm)', marginRight: 6 }}>∞</span> : null}
+                                {entry.title || 'an entry'}
+                              </>
+                            }
+                            sub={subOf(entry)}
+                            year={fmtRowDate(entry.date)}
+                            titleColor={dyeTextVar(dye)}
+                            subFont="serif"
+                            subColor="var(--muted-2)"
+                            dateColor="var(--muted-3)"
+                            noBorder
+                            onClick={() => handleSelectEntry(entry)}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              ))}
+            </div>
           </div>
 
-          {/* The ∞ wax seal — the centered full-stop on the thread, no glow. */}
+          {/* ───────────── B · THE CARD ROW (migrated off the ∞ menu) ───────────── */}
+          <SectionLabel>Read the thread</SectionLabel>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(132px, 1fr))',
+              gap: 14,
+              marginTop: 4,
+            }}
+          >
+            <HomeCard
+              eyebrow="The Book"
+              title="Bound"
+              hint="Your thread, set as a printed volume."
+              onClick={() => navigate('/book')}
+            />
+            <HomeCard
+              eyebrow="Wrapped"
+              title="The Year"
+              hint="A year of the family, read back."
+              onClick={() => navigate('/wrapped')}
+            />
+            <HomeCard
+              eyebrow="Challenges"
+              title="Prompts"
+              hint="Gentle nudges to weave one more."
+              onClick={() => navigate('/challenges')}
+            />
+          </div>
+
+          {/* ───────────── C · THE FAMILY (the bloodline) ───────────── */}
+          <SectionLabel>The bloodline</SectionLabel>
+          <EntryRow
+            title="Add family"
+            sub={memberCount != null && memberCount > 0
+              ? `${memberCount} ${memberCount === 1 ? 'hand weaves' : 'hands weave'} this thread.`
+              : 'Invite the hands who will weave beside you.'}
+            meta="FAMILY →"
+            subFont="serif"
+            subColor="var(--muted-2)"
+            dateColor="var(--copper-label)"
+            onClick={() => navigate('/family')}
+          />
+
+          {/* The ∞ wax seal — the full-stop at the foot of the page. */}
           <div style={{ marginTop: 48, textAlign: 'center' }}>
-            <span style={{ color: 'var(--warm)', fontSize: 30, lineHeight: 1 }}>∞</span>
+            <WaxSeal />
           </div>
         </div>
       </div>
     </ClothShell>
+  );
+}
+
+/** A single unwoven future row — a ghost hairline year, "+N yrs". No content,
+ *  no dye: it is the warp waiting for a hand. */
+function FutureRow({ year, offset, first }: { year: number; offset: number; first: boolean }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'baseline',
+        gap: 14,
+        padding: '9px 0',
+        borderTop: first ? 'none' : '1px dashed var(--rule)',
+        opacity: 0.55,
+      }}
+    >
+      {/* a dashed ghost weft — bone hairline, never copper */}
+      <span
+        aria-hidden
+        style={{ flex: 1, height: 1, background: 'transparent', borderTop: '1px dashed var(--bone-ghost)' }}
+      />
+      <span
+        className="hl-mono"
+        style={{
+          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+          textTransform: 'uppercase', color: 'var(--bone-faint)', whiteSpace: 'nowrap',
+        }}
+      >
+        {year} · +{offset} yrs
+      </span>
+    </div>
+  );
+}
+
+/** A quiet hairline card (radius 0) — mono eyebrow, serif title, italic hint.
+ *  No icon, no fill; copper appears only on the hover hairline stroke. */
+function HomeCard({
+  eyebrow, title, hint, onClick,
+}: {
+  eyebrow: string; title: string; hint: string; onClick: () => void;
+}) {
+  const [hover, setHover] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      onFocus={() => setHover(true)}
+      onBlur={() => setHover(false)}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 6,
+        textAlign: 'left',
+        padding: '16px 16px 18px',
+        background: 'transparent',
+        border: `1px solid ${hover ? 'var(--rule-warm)' : 'var(--rule-strong)'}`,
+        borderRadius: 0,
+        cursor: 'pointer',
+        transition: 'border-color 180ms var(--ease)',
+        width: '100%',
+      }}
+    >
+      <span
+        className="hl-mono"
+        style={{
+          fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.26em',
+          textTransform: 'uppercase', color: 'var(--copper-label)',
+        }}
+      >
+        {eyebrow}
+      </span>
+      <span
+        className="hl-serif"
+        style={{
+          fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 400, lineHeight: 1.2,
+          color: 'var(--bone)',
+        }}
+      >
+        {title}
+      </span>
+      <span
+        style={{
+          fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+          fontSize: 12.5, lineHeight: 1.5, color: 'var(--muted-2)',
+        }}
+      >
+        {hint}
+      </span>
+    </button>
   );
 }
