@@ -7,6 +7,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFocusTrap } from '../lib/useFocusTrap';
+import { EASE_ARRAY } from '../loom/motion';
 
 interface OnboardingStep {
   title: string;
@@ -185,7 +186,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.36, ease: EASE_ARRAY }}
             className="bg-void-surface border border-paper-15 rounded-none p-6 md:p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={e => e.stopPropagation()}
           >
@@ -198,7 +199,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
               </div>
               <button
                 onClick={onDismiss}
-                className="text-paper-50 hover:text-paper transition-colors text-sm shrink-0"
+                className="text-paper-50 hover:text-paper transition-colors duration-fast text-sm shrink-0"
                 aria-label="Close walkthrough"
               >
                 Close
@@ -212,7 +213,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                   key={index}
                   onClick={() => setCurrentStep(index)}
                   aria-label={`Go to step ${index + 1}`}
-                  className={`h-[2px] rounded-none transition-all ${
+                  className={`h-[2px] rounded-none transition-all duration-fast ${
                     index === currentStep ? 'w-10' : 'w-6'
                   } ${index > currentStep ? 'bg-paper-15' : ''}`}
                   style={
@@ -231,21 +232,24 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                 initial={{ opacity: 0, x: 16 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -16 }}
-                transition={{ duration: 0.36, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.36, ease: EASE_ARRAY }}
                 className="space-y-6"
               >
                 <div>
-                  <h3 className="font-body text-lg text-paper mb-2">{step.title}</h3>
+                  {/* hl-serif keeps this 18px title in Spectral — without it the
+                      .loom h1–h6 Cormorant !important rule renders the display
+                      face below its 24px legibility floor (the heading trap). */}
+                  <h3 className="hl-serif font-body text-lg text-paper mb-2">{step.title}</h3>
                   <p className="text-paper-70 leading-relaxed">{step.description}</p>
                 </div>
 
                 <div className="p-4 bg-void-elevated border border-gold-40 rounded-none">
-                  <p className="text-[0.65rem] uppercase tracking-[0.22em] text-gold mb-1.5">Why this matters</p>
+                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-gold mb-1.5">Why this matters</p>
                   <p className="text-paper-70 leading-relaxed">{step.whyItMatters}</p>
                 </div>
 
                 <div className="p-4 bg-void-elevated border border-paper-15 rounded-none">
-                  <p className="text-[0.65rem] uppercase tracking-[0.22em] text-paper-50 mb-1.5">How to start</p>
+                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-paper-50 mb-1.5">How to start</p>
                   <p className="text-paper-70 leading-relaxed">{step.howToStart}</p>
                 </div>
               </motion.div>
@@ -326,7 +330,7 @@ export function OnboardingHelpButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="fixed bottom-20 md:bottom-6 right-6 z-40 px-4 py-2.5 bg-void-surface border border-gold-40 rounded-none text-gold hover:text-gold-bright transition-colors text-[0.7rem] font-mono uppercase tracking-[0.22em]"
+      className="fixed bottom-20 md:bottom-6 right-6 z-40 px-4 py-2.5 bg-void-surface border border-gold-40 rounded-none text-gold hover:text-gold-bright transition-colors duration-fast text-[0.7rem] font-mono uppercase tracking-[0.22em]"
       title="How does this work?"
       aria-label="How does this work?"
     >

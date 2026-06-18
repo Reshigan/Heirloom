@@ -571,9 +571,12 @@ h4, h5, h6 { font-size: 1.5rem; }
 .text-muted { color: rgba(245, 243, 238, 0.5); }
 .text-hand { font-family: var(--font-hand); }
 
-em { 
-  font-style: italic; 
-  color: var(--gold);
+em {
+  /* Italic is the emphasis; copper is NOT. Tinting all <em> prose copper made
+     bare emphasis read as signal (breaking copper's signal-only law) AND failed
+     WCAG AA in light mode (#e0a062 on parchment = 1.88:1). Let em inherit body
+     color — emphasis stays typographic, copper stays a deliberate accent. */
+  font-style: italic;
 }
 
 /* ===== LOADING & ANIMATIONS =====
@@ -912,7 +915,7 @@ html {
   width: 38%;
   background: #e0a062; /* warm — the single emotional colour */
   will-change: transform;
-  animation: progress-hair-sweep 1400ms cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  animation: progress-hair-sweep 1400ms var(--ease) infinite;
 }
 @keyframes progress-hair-sweep {
   0%   { transform: translateX(-100%); }
@@ -941,7 +944,7 @@ html {
   width: 1px;
   background: rgba(242, 230, 208, 0.1); /* bone, faint */
   transform-origin: top;
-  animation: warp-string 720ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: warp-string 720ms var(--ease) both;
 }
 .warp-loading span:nth-child(1) { animation-delay: 0ms; }
 .warp-loading span:nth-child(2) { animation-delay: 80ms; }
@@ -969,7 +972,7 @@ html {
    panel on the same cloth, never a hard cut. */
 .woven-route {
   min-height: 100vh;
-  animation: woven-route-in 360ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: woven-route-in 360ms var(--ease) both;
 }
 @keyframes woven-route-in {
   from { opacity: 0; transform: translateY(8px); }
@@ -1792,7 +1795,7 @@ html {
   50%      { opacity: 1; }
 }
 .hl-cloth-breath {
-  animation: hl-cloth-breath 9000ms cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  animation: hl-cloth-breath 9000ms var(--ease) infinite;
   will-change: opacity;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -2341,7 +2344,7 @@ html {
 }
 
 .hl-thread-new {
-  animation: hl-thread-weave var(--cloth-weave-dur) cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: hl-thread-weave var(--cloth-weave-dur) var(--ease) forwards;
 }
 
 /* ── Breathing cursor — Composer blank page ──────────────────────────── */

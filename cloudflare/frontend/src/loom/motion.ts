@@ -9,6 +9,10 @@
 /** The one easing curve. Used everywhere motion carries information. */
 export const EASE = 'cubic-bezier(0.16,1,0.3,1)';
 
+/** The same curve as a cubic-bezier tuple, for framer-motion's `ease` prop.
+ *  Keeps JS-driven motion bound to the one-curve law instead of inline arrays. */
+export const EASE_ARRAY: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
 /** The four sanctioned durations, in milliseconds. */
 export const DUR = {
   fast: 180,
