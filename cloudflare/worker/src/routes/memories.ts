@@ -4,8 +4,8 @@
  */
 
 import { Hono } from 'hono';
-import type { Env, AppEnv } from '../index';
-import { classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
+import type { AppEnv } from '../index';
+import { classifyEmotionWithAI } from '../services/tinyllm';
 import { mirrorIntoDefaultThread, mirrorMemoryUpdate, mirrorMemoryDelete } from '../services/threadMesh';
 import {
   descriptionColumnsForWrite,
@@ -708,7 +708,7 @@ memoriesRoutes.post('/', async (c) => {
   if (legacyRecipientIds && legacyRecipientIds.length > 0) {
     // Ownership guard — all legacy_contact ids must belong to the authenticated user
     const ownedLegacyCheck = await c.env.DB.prepare(
-      `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ?`
+      `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ? AND deleted_at IS NULL`
     ).bind(...legacyRecipientIds, userId).first() as { n: number } | null;
     if (!ownedLegacyCheck || ownedLegacyCheck.n !== legacyRecipientIds.length) {
       return c.json({ error: 'One or more legacy recipients not found' }, 400);
@@ -834,11 +834,12 @@ memoriesRoutes.patch('/:id', async (c) => {
   // Update legacy-contact recipients if provided — replace the full set (mirrors
   // the letters PATCH bequest logic). Only acts when the field is present, so an
   // edit that omits it leaves the existing bequest untouched.
+  // Intentional full-replace: this junction is routing metadata, not append-only content.
   if (legacyRecipientIds !== undefined) {
     await c.env.DB.prepare(`DELETE FROM memory_legacy_recipients WHERE memory_id = ?`).bind(memoryId).run();
     if (Array.isArray(legacyRecipientIds) && legacyRecipientIds.length > 0) {
       const lcCheck = await c.env.DB.prepare(
-        `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ?`
+        `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ? AND deleted_at IS NULL`
       ).bind(...legacyRecipientIds, userId).first() as { n: number } | null;
       if (!lcCheck || lcCheck.n !== legacyRecipientIds.length) {
         return c.json({ error: 'One or more legacy recipients not found' }, 400);

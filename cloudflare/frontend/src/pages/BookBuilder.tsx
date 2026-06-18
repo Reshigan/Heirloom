@@ -269,7 +269,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
             position: 'absolute',
             inset: '14px 12px 14px 24px',
             border: '1px solid rgba(216,150,84,0.26)',
-            borderRadius: 2,
+            borderRadius: 0,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -938,8 +938,9 @@ export function BookBuilder() {
               </h3>
               <div style={{ display: 'grid', gap: 28, marginBottom: 40 }}>
                 <div>
-                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Book title</label>
+                  <label htmlFor="bb-book-title" className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Book title</label>
                   <input
+                    id="bb-book-title"
                     type="text"
                     className="hl-book-field"
                     value={config.title}
@@ -948,8 +949,9 @@ export function BookBuilder() {
                   />
                 </div>
                 <div>
-                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Subtitle (optional)</label>
+                  <label htmlFor="bb-book-subtitle" className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Subtitle (optional)</label>
                   <input
+                    id="bb-book-subtitle"
                     type="text"
                     className="hl-book-field"
                     value={config.subtitle}
@@ -959,8 +961,9 @@ export function BookBuilder() {
                   />
                 </div>
                 <div>
-                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Dedication</label>
+                  <label htmlFor="bb-book-dedication" className="hl-eyebrow" style={{ display: 'block', marginBottom: 10 }}>Dedication</label>
                   <textarea
+                    id="bb-book-dedication"
                     className="hl-book-field"
                     value={config.dedicationText}
                     onChange={(e) => setConfig((prev) => ({ ...prev, dedicationText: e.target.value }))}
@@ -1102,8 +1105,9 @@ export function BookBuilder() {
                 style={{ display: 'grid', gap: 18 }}
               >
                 <div>
-                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Full name</label>
+                  <label htmlFor="bb-ship-name" className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Full name</label>
                   <input
+                    id="bb-ship-name"
                     type="text"
                     className="hl-book-field"
                     value={shipTo.name}
@@ -1114,8 +1118,9 @@ export function BookBuilder() {
                 </div>
 
                 <div>
-                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Address line 1</label>
+                  <label htmlFor="bb-ship-line1" className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Address line 1</label>
                   <input
+                    id="bb-ship-line1"
                     type="text"
                     className="hl-book-field"
                     value={shipTo.line1}
@@ -1126,8 +1131,9 @@ export function BookBuilder() {
                 </div>
 
                 <div>
-                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Address line 2 (optional)</label>
+                  <label htmlFor="bb-ship-line2" className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Address line 2 (optional)</label>
                   <input
+                    id="bb-ship-line2"
                     type="text"
                     className="hl-book-field"
                     value={shipTo.line2}
@@ -1138,8 +1144,9 @@ export function BookBuilder() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>City</label>
+                    <label htmlFor="bb-ship-city" className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>City</label>
                     <input
+                      id="bb-ship-city"
                       type="text"
                       className="hl-book-field"
                       value={shipTo.city}
@@ -1149,8 +1156,9 @@ export function BookBuilder() {
                     />
                   </div>
                   <div>
-                    <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>State / Province</label>
+                    <label htmlFor="bb-ship-state" className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>State / Province</label>
                     <input
+                      id="bb-ship-state"
                       type="text"
                       className="hl-book-field"
                       value={shipTo.state_code}
@@ -1162,8 +1170,9 @@ export function BookBuilder() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                   <div>
-                    <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Country code</label>
+                    <label htmlFor="bb-ship-country" className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Country code</label>
                     <input
+                      id="bb-ship-country"
                       type="text"
                       className="hl-book-field"
                       value={shipTo.country_code}
@@ -1173,8 +1182,9 @@ export function BookBuilder() {
                     />
                   </div>
                   <div>
-                    <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Postcode</label>
+                    <label htmlFor="bb-ship-postcode" className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Postcode</label>
                     <input
+                      id="bb-ship-postcode"
                       type="text"
                       className="hl-book-field"
                       value={shipTo.postcode}
@@ -1186,8 +1196,9 @@ export function BookBuilder() {
                 </div>
 
                 <div>
-                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Phone number</label>
+                  <label htmlFor="bb-ship-phone" className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Phone number</label>
                   <input
+                    id="bb-ship-phone"
                     type="tel"
                     className="hl-book-field"
                     value={shipTo.phone_number}
@@ -1198,8 +1209,9 @@ export function BookBuilder() {
                 </div>
 
                 <div>
-                  <label className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Email</label>
+                  <label htmlFor="bb-ship-email" className="hl-eyebrow" style={{ display: 'block', marginBottom: 8 }}>Email</label>
                   <input
+                    id="bb-ship-email"
                     type="email"
                     className="hl-book-field"
                     value={shipTo.email}

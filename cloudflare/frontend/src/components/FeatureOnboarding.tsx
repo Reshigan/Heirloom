@@ -213,12 +213,13 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                   onClick={() => setCurrentStep(index)}
                   aria-label={`Go to step ${index + 1}`}
                   className={`h-[2px] rounded-none transition-all ${
-                    index === currentStep
-                      ? 'bg-gold w-10'
-                      : index < currentStep
-                        ? 'bg-gold/50 w-6'
-                        : 'bg-paper-15 w-6'
-                  }`}
+                    index === currentStep ? 'w-10' : 'w-6'
+                  } ${index > currentStep ? 'bg-paper-15' : ''}`}
+                  style={
+                    index <= currentStep
+                      ? { backgroundColor: 'var(--warm)', opacity: index === currentStep ? 1 : 0.5 }
+                      : undefined
+                  }
                 />
               ))}
             </div>

@@ -136,21 +136,16 @@ export default {
       animation: {
         // Off-spec animations float/glow/aura-breathe/record-ring/page-in were
         // unreferenced in src (zero `animate-*` usage) and used the off-spec
-        // ease-in-out — removed. stars-drift / particle-ascend are ambient
-        // continuous drifts (long-duration, linear/var) and are retained.
+        // ease-in-out — removed. particle-ascend was likewise unreferenced AND
+        // carried an off-spec cubic-bezier(0.65,0,0.35,1) — removed too.
+        // stars-drift is an ambient continuous drift (long-duration, linear)
+        // and is retained.
         'stars-drift': 'stars-drift 120s linear infinite',
-        'particle-ascend': 'particle-ascend var(--dur, 20s) cubic-bezier(0.65, 0, 0.35, 1) infinite',
       },
       keyframes: {
         'stars-drift': {
           '0%': { transform: 'translateY(0)' },
           '100%': { transform: 'translateY(-5%)' },
-        },
-        'particle-ascend': {
-          '0%': { opacity: '0', transform: 'translateY(100vh) scale(0.5)' },
-          '10%': { opacity: 'var(--opacity, 0.6)' },
-          '90%': { opacity: 'var(--opacity, 0.6)' },
-          '100%': { opacity: '0', transform: 'translateY(-10vh) scale(1)' },
         },
       },
       letterSpacing: {

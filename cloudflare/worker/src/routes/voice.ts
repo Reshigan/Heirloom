@@ -4,7 +4,7 @@
  */
 
 import { Hono } from 'hono';
-import type { Env, AppEnv } from '../index';
+import type { AppEnv } from '../index';
 import { mirrorIntoDefaultThread, mirrorVoiceUpdate, mirrorVoiceDelete } from '../services/threadMesh';
 import { recordRevision, withinGrace, mutableUntilFrom, listRevisions } from '../lib/legacyArchive';
 import { checkStorageQuota } from '../lib/quota';
@@ -431,10 +431,33 @@ voiceRoutes.post('/', async (c) => {
     const createdAt = recordingDate ? new Date(recordingDate).toISOString() : now;
   
     const mutableUntil = mutableUntilFrom(createdAt);
-    await c.env.DB.prepare(`
+    // ON CONFLICT(user_id, client_key) DO NOTHING guards the race the pre-check
+    // above cannot: two concurrent replays of the same clientKey (offline queue
+    // flush). The unique index on (user_id, client_key) is added by the migration.
+    // If the insert is a no-op (a concurrent request already won), re-fetch and
+    // return that existing row — mirrors the memories.ts idempotency contract.
+    const insertResult = await c.env.DB.prepare(`
       INSERT INTO voice_recordings (id, user_id, title, description, file_url, file_key, duration, file_size, transcript, emotion, mutable_until, created_at, updated_at, client_key)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(user_id, client_key) DO NOTHING
     `).bind(id, userId, title, description || null, fileUrl ?? '', fileKey ?? '', duration ?? 0, fileSize ?? 0, transcript || null, emotion || null, mutableUntil, createdAt, now, clientKey ?? null).run();
+
+    if (clientKey && insertResult.meta.changes === 0) {
+      const dup = await c.env.DB.prepare(
+        `SELECT * FROM voice_recordings WHERE user_id = ? AND client_key = ?`
+      ).bind(userId, clientKey).first();
+      if (dup) {
+        return c.json({
+          id: dup.id,
+          title: dup.title,
+          description: dup.description,
+          fileUrl: dup.file_url,
+          fileKey: dup.file_key,
+          duration: dup.duration,
+          createdAt: dup.created_at,
+        }, 200);
+      }
+    }
 
   // Dual-write into the Family Thread.
   await mirrorIntoDefaultThread(c.env, userId, {
@@ -464,7 +487,7 @@ voiceRoutes.post('/', async (c) => {
   if (legacyRecipientIds && legacyRecipientIds.length > 0) {
     // Ownership guard — all legacy_contact ids must belong to the authenticated user
     const ownedLegacyCheck = await c.env.DB.prepare(
-      `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ?`
+      `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ? AND deleted_at IS NULL`
     ).bind(...legacyRecipientIds, userId).first() as { n: number } | null;
     if (!ownedLegacyCheck || ownedLegacyCheck.n !== legacyRecipientIds.length) {
       return c.json({ error: 'One or more legacy recipients not found' }, 400);

@@ -442,17 +442,8 @@ export function Inherit() {
   /* ── First letter preview for right column ──────────────────────── */
   const firstLetter = content?.letters[0] ?? null;
 
-  const inheritTitle = ownerName
-    ? `A thread from ${ownerName} · Heirloom`
-    : 'You have inherited a thread · Heirloom';
-  const inheritDescription = (
-    ownerName
-      ? `${ownerName} prepared this sealed thread${recipientName ? ` for ${recipientName}` : ''}. Read it when you're ready.`
-      : 'Someone in your line left this sealed thread for you. Read it when you\'re ready.'
-  )
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 200);
+  // Functional on-tab title stays generic — names no sender or recipient.
+  const inheritTitle = 'You have inherited a thread · Heirloom';
 
   return (
     <div
@@ -462,9 +453,23 @@ export function Inherit() {
       {!error && content && (
         <Helmet>
           <title>{inheritTitle}</title>
-          <meta name="description" content={inheritDescription} />
-          <meta property="og:title" content={inheritTitle.replace(' · Heirloom', '')} />
-          <meta property="og:description" content={inheritDescription} />
+          <meta name="description" content="A thread was set aside for you on Heirloom." />
+          {/*
+           * PRIVACY-SAFE share meta. An inherit link is reachable by anyone
+           * holding it, so the scraper-facing og:* / twitter:* tags name no
+           * sender or recipient and reveal no content — they reuse the static
+           * "inherit" share card copy (functions/_shared/og.ts).
+           */}
+          <meta property="og:title" content="Someone has been writing to you." />
+          <meta
+            property="og:description"
+            content="A thread was set aside for you to read when the time came. Open it when you are ready - it has been waiting."
+          />
+          <meta name="twitter:title" content="Someone has been writing to you." />
+          <meta
+            name="twitter:description"
+            content="A thread was set aside for you to read when the time came. Open it when you are ready - it has been waiting."
+          />
           <meta property="og:type" content="article" />
           <meta property="og:url" content={window.location.href} />
           <meta property="og:image" content="https://heirloom.blue/og/inherit.png" />
@@ -1124,6 +1129,7 @@ export function Inherit() {
             ref={reactionRef}
             role="dialog"
             aria-modal="true"
+            aria-label="Send a note"
             style={{
               width: '100%',
               maxWidth: 480,

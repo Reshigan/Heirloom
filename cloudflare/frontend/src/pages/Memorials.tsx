@@ -23,7 +23,7 @@ const fieldStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
   border: '1px solid var(--rule)',
-  borderRadius: 2,
+  borderRadius: 0,
   color: 'var(--bone)',
   caretColor: 'var(--warm)',
   fontFamily: 'var(--serif)',
@@ -314,6 +314,7 @@ export function Memorials() {
             ref={createRef}
             role="dialog"
             aria-modal="true"
+            aria-labelledby="mem-create-title"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,
@@ -325,7 +326,7 @@ export function Memorials() {
             }}
             onClick={e => e.stopPropagation()}
           >
-            <p className="hl-eyebrow" style={{ marginBottom: 20 }}>Create a memorial</p>
+            <p id="mem-create-title" className="hl-eyebrow" style={{ marginBottom: 20 }}>Create a memorial</p>
 
             <div style={{ display: 'grid', gap: 20 }}>
               <div>
@@ -515,6 +516,7 @@ export function Memorials() {
             ref={viewRef}
             role="dialog"
             aria-modal="true"
+            aria-labelledby="mem-view-title"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,
@@ -535,6 +537,7 @@ export function Memorials() {
 
             {/* Name — tinted in the memorial's dye hue */}
             <h3
+              id="mem-view-title"
               className="hl-serif"
               style={{
                 fontSize: 24,

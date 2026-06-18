@@ -7,7 +7,6 @@
 
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { jwt } from 'hono/jwt';
 import { requestLogger } from './utils/logger';
 import { secureHeaders } from 'hono/secure-headers';
 
@@ -919,7 +918,7 @@ export default {
   fetch: app.fetch,
   
   // Cron trigger for dead man's switch and adoption engine
-  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+  async scheduled(event: ScheduledEvent, env: Env, _ctx: ExecutionContext) {
     // Safety guard: only run cron jobs if explicitly enabled
     if (env.CRON_ENABLED !== 'true') {
       console.error('Cron job triggered but CRON_ENABLED is not set to "true". Skipping execution.');
@@ -1592,84 +1591,6 @@ async function sendPostReminderEmails(env: Env) {
   }
 }
 
-// Send a single post reminder email to a specific user (for testing)
-async function sendSinglePostReminderEmail(env: Env, email: string, reminderType: 'memory' | 'voice' | 'letter' | 'weekly') {
-  // Get user stats
-  const user = await env.DB.prepare(`
-    SELECT 
-      u.id as user_id,
-      u.email,
-      u.first_name,
-      (SELECT COUNT(*) FROM memories WHERE user_id = u.id) as memories_count,
-      (SELECT MAX(created_at) FROM memories WHERE user_id = u.id) as last_memory_at,
-      (SELECT COUNT(*) FROM voice_recordings WHERE user_id = u.id) as recordings_count,
-      (SELECT COALESCE(SUM(duration), 0) FROM voice_recordings WHERE user_id = u.id) as total_voice_seconds,
-      (SELECT COUNT(*) FROM letters WHERE user_id = u.id) as letters_count,
-      (SELECT COUNT(*) FROM letters WHERE user_id = u.id AND sealed_at IS NOT NULL) as sealed_letters_count,
-      (SELECT COUNT(*) FROM family_members WHERE user_id = u.id) as family_count
-    FROM users u
-    WHERE u.email = ?
-  `).bind(email).first();
-  
-  if (!user) {
-    return { success: false, error: 'User not found' };
-  }
-  
-  const userName = user.first_name as string;
-  const memoriesCount = user.memories_count as number;
-  const recordingsCount = user.recordings_count as number;
-  const lettersCount = user.letters_count as number;
-  const familyCount = user.family_count as number;
-  const totalVoiceMinutes = Math.round((user.total_voice_seconds as number) / 60);
-  const hasSealedLetters = (user.sealed_letters_count as number) > 0;
-  
-  let daysSinceLastPost: number | null = null;
-  if (user.last_memory_at) {
-    const lastMemoryDate = new Date(user.last_memory_at as string);
-    daysSinceLastPost = Math.floor((Date.now() - lastMemoryDate.getTime()) / (1000 * 60 * 60 * 24));
-  }
-  
-  let emailContent;
-  switch (reminderType) {
-    case 'memory':
-      emailContent = postReminderMemoryEmail(userName, memoriesCount, daysSinceLastPost);
-      break;
-    case 'voice':
-      emailContent = postReminderVoiceEmail(userName, recordingsCount, totalVoiceMinutes);
-      break;
-    case 'letter':
-      emailContent = postReminderLetterEmail(userName, lettersCount, hasSealedLetters);
-      break;
-    case 'weekly':
-      const suggestedAction = memoriesCount <= recordingsCount && memoriesCount <= lettersCount ? 'memory' :
-                              recordingsCount <= lettersCount ? 'voice' : 'letter';
-      emailContent = postReminderWeeklyDigestEmail(userName, {
-        memoriesCount,
-        voiceMinutes: totalVoiceMinutes,
-        lettersCount,
-        familyCount,
-      }, suggestedAction);
-      break;
-  }
-  
-  try {
-    const result = await sendEmail(env, {
-      from: 'Heirloom <noreply@heirloom.blue>',
-      to: email,
-      subject: emailContent.subject,
-      html: emailContent.html,
-    }, `POST_REMINDER_${reminderType.toUpperCase()}`);
-    
-    if (result.success) {
-      return { success: true, message: `${reminderType} reminder sent to ${email}` };
-    } else {
-      return { success: false, error: `Failed to send: ${result.error}` };
-    }
-  } catch (error) {
-    return { success: false, error: `Error: ${error}` };
-  }
-}
-
 // ============================================
 // DAILY ADMIN SUMMARY EMAIL
 // ============================================
@@ -1767,7 +1688,7 @@ export class RateLimiter implements DurableObject {
   private readonly CLEANUP_INTERVAL = 60000; // Clean up every minute
   private readonly MAX_IPS = 10000; // Maximum IPs to track before forced cleanup
   
-  constructor(private state: DurableObjectState) {}
+  constructor(_state: DurableObjectState) {}
   
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);

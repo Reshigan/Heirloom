@@ -824,7 +824,7 @@ export function AdminDashboard() {
                 onChange={(e) => setUserSearch(e.target.value)}
                 style={{
                   background: 'var(--ink-card)', border: '1px solid var(--rule)',
-                  borderRadius: 2, padding: '6px 12px', color: 'var(--bone)',
+                  borderRadius: 0, padding: '6px 12px', color: 'var(--bone)',
                   fontFamily: 'var(--mono)', fontSize: 12, width: 220,
                   outline: 'none',
                 }}
@@ -883,7 +883,15 @@ export function AdminDashboard() {
                       return (
                         <tr
                           key={ticket.id}
+                          role="button"
+                          tabIndex={0}
                           onClick={() => setSelectedTicket(ticket.id)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              if (e.key === ' ') e.preventDefault();
+                              setSelectedTicket(ticket.id);
+                            }
+                          }}
                           style={{
                             borderBottom: '1px solid var(--rule)',
                             cursor: 'pointer',
@@ -1151,7 +1159,7 @@ function AdminBar({ section, email, role, onLogout }: { section: string; email: 
       }}
     >
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 14, letterSpacing: '0.12em', color: 'var(--bone)' }}>
-        <span className="loom-mark" style={{ fontSize: 13 }}><span className="infmark">∞</span>heirloom</span>
+        <span className="loom-mark" style={{ fontFamily: 'var(--mono)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.16em' }}><span className="infmark">∞</span>heirloom</span>
         <span style={{ color: 'var(--bone-faint)' }}>·</span>
         <span style={{ textTransform: 'lowercase' }}>admin · {section}</span>
       </span>
@@ -1941,7 +1949,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
             </>
           )}
           <LoomField label="Admin Notes (optional)">
-            <textarea value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} rows={2} placeholder="Promotional campaign, influencer gift…" style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--rule)', borderRadius: 2, color: 'var(--bone)', padding: '6px 10px', fontFamily: 'var(--sans)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+            <textarea value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} rows={2} placeholder="Promotional campaign, influencer gift…" style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--rule)', borderRadius: 0, color: 'var(--bone)', padding: '6px 10px', fontFamily: 'var(--sans)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
           </LoomField>
           <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
             <button className="loom-btn-ghost" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
@@ -2037,7 +2045,7 @@ The Heirloom Team`;
             <LoomInput type="text" value={formData.memberNumber} onChange={e => setFormData({ ...formData, memberNumber: e.target.value })} placeholder="G-000001 (auto-generated if empty)" />
           </LoomField>
           <LoomField label="Personal Message">
-            <textarea value={formData.personalMessage} onChange={e => setFormData({ ...formData, personalMessage: e.target.value })} rows={6} placeholder={DEFAULT_MESSAGE} style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--rule)', borderRadius: 2, color: 'var(--bone)', padding: '6px 10px', fontFamily: 'var(--sans)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+            <textarea value={formData.personalMessage} onChange={e => setFormData({ ...formData, personalMessage: e.target.value })} rows={6} placeholder={DEFAULT_MESSAGE} style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--rule)', borderRadius: 0, color: 'var(--bone)', padding: '6px 10px', fontFamily: 'var(--sans)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
             <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 4 }}>Leave empty to use the default message</div>
           </LoomField>
           {formData.recipientEmail && (
@@ -2085,7 +2093,7 @@ const loomInputStyle: React.CSSProperties = {
   width: '100%',
   background: 'var(--ink)',
   border: '1px solid var(--rule)',
-  borderRadius: 2,
+  borderRadius: 0,
   color: 'var(--bone)',
   padding: '6px 10px',
   fontFamily: 'var(--sans)',

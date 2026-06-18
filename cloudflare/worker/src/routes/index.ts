@@ -4,7 +4,7 @@
  */
 
 import { Hono } from 'hono';
-import type { Env, AppEnv } from '../index';
+import type { AppEnv } from '../index';
 
 // ============================================
 // FAMILY ROUTES
@@ -396,9 +396,6 @@ billingRoutes.get('/limits', async (c) => {
 });
 
 billingRoutes.post('/checkout', async (c) => {
-  const userId = c.get('userId');
-  const body = await c.req.json();
-  
   // Create Stripe checkout session
   // This would use the Stripe API
   const checkoutUrl = `https://checkout.stripe.com/...`;

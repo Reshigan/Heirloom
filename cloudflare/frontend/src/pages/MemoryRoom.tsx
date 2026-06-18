@@ -149,13 +149,8 @@ export function MemoryRoom() {
   const count = contributions.length;
   const ledgerEyebrow = `${count} ${count === 1 ? 'MEMORY' : 'MEMORIES'} SHARED`;
 
-  const roomTitle = room.name || 'A room in the cloth';
-  const metaDescription = (
-    room.description || `A memory room by ${room.ownerName} — share your memories on Heirloom.`
-  )
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 200);
+  // Functional on-tab title stays generic — names no room, owner, or content.
+  const roomTitle = 'A room in the cloth';
 
   return (
     <ClothShell
@@ -182,9 +177,24 @@ export function MemoryRoom() {
     >
       <Helmet>
         <title>{`${roomTitle} · Heirloom`}</title>
-        <meta name="description" content={metaDescription} />
-        <meta property="og:title" content={roomTitle} />
-        <meta property="og:description" content={metaDescription} />
+        <meta name="description" content="A place where a family's story is kept, on Heirloom." />
+        {/*
+         * PRIVACY-SAFE share meta. A shared memory-room link is reachable by
+         * anyone holding it, so the scraper-facing og:* / twitter:* tags name no
+         * room, owner, or content — they reuse the static "memoryRoom" share
+         * card copy (functions/_shared/og.ts). The real room name/description
+         * still render on-page below.
+         */}
+        <meta property="og:title" content="A room in a family thread has been opened for you." />
+        <meta
+          property="og:description"
+          content="Someone shared a place where their family's story is kept. Step inside when you are ready - it was set aside for you."
+        />
+        <meta name="twitter:title" content="A room in a family thread has been opened for you." />
+        <meta
+          name="twitter:description"
+          content="Someone shared a place where their family's story is kept. Step inside when you are ready - it was set aside for you."
+        />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={window.location.href} />
         <meta property="og:image" content="https://heirloom.blue/og/entry.png" />

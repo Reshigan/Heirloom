@@ -358,7 +358,7 @@ export async function sendPushToUser(
 export async function sendPushToAllUsers(
   env: any,
   notification: PushNotification,
-  filter?: { hasStreak?: boolean; inactive?: boolean }
+  _filter?: { hasStreak?: boolean; inactive?: boolean }
 ): Promise<{ success: boolean; queuedCount: number }> {
   try {
     let query = `

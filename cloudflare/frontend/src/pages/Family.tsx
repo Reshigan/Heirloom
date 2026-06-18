@@ -10,7 +10,7 @@ import { type FamilyMember } from '../types';
 import { formatDate } from '../utils/date';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { RoomError } from '../loom/components/RoomError';
-import { dyeForId, dyeVar, DYES, type Dye } from '../loom/dye';
+import { dyeForId, dyeTextVar, DYES, type Dye } from '../loom/dye';
 
 interface PendingInvite {
   id: string;
@@ -22,12 +22,13 @@ interface PendingInvite {
 }
 
 // The member's name carries their dye hue; the 3px left thread carries the same
-// dye. Both resolve through the canonical dye module (src/loom/dye.ts) →
-// `var(--dye-*)`, which is the single AA-tuned, theme-aware source of truth for
-// every dye colour. (Replaces a local brightened-hex table that drifted from
-// the tokens.) Returns the cream when the saved key isn't a known dye.
+// dye. The thread stays on the VIVID `var(--dye-*)` token (identity signal),
+// but the NAME renders through `dyeTextVar()` → the AA-tuned `var(--dye-*-text)`
+// tokens, so the name clears WCAG AA (4.5:1) in both themes where the vivid
+// thread hue would not. (src/loom/dye.ts is the theme-aware source of truth.)
+// Returns the cream when the saved key isn't a known dye.
 function dyeTextColor(key: string): string {
-  return (DYES as readonly string[]).includes(key) ? dyeVar(key as Dye) : 'var(--bone)';
+  return (DYES as readonly string[]).includes(key) ? dyeTextVar(key as Dye) : 'var(--bone)';
 }
 
 function daysUntilExpiry(deletedAt: string): number {

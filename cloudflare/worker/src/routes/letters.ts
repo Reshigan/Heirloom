@@ -4,8 +4,8 @@
  */
 
 import { Hono } from 'hono';
-import type { Env, AppEnv } from '../index';
-import { generateLetterSuggestion, classifyEmotion, classifyEmotionWithAI } from '../services/tinyllm';
+import type { AppEnv } from '../index';
+import { classifyEmotionWithAI } from '../services/tinyllm';
 import { mirrorIntoDefaultThread, mirrorLetterUpdate, mirrorLetterDelete } from '../services/threadMesh';
 import { recordRevision, withinGrace, mutableUntilFrom, listRevisions } from '../lib/legacyArchive';
 import { sendEmail } from '../utils/email';
@@ -46,7 +46,7 @@ function normalizeDeliveryTrigger(t: unknown): 'IMMEDIATE' | 'SCHEDULED' | 'POST
 // AI-powered letter suggestion using TinyLLM with Cloudflare Workers AI
 lettersRoutes.post('/ai-suggest', async (c) => {
   const body = await c.req.json();
-  const { salutation, body: letterBody, signature, recipientNames, tone, occasion } = body;
+  const { body: letterBody, recipientNames } = body;
   
   // If we have existing letter content, provide contextual suggestions
   if (letterBody && letterBody.trim().length > 20) {
@@ -456,7 +456,7 @@ lettersRoutes.post('/', async (c) => {
   // legacyRecipientIds are legacy_contacts.id values owned by this user.
   if (legacyRecipientIds && legacyRecipientIds.length > 0) {
     const lcCheck = await c.env.DB.prepare(
-      `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ?`
+      `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ? AND deleted_at IS NULL`
     ).bind(...legacyRecipientIds, userId).first() as { n: number } | null;
     if (!lcCheck || lcCheck.n !== legacyRecipientIds.length) {
       return c.json({ error: 'One or more legacy contact recipients not found' }, 400);
@@ -575,11 +575,13 @@ lettersRoutes.patch('/:id', async (c) => {
   }
   
   // Update legacy contact recipients if provided — replace the full set.
+  // Intentional full-replace: this junction is routing metadata (who a letter is
+  // addressed to), not append-only legacy content, so a PATCH overwrites it wholesale.
   if (legacyRecipientIds !== undefined) {
     await c.env.DB.prepare(`DELETE FROM letter_legacy_recipients WHERE letter_id = ?`).bind(letterId).run();
     if (legacyRecipientIds && legacyRecipientIds.length > 0) {
       const lcCheck = await c.env.DB.prepare(
-        `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ?`
+        `SELECT COUNT(*) as n FROM legacy_contacts WHERE id IN (${legacyRecipientIds.map(() => '?').join(',')}) AND user_id = ? AND deleted_at IS NULL`
       ).bind(...legacyRecipientIds, userId).first() as { n: number } | null;
       if (!lcCheck || lcCheck.n !== legacyRecipientIds.length) {
         return c.json({ error: 'One or more legacy contact recipients not found' }, 400);

@@ -8,7 +8,7 @@
 import { Hono } from 'hono';
 import type { Env, Variables } from '../index';
 import { sendEmail } from '../utils/email';
-import { partnerApplicationReceivedEmail, partnerApprovedEmail, partnerRejectedEmail, adminPartnerApplicationEmail, wholesaleOrderConfirmationEmail } from '../email-templates';
+import { partnerApplicationReceivedEmail, adminPartnerApplicationEmail } from '../email-templates';
 
 export const partnerRoutes = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -145,7 +145,7 @@ partnerRoutes.post('/apply', async (c) => {
 // Track QR code scan / partner link click
 partnerRoutes.post('/track-click', async (c) => {
   const body = await c.req.json();
-  const { partnerCode, attributionMethod } = body;
+  const { partnerCode } = body;
   
   const partner = await c.env.DB.prepare(`
     SELECT id FROM partners WHERE partner_code = ? AND status = 'ACTIVE'

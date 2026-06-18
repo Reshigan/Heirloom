@@ -4,7 +4,7 @@
  */
 
 import { Hono } from 'hono';
-import type { Env, AppEnv } from '../index';
+import type { AppEnv } from '../index';
 import { readDescription, decryptText } from '../lib/legacyArchive';
 import { sendEmail } from '../utils/email';
 
@@ -1033,10 +1033,27 @@ settingsRoutes.get('/export', async (c) => {
     // promises nothing is lost. Each junction/revision query is scoped to the
     // exporting user by joining through the parent entity's user_id (revisions
     // carry their own user_id column).
+    //
+    // USER-OWNED TABLE LEDGER (keep in sync with the account-delete batch above).
+    // This gather and the DELETE batch must enumerate the same set of user-owned
+    // tables, or a table is silently either un-erased or un-exported. When a new
+    // user-owned table is added, add it to BOTH lists (or deliberately exclude it
+    // here and note why below).
+    //   INCLUDED in this export:
+    //     users, memories, voice_recordings, letters, family_members,
+    //     legacy_contacts (incl. soft-deleted, see below), dead_man_switches,
+    //     subscriptions, letter/memory/voice legacy-recipient junctions,
+    //     legacy_revisions, wrapped_data, thread_members.
+    //   INTENTIONALLY EXCLUDED (operational/transient, not user content):
+    //     notifications, audit_logs, device_tokens, shamir_shares (key escrow —
+    //     never exported in cleartext), password_resets, sessions,
+    //     post_reminder_emails, support_tickets, recipient_messages, threads
+    //     (founder-owned container row, surfaced via thread_members instead).
     const [
       user, memories, voiceRecordings, letters, familyMembers, legacyContacts,
       deadManSwitch, subscription,
       letterBequests, memoryBequests, voiceBequests, legacyRevisions,
+      wrappedData, threadMemberships,
     ] = await Promise.all([
       c.env.DB.prepare(`
         SELECT id, email, first_name, last_name, avatar_url, preferred_currency,
@@ -1047,7 +1064,13 @@ settingsRoutes.get('/export', async (c) => {
       c.env.DB.prepare(`SELECT * FROM voice_recordings WHERE user_id = ?`).bind(userId).all(),
       c.env.DB.prepare(`SELECT * FROM letters WHERE user_id = ?`).bind(userId).all(),
       c.env.DB.prepare(`SELECT * FROM family_members WHERE user_id = ?`).bind(userId).all(),
-      c.env.DB.prepare(`SELECT * FROM legacy_contacts WHERE user_id = ? AND deleted_at IS NULL`).bind(userId).all(),
+      // Include soft-deleted contacts in the EXPORT gather (only here — the
+      // live-delivery queries keep their deleted_at IS NULL filters). A bequest
+      // junction can still reference a removed contact, so every exported
+      // legacyContactId must resolve to a contact in this array or the archive
+      // would carry a dangling reference. Each contact carries deletedAt so a
+      // reader can tell live from revoked.
+      c.env.DB.prepare(`SELECT * FROM legacy_contacts WHERE user_id = ?`).bind(userId).all(),
       c.env.DB.prepare(`SELECT * FROM dead_man_switches WHERE user_id = ?`).bind(userId).first(),
       c.env.DB.prepare(`SELECT * FROM subscriptions WHERE user_id = ?`).bind(userId).first(),
       // Bequest/recipient junctions — scoped to entries owned by this user.
@@ -1075,6 +1098,10 @@ settingsRoutes.get('/export', async (c) => {
         FROM legacy_revisions WHERE user_id = ?
         ORDER BY created_at ASC
       `).bind(userId).all(),
+      // Year-in-review aggregates (wrapped_data) — straightforward per-user rows.
+      c.env.DB.prepare(`SELECT * FROM wrapped_data WHERE user_id = ? ORDER BY year ASC`).bind(userId).all(),
+      // Family Thread memberships — the user's place(s) in any bloodline thread.
+      c.env.DB.prepare(`SELECT * FROM thread_members WHERE user_id = ?`).bind(userId).all(),
     ]);
 
     // Decrypt encrypted memory descriptions so the personal data export carries
@@ -1214,6 +1241,10 @@ settingsRoutes.get('/export', async (c) => {
         relationship: lc.relationship,
         verificationStatus: lc.verification_status,
         createdAt: lc.created_at,
+        // null for live contacts; ISO timestamp for soft-deleted (revoked) ones.
+        // Present so bequest legacyContactIds referencing a removed contact still
+        // resolve in the archive.
+        deletedAt: lc.deleted_at ?? null,
       })),
       deadManSwitch: deadManSwitch ? {
         enabled: !!deadManSwitch.enabled,
@@ -1255,6 +1286,31 @@ settingsRoutes.get('/export', async (c) => {
       // Append-only revision history (prior versions of every legacy entry),
       // snapshots decrypted above to readable prose where the server holds the key.
       revisions: decryptedRevisions,
+      // Year-in-review aggregates per year.
+      wrappedData: (wrappedData.results as any[]).map((w: any) => ({
+        year: w.year,
+        totalMemories: w.total_memories,
+        totalVoiceStories: w.total_voice_stories,
+        totalLetters: w.total_letters,
+        totalStorage: w.total_storage,
+        longestStreak: w.longest_streak,
+        currentStreak: w.current_streak,
+        topEmotions: w.top_emotions ? JSON.parse(w.top_emotions) : [],
+        topTaggedPeople: w.top_tagged_people ? JSON.parse(w.top_tagged_people) : [],
+        highlights: w.highlights ? JSON.parse(w.highlights) : [],
+        summary: w.summary,
+        generatedAt: w.generated_at,
+      })),
+      // The user's membership in any Family Thread (their place in the bloodline).
+      threadMemberships: (threadMemberships.results as any[]).map((tm: any) => ({
+        threadId: tm.thread_id,
+        displayName: tm.display_name,
+        email: tm.email,
+        relationLabel: tm.relation_label,
+        role: tm.role,
+        targetRole: tm.target_role,
+        createdAt: tm.created_at,
+      })),
       fileManifest,
     };
     

@@ -3,9 +3,16 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from
 import { HelmetProvider } from 'react-helmet-async';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAuthStore } from './stores/authStore';
-import { getAuthToken } from './services/api';
+import { getAuthToken, engagementApi } from './services/api';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { isNativePlatform } from './services/pushNotificationService';
+import {
+  isNativePlatform,
+  isPushSupported,
+  initializePushNotifications,
+  onNotificationReceived,
+  onNotificationAction,
+  removePushNotificationListeners,
+} from './services/pushNotificationService';
 import { clearChunkReloadFlag } from './lib/chunkReload';
 import { PENDING_INVITE_KEY } from './lib/constants';
 import { safeRedirect } from './lib/safeRedirect';
@@ -164,15 +171,13 @@ function PendingInviteAcceptor() {
     if (!code) return;
     // Only remove the code after the API call succeeds; on failure it stays
     // in localStorage and will be retried on the next load.
-    import('./services/api').then(({ engagementApi }) => {
-      engagementApi.acceptFamilyInvite(code)
-        .then(() => {
-          localStorage.removeItem(PENDING_INVITE_KEY);
-        })
-        .catch((err) => {
-          console.error('Failed to accept family invite:', err);
-        });
-    });
+    engagementApi.acceptFamilyInvite(code)
+      .then(() => {
+        localStorage.removeItem(PENDING_INVITE_KEY);
+      })
+      .catch((err) => {
+        console.error('Failed to accept family invite:', err);
+      });
   }, [isAuthenticated, user]);
   return null;
 }
@@ -201,20 +206,14 @@ function PushNotificationHandler() {
   useEffect(() => {
     if (!isAuthenticated || !isNativePlatform()) return;
 
-    let cleanup: (() => void) | undefined;
-    import('./services/pushNotificationService').then(
-      ({ isPushSupported, initializePushNotifications, onNotificationReceived, onNotificationAction, removePushNotificationListeners }) => {
-        if (!isPushSupported()) return;
-        initializePushNotifications();
-        onNotificationReceived(() => {});
-        onNotificationAction((action) => {
-          const data = action.notification.data as { route?: string } | undefined;
-          if (data?.route) navigate(data.route);
-        });
-        cleanup = removePushNotificationListeners;
-      }
-    );
-    return () => cleanup?.();
+    if (!isPushSupported()) return;
+    initializePushNotifications();
+    onNotificationReceived(() => {});
+    onNotificationAction((action) => {
+      const data = action.notification.data as { route?: string } | undefined;
+      if (data?.route) navigate(data.route);
+    });
+    return removePushNotificationListeners;
   }, [isAuthenticated, navigate]);
 
   return null;

@@ -4,7 +4,7 @@
  */
 
 import { Hono } from 'hono';
-import type { Env, AppEnv } from '../index';
+import type { AppEnv } from '../index';
 import { supportTicketReplyEmail, supportTicketResolvedEmail, newFeaturesAnnouncementEmail, influencerApprovedEmail, influencerRejectedEmail, partnerApprovedEmail, partnerRejectedEmail } from '../email-templates';
 import { sendEmail } from '../utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processEmailBounces } from '../jobs/adoption-jobs';
@@ -1263,7 +1263,7 @@ adminRoutes.post('/emails/product-update', adminAuth, async (c) => {
     return c.json({ error: 'Only super admins can send product update emails' }, 403);
   }
   
-  const { subject, body: emailBody, previewText } = body;
+  const { subject, body: emailBody } = body;
   
   if (!subject || !emailBody) {
     return c.json({ error: 'Subject and body are required' }, 400);
@@ -1280,10 +1280,9 @@ adminRoutes.post('/emails/product-update', adminAuth, async (c) => {
     return c.json({ error: 'No users have opted in for marketing emails' }, 400);
   }
   
-  const now = new Date().toISOString();
   let sentCount = 0;
   let failedCount = 0;
-  
+
   // Send emails to opted-in users
   for (const user of users.results as any[]) {
     try {

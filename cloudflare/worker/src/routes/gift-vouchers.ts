@@ -8,7 +8,7 @@
 import { Hono } from 'hono';
 import type { Context } from 'hono';
 import type { Env, Variables } from '../index';
-import { giftVoucherPurchaseEmail, giftVoucherReceivedEmail, giftVoucherRedeemedEmail } from '../email-templates';
+import { giftVoucherReceivedEmail, giftVoucherRedeemedEmail } from '../email-templates';
 import { sendEmail } from '../utils/email';
 
 type GiftVoucherContext = Context<{ Bindings: Env; Variables: Variables }>;
@@ -697,8 +697,6 @@ giftVoucherRoutes.post('/:id/send', async (c) => {
 
 // Get all vouchers (admin)
 giftVoucherRoutes.get('/admin/all', adminAuth, async (c) => {
-  const adminId = c.get('adminId');
-  
   const status = c.req.query('status');
   const search = c.req.query('search');
   const limit = parseInt(c.req.query('limit') || '50');
@@ -746,9 +744,8 @@ giftVoucherRoutes.get('/admin/all', adminAuth, async (c) => {
 
 // Get voucher details (admin)
 giftVoucherRoutes.get('/admin/:id', adminAuth, async (c) => {
-  const adminId = c.get('adminId');
   const voucherId = c.req.param('id');
-  
+
   const voucher = await c.env.DB.prepare(`
     SELECT gv.*, 
            pu.email as purchaser_user_email, pu.first_name as purchaser_first_name,
@@ -791,7 +788,7 @@ giftVoucherRoutes.post('/admin/create', adminAuth, async (c) => {
   const duration = durationMonths || (billingCycle === 'yearly' ? 12 : 1);
   const status = shouldSendEmail && recipientEmail ? 'SENT' : 'PAID';
   
-  const result = await c.env.DB.prepare(`
+  await c.env.DB.prepare(`
     INSERT INTO gift_vouchers (
       code, purchaser_email, purchaser_name, tier, billing_cycle, duration_months,
       amount, currency, status, expires_at, recipient_email, recipient_name,
@@ -851,7 +848,6 @@ giftVoucherRoutes.post('/admin/create', adminAuth, async (c) => {
 
 // Update voucher (admin)
 giftVoucherRoutes.patch('/admin/:id', adminAuth, async (c) => {
-  const adminId = c.get('adminId');
   const voucherId = c.req.param('id');
   const body = await c.req.json();
   const { status, expiresAt, adminNotes } = body;
@@ -890,9 +886,8 @@ giftVoucherRoutes.patch('/admin/:id', adminAuth, async (c) => {
 
 // Resend voucher email (admin)
 giftVoucherRoutes.post('/admin/:id/resend', adminAuth, async (c) => {
-  const adminId = c.get('adminId');
   const voucherId = c.req.param('id');
-  
+
   const voucher = await c.env.DB.prepare(`
     SELECT * FROM gift_vouchers WHERE id = ?
   `).bind(voucherId).first();
@@ -1155,7 +1150,6 @@ giftVoucherRoutes.get('/admin/gold-legacy/all', adminAuth, async (c) => {
 
 // Get voucher stats (admin)
 giftVoucherRoutes.get('/admin/stats', adminAuth, async (c) => {
-  const adminId = c.get('adminId');
   const stats = await c.env.DB.prepare(`
     SELECT 
       COUNT(*) as total,

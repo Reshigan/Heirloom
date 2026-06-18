@@ -353,7 +353,7 @@ export function MemoryCards() {
                         width: '100%',
                         background: 'transparent',
                         border: '1px solid var(--rule)',
-                        borderRadius: 2,
+                        borderRadius: 0,
                         padding: '10px 14px',
                         color: 'var(--bone)',
                         fontFamily: 'var(--serif)',

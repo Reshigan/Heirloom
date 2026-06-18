@@ -167,6 +167,130 @@ CREATE TABLE IF NOT EXISTS switch_verifications (
   expires_at TEXT NOT NULL,
   created_at TEXT DEFAULT (datetime('now'))
 );
+
+CREATE TABLE IF NOT EXISTS memories (
+  -- Content + junction tables below are exercised by the GDPR export route
+  -- (settings-export.worker.test.ts). Minimal column sets covering only what
+  -- the export gather selects/maps. All CREATE IF NOT EXISTS so additive to the
+  -- suites that share this helper. (Comments live INSIDE a statement, never
+  -- leading a chunk — applyMigrations drops any chunk that starts with '--'.)
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type TEXT,
+  title TEXT,
+  description TEXT,
+  description_enc TEXT,
+  description_iv TEXT,
+  file_key TEXT,
+  file_size INTEGER DEFAULT 0,
+  metadata TEXT,
+  deleted_at TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS voice_recordings (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT,
+  description TEXT,
+  file_url TEXT,
+  file_key TEXT,
+  file_size INTEGER DEFAULT 0,
+  duration INTEGER,
+  transcript TEXT,
+  client_key TEXT,
+  deleted_at TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS letters (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT,
+  salutation TEXT,
+  body TEXT,
+  signature TEXT,
+  delivery_trigger TEXT,
+  scheduled_date TEXT,
+  sealed_at TEXT,
+  deleted_at TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS family_members (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT,
+  relationship TEXT,
+  email TEXT,
+  phone TEXT,
+  birth_date TEXT,
+  notes TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS letter_legacy_recipients (
+  letter_id TEXT NOT NULL,
+  legacy_contact_id TEXT NOT NULL,
+  added_at TEXT DEFAULT (datetime('now')),
+  PRIMARY KEY (letter_id, legacy_contact_id)
+);
+
+CREATE TABLE IF NOT EXISTS memory_legacy_recipients (
+  memory_id TEXT NOT NULL,
+  legacy_contact_id TEXT NOT NULL,
+  added_at TEXT DEFAULT (datetime('now')),
+  PRIMARY KEY (memory_id, legacy_contact_id)
+);
+
+CREATE TABLE IF NOT EXISTS voice_legacy_recipients (
+  voice_recording_id TEXT NOT NULL,
+  legacy_contact_id TEXT NOT NULL,
+  added_at TEXT DEFAULT (datetime('now')),
+  PRIMARY KEY (voice_recording_id, legacy_contact_id)
+);
+
+CREATE TABLE IF NOT EXISTS legacy_revisions (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  entity_type TEXT NOT NULL,
+  entity_id TEXT NOT NULL,
+  snapshot TEXT,
+  reason TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS wrapped_data (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  year INTEGER NOT NULL,
+  total_memories INTEGER DEFAULT 0,
+  total_voice_stories INTEGER DEFAULT 0,
+  total_letters INTEGER DEFAULT 0,
+  total_storage INTEGER DEFAULT 0,
+  longest_streak INTEGER DEFAULT 0,
+  current_streak INTEGER DEFAULT 0,
+  top_emotions TEXT,
+  top_tagged_people TEXT,
+  highlights TEXT,
+  summary TEXT,
+  generated_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS thread_members (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  thread_id TEXT,
+  user_id TEXT,
+  display_name TEXT,
+  email TEXT,
+  relation_label TEXT,
+  role TEXT,
+  target_role TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
 `;
 
 export async function applyMigrations(db: D1Database): Promise<void> {

@@ -5,7 +5,7 @@ import { memoriesApi, lettersApi, familyApi, aiApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
 import { type FamilyMember } from '../types';
-import { dyeColor } from '../loom/dye';
+import { dyeColor, dyeTextColor } from '../loom/dye';
 import { HLogo } from '../loom/components/HLogo';
 import { VoiceRefine } from '../loom/components/VoiceRefine';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
@@ -284,7 +284,7 @@ function ToField({
                   style={{
                     fontFamily: 'var(--mono)',
                     fontSize: 13.5,
-                    color: dyeColor(m.id, m.dye),
+                    color: dyeTextColor(m.id, m.dye),
                     letterSpacing: '0.04em',
                   }}
                 >

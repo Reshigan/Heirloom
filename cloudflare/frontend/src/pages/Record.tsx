@@ -857,7 +857,7 @@ export function Record() {
                   justifyContent: 'center',
                   color: 'var(--warm)',
                   cursor: 'pointer',
-                  transition: 'all 180ms cubic-bezier(0.16,1,0.3,1)',
+                  transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), background 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
                 }}
               >
                 {playing ? (

@@ -29,6 +29,13 @@ export function ClothShell({
       className="loom"
       style={{ position: 'fixed', inset: 0, background: 'transparent', overflow: 'hidden' }}
     >
+      {/* Skip link — first focusable element; lets keyboard/SR users jump past
+          the topbar chrome straight to <main>. Off-screen until focused
+          (.skip-to-content, globals.css). */}
+      <a href="#main-content" className="skip-to-content">
+        Skip to content
+      </a>
+
       {/* Topbar */}
       {!noTopbar && (
         <header
@@ -68,6 +75,7 @@ export function ClothShell({
 
       {/* Content layer */}
       <main
+        id="main-content"
         style={{
           position: 'absolute',
           inset: 0,

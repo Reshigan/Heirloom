@@ -4,7 +4,7 @@
  */
 
 import { Hono } from 'hono';
-import type { Env, AppEnv } from '../index';
+import type { AppEnv } from '../index';
 
 export const wrappedRoutes = new Hono<AppEnv>();
 

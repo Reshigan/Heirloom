@@ -203,20 +203,6 @@ const LOCALIZED_MICRO_INFLUENCERS = [
   { name: 'Mexico Grief Circle', email: 'circle@mexicogrief.mx', platform: 'BLOG', segment: 'GRIEF', handle: '@mexicogrief', follower_count: 380, country: 'MX' },
 ];
 
-// Search patterns for discovering new prospects (used by admin to manually add)
-const DISCOVERY_SEARCH_PATTERNS = [
-  'genealogy blogger contact',
-  'family history YouTuber email',
-  'ancestry content creator',
-  'grief support blogger',
-  'estate planning influencer',
-  'memory keeping Instagram',
-  'family legacy podcast host',
-  'photo organizing expert',
-  'digital legacy planning',
-  'family storytelling coach',
-];
-
 // ============================================
 // VIRAL INFLUENCERS - COMPREHENSIVE LIST
 // Mega influencers across all platforms and segments
@@ -1115,8 +1101,7 @@ export async function processInactiveUsers(env: Env) {
 export async function sendDateReminders(env: Env) {
   const now = new Date();
   const nowISO = now.toISOString();
-  const today = now.toISOString().slice(5, 10); // MM-DD format
-  
+
   // Find dates coming up in the next 7 days
   const upcomingDates = await env.DB.prepare(`
     SELECT id.*, u.email, u.first_name
@@ -1176,9 +1161,8 @@ export async function sendDateReminders(env: Env) {
 
 export async function processStreakMaintenance(env: Env) {
   const now = new Date();
-  const today = now.toISOString().split('T')[0];
   const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString().split('T')[0];
-  
+
   // Reset streaks for users who missed yesterday
   const result = await env.DB.prepare(`
     UPDATE user_streaks 

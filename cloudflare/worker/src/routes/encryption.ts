@@ -5,7 +5,7 @@
  */
 
 import { Hono } from 'hono';
-import type { Env, AppEnv } from '../index';
+import type { AppEnv } from '../index';
 
 // =============================================================================
 // SHAMIR SECRET SHARING IMPLEMENTATION

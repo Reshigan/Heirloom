@@ -17,7 +17,7 @@
  */
 
 import { Hono } from 'hono';
-import type { Env, AppEnv } from '../index';
+import type { AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
 import { renderBookPdf } from '../services/bookPdf';
 import { FREE_STORAGE_BYTES } from '../lib/quota';
@@ -46,13 +46,6 @@ const COUNTRY_TO_PRICING_TIER: Record<string, PricingTier> = {
   // Tier 4 - 30% PPP, annual-only (IN, NG, KE, PK, BD, EG, GH)
   IN: 'tier4', NG: 'tier4', KE: 'tier4', PK: 'tier4',
   BD: 'tier4', EG: 'tier4', GH: 'tier4',
-};
-
-const PRICING_TIER_CURRENCY: Record<PricingTier, string> = {
-  tier1: 'USD',
-  tier2: 'EUR',
-  tier3: 'ZAR',
-  tier4: 'INR',
 };
 
 // =============================================================================

@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import type { Env, AppEnv } from '../index';
+import type { AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
 import { requireAuth } from '../lib/auth';
 

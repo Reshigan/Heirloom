@@ -8,7 +8,7 @@
 import { Hono } from 'hono';
 import type { Env, Variables } from '../index';
 import { sendEmail } from '../utils/email';
-import { influencerApplicationReceivedEmail, influencerApprovedEmail, influencerRejectedEmail, adminInfluencerApplicationEmail } from '../email-templates';
+import { influencerApplicationReceivedEmail, adminInfluencerApplicationEmail } from '../email-templates';
 
 export const influencerRoutes = new Hono<{ Bindings: Env; Variables: Variables }>();
 

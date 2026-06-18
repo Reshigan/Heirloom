@@ -4,7 +4,7 @@
  */
 
 import { Hono } from 'hono';
-import type { Env, AppEnv } from '../index';
+import type { AppEnv } from '../index';
 import { readDescription } from '../lib/legacyArchive';
 import { AI_TEXT_MODEL } from '../lib/aiModels';
 
@@ -127,14 +127,8 @@ const validateRecipientSession = async (c: any, next: any) => {
 
 // Get all content shared with this recipient
 inheritRoutes.get('/content/all', validateRecipientSession, async (c) => {
-  const ownerId = c.get('ownerId');
   const legacyContactId = c.get('legacyContactId');
-  
-  // Get the family member ID associated with this legacy contact
-  const legacyContact = await c.env.DB.prepare(`
-    SELECT id, name, email FROM legacy_contacts WHERE id = ?
-  `).bind(legacyContactId).first();
-  
+
   // Only return letters explicitly addressed to this legacy contact.
   // letter_legacy_recipients is the access-control junction table populated
   // when the author adds a legacy contact as a recipient in the composer.
@@ -323,7 +317,6 @@ inheritRoutes.get('/content/voice/:id', validateRecipientSession, async (c) => {
 
 // AI-powered semantic search across all inherited content
 inheritRoutes.post('/search', validateRecipientSession, async (c) => {
-  const ownerId = c.get('ownerId');
   const legacyContactId = c.get('legacyContactId');
   const body = await c.req.json();
   const { query } = body;

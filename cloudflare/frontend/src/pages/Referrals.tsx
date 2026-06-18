@@ -62,7 +62,7 @@ export function Referrals() {
     width: '100%',
     background: 'transparent',
     border: '1px solid var(--rule)',
-    borderRadius: 2,
+    borderRadius: 0,
     color: 'var(--bone)',
     caretColor: 'var(--warm)',
     fontFamily: 'var(--serif)',

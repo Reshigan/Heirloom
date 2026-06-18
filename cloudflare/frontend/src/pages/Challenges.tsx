@@ -93,7 +93,7 @@ export function Challenges() {
     width: '100%',
     background: 'transparent',
     border: '1px solid var(--rule)',
-    borderRadius: 2,
+    borderRadius: 0,
     color: 'var(--bone)',
     caretColor: 'var(--warm)',
     fontFamily: 'var(--serif)',
@@ -334,6 +334,7 @@ export function Challenges() {
             ref={submitRef}
             role="dialog"
             aria-modal="true"
+            aria-labelledby="challenge-submit-title"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,
@@ -346,6 +347,7 @@ export function Challenges() {
               {currentChallenge.title}
             </p>
             <h3
+              id="challenge-submit-title"
               className="hl-serif hl-italic"
               style={{ fontSize: 22, fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px' }}
             >
@@ -425,6 +427,7 @@ export function Challenges() {
             ref={detailRef}
             role="dialog"
             aria-modal="true"
+            aria-labelledby="challenge-detail-title"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,
@@ -437,6 +440,7 @@ export function Challenges() {
               starts {new Date(selectedChallenge.start_date).toLocaleDateString()}
             </p>
             <h3
+              id="challenge-detail-title"
               className="hl-serif"
               style={{ fontSize: 24, fontWeight: 400, color: 'var(--bone)', margin: '0 0 10px' }}
             >

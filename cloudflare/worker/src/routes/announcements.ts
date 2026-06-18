@@ -257,7 +257,7 @@ announcementsRoutes.post('/admin/:id/send-email', adminAuth, async (c) => {
 // Send announcement email with voucher to influencers
 announcementsRoutes.post('/admin/send-influencer-vouchers', adminAuth, async (c) => {
   const body = await c.req.json();
-  const { announcementId, voucherCodes } = body;
+  const { voucherCodes } = body;
 
   // paginated send: capped at 500 per cron run
   const influencers = await c.env.DB.prepare(`

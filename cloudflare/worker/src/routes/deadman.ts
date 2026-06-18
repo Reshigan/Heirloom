@@ -4,7 +4,7 @@
  */
 
 import { Hono } from 'hono';
-import type { Env, AppEnv } from '../index';
+import type { AppEnv } from '../index';
 import { createMemorialForUser } from './q4-features';
 
 export const deadmanRoutes = new Hono<AppEnv>();
@@ -304,7 +304,7 @@ deadmanRoutes.get('/verify-contact/:token', async (c) => {
   const token = c.req.param('token');
 
   const contact = await c.env.DB.prepare(`
-    SELECT id, verification_status FROM legacy_contacts WHERE verification_token = ?
+    SELECT id, verification_status FROM legacy_contacts WHERE verification_token = ? AND deleted_at IS NULL
   `).bind(token).first<{ id: string; verification_status: string }>();
 
   if (!contact) {
@@ -352,7 +352,7 @@ deadmanRoutes.post('/verify-contact/:token', async (c) => {
   const now = new Date().toISOString();
 
   const contact = await c.env.DB.prepare(`
-    SELECT id, verification_status FROM legacy_contacts WHERE verification_token = ?
+    SELECT id, verification_status FROM legacy_contacts WHERE verification_token = ? AND deleted_at IS NULL
   `).bind(token).first<{ id: string; verification_status: string }>();
 
   if (!contact) {
@@ -369,7 +369,7 @@ deadmanRoutes.post('/verify-contact/:token', async (c) => {
   // row simply re-sets it to VERIFIED (idempotent).
   if (contact.verification_status !== 'REJECTED') {
     await c.env.DB.prepare(`
-      UPDATE legacy_contacts SET verification_status = 'VERIFIED', updated_at = ? WHERE verification_token = ?
+      UPDATE legacy_contacts SET verification_status = 'VERIFIED', updated_at = ? WHERE verification_token = ? AND deleted_at IS NULL
     `).bind(now, token).run();
   }
 

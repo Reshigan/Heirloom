@@ -221,7 +221,7 @@ const inputStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
   border: '1px solid var(--rule)',
-  borderRadius: 2,
+  borderRadius: 0,
   padding: '10px 14px',
   color: 'var(--bone)',
   fontFamily: 'var(--serif)',
@@ -516,6 +516,7 @@ export function TimeCapsule() {
             ref={createRef}
             role="dialog"
             aria-modal="true"
+            aria-labelledby="time-capsule-create-title"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               width: '100%',
@@ -543,6 +544,7 @@ export function TimeCapsule() {
                 the sealed note
               </div>
               <h2
+                id="time-capsule-create-title"
                 style={{
                   fontFamily: 'var(--serif-display)',
                   fontSize: 34,

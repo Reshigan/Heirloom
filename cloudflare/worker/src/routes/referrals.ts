@@ -20,13 +20,6 @@ function generateReferralCode(firstName: string): string {
   return `${cleanName}${randomSuffix}`;
 }
 
-// Commission structure based on tier
-const REFERRAL_COMMISSION = {
-  STARTER: { yearly: 1000, monthly: 100 }, // $10 yearly, $1 monthly
-  FAMILY: { yearly: 2000, monthly: 200 },  // $20 yearly, $2 monthly
-  LEGACY: { yearly: 4000, monthly: 400 },  // $40 yearly, $4 monthly
-};
-
 // =============================================================================
 // USER ROUTES (Authenticated)
 // =============================================================================
@@ -192,11 +185,7 @@ referralRoutes.get('/validate/:code', async (c) => {
 referralRoutes.post('/track-click', async (c) => {
   const body = await c.req.json();
   const code = (body.code as string)?.toUpperCase();
-  const landingPage = body.landingPage as string;
-  const utmSource = body.utmSource as string;
-  const utmMedium = body.utmMedium as string;
-  const utmCampaign = body.utmCampaign as string;
-  
+
   const referralCode = await c.env.DB.prepare(`
     SELECT id, user_id FROM referral_codes WHERE code = ? AND is_active = 1
   `).bind(code).first();
@@ -273,8 +262,7 @@ referralRoutes.post('/record-conversion', async (c) => {
   const body = await c.req.json();
   const subscriptionTier = body.tier as string;
   const subscriptionValue = body.value as number; // in cents
-  const billingCycle = body.billingCycle as string;
-  
+
   // Find the referral
   const referral = await c.env.DB.prepare(`
     SELECT r.*, rc.user_id as referrer_user_id

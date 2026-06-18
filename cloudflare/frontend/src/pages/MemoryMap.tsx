@@ -259,7 +259,7 @@ export function MemoryMap() {
                         boxShadow: active
                           ? '0 0 14px var(--ember)'
                           : '0 0 8px var(--ember)',
-                        transition: 'all 360ms cubic-bezier(0.16,1,0.3,1)',
+                        transition: 'width 360ms cubic-bezier(0.16,1,0.3,1), height 360ms cubic-bezier(0.16,1,0.3,1), box-shadow 360ms cubic-bezier(0.16,1,0.3,1)',
                       }}
                     />
                   </button>

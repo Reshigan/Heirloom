@@ -1269,7 +1269,7 @@ export const familyReferralInviteEmail = (
 // ============================================
 
 export const giftSubscriptionRedeemedEmail = (
-  recipientName: string,
+  _recipientName: string,
   tierName: string,
   durationMonths: number,
   expiresAt: string,

@@ -157,6 +157,23 @@
   --dye-indigo:    #46679c;
   --dye-iron:      #56707a;
 
+  /* Dye NAME-text variants — the vivid --dye-* above stay UNTOUCHED for the
+     3px left-margin thread (identity signal); these are the only tokens used to
+     RENDER a member's name, mordanted lighter where the thread hue failed WCAG
+     AA (4.5:1) against the dark ground (#0b0907). Same hue, lifted lightness.
+     Ratios on #0b0907: madder 4.85, cochineal 4.61, kermes 5.39, saffron 8.59,
+     weld 7.33, walnut 4.61, oakgall 5.13, woad 5.05, indigo 4.64, iron 4.60. */
+  --dye-madder-text:    #d94f38;
+  --dye-cochineal-text: #a2678e;
+  --dye-kermes-text:    #c46a7a;
+  --dye-saffron-text:   #d4a32f;
+  --dye-weld-text:      #c9941f;
+  --dye-walnut-text:    #a16f44;
+  --dye-oakgall-text:   #6d8a56;
+  --dye-woad-text:      #4f8a8a;
+  --dye-indigo-text:    #577bb4;
+  --dye-iron-text:      #617e8a;
+
   /* Cloth legibility scrim — layered beneath the ambient dye sparks so prose
      stays readable while the living colour shows through. Default = vault ink;
      the light theme overrides it to parchment below. */
@@ -298,6 +315,24 @@
   --dye-woad:      #427373;
   --dye-indigo:    #3a5582;
   --dye-iron:      #485e66;
+
+  /* Parchment dye NAME-text variants — vivid --dye-* above stay UNTOUCHED for
+     the 3px thread; these render the name, darkened where the thread hue failed
+     AA against the LIGHTEST plausible row ground (--ink #f4ead9, also verified
+     on --ink-card #ece0cb). Same hue, lowered lightness. Ratios #f4ead9 /
+     #ece0cb: madder 5.09/4.65, cochineal 6.23/5.69, kermes 5.06/4.62, saffron
+     5.04/4.60, weld 5.04/4.61, walnut 6.97/6.37, oakgall 5.10/4.66, woad
+     5.08/4.64, indigo 6.29/5.74, iron 5.74/5.24. */
+  --dye-madder-text:    #ab3e2d;
+  --dye-cochineal-text: #744764;
+  --dye-kermes-text:    #934e5c;
+  --dye-saffron-text:   #7b5f1b;
+  --dye-weld-text:      #805d12;
+  --dye-walnut-text:    #68472c;
+  --dye-oakgall-text:   #526941;
+  --dye-woad-text:      #3d6a6a;
+  --dye-indigo-text:    #3a5582;
+  --dye-iron-text:      #485e66;
 }
 
 * {
@@ -1475,9 +1510,13 @@ html {
   text-transform: uppercase;
   color: var(--loom-bone-faint);
 }
-/* ∞ brand mark — display-font exception (the ∞heirloom wordmark, not prose) */
+/* ∞ brand mark — the ∞heirloom wordmark in the 56px topbar. At ~19px Cormorant
+   (a thin display face) falls below the 24px display floor and turns illegible;
+   the topbar has no vertical room to raise it without crowding the inline nav,
+   so the wordmark uses Spectral (var(--serif), the readable serif voice) which
+   keeps the serif character of a typeset wordmark while staying legible small. */
 .loom-mark {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: var(--serif);
   font-weight: 500;
   font-size: 19px;
   letter-spacing: -0.005em;

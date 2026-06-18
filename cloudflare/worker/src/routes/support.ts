@@ -4,7 +4,7 @@
  */
 
 import { Hono } from 'hono';
-import type { Env, AppEnv } from '../index';
+import type { AppEnv } from '../index';
 import { AI_TEXT_MODEL } from '../lib/aiModels';
 
 export const supportRoutes = new Hono<AppEnv>();

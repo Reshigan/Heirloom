@@ -152,8 +152,8 @@ authRoutes.post('/register', async (c) => {
   }
   
   // Create session
-  const { token, refreshToken, sessionId } = await createSession(c.env, userId);
-  
+  const { token, refreshToken } = await createSession(c.env, userId);
+
   // Get user data
   const user = await c.env.DB.prepare(`
     SELECT id, email, first_name, last_name, avatar_url, email_verified, two_factor_enabled
@@ -282,8 +282,8 @@ authRoutes.post('/login', async (c) => {
   }
   
   // Create session
-  const { token, refreshToken, sessionId } = await createSession(c.env, user.id as string);
-  
+  const { token, refreshToken } = await createSession(c.env, user.id as string);
+
   // Update last login
   await c.env.DB.prepare(
     'UPDATE users SET last_login_at = ? WHERE id = ?'
@@ -349,8 +349,8 @@ authRoutes.post('/verify-2fa', async (c) => {
   await c.env.KV.delete(`temp:${tempToken}`);
   
   // Create session
-  const { token, refreshToken, sessionId } = await createSession(c.env, userId);
-  
+  const { token, refreshToken } = await createSession(c.env, userId);
+
   return c.json({
     user: {
       id: user.id,

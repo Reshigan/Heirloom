@@ -58,9 +58,20 @@ export function dyeForId(id: string): Dye {
   return DYES[Math.abs(h) % DYES.length];
 }
 
-/** The CSS variable reference for a dye — the only sanctioned colour value. */
+/** The CSS variable reference for a dye — the only sanctioned colour value.
+ *  This is the VIVID thread token (3px left-margin identity signal). Do NOT use
+ *  it to render NAME TEXT — at small sizes several hues fail WCAG AA (4.5:1).
+ *  Use `dyeTextVar()` for text. */
 export function dyeVar(dye: Dye): string {
   return `var(--dye-${dye})`;
+}
+
+/** The CSS variable for rendering a member's NAME in their dye hue. Resolves to
+ *  the AA-tuned `--dye-*-text` tokens (same hue as the thread, lightness
+ *  mordanted so the name clears 4.5:1 in both themes). Keep threads on
+ *  `dyeVar()`; put any dye-coloured TEXT on this. */
+export function dyeTextVar(dye: Dye): string {
+  return `var(--dye-${dye}-text)`;
 }
 
 /**
@@ -69,4 +80,14 @@ export function dyeVar(dye: Dye): string {
  */
 export function dyeColor(id: string, metadata?: unknown): string {
   return dyeVar(dyeFromMetadata(metadata) ?? dyeForId(id));
+}
+
+/**
+ * The dye colour for rendering NAME / dye-coloured TEXT — same resolution as
+ * `dyeColor` but lands on the AA-tuned `--dye-*-text` tokens. Use this anywhere
+ * a member's name (or other dye-hued text) is painted; keep threads, dots and
+ * fills on `dyeColor`/`dyeVar` (the vivid signal).
+ */
+export function dyeTextColor(id: string, metadata?: unknown): string {
+  return dyeTextVar(dyeFromMetadata(metadata) ?? dyeForId(id));
 }

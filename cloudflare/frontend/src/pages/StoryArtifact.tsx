@@ -542,6 +542,7 @@ export function StoryArtifact() {
             ref={shareRef}
             role="dialog"
             aria-modal="true"
+            aria-labelledby="share-story-title"
             style={{
               background: 'var(--ink)',
               border: '1px solid var(--rule)',
@@ -557,7 +558,7 @@ export function StoryArtifact() {
               Share your story
             </p>
             {/* Serif headline */}
-            <h3 style={{ fontFamily: 'var(--serif-display)', fontSize: 26, fontWeight: 500, color: 'var(--bone)', margin: '0 0 8px' }}>
+            <h3 id="share-story-title" style={{ fontFamily: 'var(--serif-display)', fontSize: 26, fontWeight: 500, color: 'var(--bone)', margin: '0 0 8px' }}>
               Live for 7 days.
             </h3>
             <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--bone-dim)', margin: '0 0 28px' }}>
@@ -622,6 +623,7 @@ export function StoryArtifact() {
             ref={createRef}
             role="dialog"
             aria-modal="true"
+            aria-labelledby="create-wizard-title"
             style={{
               background: 'var(--ink)',
               border: '1px solid var(--rule)',
@@ -647,7 +649,7 @@ export function StoryArtifact() {
                   </button>
                 )}
                 <div>
-                  <h3 style={{ fontFamily: 'var(--serif)', fontSize: 24, fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px', lineHeight: 1.1 }}>
+                  <h3 id="create-wizard-title" style={{ fontFamily: 'var(--serif)', fontSize: 24, fontWeight: 400, color: 'var(--bone)', margin: '0 0 6px', lineHeight: 1.1 }}>
                     {wizardStep === 1 && 'What kind of story?'}
                     {wizardStep === 2 && 'Select your photos'}
                     {wizardStep === 3 && 'Review and create'}
@@ -793,18 +795,27 @@ export function StoryArtifact() {
                         style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                       />
                       {selectedMemories.includes(memory.id) && (
-                        <div
+                        <span
                           style={{
                             position: 'absolute',
-                            inset: 0,
-                            background: 'color-mix(in srgb, var(--warm) 35%, transparent)',
+                            top: 6,
+                            right: 6,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
+                            background: 'var(--ink)',
+                            border: '1px solid var(--warm)',
+                            color: 'var(--warm)',
+                            fontFamily: 'var(--mono)',
+                            fontSize: 9,
+                            lineHeight: 1,
+                            letterSpacing: '0.14em',
+                            textTransform: 'uppercase',
+                            padding: '4px 6px',
                           }}
                         >
-                          <span style={{ fontFamily: 'var(--mono)', color: 'var(--bone)', fontSize: 9, letterSpacing: '0.14em', textTransform: 'uppercase' }}>selected</span>
-                        </div>
+                          ✓
+                        </span>
                       )}
                     </button>
                   ))}

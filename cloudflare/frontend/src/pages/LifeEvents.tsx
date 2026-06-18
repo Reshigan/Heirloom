@@ -105,7 +105,7 @@ const fieldStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
   border: '1px solid var(--rule)',
-  borderRadius: 2,
+  borderRadius: 0,
   color: 'var(--bone)',
   caretColor: 'var(--warm)',
   fontFamily: 'var(--serif)',
@@ -503,6 +503,7 @@ export function LifeEvents() {
             ref={createRef}
             role="dialog"
             aria-modal="true"
+            aria-labelledby="life-event-wizard-title"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,
@@ -528,7 +529,7 @@ export function LifeEvents() {
                   </button>
                 )}
                 <div>
-                  <h3 className="hl-serif" style={{ fontSize: 26, fontWeight: 500, color: 'var(--bone)', margin: '0 0 4px', lineHeight: 1.15 }}>
+                  <h3 id="life-event-wizard-title" className="hl-serif" style={{ fontSize: 26, fontWeight: 500, color: 'var(--bone)', margin: '0 0 4px', lineHeight: 1.15 }}>
                     {wizardStep === 1 && 'Choose a moment.'}
                     {wizardStep === 2 && 'Who is this for?'}
                     {wizardStep === 3 && 'Review and create.'}
@@ -820,6 +821,7 @@ export function LifeEvents() {
             ref={contentPickerRef}
             role="dialog"
             aria-modal="true"
+            aria-label="Add content"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,

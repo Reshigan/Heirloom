@@ -20,7 +20,7 @@ const fieldStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
   border: '1px solid var(--hairline-3)',
-  borderRadius: 2,
+  borderRadius: 0,
   color: 'var(--bone)',
   caretColor: 'var(--warm)',
   fontFamily: 'var(--serif)',
@@ -311,6 +311,7 @@ export function Milestones() {
             ref={createModalRef}
             role="dialog"
             aria-modal="true"
+            aria-labelledby="ms-create-title"
             className="cosmic-panel cosmic-panel--solid"
             style={{
               padding: 40,
@@ -321,7 +322,7 @@ export function Milestones() {
             }}
             onClick={e => e.stopPropagation()}
           >
-            <p className="hl-eyebrow" style={{ marginBottom: 24 }}>Add a date</p>
+            <p id="ms-create-title" className="hl-eyebrow" style={{ marginBottom: 24 }}>Add a date</p>
 
             <div style={{ display: 'grid', gap: 22 }}>
               {/* Type */}
