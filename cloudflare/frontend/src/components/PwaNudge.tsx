@@ -1,5 +1,6 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { useAuthStore } from '../stores/authStore';
+import { useFocusTrap } from '../lib/useFocusTrap';
 import {
   getDeferredPrompt,
   isDismissedRecently,
@@ -117,6 +118,9 @@ export function PwaNudge() {
     setMode('hidden');
   }, []);
 
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useFocusTrap(dialogRef, dismiss, mode !== 'hidden');
+
   const onInstall = useCallback(async () => {
     setBusy(true);
     const accepted = await promptInstall();
@@ -143,8 +147,6 @@ export function PwaNudge() {
 
   return (
     <aside
-      role="dialog"
-      aria-label="Install Heirloom"
       style={{
         position: 'fixed',
         insetInline: 0,
@@ -158,6 +160,10 @@ export function PwaNudge() {
       }}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="pwa-nudge-title"
         style={{
           maxWidth: 448,
           margin: '0 auto',
@@ -201,7 +207,7 @@ export function PwaNudge() {
                 }}>
                   {mode === 'notify' ? 'Stay in the thread' : 'Install on your phone'}
                 </p>
-                <p style={{
+                <p id="pwa-nudge-title" style={{
                   fontFamily: 'var(--serif, "Spectral", Georgia, serif)',
                   fontSize: 17,
                   fontWeight: 300,

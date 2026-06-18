@@ -195,7 +195,7 @@ function LoadingBar({ label }: { label?: string }) {
             height: '100%',
             width: '40%',
             background: 'var(--warm)',
-            animation: 'loom-shuttle 1.4s cubic-bezier(0.16,1,0.3,1) infinite',
+            animation: 'loom-shuttle var(--dur-ceremony) cubic-bezier(0.16,1,0.3,1) infinite',
           }}
         />
       </div>
@@ -322,7 +322,7 @@ function ActionPill({ label, onClick }: { label: string; onClick: () => void }) 
         color: 'var(--ink)',
         background: 'var(--warm)',
         border: 'none',
-        borderRadius: 999,
+        borderRadius: 0,
         padding: '13px 26px',
         minHeight: 44,
         cursor: 'pointer',

@@ -173,7 +173,7 @@ export function GiftRedeem() {
             maxWidth: 'var(--page-max-focus)',
             width: '100%',
             border: '1px solid var(--rule)',
-            borderRadius: 14,
+            borderRadius: 0,
             padding: 'clamp(32px, 6vw, 56px) clamp(24px, 5vw, 48px)',
           }}
         >

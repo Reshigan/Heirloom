@@ -429,7 +429,7 @@ export function Signup() {
               cursor: isLoading ? 'default' : 'pointer',
               background: 'transparent',
               border: '1px solid var(--warm)',
-              borderRadius: 999,
+              borderRadius: 0,
               color: 'var(--warm)',
               padding: '14px 24px',
               fontFamily: 'var(--mono)',

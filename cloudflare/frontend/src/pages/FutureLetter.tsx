@@ -340,7 +340,7 @@ export function FutureLetter() {
                       height: '100%',
                       width: '40%',
                       background: 'var(--warm)',
-                      animation: `loom-shuttle 1.4s ${EASE} infinite`,
+                      animation: `loom-shuttle var(--dur-ceremony) ${EASE} infinite`,
                     }}
                   />
                 </div>
@@ -356,7 +356,7 @@ export function FutureLetter() {
                 </p>
               )}
 
-              {/* the rite — seal this letter (mono warm pill CTA) */}
+              {/* the rite — seal this letter (mono warm CTA) */}
               <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
                 <button
                   type="submit"
@@ -365,7 +365,7 @@ export function FutureLetter() {
                   style={{
                     background: 'transparent',
                     border: '1px solid var(--warm)',
-                    borderRadius: 999,
+                    borderRadius: 0,
                     color: 'var(--warm)',
                     cursor: generateMutation.isPending ? 'default' : 'pointer',
                     fontSize: 11,

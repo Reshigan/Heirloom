@@ -451,7 +451,7 @@ export function GiftAMemory() {
               style={{
                 background: 'transparent',
                 border: '1px solid var(--warm)',
-                borderRadius: 999,
+                borderRadius: 0,
                 padding: '11px 26px',
                 fontFamily: 'var(--mono)',
                 fontSize: 11,
@@ -475,7 +475,7 @@ export function GiftAMemory() {
                 gap: 8,
                 padding: '10px 16px',
                 border: '1px solid var(--rule)',
-                borderRadius: 999,
+                borderRadius: 0,
                 fontFamily: 'var(--mono)',
                 fontSize: 10,
                 letterSpacing: '0.18em',

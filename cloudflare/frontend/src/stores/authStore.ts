@@ -134,10 +134,26 @@ export const useAuthStore = create<AuthState>()(
               .filter((k) => k.startsWith('hl-compose-draft:'))
               .forEach((k) => localStorage.removeItem(k));
           } catch { /* ignore — private browsing or quota issues */ }
+          // Cross-account leak guard: wipe this device's offline holding queues so
+          // the next user can never sync the prior user's held notes/recordings
+          // into their own account. (a) the localStorage text queue.
+          try {
+            localStorage.removeItem('heirloom-offline-holding');
+          } catch { /* ignore — private browsing or quota issues */ }
+          // (b) the IndexedDB voice-recording queue — delete the whole DB.
+          try {
+            indexedDB?.deleteDatabase?.('heirloom-voice-queue');
+          } catch { /* IDB unavailable in this context */ }
           // Tell the SW to wipe the per-user API response cache so the next user
           // on the same device doesn't see this user's memories/letters offline.
           try {
             navigator.serviceWorker?.controller?.postMessage('CLEAR_API_CACHE');
+          } catch { /* SW not available in this context */ }
+          // (c) Also ask the SW to wipe the IndexedDB voice queue from its own
+          // context, so a held recording is gone even if the page's deleteDatabase
+          // above was blocked by an open connection.
+          try {
+            navigator.serviceWorker?.controller?.postMessage({ type: 'CLEAR_OFFLINE_QUEUES' });
           } catch { /* SW not available in this context */ }
           // Signal App.tsx to clear the React Query cache so stale user data
           // is not served to the next account on a shared device.

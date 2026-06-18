@@ -55,7 +55,7 @@ function HairlineLoader() {
             height: '100%',
             width: '40%',
             background: 'var(--warm)',
-            animation: 'loom-shuttle 1.4s cubic-bezier(0.16,1,0.3,1) infinite',
+            animation: 'loom-shuttle var(--dur-ceremony) var(--ease) infinite',
           }}
         />
       </div>

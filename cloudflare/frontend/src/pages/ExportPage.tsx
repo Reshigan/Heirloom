@@ -152,7 +152,7 @@ export function ExportPage() {
               background: 'transparent',
               color: bind.isPending ? 'var(--bone-faint)' : 'var(--gold-text)',
               border: bind.isPending ? '1px solid var(--rule)' : '1px solid var(--copper-border)',
-              borderRadius: 999,
+              borderRadius: 0,
               fontFamily: 'var(--mono)',
               fontSize: 11,
               letterSpacing: '0.28em',
@@ -201,6 +201,26 @@ export function ExportPage() {
           }}
         >
           this archive is yours — it leaves with you, whole, to pass on.
+        </p>
+
+        {/* Scope note — every export carries the whole thread, bequeathed
+            entries included. The book binds all memories, letters, and voice;
+            the whole-thread export is the complete archive with its recipients. */}
+        <p
+          className="hl-serif"
+          style={{
+            marginTop: 14,
+            textAlign: 'center',
+            fontStyle: 'italic',
+            fontSize: 13,
+            lineHeight: 1.6,
+            color: 'var(--bone-faint)',
+            maxWidth: 420,
+            marginInline: 'auto',
+          }}
+        >
+          Entries you have bequeathed to others are included — nothing left to
+          an heir is held back from your own archive.
         </p>
 
         {/* ── past bindings ── */}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -6,6 +6,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { RoomHeader } from '../loom/components/room';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { dyeColor } from '../loom/dye';
+import { useFocusTrap } from '../lib/useFocusTrap';
 import api from '../services/api';
 
 interface RoomData {
@@ -42,30 +43,8 @@ export function MemoryRoom() {
   const [openId, setOpenId] = useState<string | null>(null);
   const contributeRef = useRef<HTMLDivElement>(null);
 
-  // Contribute overlay = a modal: trap focus, close on Escape, focus first field.
-  useEffect(() => {
-    if (!showContribute) return;
-    const el = contributeRef.current;
-    if (!el) return;
-    const focusable = el.querySelectorAll<HTMLElement>(
-      'input, textarea, button, [tabindex]:not([tabindex="-1"])',
-    );
-    if (focusable.length) focusable[0].focus();
-    const trap = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') { setShowContribute(false); return; }
-      if (e.key !== 'Tab') return;
-      const nodes = Array.from(focusable);
-      if (!nodes.length) return;
-      const first = nodes[0];
-      const last = nodes[nodes.length - 1];
-      if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
-        e.preventDefault();
-        (e.shiftKey ? last : first).focus();
-      }
-    };
-    document.addEventListener('keydown', trap);
-    return () => document.removeEventListener('keydown', trap);
-  }, [showContribute]);
+  // Contribute overlay = a modal: canonical focus trap, close on Escape, focus first field.
+  useFocusTrap(contributeRef, () => setShowContribute(false), showContribute);
 
   const { data, isLoading, error, refetch } = useQuery<RoomData>({
     queryKey: ['memory-room', token],
@@ -140,6 +119,10 @@ export function MemoryRoom() {
   if (error || !data) {
     return (
       <ClothShell topbarCenter="memory room">
+        {/* Minimal default Helmet for the error state — no OG/share tags leak to scrapers */}
+        <Helmet>
+          <title>Memory room · Heirloom</title>
+        </Helmet>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, height: '100%' }}>
           <div style={{ textAlign: 'center', maxWidth: 480 }}>
             <WaxSeal size={28} />
@@ -205,7 +188,10 @@ export function MemoryRoom() {
         <meta property="og:type" content="article" />
         <meta property="og:url" content={window.location.href} />
         <meta property="og:image" content="https://heirloom.blue/woven/seal.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://heirloom.blue/woven/seal.png" />
         <link rel="canonical" href={window.location.href} />
       </Helmet>
 

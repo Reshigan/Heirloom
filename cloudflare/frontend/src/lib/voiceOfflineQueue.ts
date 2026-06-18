@@ -17,6 +17,8 @@
  * a held vs. lost distinction), but it too never throws synchronously.
  */
 
+import { useAuthStore } from '../stores/authStore';
+
 const DB_NAME = 'heirloom-voice-queue';
 const STORE = 'recordings';
 const DB_VERSION = 1;
@@ -34,7 +36,36 @@ export interface HeldVoice {
   // Stable idempotency key minted at save time. Replayed verbatim on drain so
   // the worker dedups a held recording against the row it may already hold.
   clientKey: string;
+  // Owning account id, stamped at save time from the authed user. Cross-account
+  // leak guard: a held recording must only drain into the account that made it.
+  // Optional for backward-compat — recordings held before this field existed
+  // have no accountId and are treated as legacy/unowned (see ownsVoice).
+  accountId?: string;
   at: number; // epoch ms
+}
+
+/**
+ * currentAccountId — the authed user's id, read live from the auth store. Used
+ * to stamp ownership on save and to guard the drain. Returns null when there is
+ * no authed user (the queue should not be touched in that state anyway).
+ */
+function currentAccountId(): string | null {
+  try {
+    return useAuthStore.getState().user?.id ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * ownsVoice — true if a held recording may drain into the current account.
+ * Legacy recordings (no accountId — held before ownership stamping existed) are
+ * allowed through as a one-time migration to whoever is signed in now. Newly
+ * stamped recordings are strict: their accountId must equal the current user.
+ */
+export function ownsVoice(item: HeldVoice, accountId: string | null): boolean {
+  if (item.accountId == null) return true; // legacy/unowned → one-time migration
+  return item.accountId === accountId;
 }
 
 /**
@@ -86,7 +117,11 @@ function uuid(): string {
  */
 export async function enqueueVoice(item: Omit<HeldVoice, 'id' | 'at'>): Promise<string> {
   const id = uuid();
-  const record: HeldVoice = { ...item, id, at: Date.now() };
+  // Stamp ownership at save time so a reconnect can never drain this recording
+  // into a different account on a shared device. A caller-supplied accountId
+  // wins; otherwise read the authed user live.
+  const accountId = item.accountId ?? currentAccountId() ?? undefined;
+  const record: HeldVoice = { ...item, id, accountId, at: Date.now() };
   const db = await openDb();
   try {
     await new Promise<void>((resolve, reject) => {
@@ -103,9 +138,12 @@ export async function enqueueVoice(item: Omit<HeldVoice, 'id' | 'at'>): Promise<
 }
 
 /**
- * listVoice — every held recording, oldest first (FIFO drain order). Never
- * throws: on any IDB failure it resolves to an empty list so the drain is a
- * no-op rather than a crash.
+ * listVoice — held recordings the current account may drain, oldest first (FIFO
+ * drain order). Cross-account leak guard: recordings stamped with a different
+ * accountId are filtered out so a reconnect on a shared device never uploads
+ * another family's recording into this account. Legacy (unstamped) recordings
+ * pass through as a one-time migration. Never throws: on any IDB failure it
+ * resolves to an empty list so the drain is a no-op rather than a crash.
  */
 export async function listVoice(): Promise<HeldVoice[]> {
   let db: IDBDatabase;
@@ -121,7 +159,8 @@ export async function listVoice(): Promise<HeldVoice[]> {
       req.onsuccess = () => resolve((req.result as HeldVoice[]) ?? []);
       req.onerror = () => reject(req.error ?? new Error('list failed'));
     });
-    return all.sort((a, b) => a.at - b.at);
+    const me = currentAccountId();
+    return all.filter((v) => ownsVoice(v, me)).sort((a, b) => a.at - b.at);
   } catch {
     return [];
   } finally {
@@ -155,7 +194,10 @@ export async function removeVoice(id: string): Promise<void> {
 }
 
 /**
- * countVoice — how many recordings are holding. Never throws; degrades to 0.
+ * countVoice — how many recordings the CURRENT account has holding. Mirrors
+ * listVoice's ownership filter (another family's stamped recordings are not
+ * counted) so the displayed count and drain stay in agreement. Never throws;
+ * degrades to 0.
  */
 export async function countVoice(): Promise<number> {
   let db: IDBDatabase;
@@ -165,12 +207,42 @@ export async function countVoice(): Promise<number> {
     return 0;
   }
   try {
-    return await new Promise<number>((resolve, reject) => {
+    const all = await new Promise<HeldVoice[]>((resolve, reject) => {
       const tx = db.transaction(STORE, 'readonly');
-      const req = tx.objectStore(STORE).count();
-      req.onsuccess = () => resolve(req.result ?? 0);
+      const req = tx.objectStore(STORE).getAll();
+      req.onsuccess = () => resolve((req.result as HeldVoice[]) ?? []);
       req.onerror = () => reject(req.error ?? new Error('count failed'));
     });
+    const me = currentAccountId();
+    return all.filter((v) => ownsVoice(v, me)).length;
+  } catch {
+    return 0;
+  } finally {
+    db.close();
+  }
+}
+
+/**
+ * countForeignVoice — how many held recordings belong to a DIFFERENT account
+ * than the one signed in (stranded — they can never drain here). Used to
+ * surface an honest inline notice. Never throws; degrades to 0.
+ */
+export async function countForeignVoice(): Promise<number> {
+  let db: IDBDatabase;
+  try {
+    db = await openDb();
+  } catch {
+    return 0;
+  }
+  try {
+    const all = await new Promise<HeldVoice[]>((resolve, reject) => {
+      const tx = db.transaction(STORE, 'readonly');
+      const req = tx.objectStore(STORE).getAll();
+      req.onsuccess = () => resolve((req.result as HeldVoice[]) ?? []);
+      req.onerror = () => reject(req.error ?? new Error('count failed'));
+    });
+    const me = currentAccountId();
+    return all.filter((v) => !ownsVoice(v, me)).length;
   } catch {
     return 0;
   } finally {

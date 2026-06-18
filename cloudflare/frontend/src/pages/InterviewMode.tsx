@@ -452,7 +452,7 @@ export function InterviewMode() {
                     height: `${h * 32}px`,
                     background: isPaused ? 'var(--bone-faint)' : 'var(--warm)',
                     opacity: 0.7,
-                    transition: 'height 180ms cubic-bezier(0.16,1,0.3,1)',
+                    transition: 'height 180ms var(--ease)',
                     borderRadius: 0,
                   }}
                 />
@@ -509,7 +509,7 @@ export function InterviewMode() {
                 textTransform: 'uppercase',
                 color: isGeneratingQuestion ? 'var(--bone-faint)' : 'var(--warm)',
                 opacity: isGeneratingQuestion ? 0.5 : 1,
-                transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                transition: 'opacity 180ms var(--ease)',
                 minHeight: 44,
               }}
             >

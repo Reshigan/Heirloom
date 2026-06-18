@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useQueryClient } from '@tanstack/react-query';
 import { memoriesApi, voiceApi, getAuthHeaders } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
-import { listVoice, removeVoice, countVoice, type HeldVoice } from '../lib/voiceOfflineQueue';
+import { listVoice, removeVoice, countVoice, countForeignVoice, type HeldVoice } from '../lib/voiceOfflineQueue';
 
 /**
  * Offline — the in-app offline experience, matching the PwaOffline
@@ -33,6 +33,21 @@ interface HoldingEntry {
   text: string;
   at: number; // epoch ms
   dye: string; // a dye token name, for the leading tick
+  // Owning account id, stamped at save time. Cross-account leak guard: a held
+  // note must only sync into the account that wrote it. Optional for
+  // backward-compat — entries written before this field existed have no
+  // accountId and are treated as legacy/unowned (one-time migration, see ownsEntry).
+  accountId?: string;
+}
+
+/**
+ * ownsEntry — true if a held note may sync into the current account. Legacy
+ * notes (no accountId — written before ownership stamping) sync once to whoever
+ * is signed in now; newly stamped notes are strict (must match the user id).
+ */
+function ownsEntry(e: HoldingEntry, accountId: string | null): boolean {
+  if (e.accountId == null) return true; // legacy/unowned → one-time migration
+  return e.accountId === accountId;
 }
 
 const DYES = ['walnut', 'weld', 'saffron', 'woad', 'madder'] as const;
@@ -79,17 +94,30 @@ function clockTime(ms: number): string {
 const PROMPT = 'What did you almost forget to write down today?';
 
 export function Offline() {
-  const [queue, setQueue] = useState<HoldingEntry[]>(() => readQueue());
+  const userId = useAuthStore((s) => s.user?.id ?? null);
+  // Only ever surface THIS account's held notes — never render another family's
+  // note text on a shared device. Foreign notes still sit in localStorage; they
+  // are cleared when their owner signs out (see authStore.logout).
+  const [queue, setQueue] = useState<HoldingEntry[]>(() => readQueue().filter((e) => ownsEntry(e, userId)));
   const [draft, setDraft] = useState('');
   const [since] = useState<number>(() => readSince());
   const [voiceCount, setVoiceCount] = useState(0);
+  // Stranded entries: held notes/recordings belonging to a DIFFERENT account
+  // that can never sync here. Counted so we can show an honest inline line.
+  const [foreignCount, setForeignCount] = useState<number>(() =>
+    readQueue().filter((e) => !ownsEntry(e, userId)).length,
+  );
 
   // How many voice recordings are holding in IndexedDB. Refresh on mount —
   // the count is set elsewhere (Record.tsx) and only ever shrinks here, since
-  // this page can't record. Never throws (countVoice degrades to 0).
+  // this page can't record. Never throws (countVoice degrades to 0). Also fold
+  // any foreign (other-account) recordings into the stranded count.
   useEffect(() => {
     let alive = true;
     void countVoice().then((n) => { if (alive) setVoiceCount(n); });
+    void countForeignVoice().then((n) => {
+      if (alive && n > 0) setForeignCount((c) => c + n);
+    });
     return () => { alive = false; };
   }, []);
 
@@ -115,12 +143,18 @@ export function Offline() {
       text,
       at: Date.now(),
       dye: DYES[queue.length % DYES.length],
+      // Stamp ownership so a reconnect can never sync this note into a
+      // different account on a shared device (null when not authed offline).
+      ...(userId ? { accountId: userId } : {}),
     };
     const next = [entry, ...queue];
     setQueue(next);
-    writeQueue(next);
+    // Persist with any foreign (other-account) entries preserved — they are not
+    // shown here but must survive until their owner signs out. We rebuild from
+    // localStorage rather than from the own-scoped `queue` state.
+    writeQueue([entry, ...readQueue().filter((e) => e.id !== entry.id)]);
     setDraft('');
-  }, [draft, queue]);
+  }, [draft, queue, userId]);
 
   return (
     <div
@@ -400,6 +434,27 @@ export function Offline() {
           </button>
         </div>
 
+        {/* Stranded-entry inline notice — no toast. Only shown when held
+            notes/recordings belong to a different account on this device; they
+            cannot sync here and are wiped when their owner signs out. */}
+        {foreignCount > 0 && (
+          <div
+            className="loom-mono"
+            role="status"
+            style={{
+              marginTop: 18,
+              fontSize: 9,
+              color: 'var(--bone-faint)',
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              maxWidth: 360,
+              lineHeight: 1.6,
+            }}
+          >
+            {foreignCount} held {foreignCount === 1 ? 'entry belongs' : 'entries belong'} to a different account · cleared on that account's sign-out
+          </div>
+        )}
+
         {/* Offline-since status — mono dim, centered */}
         <div
           className="loom-mono"
@@ -492,7 +547,8 @@ async function drainVoiceQueue(active: { current: boolean }): Promise<number> {
  */
 function useSyncHoldingQueue(online: boolean): { triggerSync: () => void } {
   const queryClient = useQueryClient();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
+  const userId = user?.id ?? null;
   const wasOfflineRef = useRef(false);
   const isSyncingRef = useRef(false);
 
@@ -518,7 +574,12 @@ function useSyncHoldingQueue(online: boolean): { triggerSync: () => void } {
   const runSync = useCallback(async (active: { current: boolean }) => {
     if (!isAuthenticated || isSyncingRef.current) return;
 
-    const queue = readQueue();
+    // Cross-account leak guard: only ever sync notes this account owns. Foreign
+    // notes (stamped with another user's id) are left untouched in localStorage
+    // — they are cleared when their owner logs out, or proactively on this
+    // user's sign-out. Legacy (unstamped) notes pass through as a one-time
+    // migration to the signed-in user. countVoice() is already ownership-scoped.
+    const queue = readQueue().filter((e) => ownsEntry(e, userId));
     const heldVoiceCount = await countVoice();
     if (queue.length === 0 && heldVoiceCount === 0) {
       wasOfflineRef.current = false;
@@ -578,7 +639,7 @@ function useSyncHoldingQueue(online: boolean): { triggerSync: () => void } {
       queryClient.invalidateQueries({ queryKey: ['weft-voice'] });
       queryClient.invalidateQueries({ queryKey: ['new-user-check-voice'] });
     }
-  }, [isAuthenticated, queryClient]);
+  }, [isAuthenticated, userId, queryClient]);
 
   useEffect(() => {
     if (!online) {

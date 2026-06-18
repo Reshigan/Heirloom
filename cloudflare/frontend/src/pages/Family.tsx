@@ -10,7 +10,7 @@ import { type FamilyMember } from '../types';
 import { formatDate } from '../utils/date';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { RoomError } from '../loom/components/RoomError';
-import { dyeForId } from '../loom/dye';
+import { dyeForId, dyeVar, DYES, type Dye } from '../loom/dye';
 
 interface PendingInvite {
   id: string;
@@ -21,21 +21,14 @@ interface PendingInvite {
   sent_at: string;
 }
 
-// Text-safe lightened dye variants for rendering member names on the ink
-// background — each brightened enough to pass contrast on #0b0907. The dye is
-// the member's identity signal: the 3px left thread carries the dye, the name carries the hue.
-const DYE_TEXT: Record<string, string> = {
-  madder:    '#d97860',
-  cochineal: '#c5607a',
-  kermes:    '#b56875',
-  saffron:   '#d8a84a',
-  weld:      '#c0b84a',
-  walnut:    '#a87a52',
-  oakgall:   '#958472',
-  woad:      '#7a9bab',
-  indigo:    '#6a90b0',
-  iron:      '#7a7a78',
-};
+// The member's name carries their dye hue; the 3px left thread carries the same
+// dye. Both resolve through the canonical dye module (src/loom/dye.ts) →
+// `var(--dye-*)`, which is the single AA-tuned, theme-aware source of truth for
+// every dye colour. (Replaces a local brightened-hex table that drifted from
+// the tokens.) Returns the cream when the saved key isn't a known dye.
+function dyeTextColor(key: string): string {
+  return (DYES as readonly string[]).includes(key) ? dyeVar(key as Dye) : 'var(--bone)';
+}
 
 function daysUntilExpiry(deletedAt: string): number {
   const expires = new Date(deletedAt).getTime() + 7 * 24 * 60 * 60 * 1000;
@@ -502,7 +495,7 @@ export function Family() {
               const relMeta = [m.relationship, m.role].filter(Boolean).join(' · ');
               const isKeeper = (m.role ?? '').toLowerCase().includes('keeper');
               const thread = `var(--dye-${dyeKey}, var(--warm))`;
-              const nameColor = DYE_TEXT[dyeKey] ?? 'var(--bone)';
+              const nameColor = dyeTextColor(dyeKey);
               return (
                 <div
                   key={m.id}

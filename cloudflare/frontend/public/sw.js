@@ -19,7 +19,7 @@
  * cache.addAll() reject on the redirected response and the whole install fails.
  * Precache `/offline` (the served URL) — never the redirecting alias.
  */
-const CACHE = 'heirloom-v138';
+const CACHE = 'heirloom-v139';
 const API_CACHE = 'heirloom-api-v1'; // preserved across shell bumps — offline read data
 // Canonical shell URL. Cloudflare Pages 308-redirects `/index.html` → `/`, and
 // the Cache API rejects redirected responses — so precaching `/index.html`
@@ -71,6 +71,30 @@ self.addEventListener('message', (event) => {
   // memories/letters from the URL-keyed cache. waitUntil keeps the SW alive
   // until the delete resolves — a bare caches.delete() can be killed mid-flight.
   if (event.data === 'CLEAR_API_CACHE') event.waitUntil(caches.delete(API_CACHE));
+
+  // Cross-account leak guard: on logout, wipe the IndexedDB voice-recording
+  // holding queue from the SW context too. The page's own deleteDatabase can be
+  // blocked by an open connection; the SW has its own handle to the DB. Posted
+  // as { type: 'CLEAR_OFFLINE_QUEUES' }. waitUntil keeps the SW alive until the
+  // delete resolves (or its blocked/error event fires, so we never hang).
+  if (event.data && event.data.type === 'CLEAR_OFFLINE_QUEUES') {
+    event.waitUntil(
+      new Promise((resolve) => {
+        try {
+          if (typeof indexedDB === 'undefined' || !indexedDB.deleteDatabase) {
+            resolve();
+            return;
+          }
+          const req = indexedDB.deleteDatabase('heirloom-voice-queue');
+          req.onsuccess = () => resolve();
+          req.onerror = () => resolve();   // best-effort — never reject
+          req.onblocked = () => resolve(); // a client still holds it open
+        } catch {
+          resolve();
+        }
+      })
+    );
+  }
 });
 
 self.addEventListener('fetch', (event) => {

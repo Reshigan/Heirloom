@@ -348,6 +348,10 @@ export function Inherit() {
         className="hl-screen"
         style={{ position: 'absolute', inset: 0, background: 'var(--ink)', overflow: 'auto' }}
       >
+        {/* Minimal default Helmet for the error state — no OG/share tags leak to scrapers */}
+        <Helmet>
+          <title>Inherit · Heirloom</title>
+        </Helmet>
         {/* Topbar */}
         <div
           style={{
@@ -447,17 +451,22 @@ export function Inherit() {
       className="hl-screen"
       style={{ position: 'absolute', inset: 0, background: 'var(--ink)', overflow: 'auto' }}
     >
-      <Helmet>
-        <title>{inheritTitle}</title>
-        <meta name="description" content={inheritDescription} />
-        <meta property="og:title" content={inheritTitle.replace(' · Heirloom', '')} />
-        <meta property="og:description" content={inheritDescription} />
-        <meta property="og:type" content="article" />
-        <meta property="og:url" content={window.location.href} />
-        <meta property="og:image" content="https://heirloom.blue/woven/seal.png" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <link rel="canonical" href={window.location.href} />
-      </Helmet>
+      {!error && content && (
+        <Helmet>
+          <title>{inheritTitle}</title>
+          <meta name="description" content={inheritDescription} />
+          <meta property="og:title" content={inheritTitle.replace(' · Heirloom', '')} />
+          <meta property="og:description" content={inheritDescription} />
+          <meta property="og:type" content="article" />
+          <meta property="og:url" content={window.location.href} />
+          <meta property="og:image" content="https://heirloom.blue/woven/seal.png" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:image" content="https://heirloom.blue/woven/seal.png" />
+          <link rel="canonical" href={window.location.href} />
+        </Helmet>
+      )}
 
       {/* ── Topbar ───────────────────────────────────────────────────── */}
       <div
@@ -732,6 +741,18 @@ export function Inherit() {
                     <p style={monoEyebrow({ color: 'var(--warm)', fontSize: 10, letterSpacing: '0.26em', margin: 0 })}>
                       A letter · {formatDate(selectedLetter.createdAt)}
                     </p>
+                    {(() => {
+                      // Bequest read-time line — only if the entry already carries "left to" recipients.
+                      const bequest = selectedLetter.legacyRecipients?.length
+                        ? selectedLetter.legacyRecipients
+                        : selectedLetter.recipients;
+                      const names = (bequest ?? []).map((r) => r.name).filter(Boolean);
+                      return names.length ? (
+                        <p style={monoEyebrow({ fontSize: 10, letterSpacing: '0.22em', margin: '8px 0 0' })}>
+                          Left to: {names.join(', ')}
+                        </p>
+                      ) : null;
+                    })()}
                   </header>
                   {selectedLetter.salutation ? (
                     <p

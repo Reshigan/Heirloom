@@ -408,7 +408,7 @@ export function ResetPassword() {
                     color: 'var(--warm)',
                     background: 'transparent',
                     border: '1px solid var(--warm)',
-                    borderRadius: 999,
+                    borderRadius: 0,
                     padding: '12px 32px',
                     minHeight: 44,
                     cursor: isLoading || !password.trim() || !confirmPassword.trim() ? 'not-allowed' : 'pointer',

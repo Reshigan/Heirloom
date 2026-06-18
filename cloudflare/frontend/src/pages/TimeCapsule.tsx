@@ -611,7 +611,7 @@ export function TimeCapsule() {
                           flexShrink: 0,
                           border: `1px solid ${active ? 'var(--copper-border)' : '#5a4326'}`,
                           background: active
-                            ? 'radial-gradient(circle, #e0a062 42%, transparent 46%)'
+                            ? 'radial-gradient(circle, var(--warm) 42%, transparent 46%)'
                             : 'transparent',
                           transition: `border-color 180ms ${EASE}`,
                         }}
@@ -788,7 +788,7 @@ export function TimeCapsule() {
                   color: 'var(--gold-text)',
                   background: 'transparent',
                   border: '1px solid var(--copper-border)',
-                  borderRadius: 999,
+                  borderRadius: 0,
                   padding: '14px 38px',
                   cursor: canSeal ? 'pointer' : 'default',
                   opacity: canSeal ? 1 : 0.45,

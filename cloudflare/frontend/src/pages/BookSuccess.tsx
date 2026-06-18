@@ -122,7 +122,7 @@ export function BookSuccess() {
           >
             Back to the loom
           </Link>
-          {/* Mono warm primary action — pill radius sanctioned on single primary CTA */}
+          {/* Mono warm primary action — sharp-edged primary CTA */}
           <Link
             to="/book-builder"
             className="hl-mono"
@@ -137,7 +137,7 @@ export function BookSuccess() {
               color: 'var(--copper-border)',
               textDecoration: 'none',
               border: '1px solid var(--copper-border)',
-              borderRadius: 9999,
+              borderRadius: 0,
               transition: `color 180ms ${EASE}, border-color 180ms ${EASE}`,
             }}
           >

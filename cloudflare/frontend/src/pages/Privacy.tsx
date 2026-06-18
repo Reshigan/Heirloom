@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
-import { usePageMeta } from '../lib/usePageMeta';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+
+const META_TITLE = 'Privacy';
+const META_DESCRIPTION = "How Heirloom protects your family's stories.";
+const OG_IMAGE = 'https://heirloom.blue/og-image.png?v=20260615b';
+const CANONICAL = 'https://heirloom.blue/privacy';
 
 const SECTIONS = [
   {
@@ -38,13 +43,26 @@ const SECTIONS = [
 ];
 
 export function Privacy() {
-  usePageMeta('Privacy', "How Heirloom protects your family's stories.");
   return (
     <ClothShell
       topbarLeft={<HLogo href="/" />}
       topbarCenter="privacy"
       topbarRight={<Link to="/terms">terms →</Link>}
     >
+      <Helmet>
+        <title>{`${META_TITLE} · Heirloom`}</title>
+        <meta name="description" content={META_DESCRIPTION} />
+        <meta property="og:title" content={META_TITLE} />
+        <meta property="og:description" content={META_DESCRIPTION} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={CANONICAL} />
+        <meta property="og:image" content={OG_IMAGE} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={OG_IMAGE} />
+        <link rel="canonical" href={CANONICAL} />
+      </Helmet>
       <div
         style={{
           maxWidth: 'min(62ch, var(--page-max-prose))',

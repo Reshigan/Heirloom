@@ -170,7 +170,7 @@ export function Login() {
                 padding: '13px 24px',
                 background: 'transparent',
                 border: '1px solid var(--warm)',
-                borderRadius: 999,
+                borderRadius: 0,
                 color: 'var(--warm)',
                 fontFamily: 'var(--mono)',
                 fontSize: 11, letterSpacing: '0.3em', textTransform: 'uppercase',

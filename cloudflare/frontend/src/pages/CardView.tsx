@@ -166,7 +166,13 @@ export function CardView() {
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 200);
-  const metaImage = card.photoUrl || 'https://heirloom.blue/woven/seal.png';
+  // Default 1200x630 social card — the safe fallback for any non-conforming image.
+  const DEFAULT_SHARE_IMAGE = 'https://heirloom.blue/woven/seal.png';
+  // og:image must be an absolute https URL and a format scrapers decode (no avif/webp).
+  const isShareSafe = (url?: string | null): url is string =>
+    !!url && url.startsWith('https://') && !/\.(avif|webp)(\?|$)/i.test(url);
+  const metaImage = isShareSafe(card.photoUrl) ? card.photoUrl : DEFAULT_SHARE_IMAGE;
+  const usingDefaultImage = metaImage === DEFAULT_SHARE_IMAGE;
 
   return (
     <ClothShell topbarCenter="card">
@@ -178,7 +184,10 @@ export function CardView() {
         <meta property="og:type" content="article" />
         <meta property="og:url" content={window.location.href} />
         <meta property="og:image" content={metaImage} />
+        {usingDefaultImage && <meta property="og:image:width" content="1200" />}
+        {usingDefaultImage && <meta property="og:image:height" content="630" />}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={metaImage} />
         <link rel="canonical" href={window.location.href} />
       </Helmet>
       <div

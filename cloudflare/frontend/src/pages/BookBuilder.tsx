@@ -4,7 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { RoomSection } from '../loom/components/room';
 import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
-import { dyeFromMetadata, dyeForId, type Dye } from '../loom/dye';
+import { dyeFromMetadata, dyeForId, dyeVar, type Dye } from '../loom/dye';
 import { memoriesApi, lettersApi, voiceApi, booksApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -36,13 +36,15 @@ interface BookConfig {
   dedicationText: string;
 }
 
-// Natural-dye palette (STITCH_BRIEF §2.7), true-hue — mirrors the worker's
-// cover renderer so the preview matches the printed cloth.
+// Natural-dye palette — resolved from the canonical dye module (src/loom/dye.ts)
+// so the preview tracks the same theme-aware tokens the rest of the loom uses
+// rather than a drifting local hex table. memory→madder, letter→indigo,
+// voice→saffron; weld fills the empty-state cloth.
 const DYE_HEX = {
-  madder: '#b04538', // memory
-  indigo: '#2e3d61', // letter
-  saffron: '#d4992e', // voice
-  weld: '#bda845',
+  madder: dyeVar('madder'), // memory
+  indigo: dyeVar('indigo'), // letter
+  saffron: dyeVar('saffron'), // voice
+  weld: dyeVar('weld'),
 } as const;
 
 const stepOrder: BookStep[] = ['select', 'customize', 'page', 'preview', 'order'];
@@ -726,8 +728,8 @@ export function BookBuilder() {
                 ))}
               </div>
 
-              {/* PREVIEW pill — ghost-copper, full-width beneath the ledger.
-                  Advances to the preview step (same action as the shared nav). */}
+              {/* PREVIEW — ghost-copper, full-width sharp button beneath the
+                  ledger. Advances to the preview step (same action as the shared nav). */}
               <button
                 type="button"
                 onClick={() => setStep('preview')}
@@ -736,7 +738,7 @@ export function BookBuilder() {
                   width: '100%',
                   background: 'transparent',
                   border: '1px solid var(--copper-border)',
-                  borderRadius: 999,
+                  borderRadius: 0,
                   padding: '15px 0',
                   cursor: 'pointer',
                   fontSize: 11,
@@ -1277,7 +1279,7 @@ export function BookBuilder() {
               style={{
                 background: 'transparent',
                 border: '1px solid var(--warm)',
-                borderRadius: 999,
+                borderRadius: 0,
                 padding: '15px 56px',
                 cursor: step === 'select' && totalItems === 0 ? 'default' : 'pointer',
                 fontSize: 11,

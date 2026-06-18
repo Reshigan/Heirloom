@@ -176,7 +176,7 @@ export function LetterRoom() {
                 style={{
                   display: 'inline-flex', alignItems: 'center',
                   background: 'var(--warm)', border: '1px solid var(--warm)',
-                  borderRadius: 999, color: 'var(--ink)', textDecoration: 'none',
+                  borderRadius: 0, color: 'var(--ink)', textDecoration: 'none',
                   fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
                   textTransform: 'uppercase', padding: '13px 28px',
                 }}
@@ -267,7 +267,7 @@ export function LetterRoom() {
                     aria-disabled
                     onClick={(e) => e.preventDefault()}
                     style={{
-                      border: '1px solid var(--copper-border)', borderRadius: 999,
+                      border: '1px solid var(--copper-border)', borderRadius: 0,
                       color: 'var(--gold-text)', textDecoration: 'none',
                       fontFamily: 'var(--mono)', fontSize: 11,
                       letterSpacing: '0.26em', textTransform: 'uppercase',
@@ -284,7 +284,7 @@ export function LetterRoom() {
                     style={{
                       background: 'transparent',
                       border: '1px solid var(--copper-border)',
-                      borderRadius: 999,
+                      borderRadius: 0,
                       color: 'var(--gold-text)',
                       fontFamily: 'var(--mono)', fontSize: 11,
                       letterSpacing: '0.26em', textTransform: 'uppercase',
@@ -524,7 +524,7 @@ export function LetterRoom() {
                               style={{
                                 background: 'transparent',
                                 border: '1px solid var(--copper-border)',
-                                borderRadius: 999,
+                                borderRadius: 0,
                                 color: 'var(--gold-text)',
                                 fontFamily: 'var(--mono)', fontSize: 11,
                                 letterSpacing: '0.26em', textTransform: 'uppercase',

@@ -82,6 +82,8 @@
   width: 4px;
   height: 4px;
   margin: -2px 0 0 -2px;
+  /* ceremonial wax-knot node on the filament divider — a sealing-wax dot,
+     not a UI chip; round is intentional (radius exception, like progress dots) */
   border-radius: 50%;
   background: var(--wax);
   box-shadow: 0 0 8px var(--warm-glow);

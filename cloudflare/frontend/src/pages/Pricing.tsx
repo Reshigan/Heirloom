@@ -1,10 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { billingApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
-import { usePageMeta } from '../lib/usePageMeta';
+
+const META_TITLE = 'Plans & Pricing';
+const META_DESCRIPTION = 'Choose the plan that fits your family. Start free, upgrade when you\'re ready.';
+const OG_IMAGE = 'https://heirloom.blue/og-image.png?v=20260615b';
+const CANONICAL = 'https://heirloom.blue/pricing';
 
 interface PricingData {
   symbol: string;
@@ -24,7 +29,6 @@ function fmt(symbol: string, n: number): string {
 }
 
 export function Pricing() {
-  usePageMeta('Plans & Pricing', 'Choose the plan that fits your family. Start free, upgrade when you\'re ready.');
   const [annual, setAnnual] = useState(false);
   const [pricing, setPricing] = useState<PricingData>(FALLBACK);
 
@@ -87,6 +91,20 @@ export function Pricing() {
 
   return (
     <ClothShell topbarLeft={<HLogo href="/" />} topbarCenter="pricing">
+      <Helmet>
+        <title>{`${META_TITLE} · Heirloom`}</title>
+        <meta name="description" content={META_DESCRIPTION} />
+        <meta property="og:title" content={META_TITLE} />
+        <meta property="og:description" content={META_DESCRIPTION} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={CANONICAL} />
+        <meta property="og:image" content={OG_IMAGE} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content={OG_IMAGE} />
+        <link rel="canonical" href={CANONICAL} />
+      </Helmet>
       <style>{`
         .pricing-cta:focus-visible { outline: 2px solid var(--warm); outline-offset: 2px; }
       `}</style>

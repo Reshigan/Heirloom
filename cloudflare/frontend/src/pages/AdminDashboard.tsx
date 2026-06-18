@@ -1052,7 +1052,7 @@ export function AdminDashboard() {
                   ].map(({ l, v, accent }) => (
                     <div key={l} style={{ padding: '12px 16px', background: 'var(--ink-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>{l}</span>
-                      <span className="loom-serif" style={{ fontSize: 20, fontWeight: 300, color: accent ? 'var(--warm)' : 'var(--bone)' }}>{v}</span>
+                      <span className="loom-serif" style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 300, color: accent ? 'var(--warm)' : 'var(--bone)' }}>{v}</span>
                     </div>
                   ))}
                 </div>
@@ -1061,7 +1061,7 @@ export function AdminDashboard() {
               <Panel title="User Growth · Last 30 Days">
                 <div style={{ padding: '12px 16px', background: 'var(--ink-card)', marginBottom: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid var(--rule)' }}>
                   <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>Total New Signups</span>
-                  <span className="loom-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--warm)' }}>{userGrowth?.totalSignups || 0}</span>
+                  <span className="loom-serif" style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 300, color: 'var(--warm)' }}>{userGrowth?.totalSignups || 0}</span>
                 </div>
                 <div style={{ marginTop: 16 }}>
                   <div className="loom-eyebrow" style={{ marginBottom: 8 }}>Daily Signups</div>

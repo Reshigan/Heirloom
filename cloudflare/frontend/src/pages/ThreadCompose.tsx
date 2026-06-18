@@ -70,7 +70,7 @@ function pillStyle(warm: boolean, disabled = false): React.CSSProperties {
     gap: 8,
     background: 'transparent',
     border: `1px solid ${warm ? 'var(--warm)' : 'var(--rule)'}`,
-    borderRadius: 999,
+    borderRadius: 0,
     padding: '0 22px',
     minHeight: 44,
     cursor: disabled ? 'default' : 'pointer',

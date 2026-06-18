@@ -26,7 +26,12 @@ const RESPONSIVE_CSS = `
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 14px 0;
+  /* 15px matches the shared CosmicUI EntryRow rhythm so Settings rows sit on
+     the same vertical cadence as every other ledger in the loom. A full
+     refactor onto EntryRow itself is deferred: that component is a single
+     button (title + mono meta) and cannot host toggles, inline inputs, or the
+     expandable change-email/password/guardian forms these rows carry. */
+  padding: 15px 0;
   border-bottom: 1px solid var(--rule);
 }
 .hl-ledgerrow-label {
@@ -139,12 +144,12 @@ const RESPONSIVE_CSS = `
   display: grid;
   grid-template-columns: 160px 1fr;
   gap: 8px 20px;
-  padding: 14px 0;
+  padding: 15px 0;
   border-bottom: 1px solid var(--rule);
   align-items: baseline;
 }
 @media (max-width: 639px) {
-  .hl-fieldrow { grid-template-columns: 1fr; gap: 4px; padding: 13px 0; }
+  .hl-fieldrow { grid-template-columns: 1fr; gap: 4px; padding: 14px 0; }
   .hl-ledgerrow { gap: 16px; }
 }
 .hl-field-label {
@@ -850,8 +855,12 @@ export function Settings() {
             </div>
           )}
 
-          <LedgerRow label="Encryption" hint="server-side AES-GCM · access via account + thread membership" value={<span className="hl-wordvalue" style={{ fontStyle: 'italic' }}>At rest</span>} />
-          <LedgerRow label="Recovery phrase" hint="print and store offline" value={<span className="hl-wordvalue" style={{ fontStyle: 'italic' }}>Four words · in onboarding</span>} />
+          {/* Encryption — accurate to the live model: data is encrypted at rest
+              with server-held AES-GCM keys, reached through your account + thread
+              membership. We do NOT surface a printable "recovery phrase" here:
+              there is no client-held key to recover, so promising one would be
+              false. Account access is recovered the ordinary way, by password. */}
+          <LedgerRow label="Encryption" hint="server-held AES-GCM · access through your account + thread membership" value={<span className="hl-wordvalue" style={{ fontStyle: 'italic' }}>At rest</span>} />
 
           {/* Data Export — ledger row with download action + error */}
           <div className="hl-ledgerrow" style={{ alignItems: 'flex-start' }}>
