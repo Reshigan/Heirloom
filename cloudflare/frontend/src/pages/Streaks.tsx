@@ -307,7 +307,7 @@ export function Streaks() {
                       cursor: 'pointer',
                       borderRadius: 0,
                       flexShrink: 0,
-                      transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                      transition: 'color 180ms var(--ease)',
                     }}
                     onMouseEnter={e => {
                       e.currentTarget.style.color = 'var(--warm)';
@@ -354,7 +354,7 @@ export function Streaks() {
                         background: day.hasEntry ? 'var(--rule)' : 'var(--ink)',
                         borderLeft: day.hasEntry ? `3px solid var(--dye-${dyeForDate(day.date)})` : '3px solid transparent',
                         cursor: 'default',
-                        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                        transition: 'opacity 180ms var(--ease)',
                         padding: 0,
                         display: 'block',
                       }}

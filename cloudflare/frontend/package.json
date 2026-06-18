@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "check:routes": "node scripts/check-routes.mjs",
-    "build": "node scripts/check-routes.mjs && tsc && vite build",
+    "build": "node scripts/check-routes.mjs && tsc && tsc -p functions/tsconfig.json && vite build",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.tsx",
     "deploy": "npm run build && wrangler pages deploy dist --project-name=heirloom",
@@ -42,6 +42,7 @@
     "zustand": "^4.4.7"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260617.1",
     "@playwright/test": "^1.61.0",
     "@types/jszip": "^3.4.0",
     "@types/react": "^18.2.43",

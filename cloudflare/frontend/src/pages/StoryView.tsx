@@ -120,17 +120,11 @@ export function StoryView() {
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 200);
-  // Default 1200x630 social card — the safe fallback for any non-conforming image.
-  const DEFAULT_SHARE_IMAGE = 'https://heirloom.blue/og/entry.png';
-  // og:image must be an absolute https URL and a format scrapers decode (no avif/webp).
-  const isShareSafe = (url?: string | null): url is string =>
-    !!url && url.startsWith('https://') && !/\.(avif|webp)(\?|$)/i.test(url);
-  const candidateImage =
-    memories.find((m) => isShareSafe(m.thumbnailUrl))?.thumbnailUrl ||
-    memories.find((m) => isShareSafe(m.fileUrl))?.fileUrl ||
-    null;
-  const metaImage = candidateImage || DEFAULT_SHARE_IMAGE;
-  const usingDefaultImage = metaImage === DEFAULT_SHARE_IMAGE;
+  // PRIVACY-SAFE: the scraper-facing image is ALWAYS the static "story" share
+  // card — never a private family photo. The static Pages Function governs the
+  // real unfurl (scrapers don't run JS), but pinning this to the fallback is
+  // defence-in-depth: if this route ever goes SSR, no private media can leak.
+  const metaImage = 'https://heirloom.blue/og/entry.png';
   const canonical = window.location.href;
 
   // ── Main render ──────────────────────────────────────────────────────────
@@ -143,8 +137,8 @@ export function StoryView() {
          * PRIVACY-SAFE share meta. A shared story link is reachable by anyone
          * holding it, so the scraper-facing og:* / twitter:* tags name no entry
          * and reveal no content — they reuse the static "story" share card copy.
-         * The real title/description still render on-page below; the image stays
-         * guarded by isShareSafe above.
+         * The real title/description still render on-page below; the image is
+         * pinned to the static "story" card (no private media — see metaImage).
          */}
         <meta property="og:title" content="A family story has been shared with you." />
         <meta
@@ -159,8 +153,8 @@ export function StoryView() {
         <meta property="og:type" content="article" />
         <meta property="og:url" content={canonical} />
         <meta property="og:image" content={metaImage} />
-        {usingDefaultImage && <meta property="og:image:width" content="1200" />}
-        {usingDefaultImage && <meta property="og:image:height" content="630" />}
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content={metaImage} />
         <link rel="canonical" href={canonical} />

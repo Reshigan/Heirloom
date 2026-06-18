@@ -410,7 +410,7 @@ export function Record() {
             height: 1,
             width: `${progress * 100}%`,
             background: 'var(--warm)',
-            transition: 'width 720ms cubic-bezier(0.16,1,0.3,1)',
+            transition: 'width 720ms var(--ease)',
             zIndex: 30,
           }}
         />
@@ -499,7 +499,7 @@ export function Record() {
                 fontWeight: 600,
                 letterSpacing: '0.32em',
                 textTransform: 'uppercase',
-                transition: 'background 180ms cubic-bezier(0.16,1,0.3,1)',
+                transition: 'background 180ms var(--ease)',
               }}
             >
               record
@@ -522,9 +522,9 @@ export function Record() {
                 letterSpacing: '0.32em',
                 textTransform: 'uppercase',
                 animation: recordingState === 'recording'
-                  ? 'hl-record-pulse 1400ms cubic-bezier(0.16,1,0.3,1) infinite'
+                  ? 'hl-record-pulse 1400ms var(--ease) infinite'
                   : 'none',
-                transition: 'background 360ms cubic-bezier(0.16,1,0.3,1), color 360ms cubic-bezier(0.16,1,0.3,1)',
+                transition: 'background 360ms var(--ease), color 360ms var(--ease)',
               }}
             >
               stop
@@ -541,7 +541,7 @@ export function Record() {
               maxWidth: 360,
               height: 28,
               opacity: recordingState === 'recording' ? 0.9 : 0.4,
-              transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
+              transition: 'opacity 360ms var(--ease)',
             }}
           >
             <path
@@ -561,7 +561,7 @@ export function Record() {
               letterSpacing: '0.18em',
               color: recordingState === 'paused' ? 'var(--bone-faint)' : 'var(--bone)',
               lineHeight: 1,
-              transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+              transition: 'color 180ms var(--ease)',
             }}
           >
             {mm}:{ss}
@@ -667,6 +667,7 @@ export function Record() {
                   type="date"
                   value={entryDate}
                   onChange={e => setEntryDate(e.target.value)}
+                  aria-label="Recording date"
                   style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }}
                 />
               </div>
@@ -824,7 +825,7 @@ export function Record() {
                 width: '100%',
                 marginBottom: 40,
                 opacity: playing ? 1 : 0.85,
-                transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
+                transition: 'opacity 360ms var(--ease)',
               }}
             >
               {waveBars.map((amp, i) => (
@@ -834,7 +835,7 @@ export function Record() {
                     flex: '1 1 0',
                     height: `${amp * 100}%`,
                     background: 'var(--warm)',
-                    transition: 'height 360ms cubic-bezier(0.16,1,0.3,1)',
+                    transition: 'height 360ms var(--ease)',
                   }}
                 />
               ))}
@@ -857,7 +858,7 @@ export function Record() {
                   justifyContent: 'center',
                   color: 'var(--warm)',
                   cursor: 'pointer',
-                  transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), background 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
+                  transition: 'border-color 180ms var(--ease), background 180ms var(--ease), color 180ms var(--ease)',
                 }}
               >
                 {playing ? (
@@ -907,7 +908,7 @@ export function Record() {
                   letterSpacing: '0.3em',
                   textTransform: 'uppercase',
                   opacity: transcribing ? 0.5 : 1,
-                  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                  transition: 'color 180ms var(--ease)',
                 }}
               >
                 find better words

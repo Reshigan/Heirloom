@@ -53,7 +53,7 @@ const monoAffordance: React.CSSProperties = {
   letterSpacing: '0.22em',
   textTransform: 'uppercase',
   color: 'var(--muted-2)',
-  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+  transition: 'color 180ms var(--ease)',
 };
 
 export function Milestones() {
@@ -345,7 +345,7 @@ export function Milestones() {
                         textTransform: 'uppercase',
                         padding: '8px 14px',
                         cursor: 'pointer',
-                        transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        transition: 'border-color 180ms var(--ease), color 180ms var(--ease)',
                       }}
                     >
                       {type.name}
@@ -437,7 +437,7 @@ export function Milestones() {
                     padding: '10px 16px',
                     cursor: 'pointer',
                     borderRadius: 0,
-                    transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                    transition: 'border-color 180ms var(--ease)',
                   }}
                 >
                   cancel
@@ -458,7 +458,7 @@ export function Milestones() {
                     cursor: 'pointer',
                     borderRadius: 0,
                     opacity: (!formData.name.trim() || !formData.date || createMutation.isPending) ? 0.45 : 1,
-                    transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                    transition: 'opacity 180ms var(--ease)',
                   }}
                 >
                   {createMutation.isPending ? 'adding…' : 'add date'}

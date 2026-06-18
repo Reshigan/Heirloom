@@ -113,7 +113,7 @@ function VoiceRings() {
             height: 12 + i * 10,
             background: 'var(--bone-faint)',
             borderRadius: 0,
-            animation: `hl-waveform 1400ms cubic-bezier(0.16,1,0.3,1) ${i * 0.15}s infinite alternate`,
+            animation: `hl-waveform 1400ms var(--ease) ${i * 0.15}s infinite alternate`,
           }}
         />
       ))}
@@ -166,7 +166,7 @@ function StepProgress({ current, total, label }: { current: number; total: numbe
             height: '100%',
             width: `${pct}%`,
             background: 'var(--warm)',
-            transition: 'width 360ms cubic-bezier(0.16,1,0.3,1)',
+            transition: 'width 360ms var(--ease)',
           }}
         />
       </div>
@@ -195,7 +195,7 @@ function LoadingBar({ label }: { label?: string }) {
             height: '100%',
             width: '40%',
             background: 'var(--warm)',
-            animation: 'loom-shuttle var(--dur-ceremony) cubic-bezier(0.16,1,0.3,1) infinite',
+            animation: 'loom-shuttle var(--dur-ceremony) var(--ease) infinite',
           }}
         />
       </div>
@@ -326,7 +326,7 @@ function ActionPill({ label, onClick }: { label: string; onClick: () => void }) 
         padding: '13px 26px',
         minHeight: 44,
         cursor: 'pointer',
-        transition: 'color 180ms cubic-bezier(0.16,1,0.3,1), border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+        transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
       }}
     >
       {label}

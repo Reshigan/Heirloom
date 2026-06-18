@@ -277,7 +277,7 @@ export function GiftSubscriptions() {
                       borderBottom:   '1px solid var(--rule)',
                       opacity:        isFree ? 0.55 : 1,
                       cursor:         isFree ? 'default' : 'pointer',
-                      transition:     'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                      transition:     'border-color 180ms var(--ease)',
                     }}
                   >
                     {/* Left: name + for-line + bullets */}
@@ -755,7 +755,7 @@ export function GiftSubscriptions() {
                 textTransform: 'uppercase',
                 opacity:       purchaseMutation.isPending ? 0.5 : 1,
                 cursor:        purchaseMutation.isPending ? 'default' : 'pointer',
-                transition:    'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                transition:    'opacity 180ms var(--ease)',
               }}
             >
               {purchaseMutation.isPending ? 'processing…' : 'complete the gift →'}

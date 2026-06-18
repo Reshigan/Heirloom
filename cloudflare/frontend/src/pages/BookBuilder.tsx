@@ -81,7 +81,7 @@ const inputStyle: React.CSSProperties = {
   lineHeight: 1.7,
   outline: 'none',
   boxSizing: 'border-box',
-  transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+  transition: 'border-color 180ms var(--ease)',
 };
 
 interface ShipTo {
@@ -234,7 +234,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
           height: 248,
           // 3-D embossed leather cover
           background: 'linear-gradient(135deg, #3a2817, #23170d 58%, #19100a)',
-          borderRadius: '3px 5px 5px 3px',
+          borderRadius: 0,
           boxShadow: '0 18px 40px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(216,150,84,0.18)',
         }}
       >
@@ -247,7 +247,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
             bottom: 0,
             width: 15,
             background: 'linear-gradient(90deg, #140c06, #1e130a)',
-            borderRadius: '3px 0 0 3px',
+            borderRadius: 0,
             boxShadow: 'inset -2px 0 4px rgba(0,0,0,0.5)',
           }}
         />
@@ -260,7 +260,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
             bottom: 0,
             width: 5,
             background: 'linear-gradient(90deg, #2a1c0f, #120b05)',
-            borderRadius: '0 5px 5px 0',
+            borderRadius: 0,
           }}
         />
         {/* inner frame border */}
@@ -286,7 +286,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
           {/* embossed cover title */}
           <span
             style={{
-              fontFamily: 'var(--serif-display)',
+              fontFamily: 'var(--serif)',
               fontSize: 13,
               color: 'var(--gold-text)',
               textAlign: 'center',
@@ -462,7 +462,7 @@ export function BookBuilder() {
                       width: '100%',
                       height: 1,
                       background: i <= currentStepIndex ? 'var(--warm)' : 'transparent',
-                      transition: 'background 360ms cubic-bezier(0.16,1,0.3,1)',
+                      transition: 'background 360ms var(--ease)',
                     }}
                   />
                   <span
@@ -472,7 +472,7 @@ export function BookBuilder() {
                       letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       color: i <= currentStepIndex ? 'var(--warm)' : 'var(--bone-faint)',
-                      transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
+                      transition: 'color 360ms var(--ease)',
                     }}
                   >
                     {stepLabels[s]}
@@ -670,7 +670,7 @@ export function BookBuilder() {
                         lineHeight: 1,
                         color: 'var(--warm)',
                         opacity: copies <= 1 ? 0.3 : 1,
-                        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                        transition: 'opacity 180ms var(--ease)',
                       }}
                     >
                       −
@@ -696,7 +696,7 @@ export function BookBuilder() {
                         lineHeight: 1,
                         color: 'var(--warm)',
                         opacity: copies >= 99 ? 0.3 : 1,
-                        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                        transition: 'opacity 180ms var(--ease)',
                       }}
                     >
                       +
@@ -745,7 +745,7 @@ export function BookBuilder() {
                   letterSpacing: '0.24em',
                   textTransform: 'uppercase',
                   color: 'var(--gold-text)',
-                  transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                  transition: 'opacity 180ms var(--ease)',
                 }}
               >
                 Preview
@@ -784,7 +784,7 @@ export function BookBuilder() {
                         padding: 0,
                         cursor: 'pointer',
                         textAlign: 'center',
-                        transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                        transition: 'opacity 180ms var(--ease)',
                       }}
                     >
                       {/* the page-shaped thumbnail — warm border + glow when chosen */}
@@ -794,7 +794,7 @@ export function BookBuilder() {
                           width: '100%',
                           aspectRatio: '0.78',
                           border: active ? '1.5px solid var(--warm)' : '1px solid #3a2c1c',
-                          background: active ? 'color-mix(in srgb, var(--warm) 5%, transparent)' : 'var(--bg-template)',
+                          background: active ? 'color-mix(in srgb, var(--warm) 3%, transparent)' : 'var(--bg-template)',
                           borderRadius: 0,
                           boxShadow: active ? '0 0 14px rgba(224,160,98,0.5)' : 'none',
                           padding: active ? 11 : 12,
@@ -802,7 +802,7 @@ export function BookBuilder() {
                           flexDirection: 'column',
                           gap: 6,
                           overflow: 'hidden',
-                          transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                          transition: 'border-color 180ms var(--ease)',
                         }}
                       >
                         <LayoutGlyph layout={id} active={active} />
@@ -814,7 +814,7 @@ export function BookBuilder() {
                           letterSpacing: '0.32em',
                           textTransform: 'uppercase',
                           color: active ? 'var(--warm)' : 'var(--copper-label)',
-                          transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                          transition: 'color 180ms var(--ease)',
                         }}
                       >
                         {label}
@@ -997,7 +997,7 @@ export function BookBuilder() {
                             padding: '15px 0',
                             cursor: 'pointer',
                             textAlign: 'left',
-                            transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                            transition: 'opacity 180ms var(--ease)',
                           }}
                         >
                           <span style={{ minWidth: 0 }}>
@@ -1299,7 +1299,7 @@ export function BookBuilder() {
                 textTransform: 'uppercase',
                 color: 'var(--warm)',
                 opacity: step === 'select' && totalItems === 0 ? 0.4 : 1,
-                transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                transition: 'opacity 180ms var(--ease)',
               }}
             >
               {step === 'select' ? 'Bind the Volume' : step === 'customize' ? 'Preview' : step === 'page' ? 'Apply to Chapter' : 'Continue'}

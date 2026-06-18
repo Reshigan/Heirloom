@@ -138,7 +138,7 @@ export function EntryRow({
       }}
     >
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ fontFamily: fontFor(titleFont), fontStyle: italic ? 'italic' : 'normal', fontWeight: 400, fontSize: titleSize, lineHeight: 1.3, color: titleColor, display: 'block' }}>
+        <span style={{ fontFamily: fontFor(titleFont), fontStyle: italic ? 'italic' : 'normal', fontWeight: 400, fontSize: titleFont === 'display' ? Math.max(titleSize, 24) : titleSize, lineHeight: 1.3, color: titleColor, display: 'block' }}>
           {title}
         </span>
         {sub && <span style={{ fontFamily: fontFor(subFont), fontStyle: subItalic ? 'italic' : 'normal', fontSize: 13, color: subColor, display: 'block', marginTop: 4, lineHeight: 1.5 }}>{sub}</span>}

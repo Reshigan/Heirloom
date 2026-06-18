@@ -138,8 +138,9 @@ export function SocialCalendarTab() {
       {/* Filter control bar — quiet mono */}
       <div style={{ display: 'flex', gap: 20, alignItems: 'center', marginBottom: 8, flexWrap: 'wrap' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={filterLabelStyle}>Week</span>
+          <label htmlFor="social-calendar-week" style={filterLabelStyle}>Week</label>
           <select
+            id="social-calendar-week"
             value={selectedWeek || ''}
             onChange={(e) => setSelectedWeek(e.target.value ? parseInt(e.target.value) : undefined)}
             style={selectStyle}
@@ -152,8 +153,9 @@ export function SocialCalendarTab() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={filterLabelStyle}>Status</span>
+          <label htmlFor="social-calendar-status" style={filterLabelStyle}>Status</label>
           <select
+            id="social-calendar-status"
             value={statusFilter || ''}
             onChange={(e) => setStatusFilter(e.target.value || undefined)}
             style={selectStyle}

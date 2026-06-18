@@ -13,13 +13,13 @@ export async function processScheduledDeletions(env: Env): Promise<{ deleted: nu
 
   // Find up to 50 accounts due for deletion in this run
   const due = await env.DB.prepare(
-    `SELECT id, email FROM users WHERE status = 'ARCHIVED' AND delete_after IS NOT NULL AND delete_after <= ? LIMIT 50`
+    `SELECT id FROM users WHERE status = 'ARCHIVED' AND delete_after IS NOT NULL AND delete_after <= ? LIMIT 50`
   ).bind(now).all();
 
   let deleted = 0;
   let errors = 0;
 
-  for (const row of due.results as { id: string; email: string }[]) {
+  for (const row of due.results as { id: string }[]) {
     const userId = row.id;
     try {
       // Collect R2 keys and KV session IDs before purging DB rows
@@ -84,7 +84,8 @@ export async function processScheduledDeletions(env: Env): Promise<{ deleted: nu
       await Promise.allSettled(fileKeys.map((key) => env.STORAGE.delete(key)));
 
       deleted++;
-      console.log(`Scheduled deletion complete: user ${userId} (${row.email}), ${fileKeys.length} R2 files purged`);
+      // PII / GDPR: never log the erased user's email at the moment of erasure. Log the id only.
+      console.log(`Scheduled deletion complete: user ${userId}, ${fileKeys.length} R2 files purged`);
     } catch (err) {
       errors++;
       console.error(`Scheduled deletion failed for user ${userId}:`, err);

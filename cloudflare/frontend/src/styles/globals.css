@@ -203,6 +203,13 @@
   --dur-mid: 360ms;
   --dur-slow: 720ms;
   --dur-ceremony: 1400ms;
+  /* STAGGER/CHOREOGRAPHY TIER (exemption): the four --dur-* steps above govern a
+     single element's transition/animation. Per-item ENTRANCE OFFSETS in a
+     sequence — e.g. `${i * 0.15}s` waveform phase, `${delay}ms` list cascade —
+     are choreography, not interaction durations, and are deliberately exempt
+     from the 180/360/720/1400 set. They stagger WHEN each thread moves; --dur-*
+     still governs HOW LONG each one's motion lasts. Keep offsets multiples of a
+     --dur step where practical so the cascade stays on the one rhythm. */
 
   /* Future-axis: text-scale lever. The .loom root may carry
      data-text-scale="80|100|120|140|160"; the binding rules below set
@@ -389,7 +396,7 @@ body {
  * frost/highlight gradients. These legacy `.glass*` utilities are kept by name
  * (33 call sites) but redefined as flat, solid panels — a faint bone surface
  * raised off the ink, a single 1px hairline, and a brief-compliant radius
- * (≤4px). The blur and the ::before/::after gradient films are gone. */
+ * of 0. The blur and the ::before/::after gradient films are gone. */
 .glass {
   background: rgba(242, 230, 208, 0.035);
   border: 1px solid rgba(242, 230, 208, 0.10);
@@ -794,7 +801,7 @@ select:focus-visible {
   color: var(--ink);
   padding: 8px 16px;
   z-index: 100;
-  transition: top 180ms cubic-bezier(0.16,1,0.3,1);
+  transition: top 180ms var(--ease);
 }
 
 .skip-to-content:focus {
@@ -1236,7 +1243,7 @@ html {
   left: -40%;
   width: 40%;
   background: var(--warm);
-  animation: hl-progress-shuttle 1.4s cubic-bezier(0.16,1,0.3,1) infinite;
+  animation: hl-progress-shuttle 1400ms var(--ease) infinite;
 }
 @keyframes hl-progress-shuttle {
   0%   { left: -40%; }
@@ -1489,7 +1496,7 @@ html {
   font-family: 'Space Mono', ui-monospace, monospace;
   letter-spacing: 0.18em;
 }
-.hl-cta-warm { transition: opacity 180ms cubic-bezier(0.16,1,0.3,1), transform 180ms cubic-bezier(0.16,1,0.3,1); }
+.hl-cta-warm { transition: opacity 180ms var(--ease), transform 180ms var(--ease); }
 @media (hover: hover) and (pointer: fine) {
   .hl-cta-warm:hover { opacity: 0.88; }
 }
@@ -1762,7 +1769,7 @@ html {
   background: var(--bone);
   vertical-align: -0.1em;
   margin-left: 6px;
-  animation: hl-hero-blink 1.4s steps(1) infinite;
+  animation: hl-hero-blink 1400ms steps(1) infinite;
 }
 @keyframes hl-hero-blink { 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0; } }
 .hl-fell-line {
@@ -2025,12 +2032,6 @@ html {
 .loom .border-paper-04 { border-color: var(--loom-rule) !important; }
 
 /* ── Color: gold → warm ────────────────────────────────────────── */
-.loom .bg-gold,
-.loom .bg-gold-DEFAULT,
-.loom .bg-gold-light,
-.loom .bg-gold-bright,
-.loom .bg-gold-dim,
-.loom .bg-gold-deep { background-color: var(--loom-warm) !important; color: var(--loom-ink); }
 .loom .bg-gold-40,
 .loom .bg-gold-20,
 .loom .bg-gold-10,
@@ -2424,7 +2425,7 @@ input:-webkit-autofill:active {
 /* ── Cloth parallax — responds to --cloth-parallax CSS var set by PwaHome scroll listener ── */
 .loom canvas {
   transform: rotateX(var(--cloth-parallax, 0deg));
-  transition: transform 360ms cubic-bezier(0.16,1,0.3,1);
+  transition: transform 360ms var(--ease);
 }
 
 /* ── Mobile responsiveness ──────────────────────────────────────────────── */

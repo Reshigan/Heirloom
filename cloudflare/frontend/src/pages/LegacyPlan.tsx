@@ -216,7 +216,7 @@ export function LegacyPlan() {
                     height: '100%',
                     width: `${plan?.progressPercent || 0}%`,
                     background: 'var(--warm)',
-                    transition: 'width 720ms cubic-bezier(0.16,1,0.3,1)',
+                    transition: 'width 720ms var(--ease)',
                   }}
                 />
               </div>
@@ -371,7 +371,7 @@ export function LegacyPlan() {
                         height: '100%',
                         width: `${items.length > 0 ? (completedCount / items.length) * 100 : 0}%`,
                         background: 'var(--warm)',
-                        transition: 'width 360ms cubic-bezier(0.16,1,0.3,1)',
+                        transition: 'width 360ms var(--ease)',
                         display: 'block',
                       }}
                     />
@@ -432,7 +432,7 @@ export function LegacyPlan() {
                               fontSize: 9,
                               letterSpacing: '0.14em',
                               textTransform: 'uppercase',
-                              transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                              transition: 'color 180ms var(--ease)',
                             }}
                             onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm)')}
                             onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
@@ -520,7 +520,7 @@ export function LegacyPlan() {
                         fontSize: 10,
                         letterSpacing: '0.2em',
                         textTransform: 'uppercase',
-                        transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        transition: 'color 180ms var(--ease)',
                       }}
                       onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone-dim)')}
                       onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
@@ -695,7 +695,7 @@ export function LegacyPlan() {
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
                 textDecoration: 'none',
-                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                transition: 'color 180ms var(--ease)',
               }}
               onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone)')}
               onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}

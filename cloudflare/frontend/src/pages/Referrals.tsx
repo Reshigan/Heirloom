@@ -278,7 +278,7 @@ export function Referrals() {
                               bottom: 0,
                               width: `${progress}%`,
                               background: 'var(--warm)',
-                              transition: 'width 360ms cubic-bezier(0.16,1,0.3,1)',
+                              transition: 'width 360ms var(--ease)',
                             }}
                           />
                         </div>

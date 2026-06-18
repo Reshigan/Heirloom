@@ -5,7 +5,7 @@
 
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
-import { readDescription, decryptText, withinGrace } from '../lib/legacyArchive';
+import { readDescription, decryptText, withinGrace, recordRevision } from '../lib/legacyArchive';
 import { sendEmail } from '../utils/email';
 
 export const settingsRoutes = new Hono<AppEnv>();
@@ -668,29 +668,21 @@ settingsRoutes.patch('/legacy-contacts/:id', async (c) => {
   const { name, email, phone, relationship, role } = body;
   const now = new Date().toISOString();
 
-  // Append-only: classify the edit the same way the memories/letters/voice
-  // surface does — within the mutability grace window it's an in-place 'edit';
-  // after it, an 'amendment'. The shared legacy_revisions log can't hold a
-  // snapshot here (its entity_type CHECK is fixed to memory|letter|voice, 0040),
-  // so an amendment is recorded as a contemporaneous prior-value audit line
-  // rather than silently overwriting — and the grace window (mutable_until) is
-  // NOT extended on amendment, so the row's append-only character is preserved.
-  const reason = withinGrace(existing.mutable_until as string | null) ? 'edit' : 'amendment';
-  if (reason === 'amendment') {
-    console.log('[legacy-contact] amendment past grace', JSON.stringify({
-      contactId,
-      userId,
-      prior: {
-        name: existing.name,
-        email: existing.email,
-        phone: existing.phone,
-        relationship: existing.relationship,
-        role: existing.role,
-        updated_at: existing.updated_at,
-      },
-      at: now,
-    }));
-  }
+  // Append-only: snapshot prior values to the immutable revision log before edit,
+  // mirroring the memories/letters/voice surface. Within the mutability grace
+  // window it's an in-place 'edit'; after it, an 'amendment'. The prior PII
+  // (name/email/phone) lands in the snapshot column — stored encrypted-at-rest by
+  // recordRevision — NOT in the plaintext Cloudflare log stream. The grace window
+  // (mutable_until) is NOT extended on amendment, so the row's append-only
+  // character is preserved.
+  await recordRevision(c.env, 'legacy_contact', contactId, userId, {
+    name: existing.name,
+    email: existing.email,
+    phone: existing.phone,
+    relationship: existing.relationship,
+    role: existing.role,
+    updated_at: existing.updated_at,
+  }, withinGrace(existing.mutable_until as string | null) ? 'edit' : 'amendment');
 
   // Convert undefined to null for D1 compatibility
   await c.env.DB.prepare(`
@@ -771,7 +763,7 @@ settingsRoutes.patch('/legacy-contacts/:id/restore', async (c) => {
   }
 
   await c.env.DB.prepare(`
-    UPDATE legacy_contacts SET deleted_at = NULL WHERE id = ? AND user_id = ?
+    UPDATE legacy_contacts SET deleted_at = NULL, deleted_reason = NULL WHERE id = ? AND user_id = ?
   `).bind(contactId, userId).run();
 
   return c.json({ success: true });
@@ -1266,6 +1258,10 @@ settingsRoutes.get('/export', async (c) => {
         birthDate: f.birth_date,
         notes: f.notes,
         createdAt: f.created_at,
+        // null for live members; ISO timestamp for soft-deleted ones (column per
+        // migration 0043). The gather is unfiltered, so readers need this flag to
+        // distinguish a live member from a removed one.
+        deletedAt: f.deleted_at ?? null,
       })),
       legacyContacts: legacyContacts.results.map((lc: any) => ({
         id: lc.id,

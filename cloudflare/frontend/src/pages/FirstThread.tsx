@@ -185,7 +185,7 @@ export function FirstThread() {
               <div style={{ position: 'absolute', inset: -16, borderRadius: '50%', background: 'radial-gradient(circle,var(--warm-glow),transparent 66%)', animation: 'hl-pulse 1400ms infinite' }} />
               <div style={{ fontFamily: "var(--serif-display)", fontSize: 74, color: 'var(--warm-bright)', textShadow: '0 0 26px rgba(216,150,84,.6)' }}>∞</div>
             </div>
-            <div style={{ fontFamily: 'var(--serif-display)', fontSize: 30, color: 'var(--bone)', marginTop: 30 }}>The Threshold</div>
+            <div role="heading" aria-level={1} style={{ fontFamily: 'var(--serif-display)', fontSize: 30, color: 'var(--bone)', marginTop: 30 }}>The Threshold</div>
             <div style={{ fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone-dim)', marginTop: 8 }}>Every thread begins with a touch.</div>
             <div style={{ position: 'absolute', bottom: 46, fontSize: 10, letterSpacing: '0.32em', color: 'var(--bone-faint)', animation: 'hl-pulse 1400ms infinite' }}>PRESS TO BEGIN</div>
           </div>

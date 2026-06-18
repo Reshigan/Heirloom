@@ -199,7 +199,7 @@ export function Filament({ variant = 'none', intensity = 1, className, style }: 
             backgroundSize: place.cover ? undefined : '100% 100%',
             aspectRatio: place.cover ? undefined : `${place.ar}`,
             mixBlendMode: 'screen',
-            transition: 'filter 1400ms cubic-bezier(0.16,1,0.3,1)',
+            transition: 'filter 1400ms var(--ease)',
             willChange: 'opacity',
             ['--fo' as string]: String(op),
             ['--fb' as string]: String(place.boost ?? 1),
@@ -208,7 +208,7 @@ export function Filament({ variant = 'none', intensity = 1, className, style }: 
             // Edge-fade so the screen-blended box never reads as a rectangle.
             WebkitMaskImage: place.cover ? COVER_MASK : MASK,
             maskImage: place.cover ? COVER_MASK : MASK,
-            animation: reduced ? undefined : 'filabreath 1400ms cubic-bezier(0.16,1,0.3,1) infinite alternate',
+            animation: reduced ? undefined : 'filabreath 1400ms var(--ease) infinite alternate',
             ...place.style,
           }}
         />

@@ -728,7 +728,7 @@ export function TimeCapsule() {
                     style={{
                       background:
                         newCapsule.cover_style === style.id
-                          ? 'color-mix(in srgb, var(--warm) 6%, transparent)'
+                          ? 'color-mix(in srgb, var(--warm) 3%, transparent)'
                           : 'transparent',
                       border: `1px solid ${
                         newCapsule.cover_style === style.id ? 'var(--warm)' : 'var(--rule)'

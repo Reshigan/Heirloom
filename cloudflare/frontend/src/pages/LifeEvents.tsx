@@ -326,7 +326,7 @@ export function LifeEvents() {
               height: 1,
               background: 'var(--warm)',
               width: 0,
-              animation: 'hl-load 1400ms cubic-bezier(0.16,1,0.3,1) forwards',
+              animation: 'hl-load 1400ms var(--ease) forwards',
             }}
           />
         </div>
@@ -435,7 +435,7 @@ export function LifeEvents() {
                                 background: 'none', border: 0, padding: 0, cursor: 'pointer',
                                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em',
                                 textTransform: 'uppercase', color: 'var(--bone-faint)',
-                                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                                transition: 'color 180ms var(--ease)',
                               }}
                               onMouseEnter={e => (e.currentTarget.style.color = 'var(--bone-dim)')}
                               onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
@@ -450,7 +450,7 @@ export function LifeEvents() {
                             background: 'none', border: 0, padding: 0, cursor: 'pointer',
                             fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em',
                             textTransform: 'uppercase', color: 'var(--bone-faint)',
-                            transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                            transition: 'color 180ms var(--ease)',
                           }}
                           onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm)')}
                           onMouseLeave={e => (e.currentTarget.style.color = 'var(--bone-faint)')}
@@ -570,7 +570,7 @@ export function LifeEvents() {
                       alignItems: 'baseline',
                       justifyContent: 'space-between',
                       gap: 16,
-                      transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                      transition: 'border-color 180ms var(--ease)',
                     }}
                     onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--warm)')}
                     onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--rule)')}

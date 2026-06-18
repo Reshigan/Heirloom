@@ -81,7 +81,7 @@ const flatInputStyle: React.CSSProperties = {
   outline: 'none',
   boxSizing: 'border-box',
   caretColor: 'var(--warm)',
-  transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+  transition: 'border-color 180ms var(--ease)',
 };
 
 // Mono affordance button — quiet text, no border, no background
@@ -570,6 +570,7 @@ export function StoryArtifact() {
                 type="text"
                 value={shareUrl}
                 readOnly
+                aria-label="Share link"
                 style={{
                   flex: 1,
                   background: 'transparent',

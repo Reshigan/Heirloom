@@ -192,7 +192,7 @@ export function MemoryCards() {
                 letterSpacing: '0.32em',
                 textTransform: 'uppercase',
                 color: activeTab === t.value ? 'var(--warm)' : 'var(--bone-faint)',
-                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                transition: 'color 180ms var(--ease)',
               }}
             >
               {t.label}
@@ -269,7 +269,7 @@ export function MemoryCards() {
                             fontSize: 17,
                             fontWeight: 300,
                             color: selectedMemory === memory.id ? 'var(--warm)' : 'var(--bone)',
-                            transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                            transition: 'color 180ms var(--ease)',
                           }}
                         >
                           {memory.title || 'Untitled Memory'}
@@ -307,10 +307,10 @@ export function MemoryCards() {
                       style={{
                         padding: '12px 14px',
                         border: `1px solid ${selectedStyle === style.id ? 'var(--warm)' : 'var(--rule)'}`,
-                        background: selectedStyle === style.id ? 'color-mix(in srgb, var(--warm) 6%, transparent)' : 'transparent',
+                        background: selectedStyle === style.id ? 'color-mix(in srgb, var(--warm) 3%, transparent)' : 'transparent',
                         cursor: 'pointer',
                         textAlign: 'left',
-                        transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        transition: 'border-color 180ms var(--ease)',
                       }}
                     >
                       <p
@@ -487,7 +487,7 @@ export function MemoryCards() {
                         letterSpacing: '0.18em',
                         textTransform: 'uppercase',
                         color: 'var(--bone-dim)',
-                        transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), color 180ms',
+                        transition: 'border-color 180ms var(--ease), color 180ms',
                       }}
                     >
                       {copied ? 'Link copied' : 'Copy share link'}
@@ -508,7 +508,7 @@ export function MemoryCards() {
                             letterSpacing: '0.18em',
                             textTransform: 'uppercase',
                             color: 'var(--bone-dim)',
-                            transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                            transition: 'border-color 180ms var(--ease)',
                           }}
                         >
                           {p}

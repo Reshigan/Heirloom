@@ -144,10 +144,10 @@ export function injectOg(response: Response, card: OgCard, canonicalUrl: string,
     `<meta name="twitter:url" content="${url}" />`;
 
   return new HTMLRewriter()
-    .on('meta[property^="og:"]', { element: (el) => el.remove() })
-    .on('meta[name^="twitter:"]', { element: (el) => el.remove() })
-    .on('title', { element: (el) => el.setInnerContent(card.title) })
-    .on('head', { element: (el) => el.append(tags, { html: true }) })
+    .on('meta[property^="og:"]', { element: (el) => { el.remove(); } })
+    .on('meta[name^="twitter:"]', { element: (el) => { el.remove(); } })
+    .on('title', { element: (el) => { el.setInnerContent(card.title); } })
+    .on('head', { element: (el) => { el.append(tags, { html: true }); } })
     .transform(response);
 }
 

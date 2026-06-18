@@ -292,7 +292,8 @@ async function markProspectAsBounced(
 
     return (result.meta?.changes || 0) > 0;
   } catch (error) {
-    console.error(`Failed to mark prospect as bounced: ${email}`, error);
+    // PII: never log the full prospect address. Log only the domain.
+    console.error(`Failed to mark prospect as bounced (domain @${email.split('@')[1] || 'unknown'})`, error);
     return false;
   }
 }
@@ -331,7 +332,9 @@ export async function processMailboxBounces(
         const bounceInfo = extractBouncedEmail(message);
         
         if (bounceInfo) {
-          console.log(`Detected bounce for: ${bounceInfo.originalRecipient} (${bounceInfo.bounceType})`);
+          // PII: never log the full recipient address. Log only the domain for diagnostics.
+          const recipientDomain = bounceInfo.originalRecipient.split('@')[1] || 'unknown';
+          console.log(`Detected bounce for recipient at domain @${recipientDomain} (${bounceInfo.bounceType})`);
           
           // Mark prospect as bounced in database
           const updated = await markProspectAsBounced(

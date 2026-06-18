@@ -7,7 +7,7 @@
 
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
-import { requestLogger } from './utils/logger';
+import { requestLogger, createLoggerWithContext } from './utils/logger';
 import { secureHeaders } from 'hono/secure-headers';
 
 // Routes - import from individual files (not routes/index.ts which has stubs)
@@ -579,9 +579,16 @@ app.get('/api/memories/file/*', async (c) => {
     return c.json({ error: 'Invalid file key format' }, 400);
   }
 
-  // Verify the key exists in the DB AND belongs to the requesting user
+  // Verify the key exists in the DB AND belongs to the requesting user.
+  // Owner-only route: requestingUserId is derived solely from the verified JWT +
+  // live KV session, and the user_id predicate scopes every result to the caller's
+  // OWN rows — no recipient/heir/public-share path reaches this query. We therefore
+  // do NOT filter deleted_at: the owner must always be able to retrieve their own
+  // bytes (append-only "nothing is lost"), so the /settings/export ZIP — which
+  // intentionally manifests soft-deleted memories — resolves cleanly. This mirrors
+  // the sibling /api/voice/file route, which has never filtered deleted_at.
   const row = await c.env.DB.prepare(
-    'SELECT id FROM memories WHERE file_key = ? AND user_id = ? AND deleted_at IS NULL LIMIT 1'
+    'SELECT id FROM memories WHERE file_key = ? AND user_id = ? LIMIT 1'
   ).bind(key, requestingUserId).first();
   if (!row) {
     return c.json({ error: 'File not found' }, 404);
@@ -919,123 +926,128 @@ export default {
   
   // Cron trigger for dead man's switch and adoption engine
   async scheduled(event: ScheduledEvent, env: Env, _ctx: ExecutionContext) {
+    // Structured cron logger — no Hono Context exists in the scheduled() scope,
+    // so use the standalone factory. Messages here are aggregate progress counts
+    // (no PII), routed through the same JSON pipeline as request logs.
+    const logger = createLoggerWithContext({ route: 'cron', cron: event.cron });
+
     // Safety guard: only run cron jobs if explicitly enabled
     if (env.CRON_ENABLED !== 'true') {
-      console.error('Cron job triggered but CRON_ENABLED is not set to "true". Skipping execution.');
+      logger.error('Cron job triggered but CRON_ENABLED is not set to "true". Skipping execution.');
       return;
     }
-    
+
     const cronType = event.cron;
     
     if (cronType === '0 9 * * *') {
       // ========== DAILY JOBS (9 AM UTC) ==========
-      console.log('Running daily jobs...');
-      
+      logger.info('Running daily jobs...');
+
       // Dead Man's Switch jobs
       await checkMissedCheckIns(env);
       await sendUpcomingCheckInReminders(env);
       await sendDailyAdminSummary(env);
-      
+
       // Adoption Engine jobs
-      console.log('Processing drip campaigns...');
+      logger.info('Processing drip campaigns...');
       const dripResult = await processDripCampaigns(env);
-      console.log(`Drip campaigns processed: ${dripResult.processed}`);
-      
-      console.log('Starting welcome campaigns for new users...');
+      logger.info(`Drip campaigns processed: ${dripResult.processed}`);
+
+      logger.info('Starting welcome campaigns for new users...');
       const welcomeResult = await startWelcomeCampaigns(env);
-      console.log(`Welcome campaigns started: ${welcomeResult.started}`);
-      
-      console.log('Processing inactive user re-engagement...');
+      logger.info(`Welcome campaigns started: ${welcomeResult.started}`);
+
+      logger.info('Processing inactive user re-engagement...');
       const inactiveResult = await processInactiveUsers(env);
-      console.log(`Inactive user campaigns started: ${inactiveResult.started}`);
-      
-      console.log('Sending date reminders (birthdays, anniversaries)...');
+      logger.info(`Inactive user campaigns started: ${inactiveResult.started}`);
+
+      logger.info('Sending date reminders (birthdays, anniversaries)...');
       const dateResult = await sendDateReminders(env);
-      console.log(`Date reminders processed: ${dateResult.processed}`);
-      
-      console.log('Processing streak maintenance...');
+      logger.info(`Date reminders processed: ${dateResult.processed}`);
+
+      logger.info('Processing streak maintenance...');
       const streakResult = await processStreakMaintenance(env);
-      console.log(`Streaks reset: ${streakResult.reset}`);
-      
-      console.log('Discovering new influencers from viral list...');
+      logger.info(`Streaks reset: ${streakResult.reset}`);
+
+      logger.info('Discovering new influencers from viral list...');
       const discoveryResult = await discoverNewProspects(env);
-      console.log(`Influencers discovered: ${discoveryResult.added} added, ${discoveryResult.skipped} skipped`);
+      logger.info(`Influencers discovered: ${discoveryResult.added} added, ${discoveryResult.skipped} skipped`);
 
       // Real platform discovery — no-ops if API keys aren't configured.
       // See REGISTRATION.md for the manual setup runbook.
-      console.log('Discovering creators on TikTok…');
+      logger.info('Discovering creators on TikTok…');
       const tiktokResult = await discoverFromTikTok(env);
-      console.log(`TikTok: ${tiktokResult.added} added, ${tiktokResult.skipped} skipped${tiktokResult.reason ? ` (${tiktokResult.reason})` : ''}`);
+      logger.info(`TikTok: ${tiktokResult.added} added, ${tiktokResult.skipped} skipped${tiktokResult.reason ? ` (${tiktokResult.reason})` : ''}`);
 
-      console.log('Discovering creators on Instagram…');
+      logger.info('Discovering creators on Instagram…');
       const igResult = await discoverFromInstagram(env);
-      console.log(`Instagram: ${igResult.added} added, ${igResult.skipped} skipped${igResult.reason ? ` (${igResult.reason})` : ''}`);
+      logger.info(`Instagram: ${igResult.added} added, ${igResult.skipped} skipped${igResult.reason ? ` (${igResult.reason})` : ''}`);
 
       // Re-scan public bios of prospects we couldn't find an email for at
       // discovery time. Many creators add a contact email later as their
       // account grows; this upgrades placeholder rows to real addresses
       // before outreach fires.
-      console.log('Enriching placeholder emails from public bios…');
+      logger.info('Enriching placeholder emails from public bios…');
       const enrichResult = await enrichPlaceholderEmails(env);
-      console.log(`Bio enrichment: ${enrichResult.upgraded} upgraded, ${enrichResult.stillPlaceholder} still placeholder`);
+      logger.info(`Bio enrichment: ${enrichResult.upgraded} upgraded, ${enrichResult.stillPlaceholder} still placeholder`);
 
       // Family-Thread time-lock resolution. Releases entries whose DATE,
       // AGE, or GENERATION conditions have matured. AUTHOR_DEATH and
       // RECIPIENT_EVENT locks have separate verification flows.
-      console.log('Resolving Thread time-locks…');
+      logger.info('Resolving Thread time-locks…');
       const lockResult = await resolveTimeLocks(env);
-      console.log(`Time-locks resolved — date:${lockResult.resolvedDate} age:${lockResult.resolvedAge} gen:${lockResult.resolvedGeneration} notifications:${lockResult.notifications}`);
-      
-      console.log('Processing influencer outreach...');
+      logger.info(`Time-locks resolved — date:${lockResult.resolvedDate} age:${lockResult.resolvedAge} gen:${lockResult.resolvedGeneration} notifications:${lockResult.notifications}`);
+
+      logger.info('Processing influencer outreach...');
       const influencerResult = await processInfluencerOutreach(env);
-      console.log(`Influencer outreach sent: ${influencerResult.sent}`);
-      
-      console.log('Processing influencer follow-ups...');
+      logger.info(`Influencer outreach sent: ${influencerResult.sent}`);
+
+      logger.info('Processing influencer follow-ups...');
       const followUpResult = await processInfluencerFollowUps(env);
-      console.log(`Influencer follow-ups sent: ${followUpResult.sent}`);
-      
-      console.log('Processing prospect outreach with trial vouchers...');
+      logger.info(`Influencer follow-ups sent: ${followUpResult.sent}`);
+
+      logger.info('Processing prospect outreach with trial vouchers...');
       const prospectResult = await processProspectOutreach(env);
-      console.log(`Prospect outreach sent: ${prospectResult.sent}, vouchers created: ${prospectResult.vouchersCreated}`);
-      
-      console.log('Sending voucher follow-ups...');
+      logger.info(`Prospect outreach sent: ${prospectResult.sent}, vouchers created: ${prospectResult.vouchersCreated}`);
+
+      logger.info('Sending voucher follow-ups...');
       const voucherFollowUpResult = await sendVoucherFollowUps(env);
-      console.log(`Voucher follow-ups sent: ${voucherFollowUpResult.sent}`);
-      
-      console.log('Processing automated influencer payouts...');
+      logger.info(`Voucher follow-ups sent: ${voucherFollowUpResult.sent}`);
+
+      logger.info('Processing automated influencer payouts...');
       const payoutResult = await processAutomatedPayouts(env);
-      console.log(`Payouts processed: ${payoutResult.processed}, total paid: $${(payoutResult.totalPaid / 100).toFixed(2)}`);
-      
+      logger.info(`Payouts processed: ${payoutResult.processed}, total paid: $${(payoutResult.totalPaid / 100).toFixed(2)}`);
+
       // At-rest encryption backfill — seals any pre-existing plaintext memory
       // descriptions once ENCRYPTION_MASTER_KEY is set. No-op when the key is
       // absent or all rows are already encrypted; converges over a few runs.
-      console.log('Backfilling memory-description encryption…');
+      logger.info('Backfilling memory-description encryption…');
       const encBackfill = await backfillMemoryDescriptionEncryption(env);
-      console.log(`Encryption backfill — encrypted:${encBackfill.encrypted} remaining:${encBackfill.remaining}${encBackfill.skipped ? ` (${encBackfill.skipped})` : ''}`);
+      logger.info(`Encryption backfill — encrypted:${encBackfill.encrypted} remaining:${encBackfill.remaining}${encBackfill.skipped ? ` (${encBackfill.skipped})` : ''}`);
 
       // GDPR Art. 17 / POPIA §23 — execute 90-day scheduled account deletions
-      console.log('Processing scheduled account deletions…');
+      logger.info('Processing scheduled account deletions…');
       const delResult = await processScheduledDeletions(env);
-      console.log(`Scheduled deletions — deleted:${delResult.deleted} errors:${delResult.errors}`);
+      logger.info(`Scheduled deletions — deleted:${delResult.deleted} errors:${delResult.errors}`);
 
-      console.log('Processing scheduled gift deliveries…');
+      logger.info('Processing scheduled gift deliveries…');
       const giftResult = await processScheduledGifts(env);
-      console.log(`Scheduled gift deliveries — delivered:${giftResult.delivered} errors:${giftResult.errors}`);
+      logger.info(`Scheduled gift deliveries — delivered:${giftResult.delivered} errors:${giftResult.errors}`);
 
       // Scheduled-letter delivery — release any SCHEDULED letter whose date has
       // arrived. Best-effort: a throw here must not abort the remaining daily jobs.
-      console.log('Processing scheduled letter deliveries…');
+      logger.info('Processing scheduled letter deliveries…');
       try {
         const letterResult = await processScheduledLetters(env);
-        console.log(`Scheduled letters — delivered:${letterResult.delivered} recipients:${letterResult.recipients} errors:${letterResult.errors}`);
+        logger.info(`Scheduled letters — delivered:${letterResult.delivered} recipients:${letterResult.recipients} errors:${letterResult.errors}`);
       } catch (e) {
-        console.error('Scheduled letter delivery error:', e);
+        logger.error('Scheduled letter delivery error:', e);
       }
 
       // Family member grace-window expiry — hard-delete members whose 7-day
       // window has closed. Associated content rows cascade via FK ON DELETE CASCADE.
       // This is what removes the thread from the cloth permanently.
-      console.log('Purging expired soft-deleted family members…');
+      logger.info('Purging expired soft-deleted family members…');
       try {
         const expired = await env.DB.prepare(`
           SELECT id FROM family_members
@@ -1049,32 +1061,32 @@ export default {
             `DELETE FROM family_members WHERE id IN (${expiredIds.map(() => '?').join(',')})`
           ).bind(...expiredIds).run();
         }
-        console.log(`Family member purge — removed:${expiredIds.length}`);
+        logger.info(`Family member purge — removed:${expiredIds.length}`);
       } catch (e) {
-        console.error('Family member purge error:', e);
+        logger.error('Family member purge error:', e);
       }
 
-      console.log('Daily jobs complete.');
+      logger.info('Daily jobs complete.');
 
     } else if (cronType === '0 20 * * *') {
       // ========== DAILY 8 PM UTC — the Listener's evening prompt ==========
       // Enqueue one prompt per opted-in subscription; the 5-minute drain
       // (processPushNotificationQueue) delivers them. Best-effort.
-      console.log('Enqueuing daily evening prompt push…');
+      logger.info('Enqueuing daily evening prompt push…');
       try {
         const promptResult = await sendPushToAllUsers(env, {
           title: 'Heirloom',
           body: 'the listener asks…\nWhat did you almost forget to write down today?',
           data: { type: 'daily_prompt', route: '/loom/pwa', tag: 'heirloom' },
         });
-        console.log(`Daily prompt push — queued:${promptResult.queuedCount}`);
+        logger.info(`Daily prompt push — queued:${promptResult.queuedCount}`);
       } catch (e) {
-        console.error('Daily prompt push error:', e);
+        logger.error('Daily prompt push error:', e);
       }
 
     } else if (cronType === '0 0 * * 0' || cronType === '0 0 * * SUN') {
       // ========== WEEKLY JOBS (Sunday midnight UTC) ==========
-      console.log('Running weekly jobs...');
+      logger.info('Running weekly jobs...');
 
       // Dead Man's Switch weekly reminders
       await sendReminderEmails(env);
@@ -1083,21 +1095,21 @@ export default {
       await sendPostReminderEmails(env);
 
       // Weekly content prompts for active users
-      console.log('Sending weekly content prompts...');
+      logger.info('Sending weekly content prompts...');
       const promptResult = await sendContentPrompts(env);
-      console.log(`Content prompts sent: ${promptResult.sent}`);
+      logger.info(`Content prompts sent: ${promptResult.sent}`);
 
       // Family-Thread continuity guarantee: weekly snapshot pinning to IPFS
       // via Web3.Storage + Pinata. No-op for any provider whose token isn't
       // configured. See /THREAD.md Pillar 5.
-      console.log('Pinning Thread snapshots to IPFS…');
+      logger.info('Pinning Thread snapshots to IPFS…');
       const pinResult = await processArchivePinning(env);
-      console.log(`Archive pinning — pinned:${pinResult.pinned} failed:${pinResult.failed} verified:${pinResult.verified} verifyFailed:${pinResult.verifyFailed}`);
+      logger.info(`Archive pinning — pinned:${pinResult.pinned} failed:${pinResult.failed} verified:${pinResult.verified} verifyFailed:${pinResult.verifyFailed}`);
 
       // Lulu Direct backstop — sync open print jobs in case webhook is down.
-      console.log('Syncing open Lulu print jobs…');
+      logger.info('Syncing open Lulu print jobs…');
       const luluResult = await syncOpenPrintJobs(env);
-      console.log(`Lulu sync: ${luluResult.updated} orders updated`);
+      logger.info(`Lulu sync: ${luluResult.updated} orders updated`);
 
       // Purge stale audit and reminder rows — prevent unbounded table growth
       await env.DB.batch([
@@ -1105,41 +1117,41 @@ export default {
         env.DB.prepare(`DELETE FROM post_reminder_emails WHERE sent_at < datetime('now', '-365 days')`),
         env.DB.prepare(`DELETE FROM notifications WHERE created_at < datetime('now', '-180 days') AND (read = 1 OR read IS NULL)`),
       ]);
-      console.log('Stale audit/reminder/notification rows purged.');
+      logger.info('Stale audit/reminder/notification rows purged.');
 
-      console.log('Weekly jobs complete.');
-      
+      logger.info('Weekly jobs complete.');
+
     } else if (cronType === '0 */12 * * *') {
       // ========== TWICE DAILY JOBS (every 12 hours) ==========
-      console.log('Running twice-daily jobs...');
-      
+      logger.info('Running twice-daily jobs...');
+
       // Regenerate AI prompts cache
-      console.log('Regenerating AI prompts cache...');
+      logger.info('Regenerating AI prompts cache...');
       await generateAndCachePrompts(env, 50);
-      console.log('AI prompts cache regenerated');
-      
+      logger.info('AI prompts cache regenerated');
+
       // Process any pending drip campaigns (catch-up for missed daily run)
-      console.log('Processing drip campaigns (catch-up)...');
+      logger.info('Processing drip campaigns (catch-up)...');
       const dripResult = await processDripCampaigns(env);
-      console.log(`Drip campaigns processed: ${dripResult.processed}`);
-      
+      logger.info(`Drip campaigns processed: ${dripResult.processed}`);
+
       // Cleanup old push notifications
-      console.log('Cleaning up old push notifications...');
+      logger.info('Cleaning up old push notifications...');
       const cleanedUp = await cleanupOldNotifications(env);
-      console.log(`Old push notifications cleaned up: ${cleanedUp}`);
-      
-      console.log('Twice-daily jobs complete.');
-      
+      logger.info(`Old push notifications cleaned up: ${cleanedUp}`);
+
+      logger.info('Twice-daily jobs complete.');
+
     } else if (cronType === '*/5 * * * *') {
       // ========== EVERY 5 MINUTES - Push Notifications + Social Posting ==========
-      console.log('Processing push notification queue...');
+      logger.info('Processing push notification queue...');
       const pushResult = await processPushNotificationQueue(env);
-      console.log(`Push notifications - processed: ${pushResult.processed}, sent: ${pushResult.sent}, failed: ${pushResult.failed}, skipped: ${pushResult.skipped}`);
-      
+      logger.info(`Push notifications - processed: ${pushResult.processed}, sent: ${pushResult.sent}, failed: ${pushResult.failed}, skipped: ${pushResult.skipped}`);
+
       // Social posting engine
-      console.log('Processing social posting queue...');
+      logger.info('Processing social posting queue...');
       const socialResult = await processSocialQueue(env);
-      console.log(`Social posts - processed: ${socialResult.processed}, published: ${socialResult.published}, failed: ${socialResult.failed}`);
+      logger.info(`Social posts - processed: ${socialResult.processed}, published: ${socialResult.published}, failed: ${socialResult.failed}`);
     }
   },
 };
@@ -1596,11 +1608,14 @@ async function sendPostReminderEmails(env: Env) {
 // ============================================
 
 async function sendDailyAdminSummary(env: Env) {
+  // Standalone logger — invoked from the cron scheduled() scope (no Hono Context).
+  // Aggregate admin counts only; no per-user PII in messages.
+  const logger = createLoggerWithContext({ route: 'cron', job: 'daily-admin-summary' });
   const adminEmail = env.ADMIN_NOTIFICATION_EMAIL;
   const resendApiKey = env.RESEND_API_KEY;
-  
+
   if (!adminEmail || !resendApiKey) {
-    console.log('Admin email or Resend API key not configured, skipping daily summary');
+    logger.info('Admin email or Resend API key not configured, skipping daily summary');
     return;
   }
   
@@ -1669,12 +1684,12 @@ async function sendDailyAdminSummary(env: Env) {
     });
     
     if (!result.success) {
-      console.error('Failed to send daily admin summary:', result.error);
+      logger.error('Failed to send daily admin summary:', result.error);
     } else {
-      console.log('Daily admin summary sent successfully');
+      logger.info('Daily admin summary sent successfully');
     }
   } catch (error) {
-    console.error('Error sending daily admin summary:', error);
+    logger.error('Error sending daily admin summary:', error);
   }
 }
 

@@ -92,7 +92,7 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
           gap: 16,
           marginBottom: 8,
           opacity: hoveredEntry ? 1 : 0,
-          transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+          transition: 'opacity 180ms var(--ease)',
           pointerEvents: hoveredEntry ? 'auto' : 'none',
         }}
       >

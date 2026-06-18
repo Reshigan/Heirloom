@@ -184,10 +184,13 @@ CREATE TABLE IF NOT EXISTS memories (
   file_key TEXT,
   file_size INTEGER DEFAULT 0,
   metadata TEXT,
+  client_key TEXT,
   deleted_at TEXT,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );
+CREATE UNIQUE INDEX IF NOT EXISTS idx_memories_client_key
+  ON memories(user_id, client_key);
 
 CREATE TABLE IF NOT EXISTS voice_recordings (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
@@ -204,6 +207,8 @@ CREATE TABLE IF NOT EXISTS voice_recordings (
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
 );
+CREATE UNIQUE INDEX IF NOT EXISTS idx_voice_recordings_client_key
+  ON voice_recordings(user_id, client_key);
 
 CREATE TABLE IF NOT EXISTS letters (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
@@ -256,7 +261,7 @@ CREATE TABLE IF NOT EXISTS voice_legacy_recipients (
 CREATE TABLE IF NOT EXISTS legacy_revisions (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  entity_type TEXT NOT NULL,
+  entity_type TEXT NOT NULL CHECK (entity_type IN ('memory', 'letter', 'voice', 'legacy_contact')),
   entity_id TEXT NOT NULL,
   snapshot TEXT,
   reason TEXT,

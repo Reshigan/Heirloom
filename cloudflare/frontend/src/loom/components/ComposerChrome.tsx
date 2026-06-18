@@ -186,7 +186,7 @@ export function ListenerLine({
             borderRadius: 0,
             background: 'var(--warm)',
             opacity: loading ? 1 : 0.55,
-            animation: loading ? 'hl-listener-pulse 1400ms cubic-bezier(0.16,1,0.3,1) infinite' : 'none',
+            animation: loading ? 'hl-listener-pulse 1400ms var(--ease) infinite' : 'none',
           }}
         />
         the listener offers

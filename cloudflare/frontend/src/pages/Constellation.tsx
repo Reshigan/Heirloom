@@ -228,6 +228,8 @@ export function Constellation() {
         {/* Centred mono eyebrow — the warm wing-sprays above it belong to the
             global ClothBackdrop (tree variant), not this page. */}
         <div
+          role="heading"
+          aria-level={1}
           style={{
             fontFamily: 'var(--serif-display)',
             fontSize: 24,
@@ -300,7 +302,7 @@ export function Constellation() {
                   style={{
                     opacity: p.lit ? 0.85 : 0.5,
                     filter: p.lit ? 'drop-shadow(0 0 6px var(--warm-glow))' : 'none',
-                    transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1), stroke 360ms cubic-bezier(0.16,1,0.3,1)',
+                    transition: 'opacity 360ms var(--ease), stroke 360ms var(--ease)',
                   }}
                 />
               ))}
@@ -415,7 +417,7 @@ export function Constellation() {
                               flex: '0 0 auto',
                               background: dye,
                               opacity: isLit ? 1 : 0.78,
-                              transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1)',
+                              transition: 'opacity 360ms var(--ease)',
                             }}
                           />
                           <span
@@ -427,7 +429,7 @@ export function Constellation() {
                               letterSpacing: '0.08em',
                               textTransform: 'uppercase',
                               color: nameColor,
-                              transition: 'color 360ms cubic-bezier(0.16,1,0.3,1)',
+                              transition: 'color 360ms var(--ease)',
                               whiteSpace: 'nowrap',
                               textAlign: 'left',
                             }}

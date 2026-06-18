@@ -98,7 +98,7 @@ export function MemoryRoom() {
     lineHeight: 1.7,
     outline: 'none',
     boxSizing: 'border-box',
-    transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+    transition: 'border-color 180ms var(--ease)',
   };
 
   if (isLoading) {
@@ -546,7 +546,7 @@ export function MemoryRoom() {
                         cursor: 'pointer',
                         background: 'transparent',
                         color: contentType === 'TEXT' ? 'var(--warm)' : 'var(--parchment-faint)',
-                        transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        transition: 'color 180ms var(--ease)',
                       }}
                     >
                       Story

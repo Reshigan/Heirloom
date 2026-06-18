@@ -471,7 +471,7 @@ export function Founder() {
                 cursor:          submitting || !name.trim() || !email.trim() ? 'not-allowed' : 'pointer',
                 opacity:         submitting || !name.trim() || !email.trim() ? 0.45 : 1,
                 alignSelf:      'flex-start',
-                transition:     'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                transition:     'opacity 180ms var(--ease)',
               }}
             >
               {submitting ? 'submitting…' : `Become a founder · ${priceDisplay} once`}

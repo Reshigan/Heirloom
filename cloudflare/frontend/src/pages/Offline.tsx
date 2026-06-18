@@ -324,7 +324,7 @@ export function Offline() {
                 minHeight: 44,
                 display: 'inline-flex',
                 alignItems: 'center',
-                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                transition: 'color 180ms var(--ease)',
               }}
             >
               hold it offline →
@@ -472,7 +472,7 @@ export function Offline() {
               minHeight: 44,
               display: 'inline-flex',
               alignItems: 'center',
-              transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+              transition: 'opacity 180ms var(--ease)',
             }}
           >
             sync · when ready →

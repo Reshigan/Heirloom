@@ -836,10 +836,10 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
   });
 
   const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <div>
-      <label style={labelStyle}>{label}</label>
+    <label style={{ display: 'block' }}>
+      <span style={labelStyle}>{label}</span>
       {children}
-    </div>
+    </label>
   );
 
   return (

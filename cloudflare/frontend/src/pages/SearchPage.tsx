@@ -108,7 +108,7 @@ export function SearchPage() {
           font-size: 11px;
           letter-spacing: 0.18em;
           text-transform: uppercase;
-          transition: color 180ms cubic-bezier(0.16,1,0.3,1);
+          transition: color 180ms var(--ease);
         }
       `}</style>
 
@@ -180,7 +180,7 @@ export function SearchPage() {
             caretColor: 'var(--warm)',
             padding: '0 0 16px',
             margin: '0 0 28px',
-            transition: 'border-bottom-color 180ms cubic-bezier(0.16,1,0.3,1)',
+            transition: 'border-bottom-color 180ms var(--ease)',
           }}
         />
 

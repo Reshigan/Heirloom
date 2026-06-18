@@ -162,7 +162,7 @@ export function AdminLogin() {
             minHeight: 44,
             cursor: loginMutation.isPending ? 'wait' : 'pointer',
             opacity: loginMutation.isPending || !email.trim() || !password.trim() ? 0.4 : 1,
-            transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+            transition: 'opacity 180ms var(--ease)',
           }}
         >
           {loginMutation.isPending ? 'Signing in…' : 'Sign in →'}

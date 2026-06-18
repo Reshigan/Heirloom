@@ -67,7 +67,10 @@ class EncryptionService {
     // Get the encrypted master key to store on server
     const encryptedMasterKey = await encryptionContext.getEncryptedMasterKey(vaultPassphrase, salt);
     
-    // Send encrypted master key to server (server never sees the actual key)
+    // NOTE: the shipped model is server-held AES-GCM at rest — NOT a
+    // zero-knowledge / client-held-key scheme. This setupEncryption() path is
+    // dead (no call sites) and is retained only as scaffolding; do not read it
+    // as the live design.
     await encryptionApi.setup({
       encryptedMasterKey: JSON.stringify(encryptedMasterKey),
       encryptionSalt: salt,

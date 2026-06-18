@@ -43,7 +43,7 @@ export function FounderWelcome() {
         style={{
           opacity: visible ? 1 : 0,
           transform: visible ? 'none' : 'translateY(12px)',
-          transition: `opacity 720ms cubic-bezier(0.16,1,0.3,1), transform 720ms cubic-bezier(0.16,1,0.3,1)`,
+          transition: `opacity 720ms var(--ease), transform 720ms var(--ease)`,
           position: 'absolute',
           inset: 0,
           display: 'flex',
@@ -187,7 +187,7 @@ export function FounderWelcome() {
               minHeight: 44,
               display: 'inline-flex',
               alignItems: 'center',
-              transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+              transition: 'opacity 180ms var(--ease)',
               marginBottom: 20,
             }}
           >

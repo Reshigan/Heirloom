@@ -79,7 +79,7 @@ const RESPONSIVE_CSS = `
   text-decoration: none;
   white-space: nowrap;
   line-height: 1.3;
-  transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
+  transition: color 360ms var(--ease);
 }
 .hl-wordaction:hover { color: var(--warm); }
 .hl-wordaction:disabled { color: var(--muted-3); cursor: default; }
@@ -111,7 +111,7 @@ const RESPONSIVE_CSS = `
   letter-spacing: 0.18em;
   color: var(--muted-3);
   white-space: nowrap;
-  transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
+  transition: color 360ms var(--ease);
 }
 .hl-statetoggle[aria-checked="true"] { color: var(--warm); }
 .hl-statetoggle:hover { color: var(--bone); }
@@ -131,7 +131,7 @@ const RESPONSIVE_CSS = `
   color: var(--warm);
   text-decoration: none;
   white-space: nowrap;
-  transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
+  transition: color 360ms var(--ease);
 }
 .hl-monoaction:hover { color: var(--warm-bright); }
 .hl-monoaction:disabled { opacity: 0.5; cursor: default; }
@@ -196,7 +196,7 @@ const RESPONSIVE_CSS = `
   text-transform: uppercase;
   text-decoration: none;
   color: var(--muted-3);
-  transition: color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1));
+  transition: color 360ms var(--ease);
 }
 .hl-signout:hover { color: var(--warm); }
 
@@ -862,21 +862,15 @@ export function Settings() {
               false. Account access is recovered the ordinary way, by password. */}
           <LedgerRow label="Encryption" hint="server-held AES-GCM · access through your account + thread membership" value={<span className="hl-wordvalue" style={{ fontStyle: 'italic' }}>At rest</span>} />
 
-          {/* Data Export — ledger row with download action + error */}
-          <div className="hl-ledgerrow" style={{ alignItems: 'flex-start' }}>
-            <span className="hl-ledgerrow-label">
-              Data Export
-              <span className="hl-ledgerrow-hint">full JSON archive of all your memories, letters, and voice</span>
-            </span>
-            <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
-              <button type="button" className="hl-wordaction hl-wordaction--warm" onClick={handleExport} disabled={exportLoading}>
-                {exportLoading ? 'Preparing…' : 'Request'}
-              </button>
-              {exportError && (
-                <span className="hl-mono" style={{ ...ERROR_STYLE, margin: 0 }}>{exportError}</span>
-              )}
-            </span>
-          </div>
+          {/* Data Export — routes to /export, the durable archive page. A raw
+              JSON dump leaves media behind auth-gated URLs that 404 once the
+              token expires; the /export ZIP inlines every file's bytes so the
+              archive is self-contained and outlives the account. */}
+          <LedgerRow
+            label="Data Export"
+            hint="a self-contained archive of every entry, letter, recording, and revision — yours to keep"
+            value={<Link to="/export" className="hl-wordaction hl-wordaction--warm">Export</Link>}
+          />
 
           {/* ════════ BILLING ════════ */}
           <SectionLabel>Billing</SectionLabel>
@@ -1023,6 +1017,9 @@ export function Settings() {
                 >
                   {exportLoading ? 'preparing…' : 'download archive now →'}
                 </button>
+                {exportError && (
+                  <p className="hl-mono" style={{ ...ERROR_STYLE, margin: '8px 0 0' }}>{exportError}</p>
+                )}
                 <br />
                 <button type="button" className="hl-monoaction hl-monoaction--quiet" style={{ marginTop: 8 }}
                   onClick={() => { logout(); navigate('/', { replace: true }); }}>

@@ -89,7 +89,7 @@ export function BottomNav() {
               lineHeight: isCenter ? 0.8 : undefined,
               letterSpacing: isCenter ? undefined : '0.2em',
               textTransform: isCenter ? undefined : 'uppercase',
-              transition: 'color 180ms cubic-bezier(0.16,1,0.3,1), border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+              transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
             }}
           >
             {isCenter ? <span aria-hidden="true">{item.label}</span> : item.label}

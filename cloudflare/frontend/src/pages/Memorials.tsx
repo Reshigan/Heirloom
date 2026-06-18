@@ -423,7 +423,7 @@ export function Memorials() {
                         textTransform: 'uppercase',
                         padding: '7px 12px',
                         cursor: 'pointer',
-                        transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1), color 180ms cubic-bezier(0.16,1,0.3,1)',
+                        transition: 'border-color 180ms var(--ease), color 180ms var(--ease)',
                       }}
                     >
                       {style.name}
@@ -474,7 +474,7 @@ export function Memorials() {
                     textTransform: 'uppercase',
                     padding: '12px 20px',
                     cursor: 'pointer',
-                    transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                    transition: 'border-color 180ms var(--ease)',
                   }}
                 >
                   cancel
@@ -639,7 +639,7 @@ export function Memorials() {
                   textTransform: 'uppercase',
                   padding: '12px 20px',
                   cursor: 'pointer',
-                  transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                  transition: 'border-color 180ms var(--ease)',
                 }}
               >
                 download QR

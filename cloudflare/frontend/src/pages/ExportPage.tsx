@@ -378,7 +378,7 @@ export function ExportPage() {
               textTransform: 'uppercase',
               cursor: bind.isPending ? 'default' : 'pointer',
               transition:
-                'color 360ms cubic-bezier(0.16,1,0.3,1), border-color 360ms cubic-bezier(0.16,1,0.3,1)',
+                'color 360ms var(--ease), border-color 360ms var(--ease)',
             }}
           >
             {bind.isPending ? 'preparing' : 'export'}
@@ -505,7 +505,7 @@ function FormatRow({
         padding: '18px 0',
         gap: 16,
         cursor: 'pointer',
-        transition: 'border-color 360ms cubic-bezier(0.16,1,0.3,1)',
+        transition: 'border-color 360ms var(--ease)',
       }}
     >
       <span

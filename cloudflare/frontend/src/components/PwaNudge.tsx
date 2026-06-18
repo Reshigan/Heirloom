@@ -156,7 +156,7 @@ export function PwaNudge() {
         pointerEvents: 'none',
         opacity: shown ? 1 : 0,
         transform: shown ? 'translateY(0)' : 'translateY(24px)',
-        transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1), transform 360ms cubic-bezier(0.16,1,0.3,1)',
+        transition: 'opacity 360ms var(--ease), transform 360ms var(--ease)',
       }}
     >
       <div

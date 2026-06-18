@@ -136,7 +136,7 @@ export function InviteCard() {
         />
         <div
           style={{
-            animation: 'hl-fadeup 720ms cubic-bezier(0.16,1,0.3,1) both',
+            animation: 'hl-fadeup 720ms var(--ease) both',
           }}
         >
           {/* Mono warm subline — eyebrow label */}

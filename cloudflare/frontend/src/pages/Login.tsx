@@ -176,7 +176,7 @@ export function Login() {
                 fontSize: 11, letterSpacing: '0.3em', textTransform: 'uppercase',
                 cursor: isLoading || !email.trim() || !password.trim() ? 'default' : 'pointer',
                 opacity: isLoading || !email.trim() || !password.trim() ? 0.45 : 1,
-                transition: 'opacity 360ms cubic-bezier(0.16,1,0.3,1), border-color 360ms cubic-bezier(0.16,1,0.3,1)',
+                transition: 'opacity 360ms var(--ease), border-color 360ms var(--ease)',
               }}
             >
               enter

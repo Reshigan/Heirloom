@@ -230,7 +230,7 @@ export function GiftPurchase() {
                       : '1px solid var(--rule)',
                     outline: 'none',
                     transition:
-                      'background 180ms cubic-bezier(0.16,1,0.3,1), border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                      'background 180ms var(--ease), border-color 180ms var(--ease)',
                   }}
                 >
                   <span
@@ -565,7 +565,7 @@ export function GiftPurchase() {
                 color: 'var(--warm)',
                 opacity: isLoading || !formData.purchaserEmail || !price ? 0.45 : 1,
                 cursor: isLoading || !formData.purchaserEmail || !price ? 'default' : 'pointer',
-                transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                transition: 'opacity 180ms var(--ease)',
               }}
             >
               {isLoading ? 'preparing checkout…' : 'seal the gift →'}

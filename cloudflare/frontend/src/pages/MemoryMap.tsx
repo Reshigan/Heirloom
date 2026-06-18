@@ -103,6 +103,8 @@ export function MemoryMap() {
         {/* Quiet mono eyebrow — the only line above the map field, per the reference.
             The standing phrase in both states; never a count. */}
         <div
+          role="heading"
+          aria-level={1}
           style={{
             fontFamily: 'var(--mono)',
             fontSize: 11,
@@ -259,7 +261,7 @@ export function MemoryMap() {
                         boxShadow: active
                           ? '0 0 14px var(--ember)'
                           : '0 0 8px var(--ember)',
-                        transition: 'width 360ms cubic-bezier(0.16,1,0.3,1), height 360ms cubic-bezier(0.16,1,0.3,1), box-shadow 360ms cubic-bezier(0.16,1,0.3,1)',
+                        transition: 'width 360ms var(--ease), height 360ms var(--ease), box-shadow 360ms var(--ease)',
                       }}
                     />
                   </button>
@@ -322,7 +324,7 @@ export function MemoryMap() {
                       letterSpacing: '0.18em',
                       textTransform: 'uppercase',
                       color: filter === f ? 'var(--warm)' : 'var(--bone-faint)',
-                      transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                      transition: 'color 180ms var(--ease)',
                     }}
                   >
                     {f === 'all' ? 'All' : f === 'memory' ? 'Memories' : f + 's'}

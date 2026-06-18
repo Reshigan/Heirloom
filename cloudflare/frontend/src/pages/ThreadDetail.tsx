@@ -335,7 +335,7 @@ export function ThreadDetail() {
                     textTransform: 'uppercase',
                     color: 'var(--bone-faint)',
                     marginBottom: inviteOpen ? 20 : 0,
-                    transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                    transition: 'color 180ms var(--ease)',
                   }}
                   onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--warm)')}
                   onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--bone-faint)')}
@@ -614,7 +614,7 @@ const ghostActionStyle: React.CSSProperties = {
   letterSpacing: '0.18em',
   textTransform: 'uppercase',
   color: 'var(--bone-faint)',
-  transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+  transition: 'color 180ms var(--ease)',
 };
 
 function FieldInput({

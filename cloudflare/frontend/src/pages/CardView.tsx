@@ -166,13 +166,12 @@ export function CardView() {
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 200);
-  // Default 1200x630 social card — the safe fallback for any non-conforming image.
-  const DEFAULT_SHARE_IMAGE = 'https://heirloom.blue/og/milestone.png';
-  // og:image must be an absolute https URL and a format scrapers decode (no avif/webp).
-  const isShareSafe = (url?: string | null): url is string =>
-    !!url && url.startsWith('https://') && !/\.(avif|webp)(\?|$)/i.test(url);
-  const metaImage = isShareSafe(card.photoUrl) ? card.photoUrl : DEFAULT_SHARE_IMAGE;
-  const usingDefaultImage = metaImage === DEFAULT_SHARE_IMAGE;
+  // PRIVACY-SAFE: the scraper-facing image is ALWAYS the static "milestone"
+  // share card — never the card's private photo. The static Pages Function
+  // governs the real unfurl (scrapers don't run JS), but pinning this to the
+  // fallback is defence-in-depth: if this route ever goes SSR, no private
+  // media can leak.
+  const metaImage = 'https://heirloom.blue/og/milestone.png';
 
   return (
     <ClothShell topbarCenter="card">
@@ -183,8 +182,8 @@ export function CardView() {
          * PRIVACY-SAFE share meta. A shared card link is reachable by anyone
          * holding it, so the scraper-facing og:* / twitter:* tags name no entry
          * and reveal no content — they reuse the static "card" share copy.
-         * The real title/quote still render on-page below; the image stays
-         * guarded by isShareSafe above.
+         * The real title/quote still render on-page below; the image is pinned
+         * to the static "milestone" card (no private photo — see metaImage).
          */}
         <meta property="og:title" content="A keepsake from a family thread." />
         <meta
@@ -199,8 +198,8 @@ export function CardView() {
         <meta property="og:type" content="article" />
         <meta property="og:url" content={window.location.href} />
         <meta property="og:image" content={metaImage} />
-        {usingDefaultImage && <meta property="og:image:width" content="1200" />}
-        {usingDefaultImage && <meta property="og:image:height" content="630" />}
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:image" content={metaImage} />
         <link rel="canonical" href={window.location.href} />

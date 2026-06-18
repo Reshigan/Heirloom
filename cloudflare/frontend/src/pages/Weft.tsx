@@ -266,8 +266,10 @@ export function Weft() {
       >
         <div style={{ width: '100%', maxWidth: 460 }}>
           {/* The design carries no large "The Thread" H1 — only a centered
-              copper eyebrow naming the bloodline and its year span. */}
-          <div style={{ textAlign: 'center' }}>
+              copper eyebrow naming the bloodline and its year span. The
+              heading role gives it screen-reader heading semantics without
+              altering the SectionLabel's visual styling. */}
+          <div role="heading" aria-level={1} style={{ textAlign: 'center' }}>
             <SectionLabel tone="copper">{eyebrow}</SectionLabel>
           </div>
 

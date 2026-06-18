@@ -75,7 +75,7 @@ function ShuttleBar() {
           inset: 0,
           width: '40%',
           background: 'var(--warm)',
-          animation: `loom-shuttle-quick 1.4s ${EASE} infinite`,
+          animation: `loom-shuttle-quick 1400ms ${EASE} infinite`,
         }}
       />
     </div>

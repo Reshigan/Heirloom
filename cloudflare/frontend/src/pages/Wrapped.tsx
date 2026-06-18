@@ -245,6 +245,8 @@ export default function Wrapped() {
 
         {/* mono eyebrow — the only line of chrome above the figures */}
         <div
+          role="heading"
+          aria-level={1}
           style={{
             fontFamily: 'var(--mono)',
             fontSize: 11,

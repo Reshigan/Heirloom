@@ -7,6 +7,7 @@ import { Hono } from 'hono';
 import type { AppEnv } from '../index';
 import { supportTicketReplyEmail, supportTicketResolvedEmail, newFeaturesAnnouncementEmail, influencerApprovedEmail, influencerRejectedEmail, partnerApprovedEmail, partnerRejectedEmail } from '../email-templates';
 import { sendEmail } from '../utils/email';
+import { createLogger } from '../utils/logger';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processEmailBounces } from '../jobs/adoption-jobs';
 
 export const adminRoutes = new Hono<AppEnv>();
@@ -1312,7 +1313,7 @@ adminRoutes.post('/emails/product-update', adminAuth, async (c) => {
         sentCount++;
       } else {
         failedCount++;
-        console.error('Failed to send product update email to', user.email);
+        console.error('Failed to send product update email to recipient at domain', `@${String(user.email).split('@')[1] || 'unknown'}`);
       }
     } catch (err) {
       failedCount++;
@@ -1581,7 +1582,7 @@ adminRoutes.post('/billing/notify-all-failed', adminAuth, async (c) => {
       
       notifiedCount++;
     } catch (err) {
-      console.error('Failed to notify user:', error.email, err);
+      console.error('Failed to notify user for billing error:', error.id, err);
     }
   }
   
@@ -1816,7 +1817,7 @@ adminRoutes.post('/notifications/new-features', adminAuth, async (c) => {
           notificationsCreated++;
         }
       } catch (err) {
-        console.error('Failed to create notification for user:', user.email, err);
+        console.error('Failed to create notification for user:', user.id, err);
       }
     }
     
@@ -1836,7 +1837,7 @@ adminRoutes.post('/notifications/new-features', adminAuth, async (c) => {
           emailsFailed++;
         }
       } catch (err) {
-        console.error('Failed to send email to user:', user.email, err);
+        console.error('Failed to send email to user:', user.id, err);
         emailsFailed++;
       }
     }
@@ -2265,107 +2266,108 @@ adminRoutes.get('/analytics/marketing', adminAuth, async (c) => {
 // ============================================
 
 adminRoutes.post('/run-adoption-jobs', adminAuth, async (c) => {
+  const logger = createLogger(c);
   const results: Record<string, any> = {};
   const errors: string[] = [];
-  
+
   try {
-    console.log('Running adoption jobs manually...');
-    
+    logger.info('Running adoption jobs manually');
+
     // 1. Process drip campaigns
     try {
       const dripResult = await processDripCampaigns(c.env);
       results.dripCampaigns = dripResult;
-      console.log(`Drip campaigns processed: ${dripResult.processed}`);
+      logger.info('Drip campaigns processed', { processed: dripResult.processed });
     } catch (e: any) {
       errors.push(`Drip campaigns: ${e.message}`);
     }
-    
+
     // 2. Start welcome campaigns for new users
     try {
       const welcomeResult = await startWelcomeCampaigns(c.env);
       results.welcomeCampaigns = welcomeResult;
-      console.log(`Welcome campaigns started: ${welcomeResult.started}`);
+      logger.info('Welcome campaigns started', { started: welcomeResult.started });
     } catch (e: any) {
       errors.push(`Welcome campaigns: ${e.message}`);
     }
-    
+
     // 3. Process inactive user re-engagement
     try {
       const inactiveResult = await processInactiveUsers(c.env);
       results.inactiveUsers = inactiveResult;
-      console.log(`Inactive user campaigns started: ${inactiveResult.started}`);
+      logger.info('Inactive user campaigns started', { started: inactiveResult.started });
     } catch (e: any) {
       errors.push(`Inactive users: ${e.message}`);
     }
-    
+
     // 4. Send date reminders (birthdays, anniversaries)
     try {
       const dateResult = await sendDateReminders(c.env);
       results.dateReminders = dateResult;
-      console.log(`Date reminders processed: ${dateResult.processed}`);
+      logger.info('Date reminders processed', { processed: dateResult.processed });
     } catch (e: any) {
       errors.push(`Date reminders: ${e.message}`);
     }
-    
+
     // 5. Process streak maintenance
     try {
       const streakResult = await processStreakMaintenance(c.env);
       results.streakMaintenance = streakResult;
-      console.log(`Streaks reset: ${streakResult.reset}`);
+      logger.info('Streaks reset', { reset: streakResult.reset });
     } catch (e: any) {
       errors.push(`Streak maintenance: ${e.message}`);
     }
-    
+
     // 6. Process influencer outreach
     try {
       const influencerResult = await processInfluencerOutreach(c.env);
       results.influencerOutreach = influencerResult;
-      console.log(`Influencer outreach sent: ${influencerResult.sent}`);
+      logger.info('Influencer outreach sent', { sent: influencerResult.sent });
     } catch (e: any) {
       errors.push(`Influencer outreach: ${e.message}`);
     }
-    
+
     // 7. Process prospect outreach with trial vouchers
     try {
       const prospectResult = await processProspectOutreach(c.env);
       results.prospectOutreach = prospectResult;
-      console.log(`Prospect outreach sent: ${prospectResult.sent}, vouchers created: ${prospectResult.vouchersCreated}`);
+      logger.info('Prospect outreach sent', { sent: prospectResult.sent, vouchersCreated: prospectResult.vouchersCreated });
     } catch (e: any) {
       errors.push(`Prospect outreach: ${e.message}`);
     }
-    
+
     // 8. Send voucher follow-ups
     try {
       const voucherFollowUpResult = await sendVoucherFollowUps(c.env);
       results.voucherFollowUps = voucherFollowUpResult;
-      console.log(`Voucher follow-ups sent: ${voucherFollowUpResult.sent}`);
+      logger.info('Voucher follow-ups sent', { sent: voucherFollowUpResult.sent });
     } catch (e: any) {
       errors.push(`Voucher follow-ups: ${e.message}`);
     }
-    
+
     // 9. Send content prompts
     try {
       const promptResult = await sendContentPrompts(c.env);
       results.contentPrompts = promptResult;
-      console.log(`Content prompts sent: ${promptResult.sent}`);
+      logger.info('Content prompts sent', { sent: promptResult.sent });
     } catch (e: any) {
       errors.push(`Content prompts: ${e.message}`);
     }
-    
+
     // 10. Discover new prospects from curated list
     try {
       const discoveryResult = await discoverNewProspects(c.env);
       results.prospectDiscovery = discoveryResult;
-      console.log(`Prospects discovered: ${discoveryResult.added} added, ${discoveryResult.skipped} skipped`);
+      logger.info('Prospects discovered', { added: discoveryResult.added, skipped: discoveryResult.skipped });
     } catch (e: any) {
       errors.push(`Prospect discovery: ${e.message}`);
     }
-    
-    console.log('Adoption jobs complete.');
-    
+
+    logger.info('Adoption jobs complete');
+
     // Log audit action
     await logAuditAction(c.env, c.get('adminId'), 'RUN_ADOPTION_JOBS', { results, errors });
-    
+
     return c.json({
       success: true,
       message: 'Adoption jobs executed',
@@ -2373,7 +2375,7 @@ adminRoutes.post('/run-adoption-jobs', adminAuth, async (c) => {
       errors: errors.length > 0 ? errors : undefined,
     });
   } catch (error: any) {
-    console.error('Error running adoption jobs:', error);
+    logger.error('Error running adoption jobs', error);
     return c.json({ error: 'Failed to run adoption jobs' }, 500);
   }
 });

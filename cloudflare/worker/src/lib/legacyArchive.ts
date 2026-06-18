@@ -104,7 +104,7 @@ export async function readDescription(
 }
 
 // ── append-only history + grace window ──────────────────────────────────────
-export type LegacyEntity = 'memory' | 'letter' | 'voice';
+export type LegacyEntity = 'memory' | 'letter' | 'voice' | 'legacy_contact';
 
 /** Append a snapshot of the prior values to the immutable revision log. */
 export async function recordRevision(

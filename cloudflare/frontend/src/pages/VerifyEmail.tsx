@@ -123,7 +123,7 @@ export function VerifyEmail() {
                   textTransform: 'uppercase',
                   borderBottom: '1px solid var(--warm)',
                   paddingBottom: 2,
-                  transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                  transition: 'opacity 180ms var(--ease)',
                 }}
                 onMouseEnter={e => (e.currentTarget.style.opacity = '0.7')}
                 onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
@@ -164,7 +164,7 @@ export function VerifyEmail() {
                   alignItems: 'center',
                   minHeight: 44,
                   opacity: isResending ? 0.5 : 1,
-                  transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                  transition: 'opacity 180ms var(--ease)',
                 }}
                 onMouseEnter={e => { if (!isResending) e.currentTarget.style.opacity = '0.7'; }}
                 onMouseLeave={e => { if (!isResending) e.currentTarget.style.opacity = '1'; }}
@@ -254,7 +254,7 @@ export function VerifyEmail() {
                   alignItems: 'center',
                   minHeight: 44,
                   opacity: isResending ? 0.5 : 1,
-                  transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                  transition: 'opacity 180ms var(--ease)',
                 }}
                 onMouseEnter={e => { if (!isResending) e.currentTarget.style.opacity = '0.7'; }}
                 onMouseLeave={e => { if (!isResending) e.currentTarget.style.opacity = '1'; }}

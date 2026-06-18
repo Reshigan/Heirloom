@@ -1,0 +1,28 @@
+{
+  // Typecheck the Cloudflare Pages Functions tree (functions/) — the static OG
+  // injection layer that governs share-link unfurls. This sits OUTSIDE the
+  // app's src tsconfig (different globals: PagesFunction, HTMLRewriter, the
+  // Workers Response/Request) so it gets its own root.
+  //
+  // Requires `@cloudflare/workers-types` (provides the PagesFunction /
+  // HTMLRewriter globals named below) — now a devDependency of this package.
+  // WIRED into the build gate: package.json `build` runs
+  // `tsc -p functions/tsconfig.json` between the app tsc and vite build, so a
+  // type error in the share-unfurl layer fails CI instead of shipping silently.
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "lib": ["ES2020"],
+    "moduleResolution": "bundler",
+    "types": ["@cloudflare/workers-types"],
+    "strict": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["."]
+}

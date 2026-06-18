@@ -112,7 +112,7 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
         paddingLeft: 14,
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(10px)',
-        transition: `opacity 720ms cubic-bezier(0.16,1,0.3,1) ${delay}ms, transform 720ms cubic-bezier(0.16,1,0.3,1) ${delay}ms`,
+        transition: `opacity 720ms var(--ease) ${delay}ms, transform 720ms var(--ease) ${delay}ms`,
       }}
     >
       {/* The ledger row — click toggles the entry open. Mirrors EntryRow's
@@ -217,7 +217,7 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
 
           {editing ? (
             <div>
-              <textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows={6} autoFocus
+              <textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows={6} autoFocus aria-label="Edit memory text"
                 style={{ width: '100%', maxWidth: 640, background: 'transparent', border: '1px solid var(--rule)', borderRadius: 0, color: 'var(--bone)', caretColor: 'var(--warm)', fontFamily: 'var(--serif)', fontSize: 17, lineHeight: 1.75, padding: '10px 12px', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
               <div style={{ display: 'flex', gap: 18, marginTop: 12, alignItems: 'center' }}>
                 <button type="button" onClick={() => updateMut.mutate()} disabled={updateMut.isPending}
@@ -348,22 +348,22 @@ function FilterBar({ memories, filters, setFilters }: {
           style={{ ...selectStyle, minWidth: 130 }}
         />
 
-        <select value={filters.type} onChange={e => setFilters({ ...filters, type: e.target.value })} style={selectStyle}>
+        <select aria-label="Filter by type" value={filters.type} onChange={e => setFilters({ ...filters, type: e.target.value })} style={selectStyle}>
           {ENTRY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
 
-        <select value={filters.year} onChange={e => setFilters({ ...filters, year: e.target.value })} style={selectStyle}>
+        <select aria-label="Filter by year" value={filters.year} onChange={e => setFilters({ ...filters, year: e.target.value })} style={selectStyle}>
           <option value="">all years</option>
           {years.map(y => <option key={y} value={String(y)}>{y}</option>)}
         </select>
 
-        <select value={filters.month} onChange={e => setFilters({ ...filters, month: e.target.value })} style={selectStyle}>
+        <select aria-label="Filter by month" value={filters.month} onChange={e => setFilters({ ...filters, month: e.target.value })} style={selectStyle}>
           <option value="">all months</option>
           {MONTHS.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
         </select>
 
         {people.length > 0 && (
-          <select value={filters.person} onChange={e => setFilters({ ...filters, person: e.target.value })} style={selectStyle}>
+          <select aria-label="Filter by person" value={filters.person} onChange={e => setFilters({ ...filters, person: e.target.value })} style={selectStyle}>
             <option value="">all people</option>
             {people.map(p => <option key={p} value={p}>{p}</option>)}
           </select>
@@ -511,6 +511,8 @@ export function Memories() {
       {!isLoading && !isError && allMemories.length > 0 && (
         <div style={{ padding: 'clamp(40px, 8vw, 72px) var(--page-pad-x) 0' }}>
           <div
+            role="heading"
+            aria-level={1}
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 11,
@@ -542,6 +544,8 @@ export function Memories() {
       {!isLoading && !isError && allMemories.length === 0 && (
         <div style={{ padding: 'clamp(40px, 8vw, 80px) var(--page-pad-x)' }}>
           <p
+            role="heading"
+            aria-level={1}
             style={{ fontFamily: 'var(--serif-display)', fontSize: 'clamp(28px, 5vw, 40px)', fontWeight: 500, color: 'var(--bone)', lineHeight: 1.2, margin: '0 0 12px' }}
           >
             The cloth has not yet been woven.

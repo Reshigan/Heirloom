@@ -54,7 +54,7 @@ export function ViewToggle<T extends string>({
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: active ? 'var(--warm)' : 'var(--bone-dim)',
-                transition: 'color 180ms cubic-bezier(0.16,1,0.3,1)',
+                transition: 'color 180ms var(--ease)',
               }}
             >
               {opt.label}

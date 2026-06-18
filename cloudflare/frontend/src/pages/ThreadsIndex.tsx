@@ -159,7 +159,7 @@ export function ThreadsIndex() {
                 letterSpacing: '0.14em',
                 textTransform: 'uppercase',
                 color: 'var(--warm)',
-                transition: 'color 360ms var(--ease, cubic-bezier(0.16,1,0.3,1))',
+                transition: 'color 360ms var(--ease)',
               }}
             >
               Begin a new thread

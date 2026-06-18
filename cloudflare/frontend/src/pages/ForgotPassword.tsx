@@ -122,7 +122,7 @@ export function ForgotPassword() {
                       textTransform: 'uppercase',
                       color: 'var(--bone-faint)',
                       opacity: isLoading ? 0.4 : 1,
-                      transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                      transition: 'opacity 180ms var(--ease)',
                       minHeight: 44,
                     }}
                   >
@@ -205,7 +205,7 @@ export function ForgotPassword() {
                     marginBottom: 32,
                     textAlign: 'center',
                     boxSizing: 'border-box',
-                    transition: 'border-color 180ms cubic-bezier(0.16,1,0.3,1)',
+                    transition: 'border-color 180ms var(--ease)',
                   }}
                   onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
                   onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
@@ -244,7 +244,7 @@ export function ForgotPassword() {
                     textTransform: 'uppercase',
                     color: 'var(--warm)',
                     opacity: isLoading || !email.trim() ? 0.4 : 1,
-                    transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+                    transition: 'opacity 180ms var(--ease)',
                     textAlign: 'center',
                   }}
                 >

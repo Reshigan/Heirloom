@@ -155,7 +155,7 @@ export function RecipientExperience() {
           textTransform: 'uppercase',
           color: 'var(--warm)',
           textDecoration: 'none',
-          transition: 'opacity 180ms cubic-bezier(0.16,1,0.3,1)',
+          transition: 'opacity 180ms var(--ease)',
         }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLAnchorElement).style.opacity = '0.75';

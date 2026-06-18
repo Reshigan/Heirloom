@@ -548,6 +548,7 @@ function EntryDateField({
           type="date"
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          aria-label="Entry date"
           style={{
             position: 'absolute',
             inset: 0,
@@ -1342,6 +1343,8 @@ export function Compose() {
           >
             <div style={{ flex: '1 1 260px', minWidth: 0 }}>
               <p
+                role="heading"
+                aria-level={1}
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
@@ -1549,7 +1552,7 @@ export function Compose() {
                             height: 2,
                             width: `${im.progress}%`,
                             background: 'var(--warm)',
-                            transition: 'width 180ms cubic-bezier(0.16,1,0.3,1)',
+                            transition: 'width 180ms var(--ease)',
                           }}
                         />
                       )}

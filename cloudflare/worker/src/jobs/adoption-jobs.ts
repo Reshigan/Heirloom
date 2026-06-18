@@ -1227,7 +1227,7 @@ export async function processInfluencerOutreach(env: Env) {
       
       sent++;
     } catch (error) {
-      console.error(`Error sending outreach to ${influencer.email}:`, error);
+      console.error(`Error sending outreach to influencer ${influencer.id}:`, error);
     }
   }
   
@@ -1308,7 +1308,7 @@ export async function processProspectOutreach(env: Env) {
       
       sent++;
     } catch (error) {
-      console.error(`Error sending prospect outreach to ${prospect.email}:`, error);
+      console.error(`Error sending prospect outreach to prospect ${prospect.id}:`, error);
     }
   }
   
@@ -1365,7 +1365,7 @@ export async function sendVoucherFollowUps(env: Env) {
       
       sent++;
     } catch (error) {
-      console.error(`Error sending voucher follow-up to ${voucher.recipient_email}:`, error);
+      console.error(`Error sending voucher follow-up for voucher ${voucher.id}:`, error);
     }
   }
   
@@ -1434,7 +1434,7 @@ export async function sendContentPrompts(env: Env) {
       
       sent++;
     } catch (error) {
-      console.error(`Error sending content prompt to ${user.email}:`, error);
+      console.error(`Error sending content prompt to user ${user.id}:`, error);
     }
   }
   
@@ -1553,7 +1553,7 @@ export async function processAutomatedPayouts(env: Env) {
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       errors.push(`${influencer.email}: ${errorMessage}`);
-      console.error(`Error processing payout for ${influencer.email}:`, error);
+      console.error(`Error processing payout for influencer ${influencer.id}:`, error);
       
       // Record failed payout attempt
       await env.DB.prepare(`
@@ -2317,7 +2317,8 @@ export async function processEmailBounces(env: Env, mailboxEmail: string): Promi
     console.log(`Bounce detection complete: ${results.bounced} bounces detected out of ${results.processed} messages`);
     
     if (results.bounced > 0) {
-      console.log(`Bounced emails removed from prospect list: ${results.emails.join(', ')}`);
+      // PII: never log the bounced address list. Log only the count.
+      console.log(`Bounced emails removed from prospect list: ${results.emails.length}`);
     }
     
     return results;
