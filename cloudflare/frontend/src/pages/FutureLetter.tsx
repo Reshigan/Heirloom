@@ -207,7 +207,7 @@ export function FutureLetter() {
         <div
           style={{
             textAlign: 'left',
-            borderRadius: 14,
+            borderRadius: 0,
             border: '1px solid var(--rule)',
             background: 'color-mix(in srgb, var(--bone) 3%, var(--ink))',
             boxShadow: '0 0 60px -28px color-mix(in srgb, var(--warm) 60%, transparent)',

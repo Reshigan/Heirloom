@@ -849,7 +849,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
       position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
       // Dark gilt volume card — the descendant opens a bound, gilded book.
       background: 'linear-gradient(160deg, #1c160f, #120d08)',
-      border: '1px solid #b9772f', borderRadius: 6,
+      border: '1px solid #b9772f', borderRadius: 0,
       boxShadow: '0 0 30px rgba(216,150,84,0.35), inset 0 0 40px rgba(0,0,0,0.6)',
       color: 'var(--text-warm)', overflow: 'hidden',
     }}>

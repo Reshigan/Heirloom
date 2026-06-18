@@ -38,6 +38,12 @@ interface HoldingEntry {
   // backward-compat — entries written before this field existed have no
   // accountId and are treated as legacy/unowned (one-time migration, see ownsEntry).
   accountId?: string;
+  // Stable idempotency key minted at hold time. Replayed verbatim on drain so a
+  // dropped reconnect response can't double-post: the worker dedups against the
+  // row it may already hold. Optional for backward-compat — entries written
+  // before this field existed are backfilled with a stable key on read (see
+  // readQueue), so a retry of the same held entry reuses the SAME key.
+  clientKey?: string;
 }
 
 /**
@@ -52,12 +58,48 @@ function ownsEntry(e: HoldingEntry, accountId: string | null): boolean {
 
 const DYES = ['walnut', 'weld', 'saffron', 'woad', 'madder'] as const;
 
+/**
+ * uuid — a stable idempotency key. Prefers crypto.randomUUID(); falls back to a
+ * timestamp+random token when crypto is unavailable (older webviews/private
+ * modes) so a held note always gets a key. Mirrors voiceOfflineQueue.uuid.
+ */
+function uuid(): string {
+  try {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+  } catch {
+    /* fall through to the fallback below */
+  }
+  return `hn_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
+}
+
 function readQueue(): HoldingEntry[] {
   try {
     const raw = localStorage.getItem(QUEUE_KEY);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    // Backfill a stable clientKey onto any legacy entry that predates the field,
+    // then persist so the SAME key is reused across every later retry/read of
+    // that held entry (the worker dedups on it). Only write back if we changed
+    // something, to avoid a needless localStorage write on every read.
+    let mutated = false;
+    const entries = (parsed as HoldingEntry[]).map((e) => {
+      if (e && typeof e === 'object' && !e.clientKey) {
+        mutated = true;
+        return { ...e, clientKey: uuid() };
+      }
+      return e;
+    });
+    if (mutated) {
+      try {
+        localStorage.setItem(QUEUE_KEY, JSON.stringify(entries));
+      } catch {
+        /* quota / private mode — the in-memory keys still hold for this drain */
+      }
+    }
+    return entries;
   } catch {
     return [];
   }
@@ -143,6 +185,9 @@ export function Offline() {
       text,
       at: Date.now(),
       dye: DYES[queue.length % DYES.length],
+      // Mint a stable idempotency key now, persist it on the entry, and replay it
+      // verbatim on drain so a dropped reconnect response can't double-post.
+      clientKey: uuid(),
       // Stamp ownership so a reconnect can never sync this note into a
       // different account on a shared device (null when not authed offline).
       ...(userId ? { accountId: userId } : {}),
@@ -602,6 +647,10 @@ function useSyncHoldingQueue(online: boolean): { triggerSync: () => void } {
             type: 'TEXT',
             title: 'offline note',
             description: entry.text,
+            // Idempotency: replay the key minted at hold time so a dropped
+            // reconnect response can't double-post (readQueue backfills this for
+            // legacy entries, so the same held entry retries with the SAME key).
+            clientKey: entry.clientKey ?? uuid(),
             metadata: { offline: true, offlineAt: entry.at, dye: entry.dye },
           });
           return entry.id;

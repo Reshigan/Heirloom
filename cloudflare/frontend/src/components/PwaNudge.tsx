@@ -272,9 +272,9 @@ export function PwaNudge() {
                 onClick={onInstall}
                 disabled={busy}
                 style={{
-                  background: 'var(--warm, #e0a062)',
-                  color: '#0b0907',
-                  border: 0,
+                  background: 'transparent',
+                  color: 'var(--warm, #e0a062)',
+                  border: '1px solid var(--warm, #e0a062)',
                   borderRadius: 0,
                   padding: '9px 20px',
                   fontFamily: 'var(--mono, "Space Mono", monospace)',
@@ -295,9 +295,9 @@ export function PwaNudge() {
                 onClick={onEnableNotify}
                 disabled={busy}
                 style={{
-                  background: 'var(--warm, #e0a062)',
-                  color: '#0b0907',
-                  border: 0,
+                  background: 'transparent',
+                  color: 'var(--warm, #e0a062)',
+                  border: '1px solid var(--warm, #e0a062)',
                   borderRadius: 0,
                   padding: '9px 20px',
                   fontFamily: 'var(--mono, "Space Mono", monospace)',

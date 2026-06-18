@@ -152,7 +152,7 @@ export function AdminLogin() {
             width: '100%',
             background: 'transparent',
             border: '1px solid var(--warm)',
-            borderRadius: 999,
+            borderRadius: 0,
             color: 'var(--warm)',
             fontFamily: 'var(--mono)',
             fontSize: 11,

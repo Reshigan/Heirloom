@@ -111,18 +111,19 @@ export function Threshold() {
             style={{
               width: '100%',
               padding: '16px 24px',
-              background: 'var(--warm)',
-              border: 'none',
-              color: 'var(--ink)',
+              background: 'transparent',
+              border: '1px solid var(--warm)',
+              borderRadius: 0,
+              color: 'var(--warm)',
               fontFamily: 'var(--mono)',
               fontSize: 12,
               letterSpacing: '0.3em',
               textTransform: 'uppercase',
               cursor: 'pointer',
-              transition: 'background 180ms var(--ease)',
+              transition: 'border-color 180ms var(--ease), color 180ms var(--ease)',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--warm-bright)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--warm)'; }}
+            onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--warm-bright)'; e.currentTarget.style.color = 'var(--warm-bright)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--warm)'; e.currentTarget.style.color = 'var(--warm)'; }}
           >
             enter
           </button>

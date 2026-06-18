@@ -379,7 +379,6 @@ export function PhotoQuick() {
                 className="hl-btn"
                 style={{
                   marginLeft: 'auto',
-                  borderRadius: 999,
                   cursor: canSave ? 'pointer' : 'default',
                   opacity: canSave ? 1 : 0.45,
                 }}

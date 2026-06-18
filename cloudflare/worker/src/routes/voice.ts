@@ -592,6 +592,46 @@ voiceRoutes.delete('/:id', async (c) => {
   return c.body(null, 204);
 });
 
+// Restore a soft-deleted voice recording within the same 7-day grace window
+// family.ts uses. Inverse of the DELETE above: flips deleted_at back to NULL,
+// scoped to the owner, and returns the restored row.
+voiceRoutes.patch('/:id/restore', async (c) => {
+  const userId = c.get('userId');
+  const recordingId = c.req.param('id');
+
+  const existing = await c.env.DB.prepare(`
+    SELECT * FROM voice_recordings
+    WHERE id = ? AND user_id = ? AND deleted_at IS NOT NULL
+      AND deleted_at > datetime('now', '-7 days')
+  `).bind(recordingId, userId).first();
+
+  if (!existing) {
+    return c.json({ error: 'Voice recording not found or grace period expired' }, 404);
+  }
+
+  const now = new Date().toISOString();
+  await c.env.DB.prepare(`
+    UPDATE voice_recordings SET deleted_at = NULL, deleted_reason = NULL, updated_at = ? WHERE id = ?
+  `).bind(now, recordingId).run();
+
+  const recording = await c.env.DB.prepare(`
+    SELECT * FROM voice_recordings WHERE id = ?
+  `).bind(recordingId).first();
+
+  return c.json({
+    id: recording?.id,
+    title: recording?.title,
+    description: recording?.description,
+    fileUrl: recording?.file_url,
+    fileKey: recording?.file_key,
+    duration: recording?.duration,
+    transcript: recording?.transcript,
+    emotion: recording?.emotion,
+    createdAt: recording?.created_at,
+    updatedAt: recording?.updated_at,
+  });
+});
+
 // ============================================
 // VOICE TRANSCRIPTION (Whisper)
 // ============================================

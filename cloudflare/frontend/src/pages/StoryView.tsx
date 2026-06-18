@@ -121,7 +121,7 @@ export function StoryView() {
     .trim()
     .slice(0, 200);
   // Default 1200x630 social card — the safe fallback for any non-conforming image.
-  const DEFAULT_SHARE_IMAGE = 'https://heirloom.blue/woven/seal.png';
+  const DEFAULT_SHARE_IMAGE = 'https://heirloom.blue/og/entry.png';
   // og:image must be an absolute https URL and a format scrapers decode (no avif/webp).
   const isShareSafe = (url?: string | null): url is string =>
     !!url && url.startsWith('https://') && !/\.(avif|webp)(\?|$)/i.test(url);

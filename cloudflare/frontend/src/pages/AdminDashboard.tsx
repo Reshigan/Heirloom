@@ -239,7 +239,7 @@ export function AdminDashboard() {
 
   return (
     <AppFrame width="wide">
-      {/* Admin topbar — "admin · {section}" + zero-knowledge assurance */}
+      {/* Admin topbar — "admin · {section}" + encryption-at-rest assurance */}
       <AdminBar section={activeSection} email={admin.email} role={admin.role} onLogout={handleLogout} />
 
       {/* Giant serif console title — the LABEL-VALUE page head; eyebrow carries live counts */}
@@ -250,7 +250,7 @@ export function AdminDashboard() {
             : 'THE LOOM-KEEPER’S CONSOLE'
         }
         title="Admin"
-        sub="Operations, members, and the ledger’s reverse. Zero-knowledge — entries cannot be read."
+        sub="Operations, members, and the ledger’s reverse. Entry content is encrypted at rest; we never read prose as a matter of policy."
       />
 
       {/* Tab strip — lowercase mono section nav */}
@@ -599,16 +599,16 @@ export function AdminDashboard() {
             </Panel>
 
             <Panel>
-              <p className="loom-eyebrow" style={{ color: 'var(--warm)', marginBottom: 12 }}>Zero-Knowledge Architecture</p>
+              <p className="loom-eyebrow" style={{ color: 'var(--warm)', marginBottom: 12 }}>Encryption Architecture</p>
               <p className="loom-body" style={{ fontSize: 14, color: 'var(--bone-dim)', marginBottom: 12 }}>
-                Heirloom uses true zero-knowledge encryption. User data is encrypted client-side using AES-256-GCM before upload. The server never sees plaintext content.
+                Heirloom encrypts entry content at rest with server-side AES-256-GCM. This is not zero-knowledge or end-to-end: the platform holds the keys, so a family never loses its archive to a forgotten password.
               </p>
               <ul style={{ margin: 0, padding: '0 0 0 16px', display: 'flex', flexDirection: 'column', gap: 4 }}>
                 {[
-                  'Encryption keys are derived from user passphrases using PBKDF2 (100,000 iterations)',
-                  'Master keys are encrypted before storage — we cannot decrypt them',
-                  'Shamir Secret Sharing allows key recovery through trusted contacts',
-                  'All encryption/decryption happens in the browser',
+                  'Entry content is encrypted at rest with AES-256-GCM',
+                  'Keys are held server-side under operational controls — we never read prose as a matter of policy',
+                  'Access is gated by account and thread membership, not by a client-held key',
+                  'Account access is recovered the ordinary way, by password',
                 ].map((item) => (
                   <li key={item} className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>{item}</li>
                 ))}
@@ -1140,7 +1140,7 @@ export function AdminDashboard() {
   );
 }
 
-// ─── AdminBar — admin topbar: "admin · {section}" + zero-knowledge assurance ──
+// ─── AdminBar — admin topbar: "admin · {section}" + encryption-at-rest assurance ──
 function AdminBar({ section, email, role, onLogout }: { section: string; email: string; role: string; onLogout: () => void }) {
   return (
     <div
@@ -1156,7 +1156,7 @@ function AdminBar({ section, email, role, onLogout }: { section: string; email: 
         <span style={{ textTransform: 'lowercase' }}>admin · {section}</span>
       </span>
       <span className="loom-mono" style={{ fontSize: 10, letterSpacing: '0.14em', color: 'var(--bone-faint)', textTransform: 'lowercase' }}>
-        role · <b style={{ color: 'var(--warm)', fontWeight: 400 }}>{role?.toLowerCase()}</b> · zero-knowledge · cannot read entries
+        role · <b style={{ color: 'var(--warm)', fontWeight: 400 }}>{role?.toLowerCase()}</b> · encrypted at rest · prose not read
       </span>
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 22 }}>
         <span className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{email}</span>
@@ -1563,7 +1563,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
   return (
     <ModalShell onClose={onClose} title="Manage User">
       <InlineStatus status={status} />
-      {/* User metadata — zero-knowledge: no content, only status */}
+      {/* User metadata — status and identifiers only, never entry content */}
       <div style={{ marginBottom: 24, padding: 16, background: 'var(--ink)', border: '1px solid var(--rule)' }}>
         <div style={{ marginBottom: 12 }}>
           <div style={{ color: 'var(--bone)', fontSize: 15, marginBottom: 2 }}>{user.firstName} {user.lastName}</div>

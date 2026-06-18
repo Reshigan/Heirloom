@@ -148,7 +148,7 @@ export function BookPage() {
           style={{
             background: 'transparent',
             border: '1px solid var(--warm)',
-            borderRadius: 999,
+            borderRadius: 0,
             padding: '15px 56px',
             cursor: 'pointer',
             fontSize: 11,

@@ -442,7 +442,7 @@ deadmanRoutes.post('/test-trigger', async (c) => {
   
   // Get legacy contacts
   const contacts = await c.env.DB.prepare(`
-    SELECT * FROM legacy_contacts WHERE user_id = ?
+    SELECT * FROM legacy_contacts WHERE user_id = ? AND deleted_at IS NULL
   `).bind(userId).all();
   
   // Get sealed letters

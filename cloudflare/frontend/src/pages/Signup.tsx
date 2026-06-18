@@ -505,7 +505,7 @@ export function Signup() {
               color: 'var(--bone-faint)',
             }}
           >
-            encrypted in browser · key escrow · 2 of 3 contacts
+            encrypted at rest · server-held aes-gcm · access through your account
           </div>
         </div>
       </div>

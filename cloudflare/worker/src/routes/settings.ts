@@ -519,7 +519,7 @@ settingsRoutes.get('/legacy-contacts', async (c) => {
   const userId = c.get('userId');
   
   const contacts = await c.env.DB.prepare(`
-    SELECT * FROM legacy_contacts WHERE user_id = ? ORDER BY created_at ASC
+    SELECT * FROM legacy_contacts WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at ASC
   `).bind(userId).all();
   
   return c.json(contacts.results.map((contact: any) => ({
@@ -610,7 +610,7 @@ settingsRoutes.post('/legacy-contacts/:id/resend', async (c) => {
     SELECT lc.*, u.first_name, u.last_name
     FROM legacy_contacts lc
     JOIN users u ON u.id = lc.user_id
-    WHERE lc.id = ? AND lc.user_id = ?
+    WHERE lc.id = ? AND lc.user_id = ? AND lc.deleted_at IS NULL
   `).bind(contactId, userId).first() as any;
 
   if (!contact) {
@@ -656,15 +656,15 @@ settingsRoutes.patch('/legacy-contacts/:id', async (c) => {
   const contactId = c.req.param('id');
   const body = await c.req.json();
   
-  // Verify ownership
+  // Verify ownership (live rows only)
   const existing = await c.env.DB.prepare(`
-    SELECT * FROM legacy_contacts WHERE id = ? AND user_id = ?
+    SELECT * FROM legacy_contacts WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(contactId, userId).first();
-  
+
   if (!existing) {
     return c.json({ error: 'Legacy contact not found' }, 404);
   }
-  
+
   const { name, email, phone, relationship, role } = body;
   const now = new Date().toISOString();
   
@@ -704,25 +704,53 @@ settingsRoutes.patch('/legacy-contacts/:id', async (c) => {
   });
 });
 
-// Delete legacy contact
+// Delete legacy contact — SOFT delete only.
+// A hard DELETE would cascade (ON DELETE CASCADE) into the bequest junctions
+// (letter_legacy_recipients, memory_legacy_recipients, voice_legacy_recipients)
+// AND shamir_shares, permanently destroying the willed inheritance routing and
+// the heir's Shamir key shares — unrecoverable. Setting deleted_at keeps the row
+// alive so the cascade never fires; "remove" just hides it from reads.
 settingsRoutes.delete('/legacy-contacts/:id', async (c) => {
   const userId = c.get('userId');
   const contactId = c.req.param('id');
-  
-  // Verify ownership
+
+  // Verify ownership (live rows only)
   const existing = await c.env.DB.prepare(`
-    SELECT * FROM legacy_contacts WHERE id = ? AND user_id = ?
+    SELECT * FROM legacy_contacts WHERE id = ? AND user_id = ? AND deleted_at IS NULL
   `).bind(contactId, userId).first();
-  
+
   if (!existing) {
     return c.json({ error: 'Legacy contact not found' }, 404);
   }
-  
+
+  const now = new Date().toISOString();
   await c.env.DB.prepare(`
-    DELETE FROM legacy_contacts WHERE id = ?
-  `).bind(contactId).run();
-  
+    UPDATE legacy_contacts SET deleted_at = ?, deleted_reason = 'removed' WHERE id = ? AND user_id = ?
+  `).bind(now, contactId, userId).run();
+
   return c.body(null, 204);
+});
+
+// Restore a soft-deleted legacy contact within the 7-day grace window
+settingsRoutes.patch('/legacy-contacts/:id/restore', async (c) => {
+  const userId = c.get('userId');
+  const contactId = c.req.param('id');
+
+  const existing = await c.env.DB.prepare(`
+    SELECT * FROM legacy_contacts
+    WHERE id = ? AND user_id = ? AND deleted_at IS NOT NULL
+      AND deleted_at > datetime('now', '-7 days')
+  `).bind(contactId, userId).first();
+
+  if (!existing) {
+    return c.json({ error: 'Contact not found or grace period expired' }, 404);
+  }
+
+  await c.env.DB.prepare(`
+    UPDATE legacy_contacts SET deleted_at = NULL WHERE id = ? AND user_id = ?
+  `).bind(contactId, userId).run();
+
+  return c.json({ success: true });
 });
 
 // Enable 2FA
@@ -998,10 +1026,20 @@ settingsRoutes.get('/export', async (c) => {
   const userId = c.get('userId');
   
   try {
-    // Gather all user data
-    const [user, memories, voiceRecordings, letters, familyMembers, legacyContacts, deadManSwitch, subscription] = await Promise.all([
+    // Gather all user data. The export is the user's complete GDPR archive, so
+    // it also carries the bequest/recipient routing (which sealed entries were
+    // willed to which legacy contact) and the append-only revision history —
+    // ExportPage promises bequeathed entries are included and the product
+    // promises nothing is lost. Each junction/revision query is scoped to the
+    // exporting user by joining through the parent entity's user_id (revisions
+    // carry their own user_id column).
+    const [
+      user, memories, voiceRecordings, letters, familyMembers, legacyContacts,
+      deadManSwitch, subscription,
+      letterBequests, memoryBequests, voiceBequests, legacyRevisions,
+    ] = await Promise.all([
       c.env.DB.prepare(`
-        SELECT id, email, first_name, last_name, avatar_url, preferred_currency, 
+        SELECT id, email, first_name, last_name, avatar_url, preferred_currency,
                email_verified, two_factor_enabled, created_at, updated_at
         FROM users WHERE id = ?
       `).bind(userId).first(),
@@ -1009,9 +1047,34 @@ settingsRoutes.get('/export', async (c) => {
       c.env.DB.prepare(`SELECT * FROM voice_recordings WHERE user_id = ?`).bind(userId).all(),
       c.env.DB.prepare(`SELECT * FROM letters WHERE user_id = ?`).bind(userId).all(),
       c.env.DB.prepare(`SELECT * FROM family_members WHERE user_id = ?`).bind(userId).all(),
-      c.env.DB.prepare(`SELECT * FROM legacy_contacts WHERE user_id = ?`).bind(userId).all(),
+      c.env.DB.prepare(`SELECT * FROM legacy_contacts WHERE user_id = ? AND deleted_at IS NULL`).bind(userId).all(),
       c.env.DB.prepare(`SELECT * FROM dead_man_switches WHERE user_id = ?`).bind(userId).first(),
       c.env.DB.prepare(`SELECT * FROM subscriptions WHERE user_id = ?`).bind(userId).first(),
+      // Bequest/recipient junctions — scoped to entries owned by this user.
+      c.env.DB.prepare(`
+        SELECT llr.letter_id, llr.legacy_contact_id, llr.added_at
+        FROM letter_legacy_recipients llr
+        JOIN letters l ON l.id = llr.letter_id
+        WHERE l.user_id = ?
+      `).bind(userId).all(),
+      c.env.DB.prepare(`
+        SELECT mlr.memory_id, mlr.legacy_contact_id, mlr.added_at
+        FROM memory_legacy_recipients mlr
+        JOIN memories m ON m.id = mlr.memory_id
+        WHERE m.user_id = ?
+      `).bind(userId).all(),
+      c.env.DB.prepare(`
+        SELECT vlr.voice_recording_id, vlr.legacy_contact_id, vlr.added_at
+        FROM voice_legacy_recipients vlr
+        JOIN voice_recordings v ON v.id = vlr.voice_recording_id
+        WHERE v.user_id = ?
+      `).bind(userId).all(),
+      // Append-only revision history (migration 0040), scoped by its user_id.
+      c.env.DB.prepare(`
+        SELECT id, entity_type, entity_id, snapshot, reason, created_at
+        FROM legacy_revisions WHERE user_id = ?
+        ORDER BY created_at ASC
+      `).bind(userId).all(),
     ]);
 
     // Decrypt encrypted memory descriptions so the personal data export carries
@@ -1130,6 +1193,35 @@ settingsRoutes.get('/export', async (c) => {
         trialEndsAt: subscription.trial_ends_at,
         createdAt: subscription.created_at,
       } : null,
+      // Bequest/recipient routing — which sealed entries were willed to which
+      // legacy contact (letter/memory/voice junctions). Preserved so the archive
+      // reflects the bequeathed inheritance ExportPage promises.
+      bequests: {
+        letters: (letterBequests.results as any[]).map((b: any) => ({
+          letterId: b.letter_id,
+          legacyContactId: b.legacy_contact_id,
+          addedAt: b.added_at,
+        })),
+        memories: (memoryBequests.results as any[]).map((b: any) => ({
+          memoryId: b.memory_id,
+          legacyContactId: b.legacy_contact_id,
+          addedAt: b.added_at,
+        })),
+        voiceRecordings: (voiceBequests.results as any[]).map((b: any) => ({
+          voiceRecordingId: b.voice_recording_id,
+          legacyContactId: b.legacy_contact_id,
+          addedAt: b.added_at,
+        })),
+      },
+      // Append-only revision history (prior versions of every legacy entry).
+      revisions: (legacyRevisions.results as any[]).map((r: any) => ({
+        id: r.id,
+        entityType: r.entity_type,
+        entityId: r.entity_id,
+        snapshot: r.snapshot,
+        reason: r.reason,
+        createdAt: r.created_at,
+      })),
       fileManifest,
     };
     

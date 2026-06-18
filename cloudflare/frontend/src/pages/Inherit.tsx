@@ -459,11 +459,11 @@ export function Inherit() {
           <meta property="og:description" content={inheritDescription} />
           <meta property="og:type" content="article" />
           <meta property="og:url" content={window.location.href} />
-          <meta property="og:image" content="https://heirloom.blue/woven/seal.png" />
+          <meta property="og:image" content="https://heirloom.blue/og/inherit.png" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:image" content="https://heirloom.blue/woven/seal.png" />
+          <meta name="twitter:image" content="https://heirloom.blue/og/inherit.png" />
           <link rel="canonical" href={window.location.href} />
         </Helmet>
       )}
@@ -613,8 +613,8 @@ export function Inherit() {
               lineHeight: 1.7,
             }}
           >
-            This thread is sealed. Only you can read it. No content can be removed — only added by
-            those who love you.
+            This thread is sealed to its bloodline — no one outside it can read it. No content can
+            be removed, only added by those who love you.
           </p>
         </div>
 

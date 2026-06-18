@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
 // ─── Natural-dye palette ─────────────────────────────────────────────────────
+// CANONICAL SOURCE: the --dye-* tokens in globals.css (typed in src/loom/dye.ts).
+// This table is ONLY a no-DOM fallback for the slice-based hex parsers below;
+// at runtime dyeHexTable() resolves the live tokens so this never drifts again.
 export const HL_DYE_HEX: Record<string, string> = {
   madder:    '#e84030',
   cochineal: '#d42868',
@@ -13,6 +16,27 @@ export const HL_DYE_HEX: Record<string, string> = {
   indigo:    '#3878e8',
   iron:      '#4a4a46',
 };
+
+// Resolve the --dye-* CSS tokens to hex once, cached. Falls back to HL_DYE_HEX
+// when there's no DOM (SSR) or a token is missing/non-hex (the parsers downstream
+// require #rrggbb). Theme (dark/parchment) is read live off :root.
+let _dyeHexCache: { theme: string; table: Record<string, string> } | null = null;
+function dyeHexTable(): Record<string, string> {
+  if (typeof document === 'undefined' || typeof getComputedStyle === 'undefined') {
+    return HL_DYE_HEX;
+  }
+  const root = document.documentElement;
+  const theme = root.getAttribute('data-theme') ?? '';
+  if (_dyeHexCache && _dyeHexCache.theme === theme) return _dyeHexCache.table;
+  const cs = getComputedStyle(root);
+  const table: Record<string, string> = {};
+  for (const dye of Object.keys(HL_DYE_HEX)) {
+    const v = cs.getPropertyValue(`--dye-${dye}`).trim();
+    table[dye] = /^#[0-9a-fA-F]{6}$/.test(v) ? v : HL_DYE_HEX[dye];
+  }
+  _dyeHexCache = { theme, table };
+  return table;
+}
 
 // Blend hex color toward bone (#f2e6d0) for highlights
 function lightenToBone(hex: string, t: number): string {
@@ -343,8 +367,10 @@ export function drawCloth(
   interface WeftInfo { x0: number; x1: number; cy: number; bow: number; thick: number; }
   const visibleWefts: WeftInfo[] = [];
 
+  const dyeHex = dyeHexTable();
+
   if (ghostTargetCount > 0) {
-    const dyeKeys = Object.keys(HL_DYE_HEX);
+    const dyeKeys = Object.keys(dyeHex);
     for (let gi = 0; gi < ghostTargetCount; gi++) {
       const gFrac = gi / ghostTargetCount;
       const gcx   = gFrac * W; // ghost threads fixed, no pan
@@ -359,7 +385,7 @@ export function drawCloth(
       const bow = -(0.4 + grndBow() * 0.8);
       const thick = 2.8 + grndTh() * 1.8;
       const dye = dyeKeys[Math.floor(grndD() * dyeKeys.length)];
-      const color = HL_DYE_HEX[dye] ?? HL_DYE_HEX['weld'];
+      const color = dyeHex[dye] ?? dyeHex['weld'];
       drawThread(ctx, gcx - halfLen, gcx + halfLen, cy, bow, color, thick, 0.045, gi, false, 0);
     }
     ctx.globalAlpha = 1;
@@ -396,7 +422,7 @@ export function drawCloth(
     const thick = 2.8 + rndTh() * 1.8;    // 2.8–4.6 px
     const bow = -(0.4 + rndBow() * 0.8) + sagY; // slight catenary bow + cloth sag
 
-    const color = HL_DYE_HEX[e.dye] ?? HL_DYE_HEX['weld'];
+    const color = dyeHex[e.dye] ?? dyeHex['weld'];
 
     // Sealed entries appear at reduced alpha — they're woven but not yet readable
     let alpha = e.sealed ? 0.38 : 0.93;

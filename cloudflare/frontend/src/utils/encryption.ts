@@ -1,6 +1,8 @@
 /**
- * Client-side encryption utilities for end-to-end encryption
- * All encryption/decryption happens in the browser - server never sees plaintext
+ * Client-side AES-GCM helpers (Web Crypto). DORMANT — not the production
+ * encryption path. Live entries are encrypted server-side with a
+ * platform-held key (server-held AES-GCM), not end-to-end in the browser.
+ * These utilities are retained for a possible future client-key option.
  */
 
 const ALGORITHM = 'AES-GCM';

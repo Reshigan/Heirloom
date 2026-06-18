@@ -35,7 +35,7 @@ inheritRoutes.get('/:token', async (c) => {
       u.last_name as owner_last_name,
       u.id as owner_id
     FROM switch_verifications sv
-    JOIN legacy_contacts lc ON sv.legacy_contact_id = lc.id
+    JOIN legacy_contacts lc ON sv.legacy_contact_id = lc.id AND lc.deleted_at IS NULL
     JOIN dead_man_switches dms ON sv.dead_man_switch_id = dms.id
     JOIN users u ON dms.user_id = u.id
     WHERE sv.verification_token = ?

@@ -162,6 +162,7 @@ export const memoriesApi = {
   delete: (id: string) => api.delete(`/memories/${id}`),
   received: () => api.get('/memories/received'),
   getRevisions: (id: string) => api.get(`/memories/${id}/revisions`),
+  restore: (id: string) => api.patch(`/memories/${id}/restore`),
 };
 
 // Letters API
@@ -182,6 +183,7 @@ export const lettersApi = {
   awaitingMe: () => api.get('/letters/awaiting-me'),
   received: () => api.get('/letters/received'),
   getRevisions: (id: string) => api.get(`/letters/${id}/revisions`),
+  restore: (id: string) => api.patch(`/letters/${id}/restore`),
 };
 
 // Voice API
@@ -196,6 +198,7 @@ export const voiceApi = {
   update: (id: string, data: any) => api.patch(`/voice/${id}`, data),
   delete: (id: string) => api.delete(`/voice/${id}`),
   getRevisions: (id: string) => api.get(`/voice/${id}/revisions`),
+  restore: (id: string) => api.patch(`/voice/${id}/restore`),
 };
 
 // Billing API
@@ -320,6 +323,7 @@ export const legacyContactsApi = {
   add: (data: { name: string; email: string; phone?: string; relationship: string }) =>
     api.post('/settings/legacy-contacts', data),
   remove: (id: string) => api.delete(`/settings/legacy-contacts/${id}`),
+  restore: (id: string) => api.patch(`/settings/legacy-contacts/${id}/restore`),
   resendVerification: (id: string) => api.post(`/settings/legacy-contacts/${id}/resend`),
 };
 

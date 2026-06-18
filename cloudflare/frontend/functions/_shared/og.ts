@@ -20,7 +20,19 @@ export interface OgCard {
   image: string; // path under the site origin
 }
 
-export const OG_CARDS: Record<'inherit' | 'wrapped', OgCard> = {
+export const OG_CARDS: Record<
+  | 'inherit'
+  | 'wrapped'
+  | 'pricing'
+  | 'terms'
+  | 'privacy'
+  | 'founder'
+  | 'memoryRoom'
+  | 'story'
+  | 'card'
+  | 'memorial',
+  OgCard
+> = {
   inherit: {
     title: 'Someone has been writing to you.',
     description:
@@ -32,6 +44,59 @@ export const OG_CARDS: Record<'inherit' | 'wrapped', OgCard> = {
     description:
       'Every entry is permanent and in order. The thread continues after this year, after us, after the company.',
     image: '/og/wrapped.png',
+  },
+
+  // --- Marketing routes: richer brand copy (no private data, public pages). ---
+  pricing: {
+    title: 'Start your family’s thousand-year thread.',
+    description:
+      'A perpetual, append-only archive owned by your bloodline, not a single account. Free to begin. Founder access secures it for good.',
+    image: '/og-image.png',
+  },
+  founder: {
+    title: 'Become a Founder of the Thread.',
+    description:
+      'A lifetime place in the founding generation of Heirloom - the archive built to outlast the company, the platform, and us.',
+    image: '/og-image.png',
+  },
+  terms: {
+    title: 'Heirloom - Terms of Service.',
+    description:
+      'The promises behind a perpetual family archive: append-only, owned by the bloodline, built to be inherited.',
+    image: '/og-image.png',
+  },
+  privacy: {
+    title: 'Heirloom - Privacy.',
+    description:
+      'How a thousand-year family thread is kept private: encrypted at rest, owned by the family, never sold.',
+    image: '/og-image.png',
+  },
+
+  // --- Content routes: PRIVACY-SAFE. A shared link is reachable by anyone ---
+  // --- holding it, so these name no one and reveal no entry content. ---
+  memoryRoom: {
+    title: 'A room in a family thread has been opened for you.',
+    description:
+      'Someone shared a place where their family’s story is kept. Step inside when you are ready - it was set aside for you.',
+    image: '/og/entry.png',
+  },
+  story: {
+    title: 'A family story has been shared with you.',
+    description:
+      'An entry from a perpetual family thread, kept in order and meant to last. Open the link to read it.',
+    image: '/og/entry.png',
+  },
+  card: {
+    title: 'A keepsake from a family thread.',
+    description:
+      'Someone made you a card from their family’s archive - a single thread, set aside to be passed on.',
+    image: '/og/entry.png',
+  },
+  memorial: {
+    title: 'A life is remembered here.',
+    description:
+      'A memorial kept inside a perpetual family thread - permanent, in order, and meant to be carried forward.',
+    image: '/og/milestone.png',
   },
 };
 

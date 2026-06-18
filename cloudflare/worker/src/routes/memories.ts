@@ -57,6 +57,24 @@ memoriesRoutes.get('/', async (c) => {
   }
   const countResult = await c.env.DB.prepare(countQuery).bind(...countParams).first();
 
+  // Bequest routing for the page: one extra query keyed by the page's memory ids,
+  // grouped client-side, so browsing shows legacyRecipients without N+1. Uses the
+  // SAME join/shape as the single-entry GET (legacy_contacts → memory_legacy_recipients).
+  const pageIds = memories.results.map((m: any) => m.id);
+  const legacyByMemory = new Map<string, Array<{ id: any; name: any; email: any }>>();
+  if (pageIds.length > 0) {
+    const legacyRows = await c.env.DB.prepare(`
+      SELECT mlr.memory_id, lc.id, lc.name, lc.email FROM legacy_contacts lc
+      JOIN memory_legacy_recipients mlr ON lc.id = mlr.legacy_contact_id
+      WHERE mlr.memory_id IN (${pageIds.map(() => '?').join(',')}) AND lc.deleted_at IS NULL
+    `).bind(...pageIds).all();
+    for (const r of legacyRows.results as any[]) {
+      const list = legacyByMemory.get(r.memory_id) || [];
+      list.push({ id: r.id, name: r.name, email: r.email });
+      legacyByMemory.set(r.memory_id, list);
+    }
+  }
+
   return c.json({
     data: await Promise.all(memories.results.map(async (m: any) => {
       const parsedMetadata = m.metadata ? JSON.parse(m.metadata) : null;
@@ -78,6 +96,7 @@ memoriesRoutes.get('/', async (c) => {
         emotion: parsedMetadata?.emotion || null,
         emotionConfidence: parsedMetadata?.emotionConfidence || null,
         encrypted: !!m.encrypted,
+        legacyRecipients: legacyByMemory.get(m.id) || [],
         createdAt: m.created_at,
         updatedAt: m.updated_at,
       };
@@ -483,7 +502,7 @@ memoriesRoutes.get('/:id', async (c) => {
   const legacyRecipients = await c.env.DB.prepare(`
     SELECT lc.id, lc.name, lc.email FROM legacy_contacts lc
     JOIN memory_legacy_recipients mlr ON lc.id = mlr.legacy_contact_id
-    WHERE mlr.memory_id = ?
+    WHERE mlr.memory_id = ? AND lc.deleted_at IS NULL
   `).bind(memoryId).all();
 
   return c.json({
@@ -518,10 +537,32 @@ memoriesRoutes.post('/', async (c) => {
   if (!userId) return c.json({ error: 'Authentication required' }, 401);
   const body = await c.req.json();
   
-    const { type, title, description, fileUrl, fileKey, fileSize, mimeType, metadata, recipientIds, legacyRecipientIds, memoryDate, encrypted, encryption_iv } = body;
-  
+    const { type, title, description, fileUrl, fileKey, fileSize, mimeType, metadata, recipientIds, legacyRecipientIds, memoryDate, encrypted, encryption_iv, clientKey } = body;
+
     if (!type || !title) {
       return c.json({ error: 'Type and title are required' }, 400);
+    }
+
+    // Idempotency: a client may replay this POST (offline queue / retry). If a
+    // memory with this client-minted key already exists for the user, return it
+    // unchanged instead of inserting a duplicate. Checked BEFORE the quota gate so
+    // a replay can never be rejected by a cap the original already counted toward.
+    // (Mirrors voice.ts dedup.)
+    if (clientKey) {
+      const dup = await c.env.DB.prepare(
+        `SELECT * FROM memories WHERE user_id = ? AND client_key = ? AND deleted_at IS NULL`
+      ).bind(userId, clientKey).first();
+      if (dup) {
+        return c.json({
+          id: dup.id,
+          type: dup.type,
+          title: dup.title,
+          description: await readDescription(c.env, dup as any),
+          fileUrl: dup.file_url,
+          fileKey: dup.file_key,
+          createdAt: dup.created_at,
+        }, 200);
+      }
     }
 
     // Must match the DB CHECK constraint exactly (migration 0045):
@@ -614,10 +655,32 @@ memoriesRoutes.post('/', async (c) => {
     const desc = await descriptionColumnsForWrite(c.env, description);
     const mutableUntil = mutableUntilFrom(createdAt);
 
-    await c.env.DB.prepare(`
-      INSERT INTO memories (id, user_id, type, title, description, description_enc, description_iv, file_url, file_key, file_size, mime_type, metadata, encrypted, encryption_iv, mutable_until, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(id, userId, type, title, desc.description, desc.description_enc, desc.description_iv, fileUrl || null, fileKey || null, fileSize || null, mimeType || null, JSON.stringify(enrichedMetadata), encrypted ? 1 : 0, encryption_iv || null, mutableUntil, createdAt, now).run();
+    // ON CONFLICT(user_id, client_key) DO NOTHING guards the race the pre-check
+    // above cannot: two concurrent replays of the same clientKey. The unique index
+    // on (user_id, client_key) is added by the migration. If the insert is a no-op
+    // (a concurrent request already won), we re-fetch and return that existing row.
+    const insertResult = await c.env.DB.prepare(`
+      INSERT INTO memories (id, user_id, type, title, description, description_enc, description_iv, file_url, file_key, file_size, mime_type, metadata, encrypted, encryption_iv, mutable_until, created_at, updated_at, client_key)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(user_id, client_key) DO NOTHING
+    `).bind(id, userId, type, title, desc.description, desc.description_enc, desc.description_iv, fileUrl || null, fileKey || null, fileSize || null, mimeType || null, JSON.stringify(enrichedMetadata), encrypted ? 1 : 0, encryption_iv || null, mutableUntil, createdAt, now, clientKey ?? null).run();
+
+    if (clientKey && insertResult.meta.changes === 0) {
+      const dup = await c.env.DB.prepare(
+        `SELECT * FROM memories WHERE user_id = ? AND client_key = ?`
+      ).bind(userId, clientKey).first();
+      if (dup) {
+        return c.json({
+          id: dup.id,
+          type: dup.type,
+          title: dup.title,
+          description: await readDescription(c.env, dup as any),
+          fileUrl: dup.file_url,
+          fileKey: dup.file_key,
+          createdAt: dup.created_at,
+        }, 200);
+      }
+    }
 
   // Dual-write into the Family Thread (best-effort; never blocks the legacy write).
   await mirrorIntoDefaultThread(c.env, userId, {
@@ -840,6 +903,32 @@ memoriesRoutes.delete('/:id', async (c) => {
   await mirrorMemoryDelete(c.env, memoryId);
 
   return c.body(null, 204);
+});
+
+// Restore a revoked memory within the 7-day grace window — the inverse of the
+// soft-delete above (flips deleted_at back to NULL). Scoped to the owner. Mirrors
+// family.ts /:id/restore: same eligibility window, owner-scoped, only acts while
+// the row is within grace.
+memoriesRoutes.patch('/:id/restore', async (c) => {
+  const userId = c.get('userId');
+  const memoryId = c.req.param('id');
+
+  const existing = await c.env.DB.prepare(`
+    SELECT * FROM memories
+    WHERE id = ? AND user_id = ? AND deleted_at IS NOT NULL
+      AND deleted_at > datetime('now', '-7 days')
+  `).bind(memoryId, userId).first();
+
+  if (!existing) {
+    return c.json({ error: 'Memory not found or grace period expired' }, 404);
+  }
+
+  const now = new Date().toISOString();
+  await c.env.DB.prepare(`
+    UPDATE memories SET deleted_at = NULL, deleted_reason = NULL, updated_at = ? WHERE id = ?
+  `).bind(now, memoryId).run();
+
+  return c.json({ id: memoryId, restoredAt: now });
 });
 
 // ============================================

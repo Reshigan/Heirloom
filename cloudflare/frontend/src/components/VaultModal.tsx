@@ -205,12 +205,12 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
             style={{ fontSize: 14, color: 'var(--bone-dim)', lineHeight: 1.6, margin: 0 }}
           >
             {mode === 'setup'
-              ? 'Choose a passphrase to encrypt every entry. It is separate from your sign-in password and is the one thing only you hold.'
+              ? 'Choose a passphrase to encrypt every entry. It is separate from your sign-in password.'
               : 'Enter your passphrase to read your encrypted entries.'}
           </p>
         </div>
 
-        {/* Zero-knowledge assurance (kept — on-brief) */}
+        {/* Encryption assurance — truthful to the server-held AES-GCM model */}
         <div
           style={{
             marginBottom: 24,
@@ -224,8 +224,8 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
             className="loom-body"
             style={{ fontSize: 12.5, color: 'var(--bone-dim)', lineHeight: 1.6, margin: 0 }}
           >
-            <strong style={{ color: 'var(--warm)', fontWeight: 600 }}>Zero-knowledge.</strong>{' '}
-            Your passphrase never leaves this device. We cannot read or recover your entries without it.
+            <strong style={{ color: 'var(--warm)', fontWeight: 600 }}>Encrypted at rest.</strong>{' '}
+            Your entries are encrypted with AES-GCM. We hold the keys — so if you forget a password, your family's archive is never lost.
           </p>
         </div>
 
@@ -370,7 +370,7 @@ export function VaultModal({ isOpen, mode, onComplete, onSkip }: VaultModalProps
                   style={{ fontSize: 12.5, color: 'var(--bone-dim)', lineHeight: 1.6, margin: 0 }}
                 >
                   <strong style={{ color: 'var(--warm)', fontWeight: 600 }}>Write it down.</strong> Store
-                  it somewhere safe. If it is lost, your encrypted entries cannot be recovered.
+                  it somewhere safe so you can unlock quickly. Forget it and you can reset it through your account — we hold the keys, so your archive is never lost.
                 </p>
               </div>
             </>

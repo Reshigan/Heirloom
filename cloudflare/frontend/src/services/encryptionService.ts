@@ -1,11 +1,14 @@
 /**
- * Encryption Service - Manages E2E encryption lifecycle
- * 
- * This service provides true zero-knowledge encryption:
- * - All encryption/decryption happens client-side
- * - Server only stores encrypted blobs
- * - Vault passphrase never leaves the client
- * - Master key is encrypted with vault passphrase before storage
+ * Encryption Service — DORMANT client-side vault module.
+ *
+ * NOTE: this is NOT the production encryption path. Heirloom's live model is
+ * server-held AES-GCM: entries are encrypted at rest with a key the platform
+ * holds, so a forgotten passphrase never loses the family's archive (see
+ * Privacy / Settings / VaultModal copy). This module's client-side
+ * encrypt/decrypt helpers are kept for a possible future client-key option but
+ * are not wired into the Compose write path. Do not present it as
+ * zero-knowledge in user-facing copy — that would contradict the shipped
+ * server-held model.
  */
 
 import { 

@@ -187,11 +187,11 @@ export function MemoryRoom() {
         <meta property="og:description" content={metaDescription} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={window.location.href} />
-        <meta property="og:image" content="https://heirloom.blue/woven/seal.png" />
+        <meta property="og:image" content="https://heirloom.blue/og/entry.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content="https://heirloom.blue/woven/seal.png" />
+        <meta name="twitter:image" content="https://heirloom.blue/og/entry.png" />
         <link rel="canonical" href={window.location.href} />
       </Helmet>
 

@@ -174,21 +174,36 @@ lettersRoutes.get('/', async (c) => {
   
   const letterIds = letters.results.map((l: any) => l.id);
   let recipientMap: Record<string, any[]> = {};
-  
+  let legacyRecipientMap: Record<string, any[]> = {};
+
   if (letterIds.length > 0) {
     const placeholders = letterIds.map(() => '?').join(',');
-    const allRecipients = await c.env.DB.prepare(`
-      SELECT lr.letter_id, fm.id, fm.name, fm.relationship FROM family_members fm
-      JOIN letter_recipients lr ON fm.id = lr.family_member_id
-      WHERE lr.letter_id IN (${placeholders})
-    `).bind(...letterIds).all();
-    
+    // Both recipient joins are keyed on the current page's letter ids in a
+    // single round-trip each (no per-letter N+1). Mirrors the single-letter
+    // GET, which joins family recipients AND legacy_contacts recipients.
+    const [allRecipients, allLegacyRecipients] = await c.env.DB.batch([
+      c.env.DB.prepare(`
+        SELECT lr.letter_id, fm.id, fm.name, fm.relationship FROM family_members fm
+        JOIN letter_recipients lr ON fm.id = lr.family_member_id
+        WHERE lr.letter_id IN (${placeholders})
+      `).bind(...letterIds),
+      c.env.DB.prepare(`
+        SELECT llr.letter_id, lc.id, lc.name, lc.email FROM legacy_contacts lc
+        JOIN letter_legacy_recipients llr ON lc.id = llr.legacy_contact_id
+        WHERE llr.letter_id IN (${placeholders}) AND lc.deleted_at IS NULL
+      `).bind(...letterIds),
+    ]);
+
     for (const r of allRecipients.results as any[]) {
       if (!recipientMap[r.letter_id]) recipientMap[r.letter_id] = [];
       recipientMap[r.letter_id].push({ id: r.id, name: r.name, relationship: r.relationship });
     }
+    for (const r of allLegacyRecipients.results as any[]) {
+      if (!legacyRecipientMap[r.letter_id]) legacyRecipientMap[r.letter_id] = [];
+      legacyRecipientMap[r.letter_id].push({ id: r.id, name: r.name, email: r.email });
+    }
   }
-  
+
   const lettersWithRecipients = letters.results.map((letter: any) => ({
     id: letter.id,
     title: letter.title,
@@ -202,6 +217,7 @@ lettersRoutes.get('/', async (c) => {
     deliveredAt: letter.delivered_at,
     encrypted: !!letter.encrypted,
     recipients: recipientMap[letter.id] || [],
+    legacyRecipients: legacyRecipientMap[letter.id] || [],
     createdAt: letter.created_at,
     updatedAt: letter.updated_at,
   }));
@@ -348,7 +364,7 @@ lettersRoutes.get('/:id', async (c) => {
   const legacyRecipients = await c.env.DB.prepare(`
     SELECT lc.id, lc.name, lc.email FROM legacy_contacts lc
     JOIN letter_legacy_recipients llr ON lc.id = llr.legacy_contact_id
-    WHERE llr.letter_id = ?
+    WHERE llr.letter_id = ? AND lc.deleted_at IS NULL
   `).bind(letterId).all();
 
   return c.json({
@@ -736,7 +752,7 @@ lettersRoutes.post('/:id/release', async (c) => {
     c.env.DB.prepare(`
       SELECT lc.email, lc.name FROM legacy_contacts lc
       JOIN letter_legacy_recipients llr ON lc.id = llr.legacy_contact_id
-      WHERE llr.letter_id = ?
+      WHERE llr.letter_id = ? AND lc.deleted_at IS NULL
     `).bind(letterId).all(),
   ]);
   const senderName = `${author?.first_name ?? ''} ${author?.last_name ?? ''}`.trim() || 'your family';
@@ -910,4 +926,48 @@ lettersRoutes.delete('/:id', async (c) => {
   await mirrorLetterDelete(c.env, letterId);
 
   return c.body(null, 204);
+});
+
+// Restore a revoked letter within the 7-day grace window.
+//
+// Mirrors family.ts PATCH /:id/restore — flips deleted_at back to NULL,
+// owner-scoped, only while the soft-delete is younger than the same 7-day
+// window. Returns the restored letter row. The DELETE above only sets
+// deleted_at, so the underlying row is intact and simply un-hidden here.
+lettersRoutes.patch('/:id/restore', async (c) => {
+  const userId = c.get('userId');
+  const letterId = c.req.param('id');
+
+  const existing = await c.env.DB.prepare(`
+    SELECT * FROM letters
+    WHERE id = ? AND user_id = ? AND deleted_at IS NOT NULL
+      AND deleted_at > datetime('now', '-7 days')
+  `).bind(letterId, userId).first() as any;
+
+  if (!existing) {
+    return c.json({ error: 'Letter not found or grace period expired' }, 404);
+  }
+
+  const now = new Date().toISOString();
+  await c.env.DB.prepare(`
+    UPDATE letters SET deleted_at = NULL, deleted_reason = NULL, updated_at = ? WHERE id = ?
+  `).bind(now, letterId).run();
+
+  return c.json({
+    id: existing.id,
+    title: existing.title,
+    salutation: existing.salutation,
+    body: existing.body,
+    signature: existing.signature,
+    deliveryTrigger: existing.delivery_trigger,
+    scheduledDate: existing.scheduled_date,
+    milestoneLabel: existing.milestone_label,
+    sealedAt: existing.sealed_at,
+    deliveredAt: existing.delivered_at,
+    encrypted: !!existing.encrypted,
+    encryptionIv: existing.encryption_iv,
+    deletedAt: null,
+    createdAt: existing.created_at,
+    updatedAt: now,
+  });
 });

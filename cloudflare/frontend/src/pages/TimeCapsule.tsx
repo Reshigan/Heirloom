@@ -516,7 +516,7 @@ export function TimeCapsule() {
               maxHeight: '92vh',
               overflowY: 'auto',
               border: '1px solid var(--rule)',
-              borderRadius: 14,
+              borderRadius: 0,
             }}
             onClick={(e) => e.stopPropagation()}
           >

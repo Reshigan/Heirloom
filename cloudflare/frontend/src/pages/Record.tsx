@@ -999,7 +999,7 @@ export function Record() {
               onClick={() => save.mutate()}
               disabled={save.isPending || held || !audioBlob}
               className="hl-btn"
-              style={{ borderRadius: 999, opacity: save.isPending || held || !audioBlob ? 0.5 : 1 }}
+              style={{ opacity: save.isPending || held || !audioBlob ? 0.5 : 1 }}
             >
               {save.isPending ? 'sealing…' : held ? 'held' : 'save →'}
             </button>
@@ -1013,7 +1013,7 @@ export function Record() {
                 textTransform: 'uppercase',
                 color: 'var(--bone-faint)',
                 border: '1px solid var(--rule)',
-                borderRadius: 999,
+                borderRadius: 0,
                 padding: '8px 16px',
                 whiteSpace: 'nowrap',
               }}

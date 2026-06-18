@@ -1,0 +1,5 @@
+// Pages Function: per-surface OG for /terms shared links.
+import { handleOg, OG_CARDS } from '../_shared/og';
+
+export const onRequestGet: PagesFunction = (context) =>
+  handleOg(context as any, OG_CARDS.terms);

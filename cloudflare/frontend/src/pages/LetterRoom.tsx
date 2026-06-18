@@ -214,7 +214,7 @@ export function LetterRoom() {
                   content; sealed letters show a quiet kept-words line instead. */}
               <div style={{
                 border: '1px solid var(--warm-dim)',
-                borderRadius: 8,
+                borderRadius: 0,
                 padding: 'clamp(24px,6vw,44px)',
                 background: 'var(--bg-letter)',
                 boxShadow: '0 0 34px rgba(216,150,84,0.42), inset 0 0 0 1px rgba(216,150,84,0.25)',
@@ -483,7 +483,7 @@ export function LetterRoom() {
                           {/* The glowing letter card — this card IS the content. */}
                           <div style={{
                             border: '1px solid var(--warm-dim)',
-                            borderRadius: 8,
+                            borderRadius: 0,
                             padding: 'clamp(24px,6vw,40px)',
                             background: 'var(--bg-letter)',
                             boxShadow: '0 0 34px rgba(216,150,84,0.42), inset 0 0 0 1px rgba(216,150,84,0.25)',

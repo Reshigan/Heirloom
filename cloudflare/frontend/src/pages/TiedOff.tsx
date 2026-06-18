@@ -318,7 +318,7 @@ function SealedCeremony({ deliverYear, title, author, writtenYear }: TiedEntry) 
     <div
       style={{
         border: '1px solid var(--rule)',
-        borderRadius: 14,
+        borderRadius: 0,
         padding: 'clamp(32px, 6vw, 48px) clamp(24px, 5vw, 40px)',
         display: 'flex',
         flexDirection: 'column',
