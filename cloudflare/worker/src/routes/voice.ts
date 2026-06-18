@@ -385,10 +385,31 @@ voiceRoutes.post('/', async (c) => {
   if (!userId) return c.json({ error: 'Authentication required' }, 401);
   const body = await c.req.json();
   
-    const { title, description, fileUrl, fileKey, duration, fileSize, transcript, emotion, recipientIds, legacyRecipientIds, recordingDate } = body;
-  
+    const { title, description, fileUrl, fileKey, duration, fileSize, transcript, emotion, recipientIds, legacyRecipientIds, recordingDate, clientKey } = body;
+
     if (!title) {
       return c.json({ error: 'Title is required' }, 400);
+    }
+
+    // Idempotency: the offline holding queue replays this POST on reconnect. If a
+    // recording with this client-minted key already exists for the user, return it
+    // unchanged instead of inserting a duplicate. Checked BEFORE the quota gate so
+    // a replay can never be rejected by a cap the original already counted toward.
+    if (clientKey) {
+      const dup = await c.env.DB.prepare(
+        `SELECT * FROM voice_recordings WHERE user_id = ? AND client_key = ? AND deleted_at IS NULL`
+      ).bind(userId, clientKey).first();
+      if (dup) {
+        return c.json({
+          id: dup.id,
+          title: dup.title,
+          description: dup.description,
+          fileUrl: dup.file_url,
+          fileKey: dup.file_key,
+          duration: dup.duration,
+          createdAt: dup.created_at,
+        }, 200);
+      }
     }
 
     // Enforce the plan's storage cap before persisting the recording.
@@ -411,9 +432,9 @@ voiceRoutes.post('/', async (c) => {
   
     const mutableUntil = mutableUntilFrom(createdAt);
     await c.env.DB.prepare(`
-      INSERT INTO voice_recordings (id, user_id, title, description, file_url, file_key, duration, file_size, transcript, emotion, mutable_until, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `).bind(id, userId, title, description || null, fileUrl ?? '', fileKey ?? '', duration ?? 0, fileSize ?? 0, transcript || null, emotion || null, mutableUntil, createdAt, now).run();
+      INSERT INTO voice_recordings (id, user_id, title, description, file_url, file_key, duration, file_size, transcript, emotion, mutable_until, created_at, updated_at, client_key)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).bind(id, userId, title, description || null, fileUrl ?? '', fileKey ?? '', duration ?? 0, fileSize ?? 0, transcript || null, emotion || null, mutableUntil, createdAt, now, clientKey ?? null).run();
 
   // Dual-write into the Family Thread.
   await mirrorIntoDefaultThread(c.env, userId, {

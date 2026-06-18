@@ -256,6 +256,15 @@ export function Record() {
       const ext = mime.includes('mp4') ? 'm4a' : mime.includes('ogg') ? 'ogg' : 'webm';
       const contentType = mime.split(';')[0]; // strip codec params for upload header
       const filename = `recording-${Date.now()}.${ext}`;
+      // One idempotency key per save attempt, minted before any network call and
+      // threaded through BOTH the live create and any held-queue replay. If the
+      // create reaches the worker but the response is lost, the reconnect drain
+      // replays with this same key and the worker returns the existing row
+      // instead of inserting a duplicate. (Risk 1.)
+      const clientKey =
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `vk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`;
       const metadata = {
         to: addresseeName.trim() || undefined,
         recipientId: recipientId || undefined,
@@ -264,11 +273,11 @@ export function Record() {
         scheduledDate: deliveryTrigger === 'date' ? scheduledDate : undefined,
       };
 
-      // Hold the recording in the IndexedDB blob queue so a reconnect drains
-      // it. If even the hold fails (IDB unavailable) we still resolve held —
-      // the recording is gone, but we never trip a hard error for an offline
-      // save. The held copy is the best we can do; surfacing a crash here
-      // would lose the recording AND the calm.
+      // Hold the recording in the IndexedDB blob queue so a reconnect drains it.
+      // If the hold itself fails (IDB genuinely unavailable — private mode, quota,
+      // unsupported) the recording was NOT saved, so we must NOT claim it was
+      // held: let the rejection propagate to onError with an honest message and
+      // keep the recording on screen so the user can retry. (Risk 2.)
       const holdToQueue = async () => {
         try {
           await enqueueVoice({
@@ -280,9 +289,12 @@ export function Record() {
             duration: elapsed,
             metadata,
             legacyRecipientIds,
+            clientKey,
           });
         } catch {
-          /* degrade quietly — see note above */
+          throw new Error(
+            "This device can't hold the recording offline (private mode or no storage). Stay on this screen and try again once you have a connection.",
+          );
         }
         return { held: true };
       };
@@ -329,6 +341,7 @@ export function Record() {
           duration: elapsed,
           fileSize: audioBlob.size,
           legacyRecipientIds,
+          clientKey,
           metadata,
         });
       } catch (err) {

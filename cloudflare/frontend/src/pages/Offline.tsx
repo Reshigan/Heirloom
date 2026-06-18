@@ -449,6 +449,7 @@ async function uploadHeldVoice(item: HeldVoice): Promise<void> {
     duration: item.duration,
     fileSize: item.blob.size,
     legacyRecipientIds: item.legacyRecipientIds,
+    clientKey: item.clientKey,
     metadata: item.metadata,
   });
 }

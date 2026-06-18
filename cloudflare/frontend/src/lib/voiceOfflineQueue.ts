@@ -31,6 +31,9 @@ export interface HeldVoice {
   duration: number;
   metadata: any;
   legacyRecipientIds: string[];
+  // Stable idempotency key minted at save time. Replayed verbatim on drain so
+  // the worker dedups a held recording against the row it may already hold.
+  clientKey: string;
   at: number; // epoch ms
 }
 
