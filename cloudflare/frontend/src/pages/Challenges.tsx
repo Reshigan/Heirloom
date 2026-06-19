@@ -403,7 +403,7 @@ export function Challenges() {
               {selectedChallenge.description}
             </p>
 
-            <div style={{ borderLeft: '3px solid var(--warm-dim)', paddingLeft: 16, marginBottom: 20 }}>
+            <div style={{ borderLeft: '1px solid var(--rule)', paddingLeft: 16, marginBottom: 20 }}>
               <p style={{ ...metaText, fontSize: 10, letterSpacing: '0.22em', color: 'var(--bone-faint)', margin: '0 0 6px' }}>Prompt</p>
               <p
                 className="hl-serif hl-italic"

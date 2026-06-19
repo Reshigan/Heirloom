@@ -383,7 +383,7 @@ export function Milestones() {
                   id="ms-recurring"
                   checked={formData.recurring}
                   onChange={(e) => setFormData({ ...formData, recurring: e.target.checked })}
-                  style={{ width: 14, height: 14, accentColor: 'var(--warm)', borderRadius: 0 }}
+                  style={{ width: 14, height: 14, accentColor: 'var(--bone-dim)', borderRadius: 0 }}
                 />
                 <label
                   htmlFor="ms-recurring"

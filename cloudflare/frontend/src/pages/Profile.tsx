@@ -56,7 +56,6 @@ export function Profile() {
           }}
         >
           <h2
-            className="hl-serif"
             style={{
               fontFamily: 'var(--serif-display)',
               fontSize: 'clamp(28px, 5vw, 40px)',

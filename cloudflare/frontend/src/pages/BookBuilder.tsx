@@ -587,7 +587,7 @@ export function BookBuilder() {
                           type="checkbox"
                           checked={config[key as keyof BookConfig] as boolean}
                           onChange={(e) => setConfig((prev) => ({ ...prev, [key]: e.target.checked }))}
-                          style={{ width: 14, height: 14, accentColor: 'var(--warm)', cursor: 'pointer' }}
+                          style={{ width: 14, height: 14, accentColor: 'var(--bone-dim)', cursor: 'pointer' }}
                         />
                         <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)' }}>
                           {label}
@@ -755,7 +755,6 @@ export function BookBuilder() {
                   letterSpacing: '0.24em',
                   textTransform: 'uppercase',
                   color: 'var(--gold-text)',
-                  transition: 'opacity 180ms var(--ease)',
                 }}
               >
                 Preview
@@ -794,7 +793,6 @@ export function BookBuilder() {
                         padding: 0,
                         cursor: 'pointer',
                         textAlign: 'center',
-                        transition: 'opacity 180ms var(--ease)',
                       }}
                     >
                       {/* the page-shaped thumbnail — warm border + glow when chosen */}
@@ -1009,7 +1007,6 @@ export function BookBuilder() {
                             padding: '15px 0',
                             cursor: 'pointer',
                             textAlign: 'left',
-                            transition: 'opacity 180ms var(--ease)',
                           }}
                         >
                           <span style={{ minWidth: 0 }}>

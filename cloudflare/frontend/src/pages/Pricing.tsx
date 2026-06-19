@@ -307,6 +307,7 @@ export function Pricing() {
           >
             <button
               type="button"
+              aria-pressed={!showAnnual}
               onClick={() => setAnnual(false)}
               style={{
                 background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
@@ -320,6 +321,7 @@ export function Pricing() {
             </button>
             <button
               type="button"
+              aria-pressed={showAnnual}
               onClick={() => setAnnual(true)}
               style={{
                 background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',

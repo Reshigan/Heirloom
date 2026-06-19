@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { getAuthToken } from '../services/api';
 import { useRole } from '../hooks/useRole';
@@ -20,19 +20,42 @@ import type { CanvasEntry } from '../hooks/useTapestryEntries';
 function PwaMenu() {
   const { user, logout } = useAuthStore();
   const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+
+  // Dismiss on outside click or Escape (mirrors InfinityMenu). Escape returns
+  // focus to the trigger so keyboard users aren't stranded.
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
 
   if (!user) return null;
   const initials = `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || '∞';
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div ref={rootRef} style={{ position: 'relative' }}>
       <button
+        ref={triggerRef}
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Account menu"
         onClick={() => setOpen(v => !v)}
-        onBlur={() => setTimeout(() => setOpen(false), 220)}
         style={{
           width: 36, height: 36,
           background: 'transparent',
@@ -70,7 +93,7 @@ function PwaMenu() {
           pointerEvents: open ? 'auto' : 'none',
           visibility: open ? 'visible' : 'hidden',
           transition:
-            'opacity 180ms var(--ease), transform 180ms var(--ease), visibility 0ms linear ' +
+            'opacity 180ms var(--ease), transform 180ms var(--ease), visibility 0ms var(--ease) ' +
             (open ? '0ms' : '180ms'),
         }}
       >
@@ -97,6 +120,8 @@ function PwaMenu() {
           <Link
             key={item.to}
             to={item.to}
+            role="menuitem"
+            onClick={() => setOpen(false)}
             style={{
               display: 'block',
               padding: '9px 8px',
@@ -117,6 +142,7 @@ function PwaMenu() {
 
         <button
           type="button"
+          role="menuitem"
           onClick={() => { logout(); setOpen(false); }}
           style={{
             display: 'block',

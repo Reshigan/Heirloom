@@ -442,7 +442,7 @@ export function Memorials() {
                   id="mem-public"
                   checked={formData.isPublic}
                   onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })}
-                  style={{ width: 14, height: 14, accentColor: 'var(--warm)' }}
+                  style={{ width: 14, height: 14, accentColor: 'var(--bone-dim)' }}
                 />
                 <label
                   htmlFor="mem-public"

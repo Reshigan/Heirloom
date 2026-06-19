@@ -223,7 +223,7 @@ export function MemoryRoom() {
         {submitted && (
           <div
             role="status"
-            style={{ marginTop: 32, borderLeft: '3px solid var(--warm)', paddingLeft: 18 }}
+            style={{ marginTop: 32, borderLeft: '1px solid var(--rule)', paddingLeft: 18 }}
           >
             <p
               className="hl-mono"
@@ -533,6 +533,7 @@ export function MemoryRoom() {
                     <button
                       type="button"
                       onClick={() => setContentType('TEXT')}
+                      aria-pressed={contentType === 'TEXT'}
                       style={{
                         flex: 1,
                         fontSize: 11,
@@ -541,7 +542,7 @@ export function MemoryRoom() {
                         letterSpacing: '0.18em',
                         textTransform: 'uppercase',
                         border: '1px solid var(--parchment-rule)',
-                        borderBottom: contentType === 'TEXT' ? '2px solid var(--warm)' : '1px solid var(--parchment-rule)',
+                        borderBottom: contentType === 'TEXT' ? '1px solid var(--warm)' : '1px solid var(--parchment-rule)',
                         borderRadius: 0,
                         cursor: 'pointer',
                         background: 'transparent',

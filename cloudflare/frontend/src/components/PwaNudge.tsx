@@ -180,7 +180,10 @@ export function PwaNudge() {
           pointerEvents: 'auto',
           background: 'var(--ink-card, #171714)',
           border: '1px solid var(--rule, rgba(242,230,208,0.11))',
-          borderTop: '2px solid var(--warm, #e0a062)',
+          // Copper is signal only: a <=1px stroke, never a 2px bar. Pad the
+          // top by 1px so collapsing 2px→1px causes no layout shift.
+          borderTop: '1px solid var(--warm, #e0a062)',
+          paddingTop: 1,
           borderRadius: 0,
           overflow: 'hidden',
         }}

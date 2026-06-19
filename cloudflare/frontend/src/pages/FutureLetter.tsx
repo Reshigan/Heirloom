@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { aiApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { UserMenu } from '../loom/components/Frame';
 import { SectionLabel } from '../loom/cosmic/CosmicUI';
 import { copyToClipboard } from '../utils/clipboard';
@@ -334,18 +335,9 @@ export function FutureLetter() {
                 />
               </div>
 
-              {/* progress hairline while writing */}
+              {/* progress hairline while writing — the sanctioned animated copper hairline-of-light */}
               {generateMutation.isPending ? (
-                <div style={{ height: 1, background: 'var(--rule)', overflow: 'hidden' }}>
-                  <div
-                    style={{
-                      height: '100%',
-                      width: '40%',
-                      background: 'var(--warm)',
-                      animation: `loom-shuttle var(--dur-ceremony) ${EASE} infinite`,
-                    }}
-                  />
-                </div>
+                <ProgressHair label="sealing across time…" />
               ) : null}
 
               {genError && (

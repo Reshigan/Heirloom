@@ -313,7 +313,7 @@ export function AdminDashboard() {
             <SectionLabel>Kill-switches + pins</SectionLabel>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid var(--rule)' }}>
               <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone)' }}>Composer disabled</span>
-              <button type="button" className="hl-tag" style={{ cursor: 'pointer' }}>off</button>
+              <span className="hl-tag">off</span>
             </div>
           </div>
         )}
@@ -1639,7 +1639,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
         <div style={{ paddingTop: 16, borderTop: '1px solid var(--rule)' }}>
           <div className="loom-eyebrow" style={{ color: 'var(--warm)', marginBottom: 8 }}>Danger Zone</div>
           <button
-            style={{ width: '100%', background: 'transparent', border: '1px solid var(--warm)', color: 'var(--warm)', padding: '8px 16px', cursor: 'pointer', fontFamily: 'var(--sans)', fontSize: 12, letterSpacing: '0.08em', opacity: cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE' ? 0.4 : 1 }}
+            style={{ width: '100%', background: 'transparent', border: '1px solid var(--warm)', color: 'var(--warm)', padding: '8px 16px', cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.08em', opacity: cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE' ? 0.4 : 1 }}
             onClick={() => setConfirmingCancel(true)}
             disabled={cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE'}
           >
@@ -1951,7 +1951,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
               </LoomField>
               {formData.recipientEmail && (
                 <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                  <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} style={{ accentColor: 'var(--warm)' }} />
+                  <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} style={{ accentColor: 'var(--bone-dim)' }} />
                   <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>Send gift email to recipient immediately</span>
                 </label>
               )}
@@ -2059,7 +2059,7 @@ The Heirloom Team`;
           </LoomField>
           {formData.recipientEmail && (
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-              <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} style={{ accentColor: 'var(--warm)' }} />
+              <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} style={{ accentColor: 'var(--bone-dim)' }} />
               <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>Send Gold Legacy invitation email immediately</span>
             </label>
           )}
@@ -2111,7 +2111,7 @@ const loomInputStyle: React.CSSProperties = {
   borderRadius: 0,
   color: 'var(--bone)',
   padding: '6px 10px',
-  fontFamily: 'var(--sans)',
+  fontFamily: 'var(--serif)',
   fontSize: 13,
   outline: 'none',
   boxSizing: 'border-box',

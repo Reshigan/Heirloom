@@ -252,6 +252,17 @@ export function Settings() {
   const checkoutSucceeded = searchParams.get('success') === 'true';
   const checkoutCanceled = searchParams.get('canceled') === 'true';
   const { theme, setTheme } = useLoomTheme();
+  // `theme` is the RAW setting ('light'|'dark'|'system'); 'system' must be
+  // resolved to the OS preference before it can drive the date picker's
+  // colorScheme — otherwise a system-light page hardpins a dark picker.
+  const resolvedScheme: 'light' | 'dark' =
+    theme === 'system'
+      ? (typeof window !== 'undefined' &&
+         window.matchMedia &&
+         window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light')
+      : theme;
   const { textScale, setTextScale, highContrast, setHighContrast } = useDisplayPreferences();
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
@@ -486,7 +497,7 @@ export function Settings() {
               max={new Date().toISOString().slice(0, 10)}
               onChange={(e) => { setBirthDate(e.target.value); setSavedFlash(false); }}
               onClick={(e) => { try { (e.currentTarget as any).showPicker?.(); } catch {} }}
-              style={{ ...FIELD_INPUT_STYLE, colorScheme: theme === 'light' ? 'light' : 'dark' }}
+              style={{ ...FIELD_INPUT_STYLE, colorScheme: resolvedScheme }}
             />
           </div>
           <div className="hl-fieldrow">

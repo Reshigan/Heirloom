@@ -28,10 +28,24 @@ function fmtDate(iso: string | undefined): string {
 export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftCenturyProps) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
-  // Century window: start from user birth year (or fallback), span 120 yrs.
+  // Century window: anchored to the user's birth year (or fallback), spanning
+  // ~120 yrs — but the window must be widened to enclose every real marker, or
+  // older relatives / out-of-range entries project to a negative (or >100%)
+  // left% and clip off the edge, unreachable. Loom.yearToX has no internal
+  // clamp, so we clamp the window to the data here before projecting.
   const youKin = kin.find((k) => k.you);
-  const C_START = userBornYear ?? youKin?.born ?? new Date().getFullYear() - 50;
-  const C_END = C_START + 120;
+  const anchor = userBornYear ?? youKin?.born ?? new Date().getFullYear() - 50;
+
+  // Every year a marker will project at: kin births + entry years (with the
+  // same month fraction the Loom adds, so an end-of-window entry can't spill
+  // past 100%). Guard against undefined / NaN before they poison min/max.
+  const markerYears = [
+    ...kin.map((k) => k.born),
+    ...entries.map((e) => e.year + (e.month ?? 0) / 12),
+  ].filter((y): y is number => typeof y === 'number' && Number.isFinite(y));
+
+  const C_START = Math.floor(Math.min(anchor, ...markerYears));
+  const C_END = Math.ceil(Math.max(anchor + 120, ...markerYears));
 
   // kin birth markers become faint milestone picks on the compressed cloth.
   const kinEntries: LoomEntry[] = kin.map((k, i) => ({

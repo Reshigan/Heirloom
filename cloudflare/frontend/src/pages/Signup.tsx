@@ -170,7 +170,7 @@ export function Signup() {
         transform: 'scaleY(-1)',
         opacity: 0.7,
         // ink fade sits over the band; after scaleY(-1) the fade lands on the visual bottom edge
-        backgroundImage: 'linear-gradient(to top, var(--ink) 0%, rgba(11,9,7,0) 62%), image-set(url("/woven/thread-band.avif") type("image/avif"), url("/woven/thread-band.webp") type("image/webp"), url("/woven/thread-band.png") type("image/png"))',
+        backgroundImage: 'linear-gradient(to top, var(--ink) 0%, color-mix(in srgb, var(--ink) 0%, transparent) 62%), image-set(url("/woven/thread-band.avif") type("image/avif"), url("/woven/thread-band.webp") type("image/webp"), url("/woven/thread-band.png") type("image/png"))',
         backgroundSize: 'cover, cover',
         backgroundPosition: 'center, center top',
         backgroundRepeat: 'no-repeat, no-repeat',
@@ -324,8 +324,8 @@ export function Signup() {
                       background: 'transparent',
                       border: 0,
                       borderBottom: '1px solid var(--rule)',
-                      borderLeft: selected ? '2px solid var(--warm)' : '2px solid transparent',
-                      paddingLeft: 14,
+                      borderLeft: selected ? '1px solid var(--warm)' : '1px solid transparent',
+                      paddingLeft: 15,
                       transition: `border-color 180ms ${EASE}`,
                       color: 'var(--bone)',
                     }}
@@ -588,6 +588,7 @@ function CycleTab({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       style={{
         background: 'transparent',
         border: 0,

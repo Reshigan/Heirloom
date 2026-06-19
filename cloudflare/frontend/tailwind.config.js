@@ -127,16 +127,10 @@ export default {
         // unreferenced in src (zero `animate-*` usage) and used the off-spec
         // ease-in-out — removed. particle-ascend was likewise unreferenced AND
         // carried an off-spec cubic-bezier(0.65,0,0.35,1) — removed too.
-        // stars-drift is an ambient continuous drift (long-duration, linear)
-        // and is retained.
-        'stars-drift': 'stars-drift 120s linear infinite',
+        // stars-drift was a dead token too (zero `animate-stars-drift` usage in
+        // src) — removed along with its keyframes.
       },
-      keyframes: {
-        'stars-drift': {
-          '0%': { transform: 'translateY(0)' },
-          '100%': { transform: 'translateY(-5%)' },
-        },
-      },
+      keyframes: {},
       letterSpacing: {
         'display': '0.35em',
         'wide': '0.14em',

@@ -249,6 +249,7 @@ export function MarketingTab() {
           <button
             key={id}
             onClick={() => setActiveSubTab(id as any)}
+            aria-current={activeSubTab === id ? 'page' : undefined}
             style={{
               background: 'none',
               border: 'none',
@@ -647,7 +648,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
       {/* Step indicators */}
       <div style={{ display: 'flex', gap: 20, marginBottom: 28 }}>
         {STEPS.map((s, i) => (
-          <div key={s} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div key={s} aria-current={step === s ? 'step' : undefined} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span className="loom-mono" style={{
               fontSize: 10,
               width: 22, height: 22,

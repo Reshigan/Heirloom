@@ -285,7 +285,9 @@
   --parchment-deep:     #090706;
   --parchment-ink:      #f2e6d0;
   --parchment-dim:      rgba(242, 230, 208, 0.72);
-  --parchment-faint:    rgba(242, 230, 208, 0.44);
+  /* WCAG AA: 0.44α = 3.73:1 on --ink (fail) — fed .hl-helper.dark body text.
+     Lifted to 0.56α (>=0.52α AA floor), matching the --bone-faint fix at ~98. */
+  --parchment-faint:    rgba(242, 230, 208, 0.56);
   --parchment-rule:     rgba(242, 230, 208, 0.11);
 }
 
@@ -451,7 +453,7 @@ html[data-theme="light"] body {
 }
 
 .glass-strong {
-  background: #131310;
+  background: var(--ink-card);
 }
 
 .glass-subtle {
@@ -1426,7 +1428,6 @@ html {
   --loom-dur-shift:  var(--dur-mid);
   --loom-dur-veil:   var(--dur-slow);
   --loom-dur-breath: 9000ms; /* ambient tier — no canonical token; --ease is canonical for easing */
-  --loom-dur-loom:   var(--dur-ceremony);
 }
 
 .loom[data-theme="light"] {
@@ -1786,6 +1787,13 @@ html {
   10%  { opacity: 0.6; }
   85%  { opacity: 0.6; }
   100% { transform: translateX(110vw); opacity: 0; }
+}
+/* Percentage-based shuttle for small fixed-width loading bars (QuickWizard's
+   LoadingBar references this) — distinct from the vw-based ambient loom-shuttle
+   above so the segment sweeps the bar's own width, not the viewport. */
+@keyframes loom-shuttle-quick {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(250%); }
 }
 
 /* ─── Sealed-note typographic stack ────────────────────────────── */
@@ -2366,30 +2374,6 @@ html {
   /* Reading measure */
   --measure: 65ch;
   --measure-tight: 45ch;
-
-  /* 3D cloth parameters */
-  --cloth-perspective: 1400px;
-  --cloth-fold-dur: 360ms;
-  --cloth-weave-dur: 1400ms;
-  --seal-crack-dur: 720ms;
-  --seal-ceremony-dur: 1400ms;
-
-  /* Cooled sealing wax — less orange, more gravitas */
-  --wax: #9c6535;
-  --wax-bright: #e0a062;
-  --wax-dim: #6b3a1a;
-  /* --wax-glow removed — copper/wax carries no glow (§1). */
-}
-
-/* ── Thread-weave — new entries appear woven in ─────────────────────── */
-@keyframes hl-thread-weave {
-  0%   { clip-path: inset(0 100% 0 0); opacity: 0.5; }
-  12%  { opacity: 1; }
-  100% { clip-path: inset(0 0% 0 0);   opacity: 1; }
-}
-
-.hl-thread-new {
-  animation: hl-thread-weave var(--cloth-weave-dur) var(--ease) forwards;
 }
 
 /* ── Breathing cursor — Composer blank page ──────────────────────────── */
@@ -2440,7 +2424,6 @@ html {
 
 /* ── Reduced motion overrides ─────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  .hl-thread-new               { animation: none; clip-path: none; opacity: 1; }
   .hl-composer-cursor-after::after { animation: none; }
   .hl-cloth-breathe-el        { animation: none; }
 }

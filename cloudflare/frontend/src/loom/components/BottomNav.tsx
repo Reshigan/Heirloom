@@ -79,8 +79,11 @@ export function BottomNav() {
               justifyContent: 'center',
               gap: 4,
               textDecoration: 'none',
-              borderTop: isActive ? '2px solid var(--warm)' : '2px solid transparent',
-              paddingTop: isActive ? 0 : 2,
+              // Active indicator is a 1px copper hairline (>1px copper = defect);
+              // the inactive fallback is a 1px transparent border so the box model
+              // is identical and the bar never shifts on selection.
+              borderTop: isActive ? '1px solid var(--warm)' : '1px solid transparent',
+              paddingTop: 1,
               color: isCenter
                 ? isActive ? 'var(--warm)' : 'var(--warm-dim)'
                 : isActive ? 'var(--bone)' : 'var(--bone-dim)',

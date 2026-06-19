@@ -429,7 +429,7 @@ export function ThreadCompose() {
                   type="checkbox"
                   checked={enableLock}
                   onChange={(e) => setEnableLock(e.target.checked)}
-                  style={{ marginTop: 3, accentColor: 'var(--warm)', flexShrink: 0 }}
+                  style={{ marginTop: 3, accentColor: 'var(--bone-dim)', flexShrink: 0 }}
                 />
                 <div>
                   <p

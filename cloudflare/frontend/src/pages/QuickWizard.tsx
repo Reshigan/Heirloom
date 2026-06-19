@@ -169,7 +169,7 @@ function StepProgress({ current, total, label }: { current: number; total: numbe
             top: 0,
             height: '100%',
             width: `${pct}%`,
-            background: 'var(--warm)',
+            background: 'var(--bone-dim)',
             transition: 'width 360ms var(--ease)',
           }}
         />
@@ -199,7 +199,7 @@ function LoadingBar({ label }: { label?: string }) {
             height: '100%',
             width: '40%',
             background: 'var(--warm)',
-            animation: 'loom-shuttle var(--dur-ceremony) var(--ease) infinite',
+            animation: 'loom-shuttle-quick var(--dur-ceremony) var(--ease) infinite',
           }}
         />
       </div>

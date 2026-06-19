@@ -309,7 +309,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
         {/* center: §1.5-B append-only counter — ∞ until count loads, then the real number */}
         <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
           {entryCount !== null ? (
-            <span className="hl-counter">{entryCount.toLocaleString()}</span>
+            <span className="hl-counter"><b>{entryCount.toLocaleString()}</b></span>
           ) : (
             <span style={{ fontFamily: 'var(--serif)', fontWeight: 300, fontSize: 18, color: 'var(--bone-dim)', letterSpacing: 0 }}>∞</span>
           )}

@@ -175,6 +175,8 @@ export function MemoryCards() {
                 key={t.value}
                 type="button"
                 role="tab"
+                id={`tab-${t.value}`}
+                aria-controls={`tabpanel-${t.value}`}
                 aria-selected={activeTab === t.value}
                 onClick={() => setActiveTab(t.value)}
                 style={{
@@ -220,6 +222,9 @@ export function MemoryCards() {
         {/* ── Create tab ── */}
         {activeTab === 'create' && (
           <div
+            role="tabpanel"
+            id="tabpanel-create"
+            aria-labelledby="tab-create"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
@@ -378,7 +383,7 @@ export function MemoryCards() {
                       type="checkbox"
                       checked={includePhoto}
                       onChange={(e) => setIncludePhoto(e.target.checked)}
-                      style={{ width: 14, height: 14, accentColor: 'var(--warm)', cursor: 'pointer' }}
+                      style={{ width: 14, height: 14, accentColor: 'var(--bone-dim)', cursor: 'pointer' }}
                     />
                     <span
                       className="hl-serif"
@@ -530,7 +535,7 @@ export function MemoryCards() {
 
         {/* ── Gallery tab ── */}
         {activeTab === 'gallery' && (
-          <div>
+          <div role="tabpanel" id="tabpanel-gallery" aria-labelledby="tab-gallery">
             {cards.length === 0 ? (
               <div style={{ border: '1px solid var(--rule)', padding: '64px 32px', textAlign: 'center' }}>
                 <p className="hl-eyebrow" style={{ marginBottom: 14 }}>No cards yet</p>
@@ -574,7 +579,7 @@ export function MemoryCards() {
 
         {/* ── On This Day tab ── */}
         {activeTab === 'onthisday' && (
-          <div>
+          <div role="tabpanel" id="tabpanel-onthisday" aria-labelledby="tab-onthisday">
             {onThisDay.displayDate && (
               <p
                 className="hl-mono"

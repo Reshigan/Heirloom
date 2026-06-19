@@ -10,6 +10,7 @@ import { type FamilyMember } from '../types';
 import { formatDate } from '../utils/date';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { RoomError } from '../loom/components/RoomError';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { dyeForId, dyeTextVar, DYES, type Dye } from '../loom/dye';
 
 interface PendingInvite {
@@ -238,6 +239,7 @@ export function Family() {
                 <button
                   key={m}
                   type="button"
+                  aria-pressed={mode === m}
                   onClick={() => { setMode(m); setError(null); setInviteSent(false); }}
                   style={{
                     background: 'transparent',
@@ -475,7 +477,9 @@ export function Family() {
 
         {/* member list — the ledger of the bloodline */}
         {isLoading ? (
-          <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.4, marginTop: 8 }} />
+          <div style={{ marginTop: 8 }}>
+            <ProgressHair width={80} />
+          </div>
         ) : isError ? (
           <RoomError onRetry={() => refetch()} />
         ) : members.length === 0 ? (

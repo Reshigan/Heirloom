@@ -176,7 +176,12 @@ export default function Wrapped() {
 
   const handleShare = async () => {
     const url = `${window.location.origin}/wrapped/${YEAR}`;
-    const text = `In ${YEAR}, I wove ${stats.thisYear.length} entries across ${stats.activeMonths} months.`;
+    // Echo the metrics the page actually shows: the three displayed entry-kind
+    // bands (memories + voices + notes) summed, plus the active-months figure
+    // surfaced via the eyebrow's year. No band reports a bare "entries" total,
+    // so the share text must compose from what the reader can see on-screen.
+    const woven = stats.kindCounts.memory + stats.kindCounts.voice + stats.kindCounts.letter;
+    const text = `In ${YEAR}, I wove ${stats.kindCounts.memory.toLocaleString()} memories, ${stats.kindCounts.voice.toLocaleString()} voices and ${stats.kindCounts.letter.toLocaleString()} notes — ${woven.toLocaleString()} threads across ${stats.activeMonths} months.`;
     if (navigator.share) {
       await navigator.share({ title: `${YEAR} — Heirloom`, text, url }).catch(() => null);
     } else {

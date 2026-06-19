@@ -7,7 +7,7 @@ import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
-import { dyeVar, dyeFromMetadata, dyeForId, type Dye } from '../loom/dye';
+import { dyeVar, dyeTextVar, dyeFromMetadata, dyeForId, type Dye } from '../loom/dye';
 
 /**
  * Screen 07 — The Reading Room
@@ -320,6 +320,7 @@ function ReadingContent({
                 type="button"
                 onClick={() => onJump(i)}
                 aria-label={`Go to entry ${i + 1}`}
+                aria-current={i === activeIndex ? 'true' : undefined}
                 style={{
                   background: 'transparent',
                   border: 'none', padding: '21px 8px', cursor: 'pointer',
@@ -530,7 +531,7 @@ export function ReadingRoom() {
         position: 'absolute', top: 0, left: 0, right: 0, height: 56, zIndex: 20,
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 24px',
-        background: 'var(--ink-translucent, rgba(14,14,12,0.75))',
+        background: 'var(--ink-translucent)',
         borderBottom: '1px solid var(--rule)',
       }}>
         <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'reading' }]} />
@@ -539,9 +540,9 @@ export function ReadingRoom() {
           <span style={{ fontFamily: 'var(--serif)', fontWeight: 300, fontSize: 15 }}>∞</span>
           {t ? (
             <>
-              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dye, letterSpacing: '0.08em' }}>{t.kind}</span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dyeTextVar(t.dye), letterSpacing: '0.08em' }}>{t.kind}</span>
               <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)' }}>·</span>
-              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dye, letterSpacing: '0.08em' }}>{t.who}</span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dyeTextVar(t.dye), letterSpacing: '0.08em' }}>{t.who}</span>
               <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)' }}>·</span>
               <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.08em' }}>{t.date}</span>
             </>
