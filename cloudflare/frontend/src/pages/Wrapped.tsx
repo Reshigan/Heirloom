@@ -174,22 +174,16 @@ export default function Wrapped() {
     return () => clearTimeout(t);
   }, []);
 
-  const handleShare = async () => {
-    const url = `${window.location.origin}/wrapped/${YEAR}`;
-    // Echo the metrics the page actually shows: the three displayed entry-kind
-    // bands (memories + voices + notes) summed, plus the active-months figure
-    // surfaced via the eyebrow's year. No band reports a bare "entries" total,
-    // so the share text must compose from what the reader can see on-screen.
-    const woven = stats.kindCounts.memory + stats.kindCounts.voice + stats.kindCounts.letter;
-    const text = `In ${YEAR}, I wove ${stats.kindCounts.memory.toLocaleString()} memories, ${stats.kindCounts.voice.toLocaleString()} voices and ${stats.kindCounts.letter.toLocaleString()} notes — ${woven.toLocaleString()} threads across ${stats.activeMonths} months.`;
-    if (navigator.share) {
-      await navigator.share({ title: `${YEAR} — Heirloom`, text, url }).catch(() => null);
-    } else {
-      const ok = await copyToClipboard(url).then(() => true).catch(() => false);
-      if (ok) {
-        setCopied(true);
-        setTimeout(() => setCopied(false), 2400);
-      }
+  // No social share, no brag card — Rule 5 (outside time). A year-in-review is
+  // a private retrospective, so this just copies the page's own permalink to the
+  // clipboard and reports the result inline. No metric sentence is composed
+  // anywhere; the link carries nothing but the address.
+  const handleCopyLink = async () => {
+    const ok = await copyToClipboard(window.location.href).then(() => true).catch(() => false);
+    if (ok) {
+      setCopied(true);
+      // Inline status clears on the motion ladder (1400ms).
+      setTimeout(() => setCopied(false), 1400);
     }
   };
 
@@ -325,11 +319,14 @@ export default function Wrapped() {
           <WaxSeal size={26} />
         </div>
 
-        {/* quiet share — mono, warm underline (hidden until there's a year to share) */}
+        {/* quiet private permalink — mono, warm underline. Copies the page's own
+            address to the clipboard; no share sheet, no brag (hidden until
+            there's a woven year to link to). */}
         {!isEmpty && (
           <button
             type="button"
-            onClick={handleShare}
+            onClick={handleCopyLink}
+            aria-live="polite"
             style={{
               marginTop: 'clamp(28px,5vh,56px)',
               background: 'transparent', border: 0, padding: '6px 2px', cursor: 'pointer',
@@ -345,7 +342,7 @@ export default function Wrapped() {
                 borderBottom: '1px solid var(--warm-dim)', paddingBottom: 3,
               }}
             >
-              {copied ? 'link copied' : `share your ${YEAR}`}
+              {copied ? 'link copied' : 'copy a private link'}
             </span>
           </button>
         )}

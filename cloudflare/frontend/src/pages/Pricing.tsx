@@ -327,7 +327,7 @@ export function Pricing() {
                 background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase',
                 color: showAnnual ? 'var(--bone)' : 'var(--bone-faint)',
-                borderBottom: showAnnual ? '1px solid var(--warm)' : '1px solid transparent',
+                borderBottom: showAnnual ? '1px solid var(--bone)' : '1px solid transparent',
                 transition: 'color 360ms var(--ease)',
               }}
             >

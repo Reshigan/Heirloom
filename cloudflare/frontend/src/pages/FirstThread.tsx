@@ -323,7 +323,7 @@ export function FirstThread() {
               <>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                   <div style={{ position: 'relative', width: 120, height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <img src={ASSET_SEAL} alt="" style={{ width: 108, height: 108, animation: `hl-stamp 720ms ${EASE} both` }} />
+                    <img src={ASSET_SEAL} alt="" style={{ position: 'absolute', left: '50%', top: '50%', width: 108, height: 108, animation: `hl-stamp 720ms ${EASE} both` }} />
                   </div>
                   <div style={{ fontFamily: 'var(--serif-display)', fontSize: 32, color: 'var(--bone)', marginTop: 26, animation: `hl-fadeup 720ms ${EASE} 360ms both` }}>Sealed until {new Date().getFullYear() + SEAL_YEARS_AHEAD}.</div>
                   <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15, color: 'var(--bone-faint)', marginTop: 10, animation: `hl-fadeup 720ms ${EASE} 360ms both` }}>For generations to come.</div>

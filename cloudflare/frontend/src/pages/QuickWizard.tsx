@@ -44,7 +44,7 @@ interface PersonPrompt {
   category: string;
 }
 
-type WizardStep = 'person' | 'template' | 'type' | 'prompt' | 'create' | 'preview';
+type WizardStep = 'person' | 'template' | 'type' | 'prompt' | 'preview';
 type ContentType = 'voice' | 'letter';
 
 // ── Step metadata ───────────────────────────────────────────────────────────
@@ -53,7 +53,6 @@ const STEP_NUMBER: Record<WizardStep, number> = {
   template: 2,
   type:     3,
   prompt:   4,
-  create:   5,
   preview:  5,
 };
 
@@ -90,7 +89,6 @@ function stepConfig(
         description: 'Pick a suggested beginning or write your own.',
       };
     case 'preview':
-    case 'create':
       return {
         eyebrow: 'the review',
         question: 'Your thread is ready.',
@@ -221,16 +219,22 @@ function SelectRow({
   sub,
   selected,
   onClick,
+  radio,
 }: {
   label: string;
   sub?: string;
   selected?: boolean;
   onClick: () => void;
+  // When true, this row is one option in a single-choice control: expose
+  // role="radio" + aria-checked so its selected state isn't colour-only.
+  radio?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      role={radio ? 'radio' : undefined}
+      aria-checked={radio ? !!selected : undefined}
       style={{
         display: 'flex',
         alignItems: 'baseline',
@@ -374,6 +378,10 @@ export function QuickWizard() {
   void _selectedTemplate;
   const [contentType, setContentType] = useState<ContentType | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
+  // True only when preview was reached via the 'prompt' step. The template
+  // path (template→type→preview) skips 'prompt', so Back must not infer the
+  // entry route from selectedPrompt truthiness.
+  const [cameFromPrompt, setCameFromPrompt] = useState(false);
   const [prompts, setPrompts] = useState<PersonPrompt[]>([]);
   const [loadingPrompts, setLoadingPrompts] = useState(false);
   const [promptError, setPromptError] = useState<string | null>(null);
@@ -429,12 +437,15 @@ export function QuickWizard() {
   const handleTemplateSelect = (template: typeof TEMPLATES[0]) => {
     setSelectedTemplate(template);
     setSelectedPrompt(template.defaultPrompt);
+    setCameFromPrompt(false);
     setStep('type');
   };
 
   const handleTypeSelect = (type: ContentType) => {
     setContentType(type);
     if (selectedPrompt) {
+      // template path: skips 'prompt' straight to preview
+      setCameFromPrompt(false);
       setStep('preview');
     } else {
       setStep('prompt');
@@ -443,6 +454,7 @@ export function QuickWizard() {
 
   const handlePromptSelect = (prompt: string) => {
     setSelectedPrompt(prompt);
+    setCameFromPrompt(true);
     setStep('preview');
   };
 
@@ -476,9 +488,10 @@ export function QuickWizard() {
         setContentType(null);
         break;
       case 'preview':
-        if (selectedPrompt && !preselectedPrompt) {
+        if (cameFromPrompt && !preselectedPrompt) {
           setStep('prompt');
           setSelectedPrompt(null);
+          setCameFromPrompt(false);
         } else {
           setStep('type');
           setContentType(null);
@@ -491,7 +504,7 @@ export function QuickWizard() {
   const { eyebrow, question, description } = stepConfig(step, selectedPerson);
   const familyMembers = Array.isArray(family) ? family : [];
   const canGoBack = step !== 'person';
-  const isReview = step === 'preview' || step === 'create';
+  const isReview = step === 'preview';
 
   return (
     <ClothShell
@@ -574,18 +587,20 @@ export function QuickWizard() {
 
             {/* Step 3: type (voice / letter) */}
             {step === 'type' && (
-              <div style={{ textAlign: 'left' }}>
+              <div role="radiogroup" aria-label="medium" style={{ textAlign: 'left' }}>
                 <SelectRow
                   label="Voice"
                   sub="a personal recording — ≈ 60 seconds"
                   selected={contentType === 'voice'}
                   onClick={() => handleTypeSelect('voice')}
+                  radio
                 />
                 <SelectRow
                   label="Written letter"
                   sub="a composed thread — ≈ 5 minutes"
                   selected={contentType === 'letter'}
                   onClick={() => handleTypeSelect('letter')}
+                  radio
                 />
               </div>
             )}

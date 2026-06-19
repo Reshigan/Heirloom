@@ -5,6 +5,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { CosmicHeader, SectionLabel } from '../loom/cosmic/CosmicUI';
 import { capsulesApi, threadsApi } from '../services/api';
 import { useFocusTrap } from '../lib/useFocusTrap';
+import { ProgressHair } from '../loom/components/ProgressHair';
 
 type CapsuleStatus = 'open' | 'sealed' | 'unlocked';
 
@@ -337,14 +338,7 @@ export function TimeCapsule() {
               paddingBottom: 32,
             }}
           >
-            <div
-              style={{
-                height: 1,
-                background: 'var(--warm)',
-                width: 120,
-                opacity: 0.4,
-              }}
-            />
+            <ProgressHair />
           </div>
         ) : !capsules?.length ? (
           <div style={{ paddingTop: 24, borderTop: '1px solid var(--hairline)' }}>

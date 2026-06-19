@@ -78,15 +78,17 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
   return (
     <div
       style={{
-        position: 'absolute',
-        inset: 0,
-        padding: '40px 80px 0',
+        position: 'relative',
+        minHeight: '100%',
+        padding: '40px 80px 64px',
         display: 'flex',
         flexDirection: 'column',
       }}
     >
       <div
         className="loom-eyebrow"
+        role="heading"
+        aria-level={1}
         style={{ marginBottom: 14, display: 'flex', justifyContent: 'space-between' }}
       >
         <span>

@@ -496,7 +496,7 @@ export function MemoryCards() {
                         letterSpacing: '0.18em',
                         textTransform: 'uppercase',
                         color: 'var(--bone-dim)',
-                        transition: 'border-color 180ms var(--ease), color 180ms',
+                        transition: 'border-color 180ms var(--ease), color 180ms var(--ease)',
                       }}
                     >
                       {copied ? 'Link copied' : 'Copy share link'}

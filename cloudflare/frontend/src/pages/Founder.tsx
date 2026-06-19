@@ -57,7 +57,7 @@ const inputFocusStyle = `
   .founder-input::placeholder { color: var(--bone-faint); }
   .founder-textarea:focus { border-bottom-color: var(--warm) !important; }
   .founder-textarea::placeholder { color: var(--bone-faint); }
-  .founder-cta:focus-visible { outline: 2px solid var(--warm); outline-offset: 2px; }
+  .founder-cta:focus-visible { outline: 1px solid var(--warm); outline-offset: 2px; }
 `;
 
 const labelBase: React.CSSProperties = {

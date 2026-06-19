@@ -113,13 +113,7 @@ export function Login() {
                 id="l-email" type="email" required autoComplete="email"
                 value={email} onChange={(e) => setEmail(e.target.value)}
                 className="hl-input"
-                style={{ borderBottom: 'none' }}
               />
-              {/* static gradient underline */}
-              <div aria-hidden style={{
-                height: 1, marginTop: 0,
-                background: 'var(--rule)',
-              }} />
             </div>
 
             <div>
@@ -142,13 +136,7 @@ export function Login() {
                 id="l-pw" type="password" required autoComplete="current-password"
                 value={password} onChange={(e) => setPassword(e.target.value)}
                 className="hl-input"
-                style={{ borderBottom: 'none' }}
               />
-              {/* static gradient underline */}
-              <div aria-hidden style={{
-                height: 1, marginTop: 0,
-                background: 'var(--rule)',
-              }} />
             </div>
 
             {error ? (

@@ -486,7 +486,7 @@ export function ReadingRoom() {
     setNavOpen(false);
     setSelvedgeOpen(false);
     setClothOpen(false);
-    setTimeout(() => { setActive(i); setClothOpen(true); }, 380);
+    setTimeout(() => { setActive(i); setClothOpen(true); }, 360);
   };
 
   // book view
@@ -692,6 +692,7 @@ export function ReadingRoom() {
               key={th.id}
               type="button"
               onClick={() => handleSelect(i)}
+              aria-current={i === active ? 'true' : undefined}
               style={{
                 flex: 1, cursor: 'pointer', background: 'transparent', border: 0,
                 display: 'flex', alignItems: 'center', overflow: 'hidden',

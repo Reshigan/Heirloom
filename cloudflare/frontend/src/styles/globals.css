@@ -316,7 +316,7 @@
      passes. Lifted from #a86220/#be7a2e/0.48α (all <4:1) after a live audit.
      #965616 = 4.42:1 on --ink-card (#ece0cb), still under; #8a4e12 = 5.06:1. */
   --warm:         #8a4e12;
-  --warm-bright:  #8a4d12;
+  --warm-bright:  #6f3d0d;
   --warm-dim:     #824a16;
   /* --warm-glow removed — copper carries no glow (§1). */
   --glass-bg:     rgba(18, 13, 8, 0.05);
@@ -577,14 +577,15 @@ select.input {
 /* Date input specific - ensure dark theme on all browsers */
 input[type="date"].input,
 input[type="date"] {
-  color-scheme: dark;
-  background: var(--void-surface);
-  color: var(--paper);
+  background: var(--ink-card);
+  color: var(--bone);
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.8) sepia(1) saturate(5) hue-rotate(10deg);
   cursor: pointer;
+}
+.loom[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.8) sepia(1) saturate(5) hue-rotate(10deg);
 }
 
 input[type="date"]::-webkit-datetime-edit {
@@ -730,7 +731,7 @@ em {
   left: 0;
   right: 0;
   height: 40px;
-  background: linear-gradient(to top, var(--void-surface), transparent);
+  background: linear-gradient(to top, var(--ink-card), transparent);
   pointer-events: none;
   display: block;
 }
@@ -1317,8 +1318,8 @@ html {
   padding: 3px 8px;
   border: 1px solid var(--rule);
 }
-.hl-tag.warm { color: var(--warm); border-color: rgba(224, 160, 98,0.35); }
-.hl-tag.danger { color: var(--dye-madder); border-color: rgba(232,64,48,0.3); opacity: 0.85; }
+.hl-tag.warm { color: var(--warm); border-color: var(--rule-warm); }
+.hl-tag.danger { color: var(--dye-madder); border-color: color-mix(in srgb, var(--dye-madder) 40%, transparent); opacity: 0.85; }
 .hl-chip {
   display: inline-block;
   font-family: var(--mono);

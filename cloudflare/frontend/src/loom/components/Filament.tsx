@@ -164,7 +164,7 @@ export function Filament({ variant = 'none', intensity = 1, className, style }: 
       g.style.filter = 'brightness(1.5)';
       window.setTimeout(() => {
         if (gestureRef.current) gestureRef.current.style.filter = 'none';
-      }, 80);
+      }, 180);
     };
     window.addEventListener('heirloom:weave', onWeave);
     return () => window.removeEventListener('heirloom:weave', onWeave);

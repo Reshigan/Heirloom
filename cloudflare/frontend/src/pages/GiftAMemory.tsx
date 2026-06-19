@@ -501,7 +501,6 @@ export function GiftAMemory() {
                   fontSize: 11,
                   letterSpacing: '0.04em',
                   color: 'var(--bone-dim)',
-                  colorScheme: 'dark',
                   padding: 0,
                 }}
               />

@@ -43,7 +43,7 @@ export function ClothShell({
           aria-label="Navigation"
           style={{
             position: 'absolute', top: 0, left: 0, right: 0,
-            height: 'calc(56px + env(safe-area-inset-top, 0px))',
+            height: 'var(--topbar-h)',
             zIndex: 20,
             display: 'flex', alignItems: 'flex-end',
             padding: '0 24px',
@@ -85,7 +85,7 @@ export function ClothShell({
         style={{
           position: 'absolute',
           inset: 0,
-          top: noTopbar ? 0 : 'calc(56px + env(safe-area-inset-top, 0px))',
+          top: noTopbar ? 0 : 'var(--topbar-h)',
           zIndex: 10,
           overflowY: 'auto',
           // Reserve space for the fixed BottomNav so scrolling content never
