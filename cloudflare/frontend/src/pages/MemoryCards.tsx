@@ -329,7 +329,7 @@ export function MemoryCards() {
                       >
                         {style.name}
                       </p>
-                      <p style={{ fontFamily: 'var(--serif)', fontSize: 12, color: 'var(--bone-faint)', margin: 0 }}>
+                      <p style={{ fontFamily: 'var(--serif)', fontSize: 12, lineHeight: 1.45, color: 'var(--bone-dim)', margin: 0 }}>
                         {style.description}
                       </p>
                     </button>

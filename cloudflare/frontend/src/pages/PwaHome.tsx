@@ -434,18 +434,6 @@ export function PwaHome() {
       .catch(() => {});
   }, [isAuthenticated]);
 
-  /* ── Cloth parallax: nudge CSS var on ClothShell as user scrolls ── */
-  useEffect(() => {
-    const el = document.querySelector('.loom main');
-    if (!el) return;
-    const onScroll = () => {
-      const pct = (el as HTMLElement).scrollTop / Math.max(1, el.scrollHeight - el.clientHeight);
-      (document.querySelector('.loom') as HTMLElement)?.style.setProperty('--cloth-parallax', `${pct * 4}deg`);
-    };
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, []);
-
   // The installed app remembers you. Once auth has rehydrated, a launch with no
   // token (never signed in, or session cleared) goes straight to login rather
   // than the visitor marketing preview — the PWA opens directly into its door.
@@ -535,8 +523,8 @@ export function PwaHome() {
 
       {/* Content — ClothShell's <main> is the single scroller: it offsets the
           topbar and reserves BottomNav clearance, so rendering directly here
-          keeps content off the fixed nav and lets the cloth parallax read
-          `.loom main` scroll. (A nested absolute scroller defeated both.) */}
+          keeps content off the fixed nav. (A nested absolute scroller defeated
+          this.) */}
       {!isNewUserLoading && !isNewUser && !(entriesLoading && entries.length === 0) && (
         <AuthHome role={role} entries={entries} prompt={prompt} stats={stats} />
       )}

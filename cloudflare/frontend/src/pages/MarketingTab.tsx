@@ -108,7 +108,7 @@ const inputStyle: React.CSSProperties = {
   background: 'transparent',
   border: '1px solid var(--rule)',
   color: 'var(--bone)',
-  fontFamily: 'var(--mono)',
+  fontFamily: 'var(--serif)',
   fontSize: 12,
   letterSpacing: '0.04em',
   padding: '8px 12px',
@@ -785,7 +785,7 @@ function CreateCampaignModal({ onClose, influencers }: { onClose: () => void; in
           </div>
 
           {/* Email HTML preview — white surface intentional */}
-          <div style={{ padding: '16px', background: '#fff', border: '1px solid var(--rule)' }}>
+          <div style={{ padding: '16px', background: 'var(--ink-card)', border: '1px solid var(--rule)' }}>
             <iframe
               sandbox=""
               srcDoc={formData.bodyHtml || '<em style="color:#666">No content</em>'}

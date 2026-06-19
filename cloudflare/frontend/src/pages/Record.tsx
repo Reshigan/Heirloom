@@ -526,7 +526,6 @@ export function Record() {
                 animation: recordingState === 'recording'
                   ? 'hl-record-pulse 1400ms var(--ease) infinite'
                   : 'none',
-                transition: 'background 360ms var(--ease), color 360ms var(--ease)',
               }}
             >
               stop
@@ -686,15 +685,15 @@ export function Record() {
               >
                 available
               </div>
-              <div style={{ border: '1px solid var(--rule)' }}>
+              <div role="radiogroup" aria-label="When this becomes available" style={{ border: '1px solid var(--rule)' }}>
                 {SPEAK_TRIGGERS.map((opt, i) => {
                   const active = opt.value === deliveryTrigger;
                   return (
                     <div
                       key={opt.value}
-                      role="button"
-                      tabIndex={0}
-                      aria-pressed={active}
+                      role="radio"
+                      tabIndex={active ? 0 : -1}
+                      aria-checked={active}
                       onClick={() => setDeliveryTrigger(opt.value)}
                       onKeyDown={e => {
                         if (e.key === 'Enter' || e.key === ' ') {
@@ -706,7 +705,7 @@ export function Record() {
                         display: 'block', width: '100%', textAlign: 'left',
                         background: 'transparent', border: 0,
                         borderBottom: i < SPEAK_TRIGGERS.length - 1 ? '1px solid var(--rule)' : 'none',
-                        borderLeft: `3px solid ${active ? 'var(--warm)' : 'transparent'}`,
+                        borderLeft: `1px solid ${active ? 'var(--warm)' : 'transparent'}`,
                         padding: '12px 14px', cursor: 'pointer',
                         transition: 'border-left-color 180ms var(--ease)',
                       }}

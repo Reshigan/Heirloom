@@ -407,15 +407,15 @@ function DeliveryField({
       </div>
 
       {/* Stacked option rows — each a full-width tappable target */}
-      <div style={{ borderTop: '1px solid var(--rule)' }}>
+      <div role="radiogroup" aria-label="delivery trigger" style={{ borderTop: '1px solid var(--rule)' }}>
         {TRIGGER_OPTIONS.map((opt, i) => {
           const active = opt.value === trigger;
           return (
             <div
               key={opt.value}
-              role="button"
-              tabIndex={0}
-              aria-pressed={active}
+              role="radio"
+              tabIndex={active ? 0 : -1}
+              aria-checked={active}
               onClick={() => onTriggerChange(opt.value)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -432,7 +432,7 @@ function DeliveryField({
                 background: 'transparent',
                 border: 0,
                 borderBottom: i < TRIGGER_OPTIONS.length - 1 ? '1px solid var(--rule)' : 'none',
-                borderLeft: `3px solid ${active ? 'var(--warm)' : 'transparent'}`,
+                borderLeft: `1px solid ${active ? 'var(--warm)' : 'transparent'}`,
                 padding: '14px 16px 14px 14px',
                 cursor: 'pointer',
                 minHeight: 48,

@@ -492,7 +492,7 @@ export function ReadingRoom() {
   // book view
   if (view === 'book') {
     return (
-      <div className="loom" style={{ position: 'fixed', inset: 0, background: 'var(--ink)' }}>
+      <div className="loom" data-theme="dark" style={{ position: 'fixed', inset: 0, background: 'var(--ink)' }}>
         <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
           <BookView entries={entries} threadName={user?.firstName ? `${who}'s thread` : 'your thread'} />
         </div>
@@ -908,7 +908,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
           <div style={{ flex: 1 }} />
           {/* page number — bare mono numeral */}
           <span style={{
-            fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)',
+            fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--letter-gold)',
             letterSpacing: '0.08em',
           }}>{ch * 2 + 1}</span>
         </div>

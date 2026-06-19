@@ -528,8 +528,8 @@ html[data-theme="light"] body {
     font-family: var(--font-body);
     font-size: 16px;
     line-height: 1.5;
-    background: var(--void-surface);
-    border: 1px solid rgba(255,255,255,0.15);
+    background: var(--ink-card);
+    border: 1px solid var(--rule);
     border-radius: 0;
     color: var(--paper);
     outline: none;
@@ -542,7 +542,7 @@ html[data-theme="light"] body {
   }
 
   .input:hover:not(:focus) {
-    border-color: rgba(255,255,255,0.25);
+    border-color: var(--rule-strong);
   }
 }
 
@@ -585,7 +585,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 .loom[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(0.8) sepia(1) saturate(5) hue-rotate(10deg);
+  filter: invert(1) brightness(1.6);
 }
 
 input[type="date"]::-webkit-datetime-edit {
@@ -612,7 +612,6 @@ h3 { font-size: 1.75rem; }
 h4, h5, h6 { font-size: 1.5rem; }
 
 .text-gold { color: var(--gold); }
-.text-muted { color: rgba(245, 243, 238, 0.5); }
 .text-hand { font-family: var(--font-hand); }
 
 em {
@@ -2438,12 +2437,6 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: var(--bone, #f2e6d0) !important;
   caret-color: var(--bone, #f2e6d0);
   transition: background-color 0s 9999s; /* prevent flash */
-}
-
-/* ── Cloth parallax — responds to --cloth-parallax CSS var set by PwaHome scroll listener ── */
-.loom canvas {
-  transform: rotateX(var(--cloth-parallax, 0deg));
-  transition: transform 360ms var(--ease);
 }
 
 /* ── Mobile responsiveness ──────────────────────────────────────────────── */

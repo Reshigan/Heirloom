@@ -42,7 +42,7 @@ export function AdminDashboard() {
   const admin = useAdminAuth();
   const [activeTab, setActiveTab] = useState('overview');
   // Legacy sub-navigation — quarantines the speculative/auxiliary features
-  type LegacySub = 'marketing' | 'social' | 'coupons' | 'vouchers' | 'gold-legacy' | 'reports' | 'usage' | 'emails' | 'admins' | 'audit' | 'incidents';
+  type LegacySub = 'marketing' | 'social' | 'coupons' | 'vouchers' | 'gold-legacy' | 'reports' | 'usage' | 'emails' | 'admins' | 'audit';
   const [legacySub, setLegacySub] = useState<LegacySub>('marketing');
   const [showCouponModal, setShowCouponModal] = useState(false);
   const [showAdminModal, setShowAdminModal] = useState(false);
@@ -232,7 +232,6 @@ export function AdminDashboard() {
       { id: 'emails', label: 'Emails' },
       { id: 'admins', label: 'Admins' },
       { id: 'audit', label: 'Audit Logs' },
-      { id: 'incidents', label: 'Incidents' },
     ];
 
   const activeSection =
@@ -304,17 +303,6 @@ export function AdminDashboard() {
                 {label.toLowerCase()}
               </button>
             ))}
-          </div>
-        )}
-
-        {/* Legacy · Incidents — mock kill-switches + pins */}
-        {activeTab === 'legacy' && legacySub === 'incidents' && (
-          <div>
-            <SectionLabel>Kill-switches + pins</SectionLabel>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid var(--rule)' }}>
-              <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone)' }}>Composer disabled</span>
-              <span className="hl-tag">off</span>
-            </div>
           </div>
         )}
 
@@ -834,7 +822,7 @@ export function AdminDashboard() {
                 style={{
                   background: 'var(--ink-card)', border: '1px solid var(--rule)',
                   borderRadius: 0, padding: '6px 12px', color: 'var(--bone)',
-                  fontFamily: 'var(--mono)', fontSize: 12, width: 220,
+                  fontFamily: 'var(--serif)', fontSize: 12, width: 220,
                   outline: 'none',
                 }}
               />

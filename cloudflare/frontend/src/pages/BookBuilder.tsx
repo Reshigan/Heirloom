@@ -143,7 +143,10 @@ function chapterDye(it: { id: string; metadata?: unknown; dye?: unknown }): Dye 
 
 /** placeholder marks inside a template thumbnail — serif/mono rules + a photo block */
 function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }) {
-  const ink = active ? 'var(--warm-dim, rgba(224,160,98,0.5))' : 'var(--rule)';
+  // placeholder rules + marks stay the NEUTRAL hairline in BOTH states — copper
+  // never fills a 2px bar (Rule 2), and no raw rgba fallback that won't theme-flip.
+  // The active tile signals ONLY through its 1px warm border + warm label below.
+  const ink = 'var(--rule)';
   const photo: React.CSSProperties = {
     // photo-plate placeholder — a FLAT leaf of the page surface (Rule 2: copper
     // never fills a surface). Warmth is carried by the hairline border alone, so
