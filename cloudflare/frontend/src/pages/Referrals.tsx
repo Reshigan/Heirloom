@@ -123,7 +123,7 @@ export function Referrals() {
                 bottom: 0,
                 left: 0,
                 width: '40%',
-                background: 'var(--warm)',
+                background: 'var(--bone-dim)',
                 animation: 'none',
                 opacity: 0.6,
               }}
@@ -277,7 +277,7 @@ export function Referrals() {
                               top: 0,
                               bottom: 0,
                               width: `${progress}%`,
-                              background: 'var(--warm)',
+                              background: 'var(--bone-dim)',
                               transition: 'width 360ms var(--ease)',
                             }}
                           />

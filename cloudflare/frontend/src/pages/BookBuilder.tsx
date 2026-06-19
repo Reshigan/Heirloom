@@ -474,7 +474,7 @@ export function BookBuilder() {
                       left: 0,
                       width: '100%',
                       height: 1,
-                      background: i <= currentStepIndex ? 'var(--warm)' : 'transparent',
+                      background: i <= currentStepIndex ? 'var(--bone-dim)' : 'transparent',
                       transition: 'background 360ms var(--ease)',
                     }}
                   />

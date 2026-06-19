@@ -633,10 +633,10 @@ export function InterviewMode() {
           0%, 100% { opacity: 1; }
           50%       { opacity: 0; }
         }
-        progress { color: var(--warm); }
+        progress { color: var(--bone-dim); }
         progress::-webkit-progress-bar { background: var(--rule); }
-        progress::-webkit-progress-value { background: var(--warm); }
-        progress::-moz-progress-bar { background: var(--warm); }
+        progress::-webkit-progress-value { background: var(--bone-dim); }
+        progress::-moz-progress-bar { background: var(--bone-dim); }
       `}</style>
     </ClothShell>
   );
