@@ -315,7 +315,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
           )}
         </span>
 
-        {/* right slot: action (hidden on mobile where BottomNav covers it) + theme toggle + security dot + user menu */}
+        {/* right slot: action (hidden on mobile where BottomNav covers it) + security dot + user menu */}
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
           {updateReady && (
             <button

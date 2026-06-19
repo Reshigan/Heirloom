@@ -533,7 +533,7 @@ export function Record() {
             </button>
           ) : null}
 
-          {/* hairline level — calm amber line that brightens while recording */}
+          {/* hairline level — calm bone-dim line that brightens while recording */}
           <svg
             aria-hidden
             viewBox="0 0 400 28"
@@ -549,7 +549,7 @@ export function Record() {
             <path
               d="M0 14 C 20 14, 26 10, 34 14 S 48 18, 56 14 S 72 4, 84 14 S 100 22, 112 14 S 130 7, 144 14 S 162 18, 176 14 S 196 9, 212 14 S 232 20, 248 14 S 268 10, 284 14 S 304 17, 320 14 S 344 11, 364 14 S 388 14, 400 14"
               fill="none"
-              stroke="var(--warm)"
+              stroke="var(--bone-dim)"
               strokeWidth={1}
               vectorEffect="non-scaling-stroke"
             />

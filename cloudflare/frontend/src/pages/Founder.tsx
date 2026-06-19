@@ -257,7 +257,7 @@ export function Founder() {
         >
           <span
             style={{
-              fontFamily:    'var(--mono)',
+              fontFamily:    'var(--serif-display)',
               fontSize:       40,
               fontWeight:     400,
               color:         'var(--bone)',

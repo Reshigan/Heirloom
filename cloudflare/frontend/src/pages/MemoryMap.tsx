@@ -333,34 +333,22 @@ export function MemoryMap() {
             )}
 
             {/* The places ledger — every located place as a hairline-ruled EntryRow.
-                Serif place name left; mono right cluster = memory count. Click-through
-                preserved verbatim (selects the first memory at that place; href intact
-                for middle-click / open-in-new). */}
+                Serif place name left; mono right cluster = memory count. Each row is a
+                single interactive element (EntryRow's own <button>, accessible name = the
+                place); clicking selects the first memory at that place in-place. */}
             <SectionLabel>The places</SectionLabel>
             <div>
               {locations.map(({ name, count }) => {
                 const firstMatch = memories.find((m) => (m.location_name || 'Unknown') === name) ?? null;
-                const href = `/loom/read?location=${encodeURIComponent(name)}`;
                 return (
-                  <Link
+                  <EntryRow
                     key={name}
-                    to={href}
-                    onClick={(e) => {
-                      if (firstMatch) {
-                        e.preventDefault();
-                        setSelectedMemory(firstMatch);
-                      }
+                    title={name}
+                    year={`${count} ${count === 1 ? 'memory' : 'memories'}`}
+                    onClick={() => {
+                      if (firstMatch) setSelectedMemory(firstMatch);
                     }}
-                    style={{ textDecoration: 'none', display: 'block' }}
-                  >
-                    <EntryRow
-                      title={name}
-                      year={`${count} ${count === 1 ? 'memory' : 'memories'}`}
-                      onClick={() => {
-                        if (firstMatch) setSelectedMemory(firstMatch);
-                      }}
-                    />
-                  </Link>
+                  />
                 );
               })}
             </div>

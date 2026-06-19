@@ -154,6 +154,9 @@
      owners to reference (the light parallels live in .loom[data-theme="light"]). */
   --book-inner-shadow: rgba(0, 0, 0, 0.6);
   --spine-shadow:      #050403;
+  --book-drop-shadow:    rgba(0, 0, 0, 0.32);
+  --emboss-shadow:       rgba(0, 0, 0, 0.3);
+  --book-edge-highlight: rgba(242, 230, 208, 0.04);
 
   --parchment: #faf3e4;
   --parchment-deep: #f0e6d2;
@@ -400,10 +403,19 @@
   --letter-copper-rgb: 111, 61, 13;
   --letter-eyebrow:    #8a5a16;
 
-  /* Book shadows — light parallels of the dark :root tokens. Warm low-alpha
-     inner shadow + a mid-walnut spine on parchment. */
-  --book-inner-shadow: rgba(120, 90, 50, 0.16);
+  /* Book shadows — light parallels of the dark :root tokens. Cool near-black
+     low-alpha inner shadow (was a warm copper-hued inset glow — Rule 2 reads a
+     copper inset on paper as a copper fill) + a mid-walnut spine on parchment. */
+  --book-inner-shadow: rgba(20, 16, 12, 0.10);
   --spine-shadow:      #4a3420;
+  --book-drop-shadow:    rgba(74, 52, 32, 0.16);
+  --emboss-shadow:       rgba(255, 255, 255, 0.5);
+  --book-edge-highlight: rgba(74, 52, 32, 0.06);
+
+  /* --danger light-scope remap — the dark #c25a5a fails WCAG AA on paper.
+     Deep madder/oxblood that clears 4.5:1 against BOTH the light page ground
+     #f4ead9 (ratio 6.92) AND the card surface --ink-card #ece0cb (ratio 6.32). */
+  --danger: #93271a;
 }
 
 * {
@@ -1850,6 +1862,9 @@ html {
   animation: loom-shuttle 11s var(--loom-ease) infinite;
   pointer-events: none;
 }
+/* Sanctioned slow-ambient exception: this 11s sweep is OFF by default
+   (Loom.tsx ambientShuttle defaults false) and renders only when ambientShuttle
+   is explicitly enabled — it is not on the home/primitive surface. */
 @keyframes loom-shuttle {
   0%   { transform: translateX(-10vw); opacity: 0; }
   10%  { opacity: 0.6; }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { familyApi } from '../../services/api';
 import { dyeColor } from '../dye';
@@ -43,6 +43,11 @@ export function RecipientPicker({
   const [creating, setCreating] = useState(false);
   const [rel, setRel] = useState('');
   const [email, setEmail] = useState('');
+  // Active descendant for keyboard navigation of the suggestion listbox.
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listboxId = 'recipient-picker-listbox';
 
   const q = name.trim().toLowerCase();
   const matches = members.filter(
@@ -54,6 +59,60 @@ export function RecipientPicker({
   const exact = members.some((m) => m.name.toLowerCase() === q);
   const canAdd = q.length > 0 && !exact && !selectedId;
   const selected = selectedId ? members.find((m) => m.id === selectedId) : null;
+
+  // Whether the listbox is currently shown — keep keyboard + render logic in sync.
+  const listOpen = open && matches.length > 0;
+
+  // Reset the highlight whenever the option set changes or the list closes.
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [name, selectedId, open]);
+
+  // Dismiss on outside-click — mirror the ToField's handler.
+  useEffect(() => {
+    if (!open) return;
+    const onDocMouseDown = (e: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocMouseDown);
+    return () => document.removeEventListener('mousedown', onDocMouseDown);
+  }, [open]);
+
+  const select = (m: RecipientMember) => {
+    onChange(m.name, m.id);
+    setOpen(false);
+    setActiveIndex(-1);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      if (!listOpen) {
+        setOpen(true);
+        return;
+      }
+      setActiveIndex((i) => (i < matches.length - 1 ? i + 1 : 0));
+    } else if (e.key === 'ArrowUp') {
+      if (!listOpen) return;
+      e.preventDefault();
+      setActiveIndex((i) => (i > 0 ? i - 1 : matches.length - 1));
+    } else if (e.key === 'Enter') {
+      if (listOpen && activeIndex >= 0 && matches[activeIndex]) {
+        e.preventDefault();
+        select(matches[activeIndex]);
+      } else if (!open) {
+        setOpen(true);
+      }
+    } else if (e.key === 'Escape') {
+      if (!open) return;
+      e.preventDefault();
+      setOpen(false);
+      setActiveIndex(-1);
+      inputRef.current?.focus();
+    }
+  };
 
   async function add(relationship: string, emailAddr: string) {
     const trimmed = name.trim();
@@ -74,7 +133,7 @@ export function RecipientPicker({
   }
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div ref={rootRef} style={{ position: 'relative' }}>
       {label && (
         <div
           style={{
@@ -90,14 +149,23 @@ export function RecipientPicker({
         </div>
       )}
       <input
+        ref={inputRef}
         value={name}
         aria-label="Name"
+        role="combobox"
+        aria-expanded={listOpen}
+        aria-controls={listboxId}
+        aria-haspopup="listbox"
+        aria-autocomplete="list"
+        aria-activedescendant={
+          listOpen && activeIndex >= 0 ? `${listboxId}-opt-${activeIndex}` : undefined
+        }
         onChange={(e) => {
           onChange(e.target.value, null);
           setOpen(true);
         }}
         onFocus={() => setOpen(true)}
-        onBlur={() => setTimeout(() => setOpen(false), 200)}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder}
         style={{
           width: '100%',
@@ -114,8 +182,11 @@ export function RecipientPicker({
           outline: 'none',
         }}
       />
-      {open && matches.length > 0 && (
+      {listOpen && (
         <div
+          id={listboxId}
+          role="listbox"
+          aria-label="Recipient suggestions"
           style={{
             position: 'absolute',
             top: '100%',
@@ -128,19 +199,28 @@ export function RecipientPicker({
             overflowY: 'auto',
           }}
         >
-          {matches.map((m) => (
+          {matches.map((m, i) => (
             <button
               key={m.id}
+              id={`${listboxId}-opt-${i}`}
+              role="option"
+              aria-selected={i === activeIndex}
+              tabIndex={-1}
               type="button"
-              onMouseDown={() => {
-                onChange(m.name, m.id);
-                setOpen(false);
+              onMouseDown={(e) => {
+                // Keep focus on the input; resolve selection on click.
+                e.preventDefault();
+                select(m);
               }}
+              onMouseEnter={() => setActiveIndex(i)}
               style={{
                 display: 'block',
                 width: '100%',
                 textAlign: 'left',
-                background: 'transparent',
+                background:
+                  i === activeIndex
+                    ? 'color-mix(in srgb, var(--bone) 4%, transparent)'
+                    : 'transparent',
                 border: 0,
                 borderLeft: `3px solid ${dyeColor(m.id, m.dye)}`,
                 padding: '11px 12px 11px 9px',

@@ -246,7 +246,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
           borderRadius: 0,
           // neutral depth only — no copper glow layer. Softer than full-black so
           // it doesn't bruise the paper ground.
-          boxShadow: '0 14px 30px rgba(0,0,0,0.32), 0 2px 6px rgba(0,0,0,0.22)',
+          boxShadow: '0 14px 30px var(--book-drop-shadow), 0 2px 6px rgba(0,0,0,0.22)',
         }}
       >
         {/* darker spine stripe on the left */}
@@ -260,7 +260,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
             background:
               'linear-gradient(90deg, color-mix(in srgb, var(--ink-card) 70%, var(--spine-shadow)), color-mix(in srgb, var(--ink-card) 88%, var(--spine-shadow)))',
             borderRadius: 0,
-            boxShadow: 'inset -2px 0 4px rgba(0,0,0,0.5)',
+            boxShadow: 'inset -2px 0 4px var(--book-drop-shadow)',
           }}
         />
         {/* fore-edge stripe on the right */}
@@ -305,7 +305,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
               textAlign: 'center',
               lineHeight: 1.2,
               padding: '0 8px',
-              textShadow: '0 1px 1px rgba(0,0,0,0.32)',
+              textShadow: '0 1px 1px var(--emboss-shadow)',
             }}
           >
             {title}
@@ -318,7 +318,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--gold-text)',
-              textShadow: '0 1px 1px rgba(0,0,0,0.3)',
+              textShadow: '0 1px 1px var(--emboss-shadow)',
             }}
           >
             VOL. I · {yearsLabel}

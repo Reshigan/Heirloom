@@ -106,7 +106,7 @@ export function Loom({
   height = 240,
   showLigatures = true,
   showYears = true,
-  ambientShuttle = true,
+  ambientShuttle = false,
   nowYear,
   appendCount,
 }: LoomProps) {

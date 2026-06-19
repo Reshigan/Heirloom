@@ -8,6 +8,7 @@ import { HLogo } from '../loom/components/HLogo';
 import { familyApi } from '../services/api';
 import api from '../services/api';
 import { CosmicHeader, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 // ── Template options ────────────────────────────────────────────────────────
@@ -173,43 +174,6 @@ function StepProgress({ current, total, label }: { current: number; total: numbe
           }}
         />
       </div>
-    </div>
-  );
-}
-
-// ── Hairline indeterminate bar (loading; never a spinner) ───────────────────
-function LoadingBar({ label }: { label?: string }) {
-  return (
-    <div style={{ paddingTop: 28 }}>
-      <div
-        style={{
-          height: 1,
-          background: 'var(--rule)',
-          position: 'relative',
-          overflow: 'hidden',
-          maxWidth: 160,
-        }}
-      >
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            height: '100%',
-            width: '40%',
-            background: 'var(--warm)',
-            animation: 'loom-shuttle-quick var(--dur-ceremony) var(--ease) infinite',
-          }}
-        />
-      </div>
-      {label && (
-        <p
-          className="hl-mono"
-          style={{ fontSize: 10, color: 'var(--bone-dim)', marginTop: 10, letterSpacing: '0.1em' }}
-        >
-          {label}
-        </p>
-      )}
     </div>
   );
 }
@@ -547,7 +511,9 @@ export function QuickWizard() {
             {step === 'person' && (
               <>
                 {familyLoading ? (
-                  <LoadingBar label="loading…" />
+                  <div style={{ paddingTop: 28 }}>
+                    <ProgressHair label="loading…" width={160} />
+                  </div>
                 ) : familyMembers.length === 0 ? (
                   <div style={{ paddingTop: 20 }}>
                     <p
@@ -633,7 +599,9 @@ export function QuickWizard() {
             {step === 'prompt' && (
               <>
                 {loadingPrompts ? (
-                  <LoadingBar label="the Listener is thinking…" />
+                  <div style={{ paddingTop: 28 }}>
+                    <ProgressHair label="loading…" width={160} />
+                  </div>
                 ) : (
                   <>
                     {/* Prompt fetch error — inline mono line, never red/toast */}

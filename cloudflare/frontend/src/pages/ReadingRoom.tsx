@@ -906,7 +906,7 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
       // Dark gilt volume card — the descendant opens a bound, gilded book.
       background: 'linear-gradient(160deg, var(--letter-bg-top), var(--letter-bg-bottom))',
       border: '1px solid var(--rule)', borderRadius: 0,
-      boxShadow: '0 1px 0 rgba(242,230,208,0.04) inset, inset 0 0 40px var(--book-inner-shadow)',
+      boxShadow: '0 1px 0 var(--book-edge-highlight) inset, inset 0 0 40px var(--book-inner-shadow)',
       color: 'var(--letter-body)', overflow: 'hidden',
     }}>
       {/* gilt corner cues — top-right + bottom-left, hairline gilt rules (no filled wedge) */}

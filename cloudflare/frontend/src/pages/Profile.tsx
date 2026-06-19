@@ -142,7 +142,6 @@ export function Profile() {
         <SectionLabel>Appearance</SectionLabel>
 
         <div
-          className="hl-ledger-row"
           style={{
             display: 'flex',
             alignItems: 'baseline',
