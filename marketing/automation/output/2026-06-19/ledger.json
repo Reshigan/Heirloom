@@ -3,5 +3,10 @@
     "hour": 0,
     "hook": "Your dad's stories are fading with each passing year.",
     "saying": "What was the best advice your dad ever gave you?"
+  },
+  {
+    "hour": 15,
+    "hook": "Your family's ghost story is fading",
+    "saying": "What's the one story your dad tells that still gives you chills?"
   }
 ]
