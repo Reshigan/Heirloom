@@ -224,8 +224,8 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                   }`}
                   style={
                     index <= currentStep
-                      ? { backgroundColor: 'var(--warm)', opacity: index === currentStep ? 1 : 0.5 }
-                      : { backgroundColor: 'var(--bone-ghost)' }
+                      ? { backgroundColor: 'var(--bone-dim)', opacity: index === currentStep ? 1 : 0.5 }
+                      : { backgroundColor: 'var(--rule)' }
                   }
                 />
               ))}

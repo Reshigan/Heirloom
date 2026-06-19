@@ -1896,7 +1896,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div style={{ display: 'flex', gap: 1, border: '1px solid var(--rule)' }}>
             {(['single', 'bulk'] as const).map(m => (
-              <button key={m} className={mode === m ? 'loom-btn' : 'loom-btn-ghost'} style={{ flex: 1, borderRadius: 0 }} onClick={() => setMode(m)}>{m === 'single' ? 'Single Voucher' : 'Bulk Create'}</button>
+              <button key={m} aria-pressed={mode === m} className={mode === m ? 'loom-btn' : 'loom-btn-ghost'} style={{ flex: 1, borderRadius: 0 }} onClick={() => setMode(m)}>{m === 'single' ? 'Single Voucher' : 'Bulk Create'}</button>
             ))}
           </div>
           <LoomField label="Quick Presets">
@@ -1939,7 +1939,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
               </LoomField>
               {formData.recipientEmail && (
                 <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                  <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} style={{ accentColor: 'var(--bone-dim)' }} />
+                  <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} />
                   <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>Send gift email to recipient immediately</span>
                 </label>
               )}
@@ -2047,7 +2047,7 @@ The Heirloom Team`;
           </LoomField>
           {formData.recipientEmail && (
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-              <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} style={{ accentColor: 'var(--bone-dim)' }} />
+              <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} />
               <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>Send Gold Legacy invitation email immediately</span>
             </label>
           )}

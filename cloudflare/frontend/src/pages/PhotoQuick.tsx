@@ -256,7 +256,7 @@ export function PhotoQuick() {
                         bottom: 0,
                         height: 1,
                         width: `${im.progress}%`,
-                        background: 'var(--warm)',
+                        background: 'var(--bone-dim)',
                         transition: 'width 180ms var(--ease)',
                       }}
                     />

@@ -180,7 +180,7 @@ export function PwaWizard({ onDone }: { onDone: () => void }) {
             style={{
               height: 1,
               flex: 1,
-              background: i <= step ? 'var(--warm)' : 'var(--rule)',
+              background: i <= step ? 'var(--bone-dim)' : 'var(--rule)',
               transition: 'background 360ms var(--ease)',
             }}
           />

@@ -69,7 +69,7 @@ export function Tour({ onDone }: { onDone: () => void }) {
             key={n}
             style={{
               height: 1, flex: 1,
-              background: n <= i ? 'var(--warm)' : 'var(--rule)',
+              background: n <= i ? 'var(--bone-dim)' : 'var(--rule)',
               transition: `background 360ms ${EASE}`,
             }}
           />

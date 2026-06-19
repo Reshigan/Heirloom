@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { threadsApi, familyReferralsApi } from '../services/api';
@@ -320,6 +320,14 @@ export function Onboarding() {
   // Advance by step name so the wizard order can shift without chasing indices.
   const goTo = (s: Step) => setStepIndex(STEPS.indexOf(s));
 
+  // On every step change, move keyboard focus to the new step's heading so the
+  // ceremony is operable by keyboard and screen reader without hunting. The
+  // heading carries tabIndex={-1} so it can hold focus without being a tab stop.
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    headingRef.current?.focus();
+  }, [stepIndex]);
+
   // Family name — seeded from the surname captured at signup. This names the
   // bloodline's thread; it feeds the thread-naming logic in ensureThreadId.
   const [familyName, setFamilyName] = useState(user?.lastName?.trim() ?? '');
@@ -458,7 +466,7 @@ export function Onboarding() {
       <>
         <div style={crownWrap}><WaxSeal size={56} /></div>
         <div style={eyebrowStyle}>Entry No. 0001</div>
-        <h1 style={heroHeadlineStyle}>Begin the thread.</h1>
+        <h1 ref={headingRef} tabIndex={-1} style={{ ...heroHeadlineStyle, outline: 'none' }}>Begin the thread.</h1>
         <p style={ledeStyle}>A confidential, private space for your legacy.</p>
 
         <input
@@ -491,7 +499,7 @@ export function Onboarding() {
       <>
         <div style={crownWrap}><WaxSeal size={56} /></div>
         <div style={eyebrowStyle}>The Bloodline</div>
-        <h1 style={questionStyle}>Who else tends this thread?</h1>
+        <h1 ref={headingRef} tabIndex={-1} style={{ ...questionStyle, outline: 'none' }}>Who else tends this thread?</h1>
         <p style={ledeStyle}>
           Invite one person — a partner, a parent, a grown child. They'll receive an invitation to join.
         </p>
@@ -537,7 +545,7 @@ export function Onboarding() {
 
           <div style={welcomeRule} aria-hidden />
           <div style={{ position: 'relative', zIndex: 1, paddingTop: 30, paddingBottom: 30 }}>
-            <h1 style={welcomeTitle}>
+            <h1 ref={headingRef} tabIndex={-1} style={{ ...welcomeTitle, outline: 'none' }}>
               Start your family’s
               <br />
               thousand-year thread.
@@ -591,7 +599,7 @@ export function Onboarding() {
             top: 0,
             height: '100%',
             width: `${progress * 100}%`,
-            background: 'var(--warm)',
+            background: 'var(--bone-dim)',
             transition: 'width 360ms var(--ease)',
           }}
         />
@@ -612,6 +620,27 @@ export function Onboarding() {
               {error}
             </p>
           )}
+
+          {/* Transient confirmations announced to assistive tech without
+              disturbing the calm visual surface (the CTA label carries the
+              visible copy). Politely interrupting nothing — info only. */}
+          <div
+            role="status"
+            aria-live="polite"
+            style={{
+              position: 'absolute',
+              width: 1,
+              height: 1,
+              padding: 0,
+              margin: -1,
+              overflow: 'hidden',
+              clip: 'rect(0 0 0 0)',
+              whiteSpace: 'nowrap',
+              border: 0,
+            }}
+          >
+            {inviteSent ? 'Invitation sent.' : ''}
+          </div>
         </div>
 
         <div style={{ ...actions, position: 'relative', zIndex: 1 }}>

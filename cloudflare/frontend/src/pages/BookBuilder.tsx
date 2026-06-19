@@ -258,7 +258,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
             bottom: 0,
             width: 15,
             background:
-              'linear-gradient(90deg, color-mix(in srgb, var(--ink-card) 70%, #000), color-mix(in srgb, var(--ink-card) 88%, #000))',
+              'linear-gradient(90deg, color-mix(in srgb, var(--ink-card) 70%, var(--spine-shadow)), color-mix(in srgb, var(--ink-card) 88%, var(--spine-shadow)))',
             borderRadius: 0,
             boxShadow: 'inset -2px 0 4px rgba(0,0,0,0.5)',
           }}
@@ -272,7 +272,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
             bottom: 0,
             width: 5,
             background:
-              'linear-gradient(90deg, color-mix(in srgb, var(--ink-card) 82%, #000), color-mix(in srgb, var(--ink-card) 64%, #000))',
+              'linear-gradient(90deg, color-mix(in srgb, var(--ink-card) 82%, var(--spine-shadow)), color-mix(in srgb, var(--ink-card) 64%, var(--spine-shadow)))',
             borderRadius: 0,
           }}
         />

@@ -70,8 +70,10 @@ export function Pricing() {
       name: 'Family',
       price: showAnnual ? familyYearly : familyMonthly,
       cadence: showAnnual ? '/year' : '/month',
-      // Surface the complementary cycle as a quiet mono line.
-      note: showAnnual ? `or ${familyMonthly}/month` : `or ${familyYearly}/year`,
+      // Surface the complementary cycle as a quiet mono line. Annual-only
+      // currencies have no monthly price, so suppress the misleading
+      // "$0/month" note rather than rendering it.
+      note: annualOnly ? null : (showAnnual ? `or ${familyMonthly}/month` : `or ${familyYearly}/year`),
       lines: PLAN_FEATURES.FAMILY,
       cta: 'Choose Family',
       to: showAnnual ? '/signup?tier=family&cycle=annual' : '/signup?tier=family',

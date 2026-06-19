@@ -80,7 +80,7 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
       style={{
         position: 'relative',
         minHeight: '100%',
-        padding: '40px 80px 64px',
+        padding: '40px clamp(24px, 8vw, 80px) 64px',
         display: 'flex',
         flexDirection: 'column',
       }}
@@ -186,8 +186,9 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
           paddingTop: 18,
           borderTop: '1px solid var(--rule)',
           display: 'flex',
+          flexWrap: 'wrap',
           justifyContent: 'space-between',
-          gap: 40,
+          gap: 'clamp(16px, 4vw, 40px)',
         }}
       >
         {generations.length === 0 ? (
@@ -204,7 +205,7 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
           </div>
         ) : (
           generations.map((g) => (
-            <div key={g.gen} style={{ textAlign: g.align }}>
+            <div key={g.gen} style={{ textAlign: g.align, flex: '1 1 96px', minWidth: 96 }}>
               <div
                 className="loom-serif"
                 style={{

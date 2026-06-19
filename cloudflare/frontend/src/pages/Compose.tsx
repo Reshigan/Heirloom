@@ -11,6 +11,7 @@ import { HLogo } from '../loom/components/HLogo';
 import { VoiceRefine } from '../loom/components/VoiceRefine';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { uploadMemoryImage, validateImage } from '../utils/uploadImage';
+import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 import LegacyRecipientPicker from '../components/LegacyRecipientPicker';
 import {
   ComposerRail,
@@ -423,6 +424,10 @@ function DeliveryField({
                 } else if (e.key === ' ') {
                   e.preventDefault();
                   onTriggerChange(opt.value);
+                } else {
+                  handleRadioArrowKeys(e, i, TRIGGER_OPTIONS.length, (next) =>
+                    onTriggerChange(TRIGGER_OPTIONS[next].value),
+                  );
                 }
               }}
               style={{

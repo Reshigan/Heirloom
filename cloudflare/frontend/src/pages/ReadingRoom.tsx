@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
@@ -199,8 +199,15 @@ function ReadingContent({
     return `${stamp} · ${verb} ${t.who.toUpperCase()}`;
   }, [t.ord, t.date, t.kind, t.who]);
 
+  // Scroll reset: a freshly-opened entry must start at the top, never mid-page
+  // inherited from the previous, longer entry. Reset on entry change.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [t.id]);
+
   return (
-    <div style={{
+    <div ref={scrollRef} style={{
       position: 'absolute', inset: 0,
       overflowY: 'auto',
       display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -489,12 +496,35 @@ export function ReadingRoom() {
     setTimeout(() => { setActive(i); setClothOpen(true); }, 360);
   };
 
+  // Keyboard navigation for the wall view: ←/→ step through entries in time,
+  // Escape closes the mobile selvedge drawer. Typing in a field is never hijacked.
+  useEffect(() => {
+    if (view !== 'wall') return;
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+      if (e.key === 'Escape' && selvedgeOpen) {
+        setSelvedgeOpen(false);
+        return;
+      }
+      if (e.key === 'ArrowRight' && active < entries.length - 1) {
+        e.preventDefault();
+        handleSelect(active + 1);
+      } else if (e.key === 'ArrowLeft' && active > 0) {
+        e.preventDefault();
+        handleSelect(active - 1);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [view, active, entries.length, selvedgeOpen]);
+
   // book view
   if (view === 'book') {
     return (
-      <div className="loom" data-theme="dark" style={{ position: 'fixed', inset: 0, background: 'var(--ink)' }}>
+      <div className="loom" style={{ position: 'fixed', inset: 0, background: 'var(--ink)' }}>
         <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
-          <BookView entries={entries} threadName={user?.firstName ? `${who}'s thread` : 'your thread'} />
+          <BookView entries={entries} threadName={user?.firstName ? `${who}'s thread` : 'your thread'} onExit={() => setView('wall')} />
         </div>
         <button
           type="button"
@@ -644,6 +674,8 @@ export function ReadingRoom() {
           type="button"
           onClick={() => setSelvedgeOpen(o => !o)}
           className="selvedge-toggle"
+          aria-expanded={selvedgeOpen}
+          aria-controls="selvedge-drawer"
           style={{
             position: 'fixed', left: 0, top: '50%', transform: 'translateY(-50%)',
             background: 'var(--rule)', border: 'none', color: 'var(--bone-faint)',
@@ -675,6 +707,7 @@ export function ReadingRoom() {
       {/* Layer 2: Selvedge nav */}
       {entries.length > 0 && (
       <div
+        id="selvedge-drawer"
         onMouseEnter={() => setNavOpen(true)}
         onMouseLeave={() => setNavOpen(false)}
         style={{
@@ -821,11 +854,32 @@ export function ReadingRoom() {
  * prose set generously in Spectral. Page turns step through real
  * entries, marked with ∞.
  */
-function BookView({ entries, threadName }: { entries: Thread[]; threadName: string }) {
+function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadName: string; onExit: () => void }) {
   const [ch, setCh] = useState(0);
   const c = entries[ch];
   const turn = (delta: number) =>
     setCh((p) => Math.min(entries.length - 1, Math.max(0, p + delta)));
+
+  // Keyboard: →/↓ turn forward, ←/↑ turn back, Escape closes the book. Typing
+  // in a field is never hijacked.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        onExit();
+      } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        turn(1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        turn(-1);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [entries.length, onExit]);
 
   const ROMAN = ['i','ii','iii','iv','v','vi','vii','viii','ix','x','xi','xii'];
   const numeral = (n: number) => ROMAN[n] ?? String(n + 1);
@@ -852,7 +906,7 @@ function BookView({ entries, threadName }: { entries: Thread[]; threadName: stri
       // Dark gilt volume card — the descendant opens a bound, gilded book.
       background: 'linear-gradient(160deg, var(--letter-bg-top), var(--letter-bg-bottom))',
       border: '1px solid var(--rule)', borderRadius: 0,
-      boxShadow: '0 1px 0 rgba(242,230,208,0.04) inset, inset 0 0 40px rgba(0,0,0,0.6)',
+      boxShadow: '0 1px 0 rgba(242,230,208,0.04) inset, inset 0 0 40px var(--book-inner-shadow)',
       color: 'var(--letter-body)', overflow: 'hidden',
     }}>
       {/* gilt corner cues — top-right + bottom-left, hairline gilt rules (no filled wedge) */}

@@ -12,6 +12,7 @@ import { VoiceRefine } from '../loom/components/VoiceRefine';
 import { WaxSeal, SectionLabel } from '../loom/cosmic/CosmicUI';
 import LegacyRecipientPicker from '../components/LegacyRecipientPicker';
 import { enqueueVoice } from '../lib/voiceOfflineQueue';
+import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 /**
  * Record — ComposerSpeak (Loom 3 · §6.3).
@@ -70,10 +71,10 @@ export function Record() {
   const [transcribing, setTranscribing] = useState(false);
   const [showRefine, setShowRefine] = useState(false);
   const [playing, setPlaying] = useState(false);
-  // Display-only playback position (0..1) — drives the leading copper bar.
+  // Display-only playback position (0..1) — lights the leading bone waveform bars.
   const [playPos, setPlayPos] = useState(0);
 
-  // Static amber waveform — deterministic bars derived from the recording so the
+  // Static bone waveform — deterministic bars derived from the recording so the
   // shape is stable across re-renders (no audio-analyser dependency).
   const waveBars = useState(() =>
     Array.from({ length: 56 }, (_, i) => {
@@ -411,7 +412,7 @@ export function Record() {
             left: 0,
             height: 1,
             width: `${progress * 100}%`,
-            background: 'var(--warm)',
+            background: 'var(--bone-dim)',
             transition: 'width 720ms var(--ease)',
             zIndex: 30,
           }}
@@ -699,7 +700,11 @@ export function Record() {
                         if (e.key === 'Enter' || e.key === ' ') {
                           if (e.key === ' ') e.preventDefault();
                           setDeliveryTrigger(opt.value);
+                          return;
                         }
+                        handleRadioArrowKeys(e, i, SPEAK_TRIGGERS.length, (next) =>
+                          setDeliveryTrigger(SPEAK_TRIGGERS[next].value),
+                        );
                       }}
                       style={{
                         display: 'block', width: '100%', textAlign: 'left',
@@ -797,7 +802,7 @@ export function Record() {
           </div>
         ) : null}
 
-        {/* ── playback — amber waveform + mono PLAY / PAUSE affordance ── */}
+        {/* ── playback — bone waveform + mono PLAY / PAUSE affordance ── */}
         {recordingState === 'recorded' && audioUrl ? (
           <div style={{ width: '100%', maxWidth: 420, marginTop: 8 }}>
             {/* eyebrow */}
@@ -821,7 +826,7 @@ export function Record() {
               {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}
             </div>
 
-            {/* amber bar waveform */}
+            {/* bone bar waveform */}
             <div
               aria-hidden
               style={{

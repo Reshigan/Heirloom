@@ -7,6 +7,7 @@ import { threadsApi } from '../services/api';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { PLAN_PRICE } from '../lib/plans';
+import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 // Signup — FORM archetype. Underlined fields, mono micro-labels, giant serif
 // headline, one warm primary CTA, WaxSeal foot. All data/auth/validation preserved.
@@ -304,15 +305,19 @@ export function Signup() {
               aria-label="how to begin"
               style={{ display: 'flex', flexDirection: 'column', borderTop: '1px solid var(--rule)' }}
             >
-              {TIERS.map((t) => {
+              {TIERS.map((t, i) => {
                 const selected = tier === t.id;
                 return (
                   <button
                     type="button"
                     key={t.id}
                     onClick={() => setTier(t.id)}
+                    onKeyDown={(e) =>
+                      handleRadioArrowKeys(e, i, TIERS.length, (next) => setTier(TIERS[next].id))
+                    }
                     role="radio"
                     aria-checked={selected}
+                    tabIndex={selected ? 0 : -1}
                     style={{
                       textAlign: 'left',
                       cursor: 'pointer',

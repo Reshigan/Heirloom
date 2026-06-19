@@ -194,7 +194,7 @@ export function LegacyPlan() {
                     top: 0,
                     height: '100%',
                     width: `${plan?.progressPercent || 0}%`,
-                    background: 'var(--warm)',
+                    background: 'var(--bone-dim)',
                     transition: 'width 720ms var(--ease)',
                   }}
                 />
@@ -349,7 +349,7 @@ export function LegacyPlan() {
                         top: 0,
                         height: '100%',
                         width: `${items.length > 0 ? (completedCount / items.length) * 100 : 0}%`,
-                        background: 'var(--warm)',
+                        background: 'var(--bone-dim)',
                         transition: 'width 360ms var(--ease)',
                         display: 'block',
                       }}

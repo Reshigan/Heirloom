@@ -73,7 +73,7 @@ interface LoomProps {
 
 /**
  * Dye a weft pick by kind. The cloth carries dye chroma (the palette's
- * only sanctioned home); milestones stay warm. An explicit `entry.dye`
+ * only sanctioned home); milestones carry a neutral cream pick. An explicit `entry.dye`
  * overrides the kind default.
  */
 const DYE_FOR_KIND: Record<LoomKind, string> = {
@@ -81,7 +81,7 @@ const DYE_FOR_KIND: Record<LoomKind, string> = {
   photo:     'var(--dye-saffron)',
   voice:     'var(--dye-woad)',
   memory:    'var(--dye-indigo)',
-  milestone: 'var(--warm-bright)',
+  milestone: 'var(--bone-dim)',
 };
 
 function colorFor(e: LoomEntry): string {

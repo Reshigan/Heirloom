@@ -8,6 +8,7 @@ import { HLogo } from '../loom/components/HLogo';
 import { familyApi } from '../services/api';
 import api from '../services/api';
 import { CosmicHeader, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 // ── Template options ────────────────────────────────────────────────────────
 const TEMPLATES = [
@@ -220,6 +221,8 @@ function SelectRow({
   selected,
   onClick,
   radio,
+  onKeyDown,
+  tabIndex,
 }: {
   label: string;
   sub?: string;
@@ -228,11 +231,16 @@ function SelectRow({
   // When true, this row is one option in a single-choice control: expose
   // role="radio" + aria-checked so its selected state isn't colour-only.
   radio?: boolean;
+  // Arrow-key roving handler + roving tabIndex for radiogroup membership.
+  onKeyDown?: (e: React.KeyboardEvent<HTMLButtonElement>) => void;
+  tabIndex?: number;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      onKeyDown={onKeyDown}
+      tabIndex={tabIndex}
       role={radio ? 'radio' : undefined}
       aria-checked={radio ? !!selected : undefined}
       style={{
@@ -588,20 +596,36 @@ export function QuickWizard() {
             {/* Step 3: type (voice / letter) */}
             {step === 'type' && (
               <div role="radiogroup" aria-label="medium" style={{ textAlign: 'left' }}>
-                <SelectRow
-                  label="Voice"
-                  sub="a personal recording — ≈ 60 seconds"
-                  selected={contentType === 'voice'}
-                  onClick={() => handleTypeSelect('voice')}
-                  radio
-                />
-                <SelectRow
-                  label="Written letter"
-                  sub="a composed thread — ≈ 5 minutes"
-                  selected={contentType === 'letter'}
-                  onClick={() => handleTypeSelect('letter')}
-                  radio
-                />
+                {(() => {
+                  const TYPE_OPTIONS: ContentType[] = ['voice', 'letter'];
+                  // Roving tabIndex: only the checked radio is tabbable; when
+                  // none is checked yet, the first radio enters the tab order.
+                  const checkedIndex = TYPE_OPTIONS.indexOf(contentType as ContentType);
+                  const tabbableIndex = checkedIndex === -1 ? 0 : checkedIndex;
+                  const selectByIndex = (next: number) => handleTypeSelect(TYPE_OPTIONS[next]);
+                  return (
+                    <>
+                      <SelectRow
+                        label="Voice"
+                        sub="a personal recording — ≈ 60 seconds"
+                        selected={contentType === 'voice'}
+                        onClick={() => handleTypeSelect('voice')}
+                        onKeyDown={(e) => handleRadioArrowKeys(e, 0, TYPE_OPTIONS.length, selectByIndex)}
+                        tabIndex={tabbableIndex === 0 ? 0 : -1}
+                        radio
+                      />
+                      <SelectRow
+                        label="Written letter"
+                        sub="a composed thread — ≈ 5 minutes"
+                        selected={contentType === 'letter'}
+                        onClick={() => handleTypeSelect('letter')}
+                        onKeyDown={(e) => handleRadioArrowKeys(e, 1, TYPE_OPTIONS.length, selectByIndex)}
+                        tabIndex={tabbableIndex === 1 ? 0 : -1}
+                        radio
+                      />
+                    </>
+                  );
+                })()}
               </div>
             )}
 

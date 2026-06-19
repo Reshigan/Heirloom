@@ -287,16 +287,18 @@ export function Weft() {
         }}
       >
         <div style={{ width: '100%', maxWidth: 480 }}>
-          {/* The bloodline eyebrow — no large H1; the centred copper-label span
-              carries the heading role for screen readers. */}
-          <div role="heading" aria-level={1} style={{ textAlign: 'center' }}>
+          {/* The bloodline eyebrow — a plain styled label (NOT the heading). The
+              real page title below carries the H1 role for screen readers. */}
+          <div style={{ textAlign: 'center' }}>
             <SectionLabel tone="copper">{eyebrow}</SectionLabel>
           </div>
 
           {toggleRow}
 
-          {/* ───────────── A · THE INHERITANCE HORIZON ───────────── */}
-          <SectionLabel>The Inheritance Horizon</SectionLabel>
+          {/* ───────────── A · THE INHERITANCE HORIZON — the document H1 ───────────── */}
+          <div role="heading" aria-level={1}>
+            <SectionLabel>The Inheritance Horizon</SectionLabel>
+          </div>
 
           {/* The vertical timeline. A single faint warp runs down the left as
               the spine; future ghost rows sit at the top, the present marker

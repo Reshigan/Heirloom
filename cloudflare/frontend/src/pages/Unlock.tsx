@@ -196,7 +196,16 @@ export function Unlock() {
           className="hl-mono"
           style={{ display: 'flex', gap: 14, alignItems: 'center', color: 'var(--bone-faint)' }}
         >
-          <span aria-hidden style={{ width: 5, height: 5, background: 'var(--warm)' }} />
+          <span
+            aria-hidden
+            style={{
+              width: 5,
+              height: 5,
+              background: 'none',
+              border: '1px solid var(--warm)',
+              borderRadius: 0,
+            }}
+          />
           {letter.openable ? 'a thread unties · today' : `sealed · opens ${letter.openedYear}`}
           {broken && (
             <button

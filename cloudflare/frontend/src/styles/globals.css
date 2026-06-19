@@ -150,6 +150,11 @@
   --letter-eyebrow:    #cfa46a;  /* eyebrow labels */
   --letter-copper-rgb: 216, 150, 84;  /* reader copper hue for rgba(var(--letter-copper-rgb), α) */
 
+  /* Book shadows — single-sourced baked shadows for the ReadingRoom + BookBuilder
+     owners to reference (the light parallels live in .loom[data-theme="light"]). */
+  --book-inner-shadow: rgba(0, 0, 0, 0.6);
+  --spine-shadow:      #050403;
+
   --parchment: #faf3e4;
   --parchment-deep: #f0e6d2;
   --parchment-ink: #1a1611;
@@ -379,6 +384,26 @@
   --dye-woad-text:      #3d6a6a;
   --dye-indigo-text:    #3a5582;
   --dye-iron-text:      #485e66;
+
+  /* --letter-* parchment remap — closes the book-reader theme-flip hole. The
+     reader's letter/page surface stays an aged-vellum immersive (warm-on-dark in
+     vault); in parchment it becomes ink-on-aged-paper so the same drop-cap,
+     gilt edges, and pager hold contrast. Dark :root values (lines ~144–151)
+     untouched. --letter-copper-rgb carried as an rgb tri-let so varied alphas
+     hold one hue (gilt #6f3d0d). */
+  --letter-bg-top:     #f4ead7;
+  --letter-bg-bottom:  #e8d9bf;
+  --letter-body:       #2b2118;
+  --letter-body-dim:   #5a4733;
+  --letter-edge:       #9a6320;
+  --letter-gold:       #6f3d0d;
+  --letter-copper-rgb: 111, 61, 13;
+  --letter-eyebrow:    #8a5a16;
+
+  /* Book shadows — light parallels of the dark :root tokens. Warm low-alpha
+     inner shadow + a mid-walnut spine on parchment. */
+  --book-inner-shadow: rgba(120, 90, 50, 0.16);
+  --spine-shadow:      #4a3420;
 }
 
 * {
@@ -825,6 +850,49 @@ textarea:focus-visible,
 select:focus-visible {
   outline: 2px solid var(--warm);
   outline-offset: 2px;
+}
+
+/* ── Global checkbox — single-source sleek control ──────────────────────
+   Replaces ~9 raw native checkboxes app-wide with one on-brand box: square
+   (0 radius), 1px copper-border hairline, transparent fill. Checked state is a
+   bone-dim fill ringed by an inset ink stroke (the cream carries the fill, not
+   copper — §1). Focus uses the 1px copper ring. */
+.loom input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 0;
+  border: 1px solid var(--copper-border);
+  background: transparent;
+  cursor: pointer;
+  flex: 0 0 auto;
+  margin: 0;
+  display: inline-grid;
+  place-content: center;
+  transition: border-color 180ms var(--ease);
+}
+.loom input[type="checkbox"]:checked {
+  background: var(--bone-dim);
+  box-shadow: inset 0 0 0 2px var(--ink-card);
+}
+.loom input[type="checkbox"]:focus-visible {
+  outline: 1px solid var(--warm);
+  outline-offset: 2px;
+}
+
+/* ── Global focus ring — on-brand 1px copper stroke for every interactive
+   element. Conservative: scoped to .loom links/buttons/radios/tabs/tabbables.
+   Controls that declare their own outline (.input, .hl-input, native
+   inputs/textareas/selects above) keep theirs — these aren't listed here. */
+.loom a:focus-visible,
+.loom button:focus-visible,
+.loom [role="radio"]:focus-visible,
+.loom [role="tab"]:focus-visible,
+.loom [tabindex]:focus-visible {
+  outline: 1px solid var(--warm);
+  outline-offset: 2px;
+  border-radius: 0;
 }
 
 /* Skip to content link for screen readers */
@@ -2096,9 +2164,20 @@ html {
 .loom .border-gold-40,
 .loom .border-gold-20 { border-color: var(--loom-rule-warm) !important; }
 
-/* ── Color: blood (errors) ─────────────────────────────────────── */
+/* ── Color: blood (errors) — OUTLINE, never a slab fill ──────────────
+   --blood (#9f3a2a) is NOT a dye, so a >1px solid fill of it is a copper-class
+   defect (§1). Converted to a madder-dye OUTLINE treatment: transparent fill,
+   1px dye-madder hairline, dye-madder-text label. --bg-blood-light keeps a
+   barely-there madder tint (color-mix toward transparent), no solid fill. */
 .loom .bg-blood,
-.loom .bg-blood-light { background-color: var(--blood) !important; color: var(--paper); }
+.loom .bg-blood-light {
+  background: transparent !important;
+  color: var(--dye-madder-text) !important;
+  border: 1px solid var(--dye-madder) !important;
+}
+.loom .bg-blood-light {
+  background: color-mix(in srgb, var(--dye-madder) 8%, transparent) !important;
+}
 .loom .text-blood,
 .loom .text-blood-light { color: var(--danger) !important; }
 
@@ -2172,10 +2251,14 @@ html {
   border-color: var(--loom-warm) !important;
   color: var(--loom-warm) !important;
 }
+/* Danger = madder-dye OUTLINE, never a --blood slab fill (§1: --blood is not a
+   dye, so a >1px fill is a copper-class defect). Transparent fill, 1px dye-madder
+   hairline, dye-madder-text label. Padding/radius/typography stay from the shared
+   .btn rule above. */
 .loom .btn-danger {
-  background: var(--blood) !important;
-  color: var(--paper) !important;
-  border: 0 !important;
+  background: transparent !important;
+  color: var(--dye-madder-text) !important;
+  border: 1px solid var(--dye-madder) !important;
 }
 
 /* ── Cards / surfaces ──────────────────────────────────────────── */

@@ -203,7 +203,7 @@ export function MemoryMap() {
               style={{
                 position: 'relative',
                 width: '100%',
-                aspectRatio: '5 / 4',
+                aspectRatio: '1120 / 620',
                 background: 'transparent',
                 marginBottom: 44,
                 overflow: 'visible',
@@ -451,17 +451,6 @@ export function MemoryMap() {
                 </button>
               </div>
             )}
-
-            {/* Hidden list (memory-level) for selectedMemory state mutations — API preserved */}
-            <div style={{ display: 'none' }} aria-hidden>
-              {memories.map((memory) => (
-                <button
-                  key={memory.id}
-                  type="button"
-                  onClick={() => setSelectedMemory(memory)}
-                />
-              ))}
-            </div>
 
             {/* The ∞ wax seal — rests warm at the foot of the ledger. */}
             <div style={{ marginTop: 64 }}>

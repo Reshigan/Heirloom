@@ -369,7 +369,7 @@ export function StoryView() {
                     style={{
                       height: 1,
                       width: index === currentIndex ? 24 : 8,
-                      background: index === currentIndex ? 'var(--warm)' : 'var(--rule)',
+                      background: index === currentIndex ? 'var(--bone-dim)' : 'var(--rule)',
                       transition: `width 360ms ${EASE}, background 180ms ${EASE}`,
                     }}
                   />
