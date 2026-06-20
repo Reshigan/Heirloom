@@ -10,6 +10,7 @@ import { ProgressHair } from '../loom/components/ProgressHair';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { useLoomTheme } from '../loom/theme';
 import { useDisplayPreferences } from '../loom/useDisplayPreferences';
+import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 /** Inline status error — one shared style across every error span in this page. */
 const ERROR_STYLE: React.CSSProperties = {
@@ -519,7 +520,7 @@ export function Settings() {
               {save.isPending ? 'saving…' : 'save'}
             </button>
             {savedFlash && (
-              <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)' }}>∞ saved</span>
+              <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)' }}>saved</span>
             )}
             {saveError && (
               <span className="hl-mono" style={{ ...ERROR_STYLE, margin: 0 }}>{saveError}</span>
@@ -535,13 +536,13 @@ export function Settings() {
               value={
                 <span style={{ display: 'flex', alignItems: 'baseline', gap: 16, minWidth: 0, maxWidth: '100%' }}>
                   <span className="hl-wordvalue" title={user?.email ?? undefined} style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{user?.email ?? '—'}</span>
-                  <button type="button" className="hl-wordaction hl-wordaction--warm" style={{ flexShrink: 0 }} onClick={() => { setEmailStage('form'); setEmailFlash(false); }}>Change</button>
-                  {emailFlash && <span className="hl-wordvalue" style={{ color: 'var(--warm)', flexShrink: 0 }}>∞ updated</span>}
+                  <button type="button" className="hl-wordaction hl-wordaction--warm" style={{ flexShrink: 0 }} aria-expanded={false} aria-controls="change-email-form" onClick={() => { setEmailStage('form'); setEmailFlash(false); }}>Change</button>
+                  {emailFlash && <span className="hl-wordvalue" style={{ color: 'var(--warm)', flexShrink: 0 }}>updated</span>}
                 </span>
               }
             />
           ) : (
-            <div style={{ padding: '14px 0', borderBottom: '1px solid var(--rule)', maxWidth: 360 }}>
+            <div id="change-email-form" style={{ padding: '14px 0', borderBottom: '1px solid var(--rule)', maxWidth: 360 }}>
               <div className="hl-field-label" style={{ marginBottom: 10 }}>change email</div>
               {([
                 { label: 'new email',         val: newEmail,       set: setNewEmail,       type: 'email',    placeholder: 'new email address',       ariaLabel: 'New email address' },
@@ -578,13 +579,13 @@ export function Settings() {
               value={
                 <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 16 }}>
                   <span className="hl-wordvalue" style={{ letterSpacing: '0.12em' }}>••••••••</span>
-                  <button type="button" className="hl-wordaction hl-wordaction--warm" onClick={() => setPwStage('form')}>Change</button>
-                  {pwFlash && <span className="hl-wordvalue" style={{ color: 'var(--warm)' }}>∞ updated</span>}
+                  <button type="button" className="hl-wordaction hl-wordaction--warm" aria-expanded={false} aria-controls="change-pw-form" onClick={() => setPwStage('form')}>Change</button>
+                  {pwFlash && <span className="hl-wordvalue" style={{ color: 'var(--warm)' }}>updated</span>}
                 </span>
               }
             />
           ) : (
-            <div style={{ padding: '14px 0', borderBottom: '1px solid var(--rule)', maxWidth: 360 }}>
+            <div id="change-pw-form" style={{ padding: '14px 0', borderBottom: '1px solid var(--rule)', maxWidth: 360 }}>
               <div className="hl-field-label" style={{ marginBottom: 10 }}>change password</div>
               {([
                 { label: 'current', val: pwCurrent, set: setPwCurrent, type: 'password', placeholder: 'current password',      ariaLabel: 'Current password' },
@@ -649,13 +650,16 @@ export function Settings() {
             label="Theme"
             hint="the thread is written for the dark — but it reads in either light"
             value={
-              <span style={{ display: 'inline-flex', gap: 22 }}>
-                {(['dark', 'light', 'system'] as const).map((opt) => (
+              <span role="radiogroup" aria-label="Theme" style={{ display: 'inline-flex', gap: 22 }}>
+                {(['dark', 'light', 'system'] as const).map((opt, i, arr) => (
                   <button
                     key={opt}
                     type="button"
                     onClick={() => setTheme(opt)}
-                    aria-pressed={theme === opt}
+                    onKeyDown={(e) => handleRadioArrowKeys(e, i, arr.length, (next) => setTheme(arr[next]))}
+                    role="radio"
+                    aria-checked={theme === opt}
+                    tabIndex={theme === opt ? 0 : -1}
                     className="hl-monoaction"
                     style={{ color: theme === opt ? 'var(--warm)' : 'var(--bone-dim)' }}
                   >
@@ -671,13 +675,16 @@ export function Settings() {
             label="Text Size"
             hint="larger type for easier reading — carries across the thread"
             value={
-              <span style={{ display: 'inline-flex', gap: 16 }}>
-                {([80, 100, 120, 140, 160] as const).map((pct) => (
+              <span role="radiogroup" aria-label="Text Size" style={{ display: 'inline-flex', gap: 16 }}>
+                {([80, 100, 120, 140, 160] as const).map((pct, i, arr) => (
                   <button
                     key={pct}
                     type="button"
                     onClick={() => setTextScale(pct)}
-                    aria-pressed={textScale === pct}
+                    onKeyDown={(e) => handleRadioArrowKeys(e, i, arr.length, (next) => setTextScale(arr[next]))}
+                    role="radio"
+                    aria-checked={textScale === pct}
+                    tabIndex={textScale === pct ? 0 : -1}
                     className="hl-monoaction"
                     style={{ color: textScale === pct ? 'var(--warm)' : 'var(--bone-dim)' }}
                   >
@@ -726,13 +733,13 @@ export function Settings() {
               label="Letter guardian"
               hint="ensures your sealed letters reach the people you wrote them for"
               value={
-                <button type="button" className="hl-wordaction hl-wordaction--warm" onClick={() => setGuardianOpen(true)}>
+                <button type="button" className="hl-wordaction hl-wordaction--warm" aria-expanded={guardianOpen} aria-controls="guardian-form" onClick={() => setGuardianOpen(true)}>
                   {guardianEmail ? 'Edit' : 'Designate'}
                 </button>
               }
             />
           ) : (
-            <div style={{ padding: '14px 0', borderBottom: '1px solid var(--rule)' }}>
+            <div id="guardian-form" style={{ padding: '14px 0', borderBottom: '1px solid var(--rule)' }}>
               <div className="hl-field-label" style={{ marginBottom: 6 }}>letter guardian</div>
               <p className="hl-serif" style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.6, margin: '0 0 16px', maxWidth: '52ch' }}>
                 Designate someone who ensures your sealed letters reach the people you wrote them for — even if you can no longer do it yourself.

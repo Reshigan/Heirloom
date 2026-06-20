@@ -128,7 +128,7 @@ export function ThreadCompose() {
 
   // Theme-resolved colour for the data-URI select chevron (token-driven so it
   // flips with dark / light instead of the old baked cream rgba).
-  const chevronColor = useTokenColor('--bone-low', 'rgba(242,230,208,0.32)');
+  const chevronColor = useTokenColor('--bone-low', 'currentColor');
   const selStyle = selectStyle(chevronColor);
 
   const [title, setTitle] = useState('');

@@ -140,7 +140,23 @@ export function MemoryCards() {
             borderBottom: '1px solid var(--rule)',
           }}
         >
-          <div role="tablist" aria-label="Memory cards views" style={{ display: 'flex', gap: 24 }}>
+          <div
+            role="tablist"
+            aria-label="Memory cards views"
+            style={{ display: 'flex', gap: 24 }}
+            onKeyDown={(e) => {
+              const i = TABS.findIndex((t) => t.value === activeTab);
+              let next = i;
+              if (e.key === 'ArrowRight') next = (i + 1) % TABS.length;
+              else if (e.key === 'ArrowLeft') next = (i - 1 + TABS.length) % TABS.length;
+              else if (e.key === 'Home') next = 0;
+              else if (e.key === 'End') next = TABS.length - 1;
+              else return;
+              e.preventDefault();
+              setActiveTab(TABS[next].value);
+              (document.getElementById(`tab-${TABS[next].value}`) as HTMLElement | null)?.focus();
+            }}
+          >
             {TABS.map((t) => (
               <button
                 key={t.value}
@@ -149,6 +165,7 @@ export function MemoryCards() {
                 id={`tab-${t.value}`}
                 aria-controls={`tabpanel-${t.value}`}
                 aria-selected={activeTab === t.value}
+                tabIndex={activeTab === t.value ? 0 : -1}
                 onClick={() => setActiveTab(t.value)}
                 style={{
                   background: 'transparent',
@@ -386,7 +403,7 @@ export function MemoryCards() {
             {/* Right — preview */}
             <div>
               {genError && (
-                <p style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '8px 0' }}>
+                <p role="alert" aria-live="assertive" style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '8px 0' }}>
                   {genError}
                 </p>
               )}

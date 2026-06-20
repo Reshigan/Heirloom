@@ -202,18 +202,18 @@ export function Loom({
                 zIndex: 2,
               }}
             >
+              {/* tied-off node: a 1px copper diamond marks the sealed peg
+                  (the selvedge ∞ is the cloth's single mark) */}
               <span
-                className="loom-serif"
                 style={{
-                  fontSize: 14,
-                  lineHeight: 1,
-                  color: 'var(--warm)',
+                  width: 4,
+                  height: 4,
+                  transform: 'rotate(45deg)',
+                  border: '1px solid var(--warm)',
                   opacity: lit ? 1 : 0.85,
                   transition: 'opacity var(--loom-dur-fast) var(--loom-ease)',
                 }}
-              >
-                ∞
-              </span>
+              />
               {/* dashed tether down to the seal's lane position */}
               <span
                 style={{

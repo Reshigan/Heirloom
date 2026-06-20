@@ -26,6 +26,10 @@
   try {
     var meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', resolved === 'light' ? '#faf3e4' : '#0b0907');
+    // iOS standalone status bar — paper default must read light, not the
+    // dark-hardpinned 'black-translucent'. Mirror the theme-color flip above.
+    var bar = document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+    if (bar) bar.setAttribute('content', resolved === 'light' ? 'default' : 'black-translucent');
   } catch (e) {
     /* no-op */
   }

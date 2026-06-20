@@ -1187,6 +1187,7 @@ export function BookBuilder() {
 
                 {orderError && (
                   <p
+                    role="alert"
                     className="hl-serif"
                     style={{
                       fontSize: 13,

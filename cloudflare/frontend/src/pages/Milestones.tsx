@@ -166,13 +166,13 @@ export function Milestones() {
         </header>
 
         {autoDetectMsg && (
-          <p className="hl-mono" style={{ fontSize: 10, color: 'var(--gold-text)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+          <p role="status" className="hl-mono" style={{ fontSize: 10, color: 'var(--gold-text)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
             {autoDetectMsg}
           </p>
         )}
 
         {error && (
-          <p className="hl-mono" style={{ fontSize: 10, color: 'var(--gold-text)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+          <p role="alert" className="hl-mono" style={{ fontSize: 10, color: 'var(--gold-text)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
             {error}
           </p>
         )}

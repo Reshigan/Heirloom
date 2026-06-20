@@ -139,8 +139,7 @@ export function Challenges() {
                 <div style={{ borderBottom: '1px solid var(--rule)', padding: '15px 0' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 20, flexWrap: 'wrap' }}>
                     <h2
-                      className="hl-serif"
-                      style={{ flex: 1, minWidth: 0, fontSize: 25, fontWeight: 500, margin: 0, lineHeight: 1.2, color: 'var(--bone)' }}
+                      style={{ flex: 1, minWidth: 0, fontFamily: 'var(--serif-display)', fontSize: 25, fontWeight: 500, margin: 0, lineHeight: 1.2, color: 'var(--bone)' }}
                     >
                       {currentChallenge.title}
                     </h2>
@@ -336,7 +335,7 @@ export function Challenges() {
             </div>
 
             {submitError && (
-              <p style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.06em', margin: '0 0 12px' }}>
+              <p role="alert" style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.06em', margin: '0 0 12px' }}>
                 {submitError}
               </p>
             )}
@@ -391,8 +390,7 @@ export function Challenges() {
             </p>
             <h3
               id="challenge-detail-title"
-              className="hl-serif"
-              style={{ fontSize: 24, fontWeight: 400, color: 'var(--bone)', margin: '0 0 10px' }}
+              style={{ fontFamily: 'var(--serif-display)', fontSize: 24, fontWeight: 400, color: 'var(--bone)', margin: '0 0 10px' }}
             >
               {selectedChallenge.title}
             </h3>

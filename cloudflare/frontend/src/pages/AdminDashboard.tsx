@@ -330,7 +330,7 @@ export function AdminDashboard() {
                   { key: 'forever', label: 'Founder' },
                 ].map(({ key, label, altKeys }) => (
                   <div key={key} style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                    <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>
+                    <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>
                       {overview?.subscriptions?.[key]
                         ?? overview?.subscriptions?.[key.toUpperCase()]
                         ?? (altKeys ?? []).reduce<number | undefined>((acc, ak) => acc ?? overview?.subscriptions?.[ak] ?? overview?.subscriptions?.[ak.toUpperCase()], undefined)
@@ -352,7 +352,7 @@ export function AdminDashboard() {
                   { v: userAnalytics?.usersWithContent || 0, l: 'With Content' },
                 ].map(({ v, l }) => (
                   <div key={l} style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                    <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{v}</div>
+                    <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{v}</div>
                     <div className="loom-eyebrow">{l}</div>
                   </div>
                 ))}
@@ -363,11 +363,11 @@ export function AdminDashboard() {
             <Panel title="Revenue & Discounts">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 1, border: '1px solid var(--rule)' }}>
                 <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>${revenue?.mrr?.toFixed(2) || '0.00'}</div>
+                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>${revenue?.mrr?.toFixed(2) || '0.00'}</div>
                   <div className="loom-eyebrow">Monthly Recurring Revenue</div>
                 </div>
                 <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>${revenue?.totalDiscountsLast30Days?.toFixed(2) || '0.00'}</div>
+                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>${revenue?.totalDiscountsLast30Days?.toFixed(2) || '0.00'}</div>
                   <div className="loom-eyebrow">Discounts Given · 30d</div>
                 </div>
               </div>
@@ -390,7 +390,7 @@ export function AdminDashboard() {
                 { v: usageAnalytics?.engagement?.dormant || 0, l: 'Dormant', danger: true },
               ].map(({ v, l, accent, danger }: any) => (
                 <div key={l} style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: (danger || accent) ? 'var(--warm)' : 'var(--bone)', marginBottom: 4 }}>{v}</div>
+                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: (danger || accent) ? 'var(--warm)' : 'var(--bone)', marginBottom: 4 }}>{v}</div>
                   <div className="loom-eyebrow">{l}</div>
                 </div>
               ))}
@@ -435,7 +435,7 @@ export function AdminDashboard() {
                   { v: usageAnalytics?.contentEngagement?.usersWithVoice || 0, l: 'With Voice', sub: '' },
                 ].map(({ v, l, sub }) => (
                   <div key={l} style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                    <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{v}</div>
+                    <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{v}</div>
                     <div className="loom-eyebrow">{l}</div>
                     {sub && <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 4 }}>{sub}</div>}
                   </div>
@@ -484,15 +484,15 @@ export function AdminDashboard() {
             <Panel title="Succession Switch Status">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--rule)', marginBottom: 16 }}>
                 <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.activeSwitches || 0}</div>
+                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.activeSwitches || 0}</div>
                   <div className="loom-eyebrow">Active</div>
                 </div>
                 <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.warningSwitches || 0}</div>
+                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.warningSwitches || 0}</div>
                   <div className="loom-eyebrow">Warning</div>
                 </div>
                 <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.triggeredSwitches || 0}</div>
+                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{usageAnalytics?.reminderStatus?.triggeredSwitches || 0}</div>
                   <div className="loom-eyebrow">Triggered</div>
                 </div>
               </div>
@@ -531,20 +531,20 @@ export function AdminDashboard() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 1, border: '1px solid var(--rule)' }}>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{encryptionStats?.encryptedUsers || 0}</div>
+                <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{encryptionStats?.encryptedUsers || 0}</div>
                 <div className="loom-eyebrow">Users with Encryption</div>
                 <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 4 }}>{encryptionStats?.adoptionRate || 0}% adoption</div>
               </div>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{encryptionStats?.escrowConfigured || 0}</div>
+                <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{encryptionStats?.escrowConfigured || 0}</div>
                 <div className="loom-eyebrow">Key Escrow Configured</div>
               </div>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone-dim)', marginBottom: 4 }}>{encryptionStats?.shamirConfigured || 0}</div>
+                <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone-dim)', marginBottom: 4 }}>{encryptionStats?.shamirConfigured || 0}</div>
                 <div className="loom-eyebrow">Shamir Shares Active</div>
               </div>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone-dim)', marginBottom: 4 }}>{encryptionStats?.recentSetups || 0}</div>
+                <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone-dim)', marginBottom: 4 }}>{encryptionStats?.recentSetups || 0}</div>
                 <div className="loom-eyebrow">New Setups · 30d</div>
               </div>
             </div>
@@ -573,11 +573,11 @@ export function AdminDashboard() {
             <Panel title="Encrypted Content">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 1, border: '1px solid var(--rule)' }}>
                 <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{encryptionStats?.encryptedContent?.letters || 0}</div>
+                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{encryptionStats?.encryptedContent?.letters || 0}</div>
                   <div className="loom-eyebrow">Encrypted Letters</div>
                 </div>
                 <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{encryptionStats?.encryptedContent?.memories || 0}</div>
+                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{encryptionStats?.encryptedContent?.memories || 0}</div>
                   <div className="loom-eyebrow">Encrypted Memories</div>
                 </div>
               </div>
@@ -588,7 +588,7 @@ export function AdminDashboard() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--rule)' }}>
                   {encryptionStats.escrowTypes.map((type: { escrow_type: string; count: number }) => (
                     <div key={type.escrow_type} style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                      <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{type.count}</div>
+                      <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{type.count}</div>
                       <div className="loom-eyebrow">{type.escrow_type.replace(/_/g, ' ').toLowerCase()}</div>
                     </div>
                   ))}
@@ -651,7 +651,7 @@ export function AdminDashboard() {
                 { v: `$${((voucherStats?.stats?.total_revenue || 0) / 100).toFixed(2)}`, l: 'Revenue', accent: true },
               ].map(({ v, l, accent }) => (
                 <div key={l} style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: accent ? 'var(--warm)' : 'var(--bone)', marginBottom: 4 }}>{v}</div>
+                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: accent ? 'var(--warm)' : 'var(--bone)', marginBottom: 4 }}>{v}</div>
                   <div className="loom-eyebrow">{l}</div>
                 </div>
               ))}
@@ -720,7 +720,7 @@ export function AdminDashboard() {
                 { v: goldLegacyVouchers?.vouchers?.filter((v: any) => v.status === 'SENT' || v.status === 'PAID').length || 0, l: 'Pending' },
               ].map(({ v, l }) => (
                 <div key={l} style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{v}</div>
+                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{v}</div>
                   <div className="loom-eyebrow">{l}</div>
                 </div>
               ))}
@@ -768,19 +768,19 @@ export function AdminDashboard() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--rule)' }}>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{billingStats?.failed || 0}</div>
+                <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{billingStats?.failed || 0}</div>
                 <div className="loom-eyebrow">Failed</div>
               </div>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{billingStats?.pendingRetry || 0}</div>
+                <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>{billingStats?.pendingRetry || 0}</div>
                 <div className="loom-eyebrow">Pending Retry</div>
               </div>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone-dim)', marginBottom: 4 }}>{billingStats?.resolved || 0}</div>
+                <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone-dim)', marginBottom: 4 }}>{billingStats?.resolved || 0}</div>
                 <div className="loom-eyebrow">Resolved</div>
               </div>
               <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone-dim)', marginBottom: 4 }}>{billingStats?.last24Hours || 0}</div>
+                <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone-dim)', marginBottom: 4 }}>{billingStats?.last24Hours || 0}</div>
                 <div className="loom-eyebrow">Last 24 Hours</div>
               </div>
             </div>
@@ -968,7 +968,7 @@ export function AdminDashboard() {
                   { v: (systemStats?.content?.memories || 0) + (systemStats?.content?.letters || 0), l: 'Total Content' },
                 ].map(({ v, l }) => (
                   <div key={l} style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                    <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{v}</div>
+                    <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{v}</div>
                     <div className="loom-eyebrow">{l}</div>
                   </div>
                 ))}
@@ -1295,7 +1295,7 @@ function StatCard({ label, value, subtext }: { label: string; value: string | nu
   return (
     <div style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
       <div className="loom-eyebrow" style={{ marginBottom: 8 }}>{label}</div>
-      <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{value}</div>
+      <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{value}</div>
       <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)' }}>{subtext}</div>
     </div>
   );
@@ -1851,7 +1851,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
       <InlineStatus status={status} />
       {createdCodes.length > 0 ? (
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
-          <div className="loom-serif" style={{ fontSize: 40, color: 'var(--warm)', marginBottom: 12 }}>∞</div>
+          <div className="loom-h2" style={{ fontSize: 40, color: 'var(--warm)', marginBottom: 12 }}>∞</div>
           <p style={{ color: 'var(--bone)', marginBottom: 16 }}>{createdCodes.length} Voucher{createdCodes.length > 1 ? 's' : ''} Created</p>
           <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: 16, marginBottom: 16, maxHeight: 192, overflowY: 'auto' }}>
             {createdCodes.map((code, i) => <p key={i} className="loom-mono" style={{ fontSize: 16, color: 'var(--warm)', marginBottom: 4, letterSpacing: '0.12em' }}>{code}</p>)}
@@ -1984,7 +1984,7 @@ The Heirloom Team`;
       <InlineStatus status={status} />
       {createdVoucher ? (
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
-          <div className="loom-serif" style={{ fontSize: 40, color: 'var(--warm)', marginBottom: 12 }}>∞</div>
+          <div className="loom-h2" style={{ fontSize: 40, color: 'var(--warm)', marginBottom: 12 }}>∞</div>
           <p className="loom-h2" style={{ fontSize: 24, fontStyle: 'italic', fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>Gold Legacy Voucher Created</p>
           <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', marginBottom: 16 }}>Member #{createdVoucher.memberNumber}</p>
           <div style={{ padding: 16, border: '1px solid var(--gold-20)', marginBottom: 16 }}>

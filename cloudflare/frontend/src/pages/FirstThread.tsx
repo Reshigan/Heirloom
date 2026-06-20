@@ -267,7 +267,7 @@ export function FirstThread() {
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '64px 30px 40px', background: 'var(--ink)', animation: `hl-fadein 720ms ${EASE} both` }}>
             <div style={{ fontSize: 11, letterSpacing: '0.34em', color: 'var(--warm-dim)' }}>LISTENING…</div>
             <div style={{ flex: 1 }} />
-            <div style={{ fontFamily: 'var(--serif)', fontWeight: 300, fontSize: 66, color: 'var(--bone)', letterSpacing: '0.04em' }}>{clock}</div>
+            <div style={{ fontFamily: 'var(--serif-display)', fontWeight: 300, fontSize: 66, color: 'var(--bone)', letterSpacing: '0.04em' }}>{clock}</div>
             <canvas ref={canvasRef} width={500} height={180} style={{ width: 230, height: 84, margin: '26px 0' }} />
             <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--bone-dim)', textAlign: 'center', minHeight: 40 }}>“…the scent of rain on dry earth carried us back to that summer.”</div>
             <div style={{ flex: 1 }} />

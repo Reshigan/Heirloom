@@ -773,6 +773,7 @@ export function TimeCapsule() {
 
             {createError && (
               <p
+                role="alert"
                 className="hl-mono"
                 style={{
                   fontSize: 10,

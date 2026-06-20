@@ -813,7 +813,7 @@ export function Record() {
             {/* timecode */}
             <div
               style={{
-                fontFamily: 'var(--serif)',
+                fontFamily: 'var(--serif-display)',
                 fontWeight: 300,
                 fontSize: 66,
                 letterSpacing: '0.04em',

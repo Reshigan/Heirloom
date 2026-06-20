@@ -435,7 +435,7 @@ export function Onboarding() {
       await familyReferralsApi.createInvite({ email: inviteEmail.trim() });
       setInviteSent(true);
     } catch {
-      // Non-fatal — still navigate forward
+      setError('Could not send the invitation — try again, or skip.');
     } finally {
       setBusy(false);
     }

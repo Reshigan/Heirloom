@@ -96,7 +96,7 @@ export function Login() {
               fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)',
               letterSpacing: '0.04em',
             }}>
-              ∞ &nbsp; your session ended. sign in again.
+              your session ended. sign in again.
             </div>
           ) : null}
 

@@ -377,7 +377,17 @@ export function Weft() {
                             italic={false}
                             title={
                               <>
-                                {entry.locked ? <span style={{ color: 'var(--warm)', marginRight: 6 }}>∞</span> : null}
+                                {entry.locked ? (
+                                  <span
+                                    aria-label="sealed"
+                                    title="sealed"
+                                    style={{
+                                      display: 'inline-block', width: 6, height: 6, marginRight: 8,
+                                      border: '1px solid var(--warm)', background: 'transparent',
+                                      transform: 'rotate(45deg)', verticalAlign: 'middle',
+                                    }}
+                                  />
+                                ) : null}
                                 {entry.title || 'an entry'}
                               </>
                             }

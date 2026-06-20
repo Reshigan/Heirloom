@@ -122,7 +122,7 @@ export function MemoryMap() {
             fontSize: 9,
             letterSpacing: '0.26em',
             textTransform: 'uppercase',
-            color: 'var(--muted-3)',
+            color: 'var(--bone-faint)',
             textAlign: 'center',
             margin: '0 0 56px',
           }}
@@ -131,7 +131,7 @@ export function MemoryMap() {
         </div>
 
         {isError && (
-          <p style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 24px' }}>
+          <p role="alert" style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 24px' }}>
             could not load places
           </p>
         )}
@@ -362,7 +362,7 @@ export function MemoryMap() {
                 fontSize: 9,
                 letterSpacing: '0.22em',
                 textTransform: 'uppercase',
-                color: 'var(--muted-3)',
+                color: 'var(--bone-faint)',
                 textAlign: 'center',
               }}
             >

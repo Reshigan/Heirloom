@@ -18,7 +18,7 @@ function parseDate(entry: any): Date {
   return new Date(iso);
 }
 
-interface Entry { kind: 'memory' | 'letter' | 'voice'; date: Date; words?: number; durationSec?: number }
+interface Entry { kind: 'memory' | 'letter' | 'voice'; date: Date; words?: number }
 
 function countWords(raw: any): number {
   const text: string =
@@ -27,20 +27,8 @@ function countWords(raw: any): number {
   return text.trim().split(/\s+/).length;
 }
 
-function durationSeconds(raw: any): number {
-  const d = raw?.duration ?? raw?.durationSec ?? raw?.duration_seconds ?? raw?.metadata?.duration ?? 0;
-  const n = typeof d === 'number' ? d : parseFloat(d);
-  return isNaN(n) ? 0 : n;
-}
-
 function buildStats(entries: Entry[], year: number) {
   const thisYear = entries.filter((e) => e.date.getFullYear() === year);
-
-  const monthlyCounts = Array.from({ length: 12 }, (_, i) =>
-    thisYear.filter((e) => e.date.getMonth() === i).length,
-  );
-  const maxMonthly = thisYear.length > 0 ? Math.max(...monthlyCounts) : 0;
-  const activeMonths = monthlyCounts.filter((c) => c > 0).length;
 
   const kindCounts = {
     memory: thisYear.filter((e) => e.kind === 'memory').length,
@@ -50,7 +38,7 @@ function buildStats(entries: Entry[], year: number) {
 
   const totalWords = thisYear.reduce((s, e) => s + (e.words ?? 0), 0);
 
-  return { thisYear, activeMonths, kindCounts, totalWords, maxMonthly };
+  return { thisYear, kindCounts, totalWords };
 }
 
 // ── A single stat band — huge serif number + dim mono caption ──────────────────
@@ -144,7 +132,7 @@ export default function Wrapped() {
     return [
       ...mems.map((m: any) => ({ kind: 'memory' as const, date: parseDate(m), words: countWords(m) })),
       ...lets.map((l: any) => ({ kind: 'letter' as const, date: parseDate(l), words: countWords(l) })),
-      ...vox.map((v: any)  => ({ kind: 'voice'  as const, date: parseDate(v), durationSec: durationSeconds(v) })),
+      ...vox.map((v: any)  => ({ kind: 'voice'  as const, date: parseDate(v) })),
     ].filter((e) => !isNaN(e.date.getTime()));
   }, [memoriesData, lettersData, voiceData]);
 

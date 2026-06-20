@@ -22,6 +22,7 @@ function PwaMenu() {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const itemRefs = useRef<Array<HTMLElement | null>>([]);
 
   // Dismiss on outside click or Escape (mirrors InfinityMenu). Escape returns
   // focus to the trigger so keyboard users aren't stranded.
@@ -43,6 +44,23 @@ function PwaMenu() {
       document.removeEventListener('keydown', onKey);
     };
   }, [open]);
+
+  // Roving focus: on open, focus the first menuitem (mirrors InfinityMenu).
+  useEffect(() => {
+    if (open) itemRefs.current[0]?.focus();
+  }, [open]);
+
+  // ArrowDown/Up cycle between menuitems, Home/End jump to first/last.
+  const itemCount = 10; // 9 nav links + sign out
+  const onMenuKey = (e: React.KeyboardEvent, i: number) => {
+    const last = itemCount - 1;
+    let next = -1;
+    if (e.key === 'ArrowDown') next = i === last ? 0 : i + 1;
+    else if (e.key === 'ArrowUp') next = i === 0 ? last : i - 1;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = last;
+    if (next !== -1) { e.preventDefault(); itemRefs.current[next]?.focus(); }
+  };
 
   if (!user) return null;
   const initials = `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || '∞';
@@ -116,12 +134,15 @@ function PwaMenu() {
           { to: '/billing',            label: 'billing' },
           { to: '/family',             label: 'family' },
           { to: '/gift-subscriptions', label: 'gift a thread' },
-        ].map(item => (
+        ].map((item, i) => (
           <Link
             key={item.to}
             to={item.to}
             role="menuitem"
+            ref={(el) => { itemRefs.current[i] = el; }}
+            tabIndex={i === 0 ? 0 : -1}
             onClick={() => setOpen(false)}
+            onKeyDown={(e) => onMenuKey(e, i)}
             style={{
               display: 'block',
               padding: '9px 8px',
@@ -143,7 +164,10 @@ function PwaMenu() {
         <button
           type="button"
           role="menuitem"
+          ref={(el) => { itemRefs.current[9] = el; }}
+          tabIndex={-1}
           onClick={() => { logout(); setOpen(false); }}
+          onKeyDown={(e) => onMenuKey(e, 9)}
           style={{
             display: 'block',
             width: '100%',

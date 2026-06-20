@@ -130,6 +130,7 @@ export function UserMenu() {
         className="hl-topbar-user-btn"
         aria-haspopup="true"
         aria-expanded={open}
+        aria-controls="account-menu"
         aria-label="User menu"
         onClick={() => setOpen((v) => !v)}
         style={{
@@ -152,6 +153,7 @@ export function UserMenu() {
         {initials}
       </button>
       <div
+        id="account-menu"
         role="menu"
         aria-label="Account menu"
         aria-hidden={!open}
