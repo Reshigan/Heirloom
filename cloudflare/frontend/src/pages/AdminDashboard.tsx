@@ -1333,7 +1333,7 @@ function CouponRow({ coupon }: { coupon: any }) {
       <td className="loom-mono" style={{ ...tdStyle, fontSize: 12 }}>
         {coupon.discountType === 'PERCENTAGE' ? `${coupon.discountValue}%` : `$${(coupon.discountValue / 100).toFixed(2)}`}
       </td>
-      <td className="loom-mono" style={{ ...tdStyle, fontSize: 12, color: 'var(--bone-dim)' }}>{coupon.currentUses} / {coupon.maxUses || '∞'}</td>
+      <td className="loom-mono" style={{ ...tdStyle, fontSize: 12, color: 'var(--bone-dim)' }}>{coupon.currentUses} / {coupon.maxUses || '—'}</td>
       <td className="loom-mono" style={{ ...tdStyle, fontSize: 11, color: 'var(--bone-faint)' }}>{coupon.validUntil ? new Date(coupon.validUntil).toLocaleDateString() : 'No expiry'}</td>
       <td style={tdStyle}>
         <button className="loom-btn-ghost" style={{ fontSize: 11 }} onClick={() => toggleMutation.mutate()}>
@@ -1531,6 +1531,19 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
     onError: (err: any) => status.err(err?.response?.data?.error || 'failed to verify email'),
   });
 
+  // ponytail: render ConfirmModal as the SOLE dialog while confirming — two nested aria-modal shells fight focus-trap/Escape
+  if (confirmingCancel) {
+    return (
+      <ConfirmModal
+        title="Cancel subscription"
+        body="Cancel this subscription? This cannot be undone."
+        confirmLabel="cancel subscription"
+        onConfirm={() => cancelSubscriptionMutation.mutate()}
+        onClose={() => setConfirmingCancel(false)}
+      />
+    );
+  }
+
   return (
     <ModalShell onClose={onClose} title="Manage User">
       <InlineStatus status={status} />
@@ -1601,15 +1614,6 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
           </button>
         </div>
       </div>
-      {confirmingCancel && (
-        <ConfirmModal
-          title="Cancel subscription"
-          body="Cancel this subscription? This cannot be undone."
-          confirmLabel="cancel subscription"
-          onConfirm={() => cancelSubscriptionMutation.mutate()}
-          onClose={() => setConfirmingCancel(false)}
-        />
-      )}
     </ModalShell>
   );
 }
@@ -1739,7 +1743,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
         {ticket?.messages?.map((msg: any) => (
-          <div key={msg.id} style={{ padding: '12px 16px', border: '1px solid var(--rule)', marginLeft: msg.senderType === 'ADMIN' ? 32 : 0, marginRight: msg.senderType === 'USER' ? 32 : 0, background: msg.senderType === 'USER' ? 'var(--ink)' : 'transparent', borderColor: msg.senderType === 'ADMIN' ? 'var(--gold-20)' : 'var(--rule)' }}>
+          <div key={msg.id} style={{ padding: '12px 16px', border: '1px solid var(--rule)', marginLeft: msg.senderType === 'ADMIN' ? 32 : 0, marginRight: msg.senderType === 'USER' ? 32 : 0, background: msg.senderType === 'USER' ? 'var(--ink)' : 'transparent', borderColor: 'var(--rule)' }}>
             <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginBottom: 6 }}>{msg.senderType === 'ADMIN' ? 'Admin' : 'User'} · {new Date(msg.createdAt).toLocaleString()}</div>
             <div style={{ fontSize: 13, color: 'var(--bone)' }}>{msg.content}</div>
           </div>

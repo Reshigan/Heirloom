@@ -202,12 +202,18 @@ export function Weft() {
     );
   }
 
-  const kinForCentury = (Array.isArray(threadMembersData) ? threadMembersData : []).map((m: any, i: number) => ({
-    name: m.name ?? m.display_name ?? 'member',
-    born: m.born_year ?? m.birthYear ?? new Date().getFullYear() - 30 - i * 10,
-    died: m.died_year ?? null,
-    you: m.user_id === user?.id || m.id === user?.id,
-  }));
+  // ponytail: only members with a REAL born year feed the century math
+  // (markerYears -> C_START/C_END). Synthesising now-30-10i invented dates
+  // skewed the projected window; filter undated members out instead. They
+  // still render elsewhere via threadMembersData (not through kinForCentury).
+  const kinForCentury = (Array.isArray(threadMembersData) ? threadMembersData : [])
+    .map((m: any) => ({
+      name: m.name ?? m.display_name ?? 'member',
+      born: m.born_year ?? m.birthYear ?? null,
+      died: m.died_year ?? null,
+      you: m.user_id === user?.id || m.id === user?.id,
+    }))
+    .filter((k): k is { name: string; born: number; died: number | null; you: boolean } => typeof k.born === 'number');
 
   // Derive user birth year from kin (the member flagged `you: true`).
   const youKin = kinForCentury.find((k) => k.you);

@@ -522,7 +522,7 @@ export function Settings() {
               <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)' }}>saved</span>
             )}
             {saveError && (
-              <span className="hl-mono" style={{ ...ERROR_STYLE, margin: 0 }}>{saveError}</span>
+              <span role="alert" className="hl-mono" style={{ ...ERROR_STYLE, margin: 0 }}>{saveError}</span>
             )}
           </div>
 
@@ -558,7 +558,7 @@ export function Settings() {
                   style={{ ...FIELD_INPUT_STYLE, padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
                 />
               ))}
-              {emailError && <p className="hl-mono" style={ERROR_STYLE}>{emailError}</p>}
+              {emailError && <p role="alert" className="hl-mono" style={ERROR_STYLE}>{emailError}</p>}
               <div style={{ display: 'flex', gap: 14, marginTop: 4, alignItems: 'center' }}>
                 <button type="button" onClick={handleChangeEmail} disabled={!newEmail || !emailPassword || changeEmail.isPending}
                   className="hl-monoaction" style={{ opacity: (!newEmail || !emailPassword || changeEmail.isPending) ? 0.5 : 1 }}>
@@ -602,7 +602,7 @@ export function Settings() {
                   style={{ ...FIELD_INPUT_STYLE, padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
                 />
               ))}
-              {pwError && <p className="hl-mono" style={ERROR_STYLE}>{pwError}</p>}
+              {pwError && <p role="alert" className="hl-mono" style={ERROR_STYLE}>{pwError}</p>}
               <div style={{ display: 'flex', gap: 14, marginTop: 4, alignItems: 'center' }}>
                 <button type="button" onClick={handleChangePw} disabled={!pwCurrent || !pwNew || !pwConfirm || changePw.isPending}
                   className="hl-monoaction" style={{ opacity: (!pwCurrent || !pwNew || !pwConfirm || changePw.isPending) ? 0.5 : 1 }}>
@@ -639,7 +639,7 @@ export function Settings() {
             />
           ))}
           {notifError && (
-            <span className="hl-mono" style={{ ...ERROR_STYLE, margin: 0, display: 'block', paddingTop: 6 }}>{notifError}</span>
+            <span role="alert" className="hl-mono" style={{ ...ERROR_STYLE, margin: 0, display: 'block', paddingTop: 6 }}>{notifError}</span>
           )}
 
           {/* ════════ APPEARANCE ════════ */}
@@ -768,7 +768,7 @@ export function Settings() {
               </div>
               <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
                 {guardianEmailError && (
-                  <span className="hl-mono" style={{ ...ERROR_STYLE, margin: 0, width: '100%' }}>{guardianEmailError}</span>
+                  <span role="alert" className="hl-mono" style={{ ...ERROR_STYLE, margin: 0, width: '100%' }}>{guardianEmailError}</span>
                 )}
                 <button
                   type="button"
@@ -830,7 +830,7 @@ export function Settings() {
                   {dmConfigOpen ? 'Close' : 'Configure'}
                 </button>
                 {checkInError && (
-                  <span className="hl-mono" style={{ ...ERROR_STYLE, margin: 0 }}>{checkInError}</span>
+                  <span role="alert" className="hl-mono" style={{ ...ERROR_STYLE, margin: 0 }}>{checkInError}</span>
                 )}
               </span>
             </span>
@@ -860,7 +860,7 @@ export function Settings() {
                   />
                 </label>
               ))}
-              {dmConfigError && <p className="hl-mono" style={ERROR_STYLE}>{dmConfigError}</p>}
+              {dmConfigError && <p role="alert" className="hl-mono" style={ERROR_STYLE}>{dmConfigError}</p>}
               <div style={{ display: 'flex', gap: 14, marginTop: 4, alignItems: 'center' }}>
                 <button type="button" onClick={handleConfigureDeadman} disabled={!dmIntervalValid || !dmGraceValid || configureDeadman.isPending}
                   className="hl-monoaction" style={{ opacity: (!dmIntervalValid || !dmGraceValid || configureDeadman.isPending) ? 0.5 : 1 }}>
@@ -1000,7 +1000,7 @@ export function Settings() {
                   style={{ ...FIELD_INPUT_STYLE, fontSize: 15, padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8 }}
                 />
                 {deleteError && (
-                  <p className="hl-mono" style={{ ...ERROR_STYLE, margin: '0 0 14px' }}>{deleteError}</p>
+                  <p role="alert" className="hl-mono" style={{ ...ERROR_STYLE, margin: '0 0 14px' }}>{deleteError}</p>
                 )}
                 <div style={{ display: 'flex', gap: 14, marginTop: 20, flexWrap: 'wrap' }}>
                   <button type="button" className="hl-btn" onClick={() => archiveMutation.mutate()} disabled={!deletePassword || archiveMutation.isPending}>
@@ -1029,7 +1029,7 @@ export function Settings() {
                   {exportLoading ? 'preparing…' : 'download archive now →'}
                 </button>
                 {exportError && (
-                  <p className="hl-mono" style={{ ...ERROR_STYLE, margin: '8px 0 0' }}>{exportError}</p>
+                  <p role="alert" className="hl-mono" style={{ ...ERROR_STYLE, margin: '8px 0 0' }}>{exportError}</p>
                 )}
                 <br />
                 <button type="button" className="hl-monoaction hl-monoaction--quiet" style={{ marginTop: 8 }}

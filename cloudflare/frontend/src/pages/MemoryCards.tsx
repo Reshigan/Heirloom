@@ -10,15 +10,11 @@ interface CardStyle {
   id: string;
   name: string;
   description: string;
-  bgColor: string;
-  textColor: string;
-  accentColor: string;
 }
 
 interface GeneratedCard {
   id: string;
   style: string;
-  styleConfig: CardStyle;
   quote: string;
   photoUrl: string | null;
   authorName: string;
@@ -363,17 +359,30 @@ export function MemoryCards() {
                   </div>
                   <label
                     style={{
+                      position: 'relative',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
                       cursor: 'pointer',
                     }}
                   >
+                    {/* ponytail: custom 1px-stroke square — native checkbox painted a UA fill + checkmark glyph (no-icon/hairline law) */}
                     <input
                       type="checkbox"
                       checked={includePhoto}
                       onChange={(e) => setIncludePhoto(e.target.checked)}
-                      style={{ width: 14, height: 14, accentColor: 'var(--bone-dim)', cursor: 'pointer' }}
+                      style={{ position: 'absolute', opacity: 0, width: 14, height: 14, margin: 0, cursor: 'pointer' }}
+                    />
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        width: 14,
+                        height: 14,
+                        flexShrink: 0,
+                        border: '1px solid var(--bone-dim)',
+                        background: includePhoto ? 'var(--bone-dim)' : 'transparent',
+                        transition: 'background 180ms var(--ease)',
+                      }}
                     />
                     <span
                       className="hl-serif"
@@ -412,8 +421,8 @@ export function MemoryCards() {
                   <p className="hl-eyebrow" style={{ marginBottom: 18 }}>Your card</p>
 
                   {/* On-screen preview rides theme tokens so it tracks paper/vault.
-                      The raw worker hex (styleConfig.bgColor/.textColor) is reserved
-                      for the exported/served share image only — baking it here would
+                      The raw worker hex (bg/text colors) is reserved for the
+                      exported/served share image only — baking it here would
                       paint a fixed-dark slab on the paper ground that never flips. */}
                   <div
                     style={{

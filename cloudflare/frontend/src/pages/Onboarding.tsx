@@ -271,7 +271,7 @@ const pillStyle: React.CSSProperties = {
   textTransform: 'uppercase' as const,
   cursor: 'pointer',
   touchAction: 'manipulation',
-  transition: 'border-color 180ms var(--ease), color 180ms var(--ease)',
+  transition: 'border-color 180ms var(--ease)', // ponytail: color is identical rest/hover — dead leg dropped
 };
 
 function pillHover(e: React.MouseEvent<HTMLButtonElement>) {

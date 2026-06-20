@@ -280,7 +280,7 @@ export function FirstThread() {
             <div style={{ fontSize: 11, letterSpacing: '0.34em', color: 'var(--warm-dim)' }}>LISTENING…</div>
             <div style={{ flex: 1 }} />
             <div style={{ fontFamily: 'var(--serif-display)', fontWeight: 300, fontSize: 66, color: 'var(--bone)', letterSpacing: '0.04em' }}>{clock}</div>
-            <canvas ref={canvasRef} width={500} height={180} style={{ width: 230, height: 84, margin: '26px 0' }} />
+            <canvas ref={canvasRef} aria-hidden="true" width={500} height={180} style={{ width: 230, height: 84, margin: '26px 0' }} />
             <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--bone-dim)', textAlign: 'center', minHeight: 40 }}>“…the scent of rain on dry earth carried us back to that summer.”</div>
             <div style={{ flex: 1 }} />
             <button type="button" onClick={stopRec} style={{ display: 'flex', alignItems: 'center', gap: 10, border: '1px solid var(--copper-border)', background: 'transparent', borderRadius: 0, padding: '13px 26px', color: 'var(--warm-bright)', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.24em', cursor: 'pointer' }}>
@@ -373,6 +373,7 @@ export function FirstThread() {
             return (
               <span
                 key={n}
+                aria-current={active ? 'step' : undefined}
                 style={
                   active
                     ? { width: 6, height: 6, border: '1px solid var(--warm)', background: 'transparent', boxSizing: 'border-box' }

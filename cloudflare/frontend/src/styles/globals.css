@@ -94,6 +94,9 @@
   --bone-low: rgba(242, 230, 208, 0.24);
   --bone-ghost: rgba(242, 230, 208, 0.14);
   --weave-color: rgba(242, 230, 208, 0.10);
+  /* Opacity for the dark woven raster overlay (Wrapped). Near-zero on paper
+     so the dark texture doesn't read as a grey smudge on the light ground. */
+  --woven-veil: 0.14;
   --rule: rgba(242, 230, 208, 0.11);
   --rule-strong: rgba(242, 230, 208, 0.20);
   --warm: #e0a062;
@@ -311,6 +314,7 @@
   --bone-low:     rgba(18, 13, 8, 0.32);
   --bone-ghost:   rgba(18, 13, 8, 0.18);
   --weave-color:  rgba(18, 13, 8, 0.13);
+  --woven-veil:   0.04;
   --rule:         rgba(18, 13, 8, 0.12);
   --rule-strong:  rgba(18, 13, 8, 0.22);
   --rule-warm:    rgba(150, 80, 26, 0.32);
@@ -661,11 +665,6 @@ em {
   to { opacity: 1; }
 }
 
-@keyframes slide-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 /* Heirloom reveal keyframes — use via .hl-reveal-* utility classes or
    directly with animation: hl-rise Xms var(--ease) both.
    All use the single permitted easing curve. */
@@ -679,20 +678,11 @@ em {
   to   { opacity: 1; }
 }
 
-@keyframes hl-drop {
-  from { opacity: 0; transform: translateY(-10px); }
-  to   { opacity: 1; transform: translateY(0);     }
-}
-
-@keyframes hl-widen {
-  from { opacity: 0; clip-path: inset(0 40% 0 40%); }
-  to   { opacity: 1; clip-path: inset(0 0% 0 0%);   }
-}
-
-/* The Listener's pulse — a warm bead breathing while subtle AI reads along. */
+/* The Listener's reading bead — opacity-only breath (no scale pulse, §4). */
+/* ponytail: dropped transform:scale so no decorative size-pulse remains. */
 @keyframes hl-listener-pulse {
-  0%, 100% { opacity: 0.35; transform: scale(1);    }
-  50%      { opacity: 1;    transform: scale(1.35); }
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1;    }
 }
 
 /* First Thread ceremony keyframes (src/pages/FirstThread.tsx). Ported verbatim
@@ -703,12 +693,10 @@ em {
 @keyframes hl-fadein { from { opacity: 0; } to { opacity: 1; } }
 @keyframes hl-wipe   { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes hl-sweep  { 0% { left: -14%; opacity: 0; } 18% { opacity: 1; } 100% { left: 106%; opacity: 0; } }
-@keyframes hl-pulse  { 0%, 100% { opacity: .5; } 50% { opacity: .92; } }
 @keyframes hl-ring   { 0% { transform: translate(-50%,-50%) scale(.35); opacity: .85; } 100% { transform: translate(-50%,-50%) scale(2.7); opacity: 0; } }
 @keyframes hl-stamp  { 0% { transform: translate(-50%,-50%) scale(1.6); opacity: 0; } 38% { opacity: 1; } 62% { transform: translate(-50%,-50%) scale(.86); } 100% { transform: translate(-50%,-50%) scale(1); } }
 @keyframes hl-node   { 0% { transform: scale(0); opacity: 0; } 62% { transform: scale(1.5); } 100% { transform: scale(1); opacity: 1; } }
 @keyframes hl-grow   { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-@keyframes hl-caret  { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
   .hl-first-thread *,
@@ -724,7 +712,6 @@ em {
 .hl-stagger > * { --hl-base: 0ms; animation-delay: calc(var(--hl-base) + var(--i, 0) * 80ms); }
 
 .animate-fade-in { animation: fade-in 360ms var(--ease-out) both; }
-.animate-slide-up { animation: slide-up 360ms var(--ease-out) both; }
 
 /* Custom cursor removed per UI polish spec (accessibility) */
 
@@ -914,12 +901,14 @@ select:focus-visible {
    their inline colorScheme:'dark' so the picker UI flips with the document). */
 .loom[data-theme="light"] input[type="date"],
 .loom[data-theme="light"] input[type="datetime-local"],
-.loom[data-theme="light"] input[type="time"] {
+.loom[data-theme="light"] input[type="time"],
+.loom[data-theme="light"] select {
   color-scheme: light;
 }
 .loom[data-theme="dark"] input[type="date"],
 .loom[data-theme="dark"] input[type="datetime-local"],
-.loom[data-theme="dark"] input[type="time"] {
+.loom[data-theme="dark"] input[type="time"],
+.loom[data-theme="dark"] select {
   color-scheme: dark;
 }
 
@@ -1677,22 +1666,6 @@ html {
   opacity: 0.42;
   pointer-events: none;
 }
-/* Universal woven-cloth ground — the basketweave from the marketing site.
-   Dense fine warp+weft + a coarser thread-bundle layer = woven texture, not
-   "the lines". Themeable via --weave-color (dark + light). Signal, low-contrast;
-   sits behind content (z-index 0), content rides above. */
-.hl-cloth-weave {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    repeating-linear-gradient(90deg, var(--weave-color) 0, var(--weave-color) 1px, transparent 1px, transparent 4px),
-    repeating-linear-gradient(0deg,  var(--weave-color) 0, var(--weave-color) 1px, transparent 1px, transparent 4px),
-    repeating-linear-gradient(90deg, var(--weave-color) 0, var(--weave-color) 2px, transparent 2px, transparent 16px),
-    repeating-linear-gradient(0deg,  var(--weave-color) 0, var(--weave-color) 2px, transparent 2px, transparent 16px);
-  background-position: 0 0, 0 0, 0 0, 8px 8px;
-}
-
 .loom-weft__pick {
   position: absolute;
   height: 2px;

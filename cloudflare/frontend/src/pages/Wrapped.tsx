@@ -216,12 +216,9 @@ export default function Wrapped() {
               height: '100%',
               transform: 'translateX(-50%)',
               objectFit: 'cover',
-              // ponytail: globals.css is out of scope and --vignette-core is opaque
-              // in both themes (no usable alpha flip), so the smallest correct fix is
-              // to drop the baked opacity — a dark raster this faint reads as warm
-              // texture, not a smudge, on paper, and stays subtle on ink. ceiling:
-              // single theme-safe opacity; no per-theme token until globals is in scope.
-              opacity: 0.14,
+              // ponytail: per-theme veil token (0.14 dark / 0.04 light) so this
+              // dark raster reads as warm texture on paper, subtle on ink.
+              opacity: 'var(--woven-veil)',
               pointerEvents: 'none',
               zIndex: 0,
             }}

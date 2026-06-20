@@ -249,10 +249,9 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
             top: 0,
             bottom: 0,
             width: 15,
-            background:
-              'linear-gradient(90deg, color-mix(in srgb, var(--ink-card) 70%, var(--spine-shadow)), color-mix(in srgb, var(--ink-card) 88%, var(--spine-shadow)))',
+            // ponytail: flat solid band, no gradient/inset glow (outside-time)
+            background: 'color-mix(in srgb, var(--ink-card) 80%, var(--spine-shadow))',
             borderRadius: 0,
-            boxShadow: 'inset -2px 0 4px var(--book-drop-shadow)',
           }}
         />
         {/* fore-edge stripe on the right */}
@@ -263,8 +262,8 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
             top: 0,
             bottom: 0,
             width: 5,
-            background:
-              'linear-gradient(90deg, color-mix(in srgb, var(--ink-card) 82%, var(--spine-shadow)), color-mix(in srgb, var(--ink-card) 64%, var(--spine-shadow)))',
+            // ponytail: flat solid band, no gradient (outside-time)
+            background: 'color-mix(in srgb, var(--ink-card) 80%, var(--spine-shadow))',
             borderRadius: 0,
           }}
         />
@@ -582,8 +581,26 @@ export function BookBuilder() {
                           type="checkbox"
                           checked={config[key as keyof BookConfig] as boolean}
                           onChange={(e) => setConfig((prev) => ({ ...prev, [key]: e.target.checked }))}
-                          style={{ width: 14, height: 14, accentColor: 'var(--bone-dim)', cursor: 'pointer' }}
+                          style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
                         />
+                        {/* ponytail: 1px-stroke square + inner dot, no native accentColor */}
+                        <span
+                          aria-hidden="true"
+                          style={{
+                            width: 14,
+                            height: 14,
+                            flexShrink: 0,
+                            border: '1px solid var(--rule)',
+                            borderRadius: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          {(config[key as keyof BookConfig] as boolean) && (
+                            <span style={{ width: 6, height: 6, background: 'var(--bone-dim)' }} />
+                          )}
+                        </span>
                         <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)' }}>
                           {label}
                         </span>

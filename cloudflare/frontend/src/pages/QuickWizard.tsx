@@ -611,6 +611,7 @@ export function QuickWizard() {
                     {/* Prompt fetch error — inline mono line, never red/toast */}
                     {promptError && (
                       <p
+                        role="alert"
                         className="hl-mono"
                         style={{
                           fontSize: 10,

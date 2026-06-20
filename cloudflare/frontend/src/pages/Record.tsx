@@ -23,6 +23,13 @@ import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 const MAX_RECORDING_SECS = 120; // 2 min — used for hairline progress and auto-stop
 
+// ponytail: module-level — deterministic, prop-independent waveform shape computed once.
+// Static bone waveform — deterministic bars so the shape is stable across re-renders.
+const WAVE_BARS = Array.from({ length: 56 }, (_, i) => {
+  const s = Math.sin(i * 0.7) * Math.cos(i * 0.31) + Math.sin(i * 1.9) * 0.5;
+  return 0.18 + Math.abs(s) * 0.82;
+});
+
 const PROMPTS = [
   'What was the song that always played?',
   'What was your father afraid of?',
@@ -74,14 +81,8 @@ export function Record() {
   // Display-only playback position (0..1) — lights the leading bone waveform bars.
   const [playPos, setPlayPos] = useState(0);
 
-  // Static bone waveform — deterministic bars derived from the recording so the
-  // shape is stable across re-renders (no audio-analyser dependency).
-  const waveBars = useState(() =>
-    Array.from({ length: 56 }, (_, i) => {
-      const s = Math.sin(i * 0.7) * Math.cos(i * 0.31) + Math.sin(i * 1.9) * 0.5;
-      return 0.18 + Math.abs(s) * 0.82;
-    }),
-  )[0];
+  // ponytail: hoisted to module-level WAVE_BARS — value is prop-independent and never updated.
+  const waveBars = WAVE_BARS;
 
   const audioElRef = useRef<HTMLAudioElement | null>(null);
 

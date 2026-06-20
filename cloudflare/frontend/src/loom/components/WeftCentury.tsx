@@ -102,7 +102,7 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
         style={{ marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}
       >
         <span>
-          <span style={{ color: 'var(--warm)' }}>·</span> century view &nbsp;·&nbsp; {C_START} — {C_END} &nbsp;·&nbsp; {C_END - C_START} yrs
+          · century view &nbsp;·&nbsp; {C_START} — {C_END} &nbsp;·&nbsp; {C_END - C_START} yrs
         </span>
         <span className="loom-serif" style={{ fontSize: 11, fontStyle: 'italic', color: 'var(--bone-faint)' }}>
           entries sealed past a lifetime become visible here

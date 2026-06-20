@@ -431,7 +431,8 @@ export function ThreadCompose() {
                   type="checkbox"
                   checked={enableLock}
                   onChange={(e) => setEnableLock(e.target.checked)}
-                  style={{ marginTop: 3, flexShrink: 0 }}
+                  // ponytail: token accentColor so the native check flips with theme (global .loom hairline-square idiom carries the appearance)
+                  style={{ marginTop: 3, flexShrink: 0, accentColor: 'var(--bone-dim)' }}
                 />
                 <div>
                   <p

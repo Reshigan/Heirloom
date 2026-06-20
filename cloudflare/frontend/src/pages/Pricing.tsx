@@ -287,7 +287,6 @@ export function Pricing() {
                     letterSpacing: '0.26em',
                     textTransform: 'uppercase',
                     textDecoration: 'none',
-                    transition: 'border-color 360ms var(--ease), color 360ms var(--ease)',
                   }}
                 >
                   {tier.cta}

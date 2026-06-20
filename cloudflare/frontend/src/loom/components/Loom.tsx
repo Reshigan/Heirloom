@@ -222,6 +222,7 @@ export function Loom({
                   background:
                     'repeating-linear-gradient(to bottom, var(--rule-warm) 0, var(--rule-warm) 2px, transparent 2px, transparent 6px)',
                   opacity: lit ? 0.9 : 0.5,
+                  transition: 'opacity var(--loom-dur-fast) var(--loom-ease)',
                 }}
               />
             </div>
