@@ -312,11 +312,11 @@ export function GiftSubscriptions() {
                         ),
                     };
 
+                const Row: any = isFree ? 'div' : 'button';
                 return (
-                  <button
+                  <Row
                     key={tier.id}
-                    type="button"
-                    onClick={() => { if (!isFree) setSelectedTier(tier.id); }}
+                    {...(isFree ? {} : { type: 'button', onClick: () => setSelectedTier(tier.id) })}
                     {...radioProps}
                     style={{
                       display:        'flex',
@@ -406,7 +406,7 @@ export function GiftSubscriptions() {
                         </span>
                       )}
                     </span>
-                  </button>
+                  </Row>
                 );
               }); })()}
             </div>
@@ -921,7 +921,7 @@ export function GiftSubscriptions() {
             </div>
             <SectionLabel>previous gifts</SectionLabel>
             <div style={{ display: 'grid', marginTop: 8 }}>
-              {purchasedGifts.map((gift: any) => (
+              {[...purchasedGifts].sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).map((gift: any) => (
                 <EntryRow
                   key={gift.id}
                   title={gift.recipient_name}

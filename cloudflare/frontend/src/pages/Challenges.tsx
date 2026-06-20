@@ -258,7 +258,7 @@ export function Challenges() {
                       {b}
                     </span>
                   </span>
-                  <span style={{ ...metaText, color: 'var(--copper-label)', flex: '0 0 auto' }}>{n}</span>
+                  <span style={{ ...metaText, color: 'var(--bone-faint)', flex: '0 0 auto' }}>{n}</span>
                 </div>
               ))}
             </section>

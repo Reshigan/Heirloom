@@ -700,23 +700,12 @@ em {
   .hl-first-thread *::after { animation: none !important; }
 }
 
-/* Utility classes: duration controlled by --hl-dur (defaults 700ms) */
-.hl-reveal-rise  { animation: hl-rise  var(--hl-dur, 720ms) var(--ease) both; }
-.hl-reveal-fade  { animation: hl-fade  var(--hl-dur, 720ms) var(--ease) both; }
-
-/* Stagger helpers — set on parent, children pick up nth-child delay */
-.hl-stagger > * { --hl-base: 0ms; animation-delay: calc(var(--hl-base) + var(--i, 0) * 80ms); }
-
 /* Custom cursor removed per UI polish spec (accessibility) */
 
 /* Removed: the dead `.skeleton` shimmer + `@keyframes skeleton-shimmer` — no JSX
  * call sites; ProgressHair (the 1px shuttle) is the only loading affordance. */
 
 /* ===== CSS FADE-IN (replaces simple Framer Motion fade) ===== */
-.fade-in {
-  animation: css-fade-in 360ms var(--ease-out) both;
-}
-
 @keyframes css-fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -1313,29 +1302,6 @@ html {
   display: block;
 }
 .hl-helper.dark { color: var(--parchment-faint); }
-
-/* ── Progress bar — the only loading affordance (§2.6: no spinners) ─── */
-.hl-progress {
-  display: block;
-  width: 100%;
-  height: 1px;
-  background: var(--rule);
-  position: relative;
-  overflow: hidden;
-}
-.hl-progress::after {
-  content: '';
-  position: absolute;
-  top: 0; bottom: 0;
-  left: -40%;
-  width: 40%;
-  background: var(--warm);
-  animation: hl-progress-shuttle 1400ms var(--ease) infinite;
-}
-@keyframes hl-progress-shuttle {
-  0%   { left: -40%; }
-  100% { left: 110%; }
-}
 
 .hl-tag {
   display: inline-block;
@@ -2134,30 +2100,6 @@ html {
   /* Reading measure */
   --measure: 65ch;
   --measure-tight: 45ch;
-}
-
-/* ── Reading column — longform prose ─────────────────────────────────── */
-.hl-reading {
-  max-width: var(--measure);
-  margin: 0 auto;
-  font-family: var(--serif);
-  font-size: clamp(16px, 1.6vw, 19px);
-  font-weight: 400;
-  line-height: 1.72;
-  color: var(--bone);
-}
-
-.loom[data-theme="light"] .hl-reading { color: var(--ink); }
-
-.hl-reading p + p { text-indent: 2em; }
-
-.hl-reading p:first-of-type::first-letter {
-  font-size: 3.4em;
-  font-weight: 300;
-  line-height: 0.75;
-  float: left;
-  margin: 0.06em 0.12em 0 0;
-  color: var(--warm);
 }
 
 /* ── Autofill override — Chrome blue autofill destroys the ink/bone palette ── */

@@ -204,8 +204,8 @@ export function Billing() {
         <SectionLabel>payment method</SectionLabel>
         <div>
           <div style={ROW}>
-            <span style={{ ...LABEL, fontFamily: 'var(--mono)', fontSize: 14, letterSpacing: '0.14em', color: 'var(--bone)' }}>
-              •••• •••• •••• ••••
+            <span style={{ ...LABEL, fontFamily: 'var(--mono)', fontSize: 14, letterSpacing: '0.14em', color: 'var(--bone-dim)' }}>
+              card stored with Stripe
             </span>
             <span style={VALUE_STATIC}>managed via stripe</span>
           </div>

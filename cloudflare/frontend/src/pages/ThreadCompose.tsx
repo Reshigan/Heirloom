@@ -47,6 +47,7 @@ const fieldStyle: React.CSSProperties = {
   outline: 'none',
   boxSizing: 'border-box',
   borderRadius: 0,
+  colorScheme: 'inherit',
   transition: `border-color 180ms ${EASE}`,
 };
 

@@ -263,7 +263,6 @@ export function StoryView() {
                     objectFit: 'contain',
                     display: 'block',
                     background: 'var(--ink)',
-                    transition: `opacity 360ms ${EASE}`,
                   }}
                 />
               </div>

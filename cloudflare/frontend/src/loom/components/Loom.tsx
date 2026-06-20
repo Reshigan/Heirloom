@@ -318,7 +318,6 @@ export function Loom({
             left: `${nowFrac * 100}%`,
             width: 1,
             background: 'var(--warm)',
-            opacity: 0.9,
             pointerEvents: 'none',
           }}
         />
@@ -347,7 +346,7 @@ export function Loom({
               fontSize: 9,
               letterSpacing: '0.18em',
               whiteSpace: 'nowrap',
-              color: 'var(--warm)',
+              color: 'var(--bone-dim)',
             }}
           >
             {appendCount} woven

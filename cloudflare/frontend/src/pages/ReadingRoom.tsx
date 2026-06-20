@@ -42,8 +42,11 @@ type Kind = Thread['kind'];
 function fmtDate(iso: string): { date: string; year: string; ord: number } {
   const d = new Date(iso);
   const ord = isNaN(d.getTime()) ? 0 : d.getTime();
-  const ymd = (isNaN(d.getTime()) ? new Date() : d).toISOString().slice(0, 10);
-  return { date: ymd.replace(/-/g, '·'), year: ymd.slice(0, 4), ord };
+  const local = isNaN(d.getTime()) ? new Date() : d;
+  const yyyy = String(local.getFullYear()).padStart(4, '0');
+  const mm = String(local.getMonth() + 1).padStart(2, '0');
+  const dd = String(local.getDate()).padStart(2, '0');
+  return { date: `${yyyy}·${mm}·${dd}`, year: yyyy, ord };
 }
 
 function dyeFor(kind: Kind, metadataDye: unknown, seed: string): Dye {
@@ -946,9 +949,8 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
     <div style={{
       position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
       // Dark gilt volume card — the descendant opens a bound, gilded book.
-      background: 'linear-gradient(160deg, var(--letter-bg-top), var(--letter-bg-bottom))',
+      background: 'var(--letter-bg-bottom)',
       border: '1px solid var(--rule)', borderRadius: 0,
-      boxShadow: '0 1px 0 var(--book-edge-highlight) inset, inset 0 0 40px var(--book-inner-shadow)',
       color: 'var(--letter-body)', overflow: 'hidden',
     }}>
       {/* gilt corner cues — top-right + bottom-left, hairline gilt rules (no filled wedge) */}

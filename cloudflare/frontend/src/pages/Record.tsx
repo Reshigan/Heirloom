@@ -668,7 +668,7 @@ export function Record() {
                   value={entryDate}
                   onChange={e => setEntryDate(e.target.value)}
                   aria-label="Recording date"
-                  style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%' }}
+                  style={{ position: 'absolute', inset: 0, opacity: 0, cursor: 'pointer', width: '100%', height: '100%', colorScheme: 'inherit' }}
                 />
               </div>
             </div>

@@ -197,7 +197,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
             <div className="flex items-start justify-between mb-6 gap-6">
               <div>
                 <p className="loom-mono text-[0.7rem] tracking-[0.32em] uppercase mb-2" style={{ color: 'var(--copper-label)' }}>Walkthrough</p>
-                <h2 id="feature-onboarding-title" className="font-body font-light text-xl md:text-2xl tracking-[-0.014em]">{config.title}</h2>
+                <p id="feature-onboarding-title" role="heading" aria-level={2} className="hl-serif font-body font-light text-xl md:text-2xl tracking-[-0.014em]">{config.title}</p>
                 <p className="text-sm mt-1" style={{ color: 'var(--bone-dim)' }}>{config.subtitle}</p>
               </div>
               <button

@@ -345,7 +345,7 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
           {label !== 'heirloom' && (
             <>
               <span className="hl-topbar-label" style={{ color: 'var(--bone-low)' }}>·</span>
-              <span className="hl-topbar-label" style={{ color: 'var(--warm)' }}>{label}</span>
+              <span className="hl-topbar-label" style={{ color: 'var(--bone)' }}>{label}</span>
             </>
           )}
         </span>

@@ -212,7 +212,7 @@ export function WaxSeal({ size = 30 }: { size?: number }) {
   return (
     <div aria-hidden style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
       width: size * 2.2, height: size * 2.2 }}>
-      <span style={{ color: 'var(--warm)', fontSize: size, lineHeight: 1, opacity: 0.92 }}>∞</span>
+      <span style={{ color: 'var(--warm-dim)', fontSize: size, lineHeight: 1 }}>∞</span>
     </div>
   );
 }

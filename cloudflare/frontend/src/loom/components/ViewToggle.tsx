@@ -9,6 +9,8 @@
  * Per the constitution: view toggles are mono caps text buttons, never
  * icon toggles or pill switches.
  */
+import { handleRadioArrowKeys } from '../../hooks/useRadioArrowKeys';
+
 export interface ViewToggleOption<T extends string> {
   value: T;
   label: string;
@@ -25,12 +27,6 @@ export function ViewToggle<T extends string>({
   value,
   onChange,
 }: ViewToggleProps<T>) {
-  const move = (dir: number) => {
-    const idx = options.findIndex((o) => o.value === value);
-    if (idx < 0) return;
-    const next = options[(idx + dir + options.length) % options.length];
-    onChange(next.value);
-  };
   return (
     <span role="radiogroup" style={{ display: 'inline-flex', alignItems: 'baseline', gap: 18 }}>
       {options.map((opt, i) => {
@@ -52,15 +48,11 @@ export function ViewToggle<T extends string>({
               aria-checked={active}
               tabIndex={active ? 0 : -1}
               onClick={() => onChange(opt.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-                  e.preventDefault();
-                  move(1);
-                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-                  e.preventDefault();
-                  move(-1);
-                }
-              }}
+              onKeyDown={(e) =>
+                handleRadioArrowKeys(e, i, options.length, (next) =>
+                  onChange(options[next].value),
+                )
+              }
               className="loom-mono"
               style={{
                 background: 'transparent',

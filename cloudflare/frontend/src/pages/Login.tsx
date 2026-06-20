@@ -92,8 +92,8 @@ export function Login() {
           {sessionExpired ? (
             <div style={{
               marginBottom: 40, padding: '12px 0',
-              borderTop: '1px solid var(--warm-dim)',
-              borderBottom: '1px solid var(--warm-dim)',
+              borderTop: '1px solid var(--rule-strong)',
+              borderBottom: '1px solid var(--rule-strong)',
               fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)',
               letterSpacing: '0.04em',
             }}>

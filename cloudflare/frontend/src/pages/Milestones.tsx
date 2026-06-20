@@ -378,6 +378,8 @@ export function Milestones() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. Mother's birthday"
+                  aria-invalid={error ? true : undefined}
+                  aria-describedby={error ? 'ms-error' : undefined}
                   style={fieldStyle}
                 />
               </div>
@@ -389,6 +391,8 @@ export function Milestones() {
                   type="date"
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                  aria-invalid={error ? true : undefined}
+                  aria-describedby={error ? 'ms-error' : undefined}
                   style={fieldStyle}
                 />
               </div>
@@ -438,7 +442,7 @@ export function Milestones() {
               </div>
 
               {error && (
-                <p role="alert" style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.06em', margin: '0' }}>
+                <p id="ms-error" role="alert" style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.06em', margin: '0' }}>
                   {error}
                 </p>
               )}

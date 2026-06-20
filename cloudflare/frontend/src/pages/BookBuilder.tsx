@@ -853,7 +853,7 @@ export function BookBuilder() {
                   height: 320,
                   margin: '0 auto 32px',
                   background: 'var(--ink-card)',
-                  border: '1px solid var(--warm)',
+                  border: '1px solid var(--rule)',
                   display: 'flex',
                   flexDirection: 'column',
                   padding: 16,
@@ -873,7 +873,7 @@ export function BookBuilder() {
                   style={{
                     position: 'relative',
                     flex: 1,
-                    border: '1px solid var(--warm)',
+                    border: '1px solid var(--rule)',
                     display: 'flex',
                     flexDirection: 'column',
                     overflow: 'hidden',

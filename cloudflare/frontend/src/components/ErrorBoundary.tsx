@@ -51,7 +51,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm)', display: 'block', marginBottom: 20 }}>
               something went wrong
             </span>
-            <h1 className="hl-serif" style={{ fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 300, color: 'var(--bone)', marginBottom: 16, lineHeight: 1.2 }}>
+            <h1 style={{ fontFamily: 'var(--serif-display)', fontSize: 'clamp(24px, 5vw, 36px)', fontWeight: 300, color: 'var(--bone)', marginBottom: 16, lineHeight: 1.2 }}>
               An unexpected error occurred.
             </h1>
             <p className="hl-prose" style={{ fontSize: 15, color: 'var(--bone-dim)', marginBottom: 32, lineHeight: 1.7 }}>

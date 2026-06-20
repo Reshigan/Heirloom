@@ -122,7 +122,7 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
     );
   }
 
-  const delay = Math.min(index % 8, 7) * 56; // stagger within each "batch"
+  const delay = (index % 2) * 180; // stagger snapped to the motion grid (0/180ms)
   const title = m.title || (m.description ? (m.description as string).slice(0, 64) : 'Untitled');
   // The quiet italic sub-line beneath the title — the entry's first prose breath.
   const snippet = m.description

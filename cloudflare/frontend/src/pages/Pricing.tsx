@@ -6,6 +6,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { PLAN_PRICE_NUM, PLAN_FEATURES } from '../lib/plans';
+import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 const META_TITLE = 'Plans & Pricing';
 const META_DESCRIPTION = 'Choose the plan that fits your family. Start free, upgrade when you\'re ready.';
@@ -301,12 +302,6 @@ export function Pricing() {
           <div
             role="radiogroup"
             aria-label="Billing cycle"
-            onKeyDown={(e) => {
-              if (['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].includes(e.key)) {
-                e.preventDefault();
-                setAnnual((prev) => !prev);
-              }
-            }}
             style={{
               display: 'flex',
               justifyContent: 'center',
@@ -321,6 +316,7 @@ export function Pricing() {
               aria-checked={!showAnnual}
               tabIndex={!showAnnual ? 0 : -1}
               onClick={() => setAnnual(false)}
+              onKeyDown={(e) => handleRadioArrowKeys(e, 0, 2, (next) => setAnnual(next === 1))}
               style={{
                 background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase',
@@ -337,6 +333,7 @@ export function Pricing() {
               aria-checked={showAnnual}
               tabIndex={showAnnual ? 0 : -1}
               onClick={() => setAnnual(true)}
+              onKeyDown={(e) => handleRadioArrowKeys(e, 1, 2, (next) => setAnnual(next === 1))}
               style={{
                 background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase',

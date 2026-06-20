@@ -35,8 +35,9 @@ function fmt(s: number): string {
 }
 
 // Word-level highlight: words the AI introduced (not in the spoken original)
-// glow warm; the writer's own words stay calm. Not a true LCS diff — a cheap
-// multiset check that reads right: it shows what changed, not where it moved.
+// read brighter (bone) with a hairline underline; the writer's own words stay
+// calm (bone-dim). Not a true LCS diff — a cheap multiset check that reads
+// right: it shows what changed, not where it moved. No copper fill.
 const wordKey = (w: string) => w.toLowerCase().replace(/[^\p{L}\p{N}']/gu, '');
 
 function DiffText({ base, text }: { base: string; text: string }) {
@@ -54,7 +55,10 @@ function DiffText({ base, text }: { base: string; text: string }) {
         const kept = k !== '' && (have.get(k) ?? 0) > 0;
         if (kept) have.set(k, (have.get(k) as number) - 1);
         return (
-          <span key={i} style={kept ? undefined : { color: 'var(--warm)' }}>
+          <span
+            key={i}
+            style={kept ? undefined : { color: 'var(--bone)', textDecoration: 'underline', textDecorationColor: 'var(--rule)', textUnderlineOffset: 3 }}
+          >
             {tok}
           </span>
         );

@@ -284,7 +284,7 @@ export function FirstThread() {
             <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 14, color: 'var(--bone-dim)', textAlign: 'center', minHeight: 40 }}>“…the scent of rain on dry earth carried us back to that summer.”</div>
             <div style={{ flex: 1 }} />
             <button type="button" onClick={stopRec} style={{ display: 'flex', alignItems: 'center', gap: 10, border: '1px solid var(--copper-border)', background: 'transparent', borderRadius: 0, padding: '13px 26px', color: 'var(--warm-bright)', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.24em', cursor: 'pointer' }}>
-              <span style={{ width: 11, height: 11, border: '1px solid var(--warm)', background: 'transparent', borderRadius: 0, display: 'inline-block' }} />
+              <span style={{ width: 11, height: 11, border: '1px solid var(--rule-strong)', background: 'transparent', borderRadius: 0, display: 'inline-block' }} />
               STOP &amp; WEAVE
             </button>
           </div>
@@ -309,7 +309,7 @@ export function FirstThread() {
             {!sealed && (
               <>
                 <div style={{ fontSize: 11, letterSpacing: '0.32em', color: 'var(--warm-dim)' }}>A LETTER TO ELI · {new Date().getFullYear() + SEAL_YEARS_AHEAD}</div>
-                <div style={{ position: 'relative', marginTop: 24, width: '100%', flex: 1, borderRadius: 0, background: 'var(--bg-letter)', border: '1px solid var(--copper-border)', padding: '24px 22px' }}>
+                <div style={{ position: 'relative', marginTop: 24, width: '100%', flex: 1, borderRadius: 0, background: 'var(--bg-letter)', border: '1px solid var(--rule-strong)', padding: '24px 22px' }}>
                   <div style={{ fontFamily: 'var(--serif)', fontSize: 16, lineHeight: 1.8, color: 'var(--bone-dim)' }}>
                     My dearest Eli,
                     <br />

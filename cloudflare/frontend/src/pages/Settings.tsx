@@ -660,7 +660,7 @@ export function Settings() {
                     aria-checked={theme === opt}
                     tabIndex={theme === opt ? 0 : -1}
                     className="hl-monoaction"
-                    style={{ color: theme === opt ? 'var(--warm)' : 'var(--bone-dim)' }}
+                    style={{ color: theme === opt ? 'var(--warm)' : 'var(--bone-dim)', borderBottom: theme === opt ? '1px solid var(--warm)' : '1px solid transparent', paddingBottom: 2 }}
                   >
                     {opt}
                   </button>
@@ -685,7 +685,7 @@ export function Settings() {
                     aria-checked={textScale === pct}
                     tabIndex={textScale === pct ? 0 : -1}
                     className="hl-monoaction"
-                    style={{ color: textScale === pct ? 'var(--warm)' : 'var(--bone-dim)' }}
+                    style={{ color: textScale === pct ? 'var(--warm)' : 'var(--bone-dim)', borderBottom: textScale === pct ? '1px solid var(--warm)' : '1px solid transparent', paddingBottom: 2 }}
                   >
                     {pct}%
                   </button>

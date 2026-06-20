@@ -173,7 +173,8 @@ export function Profile() {
                 style={{
                   background: 'transparent',
                   border: 0,
-                  padding: 0,
+                  borderBottom: theme === opt ? '1px solid var(--warm)' : '1px solid transparent',
+                  padding: '0 0 3px',
                   margin: 0,
                   cursor: 'pointer',
                   fontFamily: 'var(--mono)',

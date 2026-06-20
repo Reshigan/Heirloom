@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { type FamilyMember } from '../types';
+import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
@@ -614,13 +615,17 @@ export function LifeEvents() {
                         tabIndex={checked || (familyMemberId == null && i === 0) ? 0 : -1}
                         onClick={() => handleRecipientSelect(member)}
                         onKeyDown={(e) => {
-                          if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                          if (e.key === 'Enter' || e.key === ' ') {
                             e.preventDefault();
-                            handleRecipientSelect(family[(i + 1) % family.length]);
-                          } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-                            e.preventDefault();
-                            handleRecipientSelect(family[(i - 1 + family.length) % family.length]);
+                            handleRecipientSelect(member);
+                            return;
                           }
+                          handleRadioArrowKeys(e, i, family.length, (next) => {
+                            const m = family[next];
+                            setFamilyMemberId(m.id);
+                            setRecipientName(m.name);
+                            setRecipientEmail(m.email || '');
+                          });
                         }}
                         style={{
                           background: 'transparent',

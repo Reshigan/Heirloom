@@ -785,7 +785,7 @@ export function QuickWizard() {
                 )}
                 {selectedPerson && (
                   <SummaryRow
-                    label="for"
+                    label="delivery"
                     value={
                       <span style={{ color: 'var(--bone-dim)', fontSize: 13 }}>
                         {/* ponytail: flow only guarantees delivery; reply capability not in payload */}

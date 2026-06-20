@@ -1493,14 +1493,25 @@ export function Compose() {
           >
             <div style={{ flex: '1 1 260px', minWidth: 0 }}>
               <p
-                role="heading"
-                aria-level={1}
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
                   letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
+                  margin: '0 0 12px',
+                }}
+              >
+                {isLetter ? 'New letter' : 'New thread'}
+              </p>
+              <p
+                role="heading"
+                aria-level={1}
+                style={{
+                  fontFamily: 'var(--serif-display)',
+                  fontSize: 'clamp(34px, 6vw, 56px)',
+                  lineHeight: 1.05,
+                  color: 'var(--bone)',
                   margin: 0,
                 }}
               >

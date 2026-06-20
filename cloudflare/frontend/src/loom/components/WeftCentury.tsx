@@ -70,7 +70,9 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
   const generations = kin.map((k, i) => ({
     gen: i,
     names: k.name,
-    label: k.you ? 'you' : `gen ${i}`,
+    // `you` is the only honest label; deriving "gen N" from array index
+    // fabricates generational depth (siblings share a generation), so leave it blank.
+    label: k.you ? 'you' : '',
     align: (i === 0 ? 'left' : i === kin.length - 1 ? 'right' : 'center') as 'left' | 'center' | 'right',
     warm: k.you,
   }));
@@ -226,18 +228,20 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
               >
                 {g.names}
               </div>
-              <div
-                className="loom-mono"
-                style={{
-                  fontSize: 9,
-                  color: 'var(--bone-faint)',
-                  letterSpacing: '0.22em',
-                  textTransform: 'uppercase',
-                  marginTop: 4,
-                }}
-              >
-                {g.label}
-              </div>
+              {g.label && (
+                <div
+                  className="loom-mono"
+                  style={{
+                    fontSize: 9,
+                    color: 'var(--bone-faint)',
+                    letterSpacing: '0.22em',
+                    textTransform: 'uppercase',
+                    marginTop: 4,
+                  }}
+                >
+                  {g.label}
+                </div>
+              )}
             </div>
           ))
         )}

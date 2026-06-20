@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { legacyContactsApi } from '../services/api';
+import { ProgressHair } from '../loom/components/ProgressHair';
 
 /**
  * LegacyRecipientPicker — pick which legacy contacts inherit this entry.
@@ -41,17 +42,13 @@ export default function LegacyRecipientPicker({
   onChange: (ids: string[]) => void;
   label?: string;
 }) {
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['legacy-contacts'],
     queryFn: () => legacyContactsApi.getAll().then((r) => normalizeContacts(r.data)),
     staleTime: 5 * 60 * 1000,
   });
 
   const contacts = useMemo(() => data ?? [], [data]);
-
-  // Non-critical surface: stay invisible while loading or on error so a
-  // contacts fetch hiccup never blocks composing.
-  if (isLoading || isError) return null;
 
   const labelEl = (
     <span
@@ -69,6 +66,54 @@ export default function LegacyRecipientPicker({
       {label}
     </span>
   );
+
+  // Keep the affordance present while contacts load — a hairline, not a void.
+  if (isLoading) {
+    return (
+      <div style={{ marginBottom: 28 }}>
+        {labelEl}
+        <ProgressHair width={180} />
+      </div>
+    );
+  }
+
+  // On error keep the control present with a reason and a way to retry.
+  if (isError) {
+    return (
+      <div style={{ marginBottom: 28 }}>
+        {labelEl}
+        <p
+          style={{
+            fontFamily: MONO,
+            fontSize: 11,
+            letterSpacing: '0.08em',
+            color: 'var(--bone-faint)',
+            margin: 0,
+            lineHeight: 1.7,
+          }}
+        >
+          couldn't load contacts —{' '}
+          <button
+            type="button"
+            onClick={() => refetch()}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              padding: 0,
+              cursor: 'pointer',
+              fontFamily: MONO,
+              fontSize: 11,
+              letterSpacing: '0.08em',
+              color: 'var(--bone)',
+              textDecoration: 'underline',
+            }}
+          >
+            retry
+          </button>
+        </p>
+      </div>
+    );
+  }
 
   // No contacts yet — a quiet pointer to where they're created, nothing more.
   if (contacts.length === 0) {

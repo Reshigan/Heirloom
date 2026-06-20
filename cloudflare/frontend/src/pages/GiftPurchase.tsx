@@ -4,6 +4,7 @@ import { HLogo } from '../loom/components/HLogo';
 import { ClothShell } from '../loom/components/ClothShell';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { usePageMeta } from '../lib/usePageMeta';
+import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -184,14 +185,16 @@ export function GiftPurchase() {
 
           {/* Tier selection: 2-column grid */}
           <div
+            role="radiogroup"
+            aria-label="Choose a plan"
             style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
               marginBottom: 36,
             }}
           >
-            {(
-              pricing?.tiers ?? [
+            {(() => {
+              const tiers = pricing?.tiers ?? [
                 {
                   id: 'FAMILY',
                   name: 'Family',
@@ -199,14 +202,23 @@ export function GiftPurchase() {
                   storage: '50 GB',
                   yearly: { amount: 0, display: '—' },
                 },
-              ]
-            ).map((tier, idx) => {
+              ];
+              return tiers.map((tier, idx) => {
               const isSelected = selectedTier === tier?.id;
               const isFirst = idx === 0;
               return (
                 <button
                   key={tier?.id ?? idx}
+                  role="radio"
+                  aria-checked={isSelected}
+                  tabIndex={isSelected || (selectedTier == null && isFirst) ? 0 : -1}
                   onClick={() => tier?.id && setSelectedTier(tier.id)}
+                  onKeyDown={(e) =>
+                    handleRadioArrowKeys(e, idx, tiers.length, (next) => {
+                      const id = tiers[next]?.id;
+                      if (id) setSelectedTier(id);
+                    })
+                  }
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
@@ -231,7 +243,10 @@ export function GiftPurchase() {
                       fontSize: 10,
                       letterSpacing: '0.28em',
                       textTransform: 'uppercase',
-                      color: isSelected ? 'var(--bone-dim)' : 'var(--bone-dim)',
+                      fontWeight: isSelected ? 700 : 400,
+                      textDecoration: isSelected ? 'underline' : 'none',
+                      textUnderlineOffset: 4,
+                      color: isSelected ? 'var(--bone)' : 'var(--bone-dim)',
                       marginBottom: 8,
                     }}
                   >
@@ -253,7 +268,7 @@ export function GiftPurchase() {
                     style={{
                       fontStyle: 'italic',
                       fontSize: 14,
-                      color: isSelected ? 'var(--bone-dim)' : 'var(--bone-dim)',
+                      color: 'var(--bone-dim)',
                       marginBottom: 10,
                     }}
                   >
@@ -265,7 +280,7 @@ export function GiftPurchase() {
                       fontSize: 28,
                       fontWeight: 300,
                       lineHeight: 1,
-                      color: isSelected ? 'var(--bone)' : 'var(--bone)',
+                      color: 'var(--bone)',
                     }}
                   >
                     {tier?.[billingCycle]?.display ?? '—'}
@@ -276,7 +291,7 @@ export function GiftPurchase() {
                       fontSize: 9,
                       letterSpacing: '0.2em',
                       textTransform: 'uppercase',
-                      color: isSelected ? 'var(--bone-faint)' : 'var(--bone-faint)',
+                      color: 'var(--bone-faint)',
                       marginTop: 4,
                     }}
                   >
@@ -286,7 +301,8 @@ export function GiftPurchase() {
                   </span>
                 </button>
               );
-            })}
+              });
+            })()}
           </div>
 
           {/* Hairline rule */}

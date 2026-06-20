@@ -41,7 +41,6 @@ export function AdminLogin() {
     fontSize: 18,
     padding: '10px 0',
     marginBottom: 28,
-    outline: 'none',
     caretColor: 'var(--warm)',
     borderRadius: 0,
     textAlign: 'center',

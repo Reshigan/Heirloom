@@ -5,11 +5,13 @@ import { useAuthStore } from '../../stores/authStore';
  * BottomNav — the persistent 5-item typographic bar at the foot of the
  * authenticated loom PWA shell.
  *
- * Five destinations: cloth · memory · ∞ (home) · voice · profile.
- * The ∞ center item is the only mark — no icons, per §2.6.
+ * Five destinations: cloth · memory · · (home) · voice · profile.
+ * The center mark is a mid-dot — never ∞, so it never double-stamps the
+ * page WaxSeal ∞ foot that authed surfaces render (Rule 5: ∞ is singular
+ * per surface). No icons, per §2.6.
  * Anchored above the iPhone home indicator via env(safe-area-inset-bottom).
  * Active route: bone. Inactive: bone-dim.
- * Center ∞: warm when active, warm-dim when inactive.
+ * Center mark: warm when active, warm-dim when inactive.
  *
  * Only renders for authenticated users on app surfaces — never on the
  * marketing site, auth screens, onboarding, or admin (it used to leak a
@@ -19,7 +21,7 @@ import { useAuthStore } from '../../stores/authStore';
 const NAV = [
   { label: 'cloth',   href: '/loom/weft' },
   { label: 'memory',  href: '/compose' },
-  { label: '∞',       href: '/loom/index', center: true },
+  { label: '·',       href: '/loom/index', center: true },
   { label: 'voice',   href: '/record' },
   { label: 'profile', href: '/loom/profile' },
 ] as const;
@@ -63,7 +65,7 @@ export function BottomNav() {
     >
       {NAV.map((item) => {
         const isCenter = 'center' in item && item.center;
-        // Plain pathname match for every item; the center ∞ matches /loom/index.
+        // Plain pathname match for every item; the center mark matches /loom/index.
         const isActive = pathname === item.href;
         return (
           <Link

@@ -746,7 +746,7 @@ export function Inherit() {
                 </button>
                 <article
                   style={{
-                    borderLeft: `3px solid ${dyeColor(selectedLetter.id)}`,
+                    borderLeft: `3px solid ${dyeColor(selectedLetter.id, selectedLetter.metadata)}`,
                     paddingLeft: 24,
                   }}
                 >
@@ -1056,7 +1056,7 @@ export function Inherit() {
                 {/* The Listener AI answer */}
                 <div
                   style={{
-                    borderLeft: '3px solid var(--warm)',
+                    borderLeft: '1px solid var(--warm)',
                     paddingLeft: 24,
                     margin: '8px 0 32px',
                   }}
