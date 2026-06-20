@@ -113,6 +113,7 @@ export function EntryRow({
   dateColor = 'var(--bone-faint)',
   noBorder = false,
   ariaHaspopup,
+  ariaCurrent,
 }: {
   title: ReactNode;
   sub?: ReactNode;
@@ -137,6 +138,10 @@ export function EntryRow({
    *  (e.g. "dialog"). Spread onto the interactive <button> only; undefined by
    *  default so every existing caller is unaffected. */
   ariaHaspopup?: ButtonHTMLAttributes<HTMLButtonElement>['aria-haspopup'];
+  /** When the row is the currently-selected entry (drives a detail view),
+   *  declare it to screen readers. Spread onto the interactive <button> only;
+   *  undefined by default so every existing caller is unaffected. */
+  ariaCurrent?: boolean;
 }) {
   const tint = dye ? dyeVar(dye) : 'var(--warm)';
   const hasLedgerMeta = year != null || author != null || dye != null;
@@ -186,7 +191,7 @@ export function EntryRow({
   );
 
   return interactive ? (
-    <button type="button" onClick={onClick} aria-haspopup={ariaHaspopup} className="hl-ledger-row" style={containerStyle}>
+    <button type="button" onClick={onClick} aria-haspopup={ariaHaspopup} aria-current={ariaCurrent ? 'true' : undefined} className="hl-ledger-row" style={containerStyle}>
       {inner}
     </button>
   ) : (

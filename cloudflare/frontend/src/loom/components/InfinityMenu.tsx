@@ -21,14 +21,18 @@ export function InfinityMenu() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const itemRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
-  // Dismiss on outside click or Escape.
+  // Dismiss on outside click. Escape closes and returns focus to the trigger.
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setOpen(false); triggerRef.current?.focus(); }
+    };
     document.addEventListener('mousedown', onDown);
     document.addEventListener('keydown', onKey);
     return () => {
@@ -37,10 +41,28 @@ export function InfinityMenu() {
     };
   }, [open]);
 
+  // Roving focus: on open, focus the first menuitem.
+  useEffect(() => {
+    if (open) itemRefs.current[0]?.focus();
+  }, [open]);
+
+  // ArrowDown/Up cycle, Home/End jump to first/last.
+  const onMenuKey = (e: React.KeyboardEvent, i: number) => {
+    const last = ITEMS.length - 1;
+    let next = -1;
+    if (e.key === 'ArrowDown') next = i === last ? 0 : i + 1;
+    else if (e.key === 'ArrowUp') next = i === 0 ? last : i - 1;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = last;
+    if (next !== -1) { e.preventDefault(); itemRefs.current[next]?.focus(); }
+  };
+
   return (
     <div ref={ref} style={{ position: 'relative', display: 'inline-flex' }}>
       <button
+        ref={triggerRef}
         type="button"
+        aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Open the cloth's artifacts"
         onClick={() => setOpen((o) => !o)}
@@ -59,6 +81,8 @@ export function InfinityMenu() {
 
       {open && (
         <div
+          role="menu"
+          aria-label="The cloth's artifacts"
           style={{
             position: 'absolute', top: 'calc(100% + 8px)', left: '50%',
             transform: 'translateX(-50%)',
@@ -71,8 +95,12 @@ export function InfinityMenu() {
           {ITEMS.map((it, i) => (
             <button
               key={it.to}
+              ref={(el) => { itemRefs.current[i] = el; }}
               type="button"
+              role="menuitem"
+              tabIndex={i === 0 ? 0 : -1}
               onClick={() => { setOpen(false); navigate(it.to); }}
+              onKeyDown={(e) => onMenuKey(e, i)}
               style={{
                 display: 'block', width: '100%', textAlign: 'left',
                 background: 'none', cursor: 'pointer',

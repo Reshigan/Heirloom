@@ -171,6 +171,72 @@ function PwaMenu() {
   );
 }
 
+/* ─── First-run author prompt — the Sealed Note invitation ───────────────────
+   One source of truth: rendered from AuthHome's author first-run branch only.
+   Read-only members (reader/successor) never see this; they get the viewer
+   empty state instead. */
+function FirstThreadPrompt({ prompt }: { prompt: string }) {
+  const P = 'clamp(20px, 5vw, 28px)';
+  return (
+    <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 560, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
+      <div className="hl-eyebrow" style={{ marginBottom: 18, color: 'var(--warm)' }}>
+        entry no. 0001
+      </div>
+      <h2 className="loom-display hl-tight" style={{
+        fontSize: 'clamp(24px, 6vw, 30px)', fontWeight: 500, lineHeight: 1.15,
+        margin: '0 0 18px', color: 'var(--bone)',
+      }}>
+        There is someone who needs to read this.<br />Just not yet.
+      </h2>
+      <p className="hl-serif" style={{
+        fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 300,
+        color: 'var(--bone-dim)', lineHeight: 1.68, margin: '0 0 28px', maxWidth: '40ch',
+      }}>
+        Write a letter today. Seal it for a date, a milestone, a death — or the moment you choose.
+        It holds safe and finds them exactly when you intended.
+      </p>
+
+      {/* Sealed letter preview */}
+      <div style={{
+        display: 'flex', flexDirection: 'column', gap: 6,
+        padding: '12px 16px 12px 18px',
+        border: '1px solid var(--rule)',
+        borderLeft: '1px solid color-mix(in srgb, var(--warm) 55%, transparent)',
+        marginBottom: 28,
+      }}>
+        <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+          sealed · delivery: your choice
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span className="hl-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>∞</span>
+          <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
+            your first letter — written today
+          </span>
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', marginBottom: 36 }}>
+        <Link to="/compose" className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>
+          Write your first sealed letter →
+        </Link>
+        <Link to="/record" style={{
+          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
+          color: 'var(--bone-dim)', textDecoration: 'none', borderBottom: '1px solid var(--rule)', paddingBottom: 1,
+        }}>or speak →</Link>
+      </div>
+
+      {prompt && (
+        <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 16 }}>
+          <div className="hl-eyebrow" style={{ marginBottom: 8, color: 'var(--bone-faint)' }}>the listener</div>
+          <p className="hl-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.7, margin: 0 }}>
+            {prompt}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ─── Authenticated home content ─────────────────────────────────────────── */
 function AuthHome({
   role,
@@ -224,64 +290,7 @@ function AuthHome({
 
   // First-run: no entries yet — show sealed letter prompt
   if (count === 0) {
-    return (
-      <div style={{ padding: `clamp(40px, 9vw, 64px) ${P}`, maxWidth: 560, margin: '0 auto', paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))' }}>
-        <div className="hl-eyebrow" style={{ marginBottom: 18, color: 'var(--warm)' }}>
-          entry no. 0001
-        </div>
-        <h2 className="loom-display hl-tight" style={{
-          fontSize: 'clamp(24px, 6vw, 30px)', fontWeight: 500, lineHeight: 1.15,
-          margin: '0 0 18px', color: 'var(--bone)',
-        }}>
-          There is someone who needs to read this.<br />Just not yet.
-        </h2>
-        <p className="hl-serif" style={{
-          fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 300,
-          color: 'var(--bone-dim)', lineHeight: 1.68, margin: '0 0 28px', maxWidth: '40ch',
-        }}>
-          Write a letter today. Seal it for a date, a milestone, a death — or the moment you choose.
-          It holds safe and finds them exactly when you intended.
-        </p>
-
-        {/* Sealed letter preview */}
-        <div style={{
-          display: 'flex', flexDirection: 'column', gap: 6,
-          padding: '12px 16px 12px 18px',
-          border: '1px solid var(--rule)',
-          borderLeft: '1px solid color-mix(in srgb, var(--warm) 55%, transparent)',
-          marginBottom: 28,
-        }}>
-          <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-            sealed · delivery: your choice
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span className="hl-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>∞</span>
-            <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
-              your first letter — written today
-            </span>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', marginBottom: 36 }}>
-          <Link to="/compose" className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>
-            Write your first sealed letter →
-          </Link>
-          <Link to="/record" style={{
-            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
-            color: 'var(--bone-dim)', textDecoration: 'none', borderBottom: '1px solid var(--rule)', paddingBottom: 1,
-          }}>or speak →</Link>
-        </div>
-
-        {prompt && (
-          <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 16 }}>
-            <div className="hl-eyebrow" style={{ marginBottom: 8, color: 'var(--bone-faint)' }}>the listener</div>
-            <p className="hl-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.7, margin: 0 }}>
-              {prompt}
-            </p>
-          </div>
-        )}
-      </div>
-    );
+    return <FirstThreadPrompt prompt={prompt} />;
   }
 
   // ── Active author / reader — the Listener's capture home (Higgsfield "B") ──
@@ -463,76 +472,20 @@ export function PwaHome() {
         </div>
       )}
 
-      {/* First-run experience — shown when the user has no entries yet */}
-      {!isNewUserLoading && isNewUser && (
-          <div style={{
-            padding: 'clamp(40px, 9vw, 64px) clamp(20px, 5vw, 32px)',
-            maxWidth: 520,
-            margin: '0 auto',
-            paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))',
-          }}>
-            <div className="hl-eyebrow" style={{ marginBottom: 18, color: 'var(--warm)' }}>
-              entry no. 0001
-            </div>
-            <h2 className="loom-display hl-tight" style={{
-              fontSize: 'clamp(24px, 6vw, 30px)', fontWeight: 500, lineHeight: 1.15,
-              margin: '0 0 18px', color: 'var(--bone)',
-            }}>
-              There is someone who needs to read this.<br />Just not yet.
-            </h2>
-            <p className="hl-serif" style={{
-              fontSize: 'clamp(14px, 4vw, 16px)', fontWeight: 300,
-              color: 'var(--bone-dim)', lineHeight: 1.68, margin: '0 0 28px', maxWidth: '40ch',
-            }}>
-              Write a letter today. Seal it for a date, a milestone, a death — or the moment you choose.
-              It holds safe and finds them exactly when you intended.
-            </p>
-
-            {/* Sealed letter preview */}
-            <div style={{
-              display: 'flex', flexDirection: 'column', gap: 6,
-              padding: '12px 16px 12px 18px',
-              border: '1px solid var(--rule)',
-              borderLeft: '1px solid color-mix(in srgb, var(--warm) 55%, transparent)',
-              marginBottom: 28,
-            }}>
-              <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-                sealed · delivery: your choice
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span className="hl-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>∞</span>
-                <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
-                  your first letter — written today
-                </span>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', marginBottom: 36 }}>
-              <Link to="/compose" className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>
-                Write your first sealed letter →
-              </Link>
-              <Link to="/record" style={{
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
-                color: 'var(--bone-dim)', textDecoration: 'none', borderBottom: '1px solid var(--rule)', paddingBottom: 1,
-              }}>or speak →</Link>
-            </div>
-
-            {prompt && (
-              <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 16 }}>
-                <div className="hl-eyebrow" style={{ marginBottom: 8, color: 'var(--bone-faint)' }}>the listener</div>
-                <p className="hl-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--bone-faint)', lineHeight: 1.7, margin: 0 }}>
-                  {prompt}
-                </p>
-              </div>
-            )}
-          </div>
+      {/* First-run experience — author-only. The sealed-letter compose CTA is a
+          permissioned action, so read-only members (reader/successor) skip it and
+          fall through to AuthHome, which renders their read-only viewer empty
+          state. Single source of truth: <FirstThreadPrompt />. */}
+      {!isNewUserLoading && isNewUser && role !== 'reader' && role !== 'successor' && (
+        <FirstThreadPrompt prompt={prompt} />
       )}
 
       {/* Content — ClothShell's <main> is the single scroller: it offsets the
           topbar and reserves BottomNav clearance, so rendering directly here
           keeps content off the fixed nav. (A nested absolute scroller defeated
-          this.) */}
-      {!isNewUserLoading && !isNewUser && !(entriesLoading && entries.length === 0) && (
+          this.) Read-only first-run members fall here too (isNewUser but a
+          read-only role), reaching AuthHome's viewer empty state. */}
+      {!isNewUserLoading && (!isNewUser || role === 'reader' || role === 'successor') && !(entriesLoading && entries.length === 0) && (
         <AuthHome role={role} entries={entries} prompt={prompt} stats={stats} />
       )}
 

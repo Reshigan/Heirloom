@@ -854,7 +854,7 @@ export function Record() {
                       flex: '1 1 0',
                       height: `${amp * 100}%`,
                       background: lit ? 'var(--bone-dim)' : 'var(--bone-faint)',
-                      transition: 'height 360ms var(--ease), background 180ms var(--ease)',
+                      transition: 'background 180ms var(--ease)',
                     }}
                   />
                 );

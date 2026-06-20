@@ -66,6 +66,9 @@ export function FutureLetter() {
     fears: '',
     lovedOnes: '',
   });
+  // ponytail: keep the raw age string so the field can be cleared/retyped mid-edit;
+  // coerce+clamp into formData.currentAge only on blur.
+  const [ageInput, setAgeInput] = useState('30');
   const [generatedLetter, setGeneratedLetter] = useState<{ id: string; content: string; shareText: string } | null>(null);
   const [copied, setCopied] = useState(false);
   const [genError, setGenError] = useState<string | null>(null);
@@ -107,13 +110,15 @@ export function FutureLetter() {
 
   const handleShare = async () => {
     if (!generatedLetter) return;
+    setShareError(null);
     copyToClipboard(generatedLetter.shareText)
       .then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+        // only record the share once the copy actually succeeded
+        shareMutation.mutate(generatedLetter.id);
       })
-      .catch(() => { /* leave label unchanged on failure */ });
-    shareMutation.mutate(generatedLetter.id);
+      .catch(() => setShareError('could not copy — nothing was recorded'));
   };
 
   const set = (patch: Partial<typeof formData>) => setFormData({ ...formData, ...patch });
@@ -280,8 +285,13 @@ export function FutureLetter() {
                   type="number"
                   min={18}
                   max={100}
-                  value={formData.currentAge}
-                  onChange={(e) => set({ currentAge: parseInt(e.target.value) || 30 })}
+                  value={ageInput}
+                  onChange={(e) => setAgeInput(e.target.value)}
+                  onBlur={() => {
+                    const clamped = Math.min(100, Math.max(18, parseInt(ageInput, 10) || 30));
+                    setAgeInput(String(clamped));
+                    set({ currentAge: clamped });
+                  }}
                   style={fieldStyle}
                   required
                 />

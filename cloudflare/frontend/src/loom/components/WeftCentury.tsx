@@ -39,13 +39,20 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
   // Every year a marker will project at: kin births + entry years (with the
   // same month fraction the Loom adds, so an end-of-window entry can't spill
   // past 100%). Guard against undefined / NaN before they poison min/max.
+  // Range-guard, not just NaN-guard: one bogus/0 born_year (e.g. an unfilled
+  // member) would otherwise poison C_START to the far past and compress every
+  // real marker to the right edge. Clamp to a sane window before min/max.
+  const YEAR_MIN = 1700;
+  const YEAR_MAX = new Date().getFullYear() + 200;
+  const sane = (y: number) => y >= YEAR_MIN && y <= YEAR_MAX;
+  const safeAnchor = Math.min(Math.max(anchor, YEAR_MIN), YEAR_MAX);
   const markerYears = [
     ...kin.map((k) => k.born),
     ...entries.map((e) => e.year + (e.month ?? 0) / 12),
-  ].filter((y): y is number => typeof y === 'number' && Number.isFinite(y));
+  ].filter((y): y is number => typeof y === 'number' && Number.isFinite(y) && sane(y));
 
-  const C_START = Math.floor(Math.min(anchor, ...markerYears));
-  const C_END = Math.ceil(Math.max(anchor + 120, ...markerYears));
+  const C_START = Math.floor(Math.min(safeAnchor, ...markerYears));
+  const C_END = Math.ceil(Math.max(safeAnchor + 120, ...markerYears));
 
   // kin birth markers become faint milestone picks on the compressed cloth.
   const kinEntries: LoomEntry[] = kin.map((k, i) => ({

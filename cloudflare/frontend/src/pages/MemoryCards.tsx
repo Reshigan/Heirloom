@@ -436,7 +436,7 @@ export function MemoryCards() {
                     >
                       "{generatedCard.quote}"
                     </blockquote>
-                    <p style={{ fontFamily: 'var(--serif)', fontSize: 13, opacity: 0.7, margin: 0 }}>
+                    <p style={{ fontFamily: 'var(--serif)', fontSize: 13, color: 'var(--bone-dim)', margin: 0 }}>
                       — {generatedCard.authorName}
                       {generatedCard.memoryDate && <span> · {generatedCard.memoryDate}</span>}
                     </p>
@@ -446,7 +446,7 @@ export function MemoryCards() {
                         fontSize: 10,
                         letterSpacing: '0.18em',
                         marginTop: 16,
-                        opacity: 0.45,
+                        color: 'var(--bone-faint)',
                         textTransform: 'uppercase',
                       }}
                     >

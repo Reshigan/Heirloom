@@ -1670,7 +1670,7 @@ export function Compose() {
                 background: 'transparent',
                 color: title ? 'var(--bone)' : 'var(--bone-dim)',
                 caretColor: 'var(--warm)',
-                fontFamily: 'var(--serif-display)',
+                fontFamily: 'var(--serif)',
                 fontWeight: 500,
                 fontSize: 'clamp(30px, 5vw, 44px)',
                 letterSpacing: '-0.01em',

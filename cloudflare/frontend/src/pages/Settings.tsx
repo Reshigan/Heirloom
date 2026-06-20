@@ -820,7 +820,7 @@ export function Settings() {
                     {checkIn.isPending ? 'Checking in…' : 'Check In'}
                   </button>
                 )}
-                <button type="button" className="hl-wordaction" onClick={() => (dmConfigOpen ? setDmConfigOpen(false) : openDmConfig())}>
+                <button type="button" className="hl-wordaction" aria-expanded={dmConfigOpen} aria-controls="dm-configurator" onClick={() => (dmConfigOpen ? setDmConfigOpen(false) : openDmConfig())}>
                   {dmConfigOpen ? 'Close' : 'Configure'}
                 </button>
                 {checkInError && (
@@ -832,7 +832,7 @@ export function Settings() {
 
           {/* Dead-man's switch — inline configurator */}
           {dmConfigOpen && (
-            <div style={{ padding: '14px 0', borderBottom: '1px solid var(--rule)', maxWidth: 360 }}>
+            <div id="dm-configurator" style={{ padding: '14px 0', borderBottom: '1px solid var(--rule)', maxWidth: 360 }}>
               <div className="hl-field-label" style={{ marginBottom: 10 }}>configure switch</div>
               {([
                 { key: 'interval', label: 'check-in interval (days)', val: dmInterval, set: setDmInterval, min: 7,  max: 365, valid: dmIntervalValid, ariaLabel: 'Check-in interval in days (7 to 365)' },

@@ -95,7 +95,10 @@ export function FirstThread() {
     const cs = getComputedStyle(root);
     const boneLit = cs.getPropertyValue('--bone-dim').trim() || 'rgba(242,230,208,0.72)';
     const boneUnlit = cs.getPropertyValue('--bone-faint').trim() || 'rgba(242,230,208,0.44)';
-    const warm = cs.getPropertyValue('--warm').trim() || '#e0a062';
+    // No literal fallback: a baked dark-copper hex would paint dark-mode copper
+    // on the paper ground pre-paint. The token resolves once .loom is mounted; if
+    // it somehow doesn't, skip the playhead rather than hardpin one theme.
+    const warm = cs.getPropertyValue('--warm').trim();
     x.clearRect(0, 0, W, H);
     x.lineCap = 'round';
     // The playhead sweeps across the bar field over a ~2.6s loop — the lone
@@ -116,12 +119,14 @@ export function FirstThread() {
       x.stroke();
     }
     // Leading-edge playhead — the only copper. A single 1px hairline.
-    x.strokeStyle = warm;
-    x.lineWidth = 1;
-    x.beginPath();
-    x.moveTo(playX, 0);
-    x.lineTo(playX, H);
-    x.stroke();
+    if (warm) {
+      x.strokeStyle = warm;
+      x.lineWidth = 1;
+      x.beginPath();
+      x.moveTo(playX, 0);
+      x.lineTo(playX, H);
+      x.stroke();
+    }
   }, []);
 
   // Recording lifecycle is driven by the step, so the canvas is guaranteed

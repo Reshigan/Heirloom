@@ -748,7 +748,7 @@ export function Family() {
                       />
                       <DyePicker value={editDye} onChange={(d) => { setEditDye(d); setEditError(null); }} />
                       {editError && (
-                        <p className="hl-mono" style={{ fontSize: 12, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{editError}</p>
+                        <p role="alert" className="hl-mono" style={{ fontSize: 12, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{editError}</p>
                       )}
                       <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginTop: 4 }}>
                         <button

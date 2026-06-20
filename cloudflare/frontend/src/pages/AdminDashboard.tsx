@@ -1664,13 +1664,17 @@ function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () =
           )}
           <div style={{ padding: '10px 12px', background: 'var(--ink)', border: '1px solid var(--rule)' }}>
             <div className="loom-eyebrow" style={{ marginBottom: 8 }}>Body (HTML Preview)</div>
-            {/* Sandboxed iframe prevents script execution from email body HTML */}
-            <iframe
-              sandbox=""
-              srcDoc={email.body || '<em style="color:#444;font-family:sans-serif">No body content</em>'}
-              style={{ width: '100%', minHeight: 200, maxHeight: 384, border: 0, background: '#fff' }}
-              title="Email preview"
-            />
+            {email.body ? (
+              /* Sandboxed iframe prevents script execution from email body HTML; the white canvas is intentional — a real external email is legitimately light-on-white. */
+              <iframe
+                sandbox=""
+                srcDoc={email.body}
+                style={{ width: '100%', minHeight: 200, maxHeight: 384, border: 0, background: '#fff' }}
+                title="Email preview"
+              />
+            ) : (
+              <p style={{ fontStyle: 'italic', color: 'var(--bone-faint)', fontFamily: 'var(--serif)' }}>No body content</p>
+            )}
           </div>
           {email.status === 'FAILED' && (
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>

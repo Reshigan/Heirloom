@@ -343,6 +343,7 @@ export function MemoryMap() {
                     key={name}
                     title={name}
                     year={`${count} ${count === 1 ? 'memory' : 'memories'}`}
+                    ariaCurrent={!!firstMatch && selectedMemory?.id === firstMatch.id}
                     onClick={() => {
                       if (firstMatch) setSelectedMemory(firstMatch);
                     }}

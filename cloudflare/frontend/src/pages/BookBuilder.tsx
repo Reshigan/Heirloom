@@ -880,28 +880,6 @@ export function BookBuilder() {
                   {yearsLabel}
                 </p>
                 <WaxSeal size={13} />
-
-                {/* Wax seal mark — lower right (mockup) */}
-                <span
-                  className="hl-mono"
-                  aria-hidden
-                  style={{
-                    position: 'absolute',
-                    right: 18,
-                    bottom: 64,
-                    width: 26,
-                    height: 26,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '1px solid var(--warm)',
-                    borderRadius: 0,
-                    color: 'var(--warm)',
-                    fontSize: 13,
-                  }}
-                >
-                  ∞
-                </span>
               </div>
 
               <p className="hl-mono" style={{ fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.14em', margin: '0 0 16px', textTransform: 'capitalize' }}>

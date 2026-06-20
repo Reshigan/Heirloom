@@ -370,7 +370,7 @@ export function Weft() {
                     return (
                       <div
                         key={entry.id ?? `${entry.year}-${entry.month}-${entry.title}`}
-                        style={{ borderLeft: `2px solid ${dyeVar(dye)}`, paddingLeft: 12, marginLeft: -22 }}
+                        style={{ borderLeft: `3px solid ${dyeVar(dye)}`, paddingLeft: 12, marginLeft: -22 }}
                       >
                         <div style={{ paddingLeft: 10 }}>
                           <EntryRow

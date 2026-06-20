@@ -66,6 +66,8 @@ function StatBand({
 }) {
   return (
     <div
+      role="group"
+      aria-label={`${value} ${caption}`}
       style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
         padding: 'clamp(28px,6vh,64px) 0',
@@ -76,7 +78,7 @@ function StatBand({
     >
       <div
         style={{
-          fontFamily: 'var(--serif)',
+          fontFamily: 'var(--serif-display)',
           fontWeight: 300,
           fontSize: 'clamp(54px,9vw,84px)',
           lineHeight: 0.86,
@@ -286,7 +288,7 @@ export default function Wrapped() {
           >
             <div
               style={{
-                fontFamily: 'var(--serif)', fontWeight: 300,
+                fontFamily: 'var(--serif-display)', fontWeight: 300,
                 fontSize: 'clamp(28px,5vw,40px)', lineHeight: 1.2,
                 letterSpacing: '-0.01em', color: 'var(--bone)',
               }}

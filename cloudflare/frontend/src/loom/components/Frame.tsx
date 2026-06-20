@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import type { ReactNode } from 'react';
+import type { ReactNode, KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../../stores/authStore';
@@ -72,6 +72,17 @@ export function UserMenu() {
   const { user, logout } = useAuthStore();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  // ponytail: collect menuitem nodes for roving focus instead of per-item refs.
+  const itemsRef = useRef<HTMLElement[]>([]);
+  itemsRef.current = [];
+  const registerItem = (el: HTMLElement | null) => { if (el) itemsRef.current.push(el); };
+  const focusItem = (i: number) => {
+    const items = itemsRef.current;
+    if (!items.length) return;
+    const idx = (i + items.length) % items.length;
+    items[idx]?.focus();
+  };
 
   // Dismiss on outside click or Escape (mirrors InfinityMenu).
   useEffect(() => {
@@ -88,12 +99,33 @@ export function UserMenu() {
     };
   }, [open]);
 
+  // Roving focus: focus first item on open; return focus to trigger on close.
+  // ponytail: skip the initial mount so we don't steal focus to the trigger.
+  const mounted = useRef(false);
+  useEffect(() => {
+    if (open) focusItem(0);
+    else if (mounted.current) triggerRef.current?.focus();
+    mounted.current = true;
+  }, [open]);
+
+  // ArrowUp/Down cycle, Home/End jump, Escape closes + restores trigger focus.
+  const onMenuKeyDown = (e: ReactKeyboardEvent) => {
+    const items = itemsRef.current;
+    const current = items.indexOf(document.activeElement as HTMLElement);
+    if (e.key === 'ArrowDown') { e.preventDefault(); focusItem(current + 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); focusItem(current - 1); }
+    else if (e.key === 'Home') { e.preventDefault(); focusItem(0); }
+    else if (e.key === 'End') { e.preventDefault(); focusItem(items.length - 1); }
+    else if (e.key === 'Escape') { e.preventDefault(); setOpen(false); }
+  };
+
   if (!user) return null;
   const initials =
     `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || '∞';
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <button
+        ref={triggerRef}
         type="button"
         className="hl-topbar-user-btn"
         aria-haspopup="true"
@@ -120,7 +152,10 @@ export function UserMenu() {
         {initials}
       </button>
       <div
+        role="menu"
+        aria-label="Account menu"
         aria-hidden={!open}
+        onKeyDown={onMenuKeyDown}
         style={{
           position: 'absolute',
           top: 'calc(100% + 10px)',
@@ -147,14 +182,14 @@ export function UserMenu() {
           </p>
         </div>
         <div style={{ padding: '6px 0', borderBottom: '1px solid var(--rule)' }}>
-          <Link to="/family"             className="hl-menu-item" onClick={() => setOpen(false)}>family</Link>
-          <Link to="/settings"           className="hl-menu-item" onClick={() => setOpen(false)}>settings</Link>
-          <Link to="/billing"            className="hl-menu-item" onClick={() => setOpen(false)}>billing</Link>
-          <Link to="/gift-subscriptions" className="hl-menu-item" onClick={() => setOpen(false)}>gift a membership</Link>
-          <Link to="/help"               className="hl-menu-item" onClick={() => setOpen(false)}>help &amp; support</Link>
+          <Link ref={registerItem} role="menuitem" tabIndex={-1} to="/family"             className="hl-menu-item" onClick={() => setOpen(false)}>family</Link>
+          <Link ref={registerItem} role="menuitem" tabIndex={-1} to="/settings"           className="hl-menu-item" onClick={() => setOpen(false)}>settings</Link>
+          <Link ref={registerItem} role="menuitem" tabIndex={-1} to="/billing"            className="hl-menu-item" onClick={() => setOpen(false)}>billing</Link>
+          <Link ref={registerItem} role="menuitem" tabIndex={-1} to="/gift-subscriptions" className="hl-menu-item" onClick={() => setOpen(false)}>gift a membership</Link>
+          <Link ref={registerItem} role="menuitem" tabIndex={-1} to="/help"               className="hl-menu-item" onClick={() => setOpen(false)}>help &amp; support</Link>
         </div>
         <div style={{ padding: '6px 0' }}>
-          <button type="button" className="hl-menu-item danger"
+          <button ref={registerItem} role="menuitem" tabIndex={-1} type="button" className="hl-menu-item danger"
             onClick={() => { setOpen(false); logout(); }}>
             sign out
           </button>

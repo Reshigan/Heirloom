@@ -56,10 +56,6 @@
   --blood-light: #b14a4a;
   --blood-glow: rgba(159, 58, 42, 0.4);
 
-  /* STATUS COLORS */
-  --emerald: #5ab88a;
-  --sapphire: #64a0dc;
-
   /* Glass retired — solid panels only (§2.6). Kept as opaque ink so any
      lingering reference renders as a flat surface, never a blur. */
   --glass-bg: #16110c;
@@ -1271,8 +1267,8 @@ html {
 }
 .hl-btn.text { background: transparent; border: 0; color: var(--warm); padding: 0; border-radius: 0; font-weight: 600; }
 
-/* Light-theme a11y: interactive copper only. Light --warm #a86220 is 3.97:1 on
-   parchment (fails 4.5:1) and .ghost opacity:.8 drops it to ~2.5-2.9:1. Lift
+/* Light-theme a11y: interactive copper only. Light --warm #8a4e12 is 5.06:1 on
+   parchment but .ghost opacity:.8 drops it below 4.5:1. Lift
    buttons/ghost links to --warm-dim (#824a16 ≈ 5.9:1, passes ≥4.5:1) at full
    opacity. Decorative --warm token / dye threads are untouched. Dark theme keeps
    its already-passing copper. */
@@ -1495,13 +1491,11 @@ html {
   --loom-warm-dim:   var(--warm-dim);
 
   /* Aliases of the canonical --ease / --dur-* family (see :root). Single-
-     sourced so motion edits change ONE place. --loom-dur-breath has no
-     canonical twin (ambient-tier 9s loop) so it stays a literal. */
+     sourced so motion edits change ONE place. */
   --loom-ease:       var(--ease);
   --loom-dur-fast:   var(--dur-fast);
   --loom-dur-shift:  var(--dur-mid);
   --loom-dur-veil:   var(--dur-slow);
-  --loom-dur-breath: 9000ms; /* ambient tier — no canonical token; --ease is canonical for easing */
 }
 
 .loom[data-theme="light"] {
@@ -1776,20 +1770,6 @@ html {
   animation: hl-hero-blink 1400ms steps(1) infinite;
 }
 @keyframes hl-hero-blink { 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0; } }
-/* The cloth is a living thing — the woven web breathes slowly so the home
-   surface reads as alive, not a static print. Tiny amplitude, long period,
-   one curve. Silenced under prefers-reduced-motion. */
-@keyframes hl-cloth-breath {
-  0%, 100% { opacity: 0.92; }
-  50%      { opacity: 1; }
-}
-.hl-cloth-breath {
-  animation: hl-cloth-breath 9000ms var(--ease) infinite;
-  will-change: opacity;
-}
-@media (prefers-reduced-motion: reduce) {
-  .hl-cloth-breath { animation: none; }
-}
 
 /* ─── Buttons ───────────────────────────────────────────────────── */
 .loom-btn {
@@ -2274,7 +2254,6 @@ html {
 /* ── Reduced motion overrides ─────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .hl-composer-cursor-after::after { animation: none; }
-  .hl-cloth-breath            { animation: none; }
 }
 
 /* ── Autofill override — Chrome blue autofill destroys the ink/bone palette ── */
