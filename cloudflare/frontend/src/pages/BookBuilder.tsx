@@ -13,9 +13,8 @@ type BookStep = 'select' | 'customize' | 'page' | 'preview' | 'order';
 // Page-layout templates (cosmic-page-templates). Each is a thin-ruled
 // selectable thumbnail; the active one carries a warm border. The chooser
 // renders exactly the four tiles the reference shows, in a clean 2×2 grid —
-// 'chapter-open' stays a valid layout type (LayoutGlyph still handles it) but
-// is not offered as a fifth orphan tile.
-type PageLayout = 'full-bleed' | 'photo-caption' | 'chapter-open' | 'two-column' | 'quote';
+// the union, the offered set, and LayoutGlyph all carry the same four layouts.
+type PageLayout = 'full-bleed' | 'photo-caption' | 'two-column' | 'quote';
 const pageLayouts: { id: PageLayout; label: string }[] = [
   { id: 'full-bleed', label: 'Full bleed memory' },
   { id: 'photo-caption', label: 'Text & portrait' },
@@ -183,13 +182,6 @@ function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }
           <div style={{ ...photo, height: 16, width: 22, alignSelf: 'flex-end' }} />
           {lines(2)}
         </div>
-      );
-    case 'chapter-open':
-      return (
-        <>
-          <div style={{ ...line('40%'), height: 3, alignSelf: 'center', marginTop: 2 }} />
-          {lines(5)}
-        </>
       );
     case 'two-column':
       return (
@@ -740,28 +732,9 @@ export function BookBuilder() {
                   </div>
                 ))}
               </div>
-
-              {/* PREVIEW — ghost-copper, full-width sharp button beneath the
-                  ledger. Advances to the preview step (same action as the shared nav). */}
-              <button
-                type="button"
-                onClick={() => setStep('preview')}
-                className="hl-mono"
-                style={{
-                  width: '100%',
-                  background: 'transparent',
-                  border: '1px solid var(--copper-border)',
-                  borderRadius: 0,
-                  padding: '15px 0',
-                  cursor: 'pointer',
-                  fontSize: 11,
-                  letterSpacing: '0.24em',
-                  textTransform: 'uppercase',
-                  color: 'var(--gold-text)',
-                }}
-              >
-                Preview
-              </button>
+              {/* The single advance CTA lives in the shared bottom-nav
+                  ("Choose a page →"), which drives customize → page → preview —
+                  no in-step shortcut, so the 'page' step stays reachable. */}
             </div>
           )}
 

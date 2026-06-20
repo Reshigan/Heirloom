@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { challengesApi } from '../services/api';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { useFocusTrap } from '../lib/useFocusTrap';
@@ -127,12 +128,7 @@ export function Challenges() {
         <CosmicHeader eyebrow={eyebrow} title="The weaving challenges." />
 
         {isLoading ? (
-          <p
-            className="hl-serif hl-italic"
-            style={{ color: 'var(--bone-faint)', fontSize: 16 }}
-          >
-            Loading…
-          </p>
+          <ProgressHair label="loading…" />
         ) : (
           <>
             {/* Active challenge — the prompt as a ledger entry, its meta on the right */}
@@ -227,25 +223,16 @@ export function Challenges() {
               <section>
                 <SectionLabel>Coming threads</SectionLabel>
                 {upcoming.slice(0, 6).map((challenge: any) => (
-                  // EntryRow (CosmicUI) renders the focusable <button> but exposes no
-                  // aria-haspopup prop and no rest-spread, and that file is owned elsewhere.
-                  // This callback-ref wrapper tags the actual rendered button so screen
-                  // readers announce that the row opens the challenge-detail dialog.
-                  <div
+                  // The row's click target opens the challenge-detail dialog, so
+                  // declare that to screen readers via EntryRow's aria-haspopup prop.
+                  <EntryRow
                     key={challenge.id}
-                    style={{ display: 'contents' }}
-                    ref={el => {
-                      const btn = el?.querySelector('button');
-                      if (btn) btn.setAttribute('aria-haspopup', 'dialog');
-                    }}
-                  >
-                    <EntryRow
-                      title={challenge.title}
-                      sub={challenge.description}
-                      meta={new Date(challenge.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                      onClick={() => setSelectedChallenge(challenge)}
-                    />
-                  </div>
+                    title={challenge.title}
+                    sub={challenge.description}
+                    meta={new Date(challenge.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    onClick={() => setSelectedChallenge(challenge)}
+                    ariaHaspopup="dialog"
+                  />
                 ))}
               </section>
             )}

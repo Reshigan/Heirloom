@@ -171,7 +171,6 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
           endYear={C_END}
           height={360}
           showLigatures={false}
-          ambientShuttle={false}
           nowYear={new Date().getFullYear()}
           appendCount={WOVEN_COUNT}
           onHover={setHoveredIdx}

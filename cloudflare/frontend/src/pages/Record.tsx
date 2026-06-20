@@ -438,7 +438,7 @@ export function Record() {
             fontSize: 11,
             letterSpacing: '0.3em',
             textTransform: 'uppercase',
-            color: 'var(--copper-label)',
+            color: 'var(--bone-faint)',
             marginBottom: 28,
           }}
         >

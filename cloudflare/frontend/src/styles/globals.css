@@ -1658,27 +1658,12 @@ html {
 .loom-faint      { color: var(--loom-bone-faint); }
 .loom-hairline   { height: 1px; background: var(--loom-rule); border: 0; margin: 0; }
 
-/* ─── Frame chrome ──────────────────────────────────────────────── */
-.loom-frame {
-  position: absolute; inset: 0;
-  display: grid;
-  grid-template-rows: 56px 1fr;
-}
-.loom-topbar {
-  display: flex; align-items: center;
-  padding: 0 28px;
-  gap: 18px;
-  border-bottom: 1px solid var(--loom-rule);
-  font-size: 11px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
-  color: var(--loom-bone-faint);
-}
-/* ∞ brand mark — the ∞heirloom wordmark in the 56px topbar. At ~19px Cormorant
-   (a thin display face) falls below the 24px display floor and turns illegible;
-   the topbar has no vertical room to raise it without crowding the inline nav,
-   so the wordmark uses Spectral (var(--serif), the readable serif voice) which
-   keeps the serif character of a typeset wordmark while staying legible small. */
+/* ∞ brand mark — the ∞heirloom wordmark. At ~19px Cormorant (a thin display
+   face) falls below the 24px display floor and turns illegible, so the wordmark
+   uses Spectral (var(--serif), the readable serif voice) which keeps the serif
+   character of a typeset wordmark while staying legible small.
+   (Frame chrome — .loom-frame/.loom-topbar/.loom-horizon — removed: dead,
+   superseded by ClothShell/Frame. .loom-mark is still live in AdminDashboard.) */
 .loom-mark {
   font-family: var(--serif);
   font-weight: 500;
@@ -1690,54 +1675,6 @@ html {
 .loom-mark .infmark {
   color: var(--loom-warm);
   padding-right: 4px;
-}
-.loom-topbar nav { display: flex; gap: 28px; margin-left: 36px; }
-.loom-topbar nav a,
-.loom-topbar nav span {
-  cursor: pointer;
-  text-decoration: none;
-  color: inherit;
-  position: relative;
-  padding-bottom: 2px;
-  transition: color 180ms var(--loom-ease);
-}
-.loom-topbar nav a:hover,
-.loom-topbar nav span:hover { color: var(--loom-bone); }
-.loom-topbar nav .active {
-  color: var(--loom-bone);
-}
-/* Warm hairline under the active nav link — editorial position marker */
-.loom-topbar nav .active::after {
-  content: "";
-  position: absolute;
-  left: 0; right: 0; bottom: -2px;
-  height: 1px;
-  background: var(--loom-warm);
-  opacity: 0.7;
-}
-.loom-topbar .right {
-  margin-left: auto;
-  display: flex;
-  gap: 18px;
-  align-items: center;
-}
-/* Mobile: hide nav links and theme toggle — BottomNav handles mobile navigation */
-@media (max-width: 639px) {
-  .loom-topbar nav { display: none; }
-  .loom-topbar .loom-theme-pill { display: none; }
-}
-.loom-frame__body { position: relative; overflow-x: hidden; overflow-y: auto; }
-
-/* ─── The horizon: a single hairline, no copper band fill ─────────
-   Was a copper linear-gradient band (rgba copper, 0.06) — copper as fill is a
-   defect (§1). Carried as a 1px var(--rule) top hairline instead. */
-.loom-horizon {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  height: 36%;
-  pointer-events: none;
-  background: none;
-  border-top: 1px solid var(--rule);
 }
 
 /* .loom-grain removed — feTurbulence noise is an ART_DIRECTION anti-pattern */
@@ -1834,49 +1771,6 @@ html {
   transform: translateX(-50%);
 }
 
-/* Percentage-based shuttle for small fixed-width loading bars (QuickWizard's
-   LoadingBar references this) — distinct from the vw-based ambient loom-shuttle
-   above so the segment sweeps the bar's own width, not the viewport. */
-@keyframes loom-shuttle-quick {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(250%); }
-}
-
-/* ─── Sealed-note typographic stack ────────────────────────────── */
-.loom-sealed { text-align: center; letter-spacing: 0.02em; }
-.loom-sealed .infmark {
-  color: var(--loom-warm);
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 26px;
-  display: block;
-  margin-bottom: 4px;
-}
-.loom-sealed .meta {
-  font-family: 'Space Mono', ui-monospace, monospace;
-  font-size: 11px;
-  color: var(--loom-bone-dim);
-  letter-spacing: 0.04em;
-}
-.loom-sealed .for {
-  font-family: 'Spectral', serif;
-  font-style: italic;
-  font-size: 16px;
-  color: var(--loom-bone);
-  margin-top: 4px;
-}
-
-/* ─── Caret cursor (composer) ──────────────────────────────────── */
-.loom-caret {
-  display: inline-block;
-  width: 1px; height: 1.1em;
-  background: var(--loom-warm);
-  margin-left: 2px;
-  vertical-align: -2px;
-  /* text-caret blink — steps intentional, whitelisted duration */
-  animation: loom-caret 1400ms steps(1) infinite;
-}
-@keyframes loom-caret { 50% { opacity: 0; } }
-
 /* ─── Home hero — the edge of the cloth ────────────────────────────
    The prompt caret blinks like a waiting pen; the fell line — the live
    edge where the next thread goes in — breathes. Both die under
@@ -1903,55 +1797,6 @@ html {
 }
 @media (prefers-reduced-motion: reduce) {
   .hl-cloth-breath { animation: none; }
-}
-
-/* ─── AI whisper (composer) ────────────────────────────────────── */
-.loom-whisper {
-  font-family: 'Space Mono', ui-monospace, monospace;
-  font-size: 11px;
-  color: var(--loom-bone-faint);
-  letter-spacing: 0.04em;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
-}
-.loom-whisper .lead { color: var(--loom-warm); }
-.loom-whisper .link {
-  color: var(--loom-bone-dim);
-  border-bottom: 1px dotted var(--loom-bone-faint);
-  cursor: pointer;
-  transition: color var(--loom-dur-fast) var(--loom-ease);
-}
-.loom-whisper .link:hover {
-  color: var(--loom-warm-bright);
-  border-bottom-color: var(--loom-warm);
-}
-
-/* ─── Names roll ───────────────────────────────────────────────── */
-.loom-nameroll { display: grid; gap: 6px; }
-.loom-nameroll .row {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  font-family: 'Cormorant Garamond', serif;
-  /* Cormorant floor — must stay >=24px or the display face turns unreadable. */
-  font-size: 1.5rem;
-  font-weight: 400;
-  align-items: baseline;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--loom-rule);
-}
-.loom-nameroll .row .dates {
-  font-family: 'Space Mono', ui-monospace, monospace;
-  font-size: 11px;
-  color: var(--loom-bone-faint);
-  letter-spacing: 0.04em;
-}
-/* Warm-row marker — a copper TEXT glyph, not a filled copper square. Copper as
-   ink only (signal), never a fill block. */
-.loom-nameroll .row.warm .name::after {
-  content: "·";
-  margin-left: 8px;
-  color: var(--loom-warm);
 }
 
 /* ─── Buttons ───────────────────────────────────────────────────── */
@@ -1998,49 +1843,6 @@ html {
 }
 .loom-btn-ghost:active { transform: scale(0.97); }
 
-
-/* ─── Theme toggle pill ─────────────────────────────────────────── */
-/* Sharp-cornered segmented control — 0px radius is the design language */
-.loom-theme-pill {
-  border: 1px solid var(--loom-rule);
-  border-radius: 0;
-  padding: 3px;
-  display: inline-flex;
-  cursor: pointer;
-}
-.loom-theme-pill button {
-  background: transparent;
-  border: 0;
-  color: var(--loom-bone-dim);
-  font-family: 'Space Mono', ui-monospace, monospace;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  padding: 6px 12px;
-  border-radius: 0;
-  cursor: pointer;
-  transition:
-    background-color var(--loom-dur-fast) var(--loom-ease),
-    color var(--loom-dur-fast) var(--loom-ease),
-    transform var(--loom-dur-fast) var(--loom-ease);
-}
-.loom-theme-pill button:active { transform: scale(0.95); }
-.loom-theme-pill button.on {
-  /* copper is signal, never a fill — the active pill is marked by an
-     underline + warm text, not a copper slab. */
-  color: var(--loom-warm);
-  border-bottom: 2px solid var(--loom-warm);
-}
-
-/* ─── Today page: staggered content entry ───────────────────────── */
-@keyframes loom-fadein-up {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.loom-today-eyebrow  { animation: loom-fadein-up var(--loom-dur-shift) var(--loom-ease) both; animation-delay:   0ms; }
-.loom-today-headline { animation: loom-fadein-up var(--loom-dur-shift) var(--loom-ease) both; animation-delay:  50ms; }
-.loom-today-cta      { animation: loom-fadein-up var(--loom-dur-shift) var(--loom-ease) both; animation-delay: 100ms; }
-.loom-today-family   { animation: loom-fadein-up var(--loom-dur-shift) var(--loom-ease) both; animation-delay: 160ms; }
 
 /* ─── Reduced motion ───────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
@@ -2128,10 +1930,12 @@ html {
 .loom .border-paper-04 { border-color: var(--loom-rule) !important; }
 
 /* ── Color: gold → warm ────────────────────────────────────────── */
+/* Copper never fills (§1). The copper-bg utilities are neutralised to a
+   transparent fill — selectors kept so the classes still resolve harmlessly. */
 .loom .bg-gold-40,
 .loom .bg-gold-20,
 .loom .bg-gold-10,
-.loom .bg-gold-05 { background-color: var(--loom-rule-warm) !important; }
+.loom .bg-gold-05 { background-color: transparent !important; }
 .loom .text-gold,
 .loom .text-gold-light,
 .loom .text-gold-bright,

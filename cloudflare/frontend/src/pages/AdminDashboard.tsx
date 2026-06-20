@@ -9,6 +9,7 @@ import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { PLAN_PRICE } from '../lib/plans';
 import { copyToClipboard } from '../utils/clipboard';
 import { useFocusTrap } from '../lib/useFocusTrap';
+import { useInlineStatus, InlineStatus } from '../loom/components/InlineStatus';
 
 // Admin auth check
 const useAdminAuth = () => {
@@ -1216,45 +1217,7 @@ function LedgerBand({ overview, revenue }: { overview: any; revenue: any }) {
   );
 }
 
-// ─── Inline status (replaces alert) + Confirm modal (replaces confirm) ─
-type StatusTone = 'ok' | 'err';
-interface InlineStatusState { msg: string; tone: StatusTone; key: number }
-function useInlineStatus() {
-  const [state, setState] = useState<InlineStatusState | null>(null);
-  return {
-    state,
-    ok: (msg: string) => setState({ msg, tone: 'ok', key: Date.now() }),
-    err: (msg: string) => setState({ msg, tone: 'err', key: Date.now() }),
-    clear: () => setState(null),
-  };
-}
-type InlineStatus = ReturnType<typeof useInlineStatus>;
-
-function InlineStatus({ status }: { status: InlineStatus }) {
-  useEffect(() => {
-    if (!status.state) return;
-    const t = setTimeout(() => status.clear(), 4000);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status.state?.key]);
-  if (!status.state) return null;
-  const warm = status.state.tone === 'ok';
-  return (
-    <div
-      role="status"
-      style={{
-        marginBottom: 20, padding: '8px 14px',
-        background: 'var(--ink-card)',
-        border: `1px solid ${warm ? 'var(--gold-20)' : 'var(--gold-40)'}`,
-        fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.04em',
-        color: warm ? 'var(--bone-dim)' : 'var(--warm)',
-      }}
-    >
-      {status.state.msg}
-    </div>
-  );
-}
-
+// ─── Confirm modal (replaces confirm) ────────────────────────────────
 // Confirm modal — reuses ModalShell; replaces native confirm()
 function ConfirmModal({ title, body, confirmLabel, onConfirm, onClose }: {
   title: string; body: string; confirmLabel?: string; onConfirm: () => void; onClose: () => void;

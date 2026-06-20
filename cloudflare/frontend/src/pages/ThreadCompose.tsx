@@ -271,7 +271,7 @@ export function ThreadCompose() {
         transition: `opacity 180ms ${EASE}`,
       }}
     >
-      {busy ? 'weaving…' : 'weave →'}
+      {busy ? 'weaving…' : 'save'}
     </button>
   );
 
@@ -659,14 +659,10 @@ export function ThreadCompose() {
                 {busy ? 'weaving…' : 'weave →'}
               </button>
 
-              {/* Secondary: seal / lock state pill (mirrors the time-lock toggle) */}
-              <button
-                type="button"
-                onClick={() => setEnableLock((v) => !v)}
-                style={pillStyle(false)}
-              >
-                {enableLock ? 'sealed ·' : 'seal entry'}
-                {enableLock && (
+              {/* Read-only seal-state reflection (the checkbox above is the single seal toggle) */}
+              {enableLock ? (
+                <span style={{ ...pillStyle(false), cursor: 'default' }}>
+                  sealed ·
                   <span style={{ color: 'var(--warm)', letterSpacing: '0.14em' }}>
                     {lockType === 'DATE'
                       ? lockDate || 'date'
@@ -676,8 +672,8 @@ export function ThreadCompose() {
                           ? 'event'
                           : 'generation'}
                   </span>
-                )}
-              </button>
+                </span>
+              ) : null}
 
               <Link
                 to={`/threads/${threadId}`}

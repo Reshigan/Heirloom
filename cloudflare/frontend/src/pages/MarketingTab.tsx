@@ -1,46 +1,10 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { marketingApi } from '../services/api';
 import { useFocusTrap } from '../lib/useFocusTrap';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
-
-/* ── Inline status (replaces alert) ──────────────────────────────── */
-type StatusTone = 'ok' | 'err';
-function useInlineStatus() {
-  const [state, setState] = useState<{ msg: string; tone: StatusTone; key: number } | null>(null);
-  return {
-    state,
-    ok: (msg: string) => setState({ msg, tone: 'ok', key: Date.now() }),
-    err: (msg: string) => setState({ msg, tone: 'err', key: Date.now() }),
-    clear: () => setState(null),
-  };
-}
-type InlineStatusApi = ReturnType<typeof useInlineStatus>;
-
-function InlineStatus({ status }: { status: InlineStatusApi }) {
-  useEffect(() => {
-    if (!status.state) return;
-    const t = setTimeout(() => status.clear(), 4000);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status.state?.key]);
-  if (!status.state) return null;
-  const ok = status.state.tone === 'ok';
-  return (
-    <div
-      role="status"
-      style={{
-        marginBottom: 20,
-        fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em',
-        textTransform: 'uppercase',
-        color: ok ? 'var(--warm)' : 'var(--bone-dim)',
-      }}
-    >
-      {status.state.msg}
-    </div>
-  );
-}
+import { useInlineStatus, InlineStatus } from '../loom/components/InlineStatus';
 
 const SEGMENTS = ['GENEALOGY', 'GRIEF', 'PARENTING', 'TECH', 'ESTATE_PLANNING', 'PODCAST', 'OTHER'];
 const PLATFORMS = ['INSTAGRAM', 'FACEBOOK', 'TIKTOK', 'LINKEDIN', 'TWITTER', 'EMAIL', 'ALL'];
@@ -127,6 +91,16 @@ const labelStyle: React.CSSProperties = {
   color: 'var(--bone-faint)',
   marginBottom: 6,
 };
+
+/* ── Field — labelled input wrapper. Module-scope so its identity is
+   stable across renders; a render-body declaration would remount every
+   input on each keystroke and drop focus mid-typing. ───────────────── */
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <label style={{ display: 'block' }}>
+    <span style={labelStyle}>{label}</span>
+    {children}
+  </label>
+);
 
 /* ── Mono text affordance — quiet, never an icon button ────────────── */
 const affordanceStyle: React.CSSProperties = {
@@ -846,13 +820,6 @@ function AddInfluencerModal({ onClose }: { onClose: () => void }) {
       status.err(`failed to add: ${error.response?.data?.error || error.message}`);
     },
   });
-
-  const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-    <label style={{ display: 'block' }}>
-      <span style={labelStyle}>{label}</span>
-      {children}
-    </label>
-  );
 
   return (
     <ModalShell title="Add thread." onClose={onClose}>

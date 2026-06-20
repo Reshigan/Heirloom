@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { dyeForId } from '../loom/dye';
 import { useFocusTrap } from '../lib/useFocusTrap';
@@ -177,12 +178,7 @@ export function Milestones() {
         )}
 
         {isLoading ? (
-          <p
-            className="hl-serif hl-italic"
-            style={{ fontSize: 16, color: 'var(--bone-dim)', margin: 0 }}
-          >
-            Loading…
-          </p>
+          <ProgressHair label="loading…" />
         ) : (
           <div style={{ display: 'grid', gap: 48 }}>
 
@@ -333,6 +329,7 @@ export function Milestones() {
                     <button
                       key={type.id}
                       onClick={() => setFormData({ ...formData, type: type.id })}
+                      aria-pressed={formData.type === type.id}
                       style={{
                         background: 'transparent',
                         border: `1px solid ${formData.type === type.id ? 'var(--copper-border)' : 'var(--hairline-3)'}`,

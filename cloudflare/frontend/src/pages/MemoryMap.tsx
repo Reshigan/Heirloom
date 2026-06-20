@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { ClothShell } from '../loom/components/ClothShell';
-import { EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { memoriesApi } from '../services/api';
 
 interface MapMemory {
@@ -21,6 +21,14 @@ const FILTERS = ['all', 'memory', 'voice', 'letter'] as const;
 type Filter = typeof FILTERS[number];
 
 const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
+
+/** Latitude framing of the /woven/worldmap.png plate. The base PNG is an
+    equirectangular-ish plate cropped above the Arctic and below the deep
+    Southern Ocean, so its top/bottom edges are not the true ±90° poles —
+    these are the hand-calibrated latitudes that align the plate's top and
+    bottom edges. y is projected between them. */
+const PLATE_LAT_TOP = 82; // latitude at the plate's top edge (y = 0%)
+const PLATE_LAT_BOTTOM = PLATE_LAT_TOP - 138; // = -56, latitude at the plate's bottom edge (y = 100%)
 
 /** Group memories by location_name, return sorted by count desc */
 function groupByLocation(memories: MapMemory[]): { name: string; count: number }[] {
@@ -57,13 +65,15 @@ export function MemoryMap() {
 
   const locations = groupByLocation(memories);
 
-  /** Project real lat/lng onto the woven worldmap. The base PNG is an equirectangular-ish
-      plate; x = (lon+180)/360, y = (82-lat)/138 aligns the warm dots to its landmasses. */
+  /** Project real lat/lng onto the woven worldmap. x runs full 360° of longitude
+      across the plate; y maps the plate's PLATE_LAT_TOP→PLATE_LAT_BOTTOM band onto
+      0→100% so the warm dots land on its landmasses. The clamp stays as a safety
+      net — polar entries outside the plate's framed band rest on the rim. */
   const mapDots = memories
     .filter((m) => Number.isFinite(m.latitude) && Number.isFinite(m.longitude))
     .map((m) => {
       const x = ((m.longitude + 180) / 360) * 100;
-      const y = ((82 - m.latitude) / 138) * 100;
+      const y = ((PLATE_LAT_TOP - m.latitude) / (PLATE_LAT_TOP - PLATE_LAT_BOTTOM)) * 100;
       return { id: m.id, x: clamp(x, 4, 96), y: clamp(y, 6, 94), memory: m };
     });
 
@@ -100,25 +110,12 @@ export function MemoryMap() {
           padding: '40px 28px 96px',
         }}
       >
-        {/* Quiet mono eyebrow — the only line above the map field, per the reference.
-            The standing phrase in both states; never a count. */}
-        <div
-          role="heading"
-          aria-level={1}
-          style={{
-            fontFamily: 'var(--mono)',
-            fontSize: 11,
-            letterSpacing: '0.34em',
-            textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
-            textAlign: 'center',
-            margin: '12px 0 12px',
-          }}
-        >
-          {'WHERE IT HAPPENED'}
-        </div>
+        {/* The hero — mono eyebrow over a Cormorant display H1, centred over the
+            map field like the sibling ledgers. The standing phrase in both states. */}
+        <CosmicHeader eyebrow="WHERE IT HAPPENED" title="The places it happened." align="center" />
 
-        {/* Second eyebrow subline — the standing interaction hint, quietest mono. */}
+        {/* Interaction hint — quietest mono. Names only the one real interaction:
+            the warm dots are tappable; there is no drag/pan affordance. */}
         <div
           style={{
             fontFamily: 'var(--mono)',
@@ -130,7 +127,7 @@ export function MemoryMap() {
             margin: '0 0 56px',
           }}
         >
-          {'DRAG TO EXPLORE · TAP A PLACE'}
+          {'TAP A PLACE'}
         </div>
 
         {isError && (

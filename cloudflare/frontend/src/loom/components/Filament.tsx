@@ -88,9 +88,9 @@ const TOP_BAND: React.CSSProperties = { top: 0, left: '50%', transform: 'transla
 // as a breath of woven ground, never as an aurora. `--fo` carries the live
 // opacity (intensity × base) so the breath/weave ritual can modulate it.
 const INK_WASH =
-  'radial-gradient(ellipse 70% 64% at 50% 46%, rgba(242,230,208,0.05), transparent 72%)';
+  'radial-gradient(ellipse 70% 64% at 50% 46%, rgba(var(--loom-warp-rgb), 0.05), transparent 72%)';
 const COVER_WASH =
-  'radial-gradient(ellipse 96% 86% at 50% 42%, rgba(242,230,208,0.035), transparent 80%)';
+  'radial-gradient(ellipse 96% 86% at 50% 42%, rgba(var(--loom-warp-rgb), 0.035), transparent 80%)';
 
 const PLACE: Record<Exclude<FilamentVariant, 'none'>, Place> = {
   // ── top-hung zones ──

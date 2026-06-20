@@ -518,11 +518,17 @@ export function Family() {
               // Fall back to a deterministic per-member dye so each member carries
               // a distinct, stable identity hue even when none was explicitly set
               // (no UI assigns custom dyes yet — without this every row is warm).
-              const dyeKey = m.dye?.toLowerCase() || dyeForId(m.id);
+              // Chosen dye (DyePicker writes one of the 10 keys) or the per-id
+              // hash fallback. GUARD against DYES membership so a stale/unknown
+              // saved value can never collapse `var(--dye-${key})` to copper —
+              // an unguarded key with a `var(--warm)` fallback would paint a 3px
+              // COPPER border (Rule-2 fill defect). Unknown → deterministic hash.
+              const rawDye = m.dye?.toLowerCase() || dyeForId(m.id);
+              const dyeKey = (DYES as readonly string[]).includes(rawDye) ? rawDye : dyeForId(m.id);
               const isEditing = editTarget?.id === m.id;
               const relMeta = [m.relationship, m.role].filter(Boolean).join(' · ');
               const isKeeper = (m.role ?? '').toLowerCase().includes('keeper');
-              const thread = `var(--dye-${dyeKey}, var(--warm))`;
+              const thread = `var(--dye-${dyeKey})`;
               const nameColor = dyeTextColor(dyeKey);
               return (
                 <div

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import type { Dye } from '../dye';
 import { dyeVar } from '../dye';
 
@@ -112,6 +112,7 @@ export function EntryRow({
   subItalic = false,
   dateColor = 'var(--bone-faint)',
   noBorder = false,
+  ariaHaspopup,
 }: {
   title: ReactNode;
   sub?: ReactNode;
@@ -132,6 +133,10 @@ export function EntryRow({
   subItalic?: boolean;
   dateColor?: string;
   noBorder?: boolean;
+  /** When the row's click target opens an overlay, declare it to screen readers
+   *  (e.g. "dialog"). Spread onto the interactive <button> only; undefined by
+   *  default so every existing caller is unaffected. */
+  ariaHaspopup?: ButtonHTMLAttributes<HTMLButtonElement>['aria-haspopup'];
 }) {
   const tint = dye ? dyeVar(dye) : 'var(--warm)';
   const hasLedgerMeta = year != null || author != null || dye != null;
@@ -181,7 +186,7 @@ export function EntryRow({
   );
 
   return interactive ? (
-    <button type="button" onClick={onClick} className="hl-ledger-row" style={containerStyle}>
+    <button type="button" onClick={onClick} aria-haspopup={ariaHaspopup} className="hl-ledger-row" style={containerStyle}>
       {inner}
     </button>
   ) : (

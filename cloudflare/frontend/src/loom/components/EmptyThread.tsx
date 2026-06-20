@@ -51,7 +51,6 @@ export function EmptyThread({
           endYear={endYear}
           height={220}
           showLigatures={false}
-          ambientShuttle={false}
           nowYear={startYear}
         />
       </div>

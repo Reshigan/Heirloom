@@ -25,13 +25,6 @@ interface GeneratedCard {
   memoryDate: string | null;
   memoryTitle: string;
   shareUrl: string;
-  shareText: string;
-  socialShareUrls: {
-    twitter: string;
-    facebook: string;
-    linkedin: string;
-    whatsapp: string;
-  };
 }
 
 interface OnThisDayMemory {
@@ -554,25 +547,14 @@ export function MemoryCards() {
             ) : (
               <div>
                 {cards.map((card: any) => (
-                  <div key={card.id}>
-                    <EntryRow
-                      title={card.quote || card.memoryTitle || 'Untitled'}
-                      year={card.memoryDate || undefined}
-                      author={card.authorName || undefined}
-                      dye={dyeForId(card.id)}
-                      onClick={() => window.open(card.shareUrl, '_blank', 'noopener,noreferrer')}
-                    />
-                    {/* Print / share — quiet mono affordance, same target as row click */}
-                    <a
-                      href={card.shareUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="hl-link warm"
-                      style={{ display: 'inline-block', margin: '8px 0 4px', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase' }}
-                    >
-                      print / share →
-                    </a>
-                  </div>
+                  <EntryRow
+                    key={card.id}
+                    title={card.quote || card.memoryTitle || 'Untitled'}
+                    year={card.memoryDate || undefined}
+                    author={card.authorName || undefined}
+                    dye={dyeForId(card.id)}
+                    onClick={() => window.open(card.shareUrl, '_blank', 'noopener,noreferrer')}
+                  />
                 ))}
               </div>
             )}

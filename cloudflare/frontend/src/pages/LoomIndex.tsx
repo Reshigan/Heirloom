@@ -252,6 +252,7 @@ export function LoomIndex() {
             <button
               key={g}
               type="button"
+              aria-pressed={groupBy === g}
               onClick={() => setGroupBy(g)}
               style={{
                 background: 'none', border: 0, padding: '10px 0', cursor: 'pointer',

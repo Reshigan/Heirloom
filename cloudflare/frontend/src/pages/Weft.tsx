@@ -9,7 +9,7 @@ import { ViewToggle } from '../loom/components/ViewToggle';
 import { EmptyThread } from '../loom/components/EmptyThread';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { WeftCentury } from '../loom/components/WeftCentury';
-import { SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { dyeVar, dyeTextVar, dyeForId } from '../loom/dye';
 import { memoriesApi, lettersApi, voiceApi, threadsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
@@ -287,18 +287,16 @@ export function Weft() {
         }}
       >
         <div style={{ width: '100%', maxWidth: 480 }}>
-          {/* The bloodline eyebrow — a plain styled label (NOT the heading). The
-              real page title below carries the H1 role for screen readers. */}
-          <div style={{ textAlign: 'center' }}>
-            <SectionLabel tone="copper">{eyebrow}</SectionLabel>
-          </div>
+          {/* ── A · THE INHERITANCE HORIZON — the document H1. A Cormorant display
+              title (the real, hero heading) sits under the bloodline eyebrow; the
+              mono span is the eyebrow only, never a heading. ── */}
+          <CosmicHeader
+            align="center"
+            eyebrow={eyebrow}
+            title="The Inheritance Horizon"
+          />
 
           {toggleRow}
-
-          {/* ───────────── A · THE INHERITANCE HORIZON — the document H1 ───────────── */}
-          <div role="heading" aria-level={1}>
-            <SectionLabel>The Inheritance Horizon</SectionLabel>
-          </div>
 
           {/* The vertical timeline. A single faint warp runs down the left as
               the spine; future ghost rows sit at the top, the present marker

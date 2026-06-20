@@ -747,6 +747,14 @@ export function ReadingRoom() {
         id="selvedge-drawer"
         onMouseEnter={() => setNavOpen(true)}
         onMouseLeave={() => setNavOpen(false)}
+        // Keyboard equivalent of the hover disclosure: tabbing an entry button
+        // into focus reveals the labels (focus enters the subtree); blurring out
+        // of the drawer collapses it again. onBlur fires before onFocus on a
+        // within-drawer tab, so we re-check the new focus target via relatedTarget.
+        onFocus={() => setNavOpen(true)}
+        onBlur={(e) => {
+          if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setNavOpen(false);
+        }}
         style={{
           position: 'absolute', top: 56, bottom: 0, left: 0, zIndex: 15,
           width: (navOpen || selvedgeOpen) ? 260 : 6,
@@ -997,11 +1005,12 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
             Written by {c.who} · {c.date}.
           </div>
           <div style={{ flex: 1 }} />
-          {/* page number — bare mono numeral */}
+          {/* chapter numeral — honest indicator (the entry isn't paginated into
+              a real two-page spread, so we show the chapter, not a fake folio). */}
           <span style={{
             fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--letter-gold)',
             letterSpacing: '0.08em',
-          }}>{ch * 2 + 1}</span>
+          }}>{numeral(ch)}</span>
         </div>
 
         {/* right page — body set in two justified columns with a center gutter rule */}
@@ -1046,13 +1055,8 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
             )}
           </div>
           <div style={{ flex: 1 }} />
-          {/* page number — bare mono numeral */}
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <span style={{
-              fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--letter-gold)',
-              letterSpacing: '0.08em',
-            }}>{ch * 2 + 2}</span>
-          </div>
+          {/* one honest indicator per spread (left page carries the chapter
+              numeral); the right page closes the spread without a fake folio. */}
         </div>
       </div>
 

@@ -13,10 +13,6 @@ import { type Dye } from '../dye';
  * hairline drawn between two picks the AI has decided rhyme. Each
  * ligature also gets a subtle horizontal bridge across the gap so the
  * eye reads it as one device, not two pillars.
- *
- * An ambient horizontal glint ("shuttle") drifts left-to-right at 11s
- * per cycle if `ambientShuttle` is on — this is the AI threading,
- * silently, while the user is doing something else.
  */
 
 export type LoomKind = 'letter' | 'photo' | 'voice' | 'memory' | 'milestone';
@@ -60,7 +56,6 @@ interface LoomProps {
   height?: number;
   showLigatures?: boolean;
   showYears?: boolean;
-  ambientShuttle?: boolean;
   /** warm "where we are now" hairline at this year (e.g. the present). */
   nowYear?: number;
   /**
@@ -110,7 +105,6 @@ export function Loom({
   height = 240,
   showLigatures = true,
   showYears = true,
-  ambientShuttle = false,
   nowYear,
   appendCount,
 }: LoomProps) {
@@ -359,8 +353,6 @@ export function Loom({
           </span>
         </div>
       ) : null}
-
-      {ambientShuttle ? <div className="loom-shuttle" style={{ top: '44%' }} /> : null}
     </div>
   );
 }

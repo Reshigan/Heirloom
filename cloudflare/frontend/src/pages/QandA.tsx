@@ -105,7 +105,7 @@ export function QandA() {
     >
       <div
         style={{
-          minHeight: 'calc(100dvh - var(--topbar-h, 56px))',
+          minHeight: 'calc(100dvh - var(--topbar-h, 68px))',
           display: 'flex',
           flexDirection: 'column',
           paddingTop: 'var(--page-pad-top)',
