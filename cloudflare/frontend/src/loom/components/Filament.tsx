@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * Filament — the global ambient backdrop (rendered via ClothBackdrop).
@@ -28,10 +28,11 @@ import { useEffect, useRef, useState } from 'react';
  * a ≤1px stroke), never a viewport-scale bloom.
  *
  * The layer is purely decorative — `pointer-events: none`, `aria-hidden` — so
- * it never touches functionality. A subtle opacity breath keeps it alive, it
- * answers the `heirloom:weave` ritual with a brief brightening, and it respects
- * `prefers-reduced-motion`. Because the ground is token-built it reads honestly
- * on BOTH the ink (dark) and paper (light) themes.
+ * it never touches functionality. It holds perfectly still and answers the
+ * `heirloom:weave` ritual with a brief brightening — event-driven motion that
+ * carries information (a memory was just woven), never a perpetual decorative
+ * breath. Because the ground is token-built it reads honestly on BOTH the ink
+ * (dark) and paper (light) themes.
  */
 
 export type FilamentVariant =
@@ -116,17 +117,6 @@ const PLACE: Record<Exclude<FilamentVariant, 'none'>, Place> = {
 const MASK = 'radial-gradient(ellipse 80% 76% at 50% 46%, #000 46%, transparent 100%)';
 const COVER_MASK = 'radial-gradient(ellipse 98% 90% at 50% 42%, #000 56%, transparent 100%)';
 
-// Inject the breath keyframes once. Subtle: a slow opacity sway on the one
-// canonical curve. Gated at the element level by prefers-reduced-motion.
-const STYLE_ID = 'filament-breath-kf';
-function ensureKeyframes() {
-  if (typeof document === 'undefined' || document.getElementById(STYLE_ID)) return;
-  const s = document.createElement('style');
-  s.id = STYLE_ID;
-  s.textContent = '@keyframes filabreath{from{opacity:var(--fo)}to{opacity:calc(var(--fo) * 0.78)}}';
-  document.head.appendChild(s);
-}
-
 // The woven hairline(s) for a zone — a single ≤1px bone thread, never copper.
 // Returns the linear-gradient layers that draw the thread(s) inside the zone.
 function threadLayers(kind: NonNullable<Place['thread']>): string[] {
@@ -141,19 +131,6 @@ function threadLayers(kind: NonNullable<Place['thread']>): string[] {
 export function Filament({ variant = 'none', intensity = 1, className, style }: FilamentProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const gestureRef = useRef<HTMLDivElement>(null);
-  const [reduced, setReduced] = useState(false);
-
-  // Respect reduced-motion for the breath.
-  useEffect(() => {
-    const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)');
-    if (!mq) return;
-    const read = () => setReduced(mq.matches);
-    read();
-    mq.addEventListener('change', read);
-    return () => mq.removeEventListener('change', read);
-  }, []);
-
-  useEffect(() => ensureKeyframes(), []);
 
   // The weave ritual: brighten the ground briefly when a memory is woven.
   // A modest lift only — never a copper flash.
@@ -205,13 +182,10 @@ export function Filament({ variant = 'none', intensity = 1, className, style }: 
               ? [...threads.map(() => 'center'), 'center'].join(', ')
               : 'center',
             transition: 'filter 1400ms var(--ease)',
-            willChange: 'opacity',
-            ['--fo' as string]: String(op),
             opacity: op,
             // Edge-fade so the box never reads as a rectangle.
             WebkitMaskImage: cover ? COVER_MASK : MASK,
             maskImage: cover ? COVER_MASK : MASK,
-            animation: reduced ? undefined : 'filabreath 1400ms var(--ease) infinite alternate',
             ...place.style,
           }}
         />

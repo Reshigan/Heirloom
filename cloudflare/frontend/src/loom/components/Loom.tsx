@@ -84,7 +84,11 @@ const DYE_FOR_KIND: Record<LoomKind, string> = {
   milestone: 'var(--bone-dim)',
 };
 
-function colorFor(e: LoomEntry): string {
+// Single source of truth for an entry's dye chroma — used by the cloth itself
+// AND by the century-view hover swatch, so the swatch can never drift from the
+// thread it points at (e.g. paint a photo saffron on the cloth but indigo in
+// the swatch). An explicit `entry.dye` overrides the kind default.
+export function colorFor(e: LoomEntry): string {
   if (e.dye) return `var(--dye-${e.dye})`;
   return DYE_FOR_KIND[e.kind];
 }

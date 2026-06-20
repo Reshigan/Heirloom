@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loom, type LoomEntry } from './Loom';
+import { Loom, colorFor, type LoomEntry } from './Loom';
 
 /**
  * WeftCentury — the "century" view-mode of the tapestry home.
@@ -89,14 +89,12 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
     >
       <div
         className="loom-eyebrow"
-        role="heading"
-        aria-level={1}
-        style={{ marginBottom: 14, display: 'flex', justifyContent: 'space-between' }}
+        style={{ marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}
       >
-        <span>
+        <span role="heading" aria-level={1}>
           <span style={{ color: 'var(--warm)' }}>·</span> century view &nbsp;·&nbsp; {C_START} — {C_END} &nbsp;·&nbsp; {C_END - C_START} yrs
         </span>
-        <span className="loom-mono" style={{ fontSize: 9, letterSpacing: '0.18em' }}>
+        <span className="loom-serif" style={{ fontSize: 11, fontStyle: 'italic', color: 'var(--bone-faint)' }}>
           entries sealed past a lifetime become visible here
         </span>
       </div>
@@ -123,7 +121,7 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
                 height: 18,
                 ...(hoveredEntry.kind === 'milestone'
                   ? { background: 'transparent', borderLeft: '1px solid var(--warm)' }
-                  : { background: `var(--dye-${hoveredEntry.dye ?? (hoveredEntry.kind === 'letter' ? 'walnut' : hoveredEntry.kind === 'voice' ? 'woad' : 'indigo')})` }),
+                  : { background: colorFor(hoveredEntry) }),
                 flexShrink: 0,
               }}
             />
