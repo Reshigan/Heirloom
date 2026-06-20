@@ -14,7 +14,6 @@ import {
   CosmicHeader,
   EntryRow,
   SectionLabel,
-  WaxSeal,
 } from '../loom/cosmic/CosmicUI';
 
 /**
@@ -208,8 +207,11 @@ export function LoomIndex() {
     return dyeVar(dye);
   }
 
+  // InfinityMenu trigger uses a mid-dot, not ∞: BottomNav's center ∞ renders
+  // on /loom/index (not a HIDE route) + the WaxSeal foot — the singular mark
+  // is theirs. The menu keeps its label, roving focus, and Escape contract.
   return (
-    <ClothShell topbarLeft={topbarLeft} topbarCenter={<InfinityMenu />} topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={topbarLeft} topbarCenter={<InfinityMenu glyph="·" />} topbarRight={<UserMenu />}>
       {/* Hairline loading bar — sanctioned ProgressHair (bone hairline, single warm sweep) */}
       {isLoading && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 30, pointerEvents: 'none' }}>
@@ -323,10 +325,10 @@ export function LoomIndex() {
           </p>
         )}
 
-        {/* WaxSeal foot — the ∞ rests at the page's end */}
-        <div style={{ marginTop: 72 }}>
-          <WaxSeal size={28} />
-        </div>
+        {/* No WaxSeal foot here: /loom/index renders the BottomNav (it is not a
+            HIDE route), whose center ∞ is this surface's singular mark. The
+            WaxSeal ∞ is reserved for pages WITHOUT BottomNav — dropping it keeps
+            exactly one ∞ per rendered surface. */}
       </div>
     </ClothShell>
   );

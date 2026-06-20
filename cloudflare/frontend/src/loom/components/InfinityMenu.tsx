@@ -17,7 +17,7 @@ const ITEMS: Array<{ label: string; to: string; hint: string }> = [
   { label: 'export',      to: '/export',      hint: 'the cloth, to keep' },
 ];
 
-export function InfinityMenu() {
+export function InfinityMenu({ glyph = '∞' }: { glyph?: string } = {}) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
@@ -76,7 +76,7 @@ export function InfinityMenu() {
           transition: `color 180ms ${EASE}`,
         }}
       >
-        ∞
+        {glyph}
       </button>
 
       {open && (

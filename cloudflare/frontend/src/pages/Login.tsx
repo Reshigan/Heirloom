@@ -78,7 +78,8 @@ export function Login() {
           </div>
 
           {/* Serif title — type is the hero, FORM archetype scale */}
-          <h1 className="hl-serif hl-tight" style={{
+          <h1 className="hl-tight" style={{
+            fontFamily: 'var(--serif-display)',
             fontSize: 'clamp(36px, 7vw, 48px)',
             fontWeight: 300, lineHeight: 1.05,
             letterSpacing: '-0.022em',

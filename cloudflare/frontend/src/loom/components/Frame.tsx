@@ -120,8 +120,12 @@ export function UserMenu() {
   };
 
   if (!user) return null;
+  // Singular-mark law: the ∞ is the BottomNav center / WaxSeal foot only.
+  // When the user has no name initials, fall back to the first email char,
+  // else a neutral mid-dot — never a second ∞ on the surface.
   const initials =
-    `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || '∞';
+    `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() ||
+    user.email?.[0]?.toUpperCase() || '·';
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <button
@@ -342,12 +346,14 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
           )}
         </span>
 
-        {/* center: §1.5-B append-only counter — ∞ until count loads, then the real number */}
+        {/* center: §1.5-B append-only counter — a dim em-dash until count loads
+            (never ∞: the singular mark is reserved for the BottomNav center /
+            WaxSeal foot), then the real number */}
         <span style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
           {entryCount !== null ? (
             <span className="hl-counter"><b>{entryCount.toLocaleString()}</b></span>
           ) : (
-            <span style={{ fontFamily: 'var(--serif)', fontWeight: 300, fontSize: 18, color: 'var(--bone-dim)', letterSpacing: 0 }}>∞</span>
+            <span aria-hidden="true" style={{ fontFamily: 'var(--serif)', fontWeight: 300, fontSize: 18, color: 'var(--bone-dim)', letterSpacing: 0 }}>—</span>
           )}
         </span>
 

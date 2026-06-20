@@ -196,8 +196,9 @@ export function Signup() {
             begin a thread
           </div>
           <h1
-            className="hl-serif hl-tight"
+            className="hl-tight"
             style={{
+              fontFamily: 'var(--serif-display)',
               fontSize: 'clamp(34px,8vw,56px)',
               fontWeight: 300,
               letterSpacing: '-0.025em',
@@ -364,8 +365,7 @@ export function Signup() {
                     </div>
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
                       <div
-                        className="hl-serif"
-                        style={{ fontSize: 26, fontWeight: 300, letterSpacing: '-0.018em', lineHeight: 1, color: 'var(--bone)' }}
+                        style={{ fontFamily: 'var(--serif-display)', fontSize: 26, fontWeight: 300, letterSpacing: '-0.018em', lineHeight: 1, color: 'var(--bone)' }}
                       >
                         {t.id === 'family' && cycle === 'annual' ? PLAN_PRICE.FAMILY.annual : t.price}
                       </div>

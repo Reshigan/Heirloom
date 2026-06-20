@@ -166,13 +166,13 @@ export function Milestones() {
         </header>
 
         {autoDetectMsg && (
-          <p role="status" className="hl-mono" style={{ fontSize: 10, color: 'var(--gold-text)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+          <p role="status" className="hl-mono" style={{ fontSize: 10, color: 'var(--bone)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
             {autoDetectMsg}
           </p>
         )}
 
         {error && (
-          <p role="alert" className="hl-mono" style={{ fontSize: 10, color: 'var(--gold-text)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
+          <p role="alert" className="hl-mono" style={{ fontSize: 10, color: 'var(--bone)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 16px' }}>
             {error}
           </p>
         )}
@@ -204,7 +204,16 @@ export function Milestones() {
                         year={`${when} · ${dueLabel}`}
                         author={typeInfo.name}
                         dye={milestone.family_member_id ? dyeForId(milestone.family_member_id) : undefined}
-                        onClick={() => { setAutoDetectMsg(null); navigate('/compose'); }}
+                        onClick={() => {
+                          setAutoDetectMsg(null);
+                          // Compose reads context from query params (recipientId/forName/prompt) — carry the milestone's
+                          const params = new URLSearchParams();
+                          if (milestone.prompt_suggestion) params.set('prompt', milestone.prompt_suggestion);
+                          if (milestone.family_member_id) params.set('recipientId', milestone.family_member_id);
+                          if (milestone.family_member_name) params.set('forName', encodeURIComponent(milestone.family_member_name));
+                          const qs = params.toString();
+                          navigate(qs ? `/compose?${qs}` : '/compose');
+                        }}
                       />
                     );
                   })}
@@ -230,15 +239,14 @@ export function Milestones() {
                     const when = new Date(milestone.milestone_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
                     return (
                       <div key={milestone.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
-                        <div style={{ borderBottom: 0, marginBottom: -1 }}>
-                          <EntryRow
-                            title={milestone.milestone_name}
-                            sub={milestone.family_member_name || undefined}
-                            year={`${when} · ${milestone.recurring ? 'yearly' : 'once'}`}
-                            author={typeInfo.name}
-                            dye={milestone.family_member_id ? dyeForId(milestone.family_member_id) : undefined}
-                          />
-                        </div>
+                        <EntryRow
+                          title={milestone.milestone_name}
+                          sub={milestone.family_member_name || undefined}
+                          year={`${when} · ${milestone.recurring ? 'yearly' : 'once'}`}
+                          author={typeInfo.name}
+                          dye={milestone.family_member_id ? dyeForId(milestone.family_member_id) : undefined}
+                          noBorder
+                        />
                         {/* quiet mono affordances under the row — same delete flow, no icon buttons */}
                         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 18, padding: '0 0 12px' }}>
                           {confirmDeleteId === milestone.id ? (
@@ -323,8 +331,8 @@ export function Milestones() {
             <div style={{ display: 'grid', gap: 22 }}>
               {/* Type */}
               <div>
-                <label style={labelStyle}>Type</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                <label id="ms-type-label" style={labelStyle}>Type</label>
+                <div role="group" aria-labelledby="ms-type-label" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {milestoneTypes.map((type) => (
                     <button
                       key={type.id}

@@ -91,7 +91,8 @@ export function FirstThread() {
     // palette and theme rather than hardcoded bespoke colour. data-theme lives on
     // .loom, not :root, so read from the .loom root to pick up the theme-correct
     // bone on the paper ground (else we'd always get the dark :root values).
-    const root = document.querySelector('.loom') ?? document.documentElement;
+    const root = document.querySelector('.loom');
+    if (!root) return; // fail CLOSED: never read :root dark tokens on the paper default
     const cs = getComputedStyle(root);
     const boneLit = cs.getPropertyValue('--bone-dim').trim() || 'rgba(242,230,208,0.72)';
     const boneUnlit = cs.getPropertyValue('--bone-faint').trim() || 'rgba(242,230,208,0.44)';
@@ -101,9 +102,10 @@ export function FirstThread() {
     const warm = cs.getPropertyValue('--warm').trim();
     x.clearRect(0, 0, W, H);
     x.lineCap = 'round';
-    // The playhead sweeps across the bar field over a ~2.6s loop — the lone
-    // copper element, a single 1px vertical hairline at the leading edge.
-    const playFrac = reduce.current ? 0.62 : (t / 2.6) % 1;
+    // The playhead sweeps across the bar field over a sanctioned 1400ms
+    // loom-rhythm cycle — the lone copper element, a single 1px vertical
+    // hairline at the leading edge. (t is seconds; 1.4s == 1400ms.)
+    const playFrac = reduce.current ? 0.62 : (t / 1.4) % 1;
     const playX = W * playFrac;
     for (let i = 0; i < N; i++) {
       const env = Math.sin((i / N) * Math.PI);

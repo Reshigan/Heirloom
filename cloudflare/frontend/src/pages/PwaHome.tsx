@@ -393,7 +393,6 @@ function AuthHome({
               fontFamily: 'var(--mono)',
               fontSize: 11, letterSpacing: '0.3em', textTransform: 'uppercase',
               cursor: 'pointer',
-              transition: 'border-color 360ms var(--ease), color 360ms var(--ease)',
             }}
           >
             {isReadOnly ? 'open' : 'write'}
@@ -412,7 +411,6 @@ function AuthHome({
                 fontFamily: 'var(--mono)',
                 fontSize: 11, letterSpacing: '0.3em', textTransform: 'uppercase',
                 cursor: 'pointer',
-                transition: 'border-color 360ms var(--ease), color 360ms var(--ease)',
               }}
             >
               speak

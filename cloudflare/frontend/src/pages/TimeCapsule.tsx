@@ -818,7 +818,7 @@ export function TimeCapsule() {
                   padding: '14px 38px',
                   cursor: canSeal ? 'pointer' : 'default',
                   opacity: canSeal ? 1 : 0.45,
-                  transition: `opacity 180ms ${EASE}, background 360ms ${EASE}`,
+                  transition: `opacity 180ms ${EASE}`,
                 }}
               >
                 {createMutation.isPending ? 'sealing…' : 'Seal it'}

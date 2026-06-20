@@ -235,6 +235,21 @@ export function Weft() {
 
   // ── HORIZON MODE — the home. The thread read as TIME, present at the spine. ──
 
+  // Gate the home on loading so the default landing shows the ProgressHair
+  // hairline rather than flashing a half-built timeline on first paint —
+  // mirrors the empty/loading branch above.
+  if (isLoading && entries.length === 0) {
+    return (
+      <ClothShell
+        topbarLeft={<HLogo size="sm" wordmark />}
+        topbarRight={<UserMenu />}
+        backdropOpacity={0.3}
+      >
+        <ProgressHair />
+      </ClothShell>
+    );
+  }
+
   const nowYear = new Date().getFullYear();
 
   // Woven years (with their entries), newest-first downward into the past.

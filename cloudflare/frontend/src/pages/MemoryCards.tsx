@@ -533,8 +533,7 @@ export function MemoryCards() {
               <div style={{ border: '1px solid var(--rule)', padding: '64px 32px', textAlign: 'center' }}>
                 <p className="hl-eyebrow" style={{ marginBottom: 14 }}>No cards yet</p>
                 <h2
-                  className="hl-serif"
-                  style={{ fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: '0 0 24px', color: 'var(--bone)' }}
+                  style={{ fontFamily: 'var(--serif-display)', fontSize: 24, fontWeight: 300, fontStyle: 'italic', margin: '0 0 24px', color: 'var(--bone)' }}
                 >
                   Every thread has a quotable line. Find yours.
                 </h2>

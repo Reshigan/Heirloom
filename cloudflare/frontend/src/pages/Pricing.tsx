@@ -187,7 +187,7 @@ export function Pricing() {
               {/* Tier name */}
               <div
                 style={{
-                  fontFamily: 'var(--serif)',
+                  fontFamily: 'var(--serif-display)',
                   fontSize: 'clamp(20px,4vw,26px)',
                   fontWeight: 400,
                   lineHeight: 1.1,

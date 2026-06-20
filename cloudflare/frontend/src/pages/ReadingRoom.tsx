@@ -264,8 +264,8 @@ function ReadingContent({
         </div>
 
         {/* Title — the hero */}
-        <h1 className="hl-serif" style={{
-          fontFamily: 'var(--serif)', fontWeight: 400,
+        <h1 style={{
+          fontFamily: 'var(--serif-display)', fontWeight: 400,
           fontSize: 'clamp(30px, 6vw, 44px)', lineHeight: 1.1,
           letterSpacing: '-0.01em', color: 'var(--bone)',
           margin: '0 0 clamp(32px, 6vh, 56px)',
@@ -735,7 +735,6 @@ export function ReadingRoom() {
           style={{
             position: 'fixed', inset: 0, zIndex: 14,
             background: 'var(--ink-translucent)',
-            transition: `opacity 360ms ${EASE}`,
           }}
         />
       )}
@@ -874,7 +873,7 @@ export function ReadingRoom() {
               gap: 14, padding: 44, background: 'var(--ink)',
             }}>
               <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--warm)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
-                ∞ &nbsp; {t.kind} · {t.date}
+                {t.kind} · {t.date}
               </div>
               <div style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 300, fontStyle: 'italic', textAlign: 'center', maxWidth: '18ch', lineHeight: 1.25, color: 'var(--bone)' }}>
                 {t.title}
@@ -991,9 +990,9 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
           }}>
             {numeral(ch)} · {c.kind} · {c.year}
           </div>
-          <h2 className="hl-serif" style={{
+          <h2 style={{
             fontSize: 46, fontStyle: 'italic', margin: 0, maxWidth: '14ch',
-            color: 'var(--letter-gold)', fontFamily: 'var(--serif)', fontWeight: 300,
+            color: 'var(--letter-gold)', fontFamily: 'var(--serif-display)', fontWeight: 300,
           }}>
             {c.title}
           </h2>

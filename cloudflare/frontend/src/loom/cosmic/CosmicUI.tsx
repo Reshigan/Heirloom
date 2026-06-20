@@ -164,7 +164,6 @@ export function EntryRow({
     borderWidth: 0,
     borderBottom: noBorder ? 'none' : '1px solid var(--rule)',
     cursor: interactive ? 'pointer' : 'default',
-    transition: 'opacity 180ms var(--ease)',
   };
 
   const inner = (

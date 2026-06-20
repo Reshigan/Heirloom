@@ -109,7 +109,9 @@ export function Challenges() {
   );
 
   const upcoming = challenges
-    ? (challenges as any[]).filter((c: any) => new Date(c.start_date) > new Date())
+    ? (challenges as any[])
+        .filter((c: any) => new Date(c.start_date) > new Date())
+        .sort((a: any, b: any) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
     : [];
 
   // Ledger eyebrow states the count + kind, like "47 WOVEN".
@@ -177,7 +179,7 @@ export function Challenges() {
                   <div>
                     {(submissions as any[]).slice(0, 5).map((sub: any) => (
                       <div key={sub.id} style={{ borderBottom: '1px solid var(--rule)', padding: '14px 0' }}>
-                        <span style={{ ...metaText, color: dyeTextColor(String(sub.id), sub.metadata) }}>
+                        <span style={{ ...metaText, color: dyeTextColor(String(sub.family_member_id ?? sub.user_id), sub.metadata) }}>
                           {sub.first_name}{sub.last_name ? ` ${sub.last_name[0]}.` : ''}
                         </span>
                         <p

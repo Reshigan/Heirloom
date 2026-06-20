@@ -307,17 +307,16 @@ export function Founder() {
               gap:         16,
             }}
           >
+            {/* ponytail: hairline non-mark — foot WaxSeal ∞ co-renders, so this stays a rule */}
             <span
               aria-hidden
               style={{
-                fontFamily:  'var(--serif)',
-                fontSize:    'clamp(40px,10vw,64px)',
-                color:       'var(--warm)',
-                lineHeight:   1,
-                }}
-            >
-              ∞
-            </span>
+                display:       'block',
+                width:          48,
+                height:         1,
+                background:    'var(--rule)',
+              }}
+            />
             <h2
               style={{
                 fontFamily:  'var(--serif-display)',
@@ -503,7 +502,7 @@ export function Founder() {
             maxWidth:    480,
           }}
         >
-          {BENEFITS.map((b) => (
+          {BENEFITS.map((b, i) => (
             <div
               key={b.heading}
               style={{
@@ -516,15 +515,18 @@ export function Founder() {
                 alignItems:      'baseline',
               }}
             >
+              {/* ponytail: index numeral non-mark — singular ∞ law (foot WaxSeal is the one mark) */}
               <span
+                aria-hidden
                 style={{
-                  fontFamily:  'var(--serif)',
-                  fontSize:     14,
-                  color:       'var(--warm)',
-                  lineHeight:   1,
+                  fontFamily:    'var(--mono)',
+                  fontSize:       10,
+                  color:         'var(--bone-faint)',
+                  letterSpacing: '0.1em',
+                  lineHeight:     1,
                 }}
               >
-                ∞
+                {String(i + 1).padStart(2, '0')}
               </span>
               <div>
                 <p

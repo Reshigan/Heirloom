@@ -524,9 +524,7 @@ export function Record() {
                 fontWeight: 600,
                 letterSpacing: '0.32em',
                 textTransform: 'uppercase',
-                animation: recordingState === 'recording'
-                  ? 'hl-record-pulse 1400ms var(--ease) infinite'
-                  : 'none',
+                animation: 'none', // ponytail: live state carried by timer/level/progress hairline; infinite pulse was redundant
               }}
             >
               stop
@@ -921,6 +919,8 @@ export function Record() {
                 type="button"
                 onClick={() => setShowRefine(true)}
                 disabled={transcribing}
+                aria-expanded={showRefine}
+                aria-controls="voice-refine-region"
                 style={{
                   background: 'transparent',
                   border: 0,
@@ -977,7 +977,7 @@ export function Record() {
 
         {/* ── inline AI refine offer (parity with Write) ────────── */}
         {recordingState === 'recorded' && showRefine && transcript.trim() ? (
-          <div style={{ marginTop: 20, width: '100%', maxWidth: 640, padding: '0 24px' }}>
+          <div id="voice-refine-region" style={{ marginTop: 20, width: '100%', maxWidth: 640, padding: '0 24px' }}>
             <VoiceRefine kind="memory" onPick={(text) => setTranscript(text)} />
           </div>
         ) : null}

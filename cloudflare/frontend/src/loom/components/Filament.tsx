@@ -180,7 +180,7 @@ export function Filament({ variant = 'none', intensity = 1, className, style }: 
             backgroundPosition: threads.length
               ? [...threads.map(() => 'center'), 'center'].join(', ')
               : 'center',
-            transition: 'filter 1400ms var(--ease)',
+            transition: 'filter 180ms var(--ease)',
             opacity: op,
             // Edge-fade so the box never reads as a rectangle.
             WebkitMaskImage: cover ? COVER_MASK : MASK,

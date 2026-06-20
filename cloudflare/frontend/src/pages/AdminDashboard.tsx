@@ -1909,7 +1909,9 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
               </LoomField>
               {formData.recipientEmail && (
                 <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-                  <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} />
+                  {/* ponytail: hide native OS-blue control, render tokenized square that flips with .loom theme; input keeps state + a11y */}
+                  <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} />
+                  <span aria-hidden="true" style={{ flexShrink: 0, width: 14, height: 14, borderRadius: 0, border: `1px solid ${formData.sendEmail ? 'var(--warm)' : 'var(--rule)'}`, background: formData.sendEmail ? 'var(--bone)' : 'transparent', transition: 'border-color 180ms var(--ease), background 180ms var(--ease)' }} />
                   <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>Send gift email to recipient immediately</span>
                 </label>
               )}
@@ -2017,7 +2019,9 @@ The Heirloom Team`;
           </LoomField>
           {formData.recipientEmail && (
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
-              <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} />
+              {/* ponytail: hide native OS-blue control, render tokenized square that flips with .loom theme; input keeps state + a11y */}
+              <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} />
+              <span aria-hidden="true" style={{ flexShrink: 0, width: 14, height: 14, borderRadius: 0, border: `1px solid ${formData.sendEmail ? 'var(--warm)' : 'var(--rule)'}`, background: formData.sendEmail ? 'var(--bone)' : 'transparent', transition: 'border-color 180ms var(--ease), background 180ms var(--ease)' }} />
               <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>Send Gold Legacy invitation email immediately</span>
             </label>
           )}
