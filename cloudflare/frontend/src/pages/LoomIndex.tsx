@@ -231,14 +231,18 @@ export function LoomIndex() {
 
       <div style={{ padding: 'clamp(24px, 5vw, 48px)', paddingBottom: 120, maxWidth: 680, margin: '0 auto' }}>
 
-        {/* LEDGER header — the mono thread title names the bloodline + its year-span. */}
+        {/* ARCHIVE header — the mono eyebrow names the bloodline + its year-span;
+            the title reads "The Archive" so this surface is the whole-cloth
+            ledger, distinct from the cloth home (/loom/weft, "The Inheritance
+            Horizon"). The home is where you weave today; the archive is where
+            the whole woven cloth is grouped and searched. */}
         <CosmicHeader
           eyebrow={headerEyebrow}
-          title="The Family Thread"
+          title="The Archive"
           sub={
             entries.length === 0
               ? 'The whole cloth, once you begin to weave.'
-              : undefined
+              : 'Every thread ever woven — grouped, and searchable.'
           }
         />
 
@@ -264,12 +268,14 @@ export function LoomIndex() {
           ))}
         </div>
 
-        {/* Quick links — feature destinations, kept as quiet mono text links */}
+        {/* The archive's own affordances: search (its verb) and the milestone
+            timeline (a browse view that lives only here). The book / wrapped /
+            challenges destinations were removed — they're the cloth home's
+            cards, and repeating them here made the archive read as a second
+            home (the duplication the family flagged). */}
         <div style={{ display: 'flex', gap: 20, marginBottom: 24, flexWrap: 'wrap', borderBottom: '1px solid var(--rule)', paddingBottom: 18 }}>
           {([
-            { label: 'wrapped', to: '/wrapped' },
-            { label: 'book', to: '/book-builder' },
-            { label: 'challenges', to: '/challenges' },
+            { label: 'search', to: '/search' },
             { label: 'milestones', to: '/milestones' },
           ] as const).map(({ label, to }) => (
             <Link
