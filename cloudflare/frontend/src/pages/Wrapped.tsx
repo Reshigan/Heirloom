@@ -44,11 +44,10 @@ function buildStats(entries: Entry[], year: number) {
 // ── A single stat band — huge serif number + dim mono caption ──────────────────
 
 function StatBand({
-  value, caption, accent, index, visible,
+  value, caption, index, visible,
 }: {
   value: string;
   caption: string;
-  accent?: boolean;
   index: number;
   visible: boolean;
 }) {
@@ -72,7 +71,7 @@ function StatBand({
           fontSize: 'clamp(54px,9vw,84px)',
           lineHeight: 0.86,
           letterSpacing: '-0.03em',
-          color: accent ? 'var(--warm)' : 'var(--bone)',
+          color: 'var(--bone)',
         }}
       >
         {value}
@@ -183,7 +182,7 @@ export default function Wrapped() {
 
   // Real, derived figures — illustrative mockup numbers replaced by live data.
   // Numerals alternate warm / bone down the stack (constitution: one colour has emotion).
-  const bands: { value: string; caption: string; accent?: boolean }[] = [
+  const bands: { value: string; caption: string }[] = [
     // ponytail: numeral stays var(--bone); copper reserved for the single WaxSeal ∞
     { value: stats.kindCounts.memory.toLocaleString(), caption: 'memories woven' },
     { value: stats.kindCounts.voice.toLocaleString(),  caption: 'voices kept' },
@@ -296,7 +295,7 @@ export default function Wrapped() {
           /* the four giant stat moments — the page IS the figures */
           <div style={{ width: '100%', maxWidth: 560, marginTop: 'clamp(20px,4vh,48px)', position: 'relative', zIndex: 1 }}>
             {bands.map((b, i) => (
-              <StatBand key={b.caption} value={b.value} caption={b.caption} accent={b.accent} index={i} visible={visible} />
+              <StatBand key={b.caption} value={b.value} caption={b.caption} index={i} visible={visible} />
             ))}
           </div>
         )}

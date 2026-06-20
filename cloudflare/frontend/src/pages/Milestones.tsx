@@ -199,10 +199,9 @@ export function Milestones() {
                       <EntryRow
                         key={milestone.id}
                         title={milestone.milestone_name}
-                        sub={milestone.family_member_name || milestone.prompt_suggestion || undefined}
+                        sub={[typeInfo.name, milestone.family_member_name || milestone.prompt_suggestion].filter(Boolean).join(' · ') || undefined}
                         italic={!milestone.family_member_name && !!milestone.prompt_suggestion}
                         year={`${when} · ${dueLabel}`}
-                        author={typeInfo.name}
                         dye={milestone.family_member_id ? dyeForId(milestone.family_member_id) : undefined}
                         onClick={() => {
                           setAutoDetectMsg(null);
@@ -241,9 +240,8 @@ export function Milestones() {
                       <div key={milestone.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
                         <EntryRow
                           title={milestone.milestone_name}
-                          sub={milestone.family_member_name || undefined}
+                          sub={[typeInfo.name, milestone.family_member_name].filter(Boolean).join(' · ') || undefined}
                           year={`${when} · ${milestone.recurring ? 'yearly' : 'once'}`}
-                          author={typeInfo.name}
                           dye={milestone.family_member_id ? dyeForId(milestone.family_member_id) : undefined}
                           noBorder
                         />
@@ -378,8 +376,6 @@ export function Milestones() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. Mother's birthday"
-                  aria-invalid={error ? true : undefined}
-                  aria-describedby={error ? 'ms-error' : undefined}
                   style={fieldStyle}
                 />
               </div>
@@ -391,8 +387,6 @@ export function Milestones() {
                   type="date"
                   value={formData.date}
                   onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  aria-invalid={error ? true : undefined}
-                  aria-describedby={error ? 'ms-error' : undefined}
                   style={fieldStyle}
                 />
               </div>

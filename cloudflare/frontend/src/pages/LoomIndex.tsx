@@ -56,7 +56,9 @@ const ROOM_HREF: Record<Kind, string> = {
 function parseDate(iso: string | undefined): { ord: number; iso: string; year: string } {
   const d = iso ? new Date(iso) : new Date(NaN);
   const valid = !Number.isNaN(d.getTime());
-  const day = (valid ? d : new Date()).toISOString().slice(0, 10);
+  const local = valid ? d : new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const day = `${local.getFullYear()}-${pad(local.getMonth() + 1)}-${pad(local.getDate())}`;
   return { ord: valid ? d.getTime() : 0, iso: day, year: day.slice(0, 4) };
 }
 
@@ -207,11 +209,12 @@ export function LoomIndex() {
     return dyeVar(dye);
   }
 
-  // InfinityMenu trigger uses a mid-dot, not ∞: BottomNav's center ∞ renders
-  // on /loom/index (not a HIDE route) + the WaxSeal foot — the singular mark
-  // is theirs. The menu keeps its label, roving focus, and Escape contract.
+  // InfinityMenu carries the ∞ — this surface's singular mark. BottomNav's
+  // center renders a mid-dot '·' (never ∞), and there is no WaxSeal foot here,
+  // so the menu's ∞ is the only one on the page. The menu keeps its label,
+  // roving focus, and Escape contract.
   return (
-    <ClothShell topbarLeft={topbarLeft} topbarCenter={<InfinityMenu glyph="·" />} topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={topbarLeft} topbarCenter={<InfinityMenu />} topbarRight={<UserMenu />}>
       {/* Hairline loading bar — sanctioned ProgressHair (bone hairline, single warm sweep) */}
       {isLoading && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 30, pointerEvents: 'none' }}>
@@ -250,11 +253,15 @@ export function LoomIndex() {
               tabIndex={groupBy === g ? 0 : -1}
               onClick={() => setGroupBy(g)}
               onKeyDown={(e) => {
+                if (e.key === ' ' || e.key === 'Enter') {
+                  e.preventDefault();
+                  setGroupBy(g);
+                  return;
+                }
                 if (e.key !== 'ArrowRight' && e.key !== 'ArrowDown' && e.key !== 'ArrowLeft' && e.key !== 'ArrowUp') return;
                 e.preventDefault();
                 const dir = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : -1;
                 const next = GROUPS[(i + dir + GROUPS.length) % GROUPS.length];
-                setGroupBy(next);
                 const sibs = e.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('button[role="radio"]');
                 sibs?.[GROUPS.indexOf(next)]?.focus();
               }}
@@ -336,10 +343,9 @@ export function LoomIndex() {
           </p>
         )}
 
-        {/* No WaxSeal foot here: /loom/index renders the BottomNav (it is not a
-            HIDE route), whose center ∞ is this surface's singular mark. The
-            WaxSeal ∞ is reserved for pages WITHOUT BottomNav — dropping it keeps
-            exactly one ∞ per rendered surface. */}
+        {/* No WaxSeal foot here: the head InfinityMenu's ∞ is this surface's
+            singular mark (BottomNav's center is a mid-dot '·', never ∞).
+            Dropping the WaxSeal keeps exactly one ∞ per rendered surface. */}
       </div>
     </ClothShell>
   );

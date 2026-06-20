@@ -83,7 +83,7 @@ export function useTapestryEntries(): { entries: CanvasEntry[]; isError: boolean
       });
     }
     for (const l of lets) {
-      const date = new Date(l.createdAt ?? l.created_at ?? Date.now());
+      const date = new Date(l.metadata?.entryDate ?? l.createdAt ?? l.created_at ?? Date.now());
       if (isNaN(date.getTime())) continue;
       // A sealed letter with a future unlock date is a knot in the unwoven
       // future — the cloth shows it above the fell line.
@@ -97,7 +97,7 @@ export function useTapestryEntries(): { entries: CanvasEntry[]; isError: boolean
       });
     }
     for (const v of vox) {
-      const date = new Date(v.createdAt ?? v.created_at ?? Date.now());
+      const date = new Date(v.metadata?.entryDate ?? v.createdAt ?? v.created_at ?? Date.now());
       if (isNaN(date.getTime())) continue;
       all.push({
         date, n: n++, dye: 'saffron', tier: 'family',

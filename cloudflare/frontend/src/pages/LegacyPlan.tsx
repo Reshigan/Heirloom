@@ -211,7 +211,7 @@ export function LegacyPlan() {
               fontFamily: 'var(--mono)',
               fontSize: 22,
               letterSpacing: '0.04em',
-              color: 'var(--gold-text)',
+              color: 'var(--bone-dim)',
               flex: '0 0 auto',
             }}
           >

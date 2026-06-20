@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { type Letter, type Memory, type VoiceRecording } from '../types';
 import { formatDate, formatDuration } from '../utils/date';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal, WarmDot } from '../loom/cosmic/CosmicUI';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { dyeColor } from '../loom/dye';
 import { useFocusTrap } from '../lib/useFocusTrap';
 import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
@@ -46,42 +47,6 @@ interface SearchResponse {
 }
 
 import { EASE } from '../loom/motion';
-
-/* ── Hairline loading bar ──────────────────────────────────────────────────── */
-function ShuttleBar() {
-  return (
-    <div
-      style={{
-        width: 180,
-        height: 1,
-        background: 'var(--rule)',
-        position: 'relative',
-        overflow: 'hidden',
-        margin: '0 auto',
-      }}
-    >
-      {/* Local keyframes — distinct from the global 11s ambient `loom-shuttle`.
-          This is a contained 1.4s sweep across the 180px hairline loader. */}
-      <style>{`
-        @keyframes loom-shuttle-quick {
-          0%   { transform: translateX(-100%); opacity: 0; }
-          10%  { opacity: 0.6; }
-          85%  { opacity: 0.6; }
-          100% { transform: translateX(250%); opacity: 0; }
-        }
-      `}</style>
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          width: '40%',
-          background: 'var(--warm)',
-          animation: `loom-shuttle-quick 1400ms ${EASE} infinite`,
-        }}
-      />
-    </div>
-  );
-}
 
 /* ── Mono uppercase eyebrow / label ─────────────────────────────────────────── */
 const monoEyebrow = (extra?: React.CSSProperties): React.CSSProperties => ({
@@ -352,8 +317,7 @@ export function Inherit() {
       >
         <div style={{ display: 'grid', placeItems: 'center', minHeight: '100vh', padding: shellPadding }}>
           <div style={{ textAlign: 'center' }}>
-            <ShuttleBar />
-            <p style={monoEyebrow({ marginTop: 22 })}>unlocking…</p>
+            <ProgressHair label="unlocking…" width={180} />
           </div>
         </div>
       </div>
@@ -722,7 +686,7 @@ export function Inherit() {
             }}
           >
             {tabs.map((t) => (
-              <button key={t.id} type="button" onClick={() => setActiveTab(t.id)} style={tabBtnStyle(t.id)}>
+              <button key={t.id} type="button" aria-current={activeTab === t.id ? 'true' : undefined} onClick={() => setActiveTab(t.id)} style={tabBtnStyle(t.id)}>
                 {t.label}
                 {t.count > 0 ? (
                   <span style={{ fontFamily: 'var(--mono)', marginLeft: 6, fontSize: 9, color: 'var(--bone-faint)' }}>
@@ -1039,8 +1003,7 @@ export function Inherit() {
           {activeTab === 'search' && (
             searchLoading ? (
               <div style={{ padding: '40px 0', textAlign: 'center' }}>
-                <ShuttleBar />
-                <p style={monoEyebrow({ marginTop: 18 })}>searching…</p>
+                <ProgressHair label="searching…" width={180} />
               </div>
             ) : searchError ? (
               <div style={{ padding: '24px 0' }}>

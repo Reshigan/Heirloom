@@ -201,7 +201,6 @@ export function ListenerLine({
             background: loading ? 'transparent' : 'var(--bone-dim)',
             border: loading ? '1px solid var(--warm)' : '0',
             boxSizing: 'border-box',
-            animation: loading ? 'hl-listener-pulse 1400ms var(--ease) infinite' : 'none',
           }}
         />
         the listener offers

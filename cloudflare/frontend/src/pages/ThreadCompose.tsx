@@ -145,6 +145,11 @@ export function ThreadCompose() {
   const [lockEventLabel, setLockEventLabel] = useState('');
   const [lockGeneration, setLockGeneration] = useState<number | ''>('');
   const [error, setError] = useState<string | null>(null);
+  // Which field an error concerns, so only that input flags aria-invalid /
+  // points at the error node (a generic save error must not mislabel every lock input).
+  const [errorField, setErrorField] = useState<
+    'body' | 'lockDate' | 'lockAge' | 'lockEvent' | 'lockGeneration' | null
+  >(null);
 
   const { data: detail } = useQuery({
     queryKey: ['thread', threadId],
@@ -203,32 +208,43 @@ export function ThreadCompose() {
 
   const handleSave = () => {
     setError(null);
+    setErrorField(null);
     if (!body.trim()) {
       setError('Write something — even a sentence.');
+      setErrorField('body');
       return;
     }
     if (enableLock) {
       if (lockType === 'DATE' && !lockDate) {
         setError('Pick the date the entry should open, or turn the lock off.');
+        setErrorField('lockDate');
         return;
       }
       if (lockType === 'AGE' && (!lockTargetMemberId || !lockAgeYears)) {
         setError('Pick a member and an age for the age-gate lock.');
+        setErrorField('lockAge');
         return;
       }
       if (lockType === 'RECIPIENT_EVENT' && (!lockTargetMemberId || !lockEventLabel.trim())) {
         setError('Pick a member and describe the event the lock waits for.');
+        setErrorField('lockEvent');
         return;
       }
       if (lockType === 'GENERATION' && !lockGeneration) {
         setError('Pick the generation the entry should wait for.');
+        setErrorField('lockGeneration');
         return;
       }
     }
     create.mutate();
   };
 
-  const today = new Date().toISOString().slice(0, 10);
+  // Local calendar day (not UTC) — toISOString() in a negative-offset zone before
+  // UTC midnight would already read tomorrow and block selecting the current day.
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(
+    now.getDate()
+  ).padStart(2, '0')}`;
   const thread = detail?.thread;
   const busy = create.isPending;
   const canSave = !!body.trim() && !busy;
@@ -385,6 +401,8 @@ export function ThreadCompose() {
               onChange={(e) => setBody(e.target.value)}
               placeholder="Write to your descendants. Tell them something. They will read this."
               required
+              aria-invalid={errorField === 'body'}
+              aria-describedby={errorField === 'body' ? 't-lock-error' : undefined}
               style={{
                 width: '100%',
                 background: 'transparent',
@@ -540,8 +558,8 @@ export function ThreadCompose() {
                               e.target.value === '' ? '' : parseInt(e.target.value, 10)
                             )
                           }
-                          aria-invalid={!!error}
-                          aria-describedby={error ? 't-lock-error' : undefined}
+                          aria-invalid={errorField === 'lockAge'}
+                          aria-describedby={errorField === 'lockAge' ? 't-lock-error' : undefined}
                           style={fieldStyle}
                         />
                       </div>
@@ -586,8 +604,8 @@ export function ThreadCompose() {
                           value={lockEventLabel}
                           onChange={(e) => setLockEventLabel(e.target.value)}
                           placeholder="wedding, first_child, graduation"
-                          aria-invalid={!!error}
-                          aria-describedby={error ? 't-lock-error' : undefined}
+                          aria-invalid={errorField === 'lockEvent'}
+                          aria-describedby={errorField === 'lockEvent' ? 't-lock-error' : undefined}
                           style={fieldStyle}
                         />
                       </div>
@@ -610,8 +628,8 @@ export function ThreadCompose() {
                             e.target.value === '' ? '' : parseInt(e.target.value, 10)
                           )
                         }
-                        aria-invalid={!!error}
-                        aria-describedby={error ? 't-lock-error' : undefined}
+                        aria-invalid={errorField === 'lockGeneration'}
+                        aria-describedby={errorField === 'lockGeneration' ? 't-lock-error' : undefined}
                         style={{ ...fieldStyle, maxWidth: 120 }}
                       />
                       <p

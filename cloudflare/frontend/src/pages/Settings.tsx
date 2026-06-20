@@ -495,7 +495,7 @@ export function Settings() {
               className="hl-datefield"
               aria-label="Date of birth"
               value={birthDate}
-              max={new Date().toISOString().slice(0, 10)}
+              max={(() => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })()}
               onChange={(e) => { setBirthDate(e.target.value); setSavedFlash(false); }}
               onClick={(e) => { try { (e.currentTarget as any).showPicker?.(); } catch {} }}
               style={{ ...FIELD_INPUT_STYLE, colorScheme: resolvedScheme }}
@@ -551,6 +551,7 @@ export function Settings() {
                   key={f.label}
                   type={f.type}
                   aria-label={f.ariaLabel}
+                  aria-invalid={emailError ? 'true' : undefined}
                   value={f.val}
                   onChange={(e) => { f.set(e.target.value); setEmailError(null); }}
                   onKeyDown={(e) => e.key === 'Enter' && newEmail && emailPassword && handleChangeEmail()}
@@ -558,7 +559,7 @@ export function Settings() {
                   style={{ ...FIELD_INPUT_STYLE, padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
                 />
               ))}
-              {emailError && <p role="alert" className="hl-mono" style={ERROR_STYLE}>{emailError}</p>}
+              {emailError && <p id="change-email-err" role="alert" className="hl-mono" style={ERROR_STYLE}>{emailError}</p>}
               <div style={{ display: 'flex', gap: 14, marginTop: 4, alignItems: 'center' }}>
                 <button type="button" onClick={handleChangeEmail} disabled={!newEmail || !emailPassword || changeEmail.isPending}
                   className="hl-monoaction" style={{ opacity: (!newEmail || !emailPassword || changeEmail.isPending) ? 0.5 : 1 }}>
@@ -595,6 +596,7 @@ export function Settings() {
                   key={f.label}
                   type={f.type}
                   aria-label={f.ariaLabel}
+                  aria-invalid={pwError ? 'true' : undefined}
                   value={f.val}
                   onChange={(e) => { f.set(e.target.value); setPwError(null); }}
                   onKeyDown={(e) => e.key === 'Enter' && pwCurrent && pwNew && pwConfirm && handleChangePw()}
@@ -602,7 +604,7 @@ export function Settings() {
                   style={{ ...FIELD_INPUT_STYLE, padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8, display: 'block' }}
                 />
               ))}
-              {pwError && <p role="alert" className="hl-mono" style={ERROR_STYLE}>{pwError}</p>}
+              {pwError && <p id="change-pw-err" role="alert" className="hl-mono" style={ERROR_STYLE}>{pwError}</p>}
               <div style={{ display: 'flex', gap: 14, marginTop: 4, alignItems: 'center' }}>
                 <button type="button" onClick={handleChangePw} disabled={!pwCurrent || !pwNew || !pwConfirm || changePw.isPending}
                   className="hl-monoaction" style={{ opacity: (!pwCurrent || !pwNew || !pwConfirm || changePw.isPending) ? 0.5 : 1 }}>
@@ -759,6 +761,8 @@ export function Settings() {
                   <input
                     type="email"
                     aria-label="Guardian email"
+                    aria-invalid={guardianEmailError ? 'true' : undefined}
+                    aria-describedby={guardianEmailError ? 'guardian-email-err' : undefined}
                     value={guardianEmail}
                     onChange={e => { setGuardianEmail(e.target.value); setGuardianSaved(false); }}
                     placeholder="name@example.com"
@@ -768,7 +772,7 @@ export function Settings() {
               </div>
               <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
                 {guardianEmailError && (
-                  <span role="alert" className="hl-mono" style={{ ...ERROR_STYLE, margin: 0, width: '100%' }}>{guardianEmailError}</span>
+                  <span id="guardian-email-err" role="alert" className="hl-mono" style={{ ...ERROR_STYLE, margin: 0, width: '100%' }}>{guardianEmailError}</span>
                 )}
                 <button
                   type="button"
@@ -806,7 +810,7 @@ export function Settings() {
           <div className="hl-ledgerrow" style={{ alignItems: 'flex-start' }}>
             <span className="hl-ledgerrow-label">
               Dead-man's switch
-              <span className="hl-ledgerrow-hint">warns at 7 days · triggers at 14 · thread passes to steward</span>
+              <span className="hl-ledgerrow-hint">warns after {dmStatus.checkInIntervalDays ?? 30} days · {dmStatus.gracePeriodDays ?? 7}-day grace · thread passes to steward</span>
             </span>
             <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6, flexShrink: 0 }}>
               <span className="hl-ledgerrow-value">
@@ -850,6 +854,7 @@ export function Settings() {
                     type="number"
                     inputMode="numeric"
                     aria-label={f.ariaLabel}
+                    aria-invalid={!f.valid && dmConfigError ? 'true' : undefined}
                     min={f.min}
                     max={f.max}
                     step={1}
@@ -860,7 +865,7 @@ export function Settings() {
                   />
                 </label>
               ))}
-              {dmConfigError && <p role="alert" className="hl-mono" style={ERROR_STYLE}>{dmConfigError}</p>}
+              {dmConfigError && <p id="dm-config-err" role="alert" className="hl-mono" style={ERROR_STYLE}>{dmConfigError}</p>}
               <div style={{ display: 'flex', gap: 14, marginTop: 4, alignItems: 'center' }}>
                 <button type="button" onClick={handleConfigureDeadman} disabled={!dmIntervalValid || !dmGraceValid || configureDeadman.isPending}
                   className="hl-monoaction" style={{ opacity: (!dmIntervalValid || !dmGraceValid || configureDeadman.isPending) ? 0.5 : 1 }}>
@@ -992,6 +997,8 @@ export function Settings() {
                 <input
                   type="password"
                   aria-label="Password to confirm deletion"
+                  aria-invalid={deleteError ? 'true' : undefined}
+                  aria-describedby={deleteError ? 'delete-account-err' : undefined}
                   value={deletePassword}
                   onChange={(e) => { setDeletePassword(e.target.value); setDeleteError(null); }}
                   onKeyDown={(e) => e.key === 'Enter' && deletePassword && archiveMutation.mutate()}
@@ -1000,7 +1007,7 @@ export function Settings() {
                   style={{ ...FIELD_INPUT_STYLE, fontSize: 15, padding: '6px 0 8px', boxSizing: 'border-box', marginBottom: 8 }}
                 />
                 {deleteError && (
-                  <p role="alert" className="hl-mono" style={{ ...ERROR_STYLE, margin: '0 0 14px' }}>{deleteError}</p>
+                  <p id="delete-account-err" role="alert" className="hl-mono" style={{ ...ERROR_STYLE, margin: '0 0 14px' }}>{deleteError}</p>
                 )}
                 <div style={{ display: 'flex', gap: 14, marginTop: 20, flexWrap: 'wrap' }}>
                   <button type="button" className="hl-btn" onClick={() => archiveMutation.mutate()} disabled={!deletePassword || archiveMutation.isPending}>

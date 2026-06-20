@@ -78,6 +78,7 @@ export function GiftSubscriptions() {
         recipientMessage: formData.personalMessage,
         currency,
         style:           selectedStyle,
+        scheduledFor:    formData.scheduledDate || undefined,
       }),
     onSuccess: (response) => {
       const data = response.data;
@@ -92,6 +93,13 @@ export function GiftSubscriptions() {
   });
 
   // ── Derived ──────────────────────────────────────────────────────────────────
+  // Parse a yyyy-mm-dd value from LOCAL components so it never misdates by a day
+  // for users behind UTC (new Date('yyyy-mm-dd') would parse as UTC midnight).
+  const formatScheduledDate = (value: string) => {
+    const [y, m, d] = value.split('-').map(Number);
+    return new Date(y, m - 1, d).toLocaleDateString();
+  };
+
   // Fallback mirrors the worker /gift pricing (canonical list $6.99 / $69 / $249,
   // 10% gifter discount) so a slow API never flashes a wrong price. STARTER is
   // free and not giftable; LEGACY brands as "Founder".
@@ -378,7 +386,7 @@ export function GiftSubscriptions() {
                     <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', flex: '0 0 auto', whiteSpace: 'nowrap' }}>
                       <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 10 }}>
                         <span
-                          style={{ fontFamily: 'var(--serif-display)', fontSize: 30, fontWeight: 500, lineHeight: 1, color: isFree ? 'var(--bone-dim)' : 'var(--warm)' }}
+                          style={{ fontFamily: 'var(--serif-display)', fontSize: 30, fontWeight: 500, lineHeight: 1, color: isFree ? 'var(--bone-dim)' : 'var(--bone)' }}
                         >
                           {pp?.display ?? `$${pp?.amount ?? 0}`}
                         </span>
@@ -817,7 +825,7 @@ export function GiftSubscriptions() {
                   className="hl-mono"
                   style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 12 }}
                 >
-                  scheduled for {new Date(formData.scheduledDate).toLocaleDateString()}
+                  scheduled for {formatScheduledDate(formData.scheduledDate)}
                 </p>
               )}
             </div>
@@ -1008,7 +1016,7 @@ export function GiftSubscriptions() {
             >
               {formData.recipientName} will receive their gift{' '}
               {formData.scheduledDate
-                ? `on ${new Date(formData.scheduledDate).toLocaleDateString()}`
+                ? `on ${formatScheduledDate(formData.scheduledDate)}`
                 : 'shortly'}.
             </p>
             {giftResult.voucherCode && (

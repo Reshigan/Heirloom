@@ -407,7 +407,7 @@ export function FutureLetter() {
             <SectionLabel>Sealed before</SectionLabel>
             <hr className="hl-rule" style={{ marginBottom: 0 }} />
             <div>
-              {previousLetters.letters.map((letter: any) => (
+              {[...previousLetters.letters].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((letter: any) => (
                 <div
                   key={letter.id}
                   style={{ display: 'flex', alignItems: 'baseline', gap: 20, borderBottom: '1px solid var(--rule)', paddingTop: 16, paddingBottom: 16 }}

@@ -104,6 +104,8 @@ export function AdminLogin() {
           placeholder="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          aria-invalid={!!error}
+          aria-describedby={error ? 'admin-login-error' : undefined}
           style={{
             ...inputStyle,
             // focus style applied via CSS pseudo-class via inline workaround:
@@ -121,6 +123,8 @@ export function AdminLogin() {
           placeholder="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          aria-invalid={!!error}
+          aria-describedby={error ? 'admin-login-error' : undefined}
           style={inputStyle}
           onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
           onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
@@ -130,6 +134,7 @@ export function AdminLogin() {
         {error && (
           <p
             role="alert"
+            id="admin-login-error"
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 10,

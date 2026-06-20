@@ -336,10 +336,13 @@ export function ExportPage() {
           onKeyDown={(e) => {
             if (e.key !== 'ArrowDown' && e.key !== 'ArrowRight' && e.key !== 'ArrowUp' && e.key !== 'ArrowLeft') return;
             e.preventDefault();
-            const i = FORMATS.findIndex((o) => o.format === format);
+            // Arrows ONLY rove focus — never commit the format. Selection happens
+            // on click / Space-Enter via each row's own onClick.
+            const radios = e.currentTarget.querySelectorAll<HTMLElement>('[role="radio"]');
+            const i = Array.prototype.indexOf.call(radios, document.activeElement);
+            const from = i === -1 ? FORMATS.findIndex((o) => o.format === format) : i;
             const dir = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : -1;
-            const next = FORMATS[(i + dir + FORMATS.length) % FORMATS.length];
-            setFormat(next.format);
+            radios[(from + dir + radios.length) % radios.length]?.focus();
           }}
         >
           {FORMATS.map((opt) => (
@@ -530,10 +533,7 @@ function FormatRow({
           color: 'var(--text-soft)',
         }}
       >
-        {/* ponytail: non-color selected cue — weight + leading mark */}
-        <span aria-hidden="true" style={{ fontFamily: 'var(--mono)', fontSize: 12, marginRight: 10, opacity: selected ? 1 : 0 }}>
-          ✓
-        </span>
+        {/* Non-color selected cue is the weight swap (above) + the warm bottom-rule. */}
         {label}
       </span>
       <span

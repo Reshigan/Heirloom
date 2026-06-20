@@ -158,7 +158,6 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
           borderWidth: 0,
           borderBottom: '1px solid var(--rule)',
           cursor: 'pointer',
-          transition: 'opacity 180ms var(--ease)',
           minHeight: 44,
         }}
       >

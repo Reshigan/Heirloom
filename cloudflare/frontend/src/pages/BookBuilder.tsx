@@ -545,6 +545,7 @@ export function BookBuilder() {
                             year={chapterYear(item)}
                             dye={chapterDye(item)}
                             author={chapterAuthor(item) || undefined}
+                            ariaPressed={on}
                             onClick={() => toggleItem(key, item.id)}
                           />
                         );

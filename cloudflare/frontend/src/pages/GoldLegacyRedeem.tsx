@@ -268,8 +268,6 @@ export function GoldLegacyRedeem() {
           ) : (
             /* ── Entry state ── */
             <>
-              <GlowMark />
-
               <h1
                 className="hl-tight"
                 style={{ fontFamily: 'var(--serif-display)', fontSize: 'clamp(24px, 5vw, 34px)', fontWeight: 500, margin: '0 0 12px', color: 'var(--bone)' }}

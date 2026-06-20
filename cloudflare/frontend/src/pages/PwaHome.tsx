@@ -224,7 +224,7 @@ function FirstThreadPrompt({ prompt }: { prompt: string }) {
         display: 'flex', flexDirection: 'column', gap: 6,
         padding: '12px 16px 12px 18px',
         border: '1px solid var(--rule)',
-        borderLeft: '1px solid color-mix(in srgb, var(--warm) 55%, transparent)',
+        borderLeft: '1px solid var(--rule)',
         marginBottom: 28,
       }}>
         <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>

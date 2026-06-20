@@ -72,7 +72,10 @@ export function Record() {
   const [recipientId, setRecipientId] = useState<string | null>(null);
   const [legacyRecipientIds, setLegacyRecipientIds] = useState<string[]>([]);
   const [held, setHeld] = useState(false);
-  const [entryDate, setEntryDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [entryDate, setEntryDate] = useState(() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  });
   const [deliveryTrigger, setDeliveryTrigger] = useState<SpeakTrigger>('now');
   const [scheduledDate, setScheduledDate] = useState('');
   const [transcribing, setTranscribing] = useState(false);

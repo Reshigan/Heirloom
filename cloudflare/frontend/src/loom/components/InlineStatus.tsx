@@ -36,11 +36,11 @@ export function InlineStatus({ status }: { status: InlineStatusApi }) {
   const warm = status.state.tone === 'ok';
   return (
     <div
-      role="status"
+      role={status.state.tone === 'err' ? 'alert' : 'status'}
       style={{
         marginBottom: 20, padding: '8px 14px',
         background: 'var(--ink-card)',
-        border: `1px solid ${warm ? 'var(--gold-20)' : 'var(--gold-40)'}`,
+        border: `1px solid ${warm ? 'var(--rule)' : 'var(--gold-40)'}`,
         fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.04em',
         color: warm ? 'var(--bone-dim)' : 'var(--warm)',
       }}

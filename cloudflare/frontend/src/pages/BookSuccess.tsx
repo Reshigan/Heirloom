@@ -33,19 +33,6 @@ export function BookSuccess() {
           animation: `hl-fadeup 720ms ${EASE} both`,
         }}
       >
-        {/* CEREMONY: large glowing warm ∞ at the top */}
-        <div
-          aria-hidden
-          style={{
-            fontSize: 'clamp(40px,10vw,64px)',
-            lineHeight: 1,
-            color: 'var(--warm)',
-            marginBottom: 40,
-          }}
-        >
-          ∞
-        </div>
-
         {/* Cormorant display title — hero heading, always ≥24px (clamp floor) */}
         <h1
           style={{

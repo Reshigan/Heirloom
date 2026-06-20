@@ -388,7 +388,7 @@ export function Challenges() {
             }}
             onClick={e => e.stopPropagation()}
           >
-            <p style={{ ...metaText, color: 'var(--copper-label)', margin: '0 0 10px' }}>
+            <p style={{ ...metaText, color: 'var(--bone-faint)', margin: '0 0 10px' }}>
               starts {new Date(selectedChallenge.start_date).toLocaleDateString()}
             </p>
             <h3

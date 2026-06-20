@@ -221,7 +221,7 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
                 className="loom-serif"
                 style={{
                   fontSize: 15,
-                  color: g.warm ? 'var(--warm)' : 'var(--bone-dim)',
+                  color: 'var(--bone-dim)',
                   fontStyle: g.warm ? 'italic' : 'normal',
                   lineHeight: 1.4,
                 }}

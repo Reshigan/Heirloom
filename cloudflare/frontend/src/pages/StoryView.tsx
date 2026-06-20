@@ -73,9 +73,8 @@ export function StoryView() {
         >
           <WaxSeal size={26} />
           <h1
-            className="hl-serif"
             style={{
-              fontFamily: 'var(--serif)',
+              fontFamily: 'var(--serif-display)',
               fontSize: 'clamp(30px, 6vw, 44px)',
               fontWeight: 400,
               fontStyle: 'italic',

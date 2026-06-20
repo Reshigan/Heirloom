@@ -114,6 +114,7 @@ export function EntryRow({
   noBorder = false,
   ariaHaspopup,
   ariaCurrent,
+  ariaPressed,
 }: {
   title: ReactNode;
   sub?: ReactNode;
@@ -142,6 +143,10 @@ export function EntryRow({
    *  declare it to screen readers. Spread onto the interactive <button> only;
    *  undefined by default so every existing caller is unaffected. */
   ariaCurrent?: boolean;
+  /** When the row toggles a binary state (in/out of the book), declare the
+   *  pressed state to screen readers. Spread onto the interactive <button> only;
+   *  undefined by default so every existing caller is unaffected. */
+  ariaPressed?: boolean;
 }) {
   const tint = dye ? dyeVar(dye) : 'var(--warm)';
   const hasLedgerMeta = year != null || author != null || dye != null;
@@ -190,7 +195,7 @@ export function EntryRow({
   );
 
   return interactive ? (
-    <button type="button" onClick={onClick} aria-haspopup={ariaHaspopup} aria-current={ariaCurrent ? 'true' : undefined} className="hl-ledger-row" style={containerStyle}>
+    <button type="button" onClick={onClick} aria-haspopup={ariaHaspopup} aria-current={ariaCurrent ? 'true' : undefined} aria-pressed={ariaPressed} className="hl-ledger-row" style={containerStyle}>
       {inner}
     </button>
   ) : (

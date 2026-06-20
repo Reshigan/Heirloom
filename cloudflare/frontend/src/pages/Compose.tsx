@@ -862,7 +862,11 @@ export function Compose() {
   const [legacyRecipientIds, setLegacyRecipientIds] = useState<string[]>([]);
   const [deliveryTrigger, setDeliveryTrigger] = useState<DeliveryTrigger>(() => draft0.deliveryTrigger ?? 'now');
   const [scheduledDate, setScheduledDate] = useState(() => draft0.scheduledDate ?? '');
-  const [entryDate, setEntryDate] = useState(() => draft0.entryDate ?? new Date().toISOString().slice(0, 10));
+  const [entryDate, setEntryDate] = useState(() => {
+    const d = new Date();
+    const local = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    return draft0.entryDate ?? local;
+  });
   const [title, setTitle] = useState(() => draft0.title ?? '');
   const [body, setBody] = useState(() => draft0.body ?? '');
   const [visibility, setVisibility] = useState<Visibility>('family');
@@ -1750,7 +1754,7 @@ export function Compose() {
             />
 
             {bodyError && (
-              <p id="compose-body-error" className="hl-mono" aria-live="polite" aria-atomic="true" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.1em', marginTop: 6 }}>
+              <p id="compose-body-error" role="alert" className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.1em', marginTop: 6 }}>
                 {bodyError}
               </p>
             )}

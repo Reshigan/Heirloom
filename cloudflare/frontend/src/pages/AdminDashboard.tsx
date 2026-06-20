@@ -387,10 +387,10 @@ export function AdminDashboard() {
                 { v: usageAnalytics?.engagement?.activeToday || 0, l: 'Active Today' },
                 { v: usageAnalytics?.engagement?.active7d || 0, l: 'Active · 7d' },
                 { v: usageAnalytics?.engagement?.active30d || 0, l: 'Active · 30d' },
-                { v: usageAnalytics?.engagement?.dormant || 0, l: 'Dormant', danger: true },
-              ].map(({ v, l, danger }: any) => (
+                { v: usageAnalytics?.engagement?.dormant || 0, l: 'Dormant' },
+              ].map(({ v, l }: any) => (
                 <div key={l} style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: danger ? 'var(--warm)' : 'var(--bone)', marginBottom: 4 }}>{v}</div>
+                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{v}</div>
                   <div className="loom-eyebrow">{l}</div>
                 </div>
               ))}
@@ -645,13 +645,13 @@ export function AdminDashboard() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 1, border: '1px solid var(--rule)' }}>
               {[
-                { v: voucherStats?.stats?.total || 0, l: 'Total', accent: true },
-                { v: voucherStats?.stats?.sent || 0, l: 'Sent', accent: false },
-                { v: voucherStats?.stats?.redeemed || 0, l: 'Redeemed', accent: true },
-                { v: `$${((voucherStats?.stats?.total_revenue || 0) / 100).toFixed(2)}`, l: 'Revenue', accent: true },
-              ].map(({ v, l, accent }) => (
+                { v: voucherStats?.stats?.total || 0, l: 'Total' },
+                { v: voucherStats?.stats?.sent || 0, l: 'Sent' },
+                { v: voucherStats?.stats?.redeemed || 0, l: 'Redeemed' },
+                { v: `$${((voucherStats?.stats?.total_revenue || 0) / 100).toFixed(2)}`, l: 'Revenue' },
+              ].map(({ v, l }) => (
                 <div key={l} style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
-                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: accent ? 'var(--warm)' : 'var(--bone)', marginBottom: 4 }}>{v}</div>
+                  <div className="loom-h2" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>{v}</div>
                   <div className="loom-eyebrow">{l}</div>
                 </div>
               ))}
@@ -1055,13 +1055,13 @@ export function AdminDashboard() {
               <Panel title="Revenue Report">
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 1, border: '1px solid var(--rule)' }}>
                   {[
-                    { l: 'Monthly Recurring Revenue', v: `$${revenueReport?.mrr?.toFixed(2) || '0.00'}`, accent: true },
-                    { l: 'Annual Recurring Revenue', v: `$${revenueReport?.arr?.toFixed(2) || '0.00'}`, accent: true },
-                    { l: 'Active Subscriptions', v: revenueReport?.activeSubscriptions || 0, accent: false },
-                  ].map(({ l, v, accent }) => (
+                    { l: 'Monthly Recurring Revenue', v: `$${revenueReport?.mrr?.toFixed(2) || '0.00'}` },
+                    { l: 'Annual Recurring Revenue', v: `$${revenueReport?.arr?.toFixed(2) || '0.00'}` },
+                    { l: 'Active Subscriptions', v: revenueReport?.activeSubscriptions || 0 },
+                  ].map(({ l, v }) => (
                     <div key={l} style={{ padding: '12px 16px', background: 'var(--ink-card)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>{l}</span>
-                      <span className="loom-serif" style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 300, color: accent ? 'var(--warm)' : 'var(--bone)' }}>{v}</span>
+                      <span className="loom-serif" style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 300, color: 'var(--bone)' }}>{v}</span>
                     </div>
                   ))}
                 </div>
@@ -1070,7 +1070,7 @@ export function AdminDashboard() {
               <Panel title="User Growth · Last 30 Days">
                 <div style={{ padding: '12px 16px', background: 'var(--ink-card)', marginBottom: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: '1px solid var(--rule)' }}>
                   <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>Total New Signups</span>
-                  <span className="loom-serif" style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 300, color: 'var(--warm)' }}>{userGrowth?.totalSignups || 0}</span>
+                  <span className="loom-serif" style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 300, color: 'var(--bone)' }}>{userGrowth?.totalSignups || 0}</span>
                 </div>
                 <div style={{ marginTop: 16 }}>
                   <div className="loom-eyebrow" style={{ marginBottom: 8 }}>Daily Signups</div>
@@ -1095,7 +1095,7 @@ export function AdminDashboard() {
                     const token = localStorage.getItem('adminToken');
                     const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=csv`, { headers: { Authorization: `Bearer ${token}` } });
                     if (!res.ok) { const e = await res.json(); status.err(e.error || 'export failed'); return; }
-                    const blob = await res.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `users-export-${new Date().toISOString().split('T')[0]}.csv`; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url); document.body.removeChild(a);
+                    const d = new Date(); const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; const blob = await res.blob(); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `users-export-${stamp}.csv`; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url); document.body.removeChild(a);
                   } catch (_err) { status.err('export failed'); }
                 }}>Export Users (CSV)</button>
                 <button className="loom-btn-ghost" onClick={async () => {
@@ -1103,7 +1103,7 @@ export function AdminDashboard() {
                     const token = localStorage.getItem('adminToken');
                     const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api'}/admin/reports/export/users?format=json`, { headers: { Authorization: `Bearer ${token}` } });
                     if (!res.ok) { const e = await res.json(); status.err(e.error || 'export failed'); return; }
-                    const data = await res.json(); const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `users-export-${new Date().toISOString().split('T')[0]}.json`; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url); document.body.removeChild(a);
+                    const d = new Date(); const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; const data = await res.json(); const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }); const url = window.URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `users-export-${stamp}.json`; document.body.appendChild(a); a.click(); window.URL.revokeObjectURL(url); document.body.removeChild(a);
                   } catch (_err) { status.err('export failed'); }
                 }}>Export Users (JSON)</button>
               </div>
@@ -1869,7 +1869,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div role="radiogroup" aria-label="Voucher mode" style={{ display: 'flex', gap: 1, border: '1px solid var(--rule)' }}>
             {(['single', 'bulk'] as const).map(m => (
-              <button key={m} role="radio" aria-checked={mode === m} tabIndex={mode === m ? 0 : -1} className={mode === m ? 'loom-btn' : 'loom-btn-ghost'} style={{ flex: 1, borderRadius: 0 }} onClick={() => setMode(m)} onKeyDown={e => { if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); setMode(mode === 'single' ? 'bulk' : 'single'); } }}>{m === 'single' ? 'Single Voucher' : 'Bulk Create'}</button>
+              <button key={m} role="radio" aria-checked={mode === m} tabIndex={mode === m ? 0 : -1} className={mode === m ? 'loom-btn' : 'loom-btn-ghost'} style={{ flex: 1, borderRadius: 0 }} onClick={() => setMode(m)} onKeyDown={e => { if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); const sib = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? e.currentTarget.nextElementSibling : e.currentTarget.previousElementSibling; (sib as HTMLElement | null)?.focus(); } }}>{m === 'single' ? 'Single Voucher' : 'Bulk Create'}</button>
             ))}
           </div>
           <LoomField label="Quick Presets">

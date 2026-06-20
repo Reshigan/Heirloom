@@ -171,7 +171,7 @@ export function LifeEvents() {
   const { data: memoriesData } = useQuery({
     queryKey: ['memories-for-events'],
     queryFn: () => memoriesApi.getAll().then(r => r.data),
-    enabled: showContentPicker,
+    enabled: showCreate || showContentPicker,
   });
 
   const { data: lettersData } = useQuery({

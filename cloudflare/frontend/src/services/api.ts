@@ -593,6 +593,7 @@ export const giftSubscriptionsApi = {
     recipientMessage?: string;
     currency?: string;
     style?: string;
+    scheduledFor?: string;
   }) => api.post('/gift-vouchers/checkout', data),
   redeem: (giftCode: string) => api.post('/gift-vouchers/redeem', { code: giftCode }),
   getPurchased: () => api.get('/gift-vouchers/purchased'),

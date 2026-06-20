@@ -351,6 +351,8 @@ export function MemoryCards() {
                           letterSpacing: '0.18em',
                           textTransform: 'uppercase',
                           color: selectedStyle === style.id ? 'var(--warm)' : 'var(--bone)',
+                          fontWeight: selectedStyle === style.id ? 700 : 400,
+                          textDecoration: selectedStyle === style.id ? 'underline' : 'none',
                           margin: '0 0 4px',
                         }}
                       >
