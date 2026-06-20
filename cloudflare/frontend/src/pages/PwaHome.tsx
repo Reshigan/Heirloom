@@ -6,7 +6,6 @@ import { useTapestryEntries } from '../hooks/useTapestryEntries';
 import { useListener } from '../hooks/useListener';
 import { useIsNewUser } from '../hooks/useIsNewUser';
 import { useAuthStore } from '../stores/authStore';
-import { memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { HLogo } from '../loom/components/HLogo';
@@ -231,8 +230,8 @@ function FirstThreadPrompt({ prompt }: { prompt: string }) {
         <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
           sealed · delivery: your choice
         </div>
+        {/* ponytail: dropped the ∞ glyph — BottomNav already renders the singular mark on this authed surface */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span className="hl-serif" style={{ fontSize: 20, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>∞</span>
           <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
             your first letter — written today
           </span>
@@ -266,12 +265,10 @@ function AuthHome({
   role,
   entries,
   prompt,
-  stats,
 }: {
   role: UserRole;
   entries: CanvasEntry[];
   prompt: string;
-  stats: { entries: number; members: number } | null;
 }) {
   const { user, isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
@@ -345,9 +342,9 @@ function AuthHome({
             : `/loom/read?entry=${e.id}`,
     }));
 
+  // ponytail: dropped the `· N voices` clause — members count was hardcoded 0 (always dead)
   const status =
-    `since ${firstYear} · ${count} ${count === 1 ? 'memory' : 'memories'} woven · year ${threadYear} of a thousand` +
-    (stats && stats.members > 0 ? ` · ${stats.members} ${stats.members === 1 ? 'voice' : 'voices'}` : '');
+    `since ${firstYear} · ${count} ${count === 1 ? 'memory' : 'memories'} woven · year ${threadYear} of a thousand`;
 
   return (
     <div style={{
@@ -459,14 +456,8 @@ export function PwaHome() {
   const { isNewUser, isLoading: isNewUserLoading } = useIsNewUser();
   const [wizardDone, setWizardDone] = useState(() => !shouldShowWizard());
   const { isAuthenticated, _hasHydrated } = useAuthStore();
-  const [stats, setStats] = useState<{ entries: number; members: number } | null>(null);
 
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    memoriesApi.getStats()
-      .then(r => setStats({ entries: r.data?.total ?? 0, members: 0 }))
-      .catch(() => {});
-  }, [isAuthenticated]);
+  // ponytail: dropped the getStats fetch + stats state — its only consumer was the dead `voices` clause
 
   // The installed app remembers you. Once auth has rehydrated, a launch with no
   // token (never signed in, or session cleared) goes straight to login rather
@@ -504,7 +495,7 @@ export function PwaHome() {
           this.) Read-only first-run members fall here too (isNewUser but a
           read-only role), reaching AuthHome's viewer empty state. */}
       {!isNewUserLoading && (!isNewUser || role === 'reader' || role === 'successor') && !(entriesLoading && entries.length === 0) && (
-        <AuthHome role={role} entries={entries} prompt={prompt} stats={stats} />
+        <AuthHome role={role} entries={entries} prompt={prompt} />
       )}
 
     </ClothShell>

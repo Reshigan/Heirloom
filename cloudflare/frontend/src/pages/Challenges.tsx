@@ -352,7 +352,8 @@ export function Challenges() {
                 disabled={!submissionContent.trim() || submitMutation.isPending}
                 style={{
                   ...affordance,
-                  opacity: (!submissionContent.trim() || submitMutation.isPending) ? 0.4 : 1,
+                  // ponytail: disabled = swap copper to bone-faint (Rule 2: never opacity-dim a copper literal)
+                  color: (!submissionContent.trim() || submitMutation.isPending) ? 'var(--bone-faint)' : affordance.color,
                   cursor: (!submissionContent.trim() || submitMutation.isPending) ? 'default' : 'pointer',
                 }}
               >

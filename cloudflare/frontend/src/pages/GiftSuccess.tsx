@@ -34,20 +34,7 @@ export function GiftSuccess() {
             gap: 0,
           }}
         >
-          {/* Glowing warm ∞ — CEREMONY archetype mark */}
-          <div
-            aria-hidden
-            style={{
-              fontFamily: 'var(--serif)',
-              fontSize: 'clamp(40px, 10vw, 64px)',
-              lineHeight: 1,
-              color: 'var(--warm)',
-              marginBottom: 32,
-            }}
-          >
-            ∞
-          </div>
-
+          {/* ponytail: hero ∞ dropped — WaxSeal foot is the single canonical ∞ mark */}
           {/* Mono warm meta — "SENT" */}
           <div
             style={{

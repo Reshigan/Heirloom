@@ -43,6 +43,8 @@ export function RecipientPicker({
   const [creating, setCreating] = useState(false);
   const [rel, setRel] = useState('');
   const [email, setEmail] = useState('');
+  // ponytail: inline styles can't carry :focus-visible — track focused field to swap the rule to copper.
+  const [focused, setFocused] = useState<'name' | 'rel' | 'email' | null>(null);
   // Active descendant for keyboard navigation of the suggestion listbox.
   const [activeIndex, setActiveIndex] = useState(-1);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -164,7 +166,11 @@ export function RecipientPicker({
           onChange(e.target.value, null);
           setOpen(true);
         }}
-        onFocus={() => setOpen(true)}
+        onFocus={() => {
+          setOpen(true);
+          setFocused('name');
+        }}
+        onBlur={() => setFocused((f) => (f === 'name' ? null : f))}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         style={{
@@ -172,7 +178,7 @@ export function RecipientPicker({
           boxSizing: 'border-box',
           background: 'transparent',
           border: 0,
-          borderBottom: '1px solid var(--rule)',
+          borderBottom: `1px solid ${focused === 'name' ? 'var(--warm)' : 'var(--rule)'}`,
           color: 'var(--bone)',
           caretColor: 'var(--warm)',
           fontFamily: MONO,
@@ -273,6 +279,8 @@ export function RecipientPicker({
             value={rel}
             aria-label="Relationship"
             onChange={(e) => setRel(e.target.value)}
+            onFocus={() => setFocused('rel')}
+            onBlur={() => setFocused((f) => (f === 'rel' ? null : f))}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && rel.trim()) {
                 e.preventDefault();
@@ -285,7 +293,7 @@ export function RecipientPicker({
               boxSizing: 'border-box',
               background: 'transparent',
               border: 0,
-              borderBottom: '1px solid var(--rule)',
+              borderBottom: `1px solid ${focused === 'rel' ? 'var(--warm)' : 'var(--rule)'}`,
               color: 'var(--bone)',
               caretColor: 'var(--warm)',
               fontFamily: MONO,
@@ -301,6 +309,8 @@ export function RecipientPicker({
               type="email"
               aria-label="Email"
               onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => setFocused('email')}
+              onBlur={() => setFocused((f) => (f === 'email' ? null : f))}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && rel.trim()) {
                   e.preventDefault();
@@ -313,7 +323,7 @@ export function RecipientPicker({
                 boxSizing: 'border-box',
                 background: 'transparent',
                 border: 0,
-                borderBottom: '1px solid var(--rule)',
+                borderBottom: `1px solid ${focused === 'email' ? 'var(--warm)' : 'var(--rule)'}`,
                 color: 'var(--bone)',
                 caretColor: 'var(--warm)',
                 fontFamily: MONO,

@@ -570,6 +570,8 @@ function EntryDateField({
             cursor: 'pointer',
             width: '100%',
             height: '100%',
+            // ponytail: inherit the themed .loom ancestor's color-scheme so the native picker chrome flips paper/dark
+            colorScheme: 'inherit',
           }}
         />
       </div>
@@ -706,19 +708,38 @@ function EmotionField({
             : 'optional · the listener will name one when you weave'}
         </span>
       </div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 18px', alignItems: 'baseline' }}>
-        {EMOTIONS.map((e) => {
+      <div role="radiogroup" aria-label="the feeling" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 18px', alignItems: 'baseline' }}>
+        {EMOTIONS.map((e, i) => {
           const active = e === value;
+          // ponytail: preserve deselect-on-repeat onClick; add radiogroup ARIA + roving tabIndex + arrow-key nav around it
+          const choose = () => { setAiNamed(false); onChange(active ? '' : e); };
           return (
-            <button
+            <div
               key={e}
-              type="button"
-              aria-pressed={active}
-              onClick={() => { setAiNamed(false); onChange(active ? '' : e); }}
+              role="radio"
+              tabIndex={active ? 0 : -1}
+              aria-checked={active}
+              onClick={choose}
+              onKeyDown={(ev) => {
+                if (ev.key === 'Enter') {
+                  choose();
+                } else if (ev.key === ' ') {
+                  ev.preventDefault();
+                  choose();
+                } else {
+                  handleRadioArrowKeys(ev, i, EMOTIONS.length, (next) => {
+                    setAiNamed(false);
+                    onChange(EMOTIONS[next]);
+                  });
+                }
+              }}
               style={{
                 background: 'transparent',
                 border: 0,
-                padding: '2px 0',
+                borderLeft: `1px solid ${active ? 'var(--warm)' : 'transparent'}`,
+                paddingLeft: 8,
+                marginLeft: -8,
+                padding: '2px 0 2px 8px',
                 cursor: 'pointer',
                 fontFamily: 'var(--serif)',
                 fontStyle: 'italic',
@@ -726,13 +747,13 @@ function EmotionField({
                 fontWeight: 300,
                 color: active ? 'var(--warm)' : 'var(--bone-dim)',
                 opacity: value && !active ? 0.5 : 1,
-                transition: 'color 180ms var(--ease), opacity 180ms var(--ease)',
+                transition: 'color 180ms var(--ease), opacity 180ms var(--ease), border-left-color 180ms var(--ease)',
               }}
               onMouseEnter={(e2) => { if (!active) e2.currentTarget.style.color = 'var(--bone)'; }}
               onMouseLeave={(e2) => { if (!active) e2.currentTarget.style.color = 'var(--bone-dim)'; }}
             >
               {e}
-            </button>
+            </div>
           );
         })}
       </div>

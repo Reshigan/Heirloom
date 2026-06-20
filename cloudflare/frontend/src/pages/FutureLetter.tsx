@@ -189,8 +189,7 @@ export function FutureLetter() {
             ∞
           </div>
           <h1
-            className="hl-serif"
-            style={{ fontSize: 'clamp(24px, 5vw, 34px)', lineHeight: 1.15, color: 'var(--bone)', margin: 0, fontWeight: 400 }}
+            style={{ fontFamily: 'var(--serif-display)', fontSize: 'clamp(24px, 5vw, 34px)', lineHeight: 1.15, color: 'var(--bone)', margin: 0, fontWeight: 400 }}
           >
             A letter to your future self
           </h1>

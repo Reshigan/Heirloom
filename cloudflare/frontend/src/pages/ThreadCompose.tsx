@@ -539,6 +539,8 @@ export function ThreadCompose() {
                               e.target.value === '' ? '' : parseInt(e.target.value, 10)
                             )
                           }
+                          aria-invalid={!!error}
+                          aria-describedby={error ? 't-lock-error' : undefined}
                           style={fieldStyle}
                         />
                       </div>
@@ -583,6 +585,8 @@ export function ThreadCompose() {
                           value={lockEventLabel}
                           onChange={(e) => setLockEventLabel(e.target.value)}
                           placeholder="wedding, first_child, graduation"
+                          aria-invalid={!!error}
+                          aria-describedby={error ? 't-lock-error' : undefined}
                           style={fieldStyle}
                         />
                       </div>
@@ -605,6 +609,8 @@ export function ThreadCompose() {
                             e.target.value === '' ? '' : parseInt(e.target.value, 10)
                           )
                         }
+                        aria-invalid={!!error}
+                        aria-describedby={error ? 't-lock-error' : undefined}
                         style={{ ...fieldStyle, maxWidth: 120 }}
                       />
                       <p
@@ -628,6 +634,7 @@ export function ThreadCompose() {
             {/* Inline mono/serif error — warm, never red, never toast */}
             {error ? (
               <p
+                id="t-lock-error"
                 role="alert"
                 style={{
                   margin: 0,

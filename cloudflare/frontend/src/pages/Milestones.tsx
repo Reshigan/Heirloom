@@ -332,12 +332,23 @@ export function Milestones() {
               {/* Type */}
               <div>
                 <label id="ms-type-label" style={labelStyle}>Type</label>
-                <div role="group" aria-labelledby="ms-type-label" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {milestoneTypes.map((type) => (
+                <div role="radiogroup" aria-labelledby="ms-type-label" style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {milestoneTypes.map((type, i) => (
                     <button
                       key={type.id}
+                      role="radio"
+                      aria-checked={formData.type === type.id}
+                      tabIndex={formData.type === type.id ? 0 : -1}
                       onClick={() => setFormData({ ...formData, type: type.id })}
-                      aria-pressed={formData.type === type.id}
+                      onKeyDown={(e) => {
+                        if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                          e.preventDefault();
+                          const dir = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : -1;
+                          const next = milestoneTypes[(i + dir + milestoneTypes.length) % milestoneTypes.length];
+                          setFormData({ ...formData, type: next.id });
+                          (e.currentTarget.parentElement?.children[milestoneTypes.indexOf(next)] as HTMLElement)?.focus();
+                        }
+                      }}
                       style={{
                         background: 'transparent',
                         border: `1px solid ${formData.type === type.id ? 'var(--copper-border)' : 'var(--hairline-3)'}`,
@@ -345,7 +356,7 @@ export function Milestones() {
                         color: formData.type === type.id ? 'var(--gold-text)' : 'var(--bone-dim)',
                         fontFamily: 'var(--mono)',
                         fontSize: 10,
-                        fontWeight: 500,
+                        fontWeight: formData.type === type.id ? 700 : 500,
                         letterSpacing: '0.22em',
                         textTransform: 'uppercase',
                         padding: '8px 14px',
@@ -447,7 +458,6 @@ export function Milestones() {
                     padding: '10px 16px',
                     cursor: 'pointer',
                     borderRadius: 0,
-                    transition: 'border-color 180ms var(--ease)',
                   }}
                 >
                   cancel
@@ -458,8 +468,8 @@ export function Milestones() {
                   style={{
                     flex: 1,
                     background: 'transparent',
-                    border: '1px solid var(--warm)',
-                    color: 'var(--warm)',
+                    border: `1px solid ${(!formData.name.trim() || !formData.date || createMutation.isPending) ? 'var(--hairline-3)' : 'var(--warm)'}`,
+                    color: (!formData.name.trim() || !formData.date || createMutation.isPending) ? 'var(--bone-faint)' : 'var(--warm)',
                     fontFamily: 'var(--mono)',
                     fontSize: 10,
                     letterSpacing: '0.22em',
@@ -467,8 +477,7 @@ export function Milestones() {
                     padding: '10px 16px',
                     cursor: 'pointer',
                     borderRadius: 0,
-                    opacity: (!formData.name.trim() || !formData.date || createMutation.isPending) ? 0.45 : 1,
-                    transition: 'opacity 180ms var(--ease)',
+                    transition: 'border-color 180ms var(--ease), color 180ms var(--ease)',
                   }}
                 >
                   {createMutation.isPending ? 'adding…' : 'add date'}

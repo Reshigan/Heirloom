@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
-import { SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { SectionLabel } from '../loom/cosmic/CosmicUI';
 import api from '../services/api';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -183,8 +183,9 @@ export function GiftRedeem() {
               <CeremonyMark />
               <CeremonyMeta>activated</CeremonyMeta>
               <h1
-                className="hl-serif hl-tight"
+                className="hl-tight"
                 style={{
+                  fontFamily: 'var(--serif-display)',
                   fontSize: 'clamp(24px, 5vw, 34px)',
                   fontWeight: 500,
                   color: 'var(--bone)',
@@ -226,8 +227,9 @@ export function GiftRedeem() {
                   : 'a gift for you'}
               </CeremonyMeta>
               <h1
-                className="hl-serif hl-tight"
+                className="hl-tight"
                 style={{
+                  fontFamily: 'var(--serif-display)',
                   fontSize: 'clamp(24px, 5vw, 34px)',
                   fontWeight: 500,
                   color: 'var(--bone)',
@@ -440,10 +442,6 @@ export function GiftRedeem() {
                   {isValidating ? 'checking…' : 'open →'}
                 </button>
               )}
-
-              <div style={{ marginTop: 44 }}>
-                <WaxSeal size={26} />
-              </div>
             </>
           )}
         </div>

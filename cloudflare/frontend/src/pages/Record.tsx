@@ -448,7 +448,6 @@ export function Record() {
 
         {/* ── giant serif prompt ───────────────────────────────────── */}
         <h1
-          className="hl-serif"
           style={{
             fontFamily: 'var(--serif-display)',
             fontSize: 'clamp(30px, 6vw, 48px)',
@@ -747,6 +746,8 @@ export function Record() {
                               fontSize: 13, padding: '6px 10px',
                               borderRadius: 0, outline: 'none', width: '100%', maxWidth: 180,
                               boxSizing: 'border-box',
+                              // ponytail: inherit the themed .loom ancestor's color-scheme so the native picker chrome flips paper/dark
+                              colorScheme: 'inherit',
                             }}
                           />
                         </div>

@@ -299,8 +299,14 @@ export function Pricing() {
         {/* Billing cycle — quiet inline toggle, preserves annual/setAnnual wiring */}
         {!annualOnly && (
           <div
-            role="group"
+            role="radiogroup"
             aria-label="Billing cycle"
+            onKeyDown={(e) => {
+              if (['ArrowRight', 'ArrowDown', 'ArrowLeft', 'ArrowUp'].includes(e.key)) {
+                e.preventDefault();
+                setAnnual((prev) => !prev);
+              }
+            }}
             style={{
               display: 'flex',
               justifyContent: 'center',
@@ -311,7 +317,9 @@ export function Pricing() {
           >
             <button
               type="button"
-              aria-pressed={!showAnnual}
+              role="radio"
+              aria-checked={!showAnnual}
+              tabIndex={!showAnnual ? 0 : -1}
               onClick={() => setAnnual(false)}
               style={{
                 background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
@@ -325,7 +333,9 @@ export function Pricing() {
             </button>
             <button
               type="button"
-              aria-pressed={showAnnual}
+              role="radio"
+              aria-checked={showAnnual}
+              tabIndex={showAnnual ? 0 : -1}
               onClick={() => setAnnual(true)}
               style={{
                 background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',

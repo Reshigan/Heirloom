@@ -249,7 +249,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                   <p className="leading-relaxed" style={{ color: 'var(--bone-dim)' }}>{step.description}</p>
                 </div>
 
-                <div className="p-4 rounded-none" style={{ background: 'var(--ink-card)', border: '1px solid var(--rule-warm)' }}>
+                <div className="p-4 rounded-none" style={{ background: 'var(--ink-card)', border: '1px solid var(--rule)' }}>
                   <p className="loom-mono text-[0.65rem] uppercase tracking-[0.22em] mb-1.5" style={{ color: 'var(--copper-label)' }}>Why this matters</p>
                   <p className="leading-relaxed" style={{ color: 'var(--bone-dim)' }}>{step.whyItMatters}</p>
                 </div>
@@ -334,7 +334,7 @@ export function OnboardingHelpButton({ onClick }: { onClick: () => void }) {
     <button
       onClick={onClick}
       className="fixed bottom-20 md:bottom-6 right-6 z-40 px-4 py-2.5 rounded-none transition-colors duration-fast ease-out text-[0.7rem] loom-mono uppercase tracking-[0.22em]"
-      style={{ background: 'var(--ink-card)', border: '1px solid var(--rule-warm)', color: 'var(--warm)' }}
+      style={{ background: 'var(--ink-card)', border: '1px solid var(--rule)', color: 'var(--warm)' }}
       onMouseEnter={e => (e.currentTarget.style.color = 'var(--warm-bright)')}
       onMouseLeave={e => (e.currentTarget.style.color = 'var(--warm)')}
       title="How does this work?"

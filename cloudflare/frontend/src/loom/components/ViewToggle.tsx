@@ -25,8 +25,14 @@ export function ViewToggle<T extends string>({
   value,
   onChange,
 }: ViewToggleProps<T>) {
+  const move = (dir: number) => {
+    const idx = options.findIndex((o) => o.value === value);
+    if (idx < 0) return;
+    const next = options[(idx + dir + options.length) % options.length];
+    onChange(next.value);
+  };
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 18 }}>
+    <span role="radiogroup" style={{ display: 'inline-flex', alignItems: 'baseline', gap: 18 }}>
       {options.map((opt, i) => {
         const active = opt.value === value;
         return (
@@ -42,8 +48,19 @@ export function ViewToggle<T extends string>({
             ) : null}
             <button
               type="button"
+              role="radio"
+              aria-checked={active}
+              tabIndex={active ? 0 : -1}
               onClick={() => onChange(opt.value)}
-              aria-pressed={active}
+              onKeyDown={(e) => {
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+                  e.preventDefault();
+                  move(1);
+                } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                  e.preventDefault();
+                  move(-1);
+                }
+              }}
               className="loom-mono"
               style={{
                 background: 'transparent',
@@ -54,6 +71,7 @@ export function ViewToggle<T extends string>({
                 letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: active ? 'var(--warm)' : 'var(--bone-dim)',
+                fontWeight: active ? 700 : 400,
                 transition: 'color 180ms var(--ease)',
                 minHeight: 44,
                 minWidth: 44,

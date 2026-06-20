@@ -130,7 +130,7 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
                 width: 2,
                 height: 18,
                 ...(hoveredEntry.kind === 'milestone'
-                  ? { background: 'transparent', borderLeft: '1px solid var(--warm)' }
+                  ? { background: 'transparent', borderLeft: '1px solid var(--bone-dim)' }
                   : { background: colorFor(hoveredEntry) }),
                 flexShrink: 0,
               }}

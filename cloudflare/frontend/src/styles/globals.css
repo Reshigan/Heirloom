@@ -660,10 +660,6 @@ em {
 /* ===== LOADING & ANIMATIONS =====
  * The legacy `.spinner` + `@keyframes spin` are removed (§2.6 bans spinners).
  * The compliant affordance is `.progress-hair` (the 1px shuttle bar) below. */
-@keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
 
 /* Heirloom reveal keyframes — use via .hl-reveal-* utility classes or
    directly with animation: hl-rise Xms var(--ease) both.
@@ -711,8 +707,6 @@ em {
 /* Stagger helpers — set on parent, children pick up nth-child delay */
 .hl-stagger > * { --hl-base: 0ms; animation-delay: calc(var(--hl-base) + var(--i, 0) * 80ms); }
 
-.animate-fade-in { animation: fade-in 360ms var(--ease-out) both; }
-
 /* Custom cursor removed per UI polish spec (accessibility) */
 
 /* Removed: the dead `.skeleton` shimmer + `@keyframes skeleton-shimmer` — no JSX
@@ -727,24 +721,6 @@ em {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
-
-/* ===== MODAL SCROLL FADE ===== */
-.modal-scroll-fade {
-  position: relative;
-}
-
-.modal-scroll-fade::after {
-  content: '';
-  position: sticky;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  background: linear-gradient(to top, var(--ink-card), transparent);
-  pointer-events: none;
-  display: block;
-}
-
 
 /* ===== SELECTION ===== */
 ::selection {
@@ -2182,11 +2158,6 @@ html {
   float: left;
   margin: 0.06em 0.12em 0 0;
   color: var(--warm);
-}
-
-/* ── Reduced motion overrides ─────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  .hl-composer-cursor-after::after { animation: none; }
 }
 
 /* ── Autofill override — Chrome blue autofill destroys the ink/bone palette ── */

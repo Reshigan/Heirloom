@@ -182,7 +182,7 @@ export function InheritanceCard() {
                   minHeight: 44,
                 }}
               >
-                ∞ open the thread
+                open the thread
               </button>
             </div>
           ) : (

@@ -184,7 +184,8 @@ export default function Wrapped() {
   // Real, derived figures — illustrative mockup numbers replaced by live data.
   // Numerals alternate warm / bone down the stack (constitution: one colour has emotion).
   const bands: { value: string; caption: string; accent?: boolean }[] = [
-    { value: stats.kindCounts.memory.toLocaleString(), caption: 'memories woven',                accent: true },
+    // ponytail: numeral stays var(--bone); copper reserved for the single WaxSeal ∞
+    { value: stats.kindCounts.memory.toLocaleString(), caption: 'memories woven' },
     { value: stats.kindCounts.voice.toLocaleString(),  caption: 'voices kept' },
     { value: stats.kindCounts.letter.toLocaleString(), caption: 'notes sealed' },
     { value: stats.totalWords.toLocaleString(),        caption: `words on ${topThread}` },

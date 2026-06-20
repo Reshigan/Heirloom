@@ -470,7 +470,7 @@ export function Weft() {
             meta="FAMILY →"
             subFont="serif"
             subColor="var(--muted-2)"
-            dateColor="var(--copper-label)"
+            dateColor="var(--muted-3)"
             onClick={() => navigate('/family')}
           />
         </div>

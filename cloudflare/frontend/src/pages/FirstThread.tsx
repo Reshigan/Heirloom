@@ -141,7 +141,7 @@ export function FirstThread() {
   const begin = useCallback(() => {
     setStep(1);
     if (advanceRef.current != null) clearTimeout(advanceRef.current);
-    advanceRef.current = window.setTimeout(() => setStep(2), 2700);
+    advanceRef.current = window.setTimeout(() => setStep(2), 1400); // ponytail: snapped to motion grid
   }, []);
   const toListener = useCallback(() => {
     if (advanceRef.current != null) { clearTimeout(advanceRef.current); advanceRef.current = null; }
@@ -153,7 +153,7 @@ export function FirstThread() {
   const stamp = useCallback(() => {
     if (burst || sealed) return;
     setBurst(true);
-    sealRef.current = window.setTimeout(() => setSealed(true), 850);
+    sealRef.current = window.setTimeout(() => setSealed(true), 720); // ponytail: snapped to motion grid
   }, [burst, sealed]);
   const replay = useCallback(() => {
     clearTimers();

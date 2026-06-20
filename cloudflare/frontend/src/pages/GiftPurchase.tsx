@@ -32,6 +32,7 @@ export function GiftPurchase() {
   const [billingCycle] = useState<'yearly'>('yearly');
   const [isLoading, setIsLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [errorField, setErrorField] = useState<'purchaser' | 'recipient' | null>(null);
 
   const [formData, setFormData] = useState({
     purchaserEmail: '',
@@ -56,13 +57,16 @@ export function GiftPurchase() {
   const handlePurchase = async () => {
     if (!formData.purchaserEmail) {
       setFormError('your email address is required.');
+      setErrorField('purchaser');
       return;
     }
     if (!formData.recipientEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.recipientEmail)) {
       setFormError('valid recipient email required');
+      setErrorField('recipient');
       return;
     }
     setFormError(null);
+    setErrorField(null);
     setIsLoading(true);
     try {
       const res = await fetch(
@@ -109,19 +113,8 @@ export function GiftPurchase() {
         <form onSubmit={(e) => { e.preventDefault(); handlePurchase(); }}>
         <div style={{ maxWidth: 540, margin: '0 auto' }}>
 
-          {/* Ceremony header — glowing ∞, serif title, mono warm address */}
+          {/* Ceremony header — serif title, mono warm address (singular ∞ lives in the foot WaxSeal) */}
           <header style={{ textAlign: 'center', marginBottom: 48 }}>
-            <div
-              aria-hidden
-              style={{
-                color: 'var(--warm)',
-                fontSize: 'clamp(40px, 10vw, 64px)',
-                lineHeight: 1,
-                marginBottom: 24,
-              }}
-            >
-              ∞
-            </div>
             <h1
               className="hl-tight"
               style={{
@@ -330,6 +323,8 @@ export function GiftPurchase() {
                 setFormData({ ...formData, recipientEmail: e.target.value })
               }
               placeholder="recipient@example.com"
+              aria-invalid={errorField === 'recipient' || undefined}
+              aria-describedby={errorField === 'recipient' ? 'gift-error' : undefined}
               style={{
                 width: '100%',
                 background: 'transparent',
@@ -458,6 +453,8 @@ export function GiftPurchase() {
               }
               placeholder="you@example.com"
               required
+              aria-invalid={errorField === 'purchaser' || undefined}
+              aria-describedby={errorField === 'purchaser' ? 'gift-error' : undefined}
               style={{
                 width: '100%',
                 background: 'transparent',
@@ -544,6 +541,7 @@ export function GiftPurchase() {
           {/* Error */}
           {formError && (
             <p
+              id="gift-error"
               role="alert"
               className="hl-mono"
               style={{

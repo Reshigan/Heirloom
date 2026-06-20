@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useRef, type KeyboardEvent } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, SectionLabel, WaxSeal, EntryRow } from '../loom/cosmic/CosmicUI';
 import { giftSubscriptionsApi, settingsApi } from '../services/api';
 import { PLAN_FEATURES, PLAN_PRICE_NUM } from '../lib/plans';
+import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
+import { useFocusTrap } from '../lib/useFocusTrap';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 const OCCASION_STYLES = [
@@ -38,6 +40,10 @@ export function GiftSubscriptions() {
   });
   const [showSuccess, setShowSuccess] = useState(false);
   const [giftResult, setGiftResult]   = useState<any>(null);
+  // ponytail: track which validated fields the user has left, so inline errors
+  // only surface after blur (not while typing the first character).
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const markTouched = (k: string) => setTouched((t) => ({ ...t, [k]: true }));
 
   // ── API queries ──────────────────────────────────────────────────────────────
   // The buyer's preferred currency drives localized gift pricing (e.g. INR has a
@@ -128,8 +134,38 @@ export function GiftSubscriptions() {
     }
   };
 
+  // Per-field validation — returns an error string (shown only once touched) or
+  // null. Email fields reuse the same regex canProceed() gates the step on.
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const fieldError = (name: string): string | null => {
+    switch (name) {
+      case 'recipientName':  return formData.recipientName  ? null : 'enter a name';
+      case 'recipientEmail': return EMAIL_RE.test(formData.recipientEmail)  ? null : 'enter a valid email';
+      case 'purchaserName':  return formData.purchaserName  ? null : 'enter a name';
+      case 'purchaserEmail': return EMAIL_RE.test(formData.purchaserEmail)  ? null : 'enter a valid email';
+      default: return null;
+    }
+  };
+
   const selectedTierData = tiers.find((t: any) => t.id === selectedTier);
   const selectedPricing  = selectedTierData ? tierPeriodPrice(selectedTierData) : null;
+
+  // Success overlay = a blocking modal; trap focus + wire Escape to "done".
+  const successRef = useRef<HTMLDivElement>(null);
+  const closeSuccess = () => {
+    setShowSuccess(false);
+    setStep(1);
+    setSelectedTier(null);
+    setFormData({
+      recipientName:   '',
+      recipientEmail:  '',
+      purchaserName:   '',
+      purchaserEmail:  '',
+      personalMessage: '',
+      scheduledDate:   '',
+    });
+  };
+  useFocusTrap(successRef, closeSuccess, showSuccess && !!giftResult);
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (
@@ -190,12 +226,16 @@ export function GiftSubscriptions() {
               <SectionLabel>choose a plan</SectionLabel>
 
               {/* Billing period toggle */}
-              <div style={{ display: 'flex' }}>
-                {(['monthly', 'annual'] as const).map((p, i) => (
+              <div style={{ display: 'flex' }} role="radiogroup" aria-label="Billing period">
+                {(['monthly', 'annual'] as const).map((p, i, arr) => (
                   <button
                     key={p}
                     type="button"
                     onClick={() => setBillingPeriod(p)}
+                    onKeyDown={(e) => handleRadioArrowKeys(e, i, arr.length, (next) => setBillingPeriod(arr[next]))}
+                    role="radio"
+                    aria-checked={billingPeriod === p}
+                    tabIndex={billingPeriod === p ? 0 : -1}
                     className="hl-mono"
                     style={{
                       background: billingPeriod === p ? 'var(--ink)' : 'transparent',
@@ -235,8 +275,8 @@ export function GiftSubscriptions() {
             </div>
 
             {/* Plan ledger — each tier is a quiet row */}
-            <div style={{ marginBottom: 48 }}>
-              {tiers.map((tier: any) => {
+            <div style={{ marginBottom: 48 }} role="radiogroup" aria-label="Choose a plan">
+              {(() => { const selectableTiers = tiers.filter((t: any) => t.id !== 'STARTER'); return tiers.map((tier: any) => {
                 const isFree    = tier.id === 'STARTER';
                 const selected  = selectedTier === tier.id;
                 const bullets   = TIER_BULLETS[tier.id] ?? [];
@@ -257,12 +297,27 @@ export function GiftSubscriptions() {
                   ? 'per month'
                   : 'per year · 2 months free';
 
+                // The free STARTER tier is not selectable — it stays a plain
+                // (non-radio) row; only the giftable tiers form the radiogroup.
+                const radioIdx = selectableTiers.findIndex((t: any) => t.id === tier.id);
+                const radioProps = isFree
+                  ? {}
+                  : {
+                      role: 'radio' as const,
+                      'aria-checked': selected,
+                      tabIndex: selected || (selectedTier === null && radioIdx === 0) ? 0 : -1,
+                      onKeyDown: (e: KeyboardEvent<HTMLElement>) =>
+                        handleRadioArrowKeys(e, radioIdx, selectableTiers.length, (next) =>
+                          setSelectedTier(selectableTiers[next].id),
+                        ),
+                    };
+
                 return (
                   <button
                     key={tier.id}
                     type="button"
                     onClick={() => { if (!isFree) setSelectedTier(tier.id); }}
-                    aria-pressed={selected}
+                    {...radioProps}
                     style={{
                       display:        'flex',
                       alignItems:     'baseline',
@@ -353,17 +408,21 @@ export function GiftSubscriptions() {
                     </span>
                   </button>
                 );
-              })}
+              }); })()}
             </div>
 
             {/* Occasion */}
             <SectionLabel>occasion</SectionLabel>
-            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
-              {OCCASION_STYLES.map((style) => (
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }} role="radiogroup" aria-label="Occasion">
+              {OCCASION_STYLES.map((style, i, arr) => (
                 <button
                   key={style.id}
                   type="button"
                   onClick={() => setSelectedStyle(style.id)}
+                  onKeyDown={(e) => handleRadioArrowKeys(e, i, arr.length, (next) => setSelectedStyle(arr[next].id))}
+                  role="radio"
+                  aria-checked={selectedStyle === style.id}
+                  tabIndex={selectedStyle === style.id ? 0 : -1}
                   className="hl-mono"
                   style={{
                     background:    'transparent',
@@ -415,8 +474,16 @@ export function GiftSubscriptions() {
                   type="text"
                   value={formData.recipientName}
                   onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
+                  onBlur={() => markTouched('recipientName')}
+                  aria-invalid={touched.recipientName && !!fieldError('recipientName')}
+                  aria-describedby={touched.recipientName && fieldError('recipientName') ? 'gift-recipient-name-err' : undefined}
                   placeholder="recipient name"
                 />
+                {touched.recipientName && fieldError('recipientName') && (
+                  <p id="gift-recipient-name-err" role="alert" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--warm)', marginTop: 6 }}>
+                    {fieldError('recipientName')}
+                  </p>
+                )}
               </div>
               <div>
                 <label
@@ -438,8 +505,16 @@ export function GiftSubscriptions() {
                   type="email"
                   value={formData.recipientEmail}
                   onChange={(e) => setFormData({ ...formData, recipientEmail: e.target.value })}
+                  onBlur={() => markTouched('recipientEmail')}
+                  aria-invalid={touched.recipientEmail && !!fieldError('recipientEmail')}
+                  aria-describedby={touched.recipientEmail && fieldError('recipientEmail') ? 'gift-recipient-email-err' : undefined}
                   placeholder="recipient@example.com"
                 />
+                {touched.recipientEmail && fieldError('recipientEmail') && (
+                  <p id="gift-recipient-email-err" role="alert" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--warm)', marginTop: 6 }}>
+                    {fieldError('recipientEmail')}
+                  </p>
+                )}
               </div>
               <div>
                 <label
@@ -526,8 +601,16 @@ export function GiftSubscriptions() {
                   type="text"
                   value={formData.purchaserName}
                   onChange={(e) => setFormData({ ...formData, purchaserName: e.target.value })}
+                  onBlur={() => markTouched('purchaserName')}
+                  aria-invalid={touched.purchaserName && !!fieldError('purchaserName')}
+                  aria-describedby={touched.purchaserName && fieldError('purchaserName') ? 'gift-purchaser-name-err' : undefined}
                   placeholder="your name"
                 />
+                {touched.purchaserName && fieldError('purchaserName') && (
+                  <p id="gift-purchaser-name-err" role="alert" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--warm)', marginTop: 6 }}>
+                    {fieldError('purchaserName')}
+                  </p>
+                )}
               </div>
               <div>
                 <label
@@ -549,8 +632,16 @@ export function GiftSubscriptions() {
                   type="email"
                   value={formData.purchaserEmail}
                   onChange={(e) => setFormData({ ...formData, purchaserEmail: e.target.value })}
+                  onBlur={() => markTouched('purchaserEmail')}
+                  aria-invalid={touched.purchaserEmail && !!fieldError('purchaserEmail')}
+                  aria-describedby={touched.purchaserEmail && fieldError('purchaserEmail') ? 'gift-purchaser-email-err' : undefined}
                   placeholder="your@email.com"
                 />
+                {touched.purchaserEmail && fieldError('purchaserEmail') && (
+                  <p id="gift-purchaser-email-err" role="alert" className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--warm)', marginTop: 6 }}>
+                    {fieldError('purchaserEmail')}
+                  </p>
+                )}
               </div>
             </div>
           </div>
@@ -854,6 +945,7 @@ export function GiftSubscriptions() {
       {/* ── Success overlay ── */}
       {showSuccess && giftResult && (
         <div
+          ref={successRef}
           style={{
             position:    'fixed',
             inset:       0,
@@ -863,7 +955,9 @@ export function GiftSubscriptions() {
             background:  'color-mix(in srgb, var(--ink) 88%, transparent)',
             padding:     '24px',
           }}
-          role="status"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Gift sent"
         >
           <div
             style={{
@@ -878,6 +972,8 @@ export function GiftSubscriptions() {
               <WaxSeal size={44} />
             </div>
             <p
+              role="status"
+              aria-live="polite"
               className="hl-mono"
               style={{
                 fontSize:      10,
@@ -951,19 +1047,7 @@ export function GiftSubscriptions() {
             )}
             <button
               type="button"
-              onClick={() => {
-                setShowSuccess(false);
-                setStep(1);
-                setSelectedTier(null);
-                setFormData({
-                  recipientName:   '',
-                  recipientEmail:  '',
-                  purchaserName:   '',
-                  purchaserEmail:  '',
-                  personalMessage: '',
-                  scheduledDate:   '',
-                });
-              }}
+              onClick={closeSuccess}
               className="hl-mono"
               style={{
                 background: 'transparent',

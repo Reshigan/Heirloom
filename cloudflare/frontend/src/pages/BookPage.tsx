@@ -40,7 +40,7 @@ export function BookPage() {
         {/* mono eyebrow → serif title (centred ceremony) */}
         <CosmicHeader eyebrow="The Book" title="Bind your thread" align="center" />
 
-        {/* glowing book illustration — warm-outline volume with an ∞ wax seal.
+        {/* glowing book illustration — warm-outline volume.
             content, not backdrop (the bound-book glow that IS the data). */}
         <div
           aria-hidden
@@ -79,23 +79,15 @@ export function BookPage() {
               padding: 18,
             }}
           >
-            {/* ∞ wax seal pressed into the lower-right of the cover */}
+            {/* ponytail: cover cue is a hairline rule, not a 2nd ∞ — WaxSeal at the foot is the sole infinity mark */}
             <span
-              className="hl-mono"
+              aria-hidden
               style={{
                 width: 30,
-                height: 30,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '1px solid var(--warm)',
-                color: 'var(--warm)',
-                fontSize: 15,
-                lineHeight: 1,
+                height: 1,
+                background: 'var(--rule)',
               }}
-            >
-              ∞
-            </span>
+            />
           </div>
         </div>
 

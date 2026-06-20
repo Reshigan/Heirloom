@@ -6,6 +6,12 @@
     <title>Heirloom — offline</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#0b0907" />
+    <!-- Resolve the saved `heirloom-theme` (default light; system→matchMedia)
+         and set html[data-theme] BEFORE paint, mirroring src/loom/theme.ts.
+         External + precached (sw.js) because prod CSP blocks inline scripts;
+         this replaces the prefers-color-scheme-only guess so a pinned theme
+         wins offline too. -->
+    <script src="/theme-boot.js"></script>
     <style>
       :root {
         --ink: #0b0907; --ink-card: #16110c; --bone: #f2e6d0;
@@ -16,14 +22,15 @@
         --mono: 'Space Mono', ui-monospace, monospace;
       }
       /* Frozen precached surface, but honor the user's theme: light-mode
-         inverts to ink-on-cream with an AA copper. Same var names overridden. */
-      @media (prefers-color-scheme: light) {
-        :root {
+         inverts to ink-on-cream with an AA copper. Same var names overridden.
+         Driven by /theme-boot.js (precached) which reads the saved
+         `heirloom-theme` key and sets html[data-theme] — so a pinned 'light'
+         (or 'system' resolving light) wins, not just the OS preference. */
+      :root[data-theme="light"] {
           --ink: #f4ead9; --ink-card: #ece0cb; --bone: #0b0907;
           --bone-dim: rgba(11, 9, 7, 0.66); --bone-faint: rgba(11, 9, 7, 0.42);
           --rule: rgba(11, 9, 7, 0.1); --rule-warm: rgba(150, 86, 22, 0.24);
           --warm: #965616;
-        }
       }
       * { box-sizing: border-box; }
       html, body { margin: 0; min-height: 100%; background: var(--ink); color: var(--bone); }

@@ -240,13 +240,24 @@ export function LoomIndex() {
         />
 
         {/* Grouping axis selector — quiet mono control, the decade ledger dominates. */}
-        <div style={{ display: 'flex', gap: 24, marginBottom: 12 }}>
-          {GROUPS.map((g) => (
+        <div role="radiogroup" aria-label="Group threads by" style={{ display: 'flex', gap: 24, marginBottom: 12 }}>
+          {GROUPS.map((g, i) => (
             <button
               key={g}
               type="button"
-              aria-pressed={groupBy === g}
+              role="radio"
+              aria-checked={groupBy === g}
+              tabIndex={groupBy === g ? 0 : -1}
               onClick={() => setGroupBy(g)}
+              onKeyDown={(e) => {
+                if (e.key !== 'ArrowRight' && e.key !== 'ArrowDown' && e.key !== 'ArrowLeft' && e.key !== 'ArrowUp') return;
+                e.preventDefault();
+                const dir = e.key === 'ArrowRight' || e.key === 'ArrowDown' ? 1 : -1;
+                const next = GROUPS[(i + dir + GROUPS.length) % GROUPS.length];
+                setGroupBy(next);
+                const sibs = e.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('button[role="radio"]');
+                sibs?.[GROUPS.indexOf(next)]?.focus();
+              }}
               style={{
                 background: 'none', border: 0, padding: '10px 0', cursor: 'pointer',
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em',

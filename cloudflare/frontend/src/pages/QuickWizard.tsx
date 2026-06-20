@@ -785,10 +785,11 @@ export function QuickWizard() {
                 )}
                 {selectedPerson && (
                   <SummaryRow
-                    label="reply"
+                    label="for"
                     value={
                       <span style={{ color: 'var(--bone-dim)', fontSize: 13 }}>
-                        {selectedPerson.name} can respond after viewing
+                        {/* ponytail: flow only guarantees delivery; reply capability not in payload */}
+                        delivered to {selectedPerson.name}
                       </span>
                     }
                   />

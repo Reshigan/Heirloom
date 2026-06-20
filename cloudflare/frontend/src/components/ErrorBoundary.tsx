@@ -34,8 +34,19 @@ export class ErrorBoundary extends Component<Props, State> {
         return this.props.fallback;
       }
 
+      // ponytail: resolve theme from the same source LoomShellRoot uses (localStorage "heirloom-theme"),
+      // fail-closed to the app default 'light', so the .loom wrapper remaps tokens for the error screen.
+      let resolved: 'light' | 'dark' = 'light';
+      try {
+        const saved = localStorage.getItem('heirloom-theme');
+        if (saved === 'dark') resolved = 'dark';
+        else if (saved === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches) resolved = 'dark';
+      } catch {
+        /* ignore — keep light default */
+      }
+
       return (
-        <div style={{ minHeight: '100dvh', background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
+        <div className="loom" data-theme={resolved} style={{ minHeight: '100dvh', background: 'var(--ink)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
           <div style={{ maxWidth: 480, width: '100%' }}>
             <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--warm)', display: 'block', marginBottom: 20 }}>
               something went wrong

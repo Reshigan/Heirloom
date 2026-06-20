@@ -226,7 +226,24 @@ export function MemoryCards() {
                 >
                   1 — select a memory
                 </p>
-                <div style={{ maxHeight: 300, overflowY: 'auto', display: 'grid', gap: 1 }}>
+                <div
+                  role="radiogroup"
+                  aria-label="Select a memory"
+                  style={{ maxHeight: 300, overflowY: 'auto', display: 'grid', gap: 1 }}
+                  onKeyDown={(e) => {
+                    if (memories.length === 0) return;
+                    const i = memories.findIndex((m: any) => m.id === selectedMemory);
+                    let next = i;
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next = (i + 1 + memories.length) % memories.length;
+                    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') next = (i - 1 + memories.length) % memories.length;
+                    else if (e.key === 'Home') next = 0;
+                    else if (e.key === 'End') next = memories.length - 1;
+                    else return;
+                    e.preventDefault();
+                    setSelectedMemory(memories[next].id);
+                    (document.getElementById(`mem-${memories[next].id}`) as HTMLElement | null)?.focus();
+                  }}
+                >
                   {memories.length === 0 ? (
                     <p
                       className="hl-serif"
@@ -235,11 +252,14 @@ export function MemoryCards() {
                       No memories yet.
                     </p>
                   ) : (
-                    memories.map((memory: any) => (
+                    memories.map((memory: any, mi: number) => (
                       <button
                         key={memory.id}
                         type="button"
-                        aria-pressed={selectedMemory === memory.id}
+                        id={`mem-${memory.id}`}
+                        role="radio"
+                        aria-checked={selectedMemory === memory.id}
+                        tabIndex={selectedMemory === memory.id || (selectedMemory === null && mi === 0) ? 0 : -1}
                         onClick={() => setSelectedMemory(memory.id)}
                         style={{
                           background: 'transparent',
@@ -256,7 +276,8 @@ export function MemoryCards() {
                           className="hl-serif"
                           style={{
                             fontSize: 17,
-                            fontWeight: 300,
+                            fontWeight: selectedMemory === memory.id ? 500 : 300,
+                            fontStyle: selectedMemory === memory.id ? 'italic' : 'normal',
                             color: selectedMemory === memory.id ? 'var(--warm)' : 'var(--bone)',
                             transition: 'color 180ms var(--ease)',
                           }}
@@ -287,12 +308,32 @@ export function MemoryCards() {
               {/* Style selection */}
               <section>
                 <p className="hl-eyebrow" style={{ marginBottom: 16 }}>2 — choose a style</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                <div
+                  role="radiogroup"
+                  aria-label="Choose a style"
+                  style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}
+                  onKeyDown={(e) => {
+                    if (styles.length === 0) return;
+                    const i = styles.findIndex((s: CardStyle) => s.id === selectedStyle);
+                    let next = i < 0 ? 0 : i;
+                    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (i + 1 + styles.length) % styles.length;
+                    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (i - 1 + styles.length) % styles.length;
+                    else if (e.key === 'Home') next = 0;
+                    else if (e.key === 'End') next = styles.length - 1;
+                    else return;
+                    e.preventDefault();
+                    setSelectedStyle(styles[next].id);
+                    (document.getElementById(`style-${styles[next].id}`) as HTMLElement | null)?.focus();
+                  }}
+                >
                   {styles.map((style: CardStyle) => (
                     <button
                       key={style.id}
                       type="button"
-                      aria-pressed={selectedStyle === style.id}
+                      id={`style-${style.id}`}
+                      role="radio"
+                      aria-checked={selectedStyle === style.id}
+                      tabIndex={selectedStyle === style.id ? 0 : -1}
                       onClick={() => setSelectedStyle(style.id)}
                       style={{
                         padding: '12px 14px',

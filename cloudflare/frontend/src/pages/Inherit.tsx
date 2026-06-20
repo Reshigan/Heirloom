@@ -6,6 +6,7 @@ import { formatDate, formatDuration } from '../utils/date';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal, WarmDot } from '../loom/cosmic/CosmicUI';
 import { dyeColor } from '../loom/dye';
 import { useFocusTrap } from '../lib/useFocusTrap';
+import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api';
 
@@ -751,9 +752,8 @@ export function Inherit() {
                 >
                   <header style={{ marginBottom: 20 }}>
                     <h2
-                      className="hl-serif"
                       style={{
-                        fontFamily: 'var(--serif)',
+                        fontFamily: 'var(--serif-display)',
                         fontSize: 'clamp(26px,5vw,34px)',
                         fontWeight: 400,
                         lineHeight: 1.1,
@@ -1217,11 +1217,19 @@ export function Inherit() {
                   Let {ownerName.split(' ')[0] || 'them'} know these memories mean something to you.
                 </p>
 
-                <div style={{ marginBottom: 24 }}>
-                  {reactionOptions.map((option) => (
+                <div role="radiogroup" aria-label="How this lands" style={{ marginBottom: 24 }}>
+                  {reactionOptions.map((option, optionIndex) => (
                     <button
                       key={option.type}
                       type="button"
+                      role="radio"
+                      aria-checked={selectedReaction === option.type}
+                      tabIndex={selectedReaction ? (selectedReaction === option.type ? 0 : -1) : (optionIndex === 0 ? 0 : -1)}
+                      onKeyDown={(e) =>
+                        handleRadioArrowKeys(e, optionIndex, reactionOptions.length, (next) =>
+                          setSelectedReaction(reactionOptions[next].type),
+                        )
+                      }
                       onClick={() =>
                         setSelectedReaction(selectedReaction === option.type ? null : option.type)
                       }
@@ -1305,6 +1313,7 @@ export function Inherit() {
 
                 {reactionError && (
                   <p
+                    role="alert"
                     style={{
                       fontFamily: 'var(--mono)',
                       fontSize: 11,

@@ -496,7 +496,7 @@ export function LifeEvents() {
           <div
             ref={createRef}
             role="dialog"
-            aria-modal="true"
+            aria-modal={!showContentPicker}
             aria-labelledby="life-event-wizard-title"
             className="cosmic-panel cosmic-panel--solid"
             style={{
@@ -600,16 +600,31 @@ export function LifeEvents() {
               <div style={{ display: 'grid', gap: 12 }}>
                 {family.length > 0 ? (
                   <>
-                    <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 8px' }}>
+                    <p className="hl-serif" id="le-recipient-label" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 8px' }}>
                       Select a family member:
                     </p>
-                    {family.map((member) => (
+                    <div role="radiogroup" aria-labelledby="le-recipient-label" style={{ display: 'grid', gap: 12 }}>
+                    {family.map((member, i) => {
+                      const checked = familyMemberId === member.id;
+                      return (
                       <button
                         key={member.id}
+                        role="radio"
+                        aria-checked={checked}
+                        tabIndex={checked || (familyMemberId == null && i === 0) ? 0 : -1}
                         onClick={() => handleRecipientSelect(member)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                            e.preventDefault();
+                            handleRecipientSelect(family[(i + 1) % family.length]);
+                          } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                            e.preventDefault();
+                            handleRecipientSelect(family[(i - 1 + family.length) % family.length]);
+                          }
+                        }}
                         style={{
                           background: 'transparent',
-                          border: `1px solid ${familyMemberId === member.id ? 'var(--warm)' : 'var(--rule)'}`,
+                          border: `1px solid ${checked ? 'var(--warm)' : 'var(--rule)'}`,
                           borderRadius: 0,
                           padding: '14px 18px',
                           cursor: 'pointer',
@@ -621,14 +636,16 @@ export function LifeEvents() {
                         }}
                       >
                         <div>
-                          <p style={{ margin: '0 0 2px', fontSize: 16, fontWeight: 400, color: familyMemberId === member.id ? 'var(--warm)' : 'var(--bone)', fontFamily: 'var(--serif)' }}>
+                          <p style={{ margin: '0 0 2px', fontSize: 16, fontWeight: 400, color: checked ? 'var(--warm)' : 'var(--bone)', fontFamily: 'var(--serif)' }}>
                             {member.name}
                           </p>
                           <p className="hl-mono" style={{ margin: 0, fontSize: 10, color: 'var(--bone-faint)' }}>{member.relationship}</p>
                         </div>
-                        <span className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-faint)' }}>→</span>
+                        <span className="hl-mono" aria-hidden="true" style={{ fontSize: 12, color: 'var(--bone-faint)' }}>{checked ? '✓' : '→'}</span>
                       </button>
-                    ))}
+                      );
+                    })}
+                    </div>
                   </>
                 ) : (
                   <div style={{ textAlign: 'center', padding: '24px 0' }}>
@@ -679,7 +696,7 @@ export function LifeEvents() {
             {/* Step 3: Review & create */}
             {wizardStep === 3 && (
               <div style={{ display: 'grid', gap: 20 }}>
-                <div style={{ borderLeft: '2px solid var(--warm)', paddingLeft: 14 }}>
+                <div style={{ borderLeft: '1px solid var(--rule)', paddingLeft: 14 }}>
                   <p className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', margin: 0 }}>
                     {selectedTemplate ? `"${selectedTemplate.title}"` : 'Custom event'} for{' '}
                     <span style={{ color: 'var(--bone)' }}>{recipientName}</span>

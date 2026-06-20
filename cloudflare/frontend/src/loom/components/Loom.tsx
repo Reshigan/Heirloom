@@ -350,7 +350,7 @@ export function Loom({
               color: 'var(--warm)',
             }}
           >
-            {String(appendCount).padStart(3, '0')} woven
+            {appendCount} woven
           </span>
         </div>
       ) : null}

@@ -293,11 +293,21 @@ export function Signup() {
           {/* step three · how to begin */}
           <div style={{ marginTop: 44 }}>
             <StepEyebrow>step three · how to begin</StepEyebrow>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 18 }}>
-              <CycleTab active={cycle !== 'annual'} warm={false} onClick={() => setCycle('monthly')}>
+            <div role="radiogroup" aria-label="billing cycle" style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 18 }}>
+              <CycleTab
+                active={cycle !== 'annual'}
+                warm={false}
+                onClick={() => setCycle('monthly')}
+                onArrow={(e) => handleRadioArrowKeys(e, 0, 2, (n) => setCycle(n === 1 ? 'annual' : 'monthly'))}
+              >
                 monthly
               </CycleTab>
-              <CycleTab active={cycle === 'annual'} warm onClick={() => setCycle('annual')}>
+              <CycleTab
+                active={cycle === 'annual'}
+                warm
+                onClick={() => setCycle('annual')}
+                onArrow={(e) => handleRadioArrowKeys(e, 1, 2, (n) => setCycle(n === 1 ? 'annual' : 'monthly'))}
+              >
                 annually · 2 months free
               </CycleTab>
             </div>
@@ -586,18 +596,23 @@ function CycleTab({
   active,
   warm,
   onClick,
+  onArrow,
   children,
 }: {
   active: boolean;
   warm: boolean;
   onClick: () => void;
+  onArrow: (e: React.KeyboardEvent<HTMLElement>) => void;
   children: React.ReactNode;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-pressed={active}
+      onKeyDown={onArrow}
+      role="radio"
+      aria-checked={active}
+      tabIndex={active ? 0 : -1}
       style={{
         background: 'transparent',
         border: 0,

@@ -174,7 +174,7 @@ export function ListenerLine({
         letterSpacing: '0.03em',
         color: 'var(--bone-dim)',
         maxWidth: '40ch',
-        borderLeft: '1px solid var(--rule-warm)',
+        borderLeft: '1px solid var(--rule)',
         paddingLeft: 'clamp(14px, 2.5vw, 22px)',
       }}
     >
@@ -249,30 +249,50 @@ export function VisibilityControl({
   value: Visibility;
   onChange: (v: Visibility) => void;
 }) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const move = (i: number, dir: 1 | -1) => {
+    const next = (i + dir + VISIBILITIES.length) % VISIBILITIES.length;
+    onChange(VISIBILITIES[next]);
+    refs.current[next]?.focus();
+  };
   return (
-    <span>
+    <span role="radiogroup" aria-label="visibility">
       <span style={{ color: 'var(--bone-faint)' }}>visibility ·</span>{' '}
-      {VISIBILITIES.map((v, i) => (
-        <span key={v}>
-          {i > 0 && sep}
-          <button
-            type="button"
-            onClick={() => onChange(v)}
-            style={{
-              background: 'transparent',
-              border: 0,
-              padding: '2px 0',
-              cursor: 'pointer',
-              font: 'inherit',
-              letterSpacing: 'inherit',
-              color: v === value ? 'var(--warm)' : 'var(--bone-dim)',
-              transition: 'color 180ms var(--ease)',
-            }}
-          >
-            {v}
-          </button>
-        </span>
-      ))}
+      {VISIBILITIES.map((v, i) => {
+        const selected = v === value;
+        return (
+          <span key={v}>
+            {i > 0 && sep}
+            <button
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              tabIndex={selected ? 0 : -1}
+              ref={el => { refs.current[i] = el; }}
+              onClick={() => onChange(v)}
+              onKeyDown={e => {
+                if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); move(i, 1); }
+                else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); move(i, -1); }
+              }}
+              style={{
+                background: 'transparent',
+                border: 0,
+                padding: '2px 0',
+                cursor: 'pointer',
+                font: 'inherit',
+                letterSpacing: 'inherit',
+                color: selected ? 'var(--warm)' : 'var(--bone-dim)',
+                // non-color selected cue
+                textDecoration: selected ? 'underline' : 'none',
+                textUnderlineOffset: 3,
+                transition: 'color 180ms var(--ease)',
+              }}
+            >
+              {v}
+            </button>
+          </span>
+        );
+      })}
     </span>
   );
 }

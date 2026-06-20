@@ -6,8 +6,7 @@ import { Loom } from './Loom';
  * Before a single weft thread exists, the loom is warp only: the bare
  * vertical threads waiting to be crossed. The composition is mostly
  * empty (the constitution's negative space), centred on one quiet
- * invitation and one warm CTA. The ∞ mark stands in for the thread
- * that hasn't been woven yet.
+ * invitation and one warm CTA.
  *
  * Rendered by Weft when `entries.length === 0`. It reuses the canonical
  * Loom primitive with an empty `entries` array — same warp, same year
@@ -67,17 +66,8 @@ export function EmptyThread({
           paddingBottom: '8vh',
         }}
       >
-        <div
-          className="loom-serif"
-          style={{
-            fontSize: 30,
-            color: 'var(--warm)',
-            lineHeight: 1,
-            marginBottom: 22,
-          }}
-        >
-          ∞
-        </div>
+        {/* ponytail: ∞ removed — BottomNav's center mark is the surface's
+            singular ∞ (mirrors LoomIndex's no-WaxSeal-foot rule) */}
         <div
           className="loom-mono"
           style={{

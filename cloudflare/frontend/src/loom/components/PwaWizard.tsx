@@ -42,7 +42,7 @@ function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | 'trigger' |
 
   if (kind === 'seal') {
     return (
-      <div style={{ margin: '24px 0', padding: '16px 18px', borderLeft: '2px solid var(--warm)', border: '1px solid var(--rule)', borderLeftWidth: 2, borderLeftColor: 'var(--warm)' }}>
+      <div style={{ margin: '24px 0', padding: '16px 18px', border: '1px solid var(--rule)' }}>
         <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 10 }}>
           sealed · for Clara · opens: her wedding day
         </div>
@@ -72,8 +72,7 @@ function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | 'trigger' |
           <div key={t.label} style={{
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             padding: '10px 14px',
-            border: `1px solid ${t.active ? 'var(--rule-warm)' : 'var(--rule)'}`,
-            borderLeft: `2px solid ${t.active ? 'var(--warm)' : 'transparent'}`,
+            border: '1px solid var(--rule)',
           }}>
             <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: t.active ? 'var(--warm)' : 'var(--bone-faint)' }}>
               {t.label}

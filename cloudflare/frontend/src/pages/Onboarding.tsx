@@ -410,7 +410,12 @@ export function Onboarding() {
     try {
       const id = await ensureThreadId();
       if (id) {
+        // ponytail: no thread-rename endpoint exists; carry the edited family
+        // name onto the first entry's title so the field is load-bearing on the
+        // normal (thread-already-exists) flow, not just the fallback create path.
+        const surname = familyName.trim();
         await threadsApi.createEntry(id, {
+          ...(surname ? { title: `The ${surname} Thread` } : {}),
           body_ciphertext: firstEntry.trim(),
           visibility: 'FAMILY',
           era_year: new Date().getFullYear(),
@@ -513,6 +518,8 @@ export function Onboarding() {
             onKeyDown={(e) => e.key === 'Enter' && handleNext()}
             placeholder="name@example.com"
             aria-label="Invite someone's email address"
+            aria-invalid={error ? true : undefined}
+            aria-describedby={error ? 'onboarding-error' : undefined}
           />
         </div>
       </>
@@ -614,7 +621,7 @@ export function Onboarding() {
           {screens[step]}
 
           {error && (
-            <p role="alert" style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 20, textAlign: 'center' }}>
+            <p id="onboarding-error" role="alert" style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', marginTop: 20, textAlign: 'center' }}>
               {error}
             </p>
           )}

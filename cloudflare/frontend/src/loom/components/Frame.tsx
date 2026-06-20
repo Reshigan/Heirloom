@@ -49,8 +49,8 @@ export function SecurityDot({ size = 6 }: { size?: number }) {
   const isGreen = status === 'green';
   return (
     <span
-      role="img"
-      title={isGreen ? 'All systems secure' : 'System issue — please check status'}
+      role="status"
+      aria-live="polite"
       aria-label={isGreen ? 'Secure' : 'System issue'}
       style={{
         display: 'inline-block',

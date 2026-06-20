@@ -563,6 +563,8 @@ export function VoiceRoom() {
                         onChange={(e) => { setEditTitle(e.target.value); setEditError(null); }}
                         placeholder="title — optional"
                         aria-label="Title"
+                        aria-invalid={!!editError}
+                        aria-describedby={editError ? `voice-edit-error-${entry.id}` : undefined}
                         autoFocus
                         style={{ ...FIELD_STYLE, marginBottom: 12 }}
                       />
@@ -571,11 +573,13 @@ export function VoiceRoom() {
                         onChange={(e) => { setEditDesc(e.target.value); setEditError(null); }}
                         placeholder="description — optional"
                         aria-label="Description"
+                        aria-invalid={!!editError}
+                        aria-describedby={editError ? `voice-edit-error-${entry.id}` : undefined}
                         rows={3}
                         style={{ ...FIELD_STYLE, resize: 'none' }}
                       />
                       {editError && (
-                        <p style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--warm)', margin: '4px 0 0', letterSpacing: '0.1em' }}>
+                        <p id={`voice-edit-error-${entry.id}`} role="alert" style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--warm)', margin: '4px 0 0', letterSpacing: '0.1em' }}>
                           {editError}
                         </p>
                       )}

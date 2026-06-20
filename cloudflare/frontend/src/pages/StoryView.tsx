@@ -309,34 +309,39 @@ export function StoryView() {
                     fontSize: 10.5,
                     letterSpacing: '0.22em',
                     textTransform: 'uppercase',
-                    color: atStart ? 'var(--rule)' : 'var(--bone-dim)',
+                    color: atStart ? 'var(--bone-ghost)' : 'var(--bone-dim)',
                   }}
                 >
                   earlier
                 </button>
 
-                {/* ∞ chapter marks */}
+                {/* hairline chapter marks — neutral, no ∞ (WaxSeal is the sole ∞) */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   {memories.map((_, index) => (
                     <button
                       key={index}
                       type="button"
                       aria-label={`Go to photo ${index + 1}`}
-                      aria-current={index === currentIndex}
+                      aria-current={index === currentIndex ? 'true' : undefined}
                       onClick={() => setCurrentIndex(index)}
                       style={{
                         background: 'transparent',
                         border: 0,
-                        padding: 0,
+                        padding: '6px 2px',
                         cursor: 'pointer',
-                        fontFamily: 'var(--serif)',
-                        fontSize: 13,
-                        lineHeight: 1,
-                        color: index === currentIndex ? 'var(--warm)' : 'var(--rule)',
-                        transition: `color 180ms ${EASE}`,
+                        display: 'flex',
+                        alignItems: 'center',
                       }}
                     >
-                      ∞
+                      <span
+                        aria-hidden
+                        style={{
+                          height: 1,
+                          width: index === currentIndex ? 24 : 8,
+                          background: index === currentIndex ? 'var(--bone-dim)' : 'var(--rule)',
+                          transition: `width 360ms ${EASE}, background 180ms ${EASE}`,
+                        }}
+                      />
                     </button>
                   ))}
                 </div>
@@ -354,26 +359,11 @@ export function StoryView() {
                     fontSize: 10.5,
                     letterSpacing: '0.22em',
                     textTransform: 'uppercase',
-                    color: atEnd ? 'var(--rule)' : 'var(--copper-label)',
+                    color: atEnd ? 'var(--bone-ghost)' : 'var(--copper-label)',
                   }}
                 >
                   later
                 </button>
-              </div>
-
-              {/* Hairline progress marks */}
-              <div aria-hidden style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 12 }}>
-                {memories.map((_, index) => (
-                  <span
-                    key={index}
-                    style={{
-                      height: 1,
-                      width: index === currentIndex ? 24 : 8,
-                      background: index === currentIndex ? 'var(--bone-dim)' : 'var(--rule)',
-                      transition: `width 360ms ${EASE}, background 180ms ${EASE}`,
-                    }}
-                  />
-                ))}
               </div>
 
               <p

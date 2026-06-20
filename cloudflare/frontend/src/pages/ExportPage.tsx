@@ -329,7 +329,19 @@ export function ExportPage() {
         <CosmicHeader eyebrow="take it with you" title="Export the thread" align="left" />
 
         {/* ── format — how the archive leaves with you ── */}
-        <div style={{ marginTop: 28 }}>
+        <div
+          role="radiogroup"
+          aria-label="Export format"
+          style={{ marginTop: 28 }}
+          onKeyDown={(e) => {
+            if (e.key !== 'ArrowDown' && e.key !== 'ArrowRight' && e.key !== 'ArrowUp' && e.key !== 'ArrowLeft') return;
+            e.preventDefault();
+            const i = FORMATS.findIndex((o) => o.format === format);
+            const dir = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : -1;
+            const next = FORMATS[(i + dir + FORMATS.length) % FORMATS.length];
+            setFormat(next.format);
+          }}
+        >
           {FORMATS.map((opt) => (
             <FormatRow
               key={opt.format}
@@ -492,7 +504,9 @@ function FormatRow({
     <button
       type="button"
       onClick={onSelect}
-      aria-pressed={selected}
+      role="radio"
+      aria-checked={selected}
+      tabIndex={selected ? 0 : -1}
       style={{
         display: 'flex',
         alignItems: 'baseline',
@@ -512,10 +526,14 @@ function FormatRow({
         style={{
           fontFamily: 'var(--serif)',
           fontSize: 20,
-          fontWeight: 400,
+          fontWeight: selected ? 600 : 400,
           color: 'var(--text-soft)',
         }}
       >
+        {/* ponytail: non-color selected cue — weight + leading mark */}
+        <span aria-hidden="true" style={{ fontFamily: 'var(--mono)', fontSize: 12, marginRight: 10, opacity: selected ? 1 : 0 }}>
+          ✓
+        </span>
         {label}
       </span>
       <span

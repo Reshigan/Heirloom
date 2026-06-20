@@ -1867,9 +1867,9 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div style={{ display: 'flex', gap: 1, border: '1px solid var(--rule)' }}>
+          <div role="radiogroup" aria-label="Voucher mode" style={{ display: 'flex', gap: 1, border: '1px solid var(--rule)' }}>
             {(['single', 'bulk'] as const).map(m => (
-              <button key={m} aria-pressed={mode === m} className={mode === m ? 'loom-btn' : 'loom-btn-ghost'} style={{ flex: 1, borderRadius: 0 }} onClick={() => setMode(m)}>{m === 'single' ? 'Single Voucher' : 'Bulk Create'}</button>
+              <button key={m} role="radio" aria-checked={mode === m} tabIndex={mode === m ? 0 : -1} className={mode === m ? 'loom-btn' : 'loom-btn-ghost'} style={{ flex: 1, borderRadius: 0 }} onClick={() => setMode(m)} onKeyDown={e => { if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); setMode(mode === 'single' ? 'bulk' : 'single'); } }}>{m === 'single' ? 'Single Voucher' : 'Bulk Create'}</button>
             ))}
           </div>
           <LoomField label="Quick Presets">
@@ -1913,7 +1913,8 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
               {formData.recipientEmail && (
                 <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
                   {/* ponytail: hide native OS-blue control, render tokenized square that flips with .loom theme; input keeps state + a11y */}
-                  <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} />
+                  {/* ponytail: keyboard focus drives the swatch's outline via the input's adjacent sibling, so the zeroed input stays visibly focusable */}
+                  <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} onFocus={e => { (e.currentTarget.nextElementSibling as HTMLElement).style.outline = '1px solid var(--warm)'; (e.currentTarget.nextElementSibling as HTMLElement).style.outlineOffset = '2px'; }} onBlur={e => { (e.currentTarget.nextElementSibling as HTMLElement).style.outline = 'none'; }} style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} />
                   <span aria-hidden="true" style={{ flexShrink: 0, width: 14, height: 14, borderRadius: 0, border: `1px solid ${formData.sendEmail ? 'var(--warm)' : 'var(--rule)'}`, background: formData.sendEmail ? 'var(--bone)' : 'transparent', transition: 'border-color 180ms var(--ease), background 180ms var(--ease)' }} />
                   <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>Send gift email to recipient immediately</span>
                 </label>
@@ -1921,7 +1922,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
             </>
           )}
           <LoomField label="Admin Notes (optional)">
-            <textarea value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} rows={2} placeholder="Promotional campaign, influencer gift…" style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--rule)', borderRadius: 0, color: 'var(--bone)', padding: '6px 10px', fontFamily: 'var(--serif)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+            <textarea value={formData.notes} onChange={e => setFormData({ ...formData, notes: e.target.value })} rows={2} placeholder="Promotional campaign, influencer gift…" onFocus={e => { e.currentTarget.style.borderColor = 'var(--warm)'; }} onBlur={e => { e.currentTarget.style.borderColor = 'var(--rule)'; }} style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--rule)', borderRadius: 0, color: 'var(--bone)', padding: '6px 10px', fontFamily: 'var(--serif)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }} />
           </LoomField>
           <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
             <button className="loom-btn-ghost" style={{ flex: 1 }} onClick={onClose}>Cancel</button>
@@ -2016,13 +2017,14 @@ The Heirloom Team`;
             <LoomInput type="text" value={formData.memberNumber} onChange={e => setFormData({ ...formData, memberNumber: e.target.value })} placeholder="G-000001 (auto-generated if empty)" />
           </LoomField>
           <LoomField label="Personal Message">
-            <textarea value={formData.personalMessage} onChange={e => setFormData({ ...formData, personalMessage: e.target.value })} rows={6} placeholder={DEFAULT_MESSAGE} style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--rule)', borderRadius: 0, color: 'var(--bone)', padding: '6px 10px', fontFamily: 'var(--serif)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box', outline: 'none' }} />
+            <textarea value={formData.personalMessage} onChange={e => setFormData({ ...formData, personalMessage: e.target.value })} rows={6} placeholder={DEFAULT_MESSAGE} onFocus={e => { e.currentTarget.style.borderColor = 'var(--warm)'; }} onBlur={e => { e.currentTarget.style.borderColor = 'var(--rule)'; }} style={{ width: '100%', background: 'var(--ink)', border: '1px solid var(--rule)', borderRadius: 0, color: 'var(--bone)', padding: '6px 10px', fontFamily: 'var(--serif)', fontSize: 13, resize: 'vertical', boxSizing: 'border-box' }} />
             <div className="loom-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', marginTop: 4 }}>Leave empty to use the default message</div>
           </LoomField>
           {formData.recipientEmail && (
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
               {/* ponytail: hide native OS-blue control, render tokenized square that flips with .loom theme; input keeps state + a11y */}
-              <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} />
+              {/* ponytail: keyboard focus drives the swatch's outline via the input's adjacent sibling, so the zeroed input stays visibly focusable */}
+              <input type="checkbox" checked={formData.sendEmail} onChange={e => setFormData({ ...formData, sendEmail: e.target.checked })} onFocus={e => { (e.currentTarget.nextElementSibling as HTMLElement).style.outline = '1px solid var(--warm)'; (e.currentTarget.nextElementSibling as HTMLElement).style.outlineOffset = '2px'; }} onBlur={e => { (e.currentTarget.nextElementSibling as HTMLElement).style.outline = 'none'; }} style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }} />
               <span aria-hidden="true" style={{ flexShrink: 0, width: 14, height: 14, borderRadius: 0, border: `1px solid ${formData.sendEmail ? 'var(--warm)' : 'var(--rule)'}`, background: formData.sendEmail ? 'var(--bone)' : 'transparent', transition: 'border-color 180ms var(--ease), background 180ms var(--ease)' }} />
               <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>Send Gold Legacy invitation email immediately</span>
             </label>
@@ -2077,17 +2079,17 @@ const loomInputStyle: React.CSSProperties = {
   padding: '6px 10px',
   fontFamily: 'var(--serif)',
   fontSize: 13,
-  outline: 'none',
   boxSizing: 'border-box',
 };
 
-function LoomInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...props} style={{ ...loomInputStyle, ...props.style }} />;
+function LoomInput({ onFocus, onBlur, ...props }: React.InputHTMLAttributes<HTMLInputElement>) {
+  // ponytail: focus ring = borderColor swap to var(--warm); preserve caller's focus/blur handlers
+  return <input {...props} onFocus={e => { e.currentTarget.style.borderColor = 'var(--warm)'; onFocus?.(e); }} onBlur={e => { e.currentTarget.style.borderColor = 'var(--rule)'; onBlur?.(e); }} style={{ ...loomInputStyle, ...props.style }} />;
 }
 
-function LoomSelect({ children, style, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
+function LoomSelect({ children, style, onFocus, onBlur, ...props }: React.SelectHTMLAttributes<HTMLSelectElement>) {
   return (
-    <select {...props} style={{ ...loomInputStyle, ...style }}>
+    <select {...props} onFocus={e => { e.currentTarget.style.borderColor = 'var(--warm)'; onFocus?.(e); }} onBlur={e => { e.currentTarget.style.borderColor = 'var(--rule)'; onBlur?.(e); }} style={{ ...loomInputStyle, ...style }}>
       {children}
     </select>
   );

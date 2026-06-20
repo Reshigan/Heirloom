@@ -37,8 +37,8 @@ function GlowMark() {
   return (
     <div
       aria-hidden
-      className="hl-serif"
       style={{
+        fontFamily: 'var(--serif-display)',
         fontSize: 'clamp(40px, 10vw, 64px)',
         fontWeight: 200,
         color: 'var(--warm)',

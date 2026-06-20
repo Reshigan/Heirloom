@@ -40,7 +40,6 @@ export function ClothShell({
       {/* Topbar */}
       {!noTopbar && (
         <header
-          aria-label="Navigation"
           style={{
             position: 'absolute', top: 0, left: 0, right: 0,
             height: 'var(--topbar-h)',

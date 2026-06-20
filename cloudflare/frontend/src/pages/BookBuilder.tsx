@@ -7,6 +7,7 @@ import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/Co
 import { dyeFromMetadata, dyeForId, dyeVar, type Dye } from '../loom/dye';
 import { memoriesApi, lettersApi, voiceApi, booksApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 type BookStep = 'select' | 'customize' | 'page' | 'preview' | 'order';
 
@@ -151,7 +152,7 @@ function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }
     // never fills a surface). Warmth is carried by the hairline border alone, so
     // it still theme-flips via the token fill and the warm rule.
     background: 'var(--bg-template)',
-    border: `1px solid ${active ? 'var(--rule-warm)' : ink}`,
+    border: `1px solid ${active ? 'var(--warm)' : ink}`,
     borderRadius: 0,
   };
   const line = (w: string): React.CSSProperties => ({ height: 2, width: w, background: ink, borderRadius: 0 });
@@ -234,11 +235,10 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
           // surface). Warmth is carried by a single 1px copper emboss stroke, not
           // a copper-tinted gradient; the fill theme-flips via var(--ink-card).
           background: 'var(--ink-card)',
-          border: '1px solid var(--rule-warm)',
+          // ponytail: flat 1px hairline border defines the volume — no faux-3D
+          // drop shadow (Rule 5 bans skeuomorphic depth).
+          border: '1px solid var(--rule)',
           borderRadius: 0,
-          // neutral depth only — no copper glow layer. Softer than full-black so
-          // it doesn't bruise the paper ground.
-          boxShadow: '0 14px 30px var(--book-drop-shadow), 0 2px 6px var(--book-drop-shadow-2)',
         }}
       >
         {/* darker spine stripe on the left */}
@@ -272,7 +272,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
           style={{
             position: 'absolute',
             inset: '14px 12px 14px 24px',
-            border: '1px solid var(--rule-warm)',
+            border: '1px solid var(--rule)',
             borderRadius: 0,
             display: 'flex',
             flexDirection: 'column',
@@ -296,7 +296,6 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
               textAlign: 'center',
               lineHeight: 1.2,
               padding: '0 8px',
-              textShadow: '0 1px 1px var(--emboss-shadow)',
             }}
           >
             {title}
@@ -309,7 +308,6 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--gold-text)',
-              textShadow: '0 1px 1px var(--emboss-shadow)',
             }}
           >
             VOL. I · {yearsLabel}
@@ -761,19 +759,28 @@ export function BookBuilder() {
           {step === 'page' && (
             <div style={{ display: 'grid', gap: 28 }}>
               <div
+                role="radiogroup"
+                aria-label="Page layout"
                 style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
                   gap: 'clamp(16px, 4vw, 30px)',
                 }}
               >
-                {pageLayouts.map(({ id, label }) => {
+                {pageLayouts.map(({ id, label }, idx) => {
                   const active = pageLayout === id;
                   return (
                     <button
                       key={id}
                       type="button"
-                      aria-pressed={active}
+                      role="radio"
+                      aria-checked={active}
+                      tabIndex={active ? 0 : -1}
+                      onKeyDown={(e) =>
+                        handleRadioArrowKeys(e, idx, pageLayouts.length, (next) =>
+                          setPageLayout(pageLayouts[next].id),
+                        )
+                      }
                       onClick={() => setPageLayout(id)}
                       style={{
                         display: 'flex',
@@ -793,7 +800,7 @@ export function BookBuilder() {
                         style={{
                           width: '100%',
                           aspectRatio: '0.78',
-                          border: active ? '1px solid var(--warm)' : '1px solid var(--rule-warm)',
+                          border: active ? '1px solid var(--warm)' : '1px solid var(--rule)',
                           // selected state is marked by the 1px warm border alone
                           // (Rule 2: no copper-tint surface fill). Fill stays the
                           // flat template surface in both states.
@@ -815,6 +822,11 @@ export function BookBuilder() {
                           fontSize: 9,
                           letterSpacing: '0.32em',
                           textTransform: 'uppercase',
+                          // non-color selected cue (sighted users w/o color): weight +
+                          // underline mark, not just the warm color swap.
+                          fontWeight: active ? 700 : 400,
+                          textDecoration: active ? 'underline' : 'none',
+                          textUnderlineOffset: 3,
                           color: active ? 'var(--warm)' : 'var(--copper-label)',
                           transition: 'color 180ms var(--ease)',
                         }}
@@ -957,14 +969,21 @@ export function BookBuilder() {
                     Hairline-separated ledger rows; the chosen cover carries a
                     warm BOUND marker. */}
                 <RoomSection label="Cover type">
-                  <div style={{ borderTop: '1px solid var(--rule)' }}>
-                    {(['hardcover', 'softcover'] as const).map((type) => {
+                  <div role="radiogroup" aria-label="Cover type" style={{ borderTop: '1px solid var(--rule)' }}>
+                    {(['hardcover', 'softcover'] as const).map((type, idx, arr) => {
                       const on = config.coverType === type;
                       return (
                         <button
                           key={type}
                           type="button"
-                          aria-pressed={on}
+                          role="radio"
+                          aria-checked={on}
+                          tabIndex={on ? 0 : -1}
+                          onKeyDown={(e) =>
+                            handleRadioArrowKeys(e, idx, arr.length, (next) =>
+                              setConfig((prev) => ({ ...prev, coverType: arr[next] })),
+                            )
+                          }
                           onClick={() => setConfig((prev) => ({ ...prev, coverType: type }))}
                           style={{
                             display: 'flex',
