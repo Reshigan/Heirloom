@@ -109,7 +109,7 @@ export function Pricing() {
         <link rel="canonical" href={CANONICAL} />
       </Helmet>
       <style>{`
-        .pricing-cta:focus-visible { outline: 2px solid var(--warm); outline-offset: 2px; }
+        .pricing-cta:focus-visible { outline: 1px solid var(--warm); outline-offset: 2px; }
       `}</style>
       <div
         style={{
@@ -299,6 +299,8 @@ export function Pricing() {
         {/* Billing cycle — quiet inline toggle, preserves annual/setAnnual wiring */}
         {!annualOnly && (
           <div
+            role="group"
+            aria-label="Billing cycle"
             style={{
               display: 'flex',
               justifyContent: 'center',

@@ -211,7 +211,7 @@ export function FirstThread() {
             </div>
             <div role="heading" aria-level={1} style={{ fontFamily: 'var(--serif-display)', fontSize: 30, color: 'var(--bone)', marginTop: 30 }}>The Threshold</div>
             <div style={{ fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone-dim)', marginTop: 8 }}>Every thread begins with a touch.</div>
-            <div style={{ position: 'absolute', bottom: 46, fontSize: 10, letterSpacing: '0.32em', color: 'var(--bone-faint)', animation: 'hl-pulse 1400ms var(--ease) infinite' }}>PRESS TO BEGIN</div>
+            <div style={{ position: 'absolute', bottom: 46, fontSize: 10, letterSpacing: '0.32em', color: 'var(--bone-faint)', opacity: 0.6 }}>PRESS TO BEGIN</div>
           </div>
         )}
 

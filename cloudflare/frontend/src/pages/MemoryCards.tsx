@@ -24,7 +24,7 @@ interface GeneratedCard {
   authorName: string;
   memoryDate: string | null;
   memoryTitle: string;
-  shareUrl: string;
+  shareUrl: string; // served woven-card image URL — the artifact, not a broadcast feed
 }
 
 interface OnThisDayMemory {
@@ -54,7 +54,6 @@ export function MemoryCards() {
   const [includePhoto, setIncludePhoto] = useState(true);
   const [generatedCard, setGeneratedCard] = useState<GeneratedCard | null>(null);
   const [genError, setGenError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'create' | 'gallery' | 'onthisday'>('create');
 
   const { data: stylesData } = useQuery({
@@ -94,29 +93,8 @@ export function MemoryCards() {
     onError: () => setGenError('Card generation failed. Please try again.'),
   });
 
-  const shareMutation = useMutation({
-    mutationFn: (platform: string) => memoryCardsApi.recordShare(generatedCard!.id, platform),
-  });
-
   const handleGenerate = () => {
     if (selectedMemory) generateMutation.mutate();
-  };
-
-  const handleCopyLink = async () => {
-    if (!generatedCard) return;
-    try {
-      await navigator.clipboard.writeText(generatedCard.shareUrl);
-    } catch {
-      const ta = document.createElement('textarea');
-      ta.value = generatedCard.shareUrl;
-      document.body.appendChild(ta);
-      ta.select();
-      document.execCommand('copy');
-      document.body.removeChild(ta);
-    }
-    setCopied(true);
-    shareMutation.mutate('copy');
-    setTimeout(() => setCopied(false), 2000);
   };
 
   const styles = stylesData?.styles || [];
@@ -476,16 +454,19 @@ export function MemoryCards() {
                     </p>
                   </div>
 
-                  {/* Share actions */}
+                  {/* The woven card image — kept within the bloodline, not broadcast.
+                      Opens the served artifact so a kin can save or print it. */}
                   <div style={{ display: 'grid', gap: 8 }}>
-                    <button
-                      type="button"
-                      onClick={handleCopyLink}
+                    <a
+                      href={generatedCard.shareUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       style={{
-                        background: 'transparent',
+                        display: 'block',
                         border: '1px solid var(--rule)',
                         padding: '10px 18px',
-                        cursor: 'pointer',
+                        textAlign: 'center',
+                        textDecoration: 'none',
                         fontFamily: 'var(--mono)',
                         fontSize: 11,
                         letterSpacing: '0.18em',
@@ -494,8 +475,8 @@ export function MemoryCards() {
                         transition: 'border-color 180ms var(--ease), color 180ms var(--ease)',
                       }}
                     >
-                      {copied ? 'Link copied' : 'Copy share link'}
-                    </button>
+                      Open the card image
+                    </a>
                   </div>
                 </div>
               ) : (

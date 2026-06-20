@@ -478,7 +478,6 @@ export function Onboarding() {
           onBlur={onBlur}
           placeholder="your family name"
           aria-label="Your family name"
-          autoFocus
         />
 
         <div style={{ marginTop: 4 }}>
@@ -514,7 +513,6 @@ export function Onboarding() {
             onKeyDown={(e) => e.key === 'Enter' && handleNext()}
             placeholder="name@example.com"
             aria-label="Invite someone's email address"
-            autoFocus
           />
         </div>
       </>

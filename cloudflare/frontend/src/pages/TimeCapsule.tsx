@@ -6,6 +6,7 @@ import { CosmicHeader, SectionLabel } from '../loom/cosmic/CosmicUI';
 import { capsulesApi, threadsApi } from '../services/api';
 import { useFocusTrap } from '../lib/useFocusTrap';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { dyeVar, type Dye } from '../loom/dye';
 
 type CapsuleStatus = 'open' | 'sealed' | 'unlocked';
 
@@ -109,6 +110,9 @@ function CapsuleRow({
     ? 'sealed'
     : 'open';
 
+  // The chosen cover renders as the capsule's left-margin dye thread (identity signal).
+  const dye = coverDye(capsule.cover_style);
+
   return (
     <button
       type="button"
@@ -117,16 +121,18 @@ function CapsuleRow({
         width: '100%',
         background: 'transparent',
         border: 0,
-        borderLeft: isSelected ? '1px solid var(--warm)' : '1px solid transparent',
+        borderLeft: `3px solid ${dyeVar(dye)}`,
         borderBottom: '1px solid var(--hairline)',
-        padding: isSelected ? '24px 0 24px 16px' : '24px 0',
+        outline: isSelected ? '1px solid var(--warm)' : 'none',
+        outlineOffset: -1,
+        padding: '24px 0 24px 16px',
         cursor: 'pointer',
         textAlign: 'left',
         display: 'grid',
         gridTemplateColumns: '1fr auto',
         gap: 24,
         alignItems: 'baseline',
-        transition: `border-color 180ms ${EASE}, padding 180ms ${EASE}`,
+        transition: `outline-color 180ms ${EASE}`,
       }}
     >
       {/* Serif title + warm dye dot */}
@@ -182,12 +188,19 @@ function CapsuleRow({
   );
 }
 
-const COVER_STYLES = [
-  { id: 'classic', label: 'Classic Gold' },
-  { id: 'midnight', label: 'Midnight Blue' },
-  { id: 'rose', label: 'Rose Garden' },
-  { id: 'emerald', label: 'Emerald' },
+// Each cover is a family dye (src/loom/dye.ts) — the swatch and the capsule's
+// left-margin thread both render `dyeVar(dye)`, so the stored choice shows back.
+const COVER_STYLES: { id: string; label: string; dye: Dye }[] = [
+  { id: 'classic', label: 'Saffron', dye: 'saffron' },
+  { id: 'midnight', label: 'Indigo', dye: 'indigo' },
+  { id: 'rose', label: 'Madder', dye: 'madder' },
+  { id: 'emerald', label: 'Weld', dye: 'weld' },
 ];
+
+/** The dye a stored cover_style maps to (for the capsule's left-margin thread). */
+function coverDye(coverStyle: string): Dye {
+  return (COVER_STYLES.find((c) => c.id === coverStyle) ?? COVER_STYLES[0]).dye;
+}
 
 /** The lock types from the mockup. Each resolves to a concrete unlock_date the API accepts. */
 type LockType = 'date' | 'eighteen' | 'generation' | 'gone';
@@ -717,39 +730,44 @@ export function TimeCapsule() {
             <div style={{ marginTop: 14 }}>
               <SectionLabel>Cover style</SectionLabel>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
-                {COVER_STYLES.map((style) => (
-                  <button
-                    key={style.id}
-                    type="button"
-                    onClick={() =>
-                      setNewCapsule((prev) => ({ ...prev, cover_style: style.id }))
-                    }
-                    aria-pressed={newCapsule.cover_style === style.id}
-                    style={{
-                      background: 'transparent',
-                      border: `1px solid ${
-                        newCapsule.cover_style === style.id ? 'var(--warm)' : 'var(--rule)'
-                      }`,
-                      borderRadius: 0,
-                      padding: '10px 14px',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: `border-color 180ms ${EASE}`,
-                    }}
-                  >
-                    <span
-                      className="hl-serif"
+                {COVER_STYLES.map((style) => {
+                  const active = newCapsule.cover_style === style.id;
+                  return (
+                    <button
+                      key={style.id}
+                      type="button"
+                      onClick={() =>
+                        setNewCapsule((prev) => ({ ...prev, cover_style: style.id }))
+                      }
+                      aria-pressed={active}
                       style={{
-                        fontSize: 14,
-                        fontWeight: 300,
-                        color:
-                          newCapsule.cover_style === style.id ? 'var(--warm)' : 'var(--bone)',
+                        background: 'transparent',
+                        // Dye renders as the swatch's left-margin thread (3px); the
+                        // active state stays on the sanctioned 1px warm stroke.
+                        borderTop: `1px solid ${active ? 'var(--warm)' : 'var(--rule)'}`,
+                        borderRight: `1px solid ${active ? 'var(--warm)' : 'var(--rule)'}`,
+                        borderBottom: `1px solid ${active ? 'var(--warm)' : 'var(--rule)'}`,
+                        borderLeft: `3px solid ${dyeVar(style.dye)}`,
+                        borderRadius: 0,
+                        padding: '10px 14px',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: `border-color 180ms ${EASE}`,
                       }}
                     >
-                      {style.label}
-                    </span>
-                  </button>
-                ))}
+                      <span
+                        className="hl-serif"
+                        style={{
+                          fontSize: 14,
+                          fontWeight: 300,
+                          color: active ? 'var(--warm)' : 'var(--bone)',
+                        }}
+                      >
+                        {style.label}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 

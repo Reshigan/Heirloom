@@ -125,11 +125,11 @@ export function Loom({
   // irregular hand-woven warp — a stack of vertical hairlines, each with
   // its own jittered position and alpha, so the warp doesn't read as a
   // flat repeating CSS fill.
-  const warpEvery = 7; // px
   const warpCount = 180; // capped; the band scales to 100% width regardless
+  // ponytail: 180 hairline divs; swap to a repeating-linear-gradient if this ever profiles hot
   const warps: { left: number; alpha: number }[] = [];
   for (let k = 0; k < warpCount; k += 1) {
-    const base = (k * warpEvery) / (warpCount * warpEvery);
+    const base = k / warpCount;
     const j = jitter(k * 1.7 + 3);
     warps.push({
       left: (base + (j - 0.5) * 0.0008) * 100,

@@ -203,7 +203,7 @@ export function Milestones() {
                         italic={!milestone.family_member_name && !!milestone.prompt_suggestion}
                         year={`${when} · ${dueLabel}`}
                         author={typeInfo.name}
-                        dye={dyeForId(milestone.id)}
+                        dye={milestone.family_member_id ? dyeForId(milestone.family_member_id) : undefined}
                         onClick={() => { setAutoDetectMsg(null); navigate('/compose'); }}
                       />
                     );
@@ -236,7 +236,7 @@ export function Milestones() {
                             sub={milestone.family_member_name || undefined}
                             year={`${when} · ${milestone.recurring ? 'yearly' : 'once'}`}
                             author={typeInfo.name}
-                            dye={dyeForId(milestone.id)}
+                            dye={milestone.family_member_id ? dyeForId(milestone.family_member_id) : undefined}
                           />
                         </div>
                         {/* quiet mono affordances under the row — same delete flow, no icon buttons */}
@@ -380,7 +380,6 @@ export function Milestones() {
                   id="ms-recurring"
                   checked={formData.recurring}
                   onChange={(e) => setFormData({ ...formData, recurring: e.target.checked })}
-                  style={{ width: 14, height: 14, accentColor: 'var(--bone-dim)', borderRadius: 0 }}
                 />
                 <label
                   htmlFor="ms-recurring"

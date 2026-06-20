@@ -235,6 +235,7 @@ export function MemoryMap() {
                     type="button"
                     onClick={() => setSelectedMemory(d.memory)}
                     aria-label={d.memory.title}
+                    aria-pressed={active}
                     style={{
                       position: 'absolute',
                       left: `${d.x}%`,

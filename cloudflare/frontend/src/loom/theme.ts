@@ -28,6 +28,7 @@ function readInitial(): LoomTheme {
 
 function applyTheme(theme: LoomTheme): void {
   const resolved = theme === 'system' ? resolveSystem() : theme;
+  document.documentElement.setAttribute('data-theme', resolved);
   document.querySelectorAll('.loom').forEach((el) => {
     el.setAttribute('data-theme', resolved);
   });

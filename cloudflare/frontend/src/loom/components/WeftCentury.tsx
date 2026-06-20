@@ -87,11 +87,14 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
         flexDirection: 'column',
       }}
     >
+      <h1 className="loom-display" style={{ fontSize: 'clamp(28px, 5vw, 44px)', margin: '0 0 6px' }}>
+        The Century
+      </h1>
       <div
         className="loom-eyebrow"
         style={{ marginBottom: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}
       >
-        <span role="heading" aria-level={1}>
+        <span>
           <span style={{ color: 'var(--warm)' }}>·</span> century view &nbsp;·&nbsp; {C_START} — {C_END} &nbsp;·&nbsp; {C_END - C_START} yrs
         </span>
         <span className="loom-serif" style={{ fontSize: 11, fontStyle: 'italic', color: 'var(--bone-faint)' }}>

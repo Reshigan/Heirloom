@@ -41,7 +41,6 @@ export function InfinityMenu() {
     <div ref={ref} style={{ position: 'relative', display: 'inline-flex' }}>
       <button
         type="button"
-        aria-haspopup="menu"
         aria-expanded={open}
         aria-label="Open the cloth's artifacts"
         onClick={() => setOpen((o) => !o)}
@@ -60,7 +59,6 @@ export function InfinityMenu() {
 
       {open && (
         <div
-          role="menu"
           style={{
             position: 'absolute', top: 'calc(100% + 8px)', left: '50%',
             transform: 'translateX(-50%)',
@@ -73,7 +71,6 @@ export function InfinityMenu() {
           {ITEMS.map((it, i) => (
             <button
               key={it.to}
-              role="menuitem"
               type="button"
               onClick={() => { setOpen(false); navigate(it.to); }}
               style={{

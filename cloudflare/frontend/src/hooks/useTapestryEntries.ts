@@ -14,6 +14,9 @@ export interface CanvasEntry {
   sealUntil?: Date;
   /** The entry's own title — the cloth whispers it on hover. */
   title?: string;
+  /** Source row id + kind, so a row can open its own room (mirrors Weft). */
+  id?: string;
+  kind?: 'memory' | 'letter' | 'voice';
 }
 
 const DYE_MAP: Record<string, string> = {
@@ -76,6 +79,7 @@ export function useTapestryEntries(): { entries: CanvasEntry[]; isError: boolean
         date, n: n++, dye: pickDye(m.type ?? 'memory'), tier: 'family',
         author: m.userId ?? m.user_id,
         title: typeof m.title === 'string' && m.title ? m.title : undefined,
+        id: m.id, kind: 'memory',
       });
     }
     for (const l of lets) {
@@ -89,6 +93,7 @@ export function useTapestryEntries(): { entries: CanvasEntry[]; isError: boolean
         date, n: n++, dye: 'indigo', tier: 'family', sealed: !!l.sealedAt,
         sealUntil: unlock && !isNaN(unlock.getTime()) && unlock.getTime() > Date.now() ? unlock : undefined,
         title: typeof l.title === 'string' && l.title ? l.title : undefined,
+        id: l.id, kind: 'letter',
       });
     }
     for (const v of vox) {
@@ -97,6 +102,7 @@ export function useTapestryEntries(): { entries: CanvasEntry[]; isError: boolean
       all.push({
         date, n: n++, dye: 'saffron', tier: 'family',
         title: typeof v.title === 'string' && v.title ? v.title : undefined,
+        id: v.id, kind: 'voice',
       });
     }
 

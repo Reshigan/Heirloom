@@ -302,7 +302,14 @@ function AuthHome({
       year: e.date.getFullYear(),
       dye: e.dye as Dye,
       sealed: !!e.sealed,
-      route: e.sealed ? '/loom/tied' : '/loom/weft',
+      // Each row opens its own room — mirrors Weft.tsx handleSelectEntry by kind+id.
+      route: !e.id
+        ? '/loom/weft'
+        : e.kind === 'voice'
+          ? `/loom/voice?id=${e.id}`
+          : e.kind === 'letter'
+            ? `/loom/letter?id=${e.id}`
+            : `/loom/read?entry=${e.id}`,
     }));
 
   const status =

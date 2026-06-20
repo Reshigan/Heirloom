@@ -96,7 +96,7 @@ export function UserMenu() {
       <button
         type="button"
         className="hl-topbar-user-btn"
-        aria-haspopup="menu"
+        aria-haspopup="true"
         aria-expanded={open}
         aria-label="User menu"
         onClick={() => setOpen((v) => !v)}
@@ -120,7 +120,6 @@ export function UserMenu() {
         {initials}
       </button>
       <div
-        role="menu"
         aria-hidden={!open}
         style={{
           position: 'absolute',
@@ -148,14 +147,14 @@ export function UserMenu() {
           </p>
         </div>
         <div style={{ padding: '6px 0', borderBottom: '1px solid var(--rule)' }}>
-          <Link to="/family"             role="menuitem" className="hl-menu-item" onClick={() => setOpen(false)}>family</Link>
-          <Link to="/settings"           role="menuitem" className="hl-menu-item" onClick={() => setOpen(false)}>settings</Link>
-          <Link to="/billing"            role="menuitem" className="hl-menu-item" onClick={() => setOpen(false)}>billing</Link>
-          <Link to="/gift-subscriptions" role="menuitem" className="hl-menu-item" onClick={() => setOpen(false)}>gift a membership</Link>
-          <Link to="/help"               role="menuitem" className="hl-menu-item" onClick={() => setOpen(false)}>help &amp; support</Link>
+          <Link to="/family"             className="hl-menu-item" onClick={() => setOpen(false)}>family</Link>
+          <Link to="/settings"           className="hl-menu-item" onClick={() => setOpen(false)}>settings</Link>
+          <Link to="/billing"            className="hl-menu-item" onClick={() => setOpen(false)}>billing</Link>
+          <Link to="/gift-subscriptions" className="hl-menu-item" onClick={() => setOpen(false)}>gift a membership</Link>
+          <Link to="/help"               className="hl-menu-item" onClick={() => setOpen(false)}>help &amp; support</Link>
         </div>
         <div style={{ padding: '6px 0' }}>
-          <button type="button" role="menuitem" className="hl-menu-item danger"
+          <button type="button" className="hl-menu-item danger"
             onClick={() => { setOpen(false); logout(); }}>
             sign out
           </button>

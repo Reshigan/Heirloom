@@ -57,6 +57,8 @@ function ToField({
   onChange: (id: string | null, name: string) => void;
 }) {
   const [open, setOpen] = useState(false);
+  // Drives the recipient field's focus cue declaratively (no DOM-poking).
+  const [focused, setFocused] = useState(false);
   // Active descendant for keyboard navigation of the suggestion listbox.
   const [activeIndex, setActiveIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -150,7 +152,7 @@ function ToField({
             display: 'flex',
             alignItems: 'center',
             gap: 12,
-            borderBottom: '1px solid var(--rule)',
+            borderBottom: `1px solid ${focused ? 'var(--warm)' : 'var(--rule)'}`,
             paddingBottom: 2,
           }}
         >
@@ -174,8 +176,8 @@ function ToField({
               onChange(null, e.target.value);
               setOpen(true);
             }}
-            onFocus={(e) => { setOpen(true); e.currentTarget.parentElement && (e.currentTarget.parentElement.style.borderBottomColor = 'var(--warm)'); }}
-            onBlur={(e) => { e.currentTarget.parentElement && (e.currentTarget.parentElement.style.borderBottomColor = ''); setTimeout(() => setOpen(false), 200); }}
+            onFocus={() => { setOpen(true); setFocused(true); }}
+            onBlur={() => { setFocused(false); setTimeout(() => setOpen(false), 200); }}
             onKeyDown={handleKeyDown}
             placeholder="e.g. Grandpa"
             aria-label="Recipient name"

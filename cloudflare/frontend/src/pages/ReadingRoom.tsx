@@ -188,15 +188,14 @@ const DOT_CAP = 12;
 
 // Mono position readout — zero-padded current/total, styled to match the file's
 // existing mono captions. `dye` tints the active index the way the active dot
-// would; everything else stays quiet bone. `aria-current` lives on the wrapper
-// so the active position is announced exactly as the dot row did.
+// would; everything else stays quiet bone. The position reads via `aria-label`
+// only — no `aria-current`, since this is a static readout, not a navigable set.
 function PagerCounter({ index, total, dye }: { index: number; total: number; dye: string }) {
   const pad = String(total).length;
   const cur = String(index + 1).padStart(pad, '0');
   const tot = String(total).padStart(pad, '0');
   return (
     <div
-      aria-current="true"
       aria-label={`Entry ${index + 1} of ${total}`}
       style={{
         display: 'flex', alignItems: 'center', gap: 2,
@@ -1083,7 +1082,6 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
           // collapse to a compact mono position readout in the book's gilt scope
           // (same "07 / 142" format as the wall pager, letter tokens not bone).
           <div
-            aria-current="true"
             aria-label={`Entry ${ch + 1} of ${entries.length}`}
             style={{
               display: 'flex', alignItems: 'center', gap: 2,

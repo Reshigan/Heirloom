@@ -434,8 +434,8 @@ html {
 
 body {
   font-family: var(--font-body);
-  background: var(--void-abyss);
-  color: var(--paper);
+  background: var(--ink);
+  color: var(--bone);
   min-height: 100vh;
   overflow-x: hidden;
   max-width: 100vw;
@@ -444,14 +444,6 @@ body {
   letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* Light theme flips the document substrate to parchment ground + ink text
-   (mirrors index.html's `html[data-theme="light"] { background }`). The default
-   body rule above stays the dark ground; this remaps it via theme tokens. */
-html[data-theme="light"] body {
-  background: var(--ink);
-  color: var(--bone);
 }
 
 /* Scrollbar - Barely visible, precious */
@@ -2050,18 +2042,10 @@ html {
 .loom .legacy-card,
 .loom .reflection-card,
 .loom .sanctuary-object {
-  background: rgba(242, 230, 208, 0.012) !important;
+  background: var(--glass-bg) !important;
   border: 1px solid var(--loom-rule) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-}
-.loom[data-theme="light"] .card,
-.loom[data-theme="light"] .card-elevated,
-.loom[data-theme="light"] .card-interactive,
-.loom[data-theme="light"] .legacy-card,
-.loom[data-theme="light"] .reflection-card,
-.loom[data-theme="light"] .sanctuary-object {
-  background: rgba(26, 22, 18, 0.012) !important;
 }
 
 .loom .card-interactive:hover {
