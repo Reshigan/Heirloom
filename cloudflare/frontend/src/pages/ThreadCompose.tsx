@@ -654,7 +654,6 @@ export function ThreadCompose() {
               <button
                 type="submit"
                 disabled={!canSave}
-                onClick={handleSave}
                 style={pillStyle(true, !canSave)}
               >
                 {busy ? 'weaving…' : 'weave →'}

@@ -178,6 +178,39 @@ function SelvedgeHistory({ t }: { t: Thread }) {
   );
 }
 
+// ── Pager dot cap ─────────────────────────────────────────────────────────────
+// Both dot pagers (the time pager in ReadingContent and the page-turn pager in
+// BookView) render one element per entry. At realistic counts the uncapped
+// non-shrinking row overflows the space-between bar. Above this threshold we
+// collapse to a compact mono position counter (e.g. "07 / 142") that fits the
+// existing pager slot, keeping the active state legible without overflow.
+const DOT_CAP = 12;
+
+// Mono position readout — zero-padded current/total, styled to match the file's
+// existing mono captions. `dye` tints the active index the way the active dot
+// would; everything else stays quiet bone. `aria-current` lives on the wrapper
+// so the active position is announced exactly as the dot row did.
+function PagerCounter({ index, total, dye }: { index: number; total: number; dye: string }) {
+  const pad = String(total).length;
+  const cur = String(index + 1).padStart(pad, '0');
+  const tot = String(total).padStart(pad, '0');
+  return (
+    <div
+      aria-current="true"
+      aria-label={`Entry ${index + 1} of ${total}`}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 2,
+        fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
+        textTransform: 'uppercase',
+      }}
+    >
+      <span style={{ color: dye }}>{cur}</span>
+      <span style={{ color: 'var(--bone-faint)' }}>/</span>
+      <span style={{ color: 'var(--bone-dim)' }}>{tot}</span>
+    </div>
+  );
+}
+
 // ── ReadingContent ────────────────────────────────────────────────────────────
 function ReadingContent({
   t, dye, onPrev, onNext, onJump, activeIndex, total,
@@ -320,30 +353,34 @@ function ReadingContent({
             ← earlier
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-            {Array.from({ length: total }, (_, i) => (
-              <button
-                key={i}
-                type="button"
-                onClick={() => onJump(i)}
-                aria-label={`Go to entry ${i + 1}`}
-                aria-current={i === activeIndex ? 'true' : undefined}
-                style={{
-                  background: 'transparent',
-                  border: 'none', padding: '21px 8px', cursor: 'pointer',
-                  flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}
-              >
-                <span style={{
-                  display: 'block',
-                  width: i === activeIndex ? 20 : 6, height: 2,
-                  background: i === activeIndex ? dye : 'var(--bone-ghost)',
-                  transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
-                  flexShrink: 0,
-                }} />
-              </button>
-            ))}
-          </div>
+          {total > DOT_CAP ? (
+            <PagerCounter index={activeIndex} total={total} dye={dye} />
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              {Array.from({ length: total }, (_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => onJump(i)}
+                  aria-label={`Go to entry ${i + 1}`}
+                  aria-current={i === activeIndex ? 'true' : undefined}
+                  style={{
+                    background: 'transparent',
+                    border: 'none', padding: '21px 8px', cursor: 'pointer',
+                    flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  <span style={{
+                    display: 'block',
+                    width: i === activeIndex ? 20 : 6, height: 2,
+                    background: i === activeIndex ? dye : 'var(--bone-ghost)',
+                    transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
+                    flexShrink: 0,
+                  }} />
+                </button>
+              ))}
+            </div>
+          )}
 
           <button
             type="button" onClick={onNext} disabled={!onNext}
@@ -719,7 +756,7 @@ export function ReadingRoom() {
           overflow: 'hidden', display: 'flex', flexDirection: 'column',
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto' }}>
           {entries.map((th, i) => (
             <button
               key={th.id}
@@ -727,12 +764,12 @@ export function ReadingRoom() {
               onClick={() => handleSelect(i)}
               aria-current={i === active ? 'true' : undefined}
               style={{
-                flex: 1, cursor: 'pointer', background: 'transparent', border: 0,
+                flex: 'none', minHeight: 44, cursor: 'pointer', background: 'transparent', border: 0,
                 display: 'flex', alignItems: 'center', overflow: 'hidden',
                 borderLeft: `3px solid ${dyeVar(th.dye)}`,
                 opacity: i === active ? 1 : 0.28,
                 transition: `opacity 180ms ${EASE}`,
-                textAlign: 'left', width: '100%', padding: 0,
+                textAlign: 'left', width: '100%', padding: '8px 0',
               }}
             >
               <div style={{
@@ -1037,33 +1074,56 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
           ← earlier
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {entries.map((e, i) => (
-            <button
-              key={e.id}
-              type="button"
-              aria-label={`entry ${i + 1}`}
-              aria-current={i === ch}
-              onClick={() => setCh(i)}
-              style={{
-                background: 'transparent', border: 0, padding: '8px 0', cursor: 'pointer',
-                display: 'inline-flex', alignItems: 'center',
-              }}
-            >
-              {/* a single neutral reading marker — ∞ is reserved for the seal/foot,
-                  never repeated as pagination. Active widens + warms. */}
-              <span
-                aria-hidden
+        {entries.length > DOT_CAP ? (
+          // Above the dot cap the per-entry markers overflow the spread bar;
+          // collapse to a compact mono position readout in the book's gilt scope
+          // (same "07 / 142" format as the wall pager, letter tokens not bone).
+          <div
+            aria-current="true"
+            aria-label={`Entry ${ch + 1} of ${entries.length}`}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 2,
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+            }}
+          >
+            <span style={{ color: 'var(--letter-gold)' }}>
+              {String(ch + 1).padStart(String(entries.length).length, '0')}
+            </span>
+            <span style={{ color: 'rgba(var(--letter-copper-rgb), 0.3)' }}>/</span>
+            <span style={{ color: 'var(--letter-body)' }}>
+              {String(entries.length).padStart(String(entries.length).length, '0')}
+            </span>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {entries.map((e, i) => (
+              <button
+                key={e.id}
+                type="button"
+                aria-label={`entry ${i + 1}`}
+                aria-current={i === ch}
+                onClick={() => setCh(i)}
                 style={{
-                  display: 'block', height: 1,
-                  width: i === ch ? 20 : 6,
-                  background: i === ch ? 'var(--letter-gold)' : 'rgba(var(--letter-copper-rgb), 0.3)',
-                  transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
+                  background: 'transparent', border: 0, padding: '8px 0', cursor: 'pointer',
+                  display: 'inline-flex', alignItems: 'center',
                 }}
-              />
-            </button>
-          ))}
-        </div>
+              >
+                {/* a single neutral reading marker — ∞ is reserved for the seal/foot,
+                    never repeated as pagination. Active widens + warms. */}
+                <span
+                  aria-hidden
+                  style={{
+                    display: 'block', height: 1,
+                    width: i === ch ? 20 : 6,
+                    background: i === ch ? 'var(--letter-gold)' : 'rgba(var(--letter-copper-rgb), 0.3)',
+                    transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
+                  }}
+                />
+              </button>
+            ))}
+          </div>
+        )}
 
         <button
           type="button" onClick={() => turn(1)} disabled={ch === entries.length - 1}

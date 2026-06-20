@@ -246,7 +246,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
           borderRadius: 0,
           // neutral depth only — no copper glow layer. Softer than full-black so
           // it doesn't bruise the paper ground.
-          boxShadow: '0 14px 30px var(--book-drop-shadow), 0 2px 6px rgba(0,0,0,0.22)',
+          boxShadow: '0 14px 30px var(--book-drop-shadow), 0 2px 6px var(--book-drop-shadow-2)',
         }}
       >
         {/* darker spine stripe on the left */}
@@ -1314,7 +1314,7 @@ export function BookBuilder() {
                 transition: 'opacity 180ms var(--ease)',
               }}
             >
-              {step === 'select' ? 'Bind the Volume' : step === 'customize' ? 'Preview' : step === 'page' ? 'Apply to Chapter' : 'Continue'}
+              {step === 'select' ? 'Bind the Volume' : step === 'customize' ? 'Choose a page →' : step === 'page' ? 'Apply to Chapter' : 'Continue'}
             </button>
           )}
 

@@ -182,6 +182,8 @@ export function Loom({
               aria-label={`Sealed ${e.kind}${e.title ? `: ${e.title}` : ''}, ${e.year}`}
               onMouseEnter={() => onHover?.(i)}
               onMouseLeave={() => onHover?.(null)}
+              onFocus={() => onHover?.(i)}
+              onBlur={() => onHover?.(null)}
               onClick={() => onClick?.(i)}
               onKeyDown={(ev) => {
                 if (ev.key === 'Enter' || ev.key === ' ') {
@@ -238,6 +240,8 @@ export function Loom({
             aria-label={`${e.kind}${e.title ? `: ${e.title}` : ''}, ${e.year}`}
             onMouseEnter={() => onHover?.(i)}
             onMouseLeave={() => onHover?.(null)}
+            onFocus={() => onHover?.(i)}
+            onBlur={() => onHover?.(null)}
             onClick={() => onClick?.(i)}
             onKeyDown={(ev) => {
               if (ev.key === 'Enter' || ev.key === ' ') {

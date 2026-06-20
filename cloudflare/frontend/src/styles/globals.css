@@ -155,6 +155,7 @@
   --book-inner-shadow: rgba(0, 0, 0, 0.6);
   --spine-shadow:      #050403;
   --book-drop-shadow:    rgba(0, 0, 0, 0.32);
+  --book-drop-shadow-2:  rgba(0, 0, 0, 0.22);
   --emboss-shadow:       rgba(0, 0, 0, 0.3);
   --book-edge-highlight: rgba(242, 230, 208, 0.04);
 
@@ -409,6 +410,7 @@
   --book-inner-shadow: rgba(20, 16, 12, 0.10);
   --spine-shadow:      #4a3420;
   --book-drop-shadow:    rgba(74, 52, 32, 0.16);
+  --book-drop-shadow-2:  rgba(74, 52, 32, 0.10);
   --emboss-shadow:       rgba(255, 255, 255, 0.5);
   --book-edge-highlight: rgba(74, 52, 32, 0.06);
 
@@ -1030,7 +1032,7 @@ html {
   width: 100%;
   height: 1px;
   overflow: hidden;
-  background: rgba(242, 230, 208, 0.12); /* bone, faint */
+  background: var(--rule); /* cream-on-ink rule; theme-flips to ink-on-paper in light scope so the track stays visible on parchment */
 }
 .progress-hair::after {
   content: '';

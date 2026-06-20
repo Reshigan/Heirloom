@@ -6,6 +6,7 @@ import { settingsApi, exportApi, deadmanApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { usePageMeta } from '../lib/usePageMeta';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { useLoomTheme } from '../loom/theme';
 import { useDisplayPreferences } from '../loom/useDisplayPreferences';
@@ -953,8 +954,7 @@ export function Settings() {
                 <div className="hl-eyebrow" style={{ color: 'var(--copper-label)', marginBottom: 14 }}>export fee</div>
                 {exitQuoteQ.isLoading ? (
                   <div style={{ margin: '24px 0' }}>
-                    <div style={{ height: 1, background: 'var(--warm)', width: 80, opacity: 0.5, marginBottom: 8 }} />
-                    <span className="hl-mono" style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>preparing export…</span>
+                    <ProgressHair label="preparing export…" width={160} />
                   </div>
                 ) : (
                   <>

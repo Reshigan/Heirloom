@@ -374,10 +374,8 @@ export function QuickWizard() {
         setSelectedPerson(person);
         if (preselectedPrompt) {
           setSelectedPrompt(decodeURIComponent(preselectedPrompt));
-          setStep('type');
-        } else {
-          setStep('type');
         }
+        setStep('type');
       }
     }
   }, [family, preselectedPersonId, preselectedPrompt]);

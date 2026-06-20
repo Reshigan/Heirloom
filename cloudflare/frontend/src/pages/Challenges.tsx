@@ -169,7 +169,7 @@ export function Challenges() {
                   </p>
 
                   <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap', marginTop: 20, alignItems: 'baseline' }}>
-                    <button type="button" onClick={() => setShowSubmitModal(true)} style={affordance}>
+                    <button type="button" aria-haspopup="dialog" onClick={() => setShowSubmitModal(true)} style={affordance}>
                       add to thread →
                     </button>
                   </div>

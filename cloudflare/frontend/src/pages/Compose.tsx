@@ -182,6 +182,7 @@ function ToField({
             role="combobox"
             aria-expanded={listOpen}
             aria-controls={listboxId}
+            aria-haspopup="listbox"
             aria-autocomplete="list"
             aria-activedescendant={listOpen && activeIndex >= 0 ? `${listboxId}-opt-${activeIndex}` : undefined}
             style={{
@@ -1686,6 +1687,8 @@ export function Compose() {
               onFocus={() => setWritingFocused(true)}
               onBlur={() => setWritingFocused(false)}
               aria-label="Memory content"
+              aria-invalid={!!bodyError}
+              aria-describedby={bodyError ? 'compose-body-error' : undefined}
               placeholder={
                 isLetter
                   ? recipientName.trim()
@@ -1713,7 +1716,7 @@ export function Compose() {
             />
 
             {bodyError && (
-              <p className="hl-mono" aria-live="polite" aria-atomic="true" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.1em', marginTop: 6 }}>
+              <p id="compose-body-error" className="hl-mono" aria-live="polite" aria-atomic="true" style={{ fontSize: 10, color: 'var(--warm)', letterSpacing: '0.1em', marginTop: 6 }}>
                 {bodyError}
               </p>
             )}
