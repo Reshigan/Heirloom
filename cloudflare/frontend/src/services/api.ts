@@ -140,9 +140,9 @@ export const familyApi = {
     return [];
   },
   getOne: (id: string) => api.get(`/family/${id}`),
-  create: (data: { name: string; relationship: string; email?: string; phone?: string; birthDate?: string; avatarUrl?: string }) =>
+  create: (data: { name: string; relationship: string; email?: string; phone?: string; birthDate?: string; avatarUrl?: string; notes?: string; dye?: string }) =>
     api.post('/family', data),
-  update: (id: string, data: Partial<{ name: string; relationship: string; email: string; phone: string; birthDate: string; avatarUrl: string; notes: string }>) =>
+  update: (id: string, data: Partial<{ name: string; relationship: string; email: string; phone: string; birthDate: string; avatarUrl: string; notes: string; dye: string }>) =>
     api.patch(`/family/${id}`, data),
   delete: (id: string) => api.delete(`/family/${id}`),
   restore: (id: string) => api.patch(`/family/${id}/restore`),

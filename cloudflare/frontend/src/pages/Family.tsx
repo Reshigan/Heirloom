@@ -11,7 +11,7 @@ import { formatDate } from '../utils/date';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { RoomError } from '../loom/components/RoomError';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { dyeForId, dyeTextVar, DYES, type Dye } from '../loom/dye';
+import { dyeForId, dyeVar, dyeTextVar, DYES, DYE_MOTIF, type Dye } from '../loom/dye';
 
 interface PendingInvite {
   id: string;
@@ -45,7 +45,7 @@ export function Family() {
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [mode, setMode] = useState<Mode>('add');
-  const [addForm, setAddForm] = useState({ name: '', relationship: '', email: '', birthDate: '' });
+  const [addForm, setAddForm] = useState({ name: '', relationship: '', email: '', phone: '', birthDate: '', notes: '', dye: '' });
   const [inviteForm, setInviteForm] = useState({ name: '', email: '' });
   const [error, setError] = useState<string | null>(null);
   const [inviteSent, setInviteSent] = useState(false);
@@ -55,7 +55,10 @@ export function Family() {
   const [editName, setEditName] = useState('');
   const [editRelationship, setEditRelationship] = useState('');
   const [editEmail, setEditEmail] = useState('');
+  const [editPhone, setEditPhone] = useState('');
   const [editBirthDate, setEditBirthDate] = useState('');
+  const [editNotes, setEditNotes] = useState('');
+  const [editDye, setEditDye] = useState('');
   const [editError, setEditError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
@@ -83,11 +86,14 @@ export function Family() {
         name: addForm.name.trim(),
         relationship: addForm.relationship.trim(),
         email: addForm.email.trim() || undefined,
+        phone: addForm.phone.trim() || undefined,
         birthDate: addForm.birthDate || undefined,
+        notes: addForm.notes.trim() || undefined,
+        dye: addForm.dye || undefined,
       }).then((r) => r.data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['family'] });
-      setAddForm({ name: '', relationship: '', email: '', birthDate: '' });
+      setAddForm({ name: '', relationship: '', email: '', phone: '', birthDate: '', notes: '', dye: '' });
       setShowForm(false);
       setError(null);
     },
@@ -139,7 +145,10 @@ export function Family() {
         name: editName.trim(),
         relationship: editRelationship.trim(),
         email: editEmail.trim() || undefined,
+        phone: editPhone.trim() || undefined,
         birthDate: editBirthDate || undefined,
+        notes: editNotes.trim() || undefined,
+        dye: editDye || undefined,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['family'] });
@@ -289,7 +298,21 @@ export function Family() {
                 <InputField label="name" value={addForm.name} onChange={(v) => setAddForm({ ...addForm, name: v })} placeholder="full name" />
                 <InputField label="relationship" value={addForm.relationship} onChange={(v) => setAddForm({ ...addForm, relationship: v })} placeholder="grandmother · sister · son" />
                 <InputField label="email — optional" value={addForm.email} onChange={(v) => setAddForm({ ...addForm, email: v })} type="email" placeholder="name@example.com" />
+                <InputField label="phone — optional" value={addForm.phone} onChange={(v) => setAddForm({ ...addForm, phone: v })} type="tel" placeholder="+1 555 000 0000" />
                 <InputField label="birthday — optional" value={addForm.birthDate} onChange={(v) => setAddForm({ ...addForm, birthDate: v })} type="date" placeholder="" />
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label className="hl-mono" style={{ display: 'block', fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 10 }}>notes — optional</label>
+                  <textarea
+                    value={addForm.notes}
+                    onChange={(e) => setAddForm({ ...addForm, notes: e.target.value })}
+                    placeholder="a line about who they are"
+                    rows={2}
+                    style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 16, lineHeight: 1.6, padding: '4px 0 8px', outline: 'none', display: 'block', width: '100%', boxSizing: 'border-box', resize: 'vertical' }}
+                  />
+                </div>
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <DyePicker value={addForm.dye} onChange={(d) => setAddForm({ ...addForm, dye: d })} />
+                </div>
                 {error && (
                   <p role="alert" className="hl-mono" style={{ gridColumn: '1 / -1', fontSize: 12, letterSpacing: '0.14em', color: 'var(--warm)', margin: 0, lineHeight: 1.5 }}>
                     {error}
@@ -598,7 +621,10 @@ export function Family() {
                             setEditName(m.name);
                             setEditRelationship(m.relationship ?? '');
                             setEditEmail(m.email ?? '');
+                            setEditPhone(m.phone ?? '');
                             setEditBirthDate(m.birthDate ?? '');
+                            setEditNotes(m.notes ?? '');
+                            setEditDye(m.dye ?? '');
                             setEditError(null);
                           }
                         }}
@@ -691,6 +717,14 @@ export function Family() {
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
                       />
                       <input
+                        type="tel"
+                        value={editPhone}
+                        onChange={(e) => { setEditPhone(e.target.value); setEditError(null); }}
+                        placeholder="phone — optional"
+                        aria-label="Phone"
+                        style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
+                      />
+                      <input
                         type="date"
                         value={editBirthDate}
                         onChange={(e) => { setEditBirthDate(e.target.value); setEditError(null); }}
@@ -698,6 +732,15 @@ export function Family() {
                         aria-label="Birthday"
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
                       />
+                      <textarea
+                        value={editNotes}
+                        onChange={(e) => { setEditNotes(e.target.value); setEditError(null); }}
+                        placeholder="notes — optional"
+                        aria-label="Notes"
+                        rows={2}
+                        style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, lineHeight: 1.6, padding: '6px 0 8px', outline: 'none', marginBottom: 14, display: 'block', width: '100%', boxSizing: 'border-box', resize: 'vertical' }}
+                      />
+                      <DyePicker value={editDye} onChange={(d) => { setEditDye(d); setEditError(null); }} />
                       {editError && (
                         <p className="hl-mono" style={{ fontSize: 12, color: 'var(--warm)', letterSpacing: '0.14em', textTransform: 'uppercase', margin: '0 0 10px' }}>{editError}</p>
                       )}
@@ -786,5 +829,52 @@ function InputField({
         onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
       />
     </label>
+  );
+}
+
+// The member's thread colour — their dye, the family identity signal.
+// Each option renders AS its own signal: a 3px left thread in the dye's vivid
+// hue + the dye name in its AA-tuned text colour + the mood word in mono.
+// No swatches, discs, or fills — the dye left-thread is the lone family-colour
+// exemption. Click the selected dye again to clear back to the auto hash.
+function DyePicker({ value, onChange }: { value: string; onChange: (d: string) => void }) {
+  return (
+    <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
+      <legend className="hl-mono" style={{ display: 'block', fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 12, padding: 0 }}>
+        thread colour — optional
+      </legend>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: 4 }}>
+        {DYES.map((key) => {
+          const active = value === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              aria-pressed={active}
+              onClick={() => onChange(active ? '' : key)}
+              style={{
+                display: 'flex', alignItems: 'baseline', gap: 10,
+                textAlign: 'left', cursor: 'pointer', width: '100%',
+                background: 'transparent', border: 0, borderRadius: 0,
+                borderLeft: `3px solid ${dyeVar(key)}`,
+                padding: '7px 8px 7px 12px',
+                opacity: active ? 1 : 0.5,
+                transition: 'opacity 180ms var(--ease)',
+                touchAction: 'manipulation',
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.opacity = active ? '1' : '0.5'; }}
+            >
+              <span style={{ fontFamily: 'var(--serif)', fontSize: 15, color: dyeTextVar(key), textTransform: 'capitalize' }}>
+                {key}
+              </span>
+              <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', color: active ? 'var(--warm)' : 'var(--bone-faint)' }}>
+                {DYE_MOTIF[key as Dye]}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
   );
 }

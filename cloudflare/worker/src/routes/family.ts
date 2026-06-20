@@ -141,6 +141,7 @@ familyRoutes.get('/', async (c) => {
       avatarUrl: m.avatar_url,
       birthDate: m.birth_date,
       notes: m.notes,
+      dye: m.dye,
       stats: {
         memories: m.memory_count || 0,
         letters: m.letter_count || 0,
@@ -157,6 +158,7 @@ familyRoutes.get('/', async (c) => {
       avatarUrl: m.avatar_url,
       birthDate: m.birth_date,
       notes: m.notes,
+      dye: m.dye,
       createdAt: m.created_at,
       deletedAt: m.deleted_at,
       pendingDeletion: true,
@@ -214,6 +216,7 @@ familyRoutes.get('/:id', async (c) => {
     avatarUrl: member.avatar_url,
     birthDate: member.birth_date,
     notes: member.notes,
+    dye: member.dye,
     recentMemories: (recentMemories.results as any[]).map((m) => ({
       id: m.id,
       title: m.title,
@@ -246,8 +249,8 @@ familyRoutes.post('/', async (c) => {
   const userId = c.get('userId');
   const body = await c.req.json();
   
-  const { name, relationship, email, phone, birthDate, notes, avatarUrl } = body;
-  
+  const { name, relationship, email, phone, birthDate, notes, avatarUrl, dye } = body;
+
   if (!name || !relationship) {
     return c.json({ error: 'Name and relationship are required' }, 400);
   }
@@ -286,9 +289,9 @@ familyRoutes.post('/', async (c) => {
   const now = new Date().toISOString();
   
   await c.env.DB.prepare(`
-    INSERT INTO family_members (id, user_id, name, relationship, email, phone, birth_date, notes, avatar_url, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(id, userId, name, relationship, email || null, phone || null, birthDate || null, notes || null, avatarUrl || null, now, now).run();
+    INSERT INTO family_members (id, user_id, name, relationship, email, phone, birth_date, notes, avatar_url, dye, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(id, userId, name, relationship, email || null, phone || null, birthDate || null, notes || null, avatarUrl || null, dye || null, now, now).run();
 
   // Dual-write: also mirror as a thread member (READER role by default).
   await mirrorFamilyMemberIntoDefaultThread(c.env, userId, {
@@ -311,6 +314,7 @@ familyRoutes.post('/', async (c) => {
     avatarUrl: member?.avatar_url,
     birthDate: member?.birth_date,
     notes: member?.notes,
+    dye: member?.dye,
     createdAt: member?.created_at,
   }, 201);
 });
@@ -330,11 +334,11 @@ familyRoutes.patch('/:id', async (c) => {
     return c.json({ error: 'Family member not found' }, 404);
   }
   
-  const { name, relationship, email, phone, birthDate, notes, avatarUrl } = body;
+  const { name, relationship, email, phone, birthDate, notes, avatarUrl, dye } = body;
   const now = new Date().toISOString();
-  
+
   await c.env.DB.prepare(`
-    UPDATE family_members 
+    UPDATE family_members
     SET name = COALESCE(?, name),
         relationship = COALESCE(?, relationship),
         email = COALESCE(?, email),
@@ -342,9 +346,10 @@ familyRoutes.patch('/:id', async (c) => {
         birth_date = COALESCE(?, birth_date),
         notes = COALESCE(?, notes),
         avatar_url = COALESCE(?, avatar_url),
+        dye = COALESCE(?, dye),
         updated_at = ?
     WHERE id = ?
-  `).bind(name ?? null, relationship ?? null, email ?? null, phone ?? null, birthDate ?? null, notes ?? null, avatarUrl ?? null, now, memberId).run();
+  `).bind(name ?? null, relationship ?? null, email ?? null, phone ?? null, birthDate ?? null, notes ?? null, avatarUrl ?? null, dye ?? null, now, memberId).run();
   
   const member = await c.env.DB.prepare(`
     SELECT * FROM family_members WHERE id = ?
@@ -374,6 +379,7 @@ familyRoutes.patch('/:id', async (c) => {
     avatarUrl: member?.avatar_url,
     birthDate: member?.birth_date,
     notes: member?.notes,
+    dye: member?.dye,
     createdAt: member?.created_at,
     updatedAt: member?.updated_at,
   });

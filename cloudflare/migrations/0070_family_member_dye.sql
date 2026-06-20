@@ -1,0 +1,22 @@
+-- 0070 — Give each family member an explicitly-chosen natural-dye colour.
+--
+-- WHY: the 10-stop natural-dye palette (frontend src/loom/dye.ts) is the
+-- family's identity system — every member owns a dye that travels as signal
+-- (the 3px left-margin thread + their name colour). Until now no column held
+-- that choice: the roster fell back to a deterministic per-id hash (dyeForId),
+-- so a member's hue was assigned, never chosen. The Family roster now lets a
+-- keeper pick the dye when adding or editing a member, and the worker reads +
+-- writes it here. NULL is the honest "not chosen yet" state — the frontend
+-- keeps falling back to dyeForId() for any member whose dye is NULL, so every
+-- existing row stays exactly as it renders today until someone sets one.
+--
+-- Value is one of the ten dye keys (madder/indigo/weld/walnut/cochineal/woad/
+-- saffron/logwood/oak/tansy); stored lowercase. No CHECK constraint — the
+-- frontend validates against DYES and falls back to the hash for any unknown
+-- value, so a future palette change never 500s an INSERT here.
+--
+-- D1 runs each migration in its own implicit transaction; a bare ADD COLUMN
+-- needs no BEGIN/COMMIT and no table rebuild (additive, nullable, no default
+-- expression), so this is safe and instant on the live table.
+
+ALTER TABLE family_members ADD COLUMN dye TEXT;
