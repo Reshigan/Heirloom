@@ -87,7 +87,7 @@ export function BottomNav() {
               color: isCenter
                 ? isActive ? 'var(--warm)' : 'var(--warm-dim)'
                 : isActive ? 'var(--bone)' : 'var(--bone-dim)',
-              fontFamily: isCenter ? 'var(--serif)' : 'var(--mono)',
+              fontFamily: isCenter ? 'var(--serif-display)' : 'var(--mono)',
               fontSize: isCenter ? 38 : 12,
               fontWeight: isCenter ? 300 : undefined,
               lineHeight: isCenter ? 0.8 : undefined,

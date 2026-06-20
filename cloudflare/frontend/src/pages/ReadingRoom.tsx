@@ -603,7 +603,6 @@ export function ReadingRoom() {
         <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'reading' }]} />
 
         <span className="reading-topmeta" style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
-          <span style={{ fontFamily: 'var(--serif)', fontWeight: 300, fontSize: 15 }}>∞</span>
           {t ? (
             <>
               <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: dyeTextVar(t.dye), letterSpacing: '0.08em' }}>{t.kind}</span>

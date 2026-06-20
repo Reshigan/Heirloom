@@ -211,7 +211,10 @@ function jitter(seed: number): number {
   return t - Math.floor(t);
 }
 
-export function TapestryEdge({ nowFrac = 0.78 }: { nowFrac?: number }) {
+// nowFrac is a REAL position signal (e.g. StoryView's reading place). The copper
+// "now" hairline renders ONLY when a caller passes a genuine fraction — Frame mounts
+// <TapestryEdge /> with none, so no decorative copper appears in app chrome.
+export function TapestryEdge({ nowFrac }: { nowFrac?: number }) {
   const hairs = Array.from({ length: 160 }, (_, k) => ({
     left: ((k * 7) / (160 * 7) + (jitter(k * 1.7 + 3) - 0.5) * 0.0008) * 100,
     alpha: 0.05 + jitter(k * 2.3 + 1) * 0.07,
@@ -241,16 +244,17 @@ export function TapestryEdge({ nowFrac = 0.78 }: { nowFrac?: number }) {
           }}
         />
       ))}
-      <span
-        style={{
-          position: 'absolute',
-          top: -2, bottom: -2,
-          left: `${nowFrac * 100}%`,
-          width: 1,
-          background: 'var(--warm)',
-          opacity: 0.9,
-        }}
-      />
+      {nowFrac !== undefined && (
+        <span
+          style={{
+            position: 'absolute',
+            top: 0, bottom: 0,
+            left: `${nowFrac * 100}%`,
+            width: 1,
+            background: 'var(--warm)',
+          }}
+        />
+      )}
     </div>
   );
 }

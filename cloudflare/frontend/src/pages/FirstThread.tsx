@@ -174,6 +174,20 @@ export function FirstThread() {
   const ss = String(sec % 60).padStart(2, '0');
   const clock = `${mm}:${ss}`;
 
+  // A returning authenticated user gets bounced (effect above), but the redirect
+  // resolves a frame after useIsNewUser settles. Until then, withhold the
+  // full-viewport ceremony so the returning user never sees it flash — a blank
+  // ground stands in. The new-user and unauthenticated paths fall straight
+  // through to the ceremony.
+  if (isAuthenticated && checkingNew) {
+    return (
+      <div
+        className="hl-first-thread"
+        style={{ position: 'fixed', inset: 0, zIndex: 60, background: 'var(--ink)' }}
+      />
+    );
+  }
+
   return (
     <div
       className="hl-first-thread"

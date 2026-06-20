@@ -467,7 +467,7 @@ export function MemoryCards() {
                         textTransform: 'uppercase',
                       }}
                     >
-                      ∞ Heirloom
+                      Heirloom
                     </p>
                   </div>
 

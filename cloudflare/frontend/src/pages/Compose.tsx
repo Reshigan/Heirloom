@@ -97,13 +97,13 @@ function ToField({
       e.preventDefault();
       const next = activeIndex < filtered.length - 1 ? activeIndex + 1 : 0;
       setActiveIndex(next);
-      optionRefs.current[next]?.focus();
+      optionRefs.current[next]?.scrollIntoView({ block: 'nearest' });
     } else if (e.key === 'ArrowUp') {
       if (!listOpen) return;
       e.preventDefault();
       const prev = activeIndex > 0 ? activeIndex - 1 : filtered.length - 1;
       setActiveIndex(prev);
-      optionRefs.current[prev]?.focus();
+      optionRefs.current[prev]?.scrollIntoView({ block: 'nearest' });
     } else if (e.key === 'Enter') {
       if (listOpen && activeIndex >= 0 && filtered[activeIndex]) {
         e.preventDefault();

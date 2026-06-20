@@ -34,7 +34,7 @@ export function Login() {
       if (encryptionStatus.enabled && !encryptionStatus.unlocked) {
         setShowVaultUnlock(true);
       } else {
-        navigate(redirectUrl || '/loom/weft');
+        navigate(redirectUrl);
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Invalid email or password.');
@@ -199,7 +199,7 @@ export function Login() {
           isOpen={showVaultUnlock}
           onComplete={() => {
             setShowVaultUnlock(false);
-            navigate(redirectUrl || '/loom/weft');
+            navigate(redirectUrl);
           }}
         />
       ) : null}

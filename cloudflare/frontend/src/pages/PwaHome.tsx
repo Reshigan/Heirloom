@@ -63,7 +63,7 @@ function PwaMenu() {
   };
 
   if (!user) return null;
-  const initials = `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || '∞';
+  const initials = `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() || '·';
 
   return (
     <div ref={rootRef} style={{ position: 'relative' }}>

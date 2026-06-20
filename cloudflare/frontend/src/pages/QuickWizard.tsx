@@ -450,6 +450,12 @@ export function QuickWizard() {
         setSelectedPerson(null);
         break;
       case 'type':
+        // Deep-link entry auto-skips person+template to 'type'; Back must NOT
+        // reveal the never-seen template step — exit the wizard instead.
+        if (preselectedPersonId) {
+          navigate('/family');
+          break;
+        }
         setStep('template');
         setSelectedTemplate(null);
         break;

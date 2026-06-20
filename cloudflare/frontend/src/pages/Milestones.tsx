@@ -404,7 +404,7 @@ export function Milestones() {
                   id="ms-reminder"
                   value={formData.reminderDays}
                   onChange={(e) => setFormData({ ...formData, reminderDays: parseInt(e.target.value) })}
-                  style={{ ...fieldStyle, fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.08em' }}
+                  style={fieldStyle}
                 >
                   <option value={1}>1 day before</option>
                   <option value={3}>3 days before</option>
@@ -425,6 +425,12 @@ export function Milestones() {
                   style={{ ...fieldStyle, resize: 'none' }}
                 />
               </div>
+
+              {error && (
+                <p role="alert" style={{ color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.06em', margin: '0' }}>
+                  {error}
+                </p>
+              )}
 
               <div style={{ display: 'flex', gap: 10, paddingTop: 8 }}>
                 <button

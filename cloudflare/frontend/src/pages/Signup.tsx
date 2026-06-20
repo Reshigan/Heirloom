@@ -446,7 +446,7 @@ export function Signup() {
               letterSpacing: '0.3em',
               textTransform: 'uppercase',
               opacity: isLoading ? 0.5 : 1,
-              transition: `opacity 360ms ${EASE}, border-color 360ms ${EASE}, color 360ms ${EASE}`,
+              transition: `opacity 360ms ${EASE}, border-color 360ms ${EASE}`,
             }}
             onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.borderColor = 'var(--warm-bright)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--warm)'; }}

@@ -627,7 +627,6 @@ export function BookBuilder() {
                 >
                   {config.title}
                 </span>
-                <WaxSeal size={16} />
               </aside>
             </div>
           )}

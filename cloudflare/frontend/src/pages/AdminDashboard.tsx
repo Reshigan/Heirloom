@@ -1160,7 +1160,7 @@ function AdminBar({ section, email, role, onLogout }: { section: string; email: 
       }}
     >
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 14, letterSpacing: '0.12em', color: 'var(--bone)' }}>
-        <span className="loom-mark" style={{ fontFamily: 'var(--mono)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.16em' }}><span className="infmark">∞</span>heirloom</span>
+        <span className="loom-mark" style={{ fontFamily: 'var(--mono)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.16em' }}>heirloom</span>
         <span style={{ color: 'var(--bone-faint)' }}>·</span>
         <span style={{ textTransform: 'lowercase' }}>admin · {section}</span>
       </span>
@@ -1851,7 +1851,6 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
       <InlineStatus status={status} />
       {createdCodes.length > 0 ? (
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
-          <div className="loom-h2" style={{ fontSize: 40, color: 'var(--warm)', marginBottom: 12 }}>∞</div>
           <p style={{ color: 'var(--bone)', marginBottom: 16 }}>{createdCodes.length} Voucher{createdCodes.length > 1 ? 's' : ''} Created</p>
           <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: 16, marginBottom: 16, maxHeight: 192, overflowY: 'auto' }}>
             {createdCodes.map((code, i) => <p key={i} className="loom-mono" style={{ fontSize: 16, color: 'var(--warm)', marginBottom: 4, letterSpacing: '0.12em' }}>{code}</p>)}
@@ -1986,7 +1985,6 @@ The Heirloom Team`;
       <InlineStatus status={status} />
       {createdVoucher ? (
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
-          <div className="loom-h2" style={{ fontSize: 40, color: 'var(--warm)', marginBottom: 12 }}>∞</div>
           <p className="loom-h2" style={{ fontSize: 24, fontStyle: 'italic', fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>Gold Legacy Voucher Created</p>
           <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', marginBottom: 16 }}>Member #{createdVoucher.memberNumber}</p>
           <div style={{ padding: 16, border: '1px solid var(--gold-20)', marginBottom: 16 }}>

@@ -560,8 +560,7 @@ body {
     border-radius: 0;
     color: var(--paper);
     outline: none;
-    transition: border-color var(--duration-fast) var(--ease-out),
-                box-shadow var(--duration-fast) var(--ease-out);
+    transition: border-color var(--duration-fast) var(--ease-out);
   }
 
   .input::placeholder {
@@ -811,7 +810,7 @@ em {
   left: 50%;
   transform: translateX(-50%) translateY(-8px);
   padding: 8px 12px;
-  background: var(--void);
+  background: var(--ink-card);
   border: 1px solid var(--glass-border);
   border-radius: 0;
   font-size: 13px;
@@ -1223,7 +1222,7 @@ html {
   max-width: 26ch;
 }
 .hl-listener .hl-l-eye { color: var(--bone-faint); text-transform: uppercase; letter-spacing: 0.22em; font-size: 11px; display: block; margin-bottom: 6px; }
-.hl-listener em { color: var(--bone); font-style: normal; }
+.hl-listener em { color: var(--bone); font-style: italic; }
 
 .hl-rule { display: block; height: 1px; background: var(--rule); border: 0; margin: 0; }
 .hl-rule.strong { background: var(--rule-strong); }
@@ -1453,7 +1452,7 @@ html {
     pointer-events: auto !important;
   }
   .family-member-delete {
-    color: rgba(242, 230, 208, 0.28) !important;
+    color: var(--bone-low) !important;
   }
 }
 
