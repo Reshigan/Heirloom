@@ -8,5 +8,10 @@
     "hour": 15,
     "hook": "Your family's ghost story is fading",
     "saying": "What's the one story your dad tells that still scares you?"
+  },
+  {
+    "hour": 18,
+    "hook": "These quiet days between Christmas and New Year",
+    "saying": "What did your mom do on snowy days when she was your age?"
   }
 ]
