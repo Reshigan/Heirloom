@@ -11,7 +11,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { HLogo } from '../loom/components/HLogo';
 import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
-import { EntryRow, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { EntryRow, WarmDot } from '../loom/cosmic/CosmicUI';
 import type { UserRole } from '../hooks/useRole';
 import { dyeVar, type Dye } from '../loom/dye';
 import type { CanvasEntry } from '../hooks/useTapestryEntries';
@@ -111,7 +111,7 @@ function PwaMenu() {
           pointerEvents: open ? 'auto' : 'none',
           visibility: open ? 'visible' : 'hidden',
           transition:
-            'opacity 180ms var(--ease), transform 180ms var(--ease), visibility 0ms var(--ease) ' +
+            'opacity 180ms var(--ease), transform 180ms var(--ease), visibility 180ms var(--ease) ' +
             (open ? '0ms' : '180ms'),
         }}
       >
@@ -445,10 +445,6 @@ function AuthHome({
           color: 'var(--bone-faint)',
         }}>
           {status}
-        </div>
-
-        <div style={{ marginTop: 40 }}>
-          <WaxSeal size={26} />
         </div>
       </div>
     </div>

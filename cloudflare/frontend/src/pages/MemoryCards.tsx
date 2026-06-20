@@ -506,16 +506,6 @@ export function MemoryCards() {
                 >
                   <p
                     className="hl-serif"
-                    style={{
-                      fontSize: 28,
-                      color: 'var(--warm)',
-                      marginBottom: 14,
-                    }}
-                  >
-                    ∞
-                  </p>
-                  <p
-                    className="hl-serif"
                     style={{ fontSize: 15, color: 'var(--bone-faint)', fontStyle: 'italic' }}
                   >
                     Select a memory and style to generate your card.

@@ -391,9 +391,12 @@ export function Signup() {
           {/* terms */}
           <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', marginTop: 32 }}>
             <input
+              id="signup-terms"
               type="checkbox"
               checked={form.acceptedTerms}
               onChange={(e) => set({ acceptedTerms: e.target.checked })}
+              aria-invalid={!!errors.acceptedTerms}
+              aria-describedby={errors.acceptedTerms ? 'signup-terms-err' : undefined}
               style={{ marginTop: 4 }}
             />
             <span className="hl-serif" style={{ fontSize: 14, color: 'var(--bone-dim)', lineHeight: 1.6, fontWeight: 400 }}>
@@ -403,7 +406,7 @@ export function Signup() {
               <Link to="/privacy" style={{ color: 'var(--warm)', textDecoration: 'none', borderBottom: '1px solid currentColor' }}>privacy notice</Link>.
             </span>
           </label>
-          {errors.acceptedTerms ? <FieldError>{errors.acceptedTerms}</FieldError> : null}
+          {errors.acceptedTerms ? <FieldError id="signup-terms-err">{errors.acceptedTerms}</FieldError> : null}
 
           <label style={{ display: 'flex', alignItems: 'flex-start', gap: 12, cursor: 'pointer', marginTop: 14 }}>
             <input
@@ -566,9 +569,10 @@ function Helper({ children }: { children: React.ReactNode }) {
 }
 
 // Inline mono error line in --warm per FORM archetype spec
-function FieldError({ children }: { children: React.ReactNode }) {
+function FieldError({ children, id }: { children: React.ReactNode; id?: string }) {
   return (
     <p
+      id={id}
       role="alert"
       className="hl-mono"
       style={{ margin: '8px 0 0', fontSize: 10, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--warm)' }}
@@ -662,6 +666,8 @@ function Field({
         inputMode={inputMode}
         maxLength={maxLength}
         onChange={(e) => onChange(e.target.value)}
+        aria-invalid={error ? 'true' : undefined}
+        aria-describedby={error ? `${id}-err` : undefined}
         style={{
           width: '100%',
           background: 'transparent',
@@ -679,7 +685,7 @@ function Field({
         onFocus={(e) => { if (!error) e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
         onBlur={(e) => { if (!error) e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
       />
-      {error ? <FieldError>{error}</FieldError> : null}
+      {error ? <FieldError id={`${id}-err`}>{error}</FieldError> : null}
     </div>
   );
 }

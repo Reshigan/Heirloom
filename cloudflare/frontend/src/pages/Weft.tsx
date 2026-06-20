@@ -9,7 +9,7 @@ import { ViewToggle } from '../loom/components/ViewToggle';
 import { EmptyThread } from '../loom/components/EmptyThread';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { WeftCentury } from '../loom/components/WeftCentury';
-import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, SectionLabel, EntryRow } from '../loom/cosmic/CosmicUI';
 import { dyeVar, dyeTextVar, dyeForId } from '../loom/dye';
 import { memoriesApi, lettersApi, voiceApi, threadsApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
@@ -467,11 +467,6 @@ export function Weft() {
             dateColor="var(--copper-label)"
             onClick={() => navigate('/family')}
           />
-
-          {/* The ∞ wax seal — the full-stop at the foot of the page. */}
-          <div style={{ marginTop: 48, textAlign: 'center' }}>
-            <WaxSeal />
-          </div>
         </div>
       </div>
     </ClothShell>

@@ -54,7 +54,6 @@
      bright #e03428 read as "2026", so both files now share the muted dye tone. */
   --blood: #9f3a2a;
   --blood-light: #b14a4a;
-  --blood-glow: rgba(159, 58, 42, 0.4);
 
   /* Glass retired — solid panels only (§2.6). Kept as opaque ink so any
      lingering reference renders as a flat surface, never a blur. */
@@ -696,12 +695,6 @@ em {
   50%      { opacity: 1;    transform: scale(1.35); }
 }
 
-/* Record ring — opacity-only breath while capturing (no scale/glow) */
-@keyframes hl-record-pulse {
-  0%, 100% { opacity: 0.55; }
-  50%      { opacity: 0.95; }
-}
-
 /* First Thread ceremony keyframes (src/pages/FirstThread.tsx). Ported verbatim
    from the Claude Design handoff — the one ceremony that owns its own motion
    vocabulary. Silenced under prefers-reduced-motion via the .hl-first-thread
@@ -726,8 +719,6 @@ em {
 /* Utility classes: duration controlled by --hl-dur (defaults 700ms) */
 .hl-reveal-rise  { animation: hl-rise  var(--hl-dur, 720ms) var(--ease) both; }
 .hl-reveal-fade  { animation: hl-fade  var(--hl-dur, 720ms) var(--ease) both; }
-.hl-reveal-drop  { animation: hl-drop  var(--hl-dur, 720ms) var(--ease) both; }
-.hl-reveal-widen { animation: hl-widen var(--hl-dur, 720ms) var(--ease) both; }
 
 /* Stagger helpers — set on parent, children pick up nth-child delay */
 .hl-stagger > * { --hl-base: 0ms; animation-delay: calc(var(--hl-base) + var(--i, 0) * 80ms); }
@@ -1762,20 +1753,6 @@ html {
   transform: translateX(-50%);
 }
 
-/* ─── Home hero — the edge of the cloth ────────────────────────────
-   The prompt caret blinks like a waiting pen; the fell line — the live
-   edge where the next thread goes in — breathes. Both die under
-   prefers-reduced-motion via the global .loom kill switch. */
-.hl-hero-caret {
-  display: inline-block;
-  width: 1px; height: 0.9em;
-  background: var(--bone);
-  vertical-align: -0.1em;
-  margin-left: 6px;
-  animation: hl-hero-blink 1400ms steps(1) infinite;
-}
-@keyframes hl-hero-blink { 0%, 45% { opacity: 1; } 50%, 95% { opacity: 0; } }
-
 /* ─── Buttons ───────────────────────────────────────────────────── */
 .loom-btn {
   background: transparent;
@@ -2208,28 +2185,6 @@ html {
   /* Reading measure */
   --measure: 65ch;
   --measure-tight: 45ch;
-}
-
-/* ── Breathing cursor — Composer blank page ──────────────────────────── */
-@keyframes hl-cursor-breathe {
-  0%, 47%  { opacity: 1; }
-  50%, 97% { opacity: 0; }
-  100%     { opacity: 1; }
-}
-
-.hl-composer-cursor-after::after {
-  content: '';
-  display: inline-block;
-  width: 2px;
-  height: 1.1em;
-  background: var(--ink);
-  margin-left: 2px;
-  vertical-align: text-bottom;
-  animation: hl-cursor-breathe 1400ms step-end infinite;
-}
-
-.loom[data-theme="dark"] .hl-composer-cursor-after::after {
-  background: var(--bone);
 }
 
 /* ── Reading column — longform prose ─────────────────────────────────── */

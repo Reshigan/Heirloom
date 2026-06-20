@@ -176,7 +176,7 @@ export function UserMenu() {
           transform: open ? 'scale(1) translateY(0)' : 'scale(0.98) translateY(-6px)',
           pointerEvents: open ? 'auto' : 'none',
           visibility: open ? 'visible' : 'hidden',
-          transition: 'opacity 180ms var(--ease), transform 180ms var(--ease), visibility 0ms',
+          transition: 'opacity 180ms var(--ease), transform 180ms var(--ease)',
         }}
       >
         <div style={{ padding: '14px 16px 12px', borderBottom: '1px solid var(--rule)' }}>

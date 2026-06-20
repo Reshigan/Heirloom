@@ -308,6 +308,8 @@ export function Family() {
                     placeholder="a line about who they are"
                     rows={2}
                     style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 16, lineHeight: 1.6, padding: '4px 0 8px', outline: 'none', display: 'block', width: '100%', boxSizing: 'border-box', resize: 'vertical' }}
+                    onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+                    onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
                   />
                 </div>
                 <div style={{ gridColumn: '1 / -1' }}>
@@ -706,6 +708,8 @@ export function Family() {
                         placeholder="name"
                         aria-label="Name"
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
+                        onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+                        onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
                       />
                       <input
                         value={editRelationship}
@@ -713,6 +717,8 @@ export function Family() {
                         placeholder="relationship"
                         aria-label="Relationship"
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
+                        onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+                        onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
                       />
                       <input
                         type="email"
@@ -721,6 +727,8 @@ export function Family() {
                         placeholder="email — optional"
                         aria-label="Email"
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
+                        onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+                        onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
                       />
                       <input
                         type="tel"
@@ -729,6 +737,8 @@ export function Family() {
                         placeholder="phone — optional"
                         aria-label="Phone"
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
+                        onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+                        onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
                       />
                       <input
                         type="date"
@@ -737,6 +747,8 @@ export function Family() {
                         placeholder="birthday — optional"
                         aria-label="Birthday"
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, padding: '6px 0 8px', outline: 'none', marginBottom: 8, display: 'block', width: '100%', boxSizing: 'border-box' }}
+                        onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+                        onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
                       />
                       <textarea
                         value={editNotes}
@@ -745,6 +757,8 @@ export function Family() {
                         aria-label="Notes"
                         rows={2}
                         style={{ border: 0, borderBottom: '1px solid var(--rule)', background: 'transparent', color: 'var(--bone)', fontFamily: 'var(--serif)', fontSize: 14, lineHeight: 1.6, padding: '6px 0 8px', outline: 'none', marginBottom: 14, display: 'block', width: '100%', boxSizing: 'border-box', resize: 'vertical' }}
+                        onFocus={(e) => { e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
+                        onBlur={(e) => { e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
                       />
                       <DyePicker value={editDye} onChange={(d) => { setEditDye(d); setEditError(null); }} />
                       {editError && (

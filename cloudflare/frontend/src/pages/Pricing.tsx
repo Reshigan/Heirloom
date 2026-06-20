@@ -156,10 +156,11 @@ export function Pricing() {
           keep the thread
         </div>
         <h1
-          className="hl-serif hl-tight"
+          className="hl-tight"
           style={{
             position: 'relative',
             zIndex: 1,
+            fontFamily: 'var(--serif-display)',
             fontSize: 'clamp(30px,7vw,46px)',
             fontWeight: 380,
             lineHeight: 1.06,

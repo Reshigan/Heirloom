@@ -346,8 +346,6 @@ export function QuickWizard() {
 
   const [step, setStep] = useState<WizardStep>('person');
   const [selectedPerson, setSelectedPerson] = useState<FamilyMember | null>(null);
-  const [_selectedTemplate, setSelectedTemplate] = useState<typeof TEMPLATES[0] | null>(null);
-  void _selectedTemplate;
   const [contentType, setContentType] = useState<ContentType | null>(null);
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
   // True only when preview was reached via the 'prompt' step. The template
@@ -405,7 +403,6 @@ export function QuickWizard() {
   };
 
   const handleTemplateSelect = (template: typeof TEMPLATES[0]) => {
-    setSelectedTemplate(template);
     setSelectedPrompt(template.defaultPrompt);
     setCameFromPrompt(false);
     setStep('type');
@@ -457,7 +454,6 @@ export function QuickWizard() {
           break;
         }
         setStep('template');
-        setSelectedTemplate(null);
         break;
       case 'prompt':
         setStep('type');

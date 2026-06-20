@@ -139,7 +139,6 @@ const RESPONSIVE_CSS = `
 .hl-monoaction:disabled { opacity: 0.5; cursor: default; }
 .hl-monoaction--quiet { color: var(--bone-dim); }
 .hl-monoaction--quiet:hover { color: var(--bone); }
-.hl-monoaction--danger { color: var(--warm); }
 
 /* Field input set inside an expanded row block. */
 .hl-fieldrow {

@@ -13,8 +13,8 @@ import { useIsNewUser } from '../hooks/useIsNewUser';
  * It is the emotional overture, not the product chrome: a fixed, full-viewport
  * takeover that runs above the cloth, then hands off into the real onboarding
  * (authed) or signup (anonymous). The animations live in globals.css as the
- * `hl-*` keyframes; the waveform is a setInterval-driven canvas (rAF pauses on
- * a hidden tab — the design used setInterval and we keep that).
+ * `hl-*` keyframes; the waveform is a single static deterministic canvas paint
+ * (the ceremony plays a canned transcript, so no live redraw is warranted).
  */
 
 const ASSET_BAND = '/ceremony/thread-band.png';
@@ -48,13 +48,10 @@ export function FirstThread() {
   const advanceRef = useRef<number | null>(null); // 2700ms ignition → listener
   const sealRef = useRef<number | null>(null); // 850ms burst → sealed
   const tickRef = useRef<number | null>(null); // 1s recording clock
-  const drawRef = useRef<number | null>(null); // 40ms waveform frame
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const reduce = useRef(false);
 
   const stopRecInternal = useCallback(() => {
     if (tickRef.current != null) { clearInterval(tickRef.current); tickRef.current = null; }
-    if (drawRef.current != null) { clearInterval(drawRef.current); drawRef.current = null; }
   }, []);
 
   const clearTimers = useCallback(() => {
@@ -64,9 +61,6 @@ export function FirstThread() {
   }, [stopRecInternal]);
 
   useEffect(() => {
-    reduce.current =
-      typeof window !== 'undefined' &&
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
     return () => clearTimers();
   }, [clearTimers]);
 
@@ -85,7 +79,10 @@ export function FirstThread() {
     const x = c.getContext('2d');
     if (!x) return;
     const W = c.width, H = c.height, N = 42;
-    const t = reduce.current ? 0.6 : performance.now() / 1000;
+    // Static deterministic waveform — drawn once, no animation loop. The ceremony
+    // plays a canned transcript (no live mic), so a perpetual redraw carried no
+    // information. A fixed t freezes the bar field and playhead at a settled frame.
+    const t = 0.6;
     // Canvas strokeStyle cannot resolve var() — read the canonical bone tokens
     // at draw time (document is mounted by now) so the waveform tracks the brand
     // palette and theme rather than hardcoded bespoke colour. data-theme lives on
@@ -105,7 +102,7 @@ export function FirstThread() {
     // The playhead sweeps across the bar field over a sanctioned 1400ms
     // loom-rhythm cycle — the lone copper element, a single 1px vertical
     // hairline at the leading edge. (t is seconds; 1.4s == 1400ms.)
-    const playFrac = reduce.current ? 0.62 : (t / 1.4) % 1;
+    const playFrac = 0.62;
     const playX = W * playFrac;
     for (let i = 0; i < N; i++) {
       const env = Math.sin((i / N) * Math.PI);
@@ -137,8 +134,7 @@ export function FirstThread() {
     if (step !== 3) return;
     setSec(0);
     tickRef.current = window.setInterval(() => setSec((s) => s + 1), 1000);
-    draw(); // paint immediately so the canvas is never blank
-    if (!reduce.current) drawRef.current = window.setInterval(draw, 40);
+    draw(); // single static paint — the waveform is deterministic, no loop
     return () => stopRecInternal();
   }, [step, draw, stopRecInternal]);
 

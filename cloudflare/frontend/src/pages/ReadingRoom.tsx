@@ -1102,7 +1102,7 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
                 key={e.id}
                 type="button"
                 aria-label={`entry ${i + 1}`}
-                aria-current={i === ch}
+                aria-current={i === ch ? 'true' : undefined}
                 onClick={() => setCh(i)}
                 style={{
                   background: 'transparent', border: 0, padding: '8px 0', cursor: 'pointer',

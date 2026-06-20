@@ -252,7 +252,7 @@ export function FutureLetter() {
                 </button>
               </div>
               {shareError && (
-                <p className="hl-mono" style={{ fontSize: 9, color: 'var(--warm)', letterSpacing: '0.1em', margin: '0 0 12px' }}>{shareError}</p>
+                <p role="alert" className="hl-mono" style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.1em', margin: '0 0 12px' }}>{shareError}</p>
               )}
 
               <div
@@ -352,7 +352,7 @@ export function FutureLetter() {
 
               {genError && (
                 <p
-                  role="status"
+                  role="alert"
                   className="hl-serif"
                   style={{ color: 'var(--bone-dim)', fontStyle: 'italic', fontSize: 15, lineHeight: 1.5, margin: 0, textAlign: 'center' }}
                 >

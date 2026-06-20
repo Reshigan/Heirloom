@@ -105,13 +105,15 @@ function pillStyle(warm: boolean, disabled = false): React.CSSProperties {
 function useTokenColor(token: string, fallback: string): string {
   const read = () => {
     if (typeof document === 'undefined') return fallback;
-    const root = document.querySelector('.loom') ?? document.documentElement;
+    const root = document.querySelector('.loom');
+    if (!root) return fallback;
     const v = getComputedStyle(root).getPropertyValue(token).trim();
     return (v || fallback).replace(/#/g, '%23');
   };
   const [color, setColor] = useState<string>(read);
   useEffect(() => {
-    const root = document.querySelector('.loom') ?? document.documentElement;
+    const root = document.querySelector('.loom');
+    if (!root) return;
     setColor(read());
     const obs = new MutationObserver(() => setColor(read()));
     obs.observe(root, { attributes: true, attributeFilter: ['data-theme'] });
@@ -429,7 +431,7 @@ export function ThreadCompose() {
                   type="checkbox"
                   checked={enableLock}
                   onChange={(e) => setEnableLock(e.target.checked)}
-                  style={{ marginTop: 3, accentColor: 'var(--bone-dim)', flexShrink: 0 }}
+                  style={{ marginTop: 3, flexShrink: 0 }}
                 />
                 <div>
                   <p

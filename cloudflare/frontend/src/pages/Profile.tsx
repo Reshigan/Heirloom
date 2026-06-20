@@ -6,6 +6,7 @@ import { usePageMeta } from '../lib/usePageMeta';
 import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { useLoomTheme } from '../loom/theme';
 import { dyeForId, dyeTextVar, dyeVar, moodForDye } from '../loom/dye';
+import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 /**
  * Profile — the member's own page of the ledger.
@@ -159,13 +160,16 @@ export function Profile() {
               The thread reads in either light
             </span>
           </span>
-          <span style={{ display: 'inline-flex', gap: 22, flex: '0 0 auto' }}>
-            {(['dark', 'light', 'system'] as const).map((opt) => (
+          <span role="radiogroup" aria-label="Theme" style={{ display: 'inline-flex', gap: 22, flex: '0 0 auto' }}>
+            {(['dark', 'light', 'system'] as const).map((opt, i, arr) => (
               <button
                 key={opt}
                 type="button"
                 onClick={() => setTheme(opt)}
-                aria-pressed={theme === opt}
+                onKeyDown={(e) => handleRadioArrowKeys(e, i, arr.length, (next) => setTheme(arr[next]))}
+                role="radio"
+                aria-checked={theme === opt}
+                tabIndex={theme === opt ? 0 : -1}
                 style={{
                   background: 'transparent',
                   border: 0,

@@ -52,11 +52,7 @@ export default {
         blood: {
           DEFAULT: '#9f3a2a',
           light: '#b14a4a',
-          glow: 'rgba(159, 58, 42, 0.4)',
         },
-        // STATUS COLORS
-        emerald: '#5ab88a',
-        sapphire: '#64a0dc',
 
         // ── v3 design tokens (light-mode-first; library, not vault) ──
         // See cloudflare/frontend/src/v3/DESIGN.md for rationale.

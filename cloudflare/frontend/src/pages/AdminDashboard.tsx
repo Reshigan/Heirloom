@@ -1352,7 +1352,7 @@ function CouponRow({ coupon }: { coupon: any }) {
           />
         )}
         {couponRowError && (
-          <span className="loom-mono" style={{ fontSize: 10, color: 'var(--warm)', marginLeft: 8 }}>{couponRowError}</span>
+          <span role="alert" className="loom-mono" style={{ fontSize: 10, color: 'var(--warm)', marginLeft: 8 }}>{couponRowError}</span>
         )}
       </td>
     </tr>
@@ -1659,7 +1659,7 @@ function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () =
           {email.errorMessage && (
             <div style={{ padding: '10px 12px', border: '1px solid var(--warm)' }}>
               <div className="loom-eyebrow" style={{ marginBottom: 4, color: 'var(--warm)' }}>Error</div>
-              <div style={{ fontSize: 13, color: 'var(--warm)', opacity: 0.8 }}>{email.errorMessage}</div>
+              <div style={{ fontSize: 13, color: 'var(--warm-dim)' }}>{email.errorMessage}</div>
             </div>
           )}
           <div style={{ padding: '10px 12px', background: 'var(--ink)', border: '1px solid var(--rule)' }}>
@@ -1747,7 +1747,7 @@ function TicketDetailModal({ ticketId, onClose }: { ticketId: string; onClose: (
       </div>
 
       {ticketError && (
-        <p className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)', margin: '0 0 8px', letterSpacing: '0.04em' }}>{ticketError}</p>
+        <p role="alert" className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)', margin: '0 0 8px', letterSpacing: '0.04em' }}>{ticketError}</p>
       )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

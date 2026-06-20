@@ -54,7 +54,8 @@ function StatBand({
 }) {
   return (
     <div
-      role="group"
+      role={index === 0 ? 'heading' : 'group'}
+      aria-level={index === 0 ? 1 : undefined}
       aria-label={`${value} ${caption}`}
       style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
@@ -244,8 +245,6 @@ export default function Wrapped() {
 
         {/* mono eyebrow — the only line of chrome above the figures */}
         <div
-          role="heading"
-          aria-level={1}
           style={{
             fontFamily: 'var(--mono)',
             fontSize: 11,
@@ -275,6 +274,8 @@ export default function Wrapped() {
             }}
           >
             <div
+              role="heading"
+              aria-level={1}
               style={{
                 fontFamily: 'var(--serif-display)', fontWeight: 300,
                 fontSize: 'clamp(28px,5vw,40px)', lineHeight: 1.2,
