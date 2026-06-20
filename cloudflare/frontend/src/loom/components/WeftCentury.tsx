@@ -56,7 +56,9 @@ export function WeftCentury({ entries, kin, userBornYear, onSelectEntry }: WeftC
   }));
 
   const combinedEntries: LoomEntry[] = [...kinEntries, ...entries];
-  const WOVEN_COUNT = combinedEntries.filter((e) => !e.locked).length;
+  // Append-only woven count = real entries only. kinEntries are synthetic
+  // birth markers with no `locked` flag and must not inflate the count.
+  const WOVEN_COUNT = entries.filter((e) => !e.locked).length;
 
   const generations = kin.map((k, i) => ({
     gen: i,

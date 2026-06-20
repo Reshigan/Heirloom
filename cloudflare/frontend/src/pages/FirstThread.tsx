@@ -218,7 +218,11 @@ export function FirstThread() {
         {/* STEP 1 · IGNITION */}
         {step === 1 && (
           <div
+            role="button"
+            tabIndex={0}
+            aria-label="Continue"
             onClick={toListener}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toListener(); } }}
             style={{
               position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
               alignItems: 'center', justifyContent: 'center', background: 'var(--ink-deep)', cursor: 'pointer',
@@ -247,8 +251,7 @@ export function FirstThread() {
               <div style={{ fontSize: 11, letterSpacing: '0.34em', color: 'var(--warm-dim)', marginBottom: 18, animation: `hl-fadeup 720ms ${EASE} both` }}>THE LISTENER ASKS</div>
               <div style={{ fontFamily: 'var(--serif-display)', fontSize: 31, lineHeight: 1.16, color: 'var(--bone)', animation: `hl-fadeup 720ms ${EASE} 180ms both` }}>What did you almost forget to write down today?</div>
               <div style={{ display: 'flex', gap: 14, marginTop: 30, animation: `hl-fadeup 720ms ${EASE} 360ms both` }}>
-                <button type="button" onClick={record} style={{ border: '1px solid var(--warm)', borderRadius: 0, padding: '13px 30px', color: 'var(--warm)', background: 'transparent', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.22em', cursor: 'pointer' }}>SPEAK</button>
-                <button type="button" onClick={record} style={{ border: '1px solid var(--warm)', background: 'transparent', borderRadius: 0, padding: '13px 30px', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.22em', cursor: 'pointer' }}>WRITE</button>
+                <button type="button" onClick={record} style={{ border: '1px solid var(--warm)', borderRadius: 0, padding: '13px 30px', color: 'var(--warm)', background: 'transparent', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.22em', cursor: 'pointer' }}>BEGIN</button>
               </div>
             </div>
           </div>
@@ -323,7 +326,7 @@ export function FirstThread() {
               <>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                   <div style={{ position: 'relative', width: 120, height: 120, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <img src={ASSET_SEAL} alt="" style={{ position: 'absolute', left: '50%', top: '50%', width: 108, height: 108, animation: `hl-stamp 720ms ${EASE} both` }} />
+                    <img src={ASSET_SEAL} alt="" style={{ position: 'absolute', left: '50%', top: '50%', width: 108, height: 108, transform: 'translate(-50%,-50%)', animation: `hl-stamp 720ms ${EASE} both` }} />
                   </div>
                   <div style={{ fontFamily: 'var(--serif-display)', fontSize: 32, color: 'var(--bone)', marginTop: 26, animation: `hl-fadeup 720ms ${EASE} 360ms both` }}>Sealed until {new Date().getFullYear() + SEAL_YEARS_AHEAD}.</div>
                   <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15, color: 'var(--bone-faint)', marginTop: 10, animation: `hl-fadeup 720ms ${EASE} 360ms both` }}>For generations to come.</div>

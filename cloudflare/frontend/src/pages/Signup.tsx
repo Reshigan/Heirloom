@@ -666,7 +666,7 @@ function Field({
           width: '100%',
           background: 'transparent',
           border: 0,
-          borderBottom: `1px solid ${error ? 'var(--warm)' : 'var(--copper-border)'}`,
+          borderBottom: `1px solid ${error ? 'var(--warm)' : 'var(--rule)'}`,
           padding: '8px 0',
           color: 'var(--bone)',
           fontFamily: 'var(--serif)',
@@ -677,7 +677,7 @@ function Field({
           transition: `border-color 180ms ${EASE}`,
         }}
         onFocus={(e) => { if (!error) e.currentTarget.style.borderBottomColor = 'var(--warm)'; }}
-        onBlur={(e) => { if (!error) e.currentTarget.style.borderBottomColor = 'var(--copper-border)'; }}
+        onBlur={(e) => { if (!error) e.currentTarget.style.borderBottomColor = 'var(--rule)'; }}
       />
       {error ? <FieldError>{error}</FieldError> : null}
     </div>

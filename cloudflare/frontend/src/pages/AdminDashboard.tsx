@@ -324,13 +324,16 @@ export function AdminDashboard() {
                   // Tier names mirror PLAN_DISPLAY (free/family/founder) in lib/plans.ts.
                   // No prices here — live amounts are localized (ZAR) and owned by the
                   // pricing source, never duplicated as static literals in admin chrome.
-                  { key: 'starter', label: 'Free' },
+                  { key: 'starter', label: 'Free', altKeys: ['free'] },
                   { key: 'family', label: 'Family' },
                   { key: 'forever', label: 'Founder' },
-                ].map(({ key, label }) => (
+                ].map(({ key, label, altKeys }) => (
                   <div key={key} style={{ padding: '20px 24px', background: 'var(--ink-card)' }}>
                     <div className="loom-serif" style={{ fontSize: 28, fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>
-                      {overview?.subscriptions?.[key] || overview?.subscriptions?.[key.toUpperCase()] || 0}
+                      {overview?.subscriptions?.[key]
+                        ?? overview?.subscriptions?.[key.toUpperCase()]
+                        ?? (altKeys ?? []).reduce<number | undefined>((acc, ak) => acc ?? overview?.subscriptions?.[ak] ?? overview?.subscriptions?.[ak.toUpperCase()], undefined)
+                        ?? 0}
                     </div>
                     <div className="loom-eyebrow">{label}</div>
                   </div>
@@ -1119,7 +1122,7 @@ export function AdminDashboard() {
               <CreateCouponModal onClose={() => setShowCouponModal(false)} />
             )}
             {showVoucherModal && (
-              <CreateVoucherModal onClose={() => { setShowVoucherModal(false); refetchVouchers(); }} />
+              <CreateVoucherModal onClose={() => setShowVoucherModal(false)} onCreated={() => refetchVouchers()} />
             )}
             {showGoldLegacyModal && (
               <CreateGoldLegacyModal onClose={() => { setShowGoldLegacyModal(false); refetchGoldLegacy(); }} />
@@ -1701,7 +1704,7 @@ function EmailDetailModal({ emailId, onClose }: { emailId: string; onClose: () =
             {/* Sandboxed iframe prevents script execution from email body HTML */}
             <iframe
               sandbox=""
-              srcDoc={email.body || '<em style="color:#666">No body content</em>'}
+              srcDoc={email.body || '<em style="color:#444;font-family:sans-serif">No body content</em>'}
               style={{ width: '100%', minHeight: 200, maxHeight: 384, border: 0, background: '#fff' }}
               title="Email preview"
             />

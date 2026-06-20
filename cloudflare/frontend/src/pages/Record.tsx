@@ -449,7 +449,7 @@ export function Record() {
         <h1
           className="hl-serif"
           style={{
-            fontFamily: 'var(--serif)',
+            fontFamily: 'var(--serif-display)',
             fontSize: 'clamp(30px, 6vw, 48px)',
             fontWeight: 400,
             lineHeight: 1.08,

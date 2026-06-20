@@ -5,6 +5,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { challengesApi } from '../services/api';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { useFocusTrap } from '../lib/useFocusTrap';
+import { dyeTextColor } from '../loom/dye';
 
 export function Challenges() {
   const queryClient = useQueryClient();
@@ -181,7 +182,7 @@ export function Challenges() {
                   <div>
                     {(submissions as any[]).slice(0, 5).map((sub: any) => (
                       <div key={sub.id} style={{ borderBottom: '1px solid var(--rule)', padding: '14px 0' }}>
-                        <span style={{ ...metaText, color: 'var(--gold-text)' }}>
+                        <span style={{ ...metaText, color: dyeTextColor(String(sub.id), sub.metadata) }}>
                           {sub.first_name}{sub.last_name ? ` ${sub.last_name[0]}.` : ''}
                         </span>
                         <p
@@ -226,13 +227,25 @@ export function Challenges() {
               <section>
                 <SectionLabel>Coming threads</SectionLabel>
                 {upcoming.slice(0, 6).map((challenge: any) => (
-                  <EntryRow
+                  // EntryRow (CosmicUI) renders the focusable <button> but exposes no
+                  // aria-haspopup prop and no rest-spread, and that file is owned elsewhere.
+                  // This callback-ref wrapper tags the actual rendered button so screen
+                  // readers announce that the row opens the challenge-detail dialog.
+                  <div
                     key={challenge.id}
-                    title={challenge.title}
-                    sub={challenge.description}
-                    meta={new Date(challenge.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                    onClick={() => setSelectedChallenge(challenge)}
-                  />
+                    style={{ display: 'contents' }}
+                    ref={el => {
+                      const btn = el?.querySelector('button');
+                      if (btn) btn.setAttribute('aria-haspopup', 'dialog');
+                    }}
+                  >
+                    <EntryRow
+                      title={challenge.title}
+                      sub={challenge.description}
+                      meta={new Date(challenge.start_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      onClick={() => setSelectedChallenge(challenge)}
+                    />
+                  </div>
                 ))}
               </section>
             )}

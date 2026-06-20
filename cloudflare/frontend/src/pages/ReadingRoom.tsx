@@ -1049,7 +1049,7 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
           {/* page number — bare mono numeral */}
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <span style={{
-              fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--warm)',
+              fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--letter-gold)',
               letterSpacing: '0.08em',
             }}>{ch * 2 + 2}</span>
           </div>

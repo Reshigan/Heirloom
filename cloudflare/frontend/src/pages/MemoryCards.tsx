@@ -255,6 +255,7 @@ export function MemoryCards() {
                       <button
                         key={memory.id}
                         type="button"
+                        aria-pressed={selectedMemory === memory.id}
                         onClick={() => setSelectedMemory(memory.id)}
                         style={{
                           background: 'transparent',
@@ -307,6 +308,7 @@ export function MemoryCards() {
                     <button
                       key={style.id}
                       type="button"
+                      aria-pressed={selectedStyle === style.id}
                       onClick={() => setSelectedStyle(style.id)}
                       style={{
                         padding: '12px 14px',

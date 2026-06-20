@@ -566,7 +566,11 @@ export function QuickWizard() {
                   // none is checked yet, the first radio enters the tab order.
                   const checkedIndex = TYPE_OPTIONS.indexOf(contentType as ContentType);
                   const tabbableIndex = checkedIndex === -1 ? 0 : checkedIndex;
-                  const selectByIndex = (next: number) => handleTypeSelect(TYPE_OPTIONS[next]);
+                  // Arrow keys move radiogroup selection/focus ONLY — they must
+                  // not commit + advance the wizard (WAI-ARIA radiogroup pattern).
+                  // Advancing stays on the explicit click/Enter activation, which
+                  // fires onClick → handleTypeSelect (set + setStep).
+                  const selectByIndex = (next: number) => setContentType(TYPE_OPTIONS[next]);
                   return (
                     <>
                       <SelectRow

@@ -479,8 +479,8 @@ html[data-theme="light"] body {
  * raised off the ink, a single 1px hairline, and a brief-compliant radius
  * of 0. The blur and the ::before/::after gradient films are gone. */
 .glass {
-  background: rgba(242, 230, 208, 0.035);
-  border: 1px solid rgba(242, 230, 208, 0.10);
+  background: color-mix(in srgb, var(--bone) 3.5%, transparent);
+  border: 1px solid var(--rule);
   border-radius: 0;
   position: relative;
   overflow: hidden;
@@ -496,7 +496,7 @@ html[data-theme="light"] body {
 }
 
 .glass-subtle {
-  background: rgba(242, 230, 208, 0.02);
+  background: color-mix(in srgb, var(--bone) 2%, transparent);
 }
 
 /* ===== BUTTONS (Eternal Premium) ===== */
@@ -717,7 +717,7 @@ em {
 @keyframes hl-fadein { from { opacity: 0; } to { opacity: 1; } }
 @keyframes hl-wipe   { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @keyframes hl-sweep  { 0% { left: -14%; opacity: 0; } 18% { opacity: 1; } 100% { left: 106%; opacity: 0; } }
-@keyframes hl-pulse  { 0%, 100% { opacity: .5; transform: scale(1); } 50% { opacity: .92; transform: scale(1.06); } }
+@keyframes hl-pulse  { 0%, 100% { opacity: .5; } 50% { opacity: .92; } }
 @keyframes hl-ring   { 0% { transform: translate(-50%,-50%) scale(.35); opacity: .85; } 100% { transform: translate(-50%,-50%) scale(2.7); opacity: 0; } }
 @keyframes hl-stamp  { 0% { transform: translate(-50%,-50%) scale(1.6); opacity: 0; } 38% { opacity: 1; } 62% { transform: translate(-50%,-50%) scale(.86); } 100% { transform: translate(-50%,-50%) scale(1); } }
 @keyframes hl-node   { 0% { transform: scale(0); opacity: 0; } 62% { transform: scale(1.5); } 100% { transform: scale(1); opacity: 1; } }
@@ -1070,7 +1070,7 @@ html {
 }
 .warp-loading span {
   width: 1px;
-  background: rgba(242, 230, 208, 0.1); /* bone, faint */
+  background: var(--rule);
   transform-origin: top;
   animation: warp-string 720ms var(--ease) both;
 }
@@ -1787,21 +1787,6 @@ html {
   opacity: 1;
   cursor: pointer;
 }
-/* 'Locked / tied-off' pick: keep the weft on its own dye colour — copper is
-   signal only, never a fill. Mark the tie-off with a 1px copper hairline cap at
-   the pick's leading edge (a stroke, not a copper-filled bar). */
-.loom-weft__pick.is-locked {
-  opacity: 1;
-}
-.loom-weft__pick.is-locked::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--loom-warm);
-}
 .loom-weft__ligature {
   position: absolute;
   width: 1px;
@@ -1849,30 +1834,6 @@ html {
   transform: translateX(-50%);
 }
 
-/* ─── The Shuttle (ambient AI threading) ───────────────────────── */
-.loom-shuttle {
-  position: absolute;
-  will-change: transform, opacity;
-  height: 1px; width: 64px;
-  background: linear-gradient(
-    to right,
-    transparent,
-    var(--loom-warm-bright),
-    transparent
-  );
-  opacity: 0.6;
-  animation: loom-shuttle 11s var(--loom-ease) infinite;
-  pointer-events: none;
-}
-/* Sanctioned slow-ambient exception: this 11s sweep is OFF by default
-   (Loom.tsx ambientShuttle defaults false) and renders only when ambientShuttle
-   is explicitly enabled — it is not on the home/primitive surface. */
-@keyframes loom-shuttle {
-  0%   { transform: translateX(-10vw); opacity: 0; }
-  10%  { opacity: 0.6; }
-  85%  { opacity: 0.6; }
-  100% { transform: translateX(110vw); opacity: 0; }
-}
 /* Percentage-based shuttle for small fixed-width loading bars (QuickWizard's
    LoadingBar references this) — distinct from the vw-based ambient loom-shuttle
    above so the segment sweeps the bar's own width, not the viewport. */
@@ -2525,7 +2486,7 @@ html {
 /* ── Reduced motion overrides ─────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .hl-composer-cursor-after::after { animation: none; }
-  .hl-cloth-breathe-el        { animation: none; }
+  .hl-cloth-breath            { animation: none; }
 }
 
 /* ── Autofill override — Chrome blue autofill destroys the ink/bone palette ── */

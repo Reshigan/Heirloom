@@ -997,6 +997,7 @@ export function BookBuilder() {
                         <button
                           key={type}
                           type="button"
+                          aria-pressed={on}
                           onClick={() => setConfig((prev) => ({ ...prev, coverType: type }))}
                           style={{
                             display: 'flex',
