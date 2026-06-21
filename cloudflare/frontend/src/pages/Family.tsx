@@ -12,6 +12,7 @@ import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { RoomError } from '../loom/components/RoomError';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { dyeForId, dyeVar, dyeTextVar, DYES, DYE_MOTIF, type Dye } from '../loom/dye';
+import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 interface PendingInvite {
   id: string;
@@ -243,20 +244,26 @@ export function Family() {
         {/* form panel */}
         {showForm && (
           <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 24, marginBottom: 40 }}>
-            <div style={{ display: 'flex', gap: 24, marginBottom: 28, borderBottom: '1px solid var(--rule)', paddingBottom: 14 }}>
-              {(['add', 'invite'] as Mode[]).map((m) => (
+            <div role="radiogroup" aria-label="entry mode" style={{ display: 'flex', gap: 24, marginBottom: 28, borderBottom: '1px solid var(--rule)', paddingBottom: 14 }}>
+              {(['add', 'invite'] as Mode[]).map((m, i, arr) => (
                 <button
                   key={m}
                   type="button"
-                  aria-pressed={mode === m}
+                  role="radio"
+                  aria-checked={mode === m}
+                  tabIndex={mode === m ? 0 : -1}
                   onClick={() => { setMode(m); setError(null); setInviteSent(false); }}
+                  onKeyDown={(e) => handleRadioArrowKeys(e, i, arr.length, (next) => { setMode(arr[next]); setError(null); setInviteSent(false); })}
                   style={{
                     background: 'transparent',
                     border: 0,
+                    borderBottom: mode === m ? '1px solid var(--warm)' : '1px solid transparent',
                     padding: 0,
+                    paddingBottom: 2,
                     cursor: 'pointer',
                     fontFamily: 'var(--mono)',
                     fontSize: 13,
+                    fontWeight: mode === m ? 700 : 400,
                     letterSpacing: '0.28em',
                     textTransform: 'uppercase',
                     color: mode === m ? 'var(--warm)' : 'var(--bone-dim)',

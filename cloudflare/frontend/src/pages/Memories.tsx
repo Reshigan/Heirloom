@@ -313,7 +313,7 @@ const EMOTIONS: { value: string; label: string; dye: Dye; keywords: string[] }[]
   { value: 'grief',     label: 'grief',     dye: 'indigo',    keywords: ['grief','sad','loss','miss','cry','tear','hurt','pain','difficult','passed','died','mourn','ache'] },
   { value: 'pride',     label: 'pride',     dye: 'cochineal', keywords: ['proud','pride','accompl','achiev','graduat','success','earned','grew','strong'] },
   { value: 'nostalgia', label: 'nostalgia', dye: 'walnut',    keywords: ['remember','long ago','childhood','used to','when i was','back then','old days','years ago','once','still recall'] },
-  { value: 'gratitude', label: 'gratitude', dye: 'weld',      keywords: ['grateful','thank','blessed','appreci','fortune','lucky','gift','fortune'] },
+  { value: 'gratitude', label: 'gratitude', dye: 'weld',      keywords: ['grateful','thank','blessed','appreci','fortune','lucky','gift'] },
   { value: 'wonder',    label: 'wonder',    dye: 'woad',      keywords: ['amaz','wonder','incredible','beautiful','unexpect','surprised','magical','astonish','awe','breathtaking'] },
 ];
 
@@ -355,6 +355,7 @@ function FilterBar({ memories, filters, setFilters }: {
     cursor: 'pointer',
     appearance: 'none' as const,
     WebkitAppearance: 'none' as const,
+    colorScheme: 'inherit',
     minHeight: 32,
   };
 

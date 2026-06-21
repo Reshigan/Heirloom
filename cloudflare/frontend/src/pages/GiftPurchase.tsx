@@ -30,7 +30,7 @@ export function GiftPurchase() {
   usePageMeta('Give Heirloom', 'Give someone the gift of a family thread.');
   const [pricing, setPricing] = useState<PricingData | null>(null);
   const [selectedTier, setSelectedTier] = useState<string>('FAMILY');
-  const [billingCycle] = useState<'yearly'>('yearly');
+  const billingCycle: 'yearly' = 'yearly';
   const [isLoading, setIsLoading] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [errorField, setErrorField] = useState<'purchaser' | 'recipient' | null>(null);
@@ -548,7 +548,7 @@ export function GiftPurchase() {
             </span>
             <span
               className="hl-serif"
-              style={{ fontSize: 22, color: 'var(--warm)' }}
+              style={{ fontSize: 22, color: 'var(--bone)' }}
             >
               {price?.display ?? '—'}
             </span>

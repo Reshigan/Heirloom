@@ -378,7 +378,7 @@ export function RecipientPicker({
           />
           <span>
             already woven into your bloodline ·{' '}
-            <span className="hl-signature" style={{ fontSize: '1.5em' }}>
+            <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', color: dyeColor(selected.id, selected.dye) }}>
               {selected.name}
             </span>
           </span>

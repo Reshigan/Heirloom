@@ -1278,9 +1278,6 @@ html {
   .hl-menu-item:hover { color: var(--bone); }
 }
 .hl-menu-item.danger { color: var(--dye-madder-text); }
-@media (hover: hover) and (pointer: fine) {
-  .hl-menu-item.danger:hover { color: var(--dye-madder-text); }
-}
 
 /* ── Helper text — italic serif below form fields ────────────────────── */
 .hl-helper {

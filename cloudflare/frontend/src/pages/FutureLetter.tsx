@@ -180,7 +180,7 @@ export function FutureLetter() {
           <div
             aria-hidden
             style={{
-              color: 'var(--warm)',
+              color: 'var(--bone)',
               fontSize: 'clamp(40px, 10vw, 64px)',
               lineHeight: 1,
               marginBottom: 24,

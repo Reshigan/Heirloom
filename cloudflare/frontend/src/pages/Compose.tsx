@@ -501,6 +501,7 @@ function DeliveryField({
                       maxWidth: 200,
                       boxSizing: 'border-box',
                       touchAction: 'manipulation',
+                      colorScheme: 'inherit',
                     }}
                     onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--warm)')}
                     onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--rule)')}
@@ -1936,7 +1937,6 @@ export function Compose() {
           {error && (
             <p
               role="alert"
-              aria-live="polite"
               aria-atomic="true"
               style={{
                 marginTop: 20,

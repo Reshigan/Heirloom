@@ -760,7 +760,7 @@ export function GiftSubscriptions() {
                   <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 8 }}>
                     <span
                       className="hl-serif"
-                      style={{ fontSize: 20, color: 'var(--warm)' }}
+                      style={{ fontSize: 20, color: 'var(--bone)' }}
                     >
                       {selectedPricing ? (selectedPricing.display ?? `$${selectedPricing.amount}`) : '—'}
                     </span>

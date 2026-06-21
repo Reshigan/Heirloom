@@ -667,7 +667,7 @@ export function AdminDashboard() {
                   {giftVouchers?.vouchers?.map((voucher: any) => (
                     <tr key={voucher.id} style={{ borderBottom: '1px solid var(--rule)' }}>
                       <td style={tdStyle}>
-                        <span className="loom-mono" style={{ color: 'var(--warm)', fontSize: 12 }}>{voucher.code}</span>
+                        <span className="loom-mono" style={{ color: 'var(--bone-dim)', fontSize: 12 }}>{voucher.code}</span>
                         {' '}
                         <button className="loom-btn-ghost" style={{ fontSize: 10, padding: '1px 6px' }} onClick={() => copyToClipboard(voucher.code).then(() => status.ok('code copied')).catch(() => status.err('copy failed'))}>copy</button>
                       </td>
@@ -707,7 +707,7 @@ export function AdminDashboard() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <p className="loom-eyebrow" style={{ color: 'var(--warm)', marginBottom: 4 }}>Gold Legacy Circle</p>
+                <p className="loom-eyebrow" style={{ color: 'var(--bone-faint)', marginBottom: 4 }}>Gold Legacy Circle</p>
                 <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)' }}>Exclusive lifetime access vouchers for VIP members</p>
               </div>
               <button className="loom-btn" onClick={() => setShowGoldLegacyModal(true)}>Create Gold Legacy Voucher</button>
@@ -735,7 +735,7 @@ export function AdminDashboard() {
                 <LedgerTable cols={['Member #', 'Code', 'Recipient', 'Status', 'Created', 'Actions']} empty="No Gold Legacy vouchers created yet">
                   {goldLegacyVouchers?.vouchers?.map((voucher: any) => (
                     <tr key={voucher.id} style={{ borderBottom: '1px solid var(--rule)' }}>
-                      <td className="loom-mono" style={{ ...tdStyle, color: 'var(--warm)', fontSize: 12 }}>{voucher.gold_member_number || '—'}</td>
+                      <td className="loom-mono" style={{ ...tdStyle, color: 'var(--bone-dim)', fontSize: 12 }}>{voucher.gold_member_number || '—'}</td>
                       <td style={tdStyle}>
                         <span className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-dim)' }}>{voucher.code}</span>
                         {' '}
@@ -1857,7 +1857,7 @@ function CreateVoucherModal({ onClose, onCreated }: { onClose: () => void; onCre
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
           <p style={{ color: 'var(--bone)', marginBottom: 16 }}>{createdCodes.length} Voucher{createdCodes.length > 1 ? 's' : ''} Created</p>
           <div style={{ background: 'var(--ink)', border: '1px solid var(--rule)', padding: 16, marginBottom: 16, maxHeight: 192, overflowY: 'auto' }}>
-            {createdCodes.map((code, i) => <p key={i} className="loom-mono" style={{ fontSize: 16, color: 'var(--warm)', marginBottom: 4, letterSpacing: '0.12em' }}>{code}</p>)}
+            {createdCodes.map((code, i) => <p key={i} className="loom-mono" style={{ fontSize: 16, color: 'var(--bone)', marginBottom: 4, letterSpacing: '0.12em' }}>{code}</p>)}
           </div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button className="loom-btn-ghost" onClick={() => copyToClipboard(createdCodes.join('\n')).then(() => status.ok('codes copied')).catch(() => status.err('copy failed'))}>Copy All Codes</button>
@@ -1993,7 +1993,7 @@ The Heirloom Team`;
           <p className="loom-h2" style={{ fontSize: 24, fontStyle: 'italic', fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>Gold Legacy Voucher Created</p>
           <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', marginBottom: 16 }}>Member #{createdVoucher.memberNumber}</p>
           <div style={{ padding: 16, border: '1px solid var(--rule)', marginBottom: 16 }}>
-            <p className="loom-mono" style={{ fontSize: 16, color: 'var(--warm)', letterSpacing: '0.12em' }}>{createdVoucher.code}</p>
+            <p className="loom-mono" style={{ fontSize: 16, color: 'var(--bone)', letterSpacing: '0.12em' }}>{createdVoucher.code}</p>
           </div>
           {createdVoucher.emailSent && <p className="loom-mono" style={{ fontSize: 11, color: 'var(--warm)', marginBottom: 16 }}>Invitation email sent to {createdVoucher.recipientEmail}</p>}
           <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>

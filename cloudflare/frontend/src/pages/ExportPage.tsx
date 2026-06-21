@@ -607,8 +607,7 @@ function HistoryRow({ job }: { job: ExportJob }) {
 }
 
 /* ── helpers ────────────────────────────────────────────────────────────── */
-function labelForType(type: string): string {
-  if (type === 'family-book' || type === 'FAMILY_BOOK') return 'Family book';
+function labelForType(_type: string): string {
   return 'Family book';
 }
 

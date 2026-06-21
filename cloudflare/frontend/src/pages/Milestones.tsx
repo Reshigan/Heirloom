@@ -8,6 +8,16 @@ import { dyeForId } from '../loom/dye';
 import { useFocusTrap } from '../lib/useFocusTrap';
 import { milestonesApi } from '../services/api';
 
+/** Parse a date-only `YYYY-MM-DD` string from LOCAL components (not UTC midnight via
+ *  new Date(iso), which rolls back a day in negative-offset timezones). */
+function parseLocal(raw: string | undefined): Date {
+  if (typeof raw === 'string') {
+    const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  }
+  return new Date(raw as any);
+}
+
 const milestoneTypes = [
   { id: 'birthday', name: 'Birthday' },
   { id: 'anniversary', name: 'Anniversary' },
@@ -118,7 +128,7 @@ export function Milestones() {
   });
 
   const getDaysUntil = (dateStr: string, recurring: boolean) => {
-    const date = new Date(dateStr);
+    const date = parseLocal(dateStr);
     const now = new Date();
     if (recurring) {
       const thisYear = new Date(now.getFullYear(), date.getMonth(), date.getDate());
@@ -194,7 +204,7 @@ export function Milestones() {
                   {upcomingList.map((milestone: any) => {
                     const typeInfo = getTypeInfo(milestone.milestone_type);
                     const daysUntil = getDaysUntil(milestone.milestone_date, milestone.recurring);
-                    const when = new Date(milestone.milestone_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+                    const when = parseLocal(milestone.milestone_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
                     const dueLabel = daysUntil === 0 ? 'today' : daysUntil === 1 ? 'tomorrow' : `${daysUntil} days`;
                     return (
                       <EntryRow
@@ -236,7 +246,7 @@ export function Milestones() {
                 <div>
                   {milestoneList.map((milestone: any) => {
                     const typeInfo = getTypeInfo(milestone.milestone_type);
-                    const when = new Date(milestone.milestone_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+                    const when = parseLocal(milestone.milestone_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
                     return (
                       <div key={milestone.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
                         <EntryRow
@@ -343,9 +353,10 @@ export function Milestones() {
                         if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
                           e.preventDefault();
                           const dir = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : -1;
-                          const next = milestoneTypes[(i + dir + milestoneTypes.length) % milestoneTypes.length];
-                          // Arrows only rove focus — selection commits on click/Enter/Space.
-                          (e.currentTarget.parentElement?.children[milestoneTypes.indexOf(next)] as HTMLElement)?.focus();
+                          const nextIdx = (i + dir + milestoneTypes.length) % milestoneTypes.length;
+                          // ARIA APG: arrows move selection in a radiogroup (checked follows focus).
+                          setFormData({ ...formData, type: milestoneTypes[nextIdx].id });
+                          (e.currentTarget.parentElement?.children[nextIdx] as HTMLElement)?.focus();
                         }
                       }}
                       style={{

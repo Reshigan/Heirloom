@@ -180,9 +180,7 @@ export function Pricing() {
               key={tier.id}
               style={{
                 padding: '18px',
-                border: tier.emphasized
-                  ? '1px solid var(--copper-border)'
-                  : '1px solid var(--hairline-3)',
+                border: '1px solid var(--rule)',
                 borderRadius: 0,
               }}
             >
@@ -193,7 +191,7 @@ export function Pricing() {
                   fontSize: 'clamp(20px,4vw,26px)',
                   fontWeight: 400,
                   lineHeight: 1.1,
-                  color: tier.emphasized ? 'var(--gold-text)' : 'var(--bone)',
+                  color: 'var(--bone)',
                   marginBottom: 10,
                 }}
               >

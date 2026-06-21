@@ -148,7 +148,7 @@ export function EntryRow({
    *  undefined by default so every existing caller is unaffected. */
   ariaPressed?: boolean;
 }) {
-  const tint = dye ? dyeVar(dye) : 'var(--warm)';
+  const tint = dye ? dyeVar(dye) : 'var(--bone-dim)';
   const hasLedgerMeta = year != null || author != null || dye != null;
   const fontFor = (f: 'serif' | 'sans' | 'display') =>
     f === 'sans' ? 'var(--sans)' : f === 'display' ? 'var(--serif-display)' : 'var(--serif)';

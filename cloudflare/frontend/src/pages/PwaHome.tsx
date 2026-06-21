@@ -328,6 +328,7 @@ function AuthHome({
     .sort((a, b) => b.date.getTime() - a.date.getTime())
     .slice(0, 6)
     .map((e) => ({
+      id: e.id,
       title: (e.title && String(e.title)) || (e.sealed ? 'a sealed letter' : 'an unwoven thread'),
       year: e.date.getFullYear(),
       dye: e.dye as Dye,
@@ -420,7 +421,7 @@ function AuthHome({
           <div style={{ marginTop: 56, textAlign: 'left' }}>
             {recent.map((e, i) => (
               <EntryRow
-                key={i}
+                key={e.id ?? `row-${i}`}
                 title={
                   <span style={{ display: 'inline-flex', alignItems: 'baseline', gap: 10 }}>
                     <WarmDot color={dyeVar(e.dye)} size={5} />

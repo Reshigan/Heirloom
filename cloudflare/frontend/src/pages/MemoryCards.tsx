@@ -326,14 +326,14 @@ export function MemoryCards() {
                     (document.getElementById(`style-${styles[next].id}`) as HTMLElement | null)?.focus();
                   }}
                 >
-                  {styles.map((style: CardStyle) => (
+                  {styles.map((style: CardStyle, i: number) => (
                     <button
                       key={style.id}
                       type="button"
                       id={`style-${style.id}`}
                       role="radio"
                       aria-checked={selectedStyle === style.id}
-                      tabIndex={selectedStyle === style.id ? 0 : -1}
+                      tabIndex={selectedStyle === style.id ? 0 : (!styles.some((s: CardStyle) => s.id === selectedStyle) && i === 0 ? 0 : -1)}
                       onClick={() => setSelectedStyle(style.id)}
                       style={{
                         padding: '12px 14px',

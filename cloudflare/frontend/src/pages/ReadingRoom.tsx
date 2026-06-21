@@ -424,6 +424,7 @@ export function ReadingRoom() {
   const [entries, setEntries]       = useState<Thread[]>([]);
   const [loading, setLoading]     = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuthStore();
   const [searchParams]            = useSearchParams();
   const wantEntry                 = searchParams.get('entry');
@@ -450,7 +451,9 @@ export function ReadingRoom() {
         return a;
       });
       setDeleteConfirm(false);
+      setDeleteError(null);
     },
+    onError: () => setDeleteError('could not unweave this thread — try again'),
   });
 
   const who = useMemo(
@@ -686,6 +689,11 @@ export function ReadingRoom() {
               >
                 cancel
               </button>
+              {deleteError && (
+                <span role="alert" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em', color: 'var(--bone-faint)' }}>
+                  {deleteError}
+                </span>
+              )}
             </div>
           )}
           <button

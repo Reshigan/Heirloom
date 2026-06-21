@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { lettersApi, aiApi } from '../../services/api';
 import { DYES, dyeVar, DYE_MOTIF, type Dye } from '../dye';
 
@@ -97,60 +96,6 @@ export function useListenerAI(body: string, to?: string) {
   }, [body, to, fetch]);
 
   return { suggestion, loading, refresh };
-}
-
-/* ─── Composer mode switcher — paper / letter only ───────────────────── */
-export function ComposerModes({ active }: { active: 'paper' | 'letter' }) {
-  const navigate = useNavigate();
-  const modes: { key: 'paper' | 'letter'; label: string; to: string; hint: string }[] = [
-    { key: 'paper',  label: 'paper',  to: '/compose',      hint: 'a memory, note, or thought' },
-    { key: 'letter', label: 'letter', to: '/letters/new',  hint: 'addressed to someone, optionally sealed' },
-  ];
-  return (
-    <div style={{ marginBottom: 24 }}>
-      <div
-        className="loom-mono"
-        style={{
-          display: 'inline-flex',
-          gap: 0,
-          fontSize: 13,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          marginBottom: 6,
-        }}
-      >
-        {modes.map((m, i) => (
-          <span key={m.key} style={{ display: 'inline-flex', alignItems: 'baseline' }}>
-            {i > 0 && <span style={{ color: 'var(--bone-low)', margin: '0 14px' }}>·</span>}
-            <button
-              type="button"
-              onClick={() => m.key !== active && navigate(m.to)}
-              style={{
-                background: 'transparent',
-                border: 0,
-                padding: 0,
-                cursor: m.key === active ? 'default' : 'pointer',
-                font: 'inherit',
-                letterSpacing: 'inherit',
-                textTransform: 'inherit',
-                color: m.key === active ? 'var(--warm)' : 'var(--bone-faint)',
-                transition: 'color 180ms var(--ease)',
-              }}
-            >
-              {m.label}
-            </button>
-          </span>
-        ))}
-      </div>
-      {/* hint for active mode */}
-      <div
-        className="loom-mono"
-        style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.04em' }}
-      >
-        {modes.find(m => m.key === active)?.hint}
-      </div>
-    </div>
-  );
 }
 
 /* ─── The Listener — ambient AI companion in the right margin ─────────── */

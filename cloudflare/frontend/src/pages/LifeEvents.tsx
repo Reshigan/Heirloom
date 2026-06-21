@@ -621,7 +621,9 @@ export function LifeEvents() {
                             handleRecipientSelect(member);
                             return;
                           }
-                          handleRadioArrowKeys(e, i, family.length, () => {});
+                          handleRadioArrowKeys(e, i, family.length, (next) =>
+                            handleRecipientSelect(family[next]),
+                          );
                         }}
                         style={{
                           background: 'transparent',

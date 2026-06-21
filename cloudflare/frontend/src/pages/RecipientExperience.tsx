@@ -78,6 +78,17 @@ export function RecipientExperience() {
 
   const thread = data?.thread;
 
+  /* Standalone public link — render OUTSIDE the .loom shell, so resolve the
+     theme the same way ErrorBoundary does and wrap returns in a .loom root. */
+  let resolved: 'light' | 'dark' = 'light';
+  try {
+    const saved = localStorage.getItem('heirloom-theme');
+    if (saved === 'dark') resolved = 'dark';
+    else if (saved === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches) resolved = 'dark';
+  } catch {
+    /* ignore — keep light default */
+  }
+
   /* ── Screen wrapper ─────────────────────────────────────────────── */
   const screenStyle: React.CSSProperties = {
     position: 'absolute',
@@ -141,7 +152,7 @@ export function RecipientExperience() {
             </span>
           </>
         ) : (
-          <span>∞ heirloom</span>
+          <span>heirloom</span>
         )}
       </span>
 
@@ -172,7 +183,7 @@ export function RecipientExperience() {
   /* ── Loading ────────────────────────────────────────────────────── */
   if (isLoading || !token) {
     return (
-      <div style={screenStyle}>
+      <div className="loom" data-theme={resolved} style={screenStyle}>
         <LoadingBar />
         {topbar}
         <div style={{ padding: '120px clamp(20px, 6vw, 56px)' }}>
@@ -187,7 +198,7 @@ export function RecipientExperience() {
   /* ── Error / invalid token ──────────────────────────────────────── */
   if (isError || !thread) {
     return (
-      <div style={screenStyle}>
+      <div className="loom" data-theme={resolved} style={screenStyle}>
         {topbar}
         <div
           style={{
@@ -259,7 +270,7 @@ export function RecipientExperience() {
   const remaining = thread.entryCount - 1;
 
   return (
-    <div style={screenStyle}>
+    <div className="loom" data-theme={resolved} style={screenStyle}>
       {topbar}
 
       <article

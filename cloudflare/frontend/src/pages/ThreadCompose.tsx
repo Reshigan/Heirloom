@@ -510,6 +510,8 @@ export function ThreadCompose() {
                         min={today}
                         value={lockDate}
                         onChange={(e) => setLockDate(e.target.value)}
+                        aria-invalid={errorField === 'lockDate'}
+                        aria-describedby={errorField === 'lockDate' ? 't-lock-error' : undefined}
                         style={{ ...fieldStyle, maxWidth: 200 }}
                       />
                     </div>

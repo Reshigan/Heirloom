@@ -224,7 +224,7 @@ export function FirstThread() {
             }}
           >
             <div style={{ position: 'relative', width: 150, height: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ fontFamily: "var(--serif-display)", fontSize: 74, color: 'var(--warm-bright)' }}>∞</div>
+              <div style={{ fontFamily: "var(--serif-display)", fontSize: 74, color: 'var(--bone)' }}>∞</div>
             </div>
             <div role="heading" aria-level={1} style={{ fontFamily: 'var(--serif-display)', fontSize: 30, color: 'var(--bone)', marginTop: 30 }}>The Threshold</div>
             <div style={{ fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone-dim)', marginTop: 8 }}>Every thread begins with a touch.</div>
