@@ -518,7 +518,7 @@ export function Onboarding() {
             onKeyDown={(e) => e.key === 'Enter' && handleNext()}
             placeholder="name@example.com"
             aria-label="Invite someone's email address"
-            aria-invalid={error ? true : undefined}
+            aria-invalid={error ? 'true' : undefined}
             aria-describedby={error ? 'onboarding-error' : undefined}
           />
         </div>

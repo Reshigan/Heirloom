@@ -211,7 +211,7 @@ export function GiftPurchase() {
                   key={tier?.id ?? idx}
                   role="radio"
                   aria-checked={isSelected}
-                  tabIndex={isSelected || (selectedTier == null && isFirst) ? 0 : -1}
+                  tabIndex={isSelected ? 0 : -1}
                   onClick={() => tier?.id && setSelectedTier(tier.id)}
                   onKeyDown={(e) =>
                     handleRadioArrowKeys(e, idx, tiers.length, (next) => {
@@ -458,7 +458,7 @@ export function GiftPurchase() {
                 marginBottom: 8,
               }}
             >
-              your email <span style={{ color: 'var(--warm)' }}>*</span>
+              your email <span style={{ color: 'var(--bone-dim)' }}>*</span>
             </label>
             <input
               id="gift-purchaser-email"

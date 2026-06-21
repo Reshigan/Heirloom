@@ -414,7 +414,7 @@ export function StoryView() {
       </div>
 
       {/* TapestryEdge woven border at absolute bottom */}
-      <TapestryEdge nowFrac={memories.length > 0 ? (currentIndex + 1) / memories.length : 0.5} />
+      <TapestryEdge nowFrac={memories.length > 0 ? (currentIndex + 1) / memories.length : 0} />
     </ClothShell>
   );
 }

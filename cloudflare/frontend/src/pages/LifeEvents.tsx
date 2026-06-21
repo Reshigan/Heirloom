@@ -358,6 +358,7 @@ export function LifeEvents() {
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 4 }}>
           <button
             onClick={() => setShowCreate(true)}
+            aria-haspopup="dialog"
             style={{
               background: 'none', border: 0, padding: '8px 0', cursor: 'pointer',
               fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.22em',
@@ -383,7 +384,7 @@ export function LifeEvents() {
                   const when = trigger.scheduled_date || trigger.created_at;
                   const year = when ? new Date(when).getFullYear() : '—';
                   const author = trigger.recipient_name || trigger.family_member_name || undefined;
-                  const itemCount = JSON.parse(trigger.content_items || '[]').length;
+                  const itemCount = (() => { try { const p = JSON.parse(trigger.content_items || '[]'); return Array.isArray(p) ? p.length : 0; } catch { return 0; } })();
                   const subBits = [
                     statusConfig.label,
                     trigger.recipient_email || null,
@@ -620,12 +621,7 @@ export function LifeEvents() {
                             handleRecipientSelect(member);
                             return;
                           }
-                          handleRadioArrowKeys(e, i, family.length, (next) => {
-                            const m = family[next];
-                            setFamilyMemberId(m.id);
-                            setRecipientName(m.name);
-                            setRecipientEmail(m.email || '');
-                          });
+                          handleRadioArrowKeys(e, i, family.length, () => {});
                         }}
                         style={{
                           background: 'transparent',

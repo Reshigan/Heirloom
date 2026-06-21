@@ -241,8 +241,15 @@ function PushNotificationHandler() {
 function LoomShellRoot({ children }: { children: React.ReactNode }) {
   const { theme } = useLoomTheme();
   const { textScale, highContrast } = useDisplayPreferences();
+  // The CSS token blocks key ONLY off data-theme="light" / "dark"; binding the
+  // raw "system" value matches neither and fails the palette closed to dark.
+  // Resolve to a concrete 'light' | 'dark' so React owns a valid attribute.
+  const resolved =
+    theme === 'system'
+      ? (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : theme;
   return (
-    <div className="loom" data-theme={theme} data-text-scale={String(textScale)} data-contrast={highContrast ? 'true' : undefined} style={{ minHeight: '100vh', position: 'relative', background: 'var(--ink)' }}>
+    <div className="loom" data-theme={resolved} data-text-scale={String(textScale)} data-contrast={highContrast ? 'true' : undefined} style={{ minHeight: '100vh', position: 'relative', background: 'var(--ink)' }}>
       {/* Global cloth substrate — the woven canvas behind every screen,
           mounted once. On home surfaces the cloth is the screen and answers
           touch (whispers route via window-level listeners, so pointer-events

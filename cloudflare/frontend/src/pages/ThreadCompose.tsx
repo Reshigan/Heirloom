@@ -345,7 +345,7 @@ export function ThreadCompose() {
               }}
             >
               What will you tell{' '}
-              <span style={{ fontStyle: 'italic', color: 'var(--warm)' }}>them</span>?
+              <span style={{ fontStyle: 'italic', color: 'var(--bone)' }}>them</span>?
             </h1>
             <p
               style={{

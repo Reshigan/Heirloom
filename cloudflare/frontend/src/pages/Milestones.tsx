@@ -158,6 +158,7 @@ export function Milestones() {
             </button>
             <button
               onClick={() => { setShowCreateModal(true); setAutoDetectMsg(null); }}
+              aria-haspopup="dialog"
               style={{ ...monoAffordance, color: 'var(--gold-text)' }}
             >
               add date →
@@ -343,7 +344,7 @@ export function Milestones() {
                           e.preventDefault();
                           const dir = (e.key === 'ArrowRight' || e.key === 'ArrowDown') ? 1 : -1;
                           const next = milestoneTypes[(i + dir + milestoneTypes.length) % milestoneTypes.length];
-                          setFormData({ ...formData, type: next.id });
+                          // Arrows only rove focus — selection commits on click/Enter/Space.
                           (e.currentTarget.parentElement?.children[milestoneTypes.indexOf(next)] as HTMLElement)?.focus();
                         }
                       }}

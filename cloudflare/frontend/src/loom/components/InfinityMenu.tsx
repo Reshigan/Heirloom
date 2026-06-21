@@ -28,7 +28,7 @@ export function InfinityMenu({ glyph = '∞' }: { glyph?: string } = {}) {
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node)) { setOpen(false); triggerRef.current?.focus(); }
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { setOpen(false); triggerRef.current?.focus(); }
@@ -87,7 +87,7 @@ export function InfinityMenu({ glyph = '∞' }: { glyph?: string } = {}) {
             position: 'absolute', top: 'calc(100% + 8px)', left: '50%',
             transform: 'translateX(-50%)',
             minWidth: 168, background: 'var(--ink)',
-            border: '1px solid var(--rule)', borderTop: '1px solid var(--warm)',
+            border: '1px solid var(--rule)',
             zIndex: 40,
             animation: `infmenu-in 180ms ${EASE}`,
           }}

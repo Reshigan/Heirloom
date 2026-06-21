@@ -953,16 +953,16 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
       border: '1px solid var(--rule)', borderRadius: 0,
       color: 'var(--letter-body)', overflow: 'hidden',
     }}>
-      {/* gilt corner cues — top-right + bottom-left, hairline gilt rules (no filled wedge) */}
+      {/* corner cues — top-right + bottom-left, neutral cream hairline rules */}
       <div aria-hidden style={{
         position: 'absolute', top: 0, right: 0, width: 46, height: 46,
-        borderTop: '1px solid var(--letter-edge)', borderRight: '1px solid var(--letter-edge)',
-        opacity: 0.55, pointerEvents: 'none',
+        borderTop: '1px solid var(--rule)', borderRight: '1px solid var(--rule)',
+        pointerEvents: 'none',
       }} />
       <div aria-hidden style={{
         position: 'absolute', bottom: 0, left: 0, width: 46, height: 46,
-        borderBottom: '1px solid var(--letter-edge)', borderLeft: '1px solid var(--letter-edge)',
-        opacity: 0.55, pointerEvents: 'none',
+        borderBottom: '1px solid var(--rule)', borderLeft: '1px solid var(--rule)',
+        pointerEvents: 'none',
       }} />
 
       {/* running heads */}
@@ -973,7 +973,7 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
       }}>
         <span>book mode · {threadName}</span>
         <span style={{ color: 'var(--letter-gold)' }}>
-          ∞ &nbsp; {numeral(ch)} · {c.title.replace(/\.$/, '')}
+          {numeral(ch)} · {c.title.replace(/\.$/, '')}
         </span>
       </div>
 
@@ -982,7 +982,7 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
         {/* left page — entry intro */}
         <div style={{
           flex: 1, padding: '56px 64px 56px 88px',
-          borderRight: '1px solid rgba(var(--letter-copper-rgb), 0.25)',
+          borderRight: '1px solid var(--rule)',
           display: 'flex', flexDirection: 'column',
         }}>
           <div style={{
@@ -1018,7 +1018,7 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
             {body.length > 0 ? (
               <div style={{
                 columnCount: 2, columnGap: 40,
-                columnRule: '1px solid rgba(var(--letter-copper-rgb), 0.25)',
+                columnRule: '1px solid var(--rule)',
               }}>
                 {body.map((p, i) => (
                   <p key={i} style={{
@@ -1141,10 +1141,10 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
         </button>
       </div>
 
-      {/* gilt page edge — a hairline gilt cue, a stroke not a copper fill band */}
+      {/* page edge — a neutral cream hairline closing the spread */}
       <div aria-hidden style={{
         position: 'absolute', bottom: 0, left: 0, right: 0, height: 1,
-        background: 'var(--letter-edge)', opacity: 0.6,
+        background: 'var(--rule)',
         pointerEvents: 'none',
       }} />
     </div>

@@ -567,7 +567,7 @@ export function GiftSubscriptions() {
                   type="date"
                   value={formData.scheduledDate}
                   onChange={(e) => setFormData({ ...formData, scheduledDate: e.target.value })}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={(() => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`; })()}
                 />
                 <p
                   className="hl-mono"

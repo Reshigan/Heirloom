@@ -111,7 +111,7 @@ function PwaMenu() {
           visibility: open ? 'visible' : 'hidden',
           transition:
             'opacity 180ms var(--ease), transform 180ms var(--ease), visibility 180ms var(--ease) ' +
-            (open ? '0ms' : '180ms'),
+            (open ? '0s' : '180ms'),
         }}
       >
         <div style={{ padding: '6px 8px 12px', borderBottom: '1px solid var(--rule)', marginBottom: 10 }}>

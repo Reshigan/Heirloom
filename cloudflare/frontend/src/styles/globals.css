@@ -674,13 +674,6 @@ em {
   to   { opacity: 1; }
 }
 
-/* The Listener's reading bead — opacity-only breath (no scale pulse, §4). */
-/* ponytail: dropped transform:scale so no decorative size-pulse remains. */
-@keyframes hl-listener-pulse {
-  0%, 100% { opacity: 0.35; }
-  50%      { opacity: 1;    }
-}
-
 /* First Thread ceremony keyframes (src/pages/FirstThread.tsx). Ported verbatim
    from the Claude Design handoff — the one ceremony that owns its own motion
    vocabulary. Silenced under prefers-reduced-motion via the .hl-first-thread
@@ -1073,7 +1066,7 @@ html {
   box-sizing: border-box;
   font-feature-settings: "ss01", "ss02";
   font-variant-numeric: oldstyle-nums proportional-nums;
-  transition: background-color var(--dur-mid) var(--ease), color var(--dur-mid) var(--ease);
+  transition: color var(--dur-mid) var(--ease);
   overscroll-behavior-y: none;
 }
 .hl-screen.parchment {
@@ -1315,7 +1308,7 @@ html {
   border: 1px solid var(--rule);
 }
 .hl-tag.warm { color: var(--warm); border-color: var(--rule-warm); }
-.hl-tag.danger { color: var(--dye-madder); border-color: color-mix(in srgb, var(--dye-madder) 40%, transparent); opacity: 0.85; }
+.hl-tag.danger { color: var(--dye-madder-text); border-color: color-mix(in srgb, var(--dye-madder) 40%, transparent); }
 .hl-chip {
   display: inline-block;
   font-family: var(--mono);

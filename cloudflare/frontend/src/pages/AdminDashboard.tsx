@@ -1990,7 +1990,7 @@ The Heirloom Team`;
       <InlineStatus status={status} />
       {createdVoucher ? (
         <div style={{ textAlign: 'center', padding: '24px 0' }}>
-          <p className="loom-h2" style={{ fontSize: 24, fontStyle: 'italic', fontWeight: 300, color: 'var(--warm)', marginBottom: 4 }}>Gold Legacy Voucher Created</p>
+          <p className="loom-h2" style={{ fontSize: 24, fontStyle: 'italic', fontWeight: 300, color: 'var(--bone)', marginBottom: 4 }}>Gold Legacy Voucher Created</p>
           <p className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', marginBottom: 16 }}>Member #{createdVoucher.memberNumber}</p>
           <div style={{ padding: 16, border: '1px solid var(--rule)', marginBottom: 16 }}>
             <p className="loom-mono" style={{ fontSize: 16, color: 'var(--warm)', letterSpacing: '0.12em' }}>{createdVoucher.code}</p>

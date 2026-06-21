@@ -105,8 +105,8 @@ function PlayRing({ playing }: { playing: boolean }) {
     >
       {playing ? (
         <span style={{ display: 'flex', gap: 4 }}>
-          <span style={{ width: 3, height: 16, background: 'currentColor' }} />
-          <span style={{ width: 3, height: 16, background: 'currentColor' }} />
+          <span style={{ width: 3, height: 16, background: 'var(--bone)' }} />
+          <span style={{ width: 3, height: 16, background: 'var(--bone)' }} />
         </span>
       ) : (
         <span
@@ -114,7 +114,7 @@ function PlayRing({ playing }: { playing: boolean }) {
             width: 0, height: 0, marginLeft: 3,
             borderTop: '8px solid transparent',
             borderBottom: '8px solid transparent',
-            borderLeft: '13px solid currentColor',
+            borderLeft: '13px solid var(--bone)',
           }}
         />
       )}
@@ -185,7 +185,8 @@ export function VoiceRoom() {
     enabled: isAuthenticated,
   });
 
-  const recordings: VoiceEntry[] = (data as { data: VoiceEntry[] } | null)?.data ?? [];
+  const recordings: VoiceEntry[] = [...((data as { data: VoiceEntry[] } | null)?.data ?? [])]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   // Pause audio on unmount
   useEffect(() => {
@@ -254,7 +255,7 @@ export function VoiceRoom() {
           to="/record"
           style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            borderLeft: '3px solid var(--warm)', padding: '12px 16px',
+            borderLeft: '1px solid var(--warm)', padding: '12px 16px',
             marginBottom: 48, textDecoration: 'none',
           }}
         >

@@ -24,10 +24,8 @@
   --cosmic-edge: rgba(242, 230, 208, 0.10);
   --cosmic-edge-warm: rgba(240, 192, 116, 0.30);
 
-  /* inset top-highlight only — Rule 2: copper is signal, never an outer aura.
-     Panel depth comes from the 1px hairline border (warm border on focus). */
-  --cosmic-glow: 0 1px 0 rgba(242, 230, 208, 0.04) inset;
-  --cosmic-glow-warm: 0 1px 0 rgba(242, 230, 208, 0.06) inset;
+  /* Panel depth comes solely from the 1px hairline border (warm border on
+     focus). Rule 5: no inset glows / skeuomorphic depth. */
 
   /* divider filament + wax knot accent */
   --filament: var(--rule);
@@ -43,8 +41,6 @@
   --cosmic-panel-solid: rgba(250, 246, 238, 0.96);
   --cosmic-edge: rgba(18, 14, 10, 0.12);
   --cosmic-edge-warm: rgba(160, 92, 32, 0.34);
-  --cosmic-glow: 0 1px 0 rgba(18, 14, 10, 0.03) inset;
-  --cosmic-glow-warm: 0 1px 0 rgba(18, 14, 10, 0.05) inset;
 }
 
 /* ── Cosmic primitive base classes — consumed by src/loom/cosmic/* ─────────── */
@@ -54,15 +50,13 @@
   background: var(--cosmic-panel);
   border: 1px solid var(--cosmic-edge);
   border-radius: var(--cosmic-radius);
-  box-shadow: var(--cosmic-glow);
-  transition: border-color var(--dur-mid) var(--ease), box-shadow var(--dur-mid) var(--ease);
+  transition: border-color var(--dur-mid) var(--ease);
 }
 .cosmic-panel--solid { background: var(--cosmic-panel-solid); }
 .cosmic-panel--interactive { cursor: pointer; }
 .cosmic-panel--interactive:hover,
 .cosmic-panel:focus-within {
   border-color: var(--cosmic-edge-warm);
-  box-shadow: var(--cosmic-glow-warm);
 }
 
 /* dye left-thread on cards — the family identity signal (3px) */

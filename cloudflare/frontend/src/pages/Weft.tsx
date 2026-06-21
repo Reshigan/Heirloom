@@ -41,11 +41,27 @@ type WeftMode = 'horizon' | 'century' | 'empty';
 /** The author-assigned dye if it's a real palette stop, else undefined (kind default). */
 const dyeOf = (metadata: any): LoomDye | undefined => dyeFromMetadata(metadata) as LoomDye | undefined;
 
+/** Parse a date that may be a date-only `YYYY-MM-DD` string from LOCAL components
+ *  (not UTC) so a same-day entry never rolls back a day in negative-offset zones. */
+function parseLocal(raw: string | undefined): Date {
+  if (typeof raw === 'string') {
+    const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+  }
+  return new Date(raw as any);
+}
+
+/** Serialize a Date to `YYYY-MM-DD` from LOCAL components (not toISOString/UTC)
+ *  so same-day entries group and round-trip without a negative-offset rollback. */
+function localKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 /** Compact uppercase mono date for the right-aligned row readout — "OCT 1947". */
 function fmtRowDate(iso: string | undefined): string {
   if (!iso) return '';
   try {
-    return new Date(iso).toLocaleDateString(undefined, {
+    return parseLocal(iso).toLocaleDateString(undefined, {
       month: 'short', year: 'numeric',
     }).toUpperCase();
   } catch { return ''; }
@@ -66,28 +82,28 @@ function toEntries(
   let lane = 0;
 
   for (const m of memories) {
-    const d = new Date(m.metadata?.entryDate || m.memory_date || m.createdAt || m.created_at);
+    const d = parseLocal(m.metadata?.entryDate || m.memory_date || m.createdAt || m.created_at);
     if (isNaN(d.getTime())) continue;
     all.push({
       id: m.id, year: d.getFullYear(), month: d.getMonth() + 1, lane: lane++ % 5, kind: 'memory',
-      title: m.title?.trim() || 'a memory', date: d.toISOString(), dye: dyeOf(m.metadata),
+      title: m.title?.trim() || 'a memory', date: localKey(d), dye: dyeOf(m.metadata),
     });
   }
   for (const l of letters) {
-    const d = new Date(l.metadata?.entryDate || l.createdAt || l.created_at);
+    const d = parseLocal(l.metadata?.entryDate || l.createdAt || l.created_at);
     if (isNaN(d.getTime())) continue;
     all.push({
       id: l.id, year: d.getFullYear(), month: d.getMonth() + 1, lane: lane++ % 5, kind: 'letter',
       locked: !!l.sealedAt, title: l.title?.trim() || l.salutation?.trim() || 'a letter',
-      date: d.toISOString(), recipient: recipientOf(l), dye: dyeOf(l.metadata),
+      date: localKey(d), recipient: recipientOf(l), dye: dyeOf(l.metadata),
     });
   }
   for (const v of voice) {
-    const d = new Date(v.metadata?.entryDate || v.createdAt || v.created_at);
+    const d = parseLocal(v.metadata?.entryDate || v.createdAt || v.created_at);
     if (isNaN(d.getTime())) continue;
     all.push({
       id: v.id, year: d.getFullYear(), month: d.getMonth() + 1, lane: lane++ % 5, kind: 'voice',
-      title: v.title?.trim() || 'a voice note', date: d.toISOString(), dye: dyeOf(v.metadata),
+      title: v.title?.trim() || 'a voice note', date: localKey(d), dye: dyeOf(v.metadata),
     });
   }
 

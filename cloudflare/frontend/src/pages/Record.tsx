@@ -886,8 +886,8 @@ export function Record() {
               >
                 {playing ? (
                   <span aria-hidden style={{ display: 'flex', gap: 5 }}>
-                    <span style={{ width: 4, height: 20, background: 'currentColor' }} />
-                    <span style={{ width: 4, height: 20, background: 'currentColor' }} />
+                    <span style={{ width: 4, height: 20, background: 'var(--bone)' }} />
+                    <span style={{ width: 4, height: 20, background: 'var(--bone)' }} />
                   </span>
                 ) : (
                   <span
@@ -898,7 +898,7 @@ export function Record() {
                       marginLeft: 4,
                       borderTop: '10px solid transparent',
                       borderBottom: '10px solid transparent',
-                      borderLeft: '16px solid currentColor',
+                      borderLeft: '16px solid var(--bone)',
                     }}
                   />
                 )}

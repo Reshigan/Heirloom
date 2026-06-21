@@ -290,7 +290,7 @@ export function ExportPage() {
       if (format === 'zip') {
         const res = await exportApi.exportData();
         const blob = await buildThreadZip(res.data, setProgress);
-        downloadBlob(blob, `heirloom-thread-${new Date().toISOString().slice(0, 10)}.zip`);
+        downloadBlob(blob, `heirloom-thread-${localDateStamp()}.zip`);
         return;
       }
       // The bound book — printed, digital, or plain — rendered to a PDF blob.
@@ -610,6 +610,13 @@ function HistoryRow({ job }: { job: ExportJob }) {
 function labelForType(type: string): string {
   if (type === 'family-book' || type === 'FAMILY_BOOK') return 'Family book';
   return 'Family book';
+}
+
+/** YYYY-MM-DD from LOCAL Date components — not toISOString (UTC rolls back a day in negative-offset zones). */
+function localDateStamp(d: Date = new Date()): string {
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${d.getFullYear()}-${mm}-${dd}`;
 }
 
 function formatDate(iso: string): string {

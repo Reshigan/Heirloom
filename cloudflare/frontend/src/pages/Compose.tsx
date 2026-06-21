@@ -354,7 +354,7 @@ function ToField({
             />
             <span style={{ fontStyle: 'normal', letterSpacing: '0.06em' }}>
               already woven into your bloodline ·{' '}
-              <span className="hl-signature" style={{ fontSize: '1.5em' }}>
+              <span className="hl-serif" style={{ color: dyeTextColor(selectedMember.id, selectedMember.dye) }}>
                 {selectedMember.name}
               </span>
             </span>
@@ -1592,10 +1592,9 @@ export function Compose() {
                           <span style={{ color: 'var(--bone-faint)' }}>{' and '}</span>
                         )}
                         <span
-                          className="hl-signature"
+                          className="hl-serif"
                           style={{
                             fontStyle: 'normal',
-                            fontSize: '1.4em',
                             color: dyeTextColor(m.id, m.dye),
                           }}
                         >

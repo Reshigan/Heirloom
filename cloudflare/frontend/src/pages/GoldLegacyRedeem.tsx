@@ -41,7 +41,7 @@ function GlowMark() {
         fontFamily: 'var(--serif-display)',
         fontSize: 'clamp(40px, 10vw, 64px)',
         fontWeight: 200,
-        color: 'var(--warm)',
+        color: 'var(--bone)',
         lineHeight: 1,
         marginBottom: 28,
       }}
@@ -64,7 +64,7 @@ function BenefitLine({ children, size = 14 }: { children: React.ReactNode; size?
         color: 'var(--bone-dim)',
       }}
     >
-      <span style={{ color: 'var(--warm)', flexShrink: 0 }}>·</span>
+      <span style={{ color: 'var(--bone-faint)', flexShrink: 0 }}>·</span>
       {children}
     </li>
   );
@@ -226,7 +226,7 @@ export function GoldLegacyRedeem() {
                   </p>
                   <p
                     className="hl-mono"
-                    style={{ fontSize: 18, letterSpacing: '0.14em', color: 'var(--warm)', margin: 0 }}
+                    style={{ fontSize: 18, letterSpacing: '0.14em', color: 'var(--bone)', margin: 0 }}
                   >
                     {memberNumber}
                   </p>
@@ -307,7 +307,7 @@ export function GoldLegacyRedeem() {
                   width: '100%',
                   fontFamily: 'var(--mono)',
                   fontSize: 22,
-                  color: 'var(--warm)',
+                  color: 'var(--bone)',
                   letterSpacing: '0.14em',
                   background: 'transparent',
                   border: 'none',
@@ -363,7 +363,7 @@ export function GoldLegacyRedeem() {
                     </p>
                     <p
                       className="hl-serif hl-italic"
-                      style={{ fontSize: 20, fontWeight: 300, color: 'var(--warm)', margin: '0 0 6px' }}
+                      style={{ fontSize: 20, fontWeight: 300, color: 'var(--bone)', margin: '0 0 6px' }}
                     >
                       Gold Legacy Circle
                     </p>
@@ -401,7 +401,7 @@ export function GoldLegacyRedeem() {
                             className="hl-serif"
                             style={{ display: 'flex', alignItems: 'baseline', gap: 8, fontSize: 13, color: 'var(--bone-dim)' }}
                           >
-                            <span style={{ color: 'var(--warm)', flexShrink: 0 }}>·</span>
+                            <span style={{ color: 'var(--bone-faint)', flexShrink: 0 }}>·</span>
                             {b}
                           </div>
                         )

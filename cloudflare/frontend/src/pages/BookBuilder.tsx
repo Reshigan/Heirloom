@@ -241,37 +241,11 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
           borderRadius: 0,
         }}
       >
-        {/* darker spine stripe on the left */}
-        <div
-          style={{
-            position: 'absolute',
-            left: 0,
-            top: 0,
-            bottom: 0,
-            width: 15,
-            // ponytail: flat solid band, no gradient/inset glow (outside-time)
-            background: 'color-mix(in srgb, var(--ink-card) 80%, var(--spine-shadow))',
-            borderRadius: 0,
-          }}
-        />
-        {/* fore-edge stripe on the right */}
-        <div
-          style={{
-            position: 'absolute',
-            right: 0,
-            top: 0,
-            bottom: 0,
-            width: 5,
-            // ponytail: flat solid band, no gradient (outside-time)
-            background: 'color-mix(in srgb, var(--ink-card) 80%, var(--spine-shadow))',
-            borderRadius: 0,
-          }}
-        />
         {/* inner frame border */}
         <div
           style={{
             position: 'absolute',
-            inset: '14px 12px 14px 24px',
+            inset: '14px 12px',
             border: '1px solid var(--rule)',
             borderRadius: 0,
             display: 'flex',

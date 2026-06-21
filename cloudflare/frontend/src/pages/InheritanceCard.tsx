@@ -49,7 +49,7 @@ export function InheritanceCard() {
     return (
       <ClothShell topbarLeft={topbar} topbarCenter="inheritance">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-          <p style={{ fontFamily: 'var(--mono)', fontSize: 13, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--copper-label)', margin: 0 }}>
+          <p role="alert" style={{ fontFamily: 'var(--mono)', fontSize: 13, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--copper-label)', margin: 0 }}>
             this inheritance link is invalid or has expired
           </p>
         </div>
@@ -134,19 +134,21 @@ export function InheritanceCard() {
             {data?.ownerName}
           </h1>
 
-          {/* Mono subline — "AN INHERITANCE" label */}
-          <div
-            style={{
-              fontFamily: 'var(--mono)',
-              fontSize: 11,
-              letterSpacing: '0.3em',
-              textTransform: 'uppercase',
-              color: 'var(--muted-2)',
-              marginBottom: 56,
-            }}
-          >
-            AN INHERITANCE
-          </div>
+          {/* Mono subline — "AN INHERITANCE" label (only when a recipient eyebrow already labels the card differently) */}
+          {data?.recipientName && (
+            <div
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.3em',
+                textTransform: 'uppercase',
+                color: 'var(--muted-2)',
+                marginBottom: 56,
+              }}
+            >
+              AN INHERITANCE
+            </div>
+          )}
 
           {/* Body / action area */}
           {!unlocked ? (

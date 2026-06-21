@@ -341,7 +341,7 @@ export function DyeControl({
           alignSelf: 'center',
         }}
       />
-      <span style={{ color: 'var(--warm)' }}>
+      <span style={{ color: 'var(--bone-dim)' }}>
         {dye} · {DYE_MOTIF[dye]}
       </span>
     </button>

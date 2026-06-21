@@ -244,7 +244,7 @@ const FIELD_INPUT_STYLE: React.CSSProperties = {
 
 export function Settings() {
   usePageMeta('Settings');
-  const { user, logout } = useAuthStore();
+  const { user, logout, updateUser } = useAuthStore();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -435,7 +435,7 @@ export function Settings() {
       lastName,
       ...(profileData ? { birthDate, gender } : {}),
     }).then((r) => r.data),
-    onSuccess: () => { setSaveError(null); setSavedFlash(true); setTimeout(() => setSavedFlash(false), 2500); },
+    onSuccess: () => { updateUser({ firstName, lastName }); setSaveError(null); setSavedFlash(true); setTimeout(() => setSavedFlash(false), 2500); },
     onError: (err: any) => setSaveError(err?.response?.data?.error ?? 'save failed'),
   });
 
@@ -902,7 +902,7 @@ export function Settings() {
             <div style={{ padding: '4px 0 16px' }}>
               <div className="hl-eyebrow" style={{ color: 'var(--copper-label)', marginBottom: 8 }}>upgrade confirmed</div>
               <p className="hl-serif" style={{ fontSize: 15, lineHeight: 1.7, color: 'var(--bone-dim)', margin: 0, maxWidth: '52ch' }}>
-                Your upgrade is confirmed — welcome to Family. Your new entitlements arrive within a moment.
+                Your upgrade is confirmed. Your new entitlements arrive within a moment.
               </p>
             </div>
           )}

@@ -1189,9 +1189,7 @@ export function Inherit() {
                       aria-checked={selectedReaction === option.type}
                       tabIndex={selectedReaction ? (selectedReaction === option.type ? 0 : -1) : (optionIndex === 0 ? 0 : -1)}
                       onKeyDown={(e) =>
-                        handleRadioArrowKeys(e, optionIndex, reactionOptions.length, (next) =>
-                          setSelectedReaction(reactionOptions[next].type),
-                        )
+                        handleRadioArrowKeys(e, optionIndex, reactionOptions.length, () => {})
                       }
                       onClick={() =>
                         setSelectedReaction(selectedReaction === option.type ? null : option.type)

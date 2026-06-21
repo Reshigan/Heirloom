@@ -1,21 +1,10 @@
 import { useLocation } from 'react-router-dom';
 import { Filament, type FilamentVariant } from './Filament';
 
-// Deterministic background entries — kept for back-compat (ClothShell
-// re-exports this). Nothing consumes them now that each screen wears its own
-// contained filament gesture, but removing the export would break older
-// imports, so it stays.
-function sineHash(n: number): number {
-  const x = Math.sin(n * 9301 + 49297) * 233280;
-  return x - Math.floor(x);
-}
-const DYE_KEYS = ['madder','cochineal','kermes','saffron','weld','walnut','oakgall','woad','indigo','iron'] as const;
-
-export const CLOTH_BG_ENTRIES = Array.from({ length: 48 }, (_, i) => ({
-  date: new Date(1952 + Math.floor(sineHash(i * 17 + 1) * 74), 0, 1),
-  dye: DYE_KEYS[i % DYE_KEYS.length],
-  locked: i % 4 === 0,
-}));
+// Empty back-compat export — ClothShell re-exports this name, but nothing
+// consumes the data now that each screen wears its own contained filament
+// gesture. Kept empty so the re-export resolves without fabricated entries.
+export const CLOTH_BG_ENTRIES: never[] = [];
 
 /**
  * The golive reference screens (`.higgsfield/golive/today/`) each carry ONE

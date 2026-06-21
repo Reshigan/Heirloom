@@ -274,6 +274,7 @@ export function LegacyPlan() {
           </div>
           <button
             onClick={() => toggleShareMutation.mutate(!(plan?.share_progress === 1))}
+            aria-pressed={plan?.share_progress === 1}
             style={{
               fontFamily: 'var(--mono)',
               background: 'none',
@@ -308,6 +309,8 @@ export function LegacyPlan() {
             <div key={category}>
               <button
                 onClick={() => toggleCategory(category)}
+                aria-expanded={isExpanded}
+                aria-controls={`legacy-cat-panel-${category}`}
                 style={{
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -365,7 +368,7 @@ export function LegacyPlan() {
               </button>
 
               {isExpanded && (
-                <div style={{ paddingBottom: 8, borderBottom: '1px solid var(--rule)' }}>
+                <div id={`legacy-cat-panel-${category}`} style={{ paddingBottom: 8, borderBottom: '1px solid var(--rule)' }}>
                   {items.map((item) => (
                     <EntryRow
                       key={item.id}
