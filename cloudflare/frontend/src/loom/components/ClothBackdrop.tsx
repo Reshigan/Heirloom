@@ -1,5 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import { Filament, type FilamentVariant } from './Filament';
+import WaterCanvas from '../water/WaterCanvas';
+import { useLoomTheme } from '../theme';
 
 // Empty back-compat export — ClothShell re-exports this name, but nothing
 // consumes the data now that each screen wears its own contained filament
@@ -170,6 +172,20 @@ interface ClothBackdropProps {
  */
 export function ClothBackdrop(_props: ClothBackdropProps) {
   const location = useLocation();
+  const { theme } = useLoomTheme();
+  const resolvedDark =
+    theme === 'dark' ||
+    (theme === 'system' &&
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-color-scheme: dark)').matches);
+
+  // The dye-bath ground: in dark theme the whole app floats over one living
+  // sheet of family dye diffusing in lit water (mounted once, no key, so it
+  // persists unbroken across navigation). Light theme keeps the contained
+  // per-route filament gesture — a dark water sheet behind bone pages would
+  // wreck light-mode contrast.
+  if (resolvedDark) return <WaterCanvas />;
+
   const variant = variantFor(location.pathname);
   // Re-key on (variant, path) so navigation re-weaves the gesture fresh.
   return <Filament key={`${variant}:${location.pathname}`} variant={variant} seed={seedFor(location.pathname)} intensity={intensityFor(location.pathname, variant)} />;

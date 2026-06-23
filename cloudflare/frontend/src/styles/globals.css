@@ -2142,3 +2142,82 @@ input:-webkit-autofill:active {
     letter-spacing: 0.10em !important;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   THE DYE BATH — the living-water re-skin (NewUI/heirloom-dyebath).
+   In DARK theme the whole app floats over a WebGL sheet of family dye
+   diffusing in lit water (ClothBackdrop → WaterCanvas). These opt-in
+   `dye-*` classes let signature screens read as frosted glass over that
+   water. They use their OWN namespace so the old anti-glass flatten rules
+   (.loom .card / .loom .glass) never strip the blur. Light theme has no
+   water, so each utility falls back to a solid bone surface.
+   ──────────────────────────────────────────────────────────────────── */
+
+/* Wax — the oxblood sealing wax (WaxSeal + sealed/time-locked accents).
+   Lives at .loom scope so both themes resolve it. */
+.loom {
+  --wax: #c8543c;
+  --wax-hi: #ec8460;
+  --wax-deep: #7c2c1e;
+  --dye-ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* DARK — the dye bath is live; surfaces frost the water behind them. */
+.loom[data-theme="dark"] {
+  /* A full-bleed frosted scrim that pushes the live water back so reading
+     copy stays legible over it. Drop as a fixed/absolute layer BEHIND a
+     screen's content (z-index between the water and the text). */
+  --dye-veil-bg: rgba(6, 13, 15, 0.6);
+  --dye-glass-bg: linear-gradient(160deg, rgba(20, 30, 30, 0.5), rgba(8, 15, 17, 0.7));
+  --dye-glass-border: rgba(236, 132, 96, 0.34);
+}
+
+.loom[data-theme="dark"] .dye-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--dye-veil-bg);
+  -webkit-backdrop-filter: blur(22px) saturate(1.08) brightness(0.8);
+  backdrop-filter: blur(22px) saturate(1.08) brightness(0.8);
+}
+
+/* Frosted glass card — floats over the water (read-memory, compose, panels). */
+.loom[data-theme="dark"] .dye-glass {
+  position: relative;
+  border-radius: 18px;
+  background: var(--dye-glass-bg);
+  border: 1px solid var(--dye-glass-border);
+  box-shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
+/* A lighter floating chip/panel — the home beads & contained labels. */
+.loom[data-theme="dark"] .dye-chip {
+  border-radius: 20px;
+  border: 1px solid rgba(234, 240, 235, 0.22);
+  background: rgba(8, 16, 18, 0.32);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* LIGHT — no water; the same classes read as solid bone surfaces so opt-in
+   screens stay correct (and AA-safe) in paper mode. */
+.loom[data-theme="light"] .dye-veil { position: absolute; inset: 0; z-index: 0; background: var(--ink); }
+.loom[data-theme="light"] .dye-glass {
+  position: relative;
+  border-radius: 18px;
+  background: var(--ink-card, #faf3e4);
+  border: 1px solid var(--loom-rule, rgba(18, 13, 8, 0.12));
+  box-shadow: 0 12px 40px -18px rgba(0, 0, 0, 0.18);
+}
+.loom[data-theme="light"] .dye-chip {
+  border-radius: 20px;
+  border: 1px solid var(--loom-rule, rgba(18, 13, 8, 0.14));
+  background: var(--ink-card, #faf3e4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loom .dye-veil { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(6, 13, 15, 0.86); }
+}
