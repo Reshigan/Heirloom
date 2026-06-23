@@ -1,8 +1,10 @@
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
 import { CosmicHeader, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { captureWater } from '../loom/water/capture';
 
 // The binding configuration the volume carries into the builder. Display-only
 // here — the live selection, pricing and checkout live in /book-builder. These
@@ -16,6 +18,14 @@ const bindConfig: { label: string; value: string }[] = [
 
 export function BookPage() {
   const navigate = useNavigate();
+
+  // The cover IS the colour the family's water was the day it was printed —
+  // grab a still of the live dye-bath on mount. '' when no water is live
+  // (light theme / reduced-motion), so the hairline-rule cover stands in.
+  const [cover, setCover] = useState('');
+  useEffect(() => {
+    setCover(captureWater());
+  }, []);
 
   // PREVIEW — step into the live binding flow (preserves the page's only wired
   // navigation, the route to /book-builder).
@@ -64,7 +74,7 @@ export function BookPage() {
               background: 'transparent',
             }}
           />
-          {/* cover face */}
+          {/* cover face — printed with the colour the water was on mount */}
           <div
             style={{
               position: 'absolute',
@@ -77,6 +87,9 @@ export function BookPage() {
               alignItems: 'flex-end',
               justifyContent: 'flex-end',
               padding: 18,
+              backgroundImage: cover ? `url(${cover})` : undefined,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
             }}
           >
             {/* ponytail: cover cue is a hairline rule, not a 2nd ∞ — WaxSeal at the foot is the sole infinity mark */}

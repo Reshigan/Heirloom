@@ -86,6 +86,9 @@
   --vignette-edge: #0b0907;
   /* Translucent ink — themed scrim for floating bars over the living cloth. */
   --ink-translucent: rgba(11, 9, 7, 0.78);
+  /* Default hero vignette edge (dark) — translucent so the dye-bath water shows
+     through the frame; overridden opaque in the light theme block. */
+  --dye-hero-edge: rgba(11, 9, 7, 0.52);
   --bone: #f2e6d0;
   --bone-dim: rgba(242, 230, 208, 0.72);
   /* WCAG AA: 0.44α = 3.73:1 on --ink (fail). 0.52α = 4.81:1 — the faintest
@@ -296,6 +299,11 @@
      Lifted to 0.56α (>=0.52α AA floor), matching the --bone-faint fix at ~98. */
   --parchment-faint:    rgba(242, 230, 208, 0.56);
   --parchment-rule:     rgba(242, 230, 208, 0.11);
+  /* Hero/showcase vignette edge over the living water. Translucent so the dye
+     bath breathes through the frame's outer ring while the transparent core
+     keeps the headline clear. Light theme (below) keeps this opaque — no water
+     there, so the edge must stay solid parchment. */
+  --dye-hero-edge:      rgba(11, 9, 7, 0.52);
 }
 
 .loom[data-theme="light"] {
@@ -319,6 +327,9 @@
   --rule-strong:  rgba(18, 13, 8, 0.22);
   --rule-warm:    rgba(150, 80, 26, 0.32);
   --thread-warm:  rgba(150, 80, 26, 0.55);
+  /* Light theme has no water behind it — the hero vignette edge stays solid
+     parchment (opaque --ink) so the dark-only translucency never bleeds here. */
+  --dye-hero-edge: var(--ink);
   /* Copper + faint-label tokens mordanted to clear WCAG AA (4.5:1) on
      parchment — light-mode only; the dark theme's lighter copper already
      passes. Lifted from #a86220/#be7a2e/0.48α (all <4:1) after a live audit.

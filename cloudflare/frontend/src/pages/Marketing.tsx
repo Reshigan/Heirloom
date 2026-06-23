@@ -96,7 +96,7 @@ export function Marketing() {
         }} />
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
-          background: 'radial-gradient(ellipse at 50% 42%, transparent 0%, transparent 38%, var(--ink) 92%)',
+          background: 'radial-gradient(ellipse at 50% 42%, transparent 0%, transparent 38%, var(--dye-hero-edge) 92%)',
         }} />
 
         {/* Nav — minimal, barely there */}
