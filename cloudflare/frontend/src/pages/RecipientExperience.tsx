@@ -80,13 +80,13 @@ export function RecipientExperience() {
 
   /* Standalone public link — render OUTSIDE the .loom shell, so resolve the
      theme the same way ErrorBoundary does and wrap returns in a .loom root. */
-  let resolved: 'light' | 'dark' = 'light';
+  let resolved: 'light' | 'dark' = 'dark';
   try {
     const saved = localStorage.getItem('heirloom-theme');
-    if (saved === 'dark') resolved = 'dark';
-    else if (saved === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches) resolved = 'dark';
+    if (saved === 'light') resolved = 'light';
+    else if (saved === 'system' && !window.matchMedia?.('(prefers-color-scheme: dark)').matches) resolved = 'light';
   } catch {
-    /* ignore — keep light default */
+    /* ignore — keep dark default */
   }
 
   /* ── Screen wrapper ─────────────────────────────────────────────── */

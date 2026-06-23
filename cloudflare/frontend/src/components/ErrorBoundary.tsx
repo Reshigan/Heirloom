@@ -35,14 +35,14 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       // ponytail: resolve theme from the same source LoomShellRoot uses (localStorage "heirloom-theme"),
-      // fail-closed to the app default 'light', so the .loom wrapper remaps tokens for the error screen.
-      let resolved: 'light' | 'dark' = 'light';
+      // fail-closed to the app default 'dark' (the dye-bath water), so the .loom wrapper remaps tokens for the error screen.
+      let resolved: 'light' | 'dark' = 'dark';
       try {
         const saved = localStorage.getItem('heirloom-theme');
-        if (saved === 'dark') resolved = 'dark';
-        else if (saved === 'system' && window.matchMedia?.('(prefers-color-scheme: dark)').matches) resolved = 'dark';
+        if (saved === 'light') resolved = 'light';
+        else if (saved === 'system' && !window.matchMedia?.('(prefers-color-scheme: dark)').matches) resolved = 'light';
       } catch {
-        /* ignore — keep light default */
+        /* ignore — keep dark default */
       }
 
       return (
