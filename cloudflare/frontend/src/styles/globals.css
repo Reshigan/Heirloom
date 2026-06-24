@@ -62,18 +62,17 @@
   --glass-highlight: rgba(242, 230, 208, 0.12);
   --glass-shadow: rgba(0, 0, 0, 0.5);
 
-  /* Typography — TWO paired serifs per the golive reference: Cormorant
-     Garamond carries the display voice (headlines, titles, names — only at
-     large sizes, ≥24px in the reference), Spectral carries running body/prose
-     (legible at all sizes). Space Mono for archival/label metadata. The serif
-     workhorse token (--serif, below) leads with Cormorant for the signature
-     display drama; long-form reading surfaces route to --font-body (Spectral)
-     so paragraph legibility never regresses. */
-  --font-display: 'Cormorant Garamond', Charter, Georgia, serif;
-  --font-body: 'Spectral', Charter, Georgia, serif;
-  /* The one hand face — used ONLY at intimate moments (signoffs, dedications,
-     the sealed-note "who", thread/member names). */
-  --font-hand: 'Tangerine', 'Cormorant Garamond', 'Snell Roundhand', Georgia, cursive;
+  /* Typography — TWO paired serifs per BRAND §6.2: Fraunces carries the
+     display voice (headlines, titles, names — only at large sizes, ≥24px),
+     Source Serif 4 carries running body/prose (legible at all sizes).
+     JetBrains Mono for archival/label metadata. The serif workhorse token
+     (--serif, below) leads with Source Serif 4 so reading surfaces stay
+     legible; display drama comes from --font-display (Fraunces). */
+  --font-display: 'Fraunces Variable', 'Fraunces', Charter, Georgia, serif;
+  --font-body: 'Source Serif 4 Variable', 'Source Serif 4', Charter, Georgia, serif;
+  /* "hand" is now Source Serif 4 italic — the intimate prose voice (BRAND §6.2
+     keeps no separate handwriting face; the Tangerine script is retired). */
+  --font-hand: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;
 
   /* Canonical aliases — warm-black ground, cream cloth, copper accent. */
   --ink: #070d14;
@@ -166,16 +165,16 @@
   --parchment-dim: rgba(26, 22, 17, 0.6);
   --parchment-faint: rgba(26, 22, 17, 0.36);
   --parchment-rule: rgba(26, 22, 17, 0.12);
-  /* Serif workhorse — Spectral, the READING voice. ~337 inline `var(--serif)`
-     + 209 `.hl-serif` uses carry mostly body/prose at 14–21px, where Cormorant
-     (a thin display face) turns illegible. So the catch-all is Spectral.
-     Display-scale Cormorant comes through heading tags (`.loom h1–h6`) and the
-     explicit display classes (.loom-display/.loom-h2/.loom-serif/.loom-mark) —
-     never from this token. Functionality first: legibility over flourish. */
-  --serif: 'Spectral', 'Iowan Old Style', Charter, Georgia, serif;
-  --serif-display: 'Cormorant Garamond', 'Spectral', Charter, Georgia, serif;
-  --sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --mono: 'Space Mono', 'IBM Plex Mono', 'SF Mono', Menlo, monospace;
+  /* Serif workhorse — Source Serif 4, the READING voice. ~337 inline
+     `var(--serif)` + 209 `.hl-serif` uses carry mostly body/prose at 14–21px,
+     where a thin display face turns illegible. So the catch-all is Source
+     Serif 4. Display-scale Fraunces comes through heading tags (`.loom h1–h6`)
+     and the explicit display classes (.loom-display/.loom-h2/.loom-serif/
+     .loom-mark) — never from this token. Legibility over flourish. */
+  --serif: 'Source Serif 4 Variable', 'Source Serif 4', Charter, Georgia, serif;
+  --serif-display: 'Fraunces Variable', 'Fraunces', 'Source Serif 4 Variable', 'Source Serif 4', Charter, Georgia, serif;
+  --sans: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'Space Mono', monospace;
 
   /* Semantic tokens */
   --danger: #c25a5a;

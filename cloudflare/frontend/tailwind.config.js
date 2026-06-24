@@ -91,19 +91,18 @@ export default {
         },
       },
       fontFamily: {
-        // Heirloom reference type system. Cormorant Garamond is DISPLAY ONLY
-        // (it turns unreadable below ~24px) — only `display` maps to it. The
-        // readable workhorse for body/reading/hand is Spectral; legacy
-        // un-migrated pages inherit it via `body`/`news`/`loom-serif`. "hand"
-        // is Spectral italic — the prose voice, not a separate handwriting face.
-        display: ['"Cormorant Garamond"', '"Spectral"', 'Charter', 'Georgia', 'serif'],
-        body: ['"Spectral"', 'Charter', 'Georgia', 'serif'],
-        hand: ['"Spectral"', 'Georgia', 'serif'],
-        news: ['"Spectral"', 'ui-serif', 'Georgia', 'serif'],
-        v3mono: ['"Space Mono"', 'ui-monospace', 'monospace'],
-        'loom-serif': ['"Spectral"', 'Charter', 'Georgia', 'serif'],
+        // BRAND §6.2. Fraunces is DISPLAY ONLY (never below its ~24px optical
+        // floor, never running body) — only `display` maps to it. Source Serif 4
+        // is the reading workhorse; legacy `body`/`news`/`hand`/`loom-serif`
+        // inherit it. JetBrains Mono carries archival labels/metadata.
+        display: ['"Fraunces Variable"', '"Fraunces"', 'Charter', 'Georgia', 'serif'],
+        body: ['"Source Serif 4 Variable"', '"Source Serif 4"', 'Charter', 'Georgia', 'serif'],
+        hand: ['"Source Serif 4 Variable"', '"Source Serif 4"', 'Georgia', 'serif'],
+        news: ['"Source Serif 4 Variable"', '"Source Serif 4"', 'ui-serif', 'Georgia', 'serif'],
+        v3mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        'loom-serif': ['"Source Serif 4 Variable"', '"Source Serif 4"', 'Charter', 'Georgia', 'serif'],
         'loom-ui': ['Inter', 'system-ui', 'sans-serif'],
-        'loom-mono': ['"Space Mono"', 'ui-monospace', 'monospace'],
+        'loom-mono': ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       transitionTimingFunction: {
         // ONE easing only (design law). The off-spec ease-in-out
