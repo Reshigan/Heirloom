@@ -96,7 +96,7 @@ export default function WaterCanvas() {
     // family's collective colour. Fire-and-forget: stays on the default ground
     // until (and unless) the roster resolves; any failure leaves it untouched.
     let cancelled = false;
-    if (useAuthStore.getState().isAuthenticated) {
+    const seedFromFamily = () => {
       familyApi.getAll().then((res) => {
         if (cancelled) return;
         const roster: Array<{ id: string; dye?: string | null; pendingDeletion?: boolean }> =
@@ -106,13 +106,21 @@ export default function WaterCanvas() {
         setRamp(waterRamp(dyes));
         if (reduce) draw(8.0); // static frame won't repaint itself — do it once
       }).catch(() => { /* keep the default ground */ });
-    }
+    };
+    if (useAuthStore.getState().isAuthenticated) seedFromFamily();
+    // The first authed session signs in AFTER this canvas has mounted
+    // (logged-out landing → sign-in), so re-seed when auth flips true — else the
+    // family hue never lands until a full reload.
+    const unsubAuth = useAuthStore.subscribe((s, prev) => {
+      if (s.isAuthenticated && !prev.isAuthenticated) seedFromFamily();
+    });
 
     // prefers-reduced-motion: paint one still frame, never animate.
     if (reduce) {
       draw(8.0);
       return () => {
         cancelled = true;
+        unsubAuth();
         ro.disconnect();
         waterRef.canvas = null;
       };
@@ -141,6 +149,7 @@ export default function WaterCanvas() {
 
     return () => {
       cancelled = true;
+      unsubAuth();
       running = false;
       cancelAnimationFrame(raf);
       ro.disconnect();
