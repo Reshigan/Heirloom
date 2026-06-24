@@ -8,12 +8,12 @@ export default {
         // every bg-void/text-void utility across the app now resolves to the
         // Heirloom reference ground ramp). ground #0b0907 on cream #f2e6d0.
         void: {
-          abyss: '#090706',
-          deep: '#090706',
-          DEFAULT: '#0b0907',
-          surface: '#16110c',
-          elevated: '#1e1812',
-          hover: '#261e15',
+          abyss: '#04080d',
+          deep: '#04080d',
+          DEFAULT: '#070d14',
+          surface: '#0c151f',
+          elevated: '#122031',
+          hover: '#182a40',
         },
         // CREAM — the page (remapped from legacy "paper"). #f2e6d0.
         paper: {
@@ -60,7 +60,7 @@ export default {
           DEFAULT: '#f2e6d0',
           2: '#ecdfc9',
         },
-        ink: '#0b0907',
+        ink: '#070d14',
         char: 'rgba(242, 230, 208, 0.55)',
         edge: 'rgba(242, 230, 208, 0.14)',
         mark: {

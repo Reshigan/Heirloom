@@ -12,12 +12,12 @@
 
   /* INK — the ground (warm-black, per the golive reference: #0b0907 over
      #090706 abyss; card/elevated surfaces lift toward #1b1610). */
-  --void-abyss: #090706;
-  --void-deep: #090706;
-  --void: #0b0907;
-  --void-surface: #16110c;
-  --void-elevated: #1e1812;
-  --void-hover: #261e15;
+  --void-abyss: #04080d;
+  --void-deep: #04080d;
+  --void: #070d14;
+  --void-surface: #0c151f;
+  --void-elevated: #122031;
+  --void-hover: #182a40;
 
   /* CREAM — the cloth (was "paper"); reference head #f2e6d0, body #ecdfc9. */
   --paper: #f2e6d0;
@@ -76,19 +76,19 @@
   --font-hand: 'Tangerine', 'Cormorant Garamond', 'Snell Roundhand', Georgia, cursive;
 
   /* Canonical aliases — warm-black ground, cream cloth, copper accent. */
-  --ink: #0b0907;
-  --ink-card: #1b1610;
-  --ink-deep: #090706;
+  --ink: #070d14;
+  --ink-card: #122031;
+  --ink-deep: #04080d;
   /* Full-page radial vignette (Constellation / Unlock backdrops). Single-sourced
      so the page ground flips with the theme instead of freezing dark — core is a
      hair warmer than --ink, edge is the deep ground. */
-  --vignette-core: #15110c;
-  --vignette-edge: #0b0907;
+  --vignette-core: #0c151f;
+  --vignette-edge: #070d14;
   /* Translucent ink — themed scrim for floating bars over the living cloth. */
-  --ink-translucent: rgba(11, 9, 7, 0.78);
+  --ink-translucent: rgba(7, 13, 20, 0.78);
   /* Default hero vignette edge (dark) — translucent so the dye-bath water shows
      through the frame; overridden opaque in the light theme block. */
-  --dye-hero-edge: rgba(11, 9, 7, 0.52);
+  --dye-hero-edge: rgba(7, 13, 20, 0.52);
   --bone: #f2e6d0;
   --bone-dim: rgba(242, 230, 208, 0.72);
   /* WCAG AA: 0.44α = 3.73:1 on --ink (fail). 0.52α = 4.81:1 — the faintest
@@ -303,11 +303,11 @@
      bath breathes through the frame's outer ring while the transparent core
      keeps the headline clear. Light theme (below) keeps this opaque — no water
      there, so the edge must stay solid parchment. */
-  --dye-hero-edge:      rgba(11, 9, 7, 0.52);
+  --dye-hero-edge:      rgba(7, 13, 20, 0.52);
 }
 
 .loom[data-theme="light"] {
-  --ink:          #f4ead9;
+  --ink:          #eef2f6; /* shallows — cool water-light */
   --ink-card:     #ece0cb;
   --ink-deep:     #e6d8c2;
   /* Light mirror of the page vignette — core is a hair brighter than --ink,
