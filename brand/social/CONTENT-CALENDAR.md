@@ -1,298 +1,520 @@
-# Heirloom — 30-Day Content Calendar + Sample Posts
+# Heirloom — Social Content Calendar (Bluesky + Facebook)
 
-> Companion to `STRATEGY.md`. A real, runnable 30 days on the new brand voice, plus ~15 fully-written
-> posts across Instagram, LinkedIn, Pinterest, Bluesky, and Threads. Every visual treatment maps to one
-> of the five templates (Listener / Woven-In / Dye Card / Family Spectrum / Plain Leaf).
->
-> Voice rules are absolute: arrival-of-love not loss, present tense, name a real person, soft relational
-> CTA, zero urgency, zero gamification. Death is architecture, never foreground.
+> A real, ready-to-post 4-week launch batch. Bluesky + Facebook **only**. Copy is final —
+> post as written. Voice + dignity checked against [`brand/BRAND.md`](../BRAND.md) §4.
+> Strategy, handles, and cadence live in [`STRATEGY.md`](STRATEGY.md). No stock photography,
+> no hashtag spam, no urgency — ever. Two accepted critic fixes already applied.
 
----
-
-## The 30-day calendar
-
-Cadence anchor: the **Listener** (daily on Bluesky/Threads, Mon/Wed/Fri to the IG grid). Pinterest batched.
-LinkedIn Tue/Thu. Times are local golden hour unless noted.
-
-| Day | Theme | Platforms | Template | Working line |
-|----|-------|-----------|----------|--------------|
-| 1 (Mon) | Kitchens & smell | IG · BS · TH | Listener | *What did the kitchen smell like on a Sunday?* |
-| 2 (Tue) | Dye: madder (joy) | IG · PIN | Dye Card | madder — the colour of joy |
-| 3 (Wed) | Grandmother's hands | IG | Woven-In | a 1979 entry → *what do you remember?* |
-| 4 (Thu) | Why permanence | LI · TH | Plain Leaf | software meant to outlive its makers |
-| 5 (Fri) | Weekend table Q | IG · BS · TH · PIN | Listener | *Ask the oldest person at dinner: what were you afraid of at my age?* |
-| 6 (Sat) | The Bloodline spectrum | IG | Family Spectrum | a family's colours, woven |
-| 7 (Sun) | Quiet reflection | BS · TH | Plain Leaf | one line on keeping |
-| 8 (Mon) | First homes | IG · BS · TH | Listener | *Describe the first home you remember. The light. The noise.* |
-| 9 (Tue) | Dye: cochineal (grief) | IG · PIN | Dye Card | cochineal — held grief, gently |
-| 10 (Wed) | A father's advice | IG | Woven-In | a 1994 entry → *what would you add?* |
-| 11 (Thu) | The Listener, explained | LI · PIN | Plain Leaf | one question a day, across a hundred years |
-| 12 (Fri) | Weekend voice note | IG · BS · TH | Listener | *Call someone and ask them to tell you the story again. Press record.* |
-| 13 (Sat) | Rest / light pin batch | PIN | Dye Card | weld (daily), walnut (travel) |
-| 14 (Sun) | Quiet reflection | BS · TH | Plain Leaf | the breath before the week |
-| 15 (Mon) | Hands & work | IG · BS · TH | Listener | *What did your mother's hands do all day?* |
-| 16 (Tue) | Dye: indigo (reflection) | IG · PIN | Dye Card | indigo — the colour of looking back |
-| 17 (Wed) | A recipe woven in | IG | Woven-In | a 1962 recipe → *who still makes it?* |
-| 18 (Thu) | Choosing your thread | LI · TH | Plain Leaf | why each person picks a colour for life |
-| 19 (Fri) | Weekend table Q | IG · BS · TH · PIN | Listener | *Ask: what's a song that makes you think of your mother?* |
-| 20 (Sat) | Family Spectrum (demo) | IG | Family Spectrum | four generations, one cloth |
-| 21 (Sun) | Quiet reflection | BS · TH | Plain Leaf | one kept thing |
-| 22 (Mon) | Weather & memory | IG · BS · TH | Listener | *Tell me about a storm you remember.* |
-| 23 (Tue) | Dye: kermes (love) | IG · PIN | Dye Card | kermes — the oldest red, for love |
-| 24 (Wed) | A letter held until | IG | Woven-In | *for Maya, when she turns 30* (reverent, no urgency) |
-| 25 (Thu) | The Book | LI · PIN | Plain Leaf | what if the company is gone — the printed answer |
-| 26 (Fri) | Weekend laughter Q | IG · BS · TH | Listener | *Ask the funniest person you're related to for their best story.* |
-| 27 (Sat) | Rest / spectrum tease | IG | Family Spectrum | the cover of a family's Book |
-| 28 (Sun) | Quiet reflection | BS · TH | Plain Leaf | golden hour |
-| 29 (Mon) | Names | IG · BS · TH | Listener | *Who were you named after? Do you know why?* |
-| 30 (Tue) | Dye: saffron (achievement) | IG · PIN | Dye Card | saffron — the colour of a thing done well |
+> **Batch:** 18 Bluesky posts · 14 Facebook posts · 4 weeks.
 
 ---
 
-## Sample posts (fully written)
+## Bluesky
 
-Each includes platform, template, the visual treatment, and the exact copy. Mono stamps are shown in
-`UPPERCASE TRACKED` style to indicate JetBrains Mono.
+### Week 1
 
----
+#### B1 · The Plain Leaf
 
-### 1 · Instagram — The Listener (Day 1)
-**Template:** Listener. Ink ground `#0b0907`. Question in Fraunces (~96px), two lines, left-aligned on the
-warp line. A single ember `#e0a062` weft hairline draws under the question. Top-right mono stamp:
-`THE LISTENER · DAY 001`. Bottom-left: the warp-and-weft mark, small. 4:5, 1080×1350.
+> we're going to ask one quiet question a day here. no streaks, no points, the question just waits.
+> 
+> today's: what did the kitchen smell like on a Sunday?
+> 
+> don't answer me — ask the person who'd actually know. then write down exactly what they say. that's the whole thing.
+> 
+> heirloom.blue
 
-> **On canvas:**
-> What did the kitchen
-> smell like on a Sunday?
+**Visual:** Bare native text — no card (launch-week opener ships text-only by design). If a thumbnail renders from the heirloom.blue link, it is the existing ink #0b0907 OG card: the Warp-and-Weft mark (three bone warps, two interlacing wefts, single ember pip at centre) bottom-left, mono stamp 'SOME THINGS ARE MEANT TO BE KEPT' low. No stock photography.
 
-> **Caption:**
-> Before the recipe is gone, ask while you still can. Bread, or onions, or nothing in particular — the
-> answer is never *nothing in particular.*
->
-> Ask someone tonight. Write down what they say, exactly how they say it.
->
-> `THE LISTENER` — one quiet question a day. Today's is this one.
+**CTA:** Ask the person who'd actually know
 
 ---
 
-### 2 · Instagram — Dye Card (Day 2, madder)
-**Template:** Dye Card. Vellum ground `#f6ecda`. Word *madder* in Fraunces, large. A single 3px madder
-warp thread runs down the left margin; the word set in madder's `--dye-text` variant. Beneath, *joy* in
-Source Serif 4. Mono footer: `DYE 01 · MADDER · CULTIVATED 3000+ YEARS`.
+#### B2 · The Listener
 
-> **On canvas:**
-> madder
-> *joy*
+> today's quiet one: what did your dad's hands do all day?
+> 
+> not his job title — his actual hands. grease, chalk, dough, a steering wheel, a guitar neck worn smooth.
+> 
+> don't tell me. ask him, or ask whoever remembers. write down the first thing they say.
 
-> **Caption:**
-> The first warm red anyone ever made came from a root, dug up and dried — madder. It dyed wedding cloth
-> and festival robes for three thousand years before anyone bottled a feeling.
->
-> In Heirloom, every person chooses one colour for life when they join. Some choose madder — the joy ones,
-> the loud-laugh ones. It becomes their thread. You always know who's speaking.
->
-> Which one would yours be?
+**Visual:** THE LISTENER card, optional 16:9 1600x900. Ink ground #0b0907. Question in Fraunces (opsz ~110, wt ~360, tracking -0.01em), two lines, left-aligned on the warp line, ~55-60% inhabited negative space. One ember #e0a062 weft hairline drawn beneath the question (under 5% of surface = NOW). Mono stamp top-right JetBrains Mono uppercase tracked 'THE LISTENER · 23 JUN'. Warp-and-Weft mark small bottom-left. No dye, no CTA on canvas.
+
+**CTA:** Ask him, or ask whoever remembers
 
 ---
 
-### 3 · Instagram — The Woven-In (Day 3)
-**Template:** Woven-In. Ink ground, two stacked panels. Top panel: a past entry in Source Serif 4 with a
-walnut-dye warp margin, mono-stamped `WOVEN IN · 1979`. Bottom panel: the present question in Fraunces with
-an ember weft beneath. 4:5.
+#### B3 · The Listener
 
-> **On canvas — top (a kept entry):**
-> *"Ma kept the radio on the windowsill so she could hear it over the water running. She washed every dish
-> like it owed her money. The kitchen was the warmest room and the loudest."* — `WOVEN IN · 1979`
->
-> **On canvas — bottom:**
-> Your grandmother wrote about this kitchen.
-> What do you remember?
+> today: what's the first home you actually remember? not the address — the light. where it came in. what the floor felt like under bare feet. the one sound that was always there.
+> 
+> ask someone older than you to describe theirs. you'll learn a thing you didn't know you didn't know.
 
-> **Caption:**
-> This is what we mean by *keeping the conversation going.* She wrote it down once. Years later, it comes
-> back around and asks you something. You answer. Now there are two voices in the same kitchen.
->
-> Across time, in the same cloth. Ask someone tonight what they remember of a room you both loved.
+**Visual:** THE LISTENER card, optional 16:9 1600x900. Ink #0b0907 ground. Fraunces question (opsz ~110, wt ~360), two lines max on the left warp line. Single ember #e0a062 weft hairline beneath, under 5% surface. Mono top-right 'THE LISTENER · 24 JUN'. Warp-and-Weft mark bottom-left. Inhabited negative space ~58%. No dye, no decorative emoji.
+
+**CTA:** Ask someone older than you
 
 ---
 
-### 4 · LinkedIn — Plain Leaf (Day 4)
-**Template:** Plain Leaf. Mostly empty vellum. Short essay set as one reading column, Source Serif 4, max
-66ch. Mark + mono stamp `EST. FOR THE LONG RUN`. Native text post.
+#### B4 · The Listener
 
+> today's one: who were you named after — and does anyone still know why?
+> 
+> there's almost always a person behind a name, and almost always a reason nobody wrote down.
+> 
+> ask tonight, while someone still remembers. a name is the first thread you're ever handed.
+
+**Visual:** THE LISTENER card, optional 16:9 1600x900. Ink #0b0907. Two-line Fraunces question (opsz ~110, wt ~360) on the warp line. One ember #e0a062 weft hairline beneath (NOW, <5%). Mono stamp top-right 'THE LISTENER · 25 JUN'. Warp-and-Weft mark small bottom-left. ~57% inhabited negative space. No dye fills, no icons.
+
+**CTA:** Ask tonight, while someone remembers
+
+---
+
+#### B5 · The Listener
+
+> weekend one, for the dinner table: ask the oldest person there what they were afraid of at your age.
+> 
+> the answer is usually braver than you'd guess, and it changes how you see them for good.
+> 
+> bring it to dinner, not to a form. write it down after the plates are cleared.
+
+**Visual:** THE LISTENER card, optional 16:9 1600x900. Ink #0b0907 ground. Fraunces question (opsz ~110, wt ~360) two lines on the left warp line. Single ember #e0a062 weft hairline beneath, <5% surface. Mono top-right 'THE LISTENER · FRI 26 JUN'. Warp-and-Weft mark bottom-left. ~60% inhabited negative space. No stock photography, no dye.
+
+**CTA:** Bring it to dinner, not to a form
+
+---
+
+#### B6 · The Plain Leaf
+
+> the things worth keeping are almost never the things you were trying to keep.
+> 
+> it's the offhand sentence. the way she said your name when you were small. the smell of a Sunday.
+> 
+> write one of those down before you sleep tonight. just one.
+
+**Visual:** THE PLAIN LEAF — bare native one-liner, no card (Bluesky Plain Leaf ships as text). If a card is wanted: vellum #f6ecda ground, one reading column max 66ch in Source Serif 4 (>=17px / 1.6), Warp-and-Weft mark (reversed: ink warps/wefts on vellum, ember knot unchanged) bottom corner, mono stamp 'EST. FOR THE LONG RUN'. ~60% empty warm paper. No emoji, no urgency.
+
+**CTA:** Write one of those down before you sleep
+
+---
+
+### Week 2
+
+#### B7 · The Listener
+
+> today: what did your mother always say in the car?
+> 
+> every family has the one line — the warning, the song she murdered, the thing she said at the same bend in the road every single time.
+> 
+> ask her. or ask whoever sat in the back. write it down word for word.
+
+**Visual:** THE LISTENER card, optional 16:9 1600x900. Ink #0b0907. Fraunces question (opsz ~110, wt ~360) two lines on the warp line. One ember #e0a062 weft hairline beneath, <5% surface (NOW). Mono top-right 'THE LISTENER · 29 JUN'. Warp-and-Weft mark small bottom-left. ~57% inhabited negative space. No dye, no icons.
+
+**CTA:** Ask her, or whoever sat in the back
+
+---
+
+#### B8 · The Dye Card
+
+> madder: a red dug out of a root, dried, ground — it dyed wedding cloth for 3000 years before anyone thought to bottle a feeling.
+> 
+> it’s the loud-laugh ones who pick it — the ones who fill a room. which would be yours?
+
+**Visual:** THE DYE CARD, vellum ground #f6ecda for warmth. Word 'madder' in Fraunces large, set in madder's --dye-text (vellum) #ab3e2d. A single 3px madder warp thread (#b54230) down the left margin only — signal, never a fill. Meaning 'joy' beneath in Source Serif 4 (>=17px). Mono footer JetBrains Mono 'DYE 01 · MADDER · CULTIVATED 3000+ YEARS'. Warp-and-Weft mark (reversed) corner. ~58% inhabited. No colour-block fills.
+
+**CTA:** Which would be yours?
+
+---
+
+#### B9 · The Woven-In
+
+> "ma kept the radio on the windowsill so she could hear it over the water running. she washed every dish like it owed her money."
+> 
+> someone wrote that once. years on it comes back round and asks you something. ask whoever shared that kitchen what they remember of it — write their version down next to yours.
+
+**Visual:** THE WOVEN-IN card, 4:5 1080x1350 or 16:9. Ink #0b0907, two stacked panels. Top: the 1979 entry in Source Serif 4 (>=17px / 1.6) with a 3px walnut --dye warp left-margin (#7d5635, travel) and mono stamp 'WOVEN IN · 1979'. Bottom: the present question in Fraunces (opsz ~110) with a single ember #e0a062 weft hairline beneath. Dye appears only as the margin thread, never a fill. Warp-and-Weft mark corner.
+
+**CTA:** Ask tonight what you both remember
+
+---
+
+#### B10 · The Listener
+
+> today's quiet one: what's a song that makes you think of your mother the second it starts?
+> 
+> there's one. you already heard it in your head.
+> 
+> ask her what hers is, for her own mother. two songs, two kitchens, same thread.
+
+**Visual:** THE LISTENER card, optional 16:9 1600x900. Ink #0b0907 ground. Two-line Fraunces question (opsz ~110, wt ~360) on the left warp line. Single ember #e0a062 weft hairline beneath, <5% surface. Mono top-right 'THE LISTENER · 03 JUL'. Warp-and-Weft mark small bottom-left. ~59% inhabited negative space. No dye, no decorative emoji.
+
+**CTA:** Ask her what hers is
+
+---
+
+#### B11 · The Plain Leaf
+
+> we kept saturday quiet on purpose. no post yesterday, and we didn't backfill it.
+> 
+> the whole idea here is patience — a thing built to outlast everyone who uses it doesn't need to shout on a weekend.
+> 
+> so: one kept thing from your week. say it to someone before bed.
+
+**Visual:** THE PLAIN LEAF — bare native text, no card preferred. Optional: vellum #f6ecda, one reading column max 66ch Source Serif 4 (>=17px / 1.6), Warp-and-Weft mark (reversed, ink-on-vellum) corner, mono 'BUILT TO OUTLAST EVERYONE WHO USES IT'. ~62% empty warm paper. No ember, no urgency chrome, no emoji.
+
+**CTA:** Say one kept thing to someone before bed
+
+---
+
+### Week 3
+
+#### B12 · The Listener
+
+> today: tell me about a storm you remember. the power out, the candles, who you were with, what you ate cold from the tin.
+> 
+> weather is the easiest door into a memory — nobody forgets a real storm.
+> 
+> ask the oldest person you know about theirs. write down the small details.
+
+**Visual:** THE LISTENER card, optional 16:9 1600x900. Ink #0b0907. Fraunces question (opsz ~110, wt ~360) two lines on the warp line. One ember #e0a062 weft hairline beneath, <5% surface (NOW). Mono top-right 'THE LISTENER · 06 JUL'. Warp-and-Weft mark small bottom-left. ~57% inhabited negative space. No dye, no icons.
+
+**CTA:** Ask the oldest person you know about theirs
+
+---
+
+#### B13 · The Dye Card
+
+> indigo: the blue you get by leaving cloth out in the air. it arrives green and turns blue while you watch — like the dye is thinking it over.
+> 
+> on heirloom it's the colour people choose for looking back. the quiet, reflective ones.
+> 
+> ten dyes, all real. which is yours? heirloom.blue
+
+**Visual:** THE DYE CARD, vellum ground #f6ecda. Word 'indigo' in Fraunces large, set in indigo --dye-text (vellum) #3a5582. Single 3px indigo warp thread (#3a5582) down the left margin only — signal, no fill. Meaning 'reflection' beneath in Source Serif 4 (>=17px). Mono footer 'DYE · INDIGO · THE COLOUR OF LOOKING BACK'. Warp-and-Weft mark (reversed) corner. ~58% inhabited. No colour blocks.
+
+**CTA:** Which is yours?
+
+---
+
+#### B14 · The Listener
+
+> today's one: what did the funniest person in your family do that you still tell people about?
+> 
+> every bloodline has one. the wedding speech, the thing at the funeral that wasn't allowed to be funny but was.
+> 
+> get them — or someone who was there — to tell it again. press record this time.
+
+**Visual:** THE LISTENER card, optional 16:9 1600x900. Ink #0b0907 ground. Two-line Fraunces question (opsz ~110, wt ~360) on the left warp line. Single ember #e0a062 weft hairline beneath, <5% surface. Mono top-right 'THE LISTENER · FRI 10 JUL'. Warp-and-Weft mark bottom-left. ~60% inhabited negative space. No dye, no stock photography.
+
+**CTA:** Get them to tell it again — press record
+
+---
+
+#### B15 · The Plain Leaf
+
+> people ask why there's a printed book in a software company. here's the plain answer:
+> 
+> paper has a better track record than any cloud. so everything a family keeps here can become a real sewn hardcover, their own woven colours on the cover.
+> 
+> some things are meant to be kept. on a shelf, too.
+
+**Visual:** THE PLAIN LEAF — native text. Optional card: vellum #f6ecda, one reading column max 66ch Source Serif 4 (>=17px / 1.6); a thin foil-band Family Spectrum (a few real dye warp threads — madder/walnut/indigo/weld — as thin verticals, threads only, never blocks) across the very top hinting the Book cover. Warp-and-Weft mark (reversed) corner, mono 'THE BOOK · SEWN, NOT GLUED'. ~60% empty. No ember.
+
+**CTA:** Keep something on a shelf, too
+
+---
+
+### Week 4
+
+#### B16 · The Listener
+
+> today: what's the one recipe that, if nobody writes it down, just ends?
+> 
+> the one that lives in someone's hands and a pinch-of-this. no card, no measurements, only the smell that tells them it's right.
+> 
+> stand in the kitchen with them while they make it. write down every "about a handful."
+
+**Visual:** THE LISTENER card, optional 16:9 1600x900. Ink #0b0907. Fraunces question (opsz ~110, wt ~360) two lines on the warp line. One ember #e0a062 weft hairline beneath, <5% surface (NOW). Mono top-right 'THE LISTENER · 13 JUL'. Warp-and-Weft mark small bottom-left. ~57% inhabited negative space. No dye, no decorative emoji.
+
+**CTA:** Stand in the kitchen and write it down
+
+---
+
+#### B17 · The Family Spectrum
+
+> this is the Shaw family — not a logo we drew, a pattern they grew.
+> 
+> every thread is one person who chose their colour when they joined: a great-gran in madder, a son in indigo, a new baby still in pale weld.
+> 
+> no two families weave the same cloth. theirs is on the cover of their book. heirloom.blue
+
+**Visual:** THE FAMILY SPECTRUM card, 4:5 1080x1350 or 16:9. Ink #0b0907 ground. Thin vertical warp threads in the Shaws' actual chosen dyes — madder #d94f38, indigo #46679c, walnut #7d5635, pale weld #c9941f — rendered as threads only, never blocks (no clown grid), grouped on the left warp line. Mono caption JetBrains Mono 'THE SHAW BLOODLINE · 4 GENERATIONS · EST. 1948'. Warp-and-Weft mark corner. ~58% inhabited negative space. No fills.
+
+**CTA:** See what your family's cloth would look like
+
+---
+
+#### B18 · The Woven-In
+
+> some things you write aren't for now. you write them for a morning years off — a 30th, a wedding, a first hard day she hasn't had yet — and they stay folded into the cloth until then.
+> 
+> not locked. not hidden. just held until the day it's for. for Maya, when she turns 30.
+> 
+> is there a day you'd write toward?
+
+**Visual:** THE WOVEN-IN, reverent variant — handle with dignity, NO ember, no clock, no lock. Ink #0b0907. Top panel: a single weft drawn folding under (rendered as cloth/thread), mono stamp 'HELD UNTIL'. Bottom panel: the line 'for Maya, when she turns 30' in Fraunces (opsz ~110, wt ~360). Cloth and mono only — no ember weft on this reverent post. Warp-and-Weft mark corner. ~60% inhabited negative space. No countdown chrome.
+
+**CTA:** Is there a day you'd write toward?
+
+---
+
+## Facebook
+
+### Week 1
+
+#### F1 · The Listener
+
+> Some things are meant to be kept.
+> 
+> We're going to ask one quiet question a week here — not for you to answer in the comments, but to carry to your own kitchen table tonight.
+> 
+> Here is the first one:
+> 
+> What did the kitchen smell like on a Sunday?
+> 
+> Bread, maybe. Onions in a pan. Coffee that had been on since six in the morning. Or nothing in particular — except it was never really nothing in particular.
+> 
+> Ask the person who would actually know. Then write down what they say, exactly how they say it, before the words drift. That's the whole thing.
+
+**Visual:** THE LISTENER. Ink ground #0b0907. Question 'What did the kitchen smell like on a Sunday?' set in Fraunces (opsz ~110, wt ~360, tracking -0.01em), two lines, left-aligned on the warp line, bone #f2e6d0. A single ember #e0a062 weft hairline drawn beneath the question — under 5% of the canvas, the only ember. Mono stamp top-right in JetBrains Mono uppercase tracked: 'THE LISTENER · 22 JUN'. Warp-and-Weft mark small bottom-left. ~58% inhabited negative space. Square 1080x1080. No dye, no CTA on canvas.
+
+**CTA:** Ask someone tonight
+
+---
+
+#### F2 · The Woven-In
+
+> This is what we mean when we say the conversation keeps going.
+> 
+> Someone's grandmother wrote this down, in her own kitchen, a long time ago:
+> 
+> "Ma kept the radio on the windowsill so she could hear it over the water running. She washed every dish like it owed her money. The kitchen was the warmest room in the house, and the loudest."
+> 
+> Years later, that entry comes back around and asks the family something. They answer. And now there are two voices in the same kitchen, across the years, in the same cloth.
+> 
+> That's Heirloom. You keep the conversation going; we keep it safe and make sure it reaches the people you meant it for.
+> 
+> Is there a room you and someone you love both remember? Ask them what they remember of it this week. Write down their version next to yours.
+
+**Visual:** THE WOVEN-IN. Ink ground, two stacked panels. Top panel: the 1979 kitchen entry set in Source Serif 4 (17px / 1.6), bone, with a walnut-dye 3px warp thread down the left margin (dye as signal only, never a fill); mono stamp 'WOVEN IN · 1979'. Bottom panel: the present-day question 'What do you remember of that room?' in Fraunces with a single ember weft hairline beneath. Warp-and-Weft mark bottom-left. Square or 4:5, 1080x1080 / 1080x1350. The dye is the only signal colour and only as the margin thread.
+
+**CTA:** Ask someone this week
+
+---
+
+#### F3 · The Listener
+
+> A question to bring to a family meal this weekend:
+> 
+> Ask the oldest person at the table what they were afraid of at your age.
+> 
+> Not a form, not a screen — the dinner. Wait until the plates are warm and somebody's relaxed. The answer is almost always braver than you'd guess, and it changes how you see them for good.
+> 
+> Then, after the table's cleared and the kettle's on, write down what they said. The exact words. You'll be glad you have them.
+
+**Visual:** THE LISTENER. Ink ground #0b0907. Question 'Ask the oldest person at the table what they were afraid of at your age' in Fraunces (opsz ~110, wt ~360), two lines, left-aligned on the warp line, bone. Single ember weft hairline beneath (under 5% surface, only ember). Mono stamp top-right: 'THE LISTENER · FRIDAY'. Warp-and-Weft mark small bottom-left. ~58% inhabited negative space, warm paper light. Square 1080x1080.
+
+**CTA:** Bring it to dinner this weekend
+
+---
+
+### Week 2
+
+#### F4 · The Listener
+
+> This week's quiet question:
+> 
+> Describe the first home you remember. The light in it. The noise it made.
+> 
+> The stair that creaked on the fourth step. The hum of a fridge in a quiet house. Where the sun fell in the afternoon, and what that felt like at six years old.
+> 
+> Most of us could walk through that house in the dark, even now. Ask someone you grew up with to walk through theirs, out loud, while you listen. Write down the parts you didn't know.
+
+**Visual:** THE LISTENER. Ink ground #0b0907. Question 'Describe the first home you remember. The light. The noise.' in Fraunces (opsz ~110, wt ~360), two lines on the warp line, bone. Single ember weft hairline beneath, the only ember. Mono stamp top-right: 'THE LISTENER · 29 JUN'. Warp-and-Weft mark bottom-left. ~58% inhabited negative space. Square 1080x1080.
+
+**CTA:** Ask someone tonight
+
+---
+
+#### F5 · The Dye Card
+
+> In Heirloom, everyone chooses one colour when they join. For life. It becomes their name in the family's story — a single thread of it down the left of everything they ever write. So you always know, at a glance, whose voice you're reading.
+> 
+> There are ten to choose from, all real natural dyes with centuries behind them. This one is madder.
+> 
+> The first warm red anyone ever made came from a root, dug up and dried. Madder dyed wedding cloth and festival robes for three thousand years before anyone thought to bottle a feeling. Its meaning is joy — it's the thread the loud-laugh ones tend to choose, the ones who fill a room.
+> 
+> If you had to pick a colour to be yours, for good — which would it be?
+
+**Visual:** THE DYE CARD. Vellum ground #f6ecda for warmth. The word 'madder' in Fraunces, large, set in madder's AA-lifted --dye-text variant (#ab3e2d on vellum). A single 3px madder warp thread runs down the left margin — signal only, never a fill. Beneath, 'joy' in Source Serif 4. Mono footer in JetBrains Mono uppercase tracked: 'DYE 01 · MADDER · CULTIVATED 3000+ YEARS'. Warp-and-Weft mark (ink-on-vellum reversed) bottom-left. Square 1080x1080.
+
+**CTA:** Which one would yours be
+
+---
+
+#### F6 · The Listener
+
+> A weekend one, and a small dare:
+> 
+> Call someone and ask them to tell you the story again — the one you've heard a hundred times, that you could almost tell yourself. The one that always comes out at holidays.
+> 
+> This time, press record before they start.
+> 
+> Because the words you've heard a hundred times are exactly the ones nobody ever thinks to keep. And one day the telling itself — the pauses, the way they laugh in the same spot every time — will matter as much as the story.
+
+**Visual:** THE LISTENER. Ink ground #0b0907. Question 'Ask them to tell you the story again. This time, press record.' in Fraunces (opsz ~110, wt ~360), two lines on the warp line, bone. Single ember weft hairline beneath, the only ember on canvas. Mono stamp top-right: 'THE LISTENER · FRIDAY'. Warp-and-Weft mark bottom-left. ~58% inhabited negative space. Square 1080x1080.
+
+**CTA:** Call someone and ask this weekend
+
+---
+
+#### F7 · The Plain Leaf
+
+> A quiet note on why we built this slowly.
+> 
 > Most software is built to be replaced. Ours is built to be inherited.
->
-> When you write something into Heirloom for your daughter to open when she turns thirty, you are trusting
-> us with a sentence that has to survive longer than our company, longer than our servers, possibly longer
-> than us. That is a strange and serious thing to design for.
->
-> So we made decisions that look unusual for a software company. There is a physical, printed Book — an
-> archival hardcover — because paper has a better track record than any cloud. Everything you write is
-> append-only; nothing important can be quietly deleted. And we will never, ever pressure anyone with a
-> countdown or a streak, because the things people keep here are not the things you rush.
->
+> 
+> When you write something into Heirloom for a child to open on a morning years from now, you're trusting us with a sentence that has to last longer than our company, longer than our servers, maybe longer than us. That's a strange and serious thing to design for, and it changes how you build.
+> 
+> So we made some unusual choices. There's a real printed Book — an archival hardcover — because paper has a better track record than any cloud. Everything you write is kept, not quietly deleted. And we will never hurry you with a countdown or a streak, because the things people keep here are not the things you rush.
+> 
 > We're not trying to win the quarter. We're trying to still be holding your family's voices in eighty years.
->
+> 
 > Some things are meant to be kept.
 
----
+**Visual:** THE PLAIN LEAF. Mostly empty vellum ground #f6ecda. The reflection set as one reading column, max 66ch, Source Serif 4 (17px+ / 1.6), ink #0b0907. Warp-and-Weft mark (ink-on-vellum) and mono stamp 'EST. FOR THE LONG RUN' in JetBrains Mono uppercase tracked. ~60% inhabited negative space, warm paper light. No ember. Square 1080x1080 or 4:5.
 
-### 5 · Bluesky — The Listener (Day 1, native)
-**Template:** Listener as native text (no image needed on BS; optional ink card 16:9). Conversational.
-
-> today's quiet one:
->
-> what did the kitchen smell like on a Sunday?
->
-> don't answer me — ask the person who'd actually know. then write down exactly what they say. that's the
-> whole thing.
+**CTA:** Keep one thing this week
 
 ---
 
-### 6 · Threads — The Listener restated (Day 1)
-**Template:** Listener, off-the-cuff. Text-first, intimate.
+### Week 3
 
-> if you call your mum tonight ask her one thing: what did Sunday smell like when you were small.
->
-> she will not say "nothing." nobody ever says nothing.
+#### F8 · The Listener
 
----
+> This week's question is about hands.
+> 
+> What did your mother's hands do all day?
+> 
+> Kneaded, mended, turned pages, held a wheel, scrubbed a collar, signed your school forms in that same looping hand. The work that never got named because it never stopped.
+> 
+> We remember faces and voices and forget the hands, and the hands did so much of the loving. Ask someone whose hands you grew up watching. Write down one thing they did that you'd half-forgotten.
 
-### 7 · Pinterest — Dye Card (Day 9, cochineal)
-**Template:** Dye Card, vellum, optimised for evergreen search. Title field carries the keyword. 1000×1500.
-Cochineal warp thread + name in dye-text; *grief* in Source Serif 4; mono `DYE 02 · COCHINEAL`.
+**Visual:** THE LISTENER. Ink ground #0b0907. Question 'What did your mother's hands do all day?' in Fraunces (opsz ~110, wt ~360), one to two lines on the warp line, bone. Single ember weft hairline beneath, the only ember. Mono stamp top-right: 'THE LISTENER · 06 JUL'. Warp-and-Weft mark bottom-left. Optionally a macro of real woven cloth texture held to the lower edge, no stock photography. ~58% inhabited negative space. Square 1080x1080.
 
-> **Pin title:** The 10 natural dyes — cochineal, the colour of held grief
->
-> **Pin description:**
-> cochineal — a deep crimson made from tiny insects on the prickly pear, once worth its weight in gold.
-> In Heirloom it's the dye people choose for the ones they've lost and won't let go of. Not a sad colour.
-> A kept one. Each family member picks a colour for life when they join, and it becomes their thread in
-> the family's story. Explore the ten dyes and their meanings.
+**CTA:** Ask someone tonight
 
 ---
 
-### 8 · Instagram — The Listener (Day 5, weekend table)
-**Template:** Listener. Ink ground. Fraunces question, ember weft. Mono `THE LISTENER · FRIDAY`.
+#### F9 · The Woven-In
 
-> **On canvas:**
-> Ask the oldest person at the table:
-> what were you afraid of at my age?
+> Another voice from the cloth — a father's note, set down once and kept.
+> 
+> Written in 1994:
+> 
+> "My boy, the only advice that ever held up: do the boring thing on time, and be kind to the person who can't do anything for you. Everything else I got wrong at least twice."
+> 
+> Someone's father wrote that for a son who hadn't grown up yet. Now the son reads it back as a grown man, and gets to add his own line underneath — the same conversation, just continued.
+> 
+> That's the whole idea: a sentence written once that keeps finding its way forward.
+> 
+> What's a piece of advice someone gave you that you'd want to pass on? Ask the person who gave it to you where it came from.
 
-> **Caption:**
-> Weekend question. Bring it to dinner, not to a form.
->
-> The answer is usually braver than you expect, and it changes how you see them for good. Ask it before
-> the plates are cleared. Write it down after.
+**Visual:** THE WOVEN-IN. Ink ground, two stacked panels. Top panel: the 1994 advice entry in Source Serif 4 (17px / 1.6), bone, with an oakgall-dye 3px warp thread down the left margin (signal only); mono stamp 'WOVEN IN · 1994'. Bottom panel: the present-day question 'What would you add?' in Fraunces with a single ember weft hairline beneath. Warp-and-Weft mark bottom-left. Square or 4:5, 1080x1080 / 1080x1350.
 
----
-
-### 9 · LinkedIn — Plain Leaf (Day 11, the Listener)
-**Template:** Plain Leaf, vellum, single column. Mark + `ONE QUESTION A DAY`.
-
-> We almost built a feed. Then we built the opposite.
->
-> The hardest part of keeping a family's story isn't storage — it's the blank page. Nobody sits down to
-> "write a memory." So instead of a blank box, Heirloom asks one small question a day. *What did your
-> mother's hands do all day? Who were you named after?* We call it the Listener.
->
-> One question. No streak, no badge, no "you've missed 4 days." If you answer, a voice gets kept. If you
-> don't, the question waits — they're patient, the way the people you love are patient. That's the whole
-> design philosophy in one feature: make remembering small enough to actually do, and never, ever make it
-> feel like a chore you're failing at.
+**CTA:** Ask where it came from
 
 ---
 
-### 10 · Instagram — Family Spectrum (Day 6)
-**Template:** Family Spectrum. Ink ground. The woven colour-bar of one family's chosen dyes rendered as
-thin vertical warp threads — a coat of arms from real data. Mono caption beneath: `THE SHAW BLOODLINE · 4
-GENERATIONS · EST. 1948`. 4:5.
+#### F10 · The Listener
 
-> **Caption:**
-> This is the Shaw family — not a logo we drew, a pattern they grew. Every colour is one person who chose
-> their thread when they joined: a great-grandmother in madder, a son in indigo, a new baby's still-pale
-> weld.
->
-> No two families make the same cloth. This one is theirs alone — it's on the cover of their Book, foil-stamped.
-> A coat of arms you earn one person at a time.
+> A gentle weekend question for the table:
+> 
+> What's a song that makes you think of your mother?
+> 
+> Not a sad one, necessarily — just the one that brings her into the room the second it starts. The one from a kitchen radio, or a car with the windows down, or a wedding you were too small to remember but somehow do.
+> 
+> Play it at dinner this weekend. Ask why it's that one. The story behind a song is usually better than the song.
 
----
+**Visual:** THE LISTENER. Ink ground #0b0907. Question 'What's a song that makes you think of your mother?' in Fraunces (opsz ~110, wt ~360), two lines on the warp line, bone. Single ember weft hairline beneath, the only ember. Mono stamp top-right: 'THE LISTENER · FRIDAY'. Warp-and-Weft mark bottom-left. ~58% inhabited negative space. Square 1080x1080.
 
-### 11 · Threads — Plain Leaf (Day 18, choosing your thread)
-**Template:** Plain Leaf, intimate text.
-
-> when you join Heirloom you pick one colour. for life. it becomes your name everywhere in the story —
-> a little line of it down the left of everything you ever write.
->
-> ten to choose from, all real dyes with real history. people agonise over it for days. they should. it's
-> the most "you" decision in the whole thing.
+**CTA:** Play it at dinner this weekend
 
 ---
 
-### 12 · Instagram — The Woven-In (Day 24, held until — reverent)
-**Template:** Woven-In, handled with dignity. Ink ground. **No ember. No countdown. No clock.** Top panel:
-a folded weft (a thread woven under, drawn as cloth), mono `HELD UNTIL`. Bottom: the line in Fraunces.
+#### F11 · The Family Spectrum
 
-> **On canvas — bottom:**
+> This is a family — not a logo we drew, but a pattern they grew, one person at a time.
+> 
+> Every thread here is one member who chose their colour when they joined: a great-grandmother in madder, a son in indigo, the steady middle generation in walnut and weld, a new baby whose thread is still pale because the story's only just begun for her.
+> 
+> Four generations. No two families make the same cloth — this one is theirs alone. It's on the cover of their printed Book, the colours foil-stamped, a record of who kept the thread going.
+> 
+> A coat of arms you earn one person at a time. Built to outlast everyone who uses it.
+
+**Visual:** THE FAMILY SPECTRUM. Ink ground #0b0907. The family's chosen dyes rendered as thin vertical warp threads — madder, indigo, walnut, weld, and a pale new thread — threads only, never blocks, no clown grid. Generous negative space around them. Mono caption beneath in JetBrains Mono uppercase tracked: 'THE SHAW BLOODLINE · 4 GENERATIONS · EST. 1948'. Foil-band variant teasing the Book cover optional along the top edge. Warp-and-Weft mark bottom-left. Square or 4:5, 1080x1350.
+
+**CTA:** Begin a thread of your own
+
+---
+
+### Week 4
+
+#### F12 · The Listener
+
+> This week's question is one most of us carry and never ask about:
+> 
+> Who were you named after? Do you know why?
+> 
+> There's almost always a person behind a name — a grandmother, a friend who didn't make it, a saint, a singer, someone your parents loved before you arrived. And almost always a reason nobody ever wrote down.
+> 
+> Ask while there's still someone who remembers the why. A name is the first thread anyone gives you. It's worth knowing where it came from — and worth writing down, so the next one to carry it will know too.
+
+**Visual:** THE LISTENER. Ink ground #0b0907. Question 'Who were you named after? Do you know why?' in Fraunces (opsz ~110, wt ~360), two lines on the warp line, bone. Single ember weft hairline beneath, the only ember. Mono stamp top-right: 'THE LISTENER · 13 JUL'. Warp-and-Weft mark bottom-left. ~58% inhabited negative space. Square 1080x1080.
+
+**CTA:** Ask someone tonight
+
+---
+
+#### F13 · The Dye Card
+
+> Another of the ten threads a family can choose from. This one is indigo.
+> 
+> Indigo is the colour of looking back. For centuries it was the deepest, most patient dye there was — cloth dipped again and again, oxidising in the air between dips, going from green to blue right in front of you. You couldn't rush it. The depth came only from doing it slowly, over and over.
+> 
+> Which felt about right to us. In Heirloom, indigo tends to be the thread of the reflective ones — the ones who sit with a thing before they speak, who remember in detail.
+> 
+> Every member picks one colour when they join, and it becomes their thread in the story — theirs to keep, kept for as long as the family keeps the cloth. If yours were chosen for how you remember things — which would it be?
+
+**Visual:** THE DYE CARD. Vellum ground #f6ecda. The word 'indigo' in Fraunces, large, set in indigo's AA-lifted --dye-text variant (#3a5582 on vellum). A single 3px indigo warp thread down the left margin — signal only, never a fill. Beneath, 'reflection' in Source Serif 4. Mono footer: 'DYE 09 · INDIGO · DIPPED, NEVER RUSHED'. Warp-and-Weft mark (ink-on-vellum) bottom-left. Square 1080x1080.
+
+**CTA:** Which one would yours be
+
+---
+
+#### F14 · The Woven-In
+
+> Some things you write aren't meant for now. You write them for a morning years away — a thirtieth birthday, a wedding, a first hard day she hasn't had yet — and Heirloom keeps them folded into the cloth until then.
+> 
+> Like this one, waiting:
+> 
 > for Maya, when she turns 30
+> 
+> Not locked away. Not hidden behind a clock or a countdown. Just held until the day it was meant for. When that morning comes, it opens gently, and the words are hers — in the voice of someone who loved her enough to write ahead.
+> 
+> Is there something you'd want to say to someone on a day that hasn't arrived yet? You don't have to send it now. You just have to write it down while it's in your heart to say.
 
-> **Caption:**
-> Some things you write aren't for now. You write them for a morning years away — a birthday, a wedding, a
-> first hard day she hasn't had yet — and Heirloom keeps them folded into the cloth until then.
->
-> Not locked. Not hidden behind a clock. Just *held until* the day they were meant for. When it opens, it
-> opens gently, and it's hers.
->
-> Is there something you'd want to say to someone on a day that hasn't come yet?
+**Visual:** THE WOVEN-IN, reverent treatment. Ink ground #0b0907. NO ember, no clock, no lock, no countdown — cloth and mono only. Top: a single weft thread drawn folding under into the warp, rendered as cloth, bone on ink; mono stamp 'HELD UNTIL' in JetBrains Mono uppercase tracked. Bottom: the line 'for Maya, when she turns 30' in Fraunces, bone, on the warp line. Generous quiet margins, ~60% inhabited negative space. Warp-and-Weft mark bottom-left (its own ember knot is the only warm point, unchanged). Square or 4:5, 1080x1350.
 
----
-
-### 13 · Pinterest — Plain Leaf prompt list (Day 25, the Book)
-**Template:** Plain Leaf, vellum, evergreen. Foil-band Family Spectrum across the top. Mono `THE BOOK`.
-
-> **Pin title:** The family Book — your story, printed to outlast the cloud
->
-> **Pin description:**
-> Everything written in Heirloom can become a real archival hardcover — printed on acid-free paper, sewn
-> not glued, with your family's own woven colour-spectrum foil-stamped on the cover and a mono colophon
-> recording who kept it. Because the surest way to keep a family's voices for a hundred years isn't a
-> server — it's a book on a shelf that your grandchildren can take down. Some things are meant to be kept.
+**CTA:** Write it down while it's in your heart to say
 
 ---
-
-### 14 · Bluesky — Plain Leaf (Day 7, Sunday reflection)
-**Template:** Plain Leaf, one line, native.
-
-> the things worth keeping are almost never the things you were trying to keep. it's the offhand sentence,
-> the way she said your name when you were small, the smell of a Sunday. write one of those down before sleep.
-
----
-
-### 15 · Instagram — The Listener (Day 29, names)
-**Template:** Listener. Ink ground, Fraunces, ember weft. Mono `THE LISTENER · DAY 029`.
-
-> **On canvas:**
-> Who were you named after?
-> Do you know why?
-
-> **Caption:**
-> Most of us carry a name we never asked about. There's almost always a person behind it, and almost always
-> a reason nobody wrote down.
->
-> Ask tonight, while there's still someone who remembers. A name is the first thread anyone gives you —
-> worth knowing where it came from.
-
----
-
-## Production notes
-
-- **Batch the Dye Cards.** All ten dyes share the same Dye Card template; produce the set once (vellum,
-  Fraunces name, 3px warp margin, mono footer) and schedule across months. They are evergreen Pinterest fuel.
-- **The Listener is the engine.** Write a month of questions in one sitting; they cross-post (re-voiced) to
-  all five rooms. Never auto-paste — each platform gets its native phrasing.
-- **No ember on sensitive posts.** The Woven-In "held until" treatment uses cloth and mono only. Verify
-  before scheduling: no clock, no lock, no countdown, no "after you're gone."
-- **AA contrast both grounds.** Dye name text uses the AA-lifted `--dye-text` variant, not the raw 3px
-  thread colour. ≥17px effective body everywhere.
-- **Keep the sabbath.** Saturday is low-volume by design. The cadence itself should feel patient — the
-  medium embodying the promise.

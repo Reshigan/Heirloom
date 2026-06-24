@@ -1,187 +1,104 @@
-# Heirloom — Social Strategy
+# Heirloom — Social Strategy (Bluesky + Facebook)
 
-> *Some things are meant to be kept.*
-> The social identity is the brand's public-facing loom: the same warp grid, the same dyes, the same
-> warm paper light. Social does not sell software. It hands a person a reason to ask someone they love
-> a question tonight. The product is the place that keeps the answer.
-
-This document defines the social identity, the role each platform plays, posting cadence, and the visual
-template system. Sample posts and the 30-day calendar live in `CONTENT-CALENDAR.md`.
-
----
-
-## 1. The single job of social
-
-Social exists to do **one** thing: make a person turn to someone in their family and ask a real question —
-*tonight, out loud, at the table.* Everything else (followers, reach, brand recall) is downstream of that
-one behaviour.
-
-So the signature content unit is **the Listener** — one quiet daily prompt. Not a product feature demo,
-not a testimonial reel, not a meme. A question, beautifully set, that a 34-year-old new parent and their
-78-year-old grandmother both want to answer.
-
-The soft CTA is always relational, never transactional:
-> **ask someone tonight** — never *sign up now*.
+> Heirloom is on **exactly two platforms: Bluesky and Facebook.** Every other channel
+> (Instagram, LinkedIn, Pinterest, Threads, X, TikTok, YouTube) is retired on purpose —
+> their Stories/Reels/hashtag/trend mechanics all pressure the voice toward urgency, and
+> *the thousand-year promise dies the instant we behave like quarterly-growth SaaS.*
+> This file is downstream of and bound by [`brand/BRAND.md`](../BRAND.md). Brand essence:
+> **Held** — *"Some things are meant to be kept."*
 
 ---
 
-## 2. Voice on social (the non-negotiables)
+## 0 — Why these two rooms only
 
-Same voice as the product. Warm, present tense, second person, addressed to a real named person. Concrete
-and sensory — hands, weather, food, a kitchen, a name. Plainspoken and certain, occasionally funny,
-occasionally aching, never bleak, never saccharine.
-
-**Always**
-- Lead with arrival-of-love, never loss. *"for Maya, when she turns 30"*, never *"after you're gone."*
-- Name a real person or a real sense. *"Tell your daughter what the kitchen smelled like"* beats *"preserve a memory."*
-- Kept-vocabulary: keep, pass on, held until, opens when, choose your thread, the Listener, the Bloodline, keeper/Successor, woven in.
-- Soft, relational CTA: *ask someone tonight*, *write it down before you forget it*, *call her and ask.*
-
-**Never** (kill on sight)
-- Death-forward framing: memorialize, deceased, legacy data, vault, *secure your legacy*, *before it's too late*.
-- Urgency of any kind: countdowns, scarcity, streaks, FOMO, *you haven't written in 5 days*.
-- Gamification: badges, points, streak guilt, completion %, leaderboards, read-receipts as performance.
-- Grief content, estate-planning angles, death-awareness-month tie-ins.
-- Hard CTA: *sign up now*, *download today*, *limited time*.
-- Stock photography of smiling diverse families. We use woven structure and real hands, or nothing.
-- Emoji as decoration. (A single rare em-dash of warmth in replies is fine; never in the grid.)
-
-The thousand-year promise dies the instant the feed behaves like quarterly-growth SaaS. Patience is the
-brand. Post like a family that has all the time in the world, because that is the product.
+Heirloom lives on exactly two surfaces because the brand is patience, and these are the only two rooms where patience reads as care instead of neglect. Bluesky is the conversation room: a small, high-trust early-keeper crowd with sharp authenticity-radar, where a domain-verified handle quietly proves permanence and a human reply at the table earns belief. Facebook is the multigenerational hearth: it is where a 78-year-old grandmother and a 34-year-old parent both already are, can follow a Page without a friend-request, and where a warm, concrete question gets forwarded into a family group by the family itself. Every other platform is deleted on purpose — Stories, Reels, hashtag culture, and trend cycles all pressure the voice toward urgency, and the thousand-year promise dies the instant we behave like quarterly-growth SaaS. Two rooms, the same gentle invitation re-voiced for each, and nowhere that would make us rush.
 
 ---
 
-## 3. Visual template system
+## 1 — Handles
 
-Three honest materials carry every asset: **woven structure, dyed thread, warm paper light.** Built on the
-brand's warp grid (8px base, 4px sub-grid), content hangs off a left warp line.
+| Platform | Handle | Why |
+|---|---|---|
+| **Bluesky** | `@heirloom.blue` | Claim the domain itself as the verified Bluesky handle via the heirloom.blue DNS/well-known record, so the handle IS the home address. A domain-verified handle is itself a permanence signal — the account is anchored to land the family owns, not a reassignable username. Display name: Heirloom. Reserve @heirloom.bsky.social only as a redirect fallback. |
+| **Facebook** | `facebook.com/heirloom.blue` | Vanity slug /heirloom.blue to match the domain for cross-platform recall and the same permanence anchor. A Page (never a personal profile), so an older relative can follow without a friend-request transaction. Page name: Heirloom. Category: a family-story / genealogy product, never 'Inc.', never 'software'. No taglines about legacy or forever in the name. |
 
-### Colour (build hex)
-- Grounds: ink `#0b0907`, surface `#16110c`; light ground vellum `#f6ecda`.
-- Text: bone `#f2e6d0`, bone-bright `#faf3e4`, bone-dim `rgba(242,230,208,0.72)`.
-- The one accent — EMBER `#e0a062` (bright `#f0c074`) — **under 5% of the canvas**, reserved for the live
-  present moment: the Listener's knot, the active mark pip, one rule.
-- The 10 dyes appear **signal only** — as a 3px warp margin or a name's colour. Never as fills or backgrounds.
-  madder · cochineal · kermes · saffron · weld · walnut · oakgall · woad · indigo · iron.
+## 2 — Profile bios
 
-### Type
-- DISPLAY / VOICE — **Fraunces** (opsz ~110, wt ~360, soft 0 / wonk 0, tracking -0.01em). Hero lines, the
-  Listener prompt, sealed/release copy. Never below ~24px.
-- READING / PROSE — **Source Serif 4**, 17px+ / 1.6. Any quoted memory, any long caption set as body.
-- CHROME — **Inter** (variable). Handle, small UI labels on a card.
-- ARCHIVAL STAMP — **JetBrains Mono**, UPPERCASE, +0.12em tracking, tabular nums. Dates, generation
-  counts, thread IDs, the corner watermark. This mono stamp is the recognition asset that ties a post
-  to the product footer and the printed Book colophon.
+**Bluesky** (≤256 chars):
 
-### The five post templates
+> Keep your family's story going — across generations. One quiet question a day, here below. Ask someone tonight. Some things are meant to be kept. heirloom.blue
 
-Every asset is one of five templates. Consistency is the distinctiveness.
+**Facebook Page** (About / intro):
 
-1. **THE LISTENER** (the workhorse — ~40% of posts)
-   - Ink ground. One question in Fraunces, large, centred-left on the warp line, max two lines.
-   - A single ember weft hairline drawn under the question. Mono date stamp top-right: `THE LISTENER · 24 JUN`.
-   - Bottom-left corner: the warp-and-weft mark, small. No CTA on the canvas; CTA lives in the caption.
-   - Motion (Reels/video): the ember weft draws across once (~1400ms, the calm spring), then rests. Never loops.
+> Some things are meant to be kept. Heirloom is where a family keeps the conversation going across generations — written, spoken, and passed on. One quiet question a week, to bring to your table. Ask someone tonight. heirloom.blue
 
-2. **THE WOVEN-IN** (call-and-response across time — ~20%)
-   - Two stacked panels. Top: a real (or anonymised demo) past entry in Source Serif 4, with a dye warp
-     margin in that member's colour, mono-stamped with its year (`WOVEN IN · 1979`).
-   - Bottom: the present-day question it provokes, in Fraunces, ember weft beneath.
-   - This is the *"Your grandmother wrote about this kitchen in 1979 — what do you remember?"* unit.
+## 3 — Cadence
 
-3. **THE DYE CARD** (identity / education — ~15%)
-   - Vellum (light) ground for warmth. One dye named in Fraunces (e.g. *madder*), its meaning beneath in
-     Source Serif 4 (*joy*), the centuries-of-history note in mono.
-   - The dye shows as a single 3px warp thread down the left margin and the name set in its `--dye-text`
-     variant — signal only, never a colour fill block.
+### Bluesky — ~6 original posts/week + organic replies all week
 
-4. **THE FAMILY SPECTRUM** (proof / aspiration — ~10%)
-   - The woven colour-bar of a family's chosen dyes rendered as thin warp threads — a coat of arms from
-     real data. Ink or vellum. Mono caption: `THE SHAW BLOODLINE · 4 GENERATIONS · EST. 1948`.
-   - Used for milestones, the Book cover tease, anniversary content.
+- **Slots:** Mon–Fri: one Listener each weekday at golden hour, ~17:00–19:00 local, native text first. Sun evening: one one-line Plain Leaf reflection. Sat: dark on purpose. Never two posts in a day.
+- **Why:** A daily-but-tiny weekday prompt is a low-threat ritual at the family-home hour — the question waits, it never accuses, and there is no penalty for a missed day. Keeping Saturday (and not backfilling) makes the patience itself the message. One post a day is the heartbeat; stacking would feel like pressure around obliquely-mortal themes.
 
-5. **THE PLAIN LEAF** (essays / announcements / quiet notes — ~15%)
-   - Mostly empty warm paper. A short piece of writing set as a single reading column, max 66ch, in
-     Source Serif 4, with the mark and mono stamp. For LinkedIn long-form, Threads musings, product notes.
+### Facebook — 3 posts/week, never more (occasional 4th for a milestone)
 
-**Format discipline:** Instagram & Pinterest primarily 4:5 (1080×1350); Stories/Reels 9:16; Bluesky/Threads
-16:9 or 4:5; LinkedIn 1200×1500 or native text. Always ≥17px effective body; AA contrast in both grounds.
+- **Slots:** Mon: the week's Listener, framed as a dinner-table question, image-led. Wed: a Woven-In or Dye Card carrying real warmth (square 1080×1080 or 4:5). Fri: a weekend-table Listener to bring to a family meal. Sat/Sun: dark by design — keep the sabbath; rare exception is a Family Spectrum milestone or one Plain Leaf.
+- **Why:** Facebook skews older and treats each post as an event, not a stream. Lower frequency respects that; mid-week + Friday spacing lets a post be seen, saved, and forwarded to family before the next arrives. A daily cadence would read as a needy brand and erode the all-the-time-in-the-world feeling that is the product.
 
----
+## 4 — Voice, per room
 
-## 4. Platform-by-platform role
+**Bluesky.** The most human, lightly-funny room. Lowercase, off-the-cuff, present tense, like texting a friend who happens to be wise. Name a real sense or person and end on a soft relational nudge: 'today's quiet one: what did the kitchen smell like on a Sunday? don't answer me — ask the person who'd actually know.' Reply like someone at the table, never a brand account — warm, specific, unhurried, no canned thanks. Celebrate the asking ('that's a thread worth keeping'), never the signup. A single em-dash of warmth is fine; never a streak, never +1, never a hard CTA. Lightness keeps mortality oblique — warmth signals safety, not solemnity.
 
-| Platform | Role | Primary template | Cadence | Tone dial |
-|---|---|---|---|---|
-| **Instagram** | The hearth. The Listener lives here. Where families *feel* the brand. | Listener, Woven-In, Dye Card | 4–5 posts/wk + daily Story Listener | Warmest, most sensory |
-| **Pinterest** | The keeper of intent. People plan to remember here — searchable, evergreen, long-life pins. | Dye Card, Listener, Plain Leaf (prompt lists) | 5–7 pins/wk (batched) | Calm, useful, evergreen |
-| **LinkedIn** | The why. Founder voice on permanence, craft, building software meant to outlive its company. | Plain Leaf, Family Spectrum | 2 posts/wk | Reflective, plainspoken, no hustle |
-| **Bluesky** | The conversation. Replies, the daily Listener as a thread, real talk with early keepers. | Listener (native text), Plain Leaf | Daily Listener + organic replies | Most human, lightly funny |
-| **Threads** | The campfire. Short present-tense observations, the Listener restated, gentle community. | Listener, Plain Leaf | 4–5/wk | Intimate, off-the-cuff |
+**Facebook.** The kitchen-table voice at its most sensory and reassuring — warmer and fuller than Bluesky, sentence case, slightly more complete sentences (Facebook readers read longer). Pitched so a 78-year-old grandmother and a 34-year-old new parent both find it beautiful and easy: no slang, no in-jokes, legible and dignified. One clear question, one concrete image (bread, a windowsill radio, a name). Lead every sensitive moment with arrival-of-love ('for Maya, when she turns 30'), never loss. Reverent, never funereal, at sealed/release moments. The CTA is always relational — 'ask someone tonight', 'write down exactly how they say it' — never 'sign up'.
 
-**Cross-posting rule:** the *idea* (today's Listener) is shared; the *form* is native. Never paste the same
-caption five ways. The Listener prompt is the through-line; each platform re-voices it for its room.
+## 5 — Content pillars
 
-### What each platform must NOT do
-- Instagram: no carousels of feature screenshots, no UGC reposts framed as social proof pressure.
-- LinkedIn: no growth-metric brags, no *"we just hit X users,"* no hiring-funnel hustle bait.
-- Pinterest: no "10 ways to..." clickbait listicle pins; useful prompts, not engagement traps.
-- Bluesky/Threads: no auto-posted cross-content; if it can't be re-voiced for the room, it doesn't ship.
+### The Listener
 
----
+- **Purpose:** The workhorse (~45–50% of posts). One quiet daily/weekly question, beautifully set, that makes a person turn to someone they love and ask it out loud tonight. Soft relational CTA only — 'ask someone tonight', never 'sign up'. The arrival-of-love lead by design.
+- **Feeling:** Gentle curiosity and warm permission — it lowers the threat of the blank page and reframes remembering as a small act of love, not a chore.
+- **Looks like:** Ink ground #0b0907. Question in Fraunces (opsz ~110, wt ~360), two lines max, left-aligned on the warp line. A single ember #e0a062 weft hairline beneath. Mono stamp top-right (JetBrains Mono, uppercase, tracked) 'THE LISTENER · 24 JUN'; the Warp-and-Weft mark small bottom-left. ~55–60% inhabited negative space. No dye, no CTA on canvas. Ember under 5% of surface = NOW. On Bluesky it ships as bare native text; the card is optional.
 
-## 5. Cadence & rhythm (weekly skeleton)
+### The Woven-In
 
-A calm, repeatable week. The Listener is the heartbeat; everything else hangs off it.
+- **Purpose:** Call-and-response across time (~20%): a real or anonymised past entry resurfaced to provoke a present-day question — 'your grandmother wrote about this kitchen in 1979 — what do you remember?' Shows the product's whole reason for being without demoing a feature.
+- **Feeling:** Tender continuity and being-held — two voices in the same kitchen across time. The attachment payload: it makes 'the conversation keeps going' felt, not claimed.
+- **Looks like:** Ink, two stacked panels. Top: a past entry in Source Serif 4 (≥17px / 1.6) with that member's dye as a 3px warp left-margin, mono 'WOVEN IN · 1979'. Bottom: the present question in Fraunces with an ember weft beneath. The dye is the only signal colour, only as the margin thread — never a fill.
 
-- **Mon** — The Listener (IG + Bluesky + Threads). Sets the week's question.
-- **Tue** — Dye Card (IG + Pinterest). One dye, its meaning, its history.
-- **Wed** — The Woven-In (IG). Call-and-response across a generation.
-- **Thu** — Plain Leaf essay (LinkedIn) + restated Listener (Threads).
-- **Fri** — The Listener, weekend-shaped: a question to ask at a family meal (all platforms).
-- **Sat** — Family Spectrum / milestone or rest. Low volume; the brand keeps the sabbath.
-- **Sun** — A quiet Plain Leaf reflection (Bluesky/Threads). One line. The breath before the week.
+### The Dye Card
 
-Stories (IG) run a daily Listener sticker-prompt every weekday. Pinterest is batch-scheduled weekly so the
-feed never feels like a person chained to a content treadmill — the medium should embody patience.
+- **Purpose:** Identity and gentle education (~15%): one named natural dye (madder, woad, indigo…), its meaning and its centuries of history. The 'choose your thread' / 'which one would be mine?' hook. Evergreen — batch all ten once.
+- **Feeling:** Belonging and self-recognition — an ethical identity/ownership hook that creates a sense of one's own thread before any purchase, and gives a family a shared language.
+- **Looks like:** Vellum ground #f6ecda for warmth. Dye name in Fraunces (e.g. 'madder'), its meaning beneath in Source Serif 4 ('joy'), the centuries-of-history note in JetBrains Mono. The dye shows ONLY as a single 3px warp thread down the left margin plus the name set in its AA-lifted --dye-text variant. Never a colour fill.
 
-### Posting times
-Anchor sends to **golden hour, local** — early evening, when families are home and the day softens. This is
-the brand's hour. ~17:00–19:00 local for the Listener; LinkedIn mid-morning Tue/Thu. No late-night urgency.
+### The Family Spectrum
 
----
+- **Purpose:** Proof and aspiration (~10%): a family's own woven dye colour-bar — a coat of arms grown one person at a time from real data — plus the printed Book. Quiet proof of permanence for anniversaries and milestones, never growth-metric bragging.
+- **Feeling:** Pride and rootedness without comparison — it is theirs alone, so there is nothing to rank against. Belonging to something larger and lasting, with zero competitive or scarcity charge.
+- **Looks like:** Ink or vellum. Thin vertical warp threads in that family's actual chosen dyes — threads only, never blocks (no clown grid). Mono caption 'THE SHAW BLOODLINE · 4 GENERATIONS · EST. 1948'. Foil-band variant teases the Book cover.
 
-## 6. Sensitive surfaces on social (handled with dignity)
+### The Plain Leaf
 
-The after-death release and the dead-man's-switch are **architecture, never content.** They are never the
-foreground emotion and never appear in acquisition copy.
+- **Purpose:** The quiet 'why' (~10%): short reflective notes on permanence and craft — software built to be inherited, the patience of the Listener, why the printed Book exists. Plainspoken, no hustle, no thought-leadership flex.
+- **Feeling:** Calm trust and reassurance — the secure-base signal that this holder is patient and serious, so it is safe to put something precious here.
+- **Looks like:** Mostly empty warm paper (vellum or ink). One reading column, max 66ch, Source Serif 4 ≥17px, the Warp-and-Weft mark and a mono stamp like 'EST. FOR THE LONG RUN'. On Bluesky it is one-line native text; on Facebook a longer reflective caption. Often ends on 'Some things are meant to be kept.'
 
-- We may, rarely and reverently, describe *the shape of the promise* — *"Some letters are held until the
-  day they're meant for."* — set in Fraunces, no ember, no urgency, no countdown imagery.
-- Never depict a release as a notification, a clock, a lock, or a tombstone. Never run grief content,
-  estate-planning angles, or death-awareness tie-ins.
-- The verification ("a quiet note — just confirming all is well") is a private caretaking moment. It is
-  not marketed. If asked publicly how it works, answer plainly and gently in replies; do not make a campaign of it.
+## 6 — Hard don’ts
 
----
+- No urgency of any kind — no countdowns, scarcity, streaks, FOMO, 'limited', 'last chance', 'don't miss', A/B pressure, or 'you haven't posted in X days'. The thousand-year promise dies the instant the feed behaves like quarterly-growth SaaS.
+- Never lead with death or loss — no 'after you're gone', 'before it's too late', deceased, memorialize, legacy / legacy data, vault, forever, tombstone, hourglass, padlock, or clock imagery. Death is architecture, always arrival-of-love in the foreground, and NEVER in acquisition copy.
+- No gamification of memory — no badges, points, completion %, leaderboards, streaks, or read-receipts framed as performance, and never 'we just hit X followers/users'. Reinforcement is relational ('your grandmother read your kitchen story'), never '+10 pts, 3-day streak'.
+- No hard or transactional CTA — never 'sign up now', 'download today', 'limited spots'. The CTA is always relational: 'ask someone tonight', 'call her and ask', 'write it down before you forget it'.
+- No grief content, estate-planning angles, or death-awareness-month tie-ins; never exploit a sensitive date. The release and the dead-man's-switch / verification are private caretaking — answered plainly in replies if asked, never a campaign, never marketed.
+- No reach-baiting — no 'tag a friend', no giveaways that gamify memory, no DM-pitching, no trend-jacking, no boosting with urgency copy. Growth is earned by being worth forwarding, never by asking for the share.
+- Never auto-cross-paste — the idea (today's Listener) is shared; the form is native to the room. Bluesky leads with bare, lightly-funny text; Facebook is warmer and fuller. If a post can't be re-voiced for the room, it doesn't ship.
+- No stock photography of smiling diverse families — only woven structure, dyed thread, warm paper light, or real hands. No glassmorphism, gradient mesh, animated noise, glowing-filament / 'cosmic loom' marks, AI organic-blob art, icon libraries, avatar circles, or decorative emoji (a single rare mark is the absolute ceiling; default to none). No hashtag spam. No dye colours as fills, buttons, or backgrounds.
+- Ember used scarcely — under 5% of any canvas, only for the NOW moment; NEVER ember (and no clock, lock, or countdown chrome) on any reverent 'held until' / 'opens when' / release post — cloth and mono only. No Cormorant; never set running body in Fraunces or below ~24px.
+- Never mention or imply the withdrawn $249 Founder SKU in marketing. State pricing plainly only when asked — Free $0 · Family $6.99/mo or $69/yr — never pressured, never A/B-tested; ZAR localization untouchable.
 
-## 7. Community & replies
+## 7 — Growth (no-urgency)
 
-- Reply like a person at the table, not a brand account. Warm, specific, unhurried. No canned thanks.
-- When someone shares what they asked their grandmother, that is the win. Celebrate the *asking*, never the *signup*.
-- Never DM-pitch. Never ask people to tag friends for reach. Never run a giveaway that gamifies memory.
-- Reinforcement is relational: *"That's a thread worth keeping."* Never *"+1, nice streak."*
+Grow by depth, never velocity — the way a family grows, not a funnel. The single north-star behaviour is one person asking one real question of someone they love tonight; followers, reach, and signups are all downstream and never optimised directly. The Listener is the engine: every prompt is a gift a 34-year-old can text to a parent or a 78-year-old can read aloud at dinner, so a forwarded question recruits a whole family, not a follower. The metrics we keep are saves, sends, and replies that name a real person ('asked my dad about this tonight') — the gold metric — not likes or follower counts. On Bluesky, growth comes from genuine reply-presence: answering memory/family/keeping threads like a person at the table, celebrating the asking, never DM-pitching or asking for tags, and letting the domain-verified @heirloom.blue handle and the unmistakable ink Listener cards do the recognition work in a fast feed. On Facebook, growth comes from warmth that older relatives forward into family groups themselves — the Woven-In and Dye Card 'which would yours be?' posts are the most shareable because they hand someone a feeling, not a pitch; we never ask for the tag, we earn it. Visual recognition is the quiet lever: every post is unmistakably Heirloom at a glance (ink #0b0907 or vellum #f6ecda ground, ~55–60% inhabited space, Fraunces hero type, the lone ember weft as NOW, dyes only as 3px warp signal, the mono archival stamp tying every post to the product footer and the Book colophon, the Warp-and-Weft mark in the corner). We explicitly do NOT chase follower velocity, posting frequency for its own sake, or any metric that would pressure the voice toward urgency. We keep the sabbath, never backfill or apologise for quiet stretches, and let resonance accrue over years. If a tactic would make us behave like quarterly-growth SaaS, we don't run it — patience is the product and the brand, and a family that feels safe and unhurried is a family that keeps, and tells another family.
 
----
+## 8 — Launch week
 
-## 8. Measurement (what we actually watch)
-
-We measure the brand's real job, not vanity:
-- **Saves & sends** over likes — saving a Listener and sending it to a relative is the true signal.
-- **Replies that name a person** — *"asked my dad about this tonight"* is the gold metric.
-- **Pinterest long-tail** — evergreen prompt saves months later.
-- **Qualitative resonance** — are people answering the question, in the comments, unprompted?
-
-We explicitly do **not** optimise for: follower velocity, posting frequency for its own sake, trend-jacking
-reach, or any metric that would pressure the voice toward urgency. If a metric would push us to behave like
-quarterly-growth SaaS, it is not a metric we keep.
+Launch week is deliberately quiet — no 'we're live!' fanfare, no countdown, no urgency. Set up first: claim @heirloom.blue via the DNS/well-known record (verified domain handle), set the Bluesky display name to Heirloom, avatar the Warp-and-Weft mark on ink (ember pip centred for the circle crop), banner a single ember weft across full-bleed ink with the mono line 'SOME THINGS ARE MEANT TO BE KEPT' bottom-left; create the Facebook Page (not a profile) at facebook.com/heirloom.blue, name Heirloom, same mark as profile photo, cover the maskable woven cell + ember knot inside the safe zone with the low mono line 'BUILT TO OUTLAST EVERYONE WHO USES IT', intro 'Some things are meant to be kept.', pricing left unstated. Batch all ten Dye Cards and a month of Listener questions before posting anything. Then: MON — Bluesky first post is a Plain Leaf one-liner that simply opens the door ('we're going to ask one quiet question a day here. today's: what did the kitchen smell like on a Sunday? don't answer me — ask the person who'd actually know.'); Facebook Mon Listener is the same question, re-voiced warmer and fuller, image-led, with 'ask someone tonight'. TUE — Bluesky weekday Listener (a hands/work question, native text); reply like a person to anyone who answers. WED — Bluesky Listener; Facebook Woven-In (a 1979 kitchen entry → 'what do you remember?', the call-and-response that shows the whole point). THU — Bluesky Listener (names/light question). FRI — Bluesky weekend-table Listener; Facebook Fri weekend-table Listener ('ask the oldest person at the table what they were afraid of at your age — bring it to dinner, not a form'). SAT — both dark, on purpose; the sabbath is part of the message. SUN — Bluesky single one-line Plain Leaf reflection on keeping; Facebook dark (or one quiet Plain Leaf if a milestone warrants). No metrics announced, no follower call-outs, no Founder SKU, no ember on anything reverent — just the heartbeat starting, patiently.
