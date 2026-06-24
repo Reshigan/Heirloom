@@ -80,17 +80,6 @@ export function Pricing() {
       to: showAnnual ? '/signup?tier=family&cycle=annual' : '/signup?tier=family',
       emphasized: true,
     },
-    {
-      id: 'FOUNDER',
-      name: 'Founder',
-      price: fmt(s, pricing.FOUNDER?.lifetime ?? PLAN_PRICE_NUM.FOUNDER.lifetime),
-      cadence: 'once',
-      note: 'Lifetime · All features',
-      lines: [] as string[],
-      cta: 'Become a Founder',
-      to: '/founder',
-      emphasized: false,
-    },
   ];
 
   return (

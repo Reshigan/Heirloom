@@ -112,7 +112,6 @@ export function Marketing() {
             textTransform: 'uppercase', color: 'var(--bone-dim)',
           }}>
             <Link to="/pricing"  style={{ color: 'inherit', textDecoration: 'none' }} className="mkt-nav-hide-sm">pricing</Link>
-            <Link to="/founder"  style={{ color: 'inherit', textDecoration: 'none' }}>founder</Link>
             <Link to="/login"    style={{ color: 'inherit', textDecoration: 'none' }}>sign in</Link>
             <SecurityDot size={6} />
           </span>

@@ -16,7 +16,6 @@
 
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
-import { sendEmail } from '../utils/email';
 
 export const founderRoutes = new Hono<AppEnv>();
 
@@ -24,143 +23,10 @@ const PLEDGE_AMOUNT_USD = 249;
 const PLEDGE_CAP = 100;
 
 founderRoutes.post('/pledge', async (c) => {
-  const body = await c.req.json<{ name?: string; email?: string; family_name?: string; notes?: string }>();
-  const name = (body.name ?? '').trim();
-  const email = (body.email ?? '').trim().toLowerCase();
-  const familyName = (body.family_name ?? '').trim() || null;
-  const notes = (body.notes ?? '').trim() || null;
-
-  if (!name || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return c.json({ error: 'Name and a valid email are required.' }, 400);
-  }
-
-  // Refuse if the cap is reached.
-  const paid = await c.env.DB.prepare(`SELECT COUNT(*) AS n FROM founder_pledges WHERE status = 'PAID'`).first<{ n: number }>();
-  if ((paid?.n ?? 0) >= PLEDGE_CAP) {
-    return c.json({ error: 'The first hundred Founder pledges are complete. Thank you.', cap_reached: true }, 410);
-  }
-
-  // Idempotent against duplicate intent.
-  const existing = await c.env.DB.prepare(
-    `SELECT id, status FROM founder_pledges WHERE email = ? AND status != 'REVOKED' LIMIT 1`,
-  ).bind(email).first<{ id: string; status: string }>();
-  if (existing) {
-    return c.json({
-      ok: true,
-      already_pledged: true,
-      status: existing.status,
-      message: existing.status === 'PAID'
-        ? 'You\'re already a Founder. Welcome.'
-        : 'We already have your pledge. We\'ll be in touch shortly.',
-    });
-  }
-
-  const id = crypto.randomUUID();
-  await c.env.DB.prepare(
-    `INSERT INTO founder_pledges (id, name, email, family_name, notes, status)
-     VALUES (?, ?, ?, ?, ?, 'PLEDGED')`,
-  ).bind(id, name, email, familyName, notes).run();
-
-  // Create a Stripe Checkout session for the one-time Founder pledge.
-  // We charge via dynamic price_data (unit_amount from PLEDGE_AMOUNT_USD) rather
-  // than a fixed Stripe Price ID, so the amount billed always matches what the
-  // page shows. The webhook (billing.ts) listens for 'founder_pledge' metadata
-  // and marks PAID + assigns pledge_number atomically.
-  let checkoutUrl: string | null = null;
-  const stripeKey = (c.env as AppEnv['Bindings'] & { STRIPE_SECRET_KEY?: string }).STRIPE_SECRET_KEY;
-  if (stripeKey) {
-    try {
-      const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${stripeKey}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          mode: 'payment',
-          customer_email: email,
-          success_url: `${c.env.APP_URL}/founder/welcome?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${c.env.APP_URL}/founder?canceled=1`,
-          'line_items[0][price_data][currency]': 'usd',
-          'line_items[0][price_data][unit_amount]': String(PLEDGE_AMOUNT_USD * 100),
-          'line_items[0][price_data][product_data][name]': 'Heirloom Founder — Lifetime',
-          'line_items[0][price_data][product_data][description]': 'One-time lifetime Family-tier access for your bloodline, a Founder number, and your name in the continuity record.',
-          'line_items[0][quantity]': '1',
-          'metadata[type]': 'founder_pledge',
-          'metadata[pledge_id]': id,
-          'payment_intent_data[metadata][type]': 'founder_pledge',
-          'payment_intent_data[metadata][pledge_id]': id,
-        }),
-      });
-      if (stripeRes.ok) {
-        const session = (await stripeRes.json()) as { id: string; url: string };
-        checkoutUrl = session.url;
-        await c.env.DB.prepare(
-          `UPDATE founder_pledges SET stripe_session_id = ?, updated_at = datetime('now') WHERE id = ?`,
-        ).bind(session.id, id).run();
-      } else {
-        console.error('Stripe Checkout creation failed', await stripeRes.text());
-      }
-    } catch (err) {
-      console.error('Stripe Checkout error', err);
-    }
-  }
-
-  // Notify admin.
-  const adminEmail = (c.env as AppEnv['Bindings'] & { ADMIN_NOTIFICATION_EMAIL?: string }).ADMIN_NOTIFICATION_EMAIL ?? 'admin@heirloom.blue';
-  try {
-    await sendEmail(c.env, {
-      from: 'Heirloom <noreply@heirloom.blue>',
-      to: adminEmail,
-      subject: `New Founder pledge — ${name}`,
-      html: `
-        <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; padding: 32px;">
-          <p style="font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: #b07a4a;">Founder Pledge</p>
-          <h2 style="font-weight: 300; font-size: 28px; margin: 8px 0 24px;">${escapeHtml(name)}</h2>
-          <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-          ${familyName ? `<p><strong>Family:</strong> ${escapeHtml(familyName)}</p>` : ''}
-          ${notes ? `<p style="white-space: pre-wrap;"><strong>Notes:</strong><br>${escapeHtml(notes)}</p>` : ''}
-          <hr style="border: none; border-top: 1px solid rgba(0,0,0,0.1); margin: 24px 0;">
-          <p style="font-size: 14px; color: rgba(0,0,0,0.6);">
-            Send a Stripe payment link for $${PLEDGE_AMOUNT_USD}. Once paid, mark as PAID via the admin panel —
-            that will assign the pledge number and trigger the Founder welcome flow.
-          </p>
-        </div>
-      `,
-    }, 'FOUNDER_PLEDGE');
-  } catch (err) {
-    console.error('founder pledge admin notify failed', err);
-  }
-
-  // Acknowledge to the prospective Founder.
-  try {
-    await sendEmail(c.env, {
-      from: 'Heirloom <noreply@heirloom.blue>',
-      to: email,
-      subject: 'Thank you — your Founder pledge',
-      html: `
-        <div style="font-family: Georgia, serif; max-width: 560px; margin: 0 auto; padding: 32px; line-height: 1.7;">
-          <p style="font-size: 12px; letter-spacing: 0.3em; text-transform: uppercase; color: #b07a4a;">Founder pledge</p>
-          <h2 style="font-weight: 300; font-size: 28px; margin: 8px 0 24px;">Thank you, ${escapeHtml(name.split(' ')[0])}.</h2>
-          <p>The Founder tier is capped at the first hundred families. Your pledge is recorded.</p>
-          <p>We will be in touch within the next two business days with a payment link and the next steps. Once paid, you'll receive a Founder number, lifetime Family-tier access for your bloodline, and your name in the continuity record.</p>
-          <p style="margin-top: 24px;">— The Heirloom team</p>
-        </div>
-      `,
-    }, 'FOUNDER_PLEDGE_ACK');
-  } catch (err) {
-    console.error('founder pledge ack failed', err);
-  }
-
-  return c.json({
-    ok: true,
-    id,
-    status: 'PLEDGED',
-    checkout_url: checkoutUrl,
-    message: checkoutUrl
-      ? 'Redirecting to secure checkout for the lifetime pledge.'
-      : 'Pledge received. We will be in touch within two business days with payment instructions.',
-  });
+  // Founder SKU withdrawn from sale — pledges are CLOSED. Server gate (not just
+  // the removed UI) so a direct POST can't open a Stripe checkout. /count,
+  // /by-session and admin mark-paid stay live so in-flight pledges still resolve.
+  return c.json({ error: 'Founder pledges are closed.', closed: true }, 410);
 });
 
 // Public: lookup the pledge by Stripe session id. Used by /founder/welcome
@@ -196,7 +62,3 @@ founderRoutes.get('/count', async (c) => {
     pledge_amount_usd: PLEDGE_AMOUNT_USD,
   });
 });
-
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}

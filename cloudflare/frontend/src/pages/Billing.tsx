@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { billingApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
@@ -157,12 +156,6 @@ export function Billing() {
           </div>
 
           {/* Plan actions */}
-          {!isFounder && (
-            <div style={ROW}>
-              <span style={LABEL}>founder · lifetime</span>
-              <Link to="/founder" className="billing-action" style={ACTION}>become a founder →</Link>
-            </div>
-          )}
           {currentTier === 'FAMILY' && (
             <div style={ROW}>
               <span style={LABEL}>annual billing</span>

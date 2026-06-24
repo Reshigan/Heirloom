@@ -56,7 +56,6 @@ const LegacyPlan = lazy(() => import('./pages/LegacyPlan').then(m => ({ default:
 const StoryArtifact = lazy(() => import('./pages/StoryArtifact').then(m => ({ default: m.StoryArtifact })));
 const LifeEvents = lazy(() => import('./pages/LifeEvents').then(m => ({ default: m.LifeEvents })));
 const RecipientExperience = lazy(() => import('./pages/RecipientExperience').then(m => ({ default: m.RecipientExperience })));
-const Founder = lazy(() => import('./pages/Founder').then(m => ({ default: m.Founder })));
 const FounderWelcome = lazy(() => import('./pages/FounderWelcome').then(m => ({ default: m.FounderWelcome })));
 const MemoryRoom = lazy(() => import('./pages/MemoryRoom').then(m => ({ default: m.MemoryRoom })));
 const StoryView = lazy(() => import('./pages/StoryView').then(m => ({ default: m.StoryView })));
@@ -331,7 +330,9 @@ export default function App() {
                               <Route path="/terms" element={<Terms />} />
                               <Route path="/contact" element={<Contact />} />
                               <Route path="/unsubscribe" element={<Unsubscribe />} />
-                                                            <Route path="/founder" element={<Founder />} />
+                                                            {/* Founder SKU withdrawn from sale — the page redirects to pricing.
+                                                                /founder/welcome stays live for in-flight Stripe callbacks. */}
+                                                            <Route path="/founder" element={<Navigate to="/pricing" replace />} />
                                                             <Route path="/founder/welcome" element={<FounderWelcome />} />
                                                             <Route path="/memory-room/:token" element={<MemoryRoom />} />
                                                             <Route path="/story/:token" element={<StoryView />} />

@@ -45,7 +45,6 @@ const TIERS: {
 }[] = [
   { id: 'free', name: 'Free', price: PLAN_PRICE.FREE.amount, sub: PLAN_PRICE.FREE.cycle, body: '1 thread · 500 MB · try every feature' },
   { id: 'family', name: 'Family', price: PLAN_PRICE.FAMILY.monthly, sub: PLAN_PRICE.FAMILY.perMonth, body: 'unlimited · up to 5 members · voice · sealed notes' },
-  { id: 'founder', name: 'Founder', price: PLAN_PRICE.FOUNDER.amount, sub: PLAN_PRICE.FOUNDER.cycle, body: 'family forever · name in continuity record' },
 ];
 
 import { EASE } from '../loom/motion';
@@ -73,7 +72,7 @@ export function Signup() {
   });
   const [tier, setTier] = useState<Tier>(() => {
     const t = searchParams.get('tier')?.toLowerCase();
-    return t === 'free' || t === 'founder' || t === 'family' ? t : 'family';
+    return t === 'free' || t === 'family' ? t : 'family';
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<SignupErrors>({});
@@ -140,11 +139,9 @@ export function Signup() {
       }
       // Server-held AES-GCM: entries are encrypted at rest with a platform-held
       // key, so signup provisions NO client passphrase vault. Route straight on.
-      // Founder is a one-time purchase with no trial — route to /founder to
-      // complete payment. Family/Free first run the First Thread ceremony
-      // (/begin), which then hands off into the product tour + first-entry
-      // onboarding. A deep-link redirect always takes precedence.
-      navigate(safeRedirect(redirectUrl, tier === 'founder' ? '/founder' : '/begin'));
+      // Every tier runs the First Thread ceremony (/begin), which hands off into
+      // the product tour + first-entry onboarding. A deep-link redirect wins.
+      navigate(safeRedirect(redirectUrl, '/begin'));
     } catch (err: any) {
       setErrors({ submit: err.response?.data?.error || 'Failed to create account' });
     } finally {

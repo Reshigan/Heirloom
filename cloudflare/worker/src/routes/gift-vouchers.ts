@@ -197,13 +197,7 @@ giftVoucherRoutes.get('/pricing', async (c) => {
         monthly: money(prices.FAMILY?.monthly),
         yearly: money(prices.FAMILY?.yearly) && { ...money(prices.FAMILY?.yearly)!, savings: '2 months free' },
       },
-      {
-        id: 'LEGACY',
-        name: 'Founder',
-        description: 'Lifetime, for every generation — paid once',
-        storage: '500 GB',
-        lifetime: money(prices.LEGACY?.lifetime) && { ...money(prices.LEGACY?.lifetime)!, note: 'once · lifetime' },
-      },
+      // Founder/LEGACY gift withdrawn — the Founder SKU is no longer sold.
     ],
   });
 });
@@ -219,7 +213,9 @@ giftVoucherRoutes.post('/checkout', async (c) => {
   
   const tierU = tier.toUpperCase();
   const cycle = billingCycle.toLowerCase();
-  const validTiers = ['FAMILY', 'LEGACY', 'FOREVER'];
+  // Founder/LEGACY withdrawn from sale — only FAMILY is giftable now. Server
+  // gate (not just the removed UI) so a direct POST can't buy the closed SKU.
+  const validTiers = ['FAMILY'];
   const validCycles = ['monthly', 'yearly', 'lifetime'];
 
   // STARTER is free — it is never sold as a gift voucher.

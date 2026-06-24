@@ -100,10 +100,11 @@ export function GiftSubscriptions() {
     return new Date(y, m - 1, d).toLocaleDateString();
   };
 
-  // Fallback mirrors the worker /gift pricing (canonical list $6.99 / $69 / $249,
-  // 10% gifter discount) so a slow API never flashes a wrong price. STARTER is
-  // free and not giftable; LEGACY brands as "Founder".
-  const tiers = pricing?.tiers || [
+  // Fallback mirrors the worker /gift pricing (canonical list $6.99 / $69, 10%
+  // gifter discount) so a slow API never flashes a wrong price. STARTER is free
+  // and not giftable. The Founder/LEGACY lifetime SKU is withdrawn from sale —
+  // filtered out even if the API still returns it, so it is never giftable.
+  const tiers = (pricing?.tiers || [
     {
       id: 'STARTER', name: 'Free', description: 'Anyone can begin a thread — no gift needed', storage: '500 MB', free: true,
       monthly: { amount: 0, display: 'Free' },
@@ -113,11 +114,7 @@ export function GiftSubscriptions() {
       monthly: { amount: 6.29, display: '$6.29', listAmount: PLAN_PRICE_NUM.FAMILY.monthly, listDisplay: `$${PLAN_PRICE_NUM.FAMILY.monthly.toFixed(2)}`, giftDiscount: '10% off' },
       yearly:  { amount: 62.1, display: '$62.10', listAmount: PLAN_PRICE_NUM.FAMILY.annual, listDisplay: `$${PLAN_PRICE_NUM.FAMILY.annual.toFixed(2)}`, giftDiscount: '10% off', savings: '2 months free' },
     },
-    {
-      id: 'LEGACY', name: 'Founder', description: 'Lifetime, for every generation — paid once', storage: '500 GB',
-      lifetime: { amount: 224.1, display: '$224.10', listAmount: PLAN_PRICE_NUM.FOUNDER.lifetime, listDisplay: `$${PLAN_PRICE_NUM.FOUNDER.lifetime.toFixed(2)}`, giftDiscount: '10% off', note: 'once · lifetime' },
-    },
-  ];
+  ]).filter((t: any) => t.id !== 'LEGACY');
 
   // Get pricing info for selected period. LEGACY is always lifetime (ignores
   // the monthly/annual toggle); FAMILY follows the toggle; STARTER is the free
@@ -135,7 +132,7 @@ export function GiftSubscriptions() {
 
   const canProceed = () => {
     switch (step) {
-      case 1: return selectedTier === 'FAMILY' || selectedTier === 'LEGACY';
+      case 1: return selectedTier === 'FAMILY';
       case 2: return !!(formData.recipientName && formData.recipientEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.recipientEmail));
       case 3: return !!(formData.purchaserName && formData.purchaserEmail && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.purchaserEmail));
       default: return true;
