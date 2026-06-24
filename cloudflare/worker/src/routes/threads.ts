@@ -544,8 +544,29 @@ threadsRoutes.get('/:id/entries', async (c) => {
   args.push(limit, offset);
 
   const rows = await c.env.DB.prepare(sql).bind(...args).all();
-  return c.json({ entries: rows.results });
+
+  // Server-side seal enforcement. A row with an unresolved pending_lock must NOT
+  // hand its body (or media refs) to anyone but its author — the gate was
+  // previously client-only (ThreadDetail), so any member could read a sealed
+  // 30-year / after-death note straight off this endpoint. The author always
+  // keeps their own words (append-only). Keep `title` so the cloth can still
+  // render "a sealed note until …".
+  // ponytail: null the body + media handles only; voice/memory routes have their
+  // own membership checks, but withholding the ids here removes the easy pull.
+  const entries = (rows.results as Record<string, unknown>[]).map((row) => redactSealedEntry(row, member.id));
+  return c.json({ entries });
 });
+
+// Withhold a sealed entry's body from anyone but its author. A row carrying an
+// unresolved `pending_lock` is a time-locked / after-death note; only the author
+// (append-only: never loses own words) may read it before the lock resolves.
+// Returns a copy with the body + media handles nulled, or the row unchanged.
+export function redactSealedEntry(row: Record<string, unknown>, callerMemberId: string): Record<string, unknown> {
+  if (row.pending_lock != null && row.author_member_id !== callerMemberId) {
+    return { ...row, body_ciphertext: null, body_iv: null, body_auth_tag: null, voice_recording_id: null, memory_id: null };
+  }
+  return row;
+}
 
 // POST /api/threads/:id/entries/:entryId/comments — cross-generational comment
 threadsRoutes.post('/:id/entries/:entryId/comments', async (c) => {
