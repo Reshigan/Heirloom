@@ -160,25 +160,10 @@ function variantToPostizPlatform(p: PlatformKey): string {
   // Postiz canonical names — kept here so changing them doesn't require
   // touching post.ts elsewhere.
   switch (p) {
-    case 'instagram':
-    case 'reels':
-      return 'instagram';
-    case 'tiktok':
-      return 'tiktok';
-    case 'pinterest':
-      return 'pinterest';
     case 'facebook':
       return 'facebook';
-    case 'linkedin':
-      return 'linkedin';
-    case 'x':
-      return 'twitter';
-    case 'threads':
-      return 'threads';
     case 'bluesky':
       return 'bluesky';
-    case 'youtubeshorts':
-      return 'youtube';
   }
 }
 
@@ -231,107 +216,17 @@ async function postFacebook(input: PostInput): Promise<PostResult> {
   }
 
   // Link-in-first-comment: Facebook demotes posts with links in the caption by ~50%.
-  // Post the CTA link as the first comment so reach is preserved but the link is still visible.
+  // Post the link as the first comment so reach is preserved but the link is still visible.
   if (json.id) {
     await fetch(`https://graph.facebook.com/v21.0/${json.id}/comments`, {
       method: "POST",
       body: new URLSearchParams({
-        message: "→ Start your family's thread: https://heirloom.blue",
+        message: "Some things are meant to be kept → heirloom.blue",
         access_token: token,
       }),
     }).catch(() => undefined);
   }
 
-  return { platform: input.variant.platform, ok: true, id: json.id, mode: "direct" };
-}
-
-async function postInstagram(input: PostInput): Promise<PostResult> {
-  // IG requires a 2-step container -> publish flow. Only image/video URL,
-  // no plain-text posts.
-  const token = process.env.META_PAGE_ACCESS_TOKEN;
-  const igUserId = process.env.META_IG_USER_ID;
-  if (!token || !igUserId || !input.imageUrl) return queue(input);
-
-  const isReel = input.variant.platform === "reels";
-  const containerBody = new URLSearchParams({
-    [isReel ? "video_url" : "image_url"]: input.imageUrl,
-    caption: caption(input.variant),
-    access_token: token,
-  });
-  if (isReel) containerBody.set("media_type", "REELS");
-
-  const containerRes = await fetch(`https://graph.facebook.com/v21.0/${igUserId}/media`, {
-    method: "POST",
-    body: containerBody,
-  });
-  const container = (await containerRes.json().catch(() => ({}))) as { id?: string; error?: { message: string } };
-  if (!containerRes.ok || !container.id) {
-    return { platform: input.variant.platform, ok: false, error: container.error?.message ?? `HTTP ${containerRes.status}`, mode: "direct" };
-  }
-
-  const publishRes = await fetch(`https://graph.facebook.com/v21.0/${igUserId}/media_publish`, {
-    method: "POST",
-    body: new URLSearchParams({ creation_id: container.id, access_token: token }),
-  });
-  const publish = (await publishRes.json().catch(() => ({}))) as { id?: string; error?: { message: string } };
-  if (!publishRes.ok || !publish.id) {
-    return { platform: input.variant.platform, ok: false, error: publish.error?.message ?? `HTTP ${publishRes.status}`, mode: "direct" };
-  }
-  return { platform: input.variant.platform, ok: true, id: publish.id, mode: "direct" };
-}
-
-async function postLinkedIn(input: PostInput): Promise<PostResult> {
-  const token = process.env.LINKEDIN_ACCESS_TOKEN;
-  const author = process.env.LINKEDIN_AUTHOR_URN; // e.g. "urn:li:organization:123"
-  if (!token || !author) return queue(input);
-
-  const body = {
-    author,
-    lifecycleState: "PUBLISHED",
-    specificContent: {
-      "com.linkedin.ugc.ShareContent": {
-        shareCommentary: { text: caption(input.variant) },
-        shareMediaCategory: "NONE",
-      },
-    },
-    visibility: { "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC" },
-  };
-
-  const res = await fetch("https://api.linkedin.com/v2/ugcPosts", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      "X-Restli-Protocol-Version": "2.0.0",
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    return { platform: input.variant.platform, ok: false, error: `HTTP ${res.status}`, mode: "direct" };
-  }
-  const id = res.headers.get("x-restli-id") ?? undefined;
-  return { platform: input.variant.platform, ok: true, id, mode: "direct" };
-}
-
-async function postPinterest(input: PostInput): Promise<PostResult> {
-  const token = process.env.PINTEREST_ACCESS_TOKEN;
-  const boardId = process.env.PINTEREST_BOARD_ID;
-  if (!token || !boardId || !input.imageUrl) return queue(input);
-
-  const res = await fetch("https://api.pinterest.com/v5/pins", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      board_id: boardId,
-      title: input.variant.caption.split("\n")[0].slice(0, 100),
-      description: caption(input.variant),
-      media_source: { source_type: "image_url", url: input.imageUrl },
-    }),
-  });
-  const json = (await res.json().catch(() => ({}))) as { id?: string; message?: string };
-  if (!res.ok || !json.id) {
-    return { platform: input.variant.platform, ok: false, error: json.message ?? `HTTP ${res.status}`, mode: "direct" };
-  }
   return { platform: input.variant.platform, ok: true, id: json.id, mode: "direct" };
 }
 
@@ -439,7 +334,7 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
     if (isFirst && imageBlob) {
       record.embed = {
         $type: "app.bsky.embed.images",
-        images: [{ image: imageBlob, alt: input.imageAlt ?? "Heirloom — start your family's thousand-year thread." }],
+        images: [{ image: imageBlob, alt: input.imageAlt ?? "Heirloom — some things are meant to be kept." }],
       };
     }
 
@@ -452,7 +347,7 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
         external: {
           uri: "https://heirloom.blue",
           title: "Heirloom",
-          description: "Start your family's thousand-year thread.",
+          description: "Some things are meant to be kept.",
           ...(imageBlob ? { thumb: imageBlob } : {}),
         },
       };
@@ -512,14 +407,5 @@ ${caption(input.variant)}
 
 const DISPATCH: Record<PlatformKey, (i: PostInput) => Promise<PostResult>> = {
   facebook: postFacebook,
-  instagram: postInstagram,
-  reels: postInstagram,
-  linkedin: postLinkedIn,
-  pinterest: postPinterest,
   bluesky: postBluesky,
-  // No free direct API → queue mode for now.
-  tiktok: queue,
-  youtubeshorts: queue,
-  threads: queue, // Threads API exists but in beta as of 2025/26 — queue for safety.
-  x: queue, // X v2 free tier removed posting; queue.
 };

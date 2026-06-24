@@ -1,0 +1,74 @@
+name: Social monthly plan
+
+# System-aware monthly content planner.
+# See marketing/PLAYBOOK.md and marketing/automation/src/plan.ts.
+#
+# Once a month (06:00 UTC on the 1st) this builds the WHOLE next month of posts
+# up front — biased by live system signals (how many families have signed up,
+# and whether they lean toward voices / letters / written memories) — and commits
+# the result to marketing/automation/output/plan/YYYY-MM.json.
+#
+# The daily Social autopost run then prefers the planned post for each slot,
+# falling back to live generation when no plan entry exists. So next month's feed
+# already reflects what's happening on the system this month; the month after
+# re-reads the signals and shifts again.
+
+on:
+  schedule:
+    - cron: "0 6 1 * *" # 06:00 UTC on the 1st of each month → plans the next month
+  workflow_dispatch:
+    inputs:
+      month:
+        description: "Target month YYYY-MM (blank = next month)"
+        required: false
+        default: ""
+
+concurrency:
+  group: social-monthly-plan
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: marketing/automation/package.json
+
+      - name: Install
+        working-directory: marketing/automation
+        run: npm install --no-audit --no-fund
+
+      - name: Plan next month
+        working-directory: marketing/automation
+        env:
+          # Generation provider — same selection as the daily run. Cloudflare
+          # Workers AI (free) preferred, Anthropic fallback. Dormant if neither.
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_AI_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_AI_MODEL: ${{ vars.CLOUDFLARE_AI_MODEL }}
+          GEN_PROVIDER: ${{ vars.GEN_PROVIDER }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-4-6' }}
+          # System-signals source: aggregate counts only, guarded by the
+          # long-lived SOCIAL_UPLOAD_TOKEN (the worker's GET /api/admin/social/
+          # signals). Absent → the planner runs signal-blind, never fails.
+          HEIRLOOM_API_URL: ${{ vars.HEIRLOOM_API_URL || 'https://api.heirloom.blue' }}
+          SOCIAL_UPLOAD_TOKEN: ${{ secrets.SOCIAL_UPLOAD_TOKEN }}
+        run: npm run plan-month -- "${{ github.event.inputs.month }}"
+
+      - name: Commit plan
+        run: |
+          git config user.name "heirloom-autopost[bot]"
+          git config user.email "noreply@heirloom.blue"
+          # output/ is gitignored, so force-add the plan file the daily run reads.
+          git add -f marketing/automation/output/plan/*.json 2>/dev/null || true
+          git diff --staged --quiet || git commit -m "chore(plan): monthly content plan $(date -u +%Y-%m)"
+          git push || true

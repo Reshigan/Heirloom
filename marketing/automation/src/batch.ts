@@ -18,14 +18,7 @@ import { generateSourcePost } from "./generate.js";
 import { generateVariants } from "./variants.js";
 import { PlatformKey } from "./voice.js";
 
-const PLATFORMS: PlatformKey[] = [
-  "instagram",
-  "tiktok",
-  "pinterest",
-  "facebook",
-  "linkedin",
-  "x",
-];
+const PLATFORMS: PlatformKey[] = ["facebook", "bluesky"];
 
 // ISO week → Monday date (UTC).
 function mondayOfISOWeek(week: number, year: number): Date {

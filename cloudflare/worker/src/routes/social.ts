@@ -18,15 +18,16 @@ socialRoutes.use('*', async (c, next) => {
 
   const token = authHeader.substring(7);
 
-  // The autopost engine uploads the freshly-rendered weave image on an
-  // unattended daily schedule, where a KV admin session (which expires) is
-  // impractical. Accept a long-lived shared secret for the image-upload
-  // endpoint ONLY; every other social-admin route still requires a real
+  // The autopost engine runs unattended on a schedule, where a KV admin session
+  // (which expires) is impractical. Accept a long-lived shared secret for the
+  // two service endpoints it needs — uploading the rendered weave image, and
+  // reading aggregate-only system signals to bias the monthly content plan.
+  // Both return no PII; every other social-admin route still requires a real
   // admin session.
   if (
     c.env.SOCIAL_UPLOAD_TOKEN &&
     token === c.env.SOCIAL_UPLOAD_TOKEN &&
-    c.req.path.endsWith('/upload-image')
+    (c.req.path.endsWith('/upload-image') || c.req.path.endsWith('/signals'))
   ) {
     c.set('adminId', 'autopost');
     c.set('adminRole', 'service');
@@ -44,6 +45,31 @@ socialRoutes.use('*', async (c, next) => {
   c.set('adminRole', session.role);
 
   await next();
+});
+
+// GET /signals - aggregate-only system state for the monthly content planner.
+// No PII, no row data — just counts, so the planner can lean into whatever the
+// families are actually doing (recording voices vs writing letters vs nothing
+// yet). Guarded by SOCIAL_UPLOAD_TOKEN (see middleware above) so the unattended
+// monthly cron can read it without an expiring admin session.
+socialRoutes.get('/signals', async (c) => {
+  const s = await c.env.DB.prepare(`
+    SELECT
+      (SELECT COUNT(*) FROM users) as users,
+      (SELECT COUNT(*) FROM family_members) as family_members,
+      (SELECT COUNT(*) FROM memories) as memories,
+      (SELECT COUNT(*) FROM letters) as letters,
+      (SELECT COUNT(*) FROM voice_recordings) as voice
+  `).first();
+
+  return c.json({
+    users: Number(s?.users ?? 0),
+    familyMembers: Number(s?.family_members ?? 0),
+    memories: Number(s?.memories ?? 0),
+    letters: Number(s?.letters ?? 0),
+    voiceRecordings: Number(s?.voice ?? 0),
+    asOf: new Date().toISOString().slice(0, 10),
+  });
 });
 
 // POST /bulk-load - Load posts for a week from the content calendar

@@ -18,23 +18,12 @@ import { monthlyHashtagPool, rotateForSlot } from "./hashtags.js";
 const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 
 const variantSchema = z.object({
-  platform: z.enum([
-    "instagram",
-    "reels",
-    "tiktok",
-    "pinterest",
-    "facebook",
-    "linkedin",
-    "x",
-    "threads",
-    "bluesky",
-    "youtubeshorts",
-  ]),
+  platform: z.enum(["facebook", "bluesky"]),
   caption: z.string().min(10),
-  // Clamp rather than reject: the Instagram guideline asks for up to 12 tags, so
-  // a valid IG variant would overflow a hard .max(10) and kill the whole daily
-  // run. Trim to 12 (the highest any platform guideline requests).
-  hashtags: z.array(z.string()).transform((tags) => tags.slice(0, 12)),
+  // Clamp rather than reject: both platforms ask for at most 3 quiet tags, so a
+  // model that returns a tag wall would overflow a hard .max() and kill the whole
+  // run. Trim to 3 (the highest either guideline requests).
+  hashtags: z.array(z.string()).transform((tags) => tags.slice(0, 3)),
   imageSpec: z.object({
     aspectRatio: z.string(),
     width: z.number(),
@@ -49,16 +38,8 @@ const variantsSchema = z.object({
 });
 
 const IMAGE_SPECS: Record<PlatformKey, { aspectRatio: string; width: number; height: number }> = {
-  instagram: { aspectRatio: "1:1", width: 1080, height: 1080 },
-  reels: { aspectRatio: "9:16", width: 1080, height: 1920 },
-  tiktok: { aspectRatio: "9:16", width: 1080, height: 1920 },
-  pinterest: { aspectRatio: "2:3", width: 1000, height: 1500 },
   facebook: { aspectRatio: "1.91:1", width: 1200, height: 630 },
-  linkedin: { aspectRatio: "1.91:1", width: 1200, height: 627 },
-  x: { aspectRatio: "16:9", width: 1600, height: 900 },
-  threads: { aspectRatio: "1:1", width: 1080, height: 1080 },
   bluesky: { aspectRatio: "16:9", width: 1600, height: 900 },
-  youtubeshorts: { aspectRatio: "9:16", width: 1080, height: 1920 },
 };
 
 const client = new Anthropic({
@@ -123,12 +104,9 @@ export async function generateVariants({ source, platforms, seasonHashtags }: Va
     .map((p) => `### ${p}\n${PLATFORM_GUIDELINES[p]}`)
     .join("\n\n");
 
-  // Every platform now carries hashtags, so seasonal discovery tags are
-  // eligible everywhere; per-platform counts (below) keep them proportionate.
-  const HASHTAG_PLATFORMS: PlatformKey[] = [
-    "instagram", "reels", "tiktok", "threads", "youtubeshorts",
-    "pinterest", "facebook", "linkedin", "x", "bluesky",
-  ];
+  // Both surfaces carry a couple of quiet community tags, so seasonal discovery
+  // tags are eligible on either; per-platform counts (below) keep them sparse.
+  const HASHTAG_PLATFORMS: PlatformKey[] = ["facebook", "bluesky"];
   const seasonBlock =
     seasonHashtags && seasonHashtags.length
       ? `\n\nACTIVE SEASON — high-intent discovery tags: ${seasonHashtags.join(", ")}.
@@ -147,12 +125,9 @@ Platforms to produce variants for:
 
 ${platformBlock}
 
-HASHTAG RULES — follow exactly. EVERY platform's hashtags array MUST be non-empty; pick tags from the candidates above (and the active-season tags when present) that fit each platform's audience. Few and relevant beats many — tag walls get posts downranked everywhere in 2026:
-- instagram, reels, tiktok, youtubeshorts: 4-5 tags. At most ONE broad tag (family, ancestors, memories) — the rest mid/niche.
-- pinterest, linkedin: 3-5 tags, keyword-rich.
-- threads: exactly 1 (Threads supports a single topic tag).
-- facebook, bluesky: 2-3 tags (Bluesky tags count against the 300-char budget).
-- x: 1-2 tags (they count against the 260-char caption budget — keep the caption short enough that caption + tags fit).
+HASHTAG RULES — follow exactly. Few and quiet beats many — tag walls get posts downranked and read as marketing, which kills both surfaces. Pick tags from the candidates above (and the active-season tags when present) that fit a family-keeper audience. Calm community tags only (#familystories, #familyhistory) — never branded, never decorative:
+- facebook: 0-2 tags.
+- bluesky: 0-2 tags, and they ride the FINAL post only, counting against the 300-char budget.
 
 Do NOT write hashtags inside the caption text — they go in the hashtags array ONLY and are appended automatically. The caption field must NEVER contain any # symbols.
 
@@ -160,16 +135,16 @@ The caption is ONE single post. NEVER lay out a multi-post thread inside it. NEV
 
 CAPTION SEO — search now finds posts through caption KEYWORDS more than hashtags (≈70/30 on Instagram). Work one natural search phrase into each caption where it doesn't bend the sentence — phrases real people type: "questions to ask your dad", "family stories", "record your parents' voice", "family history". Never stuff; one phrase, naturally placed.
 
-SHARE TRIGGER — on instagram, facebook, threads and bluesky, where it fits the post, end the caption with ONE short line that gives the reader something to do with another person: tag a sibling, send it to the family group chat, or reply with their own answer ("Tag the sibling who needs to ask this." / "Send this to the family group chat."). Comments and sends are the strongest ranking signals every platform has. Skip it when the post is somber — never bolt it onto grief.
+SHARE TRIGGER — where it fits the post, end the Facebook caption with ONE short line that gives the reader something to do with another person: a gentle question about their own experience, or "Send this to the family group chat." Comments and sends are the strongest ranking signals Facebook has. Never bolt it onto grief, and never use "tag 3 friends"-style bait. On Bluesky the action is the final thread post, not a share-beg.
 
 Produce strict JSON. No prose. No markdown fences:
 
 {
   "variants": [
     {
-      "platform": "instagram" | "reels" | "tiktok" | "pinterest" | "facebook" | "linkedin" | "x" | "threads" | "bluesky" | "youtubeshorts",
+      "platform": "facebook" | "bluesky",
       "caption": "Full caption text only — no # symbols ever.",
-      "hashtags": ["tagone", "tagtwo", "tagthree"],
+      "hashtags": ["tagone", "tagtwo"],
       "imageSpec": { "aspectRatio": "...", "width": ..., "height": ... }
     }
   ]
@@ -218,11 +193,9 @@ JSON only.`;
   // hashtag platform means a published post with NO hashtags (exactly the
   // Facebook "old type, no #'s" symptom). Backfill any short/empty array from
   // the source candidates + active-season tags so this can't reach the wire.
-  const HASHTAG_MINIMUMS: Partial<Record<PlatformKey, number>> = {
-    instagram: 4, reels: 4, tiktok: 4, youtubeshorts: 4,
-    threads: 1, pinterest: 3,
-    facebook: 2, linkedin: 3, bluesky: 2, x: 1,
-  };
+  // No forced minimum — the 2026 brand allows zero tags. A quiet post with no
+  // hashtags is correct here, so there is nothing to backfill up to.
+  const HASHTAG_MINIMUMS: Partial<Record<PlatformKey, number>> = {};
   // Backfill pool: season tags first (highest intent), then the source's picks,
   // then the month's rotation pool — rotated by slot so two posts never share
   // the exact same fallback block (identical repeated tag blocks read as spam).
@@ -236,9 +209,7 @@ JSON only.`;
   // Hard caps per 2026 platform norms — a model that ignores the prompt and
   // returns a tag wall would otherwise get the account downranked.
   const HASHTAG_MAXIMUMS: Partial<Record<PlatformKey, number>> = {
-    instagram: 5, reels: 5, tiktok: 5, youtubeshorts: 5,
-    threads: 1, pinterest: 5,
-    facebook: 3, linkedin: 5, bluesky: 3, x: 2,
+    facebook: 2, bluesky: 2,
   };
   for (const v of result.variants) {
     // Strip any thread-plan scaffolding the model leaked into the single-post

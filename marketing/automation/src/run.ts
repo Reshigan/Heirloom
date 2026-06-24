@@ -20,18 +20,12 @@ import { generateVariants, sanitizeCaption } from "./variants.js";
 import { post } from "./post.js";
 import { pullMetrics, topHooks } from "./metrics.js";
 import { engage } from "./engage.js";
+import { planMonth, plannedPostFor } from "./plan.js";
 import { PlatformKey } from "./voice.js";
 import { renderWeave, uploadWeave } from "./image.js";
 import type { Variant } from "./variants.js";
 
-const DEFAULT_PLATFORMS: PlatformKey[] = [
-  "instagram",
-  "tiktok",
-  "pinterest",
-  "facebook",
-  "linkedin",
-  "x",
-];
+const DEFAULT_PLATFORMS: PlatformKey[] = ["facebook", "bluesky"];
 
 function parsePlatforms(): PlatformKey[] {
   const env = process.env.PLATFORMS;
@@ -72,9 +66,27 @@ async function generate(): Promise<SourcePost> {
   const dateKey = date.toISOString().slice(0, 10);
   const hour = date.getUTCHours();
 
+  const ledger = await readDayLedger(dateKey);
+
+  // Prefer the pre-built monthly plan for this exact slot. The monthly cron
+  // (plan-month) generates the whole month up front, biased by live system
+  // signals — so using it here means the day's post already reflects "what's
+  // happening on the system". Falls back to live generation below when no plan
+  // entry exists (zero regression if the monthly job never ran).
+  const planned = await plannedPostFor(date);
+  if (planned) {
+    console.log(`[generate] using planned post for ${dateKey} ${hour}:00 (monthly plan)`);
+    await writeJson(`output/${dateKey}/source.json`, { source: planned });
+    await writeJson(`output/source.json`, { source: planned });
+    await writeJson(`output/${dateKey}/ledger.json`, [
+      ...ledger,
+      { hour, hook: planned.hook, saying: planned.saying },
+    ]);
+    return planned;
+  }
+
   // Avoid-list = anything already posted today (same-day distinctness — the whole
   // point of multiple daily slots) plus any top historical hooks.
-  const ledger = await readDayLedger(dateKey);
 
   // In-season variety: the day's first slot carries the seasonal theme; later
   // slots pull an evergreen theme so a peak window doesn't turn the feed into
@@ -111,17 +123,9 @@ async function generate(): Promise<SourcePost> {
 // native aspect ratio for that platform. Override any via env var.
 const BASE = process.env.SOCIAL_IMAGE_BASE_URL || "https://heirloom.blue";
 const IMAGES: Record<string, string> = {
-  // Square tapestry cloth — Instagram feed, TikTok thumbnail
-  instagram: process.env.SOCIAL_IMAGE_SQUARE || `${BASE}/social-square.png`,
-  tiktok:    process.env.SOCIAL_IMAGE_SQUARE || `${BASE}/social-square.png`,
-  // Vertical tapestry cloth — Pinterest pin (2:3)
-  pinterest: process.env.SOCIAL_IMAGE_VERTICAL || `${BASE}/social-vertical.png`,
-  // Landscape OG card (1200×630) — Bluesky, Twitter/X, LinkedIn, Facebook
-  bluesky:   process.env.SOCIAL_IMAGE_URL || `${BASE}/og-image.png`,
-  twitter:   process.env.SOCIAL_IMAGE_URL || `${BASE}/og-image.png`,
-  linkedin:  process.env.SOCIAL_IMAGE_URL || `${BASE}/og-image.png`,
-  facebook:  process.env.SOCIAL_IMAGE_URL || `${BASE}/og-image.png`,
-  threads:   process.env.SOCIAL_IMAGE_SQUARE || `${BASE}/social-square.png`,
+  // Landscape OG card (1200×630) — the static fallback for both surfaces.
+  facebook: process.env.SOCIAL_IMAGE_URL || `${BASE}/og-image.png`,
+  bluesky:  process.env.SOCIAL_IMAGE_URL || `${BASE}/og-image.png`,
 };
 const DEFAULT_IMAGE = process.env.SOCIAL_IMAGE_URL || `${BASE}/og-image.png`;
 
@@ -245,8 +249,6 @@ async function preview(): Promise<void> {
   // to queue when tokens are missing; this just makes it explicit for the
   // local preview command.
   delete process.env.META_PAGE_ACCESS_TOKEN;
-  delete process.env.LINKEDIN_ACCESS_TOKEN;
-  delete process.env.PINTEREST_ACCESS_TOKEN;
   delete process.env.BLUESKY_HANDLE;
   const source = await generate();
   await postAll(source);
@@ -345,7 +347,7 @@ async function updateBlueskyProfile(): Promise<void> {
     ...current,
     $type: "app.bsky.actor.profile",
     displayName: current.displayName ?? "Heirloom",
-    description: "Start your family's thousand-year thread. Every memory, every voice, every generation — woven together forever.\n\nheirloom.blue",
+    description: "Some things are meant to be kept. Write and record your family's voices, and set them to reach the people you mean them for — held safe across generations.\n\nheirloom.blue",
     avatar: avatarBlob,
   };
 
@@ -404,7 +406,7 @@ const cmd = process.argv[2] ?? "preview";
 // routes to the queue when tokens are missing), so a missing provider is the
 // only thing that should ever stop a run, and it stops it quietly. Add either
 // Cloudflare Workers AI (free) or Anthropic creds in repo settings to wake it.
-const NEEDS_LLM = new Set(["generate", "daily", "preview", "post", "purge"]);
+const NEEDS_LLM = new Set(["generate", "daily", "preview", "post", "purge", "plan-month"]);
 if (NEEDS_LLM.has(cmd) && !hasGenProvider()) {
   console.log(
     "[dormant] no generation provider configured — marketing engine is idle. " +
@@ -434,6 +436,23 @@ const handlers: Record<string, () => Promise<void>> = {
   // update-profile: refresh Bluesky avatar + bio (no post generated)
   "update-profile": async () => {
     await updateBlueskyProfile();
+  },
+  // plan-month: build the WHOLE next month of posts up front, biased by live
+  // system signals, into output/plan/YYYY-MM.json. The daily run then prefers
+  // that planned post per slot. Optional arg "YYYY-MM" overrides the target
+  // month (default: next month from today). Run by the monthly cron.
+  "plan-month": async () => {
+    const arg = process.argv[3];
+    let year: number, month: number;
+    if (arg && /^\d{4}-\d{2}$/.test(arg)) {
+      [year, month] = arg.split("-").map(Number);
+    } else {
+      const now = new Date();
+      year = now.getUTCFullYear();
+      month = now.getUTCMonth() + 2; // next month, 1-based
+      if (month > 12) { month = 1; year += 1; }
+    }
+    await planMonth(year, month);
   },
   // engage: daily organic-growth work-list — where a human should genuinely
   // reply (Bluesky threads) or comment (FB groups). Works with no LLM; enriches

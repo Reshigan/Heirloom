@@ -101,10 +101,9 @@ jobs:
           # Must equal the worker's SOCIAL_UPLOAD_TOKEN secret. Facebook/Bluesky
           # already get the weave via direct byte upload regardless of this.
           SOCIAL_UPLOAD_TOKEN: ${{ secrets.SOCIAL_UPLOAD_TOKEN }}
-          # Direct-posting strategy (no Postiz): the five platforms with free
-          # publishing APIs. tiktok/x/threads/youtube have no free API — add
-          # them back to generate manual-paste queue files if wanted.
-          PLATFORMS: ${{ vars.PLATFORMS || 'bluesky,facebook,linkedin,instagram,pinterest' }}
+          # Direct-posting strategy (no Postiz): Bluesky + Facebook only — the
+          # two surfaces the brand actively maintains. All others were retired.
+          PLATFORMS: ${{ vars.PLATFORMS || 'bluesky,facebook' }}
           SOCIAL_IMAGE_URL: ${{ vars.SOCIAL_IMAGE_URL }}
         run: npm run ${{ github.event.inputs.mode || 'daily' }}
 

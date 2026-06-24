@@ -69,6 +69,10 @@ interface GenerateInput {
   // slot draws a different one from the theme's pool — guaranteeing the day's
   // posts diverge instead of randomly colliding. Falls back to random.
   slotSeed?: number;
+  // Optional: a qualitative steer derived from live system signals (signals.ts)
+  // biasing the angle toward what families actually do here. Angle-only — it
+  // must never make the model cite counts or "other families".
+  signalHint?: string;
 }
 
 // Lazy — the Anthropic SDK throws on construction without a key, which would
@@ -79,11 +83,14 @@ function anthropic(): Anthropic {
   return _anthropic;
 }
 
-function buildUserPrompt({ theme, date, recentHooks, slotSeed }: GenerateInput): string {
+function buildUserPrompt({ theme, date, recentHooks, slotSeed, signalHint }: GenerateInput): string {
   const isoDate = date.toISOString().slice(0, 10);
   const dayOfWeek = date.toLocaleDateString("en-US", { weekday: "long" });
   const recent = recentHooks?.length
     ? `\n\nAlready posted — do NOT repeat the angle, opening, or phrasing of any of these. Take a genuinely different line:\n${recentHooks.map((h) => `- ${h}`).join("\n")}`
+    : "";
+  const steer = signalHint
+    ? `\n\nStrategic steer (shapes the angle only — never cite numbers, counts, or 'other families'): ${signalHint}`
     : "";
 
   // Deterministic per-slot rotation when a slot seed is given, so each of the
@@ -98,7 +105,7 @@ function buildUserPrompt({ theme, date, recentHooks, slotSeed }: GenerateInput):
 Theme: ${theme.title}
 Hook prompt (for inspiration only, don't copy): ${theme.hook}
 Angle: ${angle}
-Relation focus: ${theme.relation}${recent}
+Relation focus: ${theme.relation}${recent}${steer}
 
 Produce ONE source post we'll adapt across platforms. Output strict JSON, no prose:
 

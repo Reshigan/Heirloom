@@ -12,6 +12,7 @@
     "metrics": "tsx src/run.ts metrics",
     "purge": "tsx src/run.ts purge",
     "update-profile": "tsx src/run.ts update-profile",
+    "plan-month": "tsx src/run.ts plan-month",
     "seo:build": "tsx src/seo.ts",
     "typecheck": "tsc --noEmit"
   },
