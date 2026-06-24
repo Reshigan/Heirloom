@@ -1,31 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" role="img" aria-label="Heirloom">
-  <title>Heirloom favicon</title>
-  <defs>
-    <radialGradient id="favHalo" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#e0a062" stop-opacity="0.45"/>
-      <stop offset="100%" stop-color="#e0a062" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="favPip" cx="42%" cy="40%" r="65%">
-      <stop offset="0%" stop-color="#f0c074"/>
-      <stop offset="100%" stop-color="#e0a062"/>
-    </radialGradient>
-  </defs>
-
-  <rect width="48" height="48" fill="#0b0907"/>
-
-  <!-- Outer warps (under) -->
-  <g stroke="#f2e6d0" stroke-width="3.2" stroke-linecap="round" fill="none">
-    <line x1="18" y1="8" x2="18" y2="40"/>
-    <line x1="30" y1="8" x2="30" y2="40"/>
+  <title>Heirloom</title>
+  <rect width="48" height="48" fill="#070d14"/>
+  <g fill="none" stroke="#f2e6d0" stroke-width="1.6" stroke-linecap="round">
+    <circle cx="24" cy="24" r="6" stroke-opacity="0.92"/>
+    <circle cx="24" cy="24" r="12" stroke-opacity="0.55"/>
+    <circle cx="24" cy="24" r="18" stroke-opacity="0.28"/>
   </g>
-
-  <!-- Single weft, two segments gapping across centre, over the warps -->
-  <g stroke="#f2e6d0" stroke-width="3.2" stroke-linecap="round" fill="none">
-    <line x1="9" y1="24" x2="21" y2="24"/>
-    <line x1="27" y1="24" x2="39" y2="24"/>
-  </g>
-
-  <!-- Ember knot -->
-  <circle cx="24" cy="24" r="8" fill="url(#favHalo)"/>
-  <circle cx="24" cy="24" r="3" fill="url(#favPip)"/>
+  <line x1="4" y1="24" x2="44" y2="24" stroke="#e0a062" stroke-width="2" stroke-linecap="round"/>
 </svg>
