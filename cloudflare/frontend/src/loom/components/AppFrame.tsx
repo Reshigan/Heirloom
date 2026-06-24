@@ -21,8 +21,9 @@ export function AppFrame({
   left,
   right,
   nav = true,
-  // `role` is accepted in the prop type below (TODO(wave-3): PwaHome role-keyed
-  // rendering) but not yet read in the body — intentionally not destructured.
+  // `role` is the trial/free-becoming signal the frame already knows — used
+  // only to surface ONE static, ambient billing line (no fetching, no counter).
+  role,
 }: {
   children: ReactNode;
   width?: 'reading' | 'wide' | 'prose' | 'focus';
@@ -40,7 +41,7 @@ export function AppFrame({
   }
 
   return (
-    <Frame left={left} right={right}>
+    <Frame left={left} right={right} trial={role === 'trial'}>
       <div
         style={{
           maxWidth: WIDTH_TOKEN[width] ?? 'var(--page-max-reading)',

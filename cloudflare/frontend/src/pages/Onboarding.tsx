@@ -326,8 +326,9 @@ export function Onboarding() {
   // `woven` flag: true → render <WeaveCeremony/>, then advance to the invite.
   const [woven, setWoven] = useState(false);
 
-  // Invite
-  const [inviteEmail, setInviteEmail] = useState('');
+  // Invite — the whole bloodline at once. A small set of email rows; empties are
+  // ignored, the rest are de-duped and each gets its own invitation.
+  const [inviteEmails, setInviteEmails] = useState<string[]>(['', '']);
 
   // The thread already exists (created at signup). Resolve its id so the first
   // entry lands on it — prefer the stored defaultThreadId, fall back to the
@@ -421,10 +422,23 @@ export function Onboarding() {
   }
 
   async function submitInvite() {
-    if (!inviteEmail.trim()) {
+    const filled = inviteEmails.map((e) => e.trim()).filter(Boolean);
+    if (filled.length === 0) {
       finish();
       return;
     }
+    if (filled.some((e) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e))) {
+      setError('One of those addresses looks off — check it, or clear the row.');
+      return;
+    }
+    // De-dupe, case-insensitive, preserving order.
+    const seen = new Set<string>();
+    const emails = filled.filter((e) => {
+      const k = e.toLowerCase();
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
     setBusy(true);
     setError(null);
     try {
@@ -432,10 +446,10 @@ export function Onboarding() {
       // PendingInviteAcceptor relay redeems into thread_members. The old
       // familyReferralsApi.createInvite emailed /signup?ref= — a code Signup
       // never reads, so invitees never joined the family cloth.
-      await engagementApi.invite({ email: inviteEmail.trim() });
+      await Promise.all(emails.map((email) => engagementApi.invite({ email })));
       setInviteSent(true);
     } catch {
-      setError('Could not send the invitation — try again, or skip.');
+      setError('Could not send the invitations — try again, or skip.');
     } finally {
       setBusy(false);
     }
@@ -500,23 +514,46 @@ export function Onboarding() {
         <div style={eyebrowStyle}>The Bloodline</div>
         <h1 ref={headingRef} tabIndex={-1} style={{ ...questionStyle, outline: 'none' }}>Who else tends this thread?</h1>
         <p style={ledeStyle}>
-          Invite one person — a partner, a parent, a grown child. They'll receive an invitation to join.
+          Invite the whole bloodline — a partner, a parent, a grown child. Each receives an invitation to join.
         </p>
-        <div style={{ marginTop: 44 }}>
-          <input
-            style={inputStyle}
-            type="email"
-            value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.target.value)}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            onKeyDown={(e) => e.key === 'Enter' && handleNext()}
-            placeholder="name@example.com"
-            aria-label="Invite someone's email address"
-            aria-invalid={error ? 'true' : undefined}
-            aria-describedby={error ? 'onboarding-error' : undefined}
-          />
+        <div style={{ marginTop: 44, display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {inviteEmails.map((email, i) => (
+            <input
+              key={i}
+              style={inputStyle}
+              type="email"
+              value={email}
+              onChange={(e) =>
+                setInviteEmails((prev) => prev.map((v, j) => (j === i ? e.target.value : v)))
+              }
+              onFocus={onFocus}
+              onBlur={onBlur}
+              onKeyDown={(e) => e.key === 'Enter' && handleNext()}
+              placeholder="name@example.com"
+              aria-label={`Invite someone's email address, row ${i + 1}`}
+              aria-invalid={error ? 'true' : undefined}
+              aria-describedby={error ? 'onboarding-error' : undefined}
+            />
+          ))}
         </div>
+        <button
+          type="button"
+          onClick={() => setInviteEmails((prev) => [...prev, ''])}
+          style={{
+            marginTop: 18,
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
+            fontFamily: 'var(--mono)',
+            fontSize: 11,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-dim)',
+          }}
+        >
+          add another
+        </button>
 
         {/* One quiet hairline offer — only once a line has been woven. A calm
             Spectral sentence + a Space Mono copper text-link to keep the thread.

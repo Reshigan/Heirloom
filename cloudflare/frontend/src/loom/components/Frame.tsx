@@ -301,6 +301,10 @@ export interface FrameProps {
   left?: string;
   /** Primary right-side action link text (defaults to "compose →") */
   right?: ReactNode;
+  /** When the signed-in user is on a trial/free-becoming state, surface ONE
+      ambient, STATIC loss-aversion line linking to billing. No counter, no
+      escalation — the frame already knows the role; this never fetches. */
+  trial?: boolean;
   showEdge?: boolean;
   children: ReactNode;
   /** @deprecated Loom 3: nav links removed; prop accepted but ignored */
@@ -311,7 +315,7 @@ export interface FrameProps {
   showGrain?: boolean;
 }
 
-export function Frame({ left, right, showEdge = true, children }: FrameProps) {
+export function Frame({ left, right, trial, showEdge = true, children }: FrameProps) {
   const { pathname } = useLocation();
   const label = left ?? routeLabel(pathname);
   const entryCount = useEntryCount();
@@ -346,6 +350,16 @@ export function Frame({ left, right, showEdge = true, children }: FrameProps) {
             <>
               <span className="hl-topbar-label" style={{ color: 'var(--bone-low)' }}>·</span>
               <span className="hl-topbar-label" style={{ color: 'var(--bone)' }}>{label}</span>
+            </>
+          )}
+          {trial && (
+            <>
+              <span className="hl-topbar-label" aria-hidden style={{ color: 'var(--bone-low)' }}>·</span>
+              {/* STATIC ambient line — no days-remaining, no color/size escalation.
+                  Inherits the topbar's Space Mono uppercase letterspacing; bone-faint. */}
+              <Link to="/billing" className="hl-topbar-label hl-topbar-action" style={{ color: 'var(--bone-faint)', textDecoration: 'none' }}>
+                free thread · keep it forever
+              </Link>
             </>
           )}
         </span>
