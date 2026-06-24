@@ -11,7 +11,6 @@
 |---|---|---|
 | **`cloudflare/frontend/`** ⭐ | React 18 + Vite + TS + Tailwind | **THE LIVE, DEPLOYED web app + PWA.** Deployed to Cloudflare Pages via `.github/workflows/deploy-cloudflare.yml`. The `src/loom/` subsystem is the canonical cloth interface — `ClothCanvas3D`, `ClothShell`, `ClothBackdrop`, and room components. **This is the tree to edit for product/UX work.** |
 | `cloudflare/worker/`, `cloudflare/` ⭐ | Workers, D1/R2/KV | **THE LIVE EDGE API — single source of truth for all server behaviour.** D1 schema + migrations live here; the deployed app talks only to this. Soft-delete/append-only, encryption, billing, moderation all live in `src/routes/`. |
-| `backend/` ⚠️ NOT DEPLOYED | Node + Express + TS + Prisma | A second, **divergent** domain model that is **not deployed anywhere** (no deploy workflow; only `pr-checks.yml` runs its vitest). Kept for reference/its 37-test suite — do NOT treat it as authoritative or wire the app to it. The Worker above is canonical; if the two disagree, the Worker wins. Don't add product behaviour here. |
 | `mobile/` | Capacitor | Native shells. |
 | `marketing/automation/` | TS + tsx + Anthropic SDK + zod | **Autonomous content engine** — daily generate + multi-platform post. Runs via GitHub Actions. |
 | `scripts/` | Node | Asset/video/social generation. |
@@ -61,11 +60,8 @@ variants). Dyes are signal only — no dye backgrounds, buttons, or fills.
 cd cloudflare/frontend && npm run dev   # vite dev server
 npm run build                           # tsc && vite build = the typecheck/launch gate (currently clean)
 
-# Backend
-cd backend && npm install && npx prisma generate   # first-time setup (node_modules + Prisma client)
-npm run dev                       # tsx watch src/server.ts
-npm test                          # vitest — see Testing (suite established in this pass)
-npm run db:migrate / db:generate / db:seed
+# Worker (canonical edge API)
+cd cloudflare/worker && npx tsc --noEmit   # typecheck gate (currently clean)
 
 # Marketing automation (see marketing/PLAYBOOK.md + marketing/automation/README.md)
 cd marketing/automation
@@ -77,8 +73,7 @@ npm run typecheck
 ## Testing — current reality
 
 - **Live frontend (`cloudflare/frontend`):** `tsc --noEmit` / `npm run build` pass clean (0 errors). Component tests TBD.
-- **Backend:** vitest suite — `backend/vitest.config.ts` + `src/test/setup.ts`. Covers encryption, auth, billing, env. **37 tests, green.** Run: `cd backend && npm test` (needs `npm install` + `npx prisma generate` first).
-- **Worker:** `cloudflare/worker/src/__tests__/utils.test.ts`.
+- **Worker:** `cloudflare/worker/src/__tests__/utils.test.ts`; typecheck via `npx tsc --noEmit`.
 - Verify before claiming done: run the actual command and read the output. No "should pass."
 
 ## Marketing automation — how it works

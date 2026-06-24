@@ -9,6 +9,8 @@ import { supportTicketReplyEmail, supportTicketResolvedEmail, newFeaturesAnnounc
 import { sendEmail } from '../utils/email';
 import { createLogger } from '../utils/logger';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processEmailBounces } from '../jobs/adoption-jobs';
+import { recordRevision } from '../lib/legacyArchive';
+import { mirrorMemoryDelete, mirrorVoiceDelete, mirrorLetterDelete } from '../services/threadMesh';
 
 export const adminRoutes = new Hono<AppEnv>();
 
@@ -2709,6 +2711,101 @@ adminRoutes.get('/marketing/bounced-emails', adminAuth, async (c) => {
     count: bounced.results.length,
     emails: bounced.results,
   });
+});
+
+// ============================================
+// LAWFUL TAKEDOWN
+// ============================================
+//
+// Operator-invoked suppression of another member's content (court order, CSAM,
+// NCII, etc.). This is NOT user soft-delete: it crosses ownership and is the
+// only operator path that can pull content the author won't. It preserves
+// append-only integrity exactly like the user revoke — the row and its R2 bytes
+// stay, a final-state snapshot is sealed into the immutable legacy_revisions
+// log, and the item is merely hidden from every read (source table deleted_at +
+// the Cloth thread_entries mirror). True byte erasure remains an account-level
+// GDPR action, never here, so a takedown can be lifted (clear deleted_at) if a
+// court reverses. Every takedown is audit-logged with the operator and reason.
+//
+// ponytail: covers the three soft-delete-backed entity types (memory/voice/
+// letter) across their private reads + the Cloth. Public bequest-token surfaces
+// (/inherit, /m) read separate tables (room contributions / bequests) — those
+// need their own suppress path; out of scope for this endpoint.
+const TAKEDOWN_TARGETS = {
+  memory: {
+    table: 'memories',
+    entity: 'memory' as const,
+    mirror: mirrorMemoryDelete,
+    snapshot: (r: any) => ({
+      title: r.title, description: r.description, description_enc: r.description_enc,
+      description_iv: r.description_iv, metadata: r.metadata, file_key: r.file_key,
+    }),
+  },
+  voice: {
+    table: 'voice_recordings',
+    entity: 'voice' as const,
+    mirror: mirrorVoiceDelete,
+    snapshot: (r: any) => ({
+      title: r.title, description: r.description, transcript: r.transcript,
+      emotion: r.emotion, file_key: r.file_key,
+    }),
+  },
+  letter: {
+    table: 'letters',
+    entity: 'letter' as const,
+    mirror: mirrorLetterDelete,
+    snapshot: (r: any) => ({
+      title: r.title, salutation: r.salutation, body: r.body,
+      signature: r.signature, sealed_at: r.sealed_at,
+    }),
+  },
+} as const;
+
+adminRoutes.post('/content/takedown', adminAuth, async (c) => {
+  const adminId = c.get('adminId');
+  const body = await c.req.json().catch(() => ({})) as { type?: string; id?: string; reason?: string };
+  const type = body.type;
+  const id = (body.id || '').trim();
+  const reason = (body.reason || '').trim();
+
+  if (!type || !(type in TAKEDOWN_TARGETS)) {
+    return c.json({ error: 'type must be one of: memory, voice, letter' }, 400);
+  }
+  if (!id) return c.json({ error: 'id is required' }, 400);
+  // A lawful takedown must carry a documented reason — it is the audit record.
+  if (!reason) return c.json({ error: 'reason is required (audit record)' }, 400);
+
+  const target = TAKEDOWN_TARGETS[type as keyof typeof TAKEDOWN_TARGETS];
+
+  // Cross-user lookup — no ownership filter; that is the whole point.
+  const existing = await c.env.DB.prepare(
+    `SELECT * FROM ${target.table} WHERE id = ?`
+  ).bind(id).first<any>();
+
+  if (!existing) return c.json({ error: 'Content not found' }, 404);
+
+  // Idempotent: an already-suppressed item is treated as done.
+  if (existing.deleted_at) {
+    return c.json({ id, type, alreadySuppressed: true });
+  }
+
+  const now = new Date().toISOString();
+
+  // Seal the final state into the append-only revision log before suppressing.
+  await recordRevision(c.env, target.entity, id, existing.user_id, target.snapshot(existing), 'revoke');
+
+  await c.env.DB.prepare(
+    `UPDATE ${target.table} SET deleted_at = ?, deleted_reason = ?, updated_at = ? WHERE id = ?`
+  ).bind(now, `TAKEDOWN: ${reason}`, now, id).run();
+
+  // Hide from the Cloth thread too.
+  await target.mirror(c.env, id);
+
+  await logAuditAction(c.env, adminId, 'CONTENT_TAKEDOWN', {
+    type, id, ownerUserId: existing.user_id, reason,
+  });
+
+  return c.json({ id, type, ownerUserId: existing.user_id, suppressedAt: now, by: adminId });
 });
 
 // ============================================
