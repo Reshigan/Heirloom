@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
-import { threadsApi, familyReferralsApi } from '../services/api';
+import { threadsApi, memoriesApi, engagementApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Tour } from '../loom/components/Tour';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
@@ -408,19 +408,19 @@ export function Onboarding() {
     setBusy(true);
     setError(null);
     try {
-      const id = await ensureThreadId();
-      if (id) {
-        // ponytail: no thread-rename endpoint exists; carry the edited family
-        // name onto the first entry's title so the field is load-bearing on the
-        // normal (thread-already-exists) flow, not just the fallback create path.
-        const surname = familyName.trim();
-        await threadsApi.createEntry(id, {
-          ...(surname ? { title: `The ${surname} Thread` } : {}),
-          body_ciphertext: firstEntry.trim(),
-          visibility: 'FAMILY',
-          era_year: new Date().getFullYear(),
-        });
-      }
+      // Still create+name the family thread (sets defaultThreadId; load-bearing
+      // for the Family page + invites) — but the first words MUST land in the
+      // memories store, which is what the home cloth (useTapestryEntries) and
+      // the new-user check (useIsNewUser) actually read. Writing to thread_entries
+      // left the opening line invisible and re-prompted the family as if empty.
+      await ensureThreadId();
+      const surname = familyName.trim();
+      await memoriesApi.create({
+        type: 'TEXT',
+        ...(surname ? { title: `The ${surname} Thread` } : {}),
+        description: firstEntry.trim(),
+        metadata: { visibility: 'FAMILY' },
+      });
     } catch {
       // Non-fatal — continue forward
     } finally {
@@ -437,7 +437,11 @@ export function Onboarding() {
     setBusy(true);
     setError(null);
     try {
-      await familyReferralsApi.createInvite({ email: inviteEmail.trim() });
+      // engagementApi.invite issues a /join?code=INV- link that the working
+      // PendingInviteAcceptor relay redeems into thread_members. The old
+      // familyReferralsApi.createInvite emailed /signup?ref= — a code Signup
+      // never reads, so invitees never joined the family cloth.
+      await engagementApi.invite({ email: inviteEmail.trim() });
       setInviteSent(true);
     } catch {
       setError('Could not send the invitation — try again, or skip.');
