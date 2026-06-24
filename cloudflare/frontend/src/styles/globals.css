@@ -1519,11 +1519,11 @@ html {
    two opposite fonts. Display headings use .loom-display / .loom-h2 (Cormorant)
    explicitly; prose carrying .loom-serif must read in the legible workhorse. */
 .loom-serif {
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;
   font-weight: 400;
 }
 .loom-display {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Fraunces Variable', 'Fraunces', Georgia, serif;
   font-weight: 300;
   letter-spacing: -0.012em;
   line-height: 1.0;
@@ -1531,7 +1531,7 @@ html {
   font-size: 1.5rem;
 }
 .loom-h2 {
-  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-family: 'Fraunces Variable', 'Fraunces', Georgia, serif;
   font-weight: 400;
   letter-spacing: -0.006em;
   line-height: 1.06;
@@ -1539,13 +1539,13 @@ html {
   font-size: 1.5rem;
 }
 .loom-body {
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;
   font-weight: 400;
   letter-spacing: 0;
   line-height: 1.78;
 }
 .loom-mono {
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
   letter-spacing: 0.18em;
 }
 .hl-cta-warm { transition: opacity 180ms var(--ease), transform 180ms var(--ease); }
@@ -1649,7 +1649,7 @@ html {
 .loom-weft__year {
   position: absolute;
   bottom: -22px;
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.04em;
   color: var(--loom-bone-faint);
@@ -1682,7 +1682,7 @@ html {
   color: var(--loom-bone);
   border: 1px solid var(--loom-rule);
   padding: 11px 22px;
-  font-family: 'Space Mono', ui-monospace, monospace;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.16em;
@@ -1825,7 +1825,7 @@ html {
    that turns unreadable below ~24px, so anything that carries prose or input
    rides Spectral. Functionality first: legibility over flourish. ── */
 .loom .font-display {
-  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-family: 'Fraunces Variable', 'Fraunces', Georgia, serif !important;
   font-weight: 300;
   letter-spacing: -0.01em;
   /* Cormorant is a thin display face that turns unreadable below ~24px. Floor
@@ -1834,13 +1834,13 @@ html {
   font-size: max(1.5rem, 1em);
 }
 .loom .font-body {
-  font-family: 'Spectral', Georgia, serif !important;
+  font-family: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif !important;
   line-height: 1.78;
 }
 .loom .font-hand {
-  font-family: var(--font-hand), 'Cormorant Garamond', cursive !important;
+  font-family: var(--font-hand), 'Fraunces Variable', 'Fraunces', cursive !important;
 }
-.loom .font-mono    { font-family: 'Space Mono', ui-monospace, monospace !important; }
+.loom .font-mono    { font-family: 'JetBrains Mono', ui-monospace, monospace !important; }
 
 /* ── Buttons — re-skin v1/v2 .btn variants to Loom ──────────────── */
 .loom .btn,
@@ -1979,7 +1979,7 @@ html {
 
 /* ── Headings — Cormorant Garamond, restrained ──────────────────────── */
 .loom h1, .loom h2, .loom h3, .loom h4, .loom h5, .loom h6 {
-  font-family: 'Cormorant Garamond', Georgia, serif !important;
+  font-family: 'Fraunces Variable', 'Fraunces', Georgia, serif !important;
   font-weight: 400;
   letter-spacing: -0.008em;
 }
@@ -2029,10 +2029,10 @@ html {
 .loom th, .loom td {
   border-bottom: 1px solid var(--loom-rule) !important;
   padding: 12px 8px;
-  font-family: 'Spectral', Georgia, serif;
+  font-family: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;
 }
 .loom th {
-  font-family: 'Space Mono', ui-monospace, monospace !important;
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
   font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.28em;
