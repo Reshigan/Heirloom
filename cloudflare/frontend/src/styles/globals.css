@@ -10,8 +10,8 @@
         point at the Heirloom design system: ink ground, bone cloth, warm
         sealing-wax accent. ── */
 
-  /* INK — the ground (warm-black, per the golive reference: #0b0907 over
-     #090706 abyss; card/elevated surfaces lift toward #1b1610). */
+  /* INK — the ground (deep-water, per BRAND "The Deep": #070d14 over
+     #04080d abyss; card/elevated surfaces lift toward #122031). */
   --void-abyss: #04080d;
   --void-deep: #04080d;
   --void: #070d14;
@@ -55,9 +55,9 @@
   --blood: #9f3a2a;
   --blood-light: #b14a4a;
 
-  /* Glass retired — solid panels only (§2.6). Kept as opaque ink so any
-     lingering reference renders as a flat surface, never a blur. */
-  --glass-bg: #16110c;
+  /* Glass retired — solid panels only (§2.6). Kept as opaque deep-water ink so
+     any lingering reference renders as a flat surface, never a blur. */
+  --glass-bg: #122031;
   --glass-border: rgba(242, 230, 208, 0.08);
   --glass-highlight: rgba(242, 230, 208, 0.12);
   --glass-shadow: rgba(0, 0, 0, 0.5);
@@ -91,7 +91,7 @@
   --bone: #f2e6d0;
   --bone-dim: rgba(242, 230, 208, 0.72);
   /* WCAG AA: 0.44α = 3.73:1 on --ink (fail). 0.52α = 4.81:1 — the faintest
-     readable tier that clears 4.5:1 for normal text on #0b0907. */
+     readable tier that clears 4.5:1 for normal text on #070d14. */
   --bone-faint: rgba(242, 230, 208, 0.52);
   --bone-low: rgba(242, 230, 208, 0.24);
   --bone-ghost: rgba(242, 230, 208, 0.14);
@@ -196,9 +196,9 @@
   /* Dye NAME-text variants — the vivid --dye-* above stay UNTOUCHED for the
      3px left-margin thread (identity signal); these are the only tokens used to
      RENDER a member's name, mordanted lighter where the thread hue failed WCAG
-     AA (4.5:1) against the dark ground (#0b0907). Same hue, lifted lightness.
-     Ratios on #0b0907: madder 4.85, cochineal 4.61, kermes 5.39, saffron 8.59,
-     weld 7.33, walnut 4.61, oakgall 5.13, woad 5.05, indigo 4.64, iron 4.60. */
+     AA (4.5:1) against the deep-water ground (#070d14). Same hue, lifted
+     lightness. Live ratios on #070d14 are asserted by scripts/verify-deep-
+     contrast.mjs — all ten clear 4.5:1 (tightest: iron 4.51:1). */
   --dye-madder-text:    #d94f38;
   --dye-cochineal-text: #a2678e;
   --dye-kermes-text:    #c46a7a;
@@ -1090,7 +1090,7 @@ html {
 
 /* ── Placeholder contrast fix — bone-dim on ink, parchment-faint on parchment.
    Browser UA applies dark placeholder text (rgba(0,0,0,0.5)) which is invisible
-   on the #0b0907 ink background. All bare inputs/textareas inside any hl-screen
+   on the #070d14 ink background. All bare inputs/textareas inside any hl-screen
    context inherit this override so typed text and hints share the same surface. */
 .hl-screen input::placeholder,
 .hl-screen textarea::placeholder {
@@ -2095,7 +2095,7 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 1000px var(--ink, #0b0907) inset !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--ink, #070d14) inset !important;
   -webkit-text-fill-color: var(--bone, #f2e6d0) !important;
   caret-color: var(--bone, #f2e6d0);
   transition: background-color 0s 9999s; /* prevent flash */

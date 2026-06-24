@@ -6,7 +6,7 @@ export default {
       colors: {
         // GROUND — the dark surface (remapped from the legacy "void" tokens so
         // every bg-void/text-void utility across the app now resolves to the
-        // Heirloom reference ground ramp). ground #0b0907 on cream #f2e6d0.
+        // Heirloom reference ground ramp). ground #070d14 on cream #f2e6d0.
         void: {
           abyss: '#04080d',
           deep: '#04080d',
