@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="560" height="160" viewBox="0 0 560 160" role="img" aria-label="Heirloom">
+  <title>Heirloom — reversed horizontal lockup (vellum)</title>
+  <defs>
+    <radialGradient id="lHalo" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#e0a062" stop-opacity="0.4"/>
+      <stop offset="60%" stop-color="#e0a062" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#e0a062" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="lPip" cx="42%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#f0c074"/>
+      <stop offset="100%" stop-color="#e0a062"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Vellum ground (for preview; deboss/print drops this rect) -->
+  <rect width="560" height="160" fill="#f6ecda"/>
+
+  <!-- REVERSED mark: warps/wefts in ink, ember knot unchanged. Cell centred at (80,80). -->
+  <g stroke="#0b0907" stroke-width="8" stroke-linecap="round" fill="none">
+    <!-- outer warps (under) -->
+    <line x1="54" y1="24" x2="54" y2="136"/>
+    <line x1="106" y1="24" x2="106" y2="136"/>
+    <!-- wefts, interlacing, gap across centre warp x=80 -->
+    <line x1="36" y1="60" x2="72" y2="60"/>
+    <line x1="88" y1="60" x2="124" y2="60"/>
+    <line x1="36" y1="100" x2="72" y2="100"/>
+    <line x1="88" y1="100" x2="124" y2="100"/>
+  </g>
+  <!-- centre warp (over) -->
+  <line x1="80" y1="24" x2="80" y2="136" stroke="#0b0907" stroke-width="8" stroke-linecap="round"/>
+  <!-- ember knot unchanged -->
+  <circle cx="80" cy="80" r="33" fill="url(#lHalo)"/>
+  <circle cx="80" cy="80" r="10" fill="url(#lPip)"/>
+
+  <!-- Wordmark: Heirloom, lowercase except capital H. Fraunces (opsz~110, wt~360,
+       tracking -0.01em). System-serif fallback declared so the SVG renders before
+       Fraunces loads; replace with outlined Fraunces glyphs for final lockup art.
+       Mark height = cap-height of H; optical gap ~0.6x cap-height to the wordmark. -->
+  <text x="176" y="104"
+        font-family="Fraunces, 'Source Serif 4', Georgia, serif"
+        font-size="88" font-weight="360" letter-spacing="-0.88"
+        fill="#0b0907">Heirloom</text>
+</svg>

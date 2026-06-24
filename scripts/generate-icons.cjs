@@ -1,18 +1,19 @@
 /**
- * Heirloom — Cosmic Loom icon generator
+ * Heirloom — Warp-and-Weft icon generator (2026 brand)
  *
- * Draws the brand mark directly with canvas 2D so it stays crisp at every
- * size and uses exact ART_DIRECTION tokens — no rasterised generative art,
- * no baked rounded corners, no vignette.
+ * Rasterises the canonical Warp-and-Weft mark to the PWA PNG set. Geometry is
+ * copied verbatim from brand/BRAND.md §8 / brand/mark/heirloom-mark-192.svg:
+ * three bone warps, two interlacing wefts, the centre warp crossing OVER both
+ * wefts, and a single ember knot at the held centre (96,96). Drawn directly
+ * with canvas 2D so it stays crisp at every size — no generative art, no baked
+ * rounded corners, no vignette.
  *
- * The mark: a small web of bone-white filament hairlines converging on a
- * single softly glowing warm-amber node — the Cosmic Loom, in one glyph.
+ *   ink   #0b0907   ground (edge to edge, square)
+ *   bone  #f2e6d0   warps + wefts
+ *   ember #e0a062 → #f0c074   the one emotional colour — the knot
  *
- *   ink   #0e0e0c   ground (edge to edge, square)
- *   bone  #f4ecd8   filaments (low opacity hairlines)
- *   warm  #cf935a   the one emotional colour — the convergence node
- *
- * Output → cloudflare/frontend/public/icons + /icon.svg is hand-authored.
+ * Output → cloudflare/frontend/public/icons. /favicon.svg + /icon.svg are
+ * hand-authored copies of the shipped SVG marks.
  *
  * Run:  cd scripts && node generate-icons.cjs
  */
@@ -23,33 +24,20 @@ const path = require('path');
 const OUT = path.join(__dirname, '..', 'cloudflare', 'frontend', 'public', 'icons');
 if (!fs.existsSync(OUT)) fs.mkdirSync(OUT, { recursive: true });
 
-const INK = '#0e0e0c';
-const BONE = '244,236,216';
-const WARM = '#cf935a';
+const INK = '#0b0907';
+const BONE = '#f2e6d0';
 
-// Fixed filament geometry — angle (turns), how far past center it reaches
-// (outer), how far the near end sits from center (inner), and opacity.
-// Hand-tuned to read as a centered, slightly irregular loom-web like the
-// generative study, but balanced and symmetric enough for an app tile.
-const THREADS = [
-  { a: 0.02,  out: 1.00, inn: 0.96, op: 0.30 },
-  { a: 0.08,  out: 0.92, inn: 1.00, op: 0.42 },
-  { a: 0.155, out: 1.00, inn: 0.88, op: 0.26 },
-  { a: 0.225, out: 0.86, inn: 1.00, op: 0.50 },
-  { a: 0.30,  out: 1.00, inn: 0.94, op: 0.34 },
-  { a: 0.375, out: 0.90, inn: 1.00, op: 0.28 },
-  { a: 0.45,  out: 1.00, inn: 0.90, op: 0.46 },
-  { a: 0.52,  out: 0.84, inn: 1.00, op: 0.30 },
-  { a: 0.60,  out: 1.00, inn: 0.95, op: 0.40 },
-  { a: 0.675, out: 0.92, inn: 1.00, op: 0.24 },
-  { a: 0.75,  out: 1.00, inn: 0.88, op: 0.48 },
-  { a: 0.82,  out: 0.88, inn: 1.00, op: 0.30 },
-  { a: 0.90,  out: 1.00, inn: 0.93, op: 0.38 },
-  { a: 0.96,  out: 0.94, inn: 1.00, op: 0.26 },
-];
+// Master geometry lives in a 192-unit grid (the mark's viewBox). `scale` maps
+// that grid into the tile: 1.0 fills it edge-to-edge, <1 pads for the maskable
+// safe zone. Stroke is 9.6 in grid units.
+const G = 192;
+const WARPS = [64, 96, 128];          // x of the three warps
+const WEFTS = [72, 120];              // y of the two wefts
+const SPAN = [28, 164];               // warp top/bottom (and weft outer reach)
+const GAP = 8;                        // half-gap each weft leaves around centre warp
+const SW = 9.6;                       // stroke width in grid units
 
-function draw(size, reach) {
-  // reach = mark radius as a fraction of half-size (0.42 full / 0.30 safe)
+function draw(size, scale) {
   const cv = createCanvas(size, size);
   const ctx = cv.getContext('2d');
 
@@ -57,71 +45,74 @@ function draw(size, reach) {
   ctx.fillStyle = INK;
   ctx.fillRect(0, 0, size, size);
 
-  const cx = size / 2;
-  const cy = size / 2;
-  const R = (size / 2) * reach;
+  // grid → tile transform, centred
+  const k = (size / G) * scale;
+  const off = (size - G * k) / 2;
+  const X = (u) => off + u * k;
+  const Y = (v) => off + v * k;
 
   ctx.lineCap = 'round';
-  const lw = Math.max(1, size / 460);
+  ctx.strokeStyle = BONE;
+  ctx.lineWidth = SW * k;
 
-  // filaments — straight chords through (or near) the node, gentle curve
-  for (const t of THREADS) {
-    const ang = t.a * Math.PI * 2;
-    const ux = Math.cos(ang), uy = Math.sin(ang);
-    // two ends, asymmetric: far end (out) and opposite near end (inn)
-    const x1 = cx + ux * R * t.out;
-    const y1 = cy + uy * R * t.out;
-    const x2 = cx - ux * R * t.inn;
-    const y2 = cy - uy * R * t.inn;
-    // slight perpendicular bow for an organic, woven feel
-    const px = -uy, py = ux;
-    const bow = R * 0.06 * (t.op > 0.4 ? 1 : -1);
-    const mx = (x1 + x2) / 2 + px * bow;
-    const my = (y1 + y2) / 2 + py * bow;
-
+  const line = (x1, y1, x2, y2) => {
     ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.quadraticCurveTo(mx, my, x2, y2);
-    ctx.strokeStyle = `rgba(${BONE},${t.op})`;
-    ctx.lineWidth = lw;
+    ctx.moveTo(X(x1), Y(y1));
+    ctx.lineTo(X(x2), Y(y2));
     ctx.stroke();
+  };
+
+  // 1 — outer warps pass UNDER the wefts: drawn first
+  line(WARPS[0], SPAN[0], WARPS[0], SPAN[1]);
+  line(WARPS[2], SPAN[0], WARPS[2], SPAN[1]);
+
+  // 2 — wefts: two segments each, gapping across the centre warp (x=96)
+  for (const y of WEFTS) {
+    line(SPAN[0] + 16, y, WARPS[1] - GAP, y);   // 44 → 88
+    line(WARPS[1] + GAP, y, SPAN[1] - 16, y);   // 104 → 148
   }
 
-  // the warm node — soft glow halo then a solid core
-  const glowR = R * 0.34;
-  const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowR);
-  g.addColorStop(0, 'rgba(207,147,90,0.55)');
-  g.addColorStop(0.4, 'rgba(176,122,74,0.28)');
-  g.addColorStop(1, 'rgba(176,122,74,0)');
-  ctx.fillStyle = g;
+  // 3 — centre warp passes OVER both wefts: drawn last
+  line(WARPS[1], SPAN[0], WARPS[1], SPAN[1]);
+
+  // 4 — the ember knot at the held centre (96,96)
+  const cx = X(96), cy = Y(96);
+  const haloR = 40 * k;
+  const halo = ctx.createRadialGradient(cx, cy, 0, cx, cy, haloR);
+  halo.addColorStop(0, 'rgba(224,160,98,0.40)');
+  halo.addColorStop(0.6, 'rgba(224,160,98,0.18)');
+  halo.addColorStop(1, 'rgba(224,160,98,0)');
+  ctx.fillStyle = halo;
   ctx.beginPath();
-  ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
+  ctx.arc(cx, cy, haloR, 0, Math.PI * 2);
   ctx.fill();
 
-  const coreR = Math.max(1.5, size * 0.022);
-  ctx.fillStyle = WARM;
+  const pipR = 12 * k;
+  const pip = ctx.createRadialGradient(
+    cx - pipR * 0.16, cy - pipR * 0.2, 0, cx, cy, pipR,
+  );
+  pip.addColorStop(0, '#f0c074');
+  pip.addColorStop(1, '#e0a062');
+  ctx.fillStyle = pip;
   ctx.beginPath();
-  ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
-  ctx.fill();
-  // bright pip
-  ctx.fillStyle = '#e7b884';
-  ctx.beginPath();
-  ctx.arc(cx, cy, coreR * 0.45, 0, Math.PI * 2);
+  ctx.arc(cx, cy, pipR, 0, Math.PI * 2);
   ctx.fill();
 
   return cv.toBuffer('image/png');
 }
 
+// scale: 1.0 = full bleed (mark's own 28u grid margin is enough); maskable pads
+// the mark into the centre safe circle (~0.62 of the 192 grid → ~0.8 safe zone).
 const jobs = [
-  ['icon-512.png', 512, 0.42],
-  ['icon-192.png', 192, 0.42],
-  ['apple-touch-icon.png', 180, 0.42],
-  ['icon-maskable-512.png', 512, 0.30],
-  ['icon-maskable-192.png', 192, 0.30],
+  ['icon-512.png', 512, 1.0],
+  ['icon-192.png', 192, 1.0],
+  ['apple-touch-icon.png', 180, 1.0],
+  ['icon-maskable-512.png', 512, 0.78],
+  ['icon-maskable-192.png', 192, 0.78],
 ];
 
-for (const [name, size, reach] of jobs) {
-  fs.writeFileSync(path.join(OUT, name), draw(size, reach));
+for (const [name, size, scale] of jobs) {
+  fs.writeFileSync(path.join(OUT, name), draw(size, scale));
   console.log('wrote', name, size + 'px');
 }
 console.log('done →', OUT);
