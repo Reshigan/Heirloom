@@ -174,7 +174,7 @@
   --serif: 'Source Serif 4 Variable', 'Source Serif 4', Charter, Georgia, serif;
   --serif-display: 'Fraunces Variable', 'Fraunces', 'Source Serif 4 Variable', 'Source Serif 4', Charter, Georgia, serif;
   --sans: 'Inter', system-ui, sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, 'Space Mono', monospace;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
 
   /* Semantic tokens */
   --danger: #c25a5a;
@@ -307,14 +307,14 @@
 
 .loom[data-theme="light"] {
   --ink:          #eef2f6; /* shallows — cool water-light */
-  --ink-card:     #ece0cb;
-  --ink-deep:     #e6d8c2;
+  --ink-card:     #dfe6ee; /* cool shallows card — lightness held ≈ old #ece0cb so copper AA holds */
+  --ink-deep:     #d4dde8;
   /* Light mirror of the page vignette — core is a hair brighter than --ink,
-     edge dims toward --ink-card so the parchment ground gets the same gentle
-     center-glow the dark theme has, inverted. */
-  --vignette-core: #f6ecdb;
-  --vignette-edge: #ece0cb;
-  --ink-translucent: rgba(244, 234, 217, 0.78);
+     edge dims toward --ink-card so the shallows ground gets the same gentle
+     center-glow the dark theme has, inverted. Cool-toned to match the page. */
+  --vignette-core: #f4f8fc;
+  --vignette-edge: #dfe6ee;
+  --ink-translucent: rgba(223, 230, 238, 0.78);
   --bone:         #120d08;
   --bone-dim:     rgba(18, 13, 8, 0.74);
   --bone-faint:   rgba(18, 13, 8, 0.60);
@@ -327,12 +327,13 @@
   --rule-warm:    rgba(150, 80, 26, 0.32);
   --thread-warm:  rgba(150, 80, 26, 0.55);
   /* Light theme has no water behind it — the hero vignette edge stays solid
-     parchment (opaque --ink) so the dark-only translucency never bleeds here. */
+     shallows (opaque --ink) so the dark-only translucency never bleeds here. */
   --dye-hero-edge: var(--ink);
-  /* Copper + faint-label tokens mordanted to clear WCAG AA (4.5:1) on
-     parchment — light-mode only; the dark theme's lighter copper already
+  /* Copper + faint-label tokens mordanted to clear WCAG AA (4.5:1) on the
+     shallows surface — light-mode only; the dark theme's lighter copper already
      passes. Lifted from #a86220/#be7a2e/0.48α (all <4:1) after a live audit.
-     #965616 = 4.42:1 on --ink-card (#ece0cb), still under; #8a4e12 = 5.06:1. */
+     #965616 ≈ 4.4:1 on --ink-card (lightness held at the old card level when it
+     cooled to #dfe6ee), still under; #8a4e12 = 5.06:1. */
   --warm:         #8a4e12;
   --warm-bright:  #6f3d0d;
   --warm-dim:     #824a16;
@@ -1662,7 +1663,7 @@ html {
   color: var(--loom-warm);
   border: 1px solid var(--loom-warm);
   padding: 11px 22px;
-  font-family: var(--mono), 'Space Mono', monospace;
+  font-family: var(--mono), monospace;
   font-size: 11px;
   font-weight: 400;
   letter-spacing: 0.16em;
