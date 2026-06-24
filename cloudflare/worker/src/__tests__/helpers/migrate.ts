@@ -114,6 +114,7 @@ CREATE TABLE IF NOT EXISTS dead_man_switches (
   status TEXT DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'WARNING', 'TRIGGERED', 'VERIFIED', 'RELEASED', 'CANCELLED')),
   check_in_interval_days INTEGER DEFAULT 30,
   grace_period_days INTEGER DEFAULT 7,
+  trigger_action TEXT DEFAULT 'RELEASE_ALL',
   required_verifications INTEGER DEFAULT 2,
   last_check_in TEXT,
   next_check_in_due TEXT,
@@ -295,6 +296,24 @@ CREATE TABLE IF NOT EXISTS thread_members (
   role TEXT,
   target_role TEXT,
   created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS thread_entries (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  thread_id TEXT,
+  author_member_id TEXT,
+  title TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS entry_unlocks (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  entry_id TEXT NOT NULL,
+  lock_type TEXT NOT NULL,
+  resolved_at TEXT,
+  resolution_note TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
 );
 `;
 

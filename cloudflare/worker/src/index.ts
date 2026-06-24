@@ -1323,6 +1323,19 @@ export async function checkMissedCheckIns(env: Env) {
       
       // Send notifications to legacy contacts
       await sendTriggerNotifications(env, row.user_id as string);
+
+      // RELEASE_ALL: open the departed author's after-death entries to their
+      // thread. This is the ONLY path that resolves AUTHOR_DEATH entry-locks —
+      // the time-locks cron deliberately skips them (they are death-gated, not
+      // date-gated). Without this the entries stay sealed forever. Best-effort:
+      // a failure here must not abort the rest of the sweep.
+      if ((row.trigger_action as string) === 'RELEASE_ALL') {
+        try {
+          await releaseAuthorDeathEntries(env, row.user_id as string);
+        } catch (err) {
+          console.error(`RELEASE_ALL sweep failed for ${row.user_id}:`, err);
+        }
+      }
     } else {
       // Update missed count, send warning, and push next_check_in_due out by
       // the grace period. Without advancing the due date the row would re-fire
@@ -1465,6 +1478,33 @@ async function sendTriggerNotifications(env: Env, userId: string) {
       console.error(`Error sending verification email to ${contact.email}:`, error);
     }
   }
+}
+
+// When a dead-man's switch fires with trigger_action = 'RELEASE_ALL', resolve
+// every unresolved AUTHOR_DEATH entry-lock written by the now-departed author.
+// Setting resolved_at clears the entry's pending_lock, so the after-death entry
+// becomes readable to thread members (redactSealedEntry) and surfaces in the
+// time-locked inbox/recent ribbon. Scoped by lock_type AND author — DATE/AGE/
+// GENERATION locks and other authors' locks are never touched. Returns the count
+// of locks opened. ponytail: resolve-only — no bespoke "an after-death letter
+// just opened" family email blast on a death event; the recent inbox already
+// surfaces it. Add the email here if families ask to be told directly.
+export async function releaseAuthorDeathEntries(env: Env, userId: string): Promise<number> {
+  const now = new Date().toISOString();
+  const res = await env.DB.prepare(`
+    UPDATE entry_unlocks
+    SET resolved_at = ?,
+        resolution_note = 'Released on the verified passing of the author',
+        updated_at = ?
+    WHERE lock_type = 'AUTHOR_DEATH'
+      AND resolved_at IS NULL
+      AND entry_id IN (
+        SELECT e.id FROM thread_entries e
+        JOIN thread_members tm ON tm.id = e.author_member_id
+        WHERE tm.user_id = ?
+      )
+  `).bind(now, now, userId).run();
+  return res.meta?.changes ?? 0;
 }
 
 // ============================================
