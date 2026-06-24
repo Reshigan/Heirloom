@@ -1,45 +1,45 @@
 {
-  "name": "Heirloom — your family's thousand-year thread",
+  "name": "Heirloom — your family's Deep",
   "short_name": "Heirloom",
-  "description": "A perpetual, append-only family thread. Write today. Lock entries for descendants who don't exist yet. Read what came before.",
+  "description": "A perpetual family archive owned by a bloodline, not a login. Lower a voice in today; a descendant draws it back up. Some things only get deeper.",
   "id": "/",
   "start_url": "/loom/pwa?source=pwa",
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
   "orientation": "natural",
-  "background_color": "#0b0907",
-  "theme_color": "#0b0907",
+  "background_color": "#070d14",
+  "theme_color": "#070d14",
   "lang": "en",
   "dir": "ltr",
   "categories": ["lifestyle", "social", "productivity"],
   "icons": [
-    { "src": "/icons/icon-192.png?v=20260615b", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-512.png?v=20260615b", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "/icons/icon-maskable-192.png?v=20260615b", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "/icons/icon-maskable-512.png?v=20260615b", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
-    { "src": "/icon.svg?v=20260615b", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+    { "src": "/icons/icon-192.png?v=20260624deep", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png?v=20260624deep", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png?v=20260624deep", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png?v=20260624deep", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icon.svg?v=20260624deep", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ],
   "shortcuts": [
     {
-      "name": "Write tonight's entry",
-      "short_name": "Write",
-      "description": "Add a new weft thread to your family cloth",
+      "name": "Lower in a voice",
+      "short_name": "Compose",
+      "description": "Add to your family's Deep — written or spoken",
       "url": "/compose?source=pwa-shortcut",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     },
     {
-      "name": "Open the cloth",
-      "short_name": "Cloth",
-      "description": "Pan the woven tapestry of your family thread",
+      "name": "Descend into the Deep",
+      "short_name": "The Deep",
+      "description": "Read down through what your family has kept",
       "url": "/loom/weft?source=pwa-shortcut",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ],
   "screenshots": [
-    { "src": "/screenshot-wide.png", "sizes": "1376x768", "type": "image/png", "form_factor": "wide", "label": "The Cloth — your family's woven thread" },
-    { "src": "/screenshot-composer.png", "sizes": "1376x768", "type": "image/png", "form_factor": "wide", "label": "The Composer — write tonight's entry" },
-    { "src": "/screenshot-tree.png", "sizes": "1376x768", "type": "image/png", "form_factor": "wide", "label": "The Bloodline — four generations woven" },
-    { "src": "/screenshot-narrow.png", "sizes": "768x1376", "type": "image/png", "form_factor": "narrow", "label": "The Cloth — your family's woven thread" }
+    { "src": "/screenshot-wide.png", "sizes": "1376x768", "type": "image/png", "form_factor": "wide", "label": "The Deep — your family's kept water" },
+    { "src": "/screenshot-composer.png", "sizes": "1376x768", "type": "image/png", "form_factor": "wide", "label": "Lower in a voice — write or speak today" },
+    { "src": "/screenshot-tree.png", "sizes": "1376x768", "type": "image/png", "form_factor": "wide", "label": "The Bloodline — generations held at depth" },
+    { "src": "/screenshot-narrow.png", "sizes": "768x1376", "type": "image/png", "form_factor": "narrow", "label": "The Deep — your family's kept water" }
   ]
 }
