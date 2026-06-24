@@ -231,7 +231,7 @@ export function Billing() {
         {/* ── Continuity pledge ─────────────────────── */}
         <SectionLabel>continuity pledge</SectionLabel>
         <p style={{ ...NOTE, fontStyle: 'italic' }}>
-          If Heirloom ends, the successor non-profit named in our bylaws inherits the archive. The family export is always free.
+          If Heirloom ends, our bylaws commit the archive to a named successor non-profit and the export tooling is open-sourced on day one. The family export is always free.
         </p>
         <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--copper-label)', letterSpacing: '0.16em', textTransform: 'uppercase', marginTop: 12 }}>
           pledge no. 0001

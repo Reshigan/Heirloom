@@ -1950,7 +1950,7 @@ function CreateGoldLegacyModal({ onClose }: { onClose: () => void }) {
 
 You have been personally selected to join an exclusive group of individuals who understand the profound importance of preserving memories for generations to come.
 
-As a Gold Legacy member, you receive lifetime access to all Heirloom features, forever. Your stories, your voice, your memories will be preserved for eternity.
+As a Gold Legacy member, you receive lifetime access to all Heirloom features. Your stories, your voice, your memories are preserved with care and remain yours to export, in open formats, for life.
 
 This is more than a subscription—it is an invitation to be part of something timeless.
 

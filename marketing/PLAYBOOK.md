@@ -98,7 +98,7 @@ Build, don't announce. The buying decision is emotional and slow; nobody convert
 ### Days 76–90 — Opening cohort
 
 - We don't do a Product Hunt launch in the standard sense. Product Hunt converts poorly for emotional categories and signals "another SaaS" to our audience. We do something different: an **Opening Cohort** of the first 100 Founder Threads, announced as a ceremony rather than a launch.
-- The Opening Cohort gets: $999 Founder pricing (lifetime), name engraved in the continuity record (a real, physical record that will be part of the successor non-profit's founding documents), and quarterly calls with the founder. Fixed at 100.
+- The Opening Cohort gets: $249 Founder pricing (lifetime), name engraved in the continuity record (a real, physical record that will be part of the successor non-profit's founding documents), and quarterly calls with the founder. Fixed at 100.
 - Members of the Opening Cohort become organic ambassadors. Most have 50–500 family/friend network reach. The first viral moment is when they tell their families.
 - AMA on r/AgingParents and a guest essay in Modern Loss the same week.
 - Paid amplification cap: $20K/mo, sustained for 60 days, then evaluated.
@@ -185,7 +185,7 @@ Cost: ~$3/mo (Anthropic Sonnet only). Operator time once running: ~5 min/day for
 3. **Print-on-demand**: Lulu Direct API (no MOQ, hardcover, white-label).
 4. **Email infrastructure**: existing Resend integration in cloudflare/worker — no new vendor.
 5. **Visual**: dark-gold for the logged-in archive, warm-light for marketing surfaces. Single domain, two themes via CSS variables.
-6. **Pricing model**: per-family, not per-user. Free / Family $15/mo / Founder $999 lifetime.
+6. **Pricing model**: per-family, not per-user. Free / Family $6.99/mo ($69/yr) / Founder $249 lifetime.
 7. **Continuity stack**: Pinata + Web3.Storage + R2 archival, plus a Delaware 501(c)(3) successor non-profit incorporated within 12 months of public launch.
 8. **Creator strategy**: free Founder Threads in exchange for honest video, not paid posts.
 

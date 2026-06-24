@@ -12,7 +12,7 @@ import { EASE as ease } from '../loom/motion';
 // ── Permanence answers ────────────────────────────────────────────────
 const PERMANENCE = [
   ['If you stop paying.', 'Your sealed letters survive subscription changes. Once sealed, a letter holds regardless of account status.'],
-  ['If Heirloom folds.', 'Your archive exports at any time in open formats. IPFS pinning and a succession commitment ensure delivery. The letters find their people.'],
+  ['If Heirloom folds.', 'Your archive exports at any time in open formats — that part is live today. A succession commitment and IPFS mirror, codified in our bylaws, are built to carry it further. The letters find their people.'],
   ['If you die first.', 'Designate a letter guardian — someone who inherits delivery when you\'re gone. Set this in Settings. They ensure your letters reach exactly who you wrote them for.'],
   ['If they have no account.', 'Letters arrive as a direct link. No signup. No app. A notification, a link, a letter.'],
 ] as const;

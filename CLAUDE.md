@@ -10,8 +10,8 @@
 | Path | Stack | What it is |
 |---|---|---|
 | **`cloudflare/frontend/`** ⭐ | React 18 + Vite + TS + Tailwind | **THE LIVE, DEPLOYED web app + PWA.** Deployed to Cloudflare Pages via `.github/workflows/deploy-cloudflare.yml`. The `src/loom/` subsystem is the canonical cloth interface — `ClothCanvas3D`, `ClothShell`, `ClothBackdrop`, and room components. **This is the tree to edit for product/UX work.** |
-| `cloudflare/worker/`, `cloudflare/` | Workers, D1 | Edge API + DB migrations. The only pre-existing tests (`cloudflare/worker/src/__tests__`). |
-| `backend/` | Node + Express + TS + Prisma | API server (note: the Cloudflare worker is the edge API; this Express backend is the fuller service). `npm test` = vitest — suite established in this pass (encryption/auth/billing/env). |
+| `cloudflare/worker/`, `cloudflare/` ⭐ | Workers, D1/R2/KV | **THE LIVE EDGE API — single source of truth for all server behaviour.** D1 schema + migrations live here; the deployed app talks only to this. Soft-delete/append-only, encryption, billing, moderation all live in `src/routes/`. |
+| `backend/` ⚠️ NOT DEPLOYED | Node + Express + TS + Prisma | A second, **divergent** domain model that is **not deployed anywhere** (no deploy workflow; only `pr-checks.yml` runs its vitest). Kept for reference/its 37-test suite — do NOT treat it as authoritative or wire the app to it. The Worker above is canonical; if the two disagree, the Worker wins. Don't add product behaviour here. |
 | `mobile/` | Capacitor | Native shells. |
 | `marketing/automation/` | TS + tsx + Anthropic SDK + zod | **Autonomous content engine** — daily generate + multi-platform post. Runs via GitHub Actions. |
 | `scripts/` | Node | Asset/video/social generation. |

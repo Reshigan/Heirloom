@@ -19,8 +19,8 @@ const SECTIONS = [
   },
   {
     n: 'two',
-    h: 'The thread outlives the company.',
-    b: 'A successor non-profit is named in our bylaws and funded by Founder-tier payments. If Heirloom ends, the IPFS archive continues, and the family export tooling is open-sourced on day one of any wind-down.',
+    h: 'The thread is built to outlive the company.',
+    b: 'Our bylaws name a successor non-profit, funded by Founder-tier payments, and commit us to open-source the export tooling and publish an IPFS mirror on day one of any wind-down. We do not promise immortality — these are codified commitments, and some are still being built. What is live today is the nightly plain-text export below: every family already holds a complete, portable copy that needs nothing from us to open.',
   },
   {
     n: 'three',
