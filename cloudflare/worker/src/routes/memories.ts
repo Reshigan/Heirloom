@@ -16,6 +16,7 @@ import {
   listRevisions,
 } from '../lib/legacyArchive';
 import { sendEmail } from '../utils/email';
+import { createNotification, kinJoinedEmail } from '../utils/notifications';
 import { checkStorageQuota } from '../lib/quota';
 
 export const memoriesRoutes = new Hono<AppEnv>();
@@ -589,6 +590,14 @@ memoriesRoutes.post('/', async (c) => {
       }
     }
 
+    // First-memory reciprocity: checked BEFORE the insert (0 prior rows = the
+    // one we're about to write is their first). Used only to notify whoever
+    // invited them. Best-effort — never gates the write.
+    const priorCount = await c.env.DB.prepare(
+      `SELECT COUNT(*) as n FROM memories WHERE user_id = ? AND deleted_at IS NULL`
+    ).bind(userId).first() as { n: number } | null;
+    const isFirstMemory = (priorCount?.n ?? 0) === 0;
+
     const id = crypto.randomUUID();
     const now = new Date().toISOString();
     // Use memoryDate if provided (for historic memories), otherwise use current date
@@ -688,6 +697,51 @@ memoriesRoutes.post('/', async (c) => {
     title,
     eraYear: memoryDate ? new Date(memoryDate).getUTCFullYear() : null,
   });
+
+  // First memory by an invited member closes the reciprocity loop back to the
+  // inviter ("X wrote their first memory"). Only fires when this is genuinely
+  // their first memory AND they arrived via an accepted invite. Best-effort —
+  // the memory is already written; a failure here changes nothing for the author.
+  if (isFirstMemory) {
+    try {
+      const me = await c.env.DB.prepare(
+        `SELECT first_name, last_name, email FROM users WHERE id = ?`
+      ).bind(userId).first();
+      const myEmail = (me?.email as string | undefined)?.toLowerCase();
+      if (myEmail) {
+        const invite = await c.env.DB.prepare(
+          `SELECT inviter_user_id FROM family_invites
+           WHERE lower(invitee_email) = ? AND status = 'accepted'
+           ORDER BY accepted_at DESC LIMIT 1`
+        ).bind(myEmail).first();
+        const inviterId = invite?.inviter_user_id as string | undefined;
+        if (inviterId && inviterId !== userId) {
+          const myName = `${me?.first_name || ''} ${me?.last_name || ''}`.trim() || 'Someone';
+          await createNotification(
+            c.env, inviterId, 'referral_reward',
+            `${myName} wrote their first memory`,
+            `${myName} just added their first thread to the cloth.`,
+            '/loom/pwa',
+          );
+          const inviter = await c.env.DB.prepare(
+            `SELECT first_name, email FROM users WHERE id = ?`
+          ).bind(inviterId).first();
+          const inviterEmail = inviter?.email as string | undefined;
+          if (inviterEmail) {
+            const inviterName = `${inviter?.first_name || ''}`.trim() || 'there';
+            await sendEmail(c.env, {
+              from: 'Heirloom <admin@heirloom.blue>',
+              to: inviterEmail,
+              subject: `${myName} wrote their first memory`,
+              html: kinJoinedEmail(inviterName, myName, 'wrote their first memory', 'https://heirloom.blue/loom/pwa'),
+            }, 'KIN_FIRST_MEMORY');
+          }
+        }
+      }
+    } catch {
+      /* reciprocity signal is best-effort — the memory write already succeeded */
+    }
+  }
 
   if (recipientIds && recipientIds.length > 0) {
     // Ownership guard — all family_member_ids must belong to the authenticated user

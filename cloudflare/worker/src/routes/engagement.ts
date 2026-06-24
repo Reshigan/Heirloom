@@ -7,6 +7,7 @@ import { Hono } from 'hono';
 import type { AppEnv } from '../index';
 import { readDescription } from '../lib/legacyArchive';
 import { sendEmail } from '../utils/email';
+import { createNotification, kinJoinedEmail } from '../utils/notifications';
 import { requireAuth } from '../lib/auth';
 
 export const engagementRoutes = new Hono<AppEnv>();
@@ -280,6 +281,38 @@ engagementRoutes.post('/invite/accept', requireAuth, async (c) => {
 
   // Award badge to inviter
   await checkAndAwardBadges(c.env, invite.inviter_user_id as string, 'referral_success', 1);
+
+  // Reciprocity — tell the inviter their kin arrived. An Inbox line now, plus an
+  // email so it lands even when they're not in-app (push/VAPID still dormant).
+  // Best-effort: the accept stands regardless of whether either signal fires.
+  try {
+    const inviterId = invite.inviter_user_id as string;
+    const joiner = await c.env.DB.prepare(
+      `SELECT first_name, last_name FROM users WHERE id = ?`
+    ).bind(userId).first();
+    const joinerName = `${joiner?.first_name || ''} ${joiner?.last_name || ''}`.trim() || 'Someone';
+    await createNotification(
+      c.env, inviterId, 'referral_accepted',
+      `${joinerName} joined your thread`,
+      `${joinerName} accepted your invitation and is now weaving with you.`,
+      '/loom/pwa',
+    );
+    const inviter = await c.env.DB.prepare(
+      `SELECT first_name, email FROM users WHERE id = ?`
+    ).bind(inviterId).first();
+    const inviterEmail = inviter?.email as string | undefined;
+    if (inviterEmail) {
+      const inviterName = `${inviter?.first_name || ''}`.trim() || 'there';
+      await sendEmail(c.env, {
+        from: 'Heirloom <admin@heirloom.blue>',
+        to: inviterEmail,
+        subject: `${joinerName} joined your family thread`,
+        html: kinJoinedEmail(inviterName, joinerName, 'joined your thread', 'https://heirloom.blue/loom/pwa'),
+      }, 'KIN_JOINED');
+    }
+  } catch {
+    /* reciprocity signal is best-effort — the accept already succeeded */
+  }
 
   return c.json({ success: true, inviterId: invite.inviter_user_id, joinedThread });
 });

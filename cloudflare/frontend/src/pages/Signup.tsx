@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
 import { safeRedirect } from '../lib/safeRedirect';
-import { threadsApi } from '../services/api';
+import { threadsApi, billingApi } from '../services/api';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { PLAN_PRICE } from '../lib/plans';
@@ -139,6 +139,23 @@ export function Signup() {
       // key, so signup provisions NO client passphrase vault. Route straight on.
       // Every tier runs the First Thread ceremony (/begin), which hands off into
       // the product tour + first-entry onboarding. A deep-link redirect wins.
+      //
+      // Honor the chosen plan: a Family-picker self-selected paid, so route them
+      // to Stripe checkout (mirrors Billing.tsx). A deep-link redirect (invite,
+      // etc.) still wins over checkout; if checkout can't start, fall through to
+      // the ceremony — never trap the user at a dead end.
+      if (!redirectUrl && intent.tier === 'family') {
+        try {
+          const billingCycle = intent.cycle === 'annual' ? 'yearly' : 'monthly';
+          const { url } = (await billingApi.checkout({ tier: 'FAMILY', billingCycle })).data;
+          if (url) {
+            window.location.href = url;
+            return;
+          }
+        } catch {
+          /* checkout couldn't start — fall through to the ceremony */
+        }
+      }
       navigate(safeRedirect(redirectUrl, '/begin'));
     } catch (err: any) {
       setErrors({ submit: err.response?.data?.error || 'Failed to create account' });
@@ -490,7 +507,9 @@ export function Signup() {
             className="hl-serif"
             style={{ textAlign: 'center', fontSize: 13, fontStyle: 'italic', color: 'var(--bone-faint)', marginTop: 16, fontWeight: 300 }}
           >
-            no card on file · you begin free — 1 thread, 500 MB, free forever · upgrade to Family whenever you're ready
+            {tier === 'family'
+              ? 'next: set up Family at checkout · cancel anytime · your archive always exports free'
+              : 'no card on file · you begin free — 1 thread, 500 MB, free forever · upgrade to Family whenever you’re ready'}
           </p>
         </form>
 

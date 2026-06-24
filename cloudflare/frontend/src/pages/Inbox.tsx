@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { threadsApi, memoriesApi, type UpcomingUnlock, type ThreadLockType } from '../services/api';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { threadsApi, memoriesApi, userNotificationsApi, type UpcomingUnlock, type ThreadLockType } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
@@ -36,8 +36,27 @@ interface RecentUnlock {
   dye?: string | null;
 }
 
+interface UserNotification {
+  id: string;
+  notification_type: string;
+  title: string;
+  message: string | null;
+  action_url: string | null;
+  is_read: number;
+  created_at: string;
+}
+
 export function Inbox() {
   const navigate = useNavigate();
+  const qc = useQueryClient();
+
+  const notifsQ = useQuery({
+    queryKey: ['inbox', 'notifications'],
+    queryFn: () =>
+      userNotificationsApi
+        .getAll({ limit: 30 })
+        .then((r) => (r.data.notifications as UserNotification[]) ?? []),
+  });
 
   const upcomingQ = useQuery({
     queryKey: ['inbox', 'upcoming'],
@@ -62,13 +81,24 @@ export function Inbox() {
         .then((r) => (r.data as any).received ?? []),
   });
 
+  const notifs = notifsQ.data ?? [];
   const sealed = upcomingQ.data ?? [];
   const opened = recentQ.data ?? [];
   const received: { id: string; title: string; type: string; createdAt: string; from: string; metadata: any }[] = receivedQ.data ?? [];
-  const loading = upcomingQ.isLoading || recentQ.isLoading || receivedQ.isLoading;
+  const loading = notifsQ.isLoading || upcomingQ.isLoading || recentQ.isLoading || receivedQ.isLoading;
   const hasError = upcomingQ.isError || recentQ.isError || receivedQ.isError;
 
-  const isEmpty = received.length === 0 && sealed.length === 0 && opened.length === 0;
+  const openNotif = (n: UserNotification) => {
+    if (!n.is_read) {
+      userNotificationsApi.markRead(n.id).catch(() => {});
+      qc.setQueryData<UserNotification[]>(['inbox', 'notifications'], (prev) =>
+        (prev ?? []).map((x) => (x.id === n.id ? { ...x, is_read: 1 } : x)),
+      );
+    }
+    if (n.action_url) navigate(n.action_url);
+  };
+
+  const isEmpty = notifs.length === 0 && received.length === 0 && sealed.length === 0 && opened.length === 0;
 
   return (
     <ClothShell
@@ -111,6 +141,30 @@ export function Inbox() {
             <EmptyState onSeal={() => navigate('/letters/new')} />
           ) : (
             <>
+              {/* ── from your family (reciprocity: joins + first memories) ── */}
+              {notifs.length > 0 && <SectionLabel>From your family</SectionLabel>}
+              {notifs.map((n) => (
+                <EntryRow
+                  key={n.id}
+                  filled={!n.is_read}
+                  noBorder
+                  titleFont="serif"
+                  titleSize={16}
+                  titleColor={n.is_read ? 'var(--text-warm)' : 'var(--text-soft)'}
+                  subFont="serif"
+                  subColor="var(--muted-2)"
+                  title={
+                    <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <WarmDot filled={!n.is_read} size={6} color={n.is_read ? 'var(--copper-border)' : undefined} />
+                      <span>{n.title}</span>
+                    </span>
+                  }
+                  sub={n.message ? <span style={{ fontSize: 11 }}>{n.message}</span> : undefined}
+                  meta={formatDate(n.created_at)}
+                  onClick={() => openNotif(n)}
+                />
+              ))}
+
               {/* ── arrived (received, for you, unread) ── */}
               {received.length > 0 && <SectionLabel>For you</SectionLabel>}
               {received.map((m) => (
