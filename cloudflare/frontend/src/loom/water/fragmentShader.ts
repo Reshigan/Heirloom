@@ -6,6 +6,9 @@ export const FRAGMENT_SHADER = `
 precision highp float;
 uniform vec2 u_res;
 uniform float u_time;
+// The family's six ramp colours (surface → deep). Defaults to the approved
+// ground; reseeded from the signed-in family's actual dyes by WaterCanvas.
+uniform vec3 u_dye0,u_dye1,u_dye2,u_dye3,u_dye4,u_dye5;
 
 float hash(vec2 p){ p=fract(p*vec2(123.34,456.21)); p+=dot(p,p+45.32); return fract(p.x*p.y); }
 float noise(vec2 p){
@@ -19,14 +22,12 @@ float fbm(vec2 p){
   return v;
 }
 vec3 dye(float t){
-  vec3 weld=vec3(.92,.72,.30), madder=vec3(.78,.31,.21), woad=vec3(.32,.54,.60),
-       indigo=vec3(.15,.27,.43), walnut=vec3(.50,.38,.24), cochineal=vec3(.56,.23,.35);
   vec3 c;
-  if(t<.20) c=mix(weld,madder,t/.20);
-  else if(t<.42) c=mix(madder,woad,(t-.20)/.22);
-  else if(t<.62) c=mix(woad,indigo,(t-.42)/.20);
-  else if(t<.82) c=mix(indigo,walnut,(t-.62)/.20);
-  else c=mix(walnut,cochineal,(t-.82)/.18);
+  if(t<.20) c=mix(u_dye0,u_dye1,t/.20);
+  else if(t<.42) c=mix(u_dye1,u_dye2,(t-.20)/.22);
+  else if(t<.62) c=mix(u_dye2,u_dye3,(t-.42)/.20);
+  else if(t<.82) c=mix(u_dye3,u_dye4,(t-.62)/.20);
+  else c=mix(u_dye4,u_dye5,(t-.82)/.18);
   return c;
 }
 void main(){

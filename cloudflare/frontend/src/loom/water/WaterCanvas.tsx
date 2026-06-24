@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { FRAGMENT_SHADER } from './fragmentShader';
 import { waterRef } from './capture';
+import { waterRamp, memberWaterDye } from './waterDyes';
+import { familyApi } from '../../services/api';
+import { useAuthStore } from '../../stores/authStore';
 
 const VERTEX = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
 
@@ -64,6 +67,14 @@ export default function WaterCanvas() {
     const uRes = gl.getUniformLocation(prog, 'u_res');
     const uTime = gl.getUniformLocation(prog, 'u_time');
 
+    // The six ramp colours. Seed with the approved default ground (empty
+    // family → waterRamp returns the verbatim original palette), then reseed
+    // from the signed-in family's actual dyes once the roster loads.
+    const uDye = Array.from({ length: 6 }, (_, i) => gl.getUniformLocation(prog, `u_dye${i}`));
+    const setRamp = (ramp: [number, number, number][]) =>
+      ramp.forEach(([r, g, b], i) => gl.uniform3f(uDye[i], r, g, b));
+    setRamp(waterRamp([]));
+
     const draw = (tm: number) => {
       gl.uniform2f(uRes, cv.width, cv.height);
       gl.uniform1f(uTime, tm);
@@ -81,10 +92,27 @@ export default function WaterCanvas() {
     ro.observe(cv);
     resize();
 
+    // Reseed the ramp from the signed-in family's dyes — the water becomes the
+    // family's collective colour. Fire-and-forget: stays on the default ground
+    // until (and unless) the roster resolves; any failure leaves it untouched.
+    let cancelled = false;
+    if (useAuthStore.getState().isAuthenticated) {
+      familyApi.getAll().then((res) => {
+        if (cancelled) return;
+        const roster: Array<{ id: string; dye?: string | null; pendingDeletion?: boolean }> =
+          (res.data as any) ?? [];
+        const dyes = roster.filter((m) => !m.pendingDeletion).map(memberWaterDye);
+        if (!dyes.length) return;
+        setRamp(waterRamp(dyes));
+        if (reduce) draw(8.0); // static frame won't repaint itself — do it once
+      }).catch(() => { /* keep the default ground */ });
+    }
+
     // prefers-reduced-motion: paint one still frame, never animate.
     if (reduce) {
       draw(8.0);
       return () => {
+        cancelled = true;
         ro.disconnect();
         waterRef.canvas = null;
       };
@@ -112,6 +140,7 @@ export default function WaterCanvas() {
     document.addEventListener('visibilitychange', onVisibility);
 
     return () => {
+      cancelled = true;
       running = false;
       cancelAnimationFrame(raf);
       ro.disconnect();
