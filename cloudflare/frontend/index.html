@@ -2,11 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260615b" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260624deep" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="Heirloom — the family thread that outlives all of us. Append-only, multi-generational, time-locked. Write today. Lock entries for descendants who don't exist yet." />
-    <meta name="theme-color" content="#faf3e4" />
-    <title>Heirloom — your family's thousand-year thread</title>
+    <meta name="description" content="Heirloom — a perpetual family archive owned by a bloodline, not a login. Lower a voice in today; a descendant draws it back up. Some things only get deeper." />
+    <meta name="theme-color" content="#eef2f6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#070d14" media="(prefers-color-scheme: dark)" />
+    <title>Heirloom — some things only get deeper</title>
 
     <!-- Theme cold-boot — resolve the saved theme onto <html> BEFORE first
          paint so a light-mode visitor never sees the dark splash flash ("the
@@ -17,34 +18,32 @@
       /* Root substrate + splash track the resolved theme so the very first
          browser paint already matches (no dark→light flash on the marketing
          page). theme-boot.js sets html[data-theme] before this paints. */
-      html { background: #0b0907; }
-      html[data-theme="light"] { background: #faf3e4; }
+      html { background: #070d14; }
+      html[data-theme="light"] { background: #eef2f6; }
     </style>
 
     <!-- Installable PWA -->
     <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=20260615b" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png?v=20260624deep" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Heirloom" />
     
-    <!-- Heirloom type system: Cormorant Garamond (display — headlines, the ∞
-         mark, names), Spectral (reading — prose, inputs, long-form), Space Mono
-         (archival labels, dates, eyebrows), Inter (residual UI chrome),
-         Tangerine (the hand). Cormorant is display-only — it turns unreadable
-         below ~24px, so reading copy rides Spectral. The faces are now
-         self-hosted via @fontsource (imported in src/main.tsx) — no
-         render-blocking third-party font requests. -->
+    <!-- Heirloom (The Deep) type system: Fraunces (display — headlines, names),
+         Source Serif 4 (reading — prose, inputs, long-form), JetBrains Mono
+         (archival labels, dates, eyebrows). The Sounding mark is the lone glyph.
+         The faces are self-hosted via @fontsource (imported in src/main.tsx) —
+         no render-blocking third-party font requests. -->
 
     <link rel="canonical" href="https://heirloom.blue/" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://heirloom.blue/" />
-    <meta property="og:title" content="Heirloom — your family's thousand-year thread" />
-    <meta property="og:description" content="Write today. Lock entries for descendants who don't exist yet. Read what came before. The thread continues after you, after us, after the company." />
-    <meta property="og:image" content="https://heirloom.blue/og-image.png?v=20260615b" />
+    <meta property="og:title" content="Heirloom — some things only get deeper" />
+    <meta property="og:description" content="A perpetual family archive owned by a bloodline, not a login. Lower a voice in today; a descendant draws it back up — written, spoken, held at depth for as long as your family lasts." />
+    <meta property="og:image" content="https://heirloom.blue/og-image.png?v=20260624deep" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:site_name" content="Heirloom" />
@@ -53,33 +52,31 @@
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://heirloom.blue/" />
-    <meta name="twitter:title" content="Heirloom — your family's thousand-year thread" />
-    <meta name="twitter:description" content="Write today. Lock entries for descendants who don't exist yet. Read what came before. The thread continues after you, after us, after the company." />
-    <meta name="twitter:image" content="https://heirloom.blue/og-image.png?v=20260615b" />
+    <meta name="twitter:title" content="Heirloom — some things only get deeper" />
+    <meta name="twitter:description" content="A perpetual family archive owned by a bloodline, not a login. Lower a voice in today; a descendant draws it back up — written, spoken, held at depth for as long as your family lasts." />
+    <meta name="twitter:image" content="https://heirloom.blue/og-image.png?v=20260624deep" />
   </head>
   <body>
     <!-- Cold-boot splash — shown before React hydrates so a standalone
-         (home-screen) launch never flashes a blank ground. ∞ on ground, a
-         hairline copper progress bar, Cormorant Garamond. No gradient glow.
+         (home-screen) launch never flashes a blank ground. The Sounding mark on
+         the deep ground, a hairline copper progress bar, Fraunces. No glow.
          Removed by main.tsx (or auto-fades) once the app mounts. -->
     <style>
       #hl-splash {
         position: fixed; inset: 0; z-index: 2147483647;
-        background: #0b0907; color: #f2e6d0;
+        background: #070d14; color: #f2e6d0;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
-        font-family: 'Cormorant Garamond', Georgia, serif; -webkit-font-smoothing: antialiased;
+        font-family: 'Fraunces Variable', 'Fraunces', Georgia, serif; -webkit-font-smoothing: antialiased;
         transition: opacity 360ms cubic-bezier(0.16, 1, 0.3, 1);
       }
       #hl-splash[data-leaving] { opacity: 0; pointer-events: none; }
-      #hl-splash .hl-splash-mark { font-size: 72px; line-height: 1; font-weight: 300; color: #e0a062; }
       #hl-splash .hl-splash-word { margin-top: 20px; font-size: 30px; font-style: italic; font-weight: 400; letter-spacing: -0.01em; color: rgba(242, 230, 208, 0.58); }
       #hl-splash .hl-splash-track { position: absolute; bottom: 96px; left: 20%; right: 20%; height: 1px; background: rgba(224, 160, 98, 0.18); overflow: hidden; }
       #hl-splash .hl-splash-fill { height: 1px; width: 30%; background: #e0a062; animation: hl-splash-shuttle 1400ms cubic-bezier(0.16, 1, 0.3, 1) infinite; }
-      #hl-splash .hl-splash-label { position: absolute; bottom: 64px; font-family: 'Space Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(242, 230, 208, 0.32); }
-      /* Light theme — paper splash so a light-mode visitor opens onto bone,
-         not a flash of ground. Values mirror .loom[data-theme="light"]. */
-      html[data-theme="light"] #hl-splash { background: #faf3e4; color: #120d08; }
-      html[data-theme="light"] #hl-splash .hl-splash-mark { color: #8a4e12; }
+      #hl-splash .hl-splash-label { position: absolute; bottom: 64px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(242, 230, 208, 0.32); }
+      /* Light theme — shallows splash so a light-mode visitor opens onto the
+         shallows, not a flash of ground. Values mirror .loom[data-theme="light"]. */
+      html[data-theme="light"] #hl-splash { background: #eef2f6; color: #120d08; }
       html[data-theme="light"] #hl-splash .hl-splash-word { color: rgba(18, 13, 8, 0.58); }
       html[data-theme="light"] #hl-splash .hl-splash-track { background: rgba(138, 78, 18, 0.18); }
       html[data-theme="light"] #hl-splash .hl-splash-fill { background: #8a4e12; }
@@ -91,10 +88,20 @@
       }
     </style>
     <div id="hl-splash" aria-hidden="true">
-      <div class="hl-splash-mark">∞</div>
+      <svg class="hl-splash-mark" width="84" height="84" viewBox="0 0 192 192" aria-hidden="true">
+        <g fill="none" stroke="#f2e6d0" stroke-width="3" stroke-linecap="round">
+          <circle cx="96" cy="96" r="18" stroke-opacity="0.92"/>
+          <circle cx="96" cy="96" r="34" stroke-opacity="0.72"/>
+          <circle cx="96" cy="96" r="50" stroke-opacity="0.50"/>
+          <circle cx="96" cy="96" r="66" stroke-opacity="0.32"/>
+          <circle cx="96" cy="96" r="80" stroke-opacity="0.18"/>
+        </g>
+        <line x1="16" y1="96" x2="176" y2="96" stroke="#e0a062" stroke-width="4" stroke-linecap="round"/>
+        <line x1="16" y1="96" x2="176" y2="96" stroke="#f0c074" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
       <div class="hl-splash-word">Heirloom</div>
       <div class="hl-splash-track"><div class="hl-splash-fill"></div></div>
-      <div class="hl-splash-label">opening your cloth</div>
+      <div class="hl-splash-label">sounding the deep</div>
     </div>
     <!-- Splash teardown. MUST be an external file, not inline: the production
          CSP (script-src 'self') blocks inline scripts, which previously left
@@ -110,28 +117,36 @@
       <style>
         #hl-noscript {
           position: fixed; inset: 0; z-index: 2147483647;
-          background: #0b0907; color: #f2e6d0;
+          background: #070d14; color: #f2e6d0;
           display: flex; flex-direction: column; align-items: center; justify-content: center;
           text-align: center; padding: 24px;
-          font-family: 'Spectral', Georgia, serif;
+          font-family: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;
         }
-        html[data-theme="light"] #hl-noscript { background: #faf3e4; color: #120d08; }
+        html[data-theme="light"] #hl-noscript { background: #eef2f6; color: #120d08; }
         #hl-noscript .hl-noscript-mark {
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 72px; line-height: 1; font-weight: 300; color: #e0a062;
+          font-family: 'Fraunces Variable', 'Fraunces', Georgia, serif;
         }
-        html[data-theme="light"] #hl-noscript .hl-noscript-mark { color: #8a4e12; }
         #hl-noscript h1 {
-          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-family: 'Fraunces Variable', 'Fraunces', Georgia, serif;
           font-weight: 300; font-size: 30px; letter-spacing: -0.01em; margin: 20px 0 12px;
         }
         #hl-noscript p { max-width: 34ch; font-size: 16px; line-height: 1.7; color: rgba(242, 230, 208, 0.72); }
         html[data-theme="light"] #hl-noscript p { color: rgba(18, 13, 8, 0.72); }
       </style>
       <div id="hl-noscript">
-        <div class="hl-noscript-mark">∞</div>
+        <svg class="hl-noscript-mark" width="84" height="84" viewBox="0 0 192 192" aria-hidden="true">
+          <g fill="none" stroke="#f2e6d0" stroke-width="3" stroke-linecap="round">
+            <circle cx="96" cy="96" r="18" stroke-opacity="0.92"/>
+            <circle cx="96" cy="96" r="34" stroke-opacity="0.72"/>
+            <circle cx="96" cy="96" r="50" stroke-opacity="0.50"/>
+            <circle cx="96" cy="96" r="66" stroke-opacity="0.32"/>
+            <circle cx="96" cy="96" r="80" stroke-opacity="0.18"/>
+          </g>
+          <line x1="16" y1="96" x2="176" y2="96" stroke="#e0a062" stroke-width="4" stroke-linecap="round"/>
+          <line x1="16" y1="96" x2="176" y2="96" stroke="#f0c074" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
         <h1>Heirloom needs JavaScript</h1>
-        <p>The family thread is a living, woven surface — it needs JavaScript to open. Enable it, then reload to begin your thousand-year thread.</p>
+        <p>The Deep is a living water surface — it needs JavaScript to open. Enable it, then reload to sound your family's depth.</p>
       </div>
     </noscript>
     <div id="root"></div>
