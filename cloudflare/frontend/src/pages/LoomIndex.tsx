@@ -289,6 +289,7 @@ export function LoomIndex() {
           {([
             { label: 'search', to: '/search' },
             { label: 'milestones', to: '/milestones' },
+            { label: 'the colour of us', to: '/loom/colour' },
           ] as const).map(({ label, to }) => (
             <Link
               key={to}

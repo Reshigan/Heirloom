@@ -124,6 +124,7 @@ const LoomTiedOff = lazy(() => import('./pages/TiedOff').then(m => ({ default: m
 const LoomUnlock = lazy(() => import('./pages/Unlock').then(m => ({ default: m.Unlock })));
 const LoomReadingRoom = lazy(() => import('./pages/ReadingRoom').then(m => ({ default: m.ReadingRoom })));
 const LoomConstellation = lazy(() => import('./pages/Constellation').then(m => ({ default: m.Constellation })));
+const ColourOfUs = lazy(() => import('./pages/ColourOfUs').then(m => ({ default: m.ColourOfUs })));
 const LoomMarketing = lazy(() => import('./pages/Marketing').then(m => ({ default: m.Marketing })));
 const LoomLetterRoom = lazy(() => import('./pages/LetterRoom').then(m => ({ default: m.LetterRoom })));
 const LoomVoiceRoom = lazy(() => import('./pages/VoiceRoom').then(m => ({ default: m.VoiceRoom })));
@@ -611,6 +612,7 @@ export default function App() {
           <Route path="/loom/unlock" element={<ProtectedRoute><LoomUnlock /></ProtectedRoute>} />
           <Route path="/loom/read" element={<ProtectedRoute><LoomReadingRoom /></ProtectedRoute>} />
           <Route path="/loom/kin" element={<ProtectedRoute><LoomConstellation /></ProtectedRoute>} />
+          <Route path="/loom/colour" element={<ProtectedRoute><ColourOfUs /></ProtectedRoute>} />
           <Route path="/loom/marketing" element={<LoomMarketing />} />
           <Route path="/loom/letter" element={<ProtectedRoute><LoomLetterRoom /></ProtectedRoute>} />
           <Route path="/loom/voice" element={<ProtectedRoute><LoomVoiceRoom /></ProtectedRoute>} />
