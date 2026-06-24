@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Heirloom — Some things only get deeper.">
+  <title>Heirloom</title>
+  <rect width="1200" height="630" fill="#070d14"/>
+  <g transform="translate(504,140) scale(1)">
+    <g fill="none" stroke="#f2e6d0" stroke-width="3" stroke-linecap="round">
+      <circle cx="96" cy="96" r="18" stroke-opacity="0.92"/>
+      <circle cx="96" cy="96" r="34" stroke-opacity="0.72"/>
+      <circle cx="96" cy="96" r="50" stroke-opacity="0.50"/>
+      <circle cx="96" cy="96" r="66" stroke-opacity="0.32"/>
+      <circle cx="96" cy="96" r="80" stroke-opacity="0.18"/>
+    </g>
+    <line x1="16" y1="96" x2="176" y2="96" stroke="#e0a062" stroke-width="4" stroke-linecap="round"/>
+    <line x1="16" y1="96" x2="176" y2="96" stroke="#f0c074" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  <text x="600" y="430" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="84" font-weight="360" letter-spacing="-0.84" fill="#f2e6d0">Heirloom</text>
+  <text x="600" y="492" text-anchor="middle" font-family="Fraunces, Georgia, serif" font-size="34" font-style="italic" font-weight="360" fill="rgba(242,230,208,0.72)">Some things only get deeper.</text>
+  <text x="600" y="560" text-anchor="middle" font-family="'JetBrains Mono', ui-monospace, monospace" font-size="18" letter-spacing="3.6" fill="rgba(242,230,208,0.44)">HEIRLOOM.BLUE</text>
+</svg>

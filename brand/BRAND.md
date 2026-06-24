@@ -346,7 +346,8 @@ theme and the Book cover deboss.
 - Never substitute the bare `∞` or any icon-library glyph.
 
 Shipped assets: `brand/mark/heirloom-sounding-192.svg`, `brand/mark/heirloom-sounding-favicon-48.svg`,
-`brand/mark/heirloom-sounding-maskable-512.svg`, `brand/mark/heirloom-sounding-lockup-shallows.svg`.
+`brand/mark/heirloom-sounding-maskable-512.svg`, `brand/mark/heirloom-sounding-lockup-shallows.svg`,
+`brand/mark/heirloom-sounding-og.svg`.
 
 ---
 
