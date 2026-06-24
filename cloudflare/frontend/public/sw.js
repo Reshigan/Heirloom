@@ -24,7 +24,7 @@
  * cache.addAll() reject on the redirected response and the whole install fails.
  * Precache `/offline` (the served URL) — never the redirecting alias.
  */
-const CACHE = 'heirloom-v191';
+const CACHE = 'heirloom-v192-deep';
 const API_CACHE = 'heirloom-api-v1'; // preserved across shell bumps — offline read data
 // Canonical shell URL. Cloudflare Pages 308-redirects `/index.html` → `/`, and
 // the Cache API rejects redirected responses — so precaching `/index.html`
@@ -34,11 +34,19 @@ const OFFLINE = '/offline';
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
-  '/favicon.svg',
-  '/icon.svg',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/apple-touch-icon.png',
+  // The Deep icon set is cache-busted (?v=20260624deep) wherever the head and
+  // manifest reference it. Cache-first matches the FULL URL incl. query, so the
+  // precached URLs must carry the same tag or offline requests miss and the new
+  // marks never appear. Every URL below must 200 — addAll() rejects the whole
+  // install on a single 404.
+  '/favicon.svg?v=20260624deep',
+  '/icon.svg?v=20260624deep',
+  '/icons/icon-192.png?v=20260624deep',
+  '/icons/icon-512.png?v=20260624deep',
+  '/icons/icon-maskable-192.png?v=20260624deep',
+  '/icons/icon-maskable-512.png?v=20260624deep',
+  '/icons/apple-touch-icon.png?v=20260624deep',
+  '/og-image.png?v=20260624deep',
   OFFLINE,
   // The offline page's logic lives in an external file (CSP blocks inline
   // scripts); precache it so the holding queue works with no network.
