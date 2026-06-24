@@ -9,8 +9,11 @@ const api = axios.create({
 
 // Token management functions
 export const setTokens = (accessToken: string, refreshToken: string) => {
-  localStorage.setItem('token', accessToken);
-  localStorage.setItem('refreshToken', refreshToken);
+  // Guard against a malformed auth response writing the string "undefined" into
+  // storage — that reads back truthy and fakes a logged-in state with a bogus
+  // token. A missing token instead leaves storage empty → treated as logged-out.
+  if (accessToken) localStorage.setItem('token', accessToken);
+  if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
 };
 
 // Tell the service worker to wipe the per-user API response cache. The SW
@@ -86,8 +89,11 @@ api.interceptors.response.use(
           refreshPromise = (async () => {
             const refreshToken = localStorage.getItem('refreshToken');
             const { data } = await axios.post(`${API_URL}/auth/refresh`, { refreshToken });
+            // A refresh response with no token must fail loudly (→ catch →
+            // clearTokens + redirect to login), never poison storage with "undefined".
+            if (!data?.token) throw new Error('refresh: no token in response');
             localStorage.setItem('token', data.token);
-            localStorage.setItem('refreshToken', data.refreshToken);
+            if (data.refreshToken) localStorage.setItem('refreshToken', data.refreshToken);
             return data.token as string;
           })().finally(() => {
             refreshPromise = null;

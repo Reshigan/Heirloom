@@ -1000,7 +1000,8 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
             {numeral(ch)} · {c.kind} · {c.year}
           </div>
           <h2 style={{
-            fontSize: 46, fontStyle: 'italic', margin: 0, maxWidth: '14ch',
+            fontSize: 'clamp(28px, 9vw, 46px)', fontStyle: 'italic', margin: 0, maxWidth: '14ch',
+            overflowWrap: 'anywhere',
             color: 'var(--letter-gold)', fontFamily: 'var(--serif-display)', fontWeight: 300,
           }}>
             {c.title}

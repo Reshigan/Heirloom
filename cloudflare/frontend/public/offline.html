@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Heirloom — offline</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#0b0907" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=20260624deep" />
+    <meta name="theme-color" content="#070d14" />
     <!-- Resolve the saved `heirloom-theme` (default dark; system→matchMedia)
          and set html[data-theme] BEFORE paint, mirroring src/loom/theme.ts.
          External + precached (sw.js) because prod CSP blocks inline scripts;
@@ -14,12 +14,12 @@
     <script src="/theme-boot.js"></script>
     <style>
       :root {
-        --ink: #0b0907; --ink-card: #16110c; --bone: #f2e6d0;
+        --ink: #070d14; --ink-card: #122031; --bone: #f2e6d0;
         --bone-dim: rgba(242, 230, 208, 0.55); --bone-faint: rgba(242, 230, 208, 0.32);
         --rule: rgba(242, 230, 208, 0.08); --rule-warm: rgba(224, 160, 98, 0.22);
         --warm: #e0a062; --ease: cubic-bezier(0.16, 1, 0.3, 1);
-        --serif: 'Spectral', Georgia, serif;
-        --mono: 'Space Mono', ui-monospace, monospace;
+        --serif: 'Source Serif 4', Georgia, serif;
+        --mono: 'JetBrains Mono', ui-monospace, monospace;
       }
       /* Frozen precached surface, but honor the user's theme: light-mode
          inverts to ink-on-cream with an AA copper. Same var names overridden.
@@ -27,9 +27,9 @@
          `heirloom-theme` key and sets html[data-theme] — so a pinned 'light'
          (or 'system' resolving light) wins, not just the OS preference. */
       :root[data-theme="light"] {
-          --ink: #f4ead9; --ink-card: #ece0cb; --bone: #0b0907;
-          --bone-dim: rgba(11, 9, 7, 0.66); --bone-faint: rgba(11, 9, 7, 0.42);
-          --rule: rgba(11, 9, 7, 0.1); --rule-warm: rgba(150, 86, 22, 0.24);
+          --ink: #eef2f6; --ink-card: #dfe6ee; --bone: #120d08;
+          --bone-dim: rgba(18, 13, 8, 0.66); --bone-faint: rgba(18, 13, 8, 0.42);
+          --rule: rgba(18, 13, 8, 0.1); --rule-warm: rgba(150, 86, 22, 0.24);
           --warm: #965616;
       }
       * { box-sizing: border-box; }
