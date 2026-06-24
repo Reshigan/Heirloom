@@ -334,6 +334,75 @@ engagementRoutes.delete('/invites/:id', requireAuth, async (c) => {
   return c.body(null, 204);
 });
 
+// Public invite preview — UNAUTHED. A prospective joiner opening an invite link
+// sees proof the thread is real and alive BEFORE signing up: who invited them,
+// the thread name, how many hands, since when, and ONE safe memory title.
+// Privacy is by construction — the title query excludes anything sealed,
+// encrypted, directed at specific recipients, marked private, or a private
+// letter/voice note. Bodies and files are NEVER returned. Unknown code → a
+// generic 404 (no enumeration signal).
+engagementRoutes.get('/invite/:code/preview', async (c) => {
+  const code = c.req.param('code');
+  if (!code) return c.json({ error: 'Not found' }, 404);
+
+  try {
+    const invite = await c.env.DB.prepare(
+      `SELECT inviter_user_id, invitee_name, thread_id FROM family_invites WHERE invite_code = ?`
+    ).bind(code).first();
+    if (!invite) return c.json({ error: 'Not found' }, 404);
+
+    const inviterId = invite.inviter_user_id as string;
+    const inviter = await c.env.DB.prepare(
+      `SELECT first_name FROM users WHERE id = ?`
+    ).bind(inviterId).first();
+
+    let threadName: string | null = null;
+    let memberCount = 1;
+    if (invite.thread_id) {
+      const thread = await c.env.DB.prepare(
+        `SELECT name FROM threads WHERE id = ?`
+      ).bind(invite.thread_id).first();
+      threadName = (thread?.name as string) ?? null;
+      const members = await c.env.DB.prepare(
+        `SELECT COUNT(*) as n FROM thread_members WHERE thread_id = ?`
+      ).bind(invite.thread_id).first() as { n: number } | null;
+      if (members?.n) memberCount = members.n;
+    }
+
+    const counts = await c.env.DB.prepare(
+      `SELECT COUNT(*) as n, MIN(created_at) as first_at
+       FROM memories WHERE user_id = ? AND deleted_at IS NULL`
+    ).bind(inviterId).first() as { n: number; first_at: string | null } | null;
+    const memoryCount = counts?.n ?? 0;
+    const sinceYear = counts?.first_at ? new Date(counts.first_at).getUTCFullYear() : null;
+
+    // The single safe title — strict public gate, earliest first.
+    const safe = await c.env.DB.prepare(
+      `SELECT title FROM memories m
+       WHERE m.user_id = ?
+         AND m.deleted_at IS NULL
+         AND m.encrypted = 0
+         AND m.type IN ('TEXT','PHOTO','VIDEO','NOTE')
+         AND COALESCE(lower(json_extract(m.metadata, '$.visibility')), '') <> 'private'
+         AND NOT EXISTS (SELECT 1 FROM memory_recipients r WHERE r.memory_id = m.id)
+       ORDER BY m.created_at ASC
+       LIMIT 1`
+    ).bind(inviterId).first();
+
+    return c.json({
+      inviterName: (inviter?.first_name as string) || 'A family member',
+      inviteeName: (invite.invitee_name as string) || null,
+      threadName,
+      memberCount,
+      memoryCount,
+      sinceYear,
+      sampleTitle: (safe?.title as string) || null,
+    });
+  } catch {
+    return c.json({ error: 'Not found' }, 404);
+  }
+});
+
 // ============================================
 // SHAREABLE CARDS
 // ============================================

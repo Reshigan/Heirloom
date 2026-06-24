@@ -9,6 +9,16 @@ import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 const PENDING_INVITE_KEY = 'hl-pending-invite';
 
+interface InvitePreview {
+  inviterName: string;
+  inviteeName: string | null;
+  threadName: string | null;
+  memberCount: number;
+  memoryCount: number;
+  sinceYear: number | null;
+  sampleTitle: string | null;
+}
+
 export function Join() {
   const [params] = useSearchParams();
   const code = params.get('code') ?? '';
@@ -17,6 +27,7 @@ export function Join() {
   const [accepting, setAccepting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+  const [preview, setPreview] = useState<InvitePreview | null>(null);
   const navigateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Clear navigate timer on unmount
@@ -51,6 +62,16 @@ export function Join() {
   };
 
   const isValid = /^INV-[0-9A-F]{8}$/.test(code.toUpperCase());
+
+  // Public preview — proof the thread is real and alive, before sign-up.
+  useEffect(() => {
+    if (!isValid || !code) return;
+    let live = true;
+    engagementApi.invitePreview(code)
+      .then((r) => { if (live) setPreview(r.data); })
+      .catch(() => { /* preview is a nicety — silent on failure */ });
+    return () => { live = false; };
+  }, [isValid, code]);
 
   return (
     <ClothShell
@@ -272,7 +293,7 @@ export function Join() {
                   margin: '0 0 24px',
                 }}
               >
-                welcome
+                {preview ? `${preview.inviterName} invited you` : 'welcome'}
               </p>
 
               {/* Giant serif headline */}
@@ -286,7 +307,9 @@ export function Join() {
                   margin: '0 0 28px',
                 }}
               >
-                Your thread is waiting for your voice.
+                {preview?.threadName
+                  ? `Your place in ${preview.threadName} is waiting.`
+                  : 'Your thread is waiting for your voice.'}
               </h1>
 
               {/* Serif-italic sub */}
@@ -302,8 +325,45 @@ export function Join() {
                   margin: '0 auto 36px',
                 }}
               >
-                Someone in your family has woven a permanent record of memories, letters, and stories, and has included you in it. Add your voice, or simply read what has been written. The thread is owned by your bloodline, not a platform.
+                {preview
+                  ? `${preview.inviterName} has woven a permanent record of memories, letters, and stories, and has kept a place in it for you. Add your voice, or simply read what has been written. The thread is owned by your bloodline, not a platform.`
+                  : 'Someone in your family has woven a permanent record of memories, letters, and stories, and has included you in it. Add your voice, or simply read what has been written. The thread is owned by your bloodline, not a platform.'}
               </p>
+
+              {/* A glimpse — proof the thread already holds something real. */}
+              {preview && (preview.sampleTitle || preview.sinceYear) && (
+                <div style={{ margin: '0 auto 36px', maxWidth: '40ch' }}>
+                  {preview.sampleTitle && (
+                    <p
+                      style={{
+                        fontFamily: 'var(--serif)',
+                        fontStyle: 'italic',
+                        fontSize: 18,
+                        lineHeight: 1.5,
+                        color: 'var(--bone)',
+                        margin: '0 0 10px',
+                      }}
+                    >
+                      “{preview.sampleTitle}”
+                    </p>
+                  )}
+                  <p
+                    style={{
+                      fontFamily: 'var(--mono)',
+                      fontSize: 10,
+                      letterSpacing: '0.22em',
+                      textTransform: 'uppercase',
+                      color: 'var(--bone-faint)',
+                      margin: 0,
+                    }}
+                  >
+                    {[
+                      preview.sinceYear ? `woven since ${preview.sinceYear}` : null,
+                      preview.memberCount > 1 ? `${preview.memberCount} hands` : null,
+                    ].filter(Boolean).join(' · ')}
+                  </p>
+                </div>
+              )}
 
               {/* Invite code display */}
               <p
