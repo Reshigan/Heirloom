@@ -8,6 +8,7 @@ import { ProgressHair } from '../loom/components/ProgressHair';
 import { useAuthStore } from '../stores/authStore';
 import { familyApi, threadsApi, memoriesApi } from '../services/api';
 import { DYES, dyeForId, dyeVar, dyeTextVar, type Dye } from '../loom/dye';
+import { captureWater } from '../loom/water/capture';
 
 /**
  * The Colour of Us — the one screen the loom lacked.
@@ -97,6 +98,17 @@ export function ColourOfUs() {
     return () => obs.disconnect();
   }, []);
 
+  // The orb is a window into the living water — which now IS the family's
+  // colour (the dye-seeded backdrop). Snapshot it on a slow beat so the orb
+  // breathes. '' in light theme / no-WebGL → the static blend stands in.
+  const [waterShot, setWaterShot] = useState('');
+  useEffect(() => {
+    const grab = () => setWaterShot(captureWater());
+    grab();
+    const id = setInterval(grab, 1500);
+    return () => clearInterval(id);
+  }, []);
+
   const totalEntries = useMemo(() => members.reduce((s, m) => s + m.count, 0), [members]);
   // Before the first word every thread weighs the same, so the colour still forms.
   const youngThread = members.length > 0 && totalEntries === 0;
@@ -179,10 +191,12 @@ export function ColourOfUs() {
 
         {members.length > 0 && (
           <>
-            {/* THE BLENDED ORB — the product's single sanctioned dye-fill. A soft
-                radial of the one mixed colour; copper hairline ring, no glassy
-                glow. ponytail: deliberate §2.7 exemption, this screen is the
-                reason the exemption exists — see file header. */}
+            {/* THE ORB — a window into the living water, which now IS the family's
+                colour (the dye-seeded backdrop). When the water can't be read
+                (light theme / no-WebGL) it falls back to the static weighted
+                blend. Either way it's the product's single sanctioned dye-fill;
+                copper hairline ring, no glassy glow. ponytail: deliberate §2.7
+                exemption — this screen is the reason the exemption exists. */}
             <div
               aria-hidden
               style={{
@@ -190,11 +204,16 @@ export function ColourOfUs() {
                 height: 'min(62vw, 248px)',
                 borderRadius: '50%',
                 margin: '12px 0 28px',
-                background: blend
-                  ? `radial-gradient(circle at 38% 32%, color-mix(in srgb, ${blend} 78%, #fff 22%), ${blend} 64%, color-mix(in srgb, ${blend} 72%, #000 28%))`
-                  : 'var(--ink-card)',
+                backgroundColor: 'var(--ink-card)',
+                backgroundImage: waterShot
+                  ? `url(${waterShot})`
+                  : blend
+                    ? `radial-gradient(circle at 38% 32%, color-mix(in srgb, ${blend} 78%, #fff 22%), ${blend} 64%, color-mix(in srgb, ${blend} 72%, #000 28%))`
+                    : undefined,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
                 border: '1px solid var(--copper-border)',
-                transition: 'background 720ms var(--ease)',
+                transition: 'background-image 720ms var(--ease)',
               }}
             />
 
