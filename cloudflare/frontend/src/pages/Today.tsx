@@ -80,6 +80,11 @@ export function Today() {
     <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'today' }]} />
   );
 
+  // Carry the live Listener prompt into the Composer (consumes ?prompt as seedPrompt).
+  const composeTo = !promptUnavailable && prompt
+    ? `/compose?prompt=${encodeURIComponent(prompt)}`
+    : '/compose';
+
   // The outlined amber mono pill — the cosmic-home WRITE / SPEAK affordance,
   // mirroring Login's "enter" pill. warm = the lead action, quiet = the second.
   const pillStyle = (_lead: boolean): CSSProperties => ({
@@ -169,7 +174,7 @@ export function Today() {
 
           {/* Capture affordances — outlined amber WRITE / quiet SPEAK pills */}
           <div style={{ display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginBottom: 56 }}>
-            <Link to="/compose" style={pillStyle(true)}>write</Link>
+            <Link to={composeTo} style={pillStyle(true)}>write</Link>
             <Link to="/record" style={pillStyle(false)}>speak</Link>
           </div>
 
@@ -252,7 +257,7 @@ export function Today() {
 
         {/* Capture affordances — outlined amber WRITE / quiet SPEAK pills */}
         <div style={{ display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginBottom: 56 }}>
-          <Link to="/compose" style={pillStyle(true)}>write</Link>
+          <Link to={composeTo} style={pillStyle(true)}>write</Link>
           <Link to="/record" style={pillStyle(false)}>speak</Link>
         </div>
 

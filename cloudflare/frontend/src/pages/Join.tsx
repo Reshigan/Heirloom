@@ -302,7 +302,7 @@ export function Join() {
                   margin: '0 auto 36px',
                 }}
               >
-                Someone in your family has woven a permanent record of memories, letters, and stories — owned by your bloodline, not a platform. You've been included. Add your voice, or simply read what has been written.
+                Someone in your family has woven a permanent record of memories, letters, and stories, and has included you in it. Add your voice, or simply read what has been written. The thread is owned by your bloodline, not a platform.
               </p>
 
               {/* Invite code display */}

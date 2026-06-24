@@ -15,7 +15,7 @@ export const PLAN_DISPLAY: Record<string, string> = {
 
 export const PLAN_CTA: Record<string, string> = {
   STARTER:  'Begin free',
-  FAMILY:   'Start free 30-day trial',
+  FAMILY:   'Upgrade to Family',
   LEGACY:   'Become a founder',
 };
 

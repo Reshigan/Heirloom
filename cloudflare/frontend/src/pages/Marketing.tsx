@@ -151,7 +151,7 @@ export function Marketing() {
             transition: reduceMotion ? 'none' : `opacity 1400ms ${ease}`,
             transitionDelay: '180ms',
           }}>
-            A journal of shared history, preserved for generations.
+            The things only you remember die with you. Here, they don't.
           </p>
 
           <div style={{

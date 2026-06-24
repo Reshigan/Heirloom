@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/authStore';
 import { threadsApi, memoriesApi, engagementApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Tour } from '../loom/components/Tour';
+import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 // ── Types ─────────────────────────────────────────────────────────────────
@@ -117,16 +118,6 @@ const inputStyle: React.CSSProperties = {
   outline: 'none',
   boxSizing: 'border-box' as const,
   transition: 'border-color 180ms var(--ease)',
-};
-
-// Hero family-name input — underline only, centered, ~360px, breathing room
-// above and below. Caret + focus underline carry the one warm colour.
-const heroInputStyle: React.CSSProperties = {
-  ...inputStyle,
-  maxWidth: 360,
-  margin: '36px auto',
-  fontSize: 20,
-  fontWeight: 400,
 };
 
 const textareaStyle: React.CSSProperties = {
@@ -328,12 +319,12 @@ export function Onboarding() {
     headingRef.current?.focus();
   }, [stepIndex]);
 
-  // Family name — seeded from the surname captured at signup. This names the
-  // bloodline's thread; it feeds the thread-naming logic in ensureThreadId.
-  const [familyName, setFamilyName] = useState(user?.lastName?.trim() ?? '');
-
   // First entry
   const [firstEntry, setFirstEntry] = useState('');
+
+  // The weave beat that plays once the first line persists — mirrors Compose's
+  // `woven` flag: true → render <WeaveCeremony/>, then advance to the invite.
+  const [woven, setWoven] = useState(false);
 
   // Invite
   const [inviteEmail, setInviteEmail] = useState('');
@@ -373,10 +364,6 @@ export function Onboarding() {
   function onFocus(e: React.FocusEvent<HTMLElement>) {
     (e.target as HTMLElement).style.borderColor = 'var(--rule-strong)';
   }
-  // Hero family-name field lifts its underline to the one warm colour on focus.
-  function onWarmFocus(e: React.FocusEvent<HTMLElement>) {
-    (e.target as HTMLElement).style.borderColor = 'var(--warm)';
-  }
   function onBlur(e: React.FocusEvent<HTMLElement>) {
     (e.target as HTMLElement).style.borderColor = 'var(--rule)';
   }
@@ -384,11 +371,11 @@ export function Onboarding() {
   // ── Step handlers ────────────────────────────────────────────────────
 
   // Resolve the thread id, creating one only if signup somehow didn't. The
-  // hero's family-name field (falling back to the signup surname) names it.
+  // surname captured at signup names it — onboarding no longer re-asks.
   async function ensureThreadId(): Promise<string | null> {
     if (threadId) return threadId;
     try {
-      const surname = familyName.trim() || user?.lastName?.trim();
+      const surname = user?.lastName?.trim();
       const name = surname ? `The ${surname} Thread` : 'Our Family Thread';
       const { data } = await threadsApi.create({ name, default_visibility: 'FAMILY' });
       const id = data.thread.id;
@@ -414,19 +401,23 @@ export function Onboarding() {
       // the new-user check (useIsNewUser) actually read. Writing to thread_entries
       // left the opening line invisible and re-prompted the family as if empty.
       await ensureThreadId();
-      const surname = familyName.trim();
+      const surname = user?.lastName?.trim();
       await memoriesApi.create({
         type: 'TEXT',
         ...(surname ? { title: `The ${surname} Thread` } : {}),
         description: firstEntry.trim(),
         metadata: { visibility: 'FAMILY' },
       });
+      // The first line is in the cloth — play the weave beat, then the ceremony's
+      // onDone advances to the invite. (Empty entries returned above, never here.)
+      setBusy(false);
+      setWoven(true);
+      return;
     } catch {
       // Non-fatal — continue forward
-    } finally {
-      setBusy(false);
-      goTo('invite');
     }
+    setBusy(false);
+    goTo('invite');
   }
 
   async function submitInvite() {
@@ -456,6 +447,17 @@ export function Onboarding() {
     return () => clearTimeout(t);
   }, [inviteSent]);
 
+  // The weave beat has no completion callback — let its rise animation play,
+  // then advance to the invite step. Mirrors Compose's post-weave timer.
+  useEffect(() => {
+    if (!woven) return;
+    const t = setTimeout(() => {
+      setWoven(false);
+      goTo('invite');
+    }, 1400);
+    return () => clearTimeout(t);
+  }, [woven]);
+
   function finish() {
     navigate('/loom/pwa', { replace: true });
   }
@@ -476,20 +478,9 @@ export function Onboarding() {
         <div style={crownWrap}><WaxSeal size={56} /></div>
         <div style={eyebrowStyle}>Entry No. 0001</div>
         <h1 ref={headingRef} tabIndex={-1} style={{ ...heroHeadlineStyle, outline: 'none' }}>Begin the thread.</h1>
-        <p style={ledeStyle}>A confidential, private space for your legacy.</p>
+        <p style={ledeStyle}>One line is enough to begin.</p>
 
-        <input
-          style={heroInputStyle}
-          type="text"
-          value={familyName}
-          onChange={(e) => setFamilyName(e.target.value)}
-          onFocus={onWarmFocus}
-          onBlur={onBlur}
-          placeholder="your family name"
-          aria-label="Your family name"
-        />
-
-        <div style={{ marginTop: 4 }}>
+        <div style={{ marginTop: 36 }}>
           <textarea
             style={textareaStyle}
             value={firstEntry}
@@ -526,6 +517,31 @@ export function Onboarding() {
             aria-describedby={error ? 'onboarding-error' : undefined}
           />
         </div>
+
+        {/* One quiet hairline offer — only once a line has been woven. A calm
+            Spectral sentence + a Space Mono copper text-link to keep the thread.
+            No banner, no card, no countdown. */}
+        {firstEntry.trim() && (
+          <p style={{ ...ledeStyle, fontStyle: 'normal', marginTop: 40, fontSize: 15 }}>
+            The thread is yours to keep.&nbsp;
+            <Link
+              to="/billing"
+              style={{
+                fontFamily: 'var(--mono)',
+                fontSize: 11,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                color: 'var(--warm)',
+                textDecoration: 'none',
+                borderBottom: '1px solid var(--rule-strong)',
+                paddingBottom: 3,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              keep the thread →
+            </Link>
+          </p>
+        )}
       </>
     ),
   };
@@ -542,6 +558,21 @@ export function Onboarding() {
   // filament crowning the top, the promise held low in serif, and one outlined
   // amber verb that begins the thread. No page-owned backdrop: the global
   // ClothBackdrop paints the crescent for this route.
+  // The aha beat — the first line woven into the global cloth, before the invite.
+  if (woven) {
+    return (
+      <ClothShell noTopbar>
+        <WeaveCeremony
+          dye="walnut"
+          entryDate={new Date()}
+          seed={user?.lastName?.trim() || 'thread'}
+          eyebrow="woven into the thread"
+          headline="Your first line is part of the cloth."
+        />
+      </ClothShell>
+    );
+  }
+
   if (step === 'welcome') {
     return (
       <ClothShell noTopbar>

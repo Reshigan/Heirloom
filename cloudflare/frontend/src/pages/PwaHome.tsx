@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { getAuthToken } from '../services/api';
+import { getAuthToken, threadsApi, engagementApi } from '../services/api';
 import { useRole } from '../hooks/useRole';
 import { useTapestryEntries } from '../hooks/useTapestryEntries';
 import { useListener } from '../hooks/useListener';
@@ -275,6 +276,34 @@ function AuthHome({
   const count = entries.length;
   const P = 'clamp(20px, 5vw, 28px)';
 
+  // The real hands on the cloth — member_count from the threads summary (endowment).
+  // Reused for both the presence line and the alone-thread loss-aversion line.
+  const { data: threadList } = useQuery({
+    queryKey: ['threads-summary'],
+    queryFn: () => threadsApi.list().then((r) => r.data.threads).catch(() => null),
+  });
+  const memberCount =
+    threadList && threadList.length > 0
+      ? threadList.reduce((max, t) => Math.max(max, t.member_count ?? 0), 0)
+      : null;
+
+  // One year ago today — re-experience. Only the first hit becomes the home line.
+  const { data: onThisDay } = useQuery({
+    queryKey: ['home-on-this-day'],
+    queryFn: () => engagementApi.getOnThisDay().then((r) => r.data as any).catch(() => null),
+  });
+  const echo: { id: string; type?: string } | null = (() => {
+    const m = onThisDay?.memoriesFromThisDay?.[0] ?? onThisDay?.createdOnThisDay?.[0];
+    return m && m.id ? { id: m.id, type: m.type } : null;
+  })();
+  const echoRoute = echo
+    ? echo.type === 'voice'
+      ? `/loom/voice?id=${echo.id}`
+      : echo.type === 'letter'
+        ? `/loom/letter?id=${echo.id}`
+        : `/loom/read?entry=${echo.id}`
+    : null;
+
   const greeting = isAuthenticated && user
     ? `${user.firstName}'s thread.`
     : "Start your family’s thousand-year thread.";
@@ -300,10 +329,10 @@ function AuthHome({
           {role === 'successor' ? 'heir' : 'reader'}
         </span>
         <h2 className="loom-display hl-tight" style={{ fontSize: 'clamp(24px, 6vw, 30px)', fontWeight: 500, lineHeight: 1.15, margin: '0 0 18px', color: 'var(--bone)' }}>
-          You have been given access to this thread.
+          This thread was kept for you.
         </h2>
         <p style={{ fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone-dim)', lineHeight: 1.75, margin: 0 }}>
-          New entries will appear here as they are woven in.
+          You are now one of its keepers.
         </p>
       </div>
     );
@@ -343,9 +372,24 @@ function AuthHome({
             : `/loom/read?entry=${e.id}`,
     }));
 
-  // ponytail: dropped the `· N voices` clause — members count was hardcoded 0 (always dead)
+  // Presence — real entry count + real hands weaving (endowment). member_count
+  // resolves async; until then the hands clause is held back rather than guessed.
   const status =
-    `since ${firstYear} · ${count} ${count === 1 ? 'memory' : 'memories'} woven · year ${threadYear} of a thousand`;
+    `since ${firstYear} · ${count} ${count === 1 ? 'memory' : 'memories'}` +
+    (memberCount != null
+      ? ` · ${memberCount} ${memberCount === 1 ? 'hand' : 'hands'} weaving`
+      : '') +
+    ` · year ${threadYear} of a thousand`;
+
+  // First session (peak-end): when this is the author's single first thread, the
+  // home H1 becomes their own first line — but only if it carries readable text.
+  // A voice note or a sealed letter with no title falls back to the rotating prompt.
+  const firstEntry = count === 1 ? entries[0] : null;
+  const firstLine =
+    firstEntry && !firstEntry.sealed && firstEntry.kind !== 'voice' && firstEntry.title
+      ? String(firstEntry.title)
+      : null;
+  const ownFirstThread = !isReadOnly && firstLine != null;
 
   return (
     <div style={{
@@ -356,16 +400,28 @@ function AuthHome({
       paddingBottom: 'calc(96px + env(safe-area-inset-bottom, 0px))',
     }}>
       <div style={{ width: '100%', maxWidth: 440, textAlign: 'center' }}>
-        {/* Warm mono eyebrow — the Listener */}
+        {/* One year ago today — re-experience. Faint, links to the echoed memory. */}
+        {echoRoute && (
+          <Link to={echoRoute} className="hl-mono" style={{
+            display: 'block',
+            marginBottom: 12,
+            fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase',
+            color: 'var(--bone-faint)', textDecoration: 'none',
+          }}>
+            one year ago today —
+          </Link>
+        )}
+
+        {/* Warm mono eyebrow — the Listener (or, on the first session, the author's own thread) */}
         <div className="hl-mono" style={{
           marginBottom: 18,
           fontSize: 10, letterSpacing: '0.34em', textTransform: 'uppercase',
-          color: 'var(--warm)',
+          color: ownFirstThread ? 'var(--bone-faint)' : 'var(--warm)',
         }}>
-          {isReadOnly ? 'the thread' : 'the listener asks'}
+          {ownFirstThread ? 'your first thread' : isReadOnly ? 'the thread' : 'the listener asks'}
         </div>
 
-        {/* The rotating prompt — type is the hero */}
+        {/* The hero line — the author's own first line on session one, else the rotating prompt */}
         <h1 className="loom-display hl-tight" style={{
           fontSize: 'clamp(28px, 7vw, 44px)',
           fontWeight: 500, lineHeight: 1.1,
@@ -373,14 +429,24 @@ function AuthHome({
           margin: '0 0 40px',
           color: 'var(--bone)',
         }}>
-          {isReadOnly ? `${count} ${count === 1 ? 'memory' : 'memories'} woven so far.` : prompt}
+          {isReadOnly
+            ? `${count} ${count === 1 ? 'memory' : 'memories'} woven so far.`
+            : ownFirstThread
+              ? firstLine
+              : prompt}
         </h1>
 
         {/* Two outlined mono pills — WRITE / SPEAK */}
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button
             type="button"
-            onClick={() => navigate(isReadOnly ? '/loom' : '/compose')}
+            onClick={() => navigate(
+              isReadOnly
+                ? '/loom'
+                : prompt
+                  ? `/compose?prompt=${encodeURIComponent(prompt)}`
+                  : '/compose',
+            )}
             className="hl-cta-warm"
             style={{
               padding: '12px 28px',
@@ -436,7 +502,7 @@ function AuthHome({
           </div>
         )}
 
-        {/* Quiet status foot */}
+        {/* Quiet status foot — presence line (since · memories · hands weaving) */}
         <div className="hl-mono" style={{
           marginTop: 40,
           fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
@@ -444,6 +510,17 @@ function AuthHome({
         }}>
           {status}
         </div>
+
+        {/* A bloodline of one — loss-aversion, quiet (Spectral) */}
+        {!isReadOnly && memberCount === 1 && (
+          <p className="hl-serif" style={{
+            marginTop: 16,
+            fontSize: 13, fontWeight: 300, fontStyle: 'italic',
+            color: 'var(--bone-dim)', lineHeight: 1.6,
+          }}>
+            This thread is yours alone. A bloodline needs more than one hand.
+          </p>
+        )}
       </div>
     </div>
   );

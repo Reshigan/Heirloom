@@ -162,6 +162,23 @@ export function Pricing() {
           Choose how you keep it
         </h1>
 
+        {/* Continuity pledge — echoed from Billing, above the tiers */}
+        <p
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            fontFamily: 'var(--serif)',
+            fontSize: 16,
+            lineHeight: 1.6,
+            fontStyle: 'italic',
+            color: 'var(--bone-dim)',
+            maxWidth: '46ch',
+            margin: '0 0 clamp(28px,6vh,48px)',
+          }}
+        >
+          Your family's archive exports free, forever — even if Heirloom ends.
+        </p>
+
         {/* The three tiers — stacked, centred, each in a card */}
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', gap: 16 }}>
           {tiers.map((tier) => (

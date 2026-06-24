@@ -1249,6 +1249,9 @@ export function Compose() {
   // commits, releasing early cancels. Keyboard/AT users seal immediately via
   // Enter/Space — no hold required.
   const [holding, setHolding] = useState(false); // drives the fill (0 → 100%)
+  // First-seal discoverability: a too-short tap cancels the hold; the label
+  // morphs to "keep holding…" so the gesture is learned. Reverts on next press.
+  const [holdHint, setHoldHint] = useState(false);
   const sealTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // The author's own dye paints the fill — a real palette token, never copper.
@@ -1302,6 +1305,7 @@ export function Compose() {
     if (submitDisabled || save.isPending) return;
     if (!validateForSeal()) return;
     clearSealTimer();
+    setHoldHint(false);
     setHolding(true);
     sealTimerRef.current = setTimeout(() => {
       sealTimerRef.current = null;
@@ -1312,9 +1316,13 @@ export function Compose() {
 
   // Releasing (or leaving) before the 720ms elapses cancels the seal.
   const cancelHold = useCallback(() => {
+    // A hold released early (timer still pending) didn't reach 720ms — teach the
+    // gesture via the label hint. A completed hold has already nulled the timer.
+    const cutShort = sealTimerRef.current !== null && holding;
     clearSealTimer();
     setHolding(false);
-  }, [clearSealTimer]);
+    if (cutShort) setHoldHint(true);
+  }, [clearSealTimer, holding]);
 
   useEffect(() => () => clearSealTimer(), [clearSealTimer]);
 
@@ -1732,7 +1740,7 @@ export function Compose() {
                   ? recipientName.trim()
                     ? `Dear ${recipientName},\n\nWrite your letter here…`
                     : 'Write your letter here…'
-                  : seedPrompt || 'Share a family memory…'
+                  : seedPrompt || 'Begin where the memory does. Someone who comes after will read this exactly as you wrote it.'
               }
               style={{
                 width: '100%',
@@ -2112,6 +2120,8 @@ export function Compose() {
                     isLetter ? 'sealing…' : 'weaving…'
                   ) : holding ? (
                     'sealing…'
+                  ) : holdHint ? (
+                    'keep holding…'
                   ) : (
                     'seal'
                   )}

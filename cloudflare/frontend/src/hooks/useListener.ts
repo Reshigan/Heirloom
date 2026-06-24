@@ -65,14 +65,15 @@ export function nextIndex(last: number, total: number, seed: number): number {
   return ((last < 0 ? 0 : last) + offset) % total;
 }
 
-function readLast(): number {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    const n = raw == null ? -1 : parseInt(raw, 10);
-    return Number.isFinite(n) ? n : -1;
-  } catch {
-    return -1;
-  }
+// Today's prompt index — deterministic from the calendar day, so the same
+// question holds all day and turns over at the day boundary (local midnight).
+function dayIndex(total: number): number {
+  if (total <= 0) return 0;
+  const now = new Date();
+  const daysSinceEpoch = Math.floor(
+    new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime() / 86400000,
+  );
+  return ((daysSinceEpoch % total) + total) % total;
 }
 
 function writeLast(i: number): void {
@@ -96,7 +97,7 @@ export interface Listener {
 export function useListener(): Listener {
   const total = PROMPTS.length;
   const [idx, setIdx] = useState(() => {
-    const i = nextIndex(readLast(), total, Math.random());
+    const i = dayIndex(total);
     writeLast(i);
     return i;
   });

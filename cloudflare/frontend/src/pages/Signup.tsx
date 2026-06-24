@@ -24,7 +24,6 @@ interface SignupErrors {
   birthYear?: string;
   email?: string;
   password?: string;
-  confirmPassword?: string;
   acceptedTerms?: string;
   submit?: string;
 }
@@ -66,7 +65,6 @@ export function Signup() {
     birthYear: '',
     email: '',
     password: '',
-    confirmPassword: '',
     acceptedTerms: false,
     marketingConsent: false,
   });
@@ -75,6 +73,7 @@ export function Signup() {
     return t === 'free' || t === 'family' ? t : 'family';
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<SignupErrors>({});
   const [threadError, setThreadError] = useState<string | null>(null);
 
@@ -93,7 +92,6 @@ export function Signup() {
     if (!form.email.trim()) e.email = 'Email is required';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email';
     if (form.password.length < 8) e.password = 'Password must be at least 8 characters';
-    if (form.password !== form.confirmPassword) e.confirmPassword = 'Passwords do not match';
     if (!form.acceptedTerms) e.acceptedTerms = 'You must accept the Terms of Service';
     setErrors(e);
     return Object.keys(e).length === 0;
@@ -244,7 +242,7 @@ export function Signup() {
             </Row>
             <div style={{ marginTop: 28 }}>
               <Field
-                label="year you were born"
+                label="year you were born · optional"
                 id="s-birth"
                 value={form.birthYear}
                 onChange={(v) => set({ birthYear: v })}
@@ -265,26 +263,41 @@ export function Signup() {
                 error={errors.email}
               />
             </div>
-            <Row style={{ marginTop: 28 }}>
+            <div style={{ marginTop: 28 }}>
               <Field
                 label="password"
                 id="s-pw"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={form.password}
                 onChange={(v) => set({ password: v })}
                 autoComplete="new-password"
                 error={errors.password}
+                trailing={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    aria-pressed={showPassword}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    className="hl-mono"
+                    style={{
+                      background: 'transparent',
+                      border: 0,
+                      cursor: 'pointer',
+                      padding: '4px 0',
+                      fontSize: 9,
+                      letterSpacing: '0.22em',
+                      textTransform: 'uppercase',
+                      color: 'var(--bone-faint)',
+                      transition: `color 180ms ${EASE}`,
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--bone-dim)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--bone-faint)'; }}
+                  >
+                    {showPassword ? 'hide' : 'show'}
+                  </button>
+                }
               />
-              <Field
-                label="confirm"
-                id="s-pw2"
-                type="password"
-                value={form.confirmPassword}
-                onChange={(v) => set({ confirmPassword: v })}
-                autoComplete="new-password"
-                error={errors.confirmPassword}
-              />
-            </Row>
+            </div>
           </div>
 
           {/* step three · how to begin */}
@@ -461,11 +474,7 @@ export function Signup() {
             onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.borderColor = 'var(--warm-bright)'; }}
             onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--warm)'; }}
           >
-            {isLoading
-              ? 'beginning…'
-              : tier === 'family'
-                ? 'begin the thread · 30-day family trial'
-                : 'begin the thread'}
+            {isLoading ? 'beginning…' : 'begin the thread'}
           </button>
 
           {/* isLoading: the sanctioned animated hairline (no spinner). Register
@@ -481,7 +490,7 @@ export function Signup() {
             className="hl-serif"
             style={{ textAlign: 'center', fontSize: 13, fontStyle: 'italic', color: 'var(--bone-faint)', marginTop: 16, fontWeight: 300 }}
           >
-            no card on file · switches to free if not upgraded
+            no card on file · you begin free — 1 thread, 500 MB, free forever · upgrade to Family whenever you're ready
           </p>
         </form>
 
@@ -641,6 +650,7 @@ function Field({
   inputMode,
   maxLength,
   error,
+  trailing,
 }: {
   label: string;
   id: string;
@@ -652,23 +662,26 @@ function Field({
   inputMode?: 'numeric';
   maxLength?: number;
   error?: string;
+  trailing?: React.ReactNode;
 }) {
   return (
     <div>
-      <label
-        htmlFor={id}
-        className="hl-mono"
-        style={{
-          display: 'block',
-          fontSize: 9,
-          letterSpacing: '0.26em',
-          textTransform: 'uppercase',
-          color: 'var(--bone-dim)',
-          marginBottom: 10,
-        }}
-      >
-        {label}
-      </label>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
+        <label
+          htmlFor={id}
+          className="hl-mono"
+          style={{
+            display: 'block',
+            fontSize: 9,
+            letterSpacing: '0.26em',
+            textTransform: 'uppercase',
+            color: 'var(--bone-dim)',
+          }}
+        >
+          {label}
+        </label>
+        {trailing ?? null}
+      </div>
       <input
         id={id}
         type={type}
