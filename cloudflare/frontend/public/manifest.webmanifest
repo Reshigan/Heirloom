@@ -26,14 +26,14 @@
       "short_name": "Compose",
       "description": "Add to your family's Deep — written or spoken",
       "url": "/compose?source=pwa-shortcut",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/icon-192.png?v=20260624deep", "sizes": "192x192" }]
     },
     {
       "name": "Descend into the Deep",
       "short_name": "The Deep",
       "description": "Read down through what your family has kept",
       "url": "/loom/weft?source=pwa-shortcut",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/icons/icon-192.png?v=20260624deep", "sizes": "192x192" }]
     }
   ],
   "screenshots": [
