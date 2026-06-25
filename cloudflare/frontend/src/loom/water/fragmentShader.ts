@@ -1,7 +1,9 @@
-// Dye diffusing in lit water, coloured by the family's natural dyes.
-// Depth = time (gold at the surface, oxblood in the deep). Domain-warped fbm
-// gives the plumes; caustics + light shafts + a sharp focal drop finish it.
-// Ported verbatim from NewUI/heirloom-dyebath — the living-water ground.
+// Dye diffusing in lit water, coloured by the family's natural dyes. Domain-
+// warped fbm gives the plumes; caustics + light shafts + a sharp focal drop
+// finish it. Ported from NewUI/heirloom-dyebath, then re-lit for The Deep — the
+// ambient light (rays + focal shaft) is cold deep-water blue, not gold, so the
+// family-less ground reads as the abyss; family dye plumes (u_dye0..5) still
+// carry each family's colour through the cold light.
 export const FRAGMENT_SHADER = `
 precision highp float;
 uniform vec2 u_res;
@@ -56,14 +58,14 @@ void main(){
   c += vec3(0.55,0.80,0.70) * caust * smoothstep(0.0,0.42,1.0-d) * 0.16;
 
   float ray = pow(max(0.0,1.0-d),1.6) * (0.5+0.5*sin(p.x*5.0+1.2)) * (0.5+0.5*sin(p.x*11.0)) * 0.10;
-  c += vec3(0.95,0.86,0.6) * ray;
+  c += vec3(0.60,0.80,0.95) * ray;
 
   vec2 dp = vec2(0.60*asp, 0.70);
   float dd = length(p - dp);
-  c += vec3(1.0,0.82,0.42) * exp(-dd*dd*2600.0) * 1.8;
-  c += vec3(0.95,0.70,0.35) * exp(-dd*dd*240.0) * 0.26;
+  c += vec3(0.72,0.90,1.0) * exp(-dd*dd*2600.0) * 1.8;
+  c += vec3(0.38,0.64,0.86) * exp(-dd*dd*240.0) * 0.26;
   float tail = exp(-pow((p.x-dp.x)*70.0,2.0)) * smoothstep(0.70,0.42,uv.y) * 0.16;
-  c += vec3(0.9,0.7,0.35)*tail;
+  c += vec3(0.40,0.62,0.80)*tail;
 
   c *= mix(1.06, 0.42, d);
   float vig = smoothstep(1.25, 0.35, length(uv-0.5));

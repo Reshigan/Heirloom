@@ -4,8 +4,9 @@ import { DYES, dyeForId, type Dye } from '../dye';
  * The water palette — each of the 10 natural dyes as a 0–1 RGB tuned for the
  * living-water shader's tone pipeline (NOT the display tokens in globals.css;
  * those are picked for type contrast, these for how dye looks diffusing in lit
- * water). The original six are kept VERBATIM from the ported NewUI shader so
- * the default, family-less ground is byte-for-byte the approved look.
+ * water). The per-dye RGBs are kept VERBATIM from the ported NewUI shader so a
+ * family's own colour is unchanged; only the family-less DEFAULT ramp below was
+ * re-tuned to The Deep's cold deep-water ground.
  */
 export const DYE_WATER_RGB: Record<Dye, [number, number, number]> = {
   // ── the original six, verbatim from fragmentShader's dye() ──
@@ -22,10 +23,13 @@ export const DYE_WATER_RGB: Record<Dye, [number, number, number]> = {
   iron: [0.30, 0.40, 0.45],
 };
 
-// The shader's original ramp order (surface → deep). Used when no family is
-// known, so the family-less water is exactly the approved ground.
+// The default ramp (surface → deep) for family-less water — public, auth and
+// marketing screens. Tuned to The Deep: cold teal at the surface descending to
+// deep indigo, no warm plumes. A signed-in family overrides this entirely with
+// its own dyes (waterRamp), so family identity is untouched — this only sets
+// the deep-water ground a visitor sees before any family colour is known.
 export const DEFAULT_WATER_DYES: Dye[] = [
-  'weld', 'madder', 'woad', 'indigo', 'walnut', 'cochineal',
+  'woad', 'woad', 'iron', 'iron', 'indigo', 'indigo',
 ];
 
 const lum = ([r, g, b]: [number, number, number]) => 0.299 * r + 0.587 * g + 0.114 * b;
@@ -45,7 +49,7 @@ export function memberWaterDye(m: { id: string; dye?: string | null }): Dye {
  */
 export function waterRamp(dyes: Dye[]): [number, number, number][] {
   const distinct = [...new Set(dyes)];
-  // No family → the approved ground, verbatim (original order, never re-sorted).
+  // No family → the deep-water default ground (original order, never re-sorted).
   if (!distinct.length) return DEFAULT_WATER_DYES.map((d) => DYE_WATER_RGB[d]);
   const ordered = distinct.slice().sort((a, b) => lum(DYE_WATER_RGB[b]) - lum(DYE_WATER_RGB[a]));
   const n = ordered.length;
