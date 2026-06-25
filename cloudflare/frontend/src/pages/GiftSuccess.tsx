@@ -49,7 +49,7 @@ export function GiftSuccess() {
             SENT
           </div>
 
-          {/* Display title — Cormorant, hero only at >=24px */}
+          {/* Display title — Fraunces, hero only at >=24px */}
           <h1
             style={{
               fontFamily: 'var(--serif-display)',

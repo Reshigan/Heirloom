@@ -20,8 +20,8 @@ import { listVoice, removeVoice, countVoice, countForeignVoice, type HeldVoice }
  *     SW cache by the rest of the app)
  *   · a status bar showing offline-since + a "sync when ready" hint
  *
- * On-brand: ∞ is the only mark, Spectral (.loom-serif) is the
- * hero, Space Mono (.loom-mono) for archival labels, ink/bone/warm
+ * On-brand: ∞ is the only mark, Source Serif 4 (.loom-serif) is the
+ * hero, JetBrains Mono (.loom-mono) for archival labels, ink/bone/warm
  * tokens only, 1px hairlines, 0 radius.
  */
 
@@ -242,7 +242,7 @@ export function Offline() {
           ∞
         </span>
 
-        {/* Display headline — Cormorant, hero role (>=24px) */}
+        {/* Display headline — Fraunces, hero role (>=24px) */}
         <h1
           style={{
             fontFamily: 'var(--serif-display)',

@@ -904,7 +904,7 @@ export function ReadingRoom() {
  *
  * A book-spread large-type reading surface over the real thread: the left page
  * carries the entry's eyebrow + title + byline, the right page carries the
- * prose set generously in Spectral. Page turns step through real
+ * prose set generously in Source Serif 4. Page turns step through real
  * entries, marked with ∞.
  */
 function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadName: string; onExit: () => void }) {

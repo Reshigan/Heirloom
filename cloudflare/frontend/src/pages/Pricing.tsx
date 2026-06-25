@@ -204,7 +204,7 @@ export function Pricing() {
                 {tier.name}
               </div>
 
-              {/* Big Cormorant price numeral + smaller muted serif cadence suffix */}
+              {/* Big Fraunces price numeral + smaller muted serif cadence suffix */}
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 6 }}>
                 <span
                   style={{

@@ -167,7 +167,7 @@ const welcomeStage: React.CSSProperties = {
   boxSizing: 'border-box',
 };
 
-// The promise — Cormorant display, centered, two lines, the bloodline's own
+// The promise — Fraunces display, centered, two lines, the bloodline's own
 // voice. Display scale only (legible >=24px).
 const welcomeTitle: React.CSSProperties = {
   fontFamily: 'var(--serif-display)',
@@ -180,7 +180,7 @@ const welcomeTitle: React.CSSProperties = {
   margin: '0 0 18px',
 };
 
-// Spectral subhead under the welcome title — the quiet promise of the product.
+// Source Serif 4 subhead under the welcome title — the quiet promise of the product.
 const welcomeSubhead: React.CSSProperties = {
   fontFamily: 'var(--serif)',
   fontWeight: 400,
@@ -556,7 +556,7 @@ export function Onboarding() {
         </button>
 
         {/* One quiet hairline offer — only once a line has been woven. A calm
-            Spectral sentence + a Space Mono copper text-link to keep the thread.
+            Source Serif 4 sentence + a JetBrains Mono copper text-link to keep the thread.
             No banner, no card, no countdown. */}
         {firstEntry.trim() && (
           <p style={{ ...ledeStyle, fontStyle: 'normal', marginTop: 40, fontSize: 15 }}>

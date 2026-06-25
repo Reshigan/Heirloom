@@ -180,7 +180,7 @@ export function MemorialPublic() {
                   in memory
                 </p>
 
-                {/* Name — Cormorant display hero (≥24px) */}
+                {/* Name — Fraunces display hero (≥24px) */}
                 <h1
                   className="hl-serif"
                   style={{

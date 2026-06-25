@@ -232,7 +232,7 @@ export function Today() {
         {/* THE LISTENER ASKS — centred crown capture (global ClothBackdrop paints
             the radiating crown filament behind this; the page renders no backdrop).
             Hero set inline (not via CosmicHeader) to hold the smaller, calmer
-            Cormorant listener-question scale — muted eyebrow, ~28–34px display. */}
+            Fraunces listener-question scale — muted eyebrow, ~28–34px display. */}
         <header style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{
             fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',

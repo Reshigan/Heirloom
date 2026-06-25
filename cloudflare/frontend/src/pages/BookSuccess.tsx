@@ -33,7 +33,7 @@ export function BookSuccess() {
           animation: `hl-fadeup 720ms ${EASE} both`,
         }}
       >
-        {/* Cormorant display title — hero heading, always ≥24px (clamp floor) */}
+        {/* Fraunces display title — hero heading, always ≥24px (clamp floor) */}
         <h1
           style={{
             fontFamily: 'var(--serif-display)',

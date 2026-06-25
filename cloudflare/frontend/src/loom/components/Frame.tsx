@@ -356,7 +356,7 @@ export function Frame({ left, right, trial, showEdge = true, children }: FramePr
             <>
               <span className="hl-topbar-label" aria-hidden style={{ color: 'var(--bone-low)' }}>·</span>
               {/* STATIC ambient line — no days-remaining, no color/size escalation.
-                  Inherits the topbar's Space Mono uppercase letterspacing; bone-faint. */}
+                  Inherits the topbar's JetBrains Mono uppercase letterspacing; bone-faint. */}
               <Link to="/billing" className="hl-topbar-label hl-topbar-action" style={{ color: 'var(--bone-faint)', textDecoration: 'none' }}>
                 free thread · keep it forever
               </Link>

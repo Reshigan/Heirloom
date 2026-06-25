@@ -5,7 +5,7 @@ import { dyeVar } from '../dye';
 /**
  * The Illuminated Ledger — the canonical page language (Higgsfield concept "B").
  *
- * Every screen reads as a page of the family's ledger: a giant Cormorant
+ * Every screen reads as a page of the family's ledger: a giant Fraunces
  * headline holds the top, then hairline-ruled entry rows fall beneath it —
  * the entry's title set in serif on the left, its year and the hand that wrote
  * it set in mono on the right, the author tinted by their dye. The gold ∞ rests
@@ -16,7 +16,7 @@ import { dyeVar } from '../dye';
  */
 
 /**
- * The ledger headline — a large, left-set Cormorant display with a mono
+ * The ledger headline — a large, left-set Fraunces display with a mono
  * eyebrow above it. This is the "Start your family's thousand-year thread."
  * treatment from the concept; `align="center"` keeps the ceremony surfaces
  * (onboarding, unlock) centred.

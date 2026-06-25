@@ -110,7 +110,7 @@ export function MemoryMap() {
           padding: '40px 28px 96px',
         }}
       >
-        {/* The hero — mono eyebrow over a Cormorant display H1, centred over the
+        {/* The hero — mono eyebrow over a Fraunces display H1, centred over the
             map field like the sibling ledgers. The standing phrase in both states. */}
         <CosmicHeader eyebrow="WHERE IT HAPPENED" title="The places it happened." align="center" />
 

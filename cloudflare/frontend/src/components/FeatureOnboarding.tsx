@@ -242,8 +242,8 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                 className="space-y-6"
               >
                 <div>
-                  {/* hl-serif keeps this 18px title in Spectral — without it the
-                      .loom h1–h6 Cormorant !important rule renders the display
+                  {/* hl-serif keeps this 18px title in Source Serif 4 — without it the
+                      .loom h1–h6 Fraunces !important rule renders the display
                       face below its 24px legibility floor (the heading trap). */}
                   <h3 className="hl-serif font-body text-lg mb-2" style={{ color: 'var(--bone)' }}>{step.title}</h3>
                   <p className="leading-relaxed" style={{ color: 'var(--bone-dim)' }}>{step.description}</p>

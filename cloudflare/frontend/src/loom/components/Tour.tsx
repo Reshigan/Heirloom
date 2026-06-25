@@ -13,7 +13,7 @@ import { EASE } from '../motion';
 
 interface Panel {
   eyebrow: string;
-  line: string;      // the hero line (Spectral, large)
+  line: string;      // the hero line (Source Serif 4, large)
   body: string;      // one quiet supporting sentence
 }
 

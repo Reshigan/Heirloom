@@ -324,7 +324,7 @@ export function Weft() {
         }}
       >
         <div style={{ width: '100%', maxWidth: 480 }}>
-          {/* ── A · THE INHERITANCE HORIZON — the document H1. A Cormorant display
+          {/* ── A · THE INHERITANCE HORIZON — the document H1. A Fraunces display
               title (the real, hero heading) sits under the bloodline eyebrow; the
               mono span is the eyebrow only, never a heading. ── */}
           <CosmicHeader

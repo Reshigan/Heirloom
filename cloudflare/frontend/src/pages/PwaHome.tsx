@@ -511,7 +511,7 @@ function AuthHome({
           {status}
         </div>
 
-        {/* A bloodline of one — loss-aversion, quiet (Spectral) */}
+        {/* A bloodline of one — loss-aversion, quiet (Source Serif 4) */}
         {!isReadOnly && memberCount === 1 && (
           <p className="hl-serif" style={{
             marginTop: 16,

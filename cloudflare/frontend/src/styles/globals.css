@@ -248,7 +248,7 @@
      whole type system scales as one. Default = 1 (no change). */
   --text-scale: 1;
 
-  /* Display type-scale tokens. Cormorant/Spectral load as static per-weight
+  /* Display type-scale tokens. Fraunces/Source Serif 4 load as static per-weight
      @fontsource faces — there is no `opsz` axis, so optical-size hints would be
      inert; weight + line-height carry the optical intent instead.
      Each clamp() is wrapped in calc(... * var(--text-scale)) for the lever. */
@@ -509,7 +509,7 @@ body {
   justify-content: center;
   gap: 10px;
   padding: 14px 28px;
-  /* 12px uppercase label — Space Mono, never display Cormorant (unreadable small) */
+  /* 12px uppercase label — JetBrains Mono, never display Fraunces (unreadable small) */
   font-family: var(--mono);
   font-size: 12px;
   font-weight: 500;
@@ -1339,8 +1339,9 @@ html {
 .hl-sealed .glyph { display: block; font-family: var(--serif); font-size: 22px; color: var(--warm); font-weight: 300; margin-bottom: 6px; line-height: 1; }
 .hl-sealed .who { font-family: var(--font-hand); font-style: normal; font-size: 1.9em; line-height: 0.9; color: var(--bone); }
 
-/* The signature — the one hand face at intimate moments. Tangerine sits small,
-   so signatures render at ~1.7em of the surrounding context to read as ink. */
+/* The signature — set in the hand face (--font-hand, now Source Serif 4 since
+   Tangerine was retired); rendered at ~1.7em of the surrounding context so the
+   signed name reads as a deliberate stroke of ink. */
 .hl-signature {
   font-family: var(--font-hand);
   font-size: 1.7em;
@@ -1519,9 +1520,9 @@ html {
 }
 
 /* ─── Type primitives ───────────────────────────────────────────── */
-/* .loom-serif is the readable BODY/prose face (Spectral) — it matches the
+/* .loom-serif is the readable BODY/prose face (Source Serif 4) — it matches the
    Tailwind `font-loom-serif` utility so the same class name never resolves to
-   two opposite fonts. Display headings use .loom-display / .loom-h2 (Cormorant)
+   two opposite fonts. Display headings use .loom-display / .loom-h2 (Fraunces)
    explicitly; prose carrying .loom-serif must read in the legible workhorse. */
 .loom-serif {
   font-family: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, serif;
@@ -1532,7 +1533,7 @@ html {
   font-weight: 300;
   letter-spacing: -0.012em;
   line-height: 1.0;
-  /* Cormorant floor — sizeless callers fall back here, never below 24px. */
+  /* Fraunces floor — sizeless callers fall back here, never below 24px. */
   font-size: 1.5rem;
 }
 .loom-h2 {
@@ -1540,7 +1541,7 @@ html {
   font-weight: 400;
   letter-spacing: -0.006em;
   line-height: 1.06;
-  /* Cormorant floor — sizeless callers fall back here, never below 24px. */
+  /* Fraunces floor — sizeless callers fall back here, never below 24px. */
   font-size: 1.5rem;
 }
 .loom-body {
@@ -1576,7 +1577,7 @@ html {
 .loom-faint      { color: var(--loom-bone-faint); }
 .loom-hairline   { height: 1px; background: var(--loom-rule); border: 0; margin: 0; }
 
-/* ∞ brand mark — the ∞heirloom wordmark. At ~19px Cormorant (a thin display
+/* ∞ brand mark — the ∞heirloom wordmark. At ~19px Fraunces (a thin display
    face) falls below the 24px display floor and turns illegible, so the wordmark
    uses Spectral (var(--serif), the readable serif voice) which keeps the serif
    character of a typeset wordmark while staying legible small.
@@ -1725,7 +1726,7 @@ html {
 
    This file is intentionally surgical. We're not trying to be the v3
    sanctuary; we're matching the Loom: vault dark default + paper light,
-   Cormorant Garamond display, Spectral reading, Space Mono labels, hairline rules in
+   Fraunces display, Source Serif 4 reading, JetBrains Mono labels, hairline rules in
    place of card chrome, ∞ as the only icon, the warm accent for
    anything that was previously gold. Reduced motion is honoured.
 
@@ -1825,15 +1826,15 @@ html {
 .loom .text-blood,
 .loom .text-blood-light { color: var(--danger) !important; }
 
-/* ── Type: Cormorant Garamond display, Spectral reading, Space Mono labels.
-   Display and body are split deliberately — Cormorant is a thin display face
+/* ── Type: Fraunces display, Source Serif 4 reading, JetBrains Mono labels.
+   Display and body are split deliberately — Fraunces is a display face
    that turns unreadable below ~24px, so anything that carries prose or input
-   rides Spectral. Functionality first: legibility over flourish. ── */
+   rides Source Serif 4. Functionality first: legibility over flourish. ── */
 .loom .font-display {
   font-family: 'Fraunces Variable', 'Fraunces', Georgia, serif !important;
   font-weight: 300;
   letter-spacing: -0.01em;
-  /* Cormorant is a thin display face that turns unreadable below ~24px. Floor
+  /* Fraunces is a thin display face that turns unreadable below ~24px. Floor
      the size so .font-display can never render prose-small: at least 1.5rem,
      or the inherited size when that is already larger. */
   font-size: max(1.5rem, 1em);
@@ -1982,21 +1983,21 @@ html {
   font-style: italic;
 }
 
-/* ── Headings — Cormorant Garamond, restrained ──────────────────────── */
+/* ── Headings — Fraunces display, restrained ────────────────────────── */
 .loom h1, .loom h2, .loom h3, .loom h4, .loom h5, .loom h6 {
   font-family: 'Fraunces Variable', 'Fraunces', Georgia, serif !important;
   font-weight: 400;
   letter-spacing: -0.008em;
 }
-/* Cormorant floor — it turns unreadable below ~24px. The Cormorant !important
-   trap above hits ALL of h1–h6, but the size floor previously covered only
-   h4–h6, leaving h1–h3 unprotected: a utility/inline shrink on a .loom h1–h3
-   would render display Cormorant prose-tiny. max(1.5rem, …) is a true FLOOR —
+/* Fraunces floor — the display face turns unreadable below ~24px. The Fraunces
+   !important trap above hits ALL of h1–h6, but the size floor previously covered
+   only h4–h6, leaving h1–h3 unprotected: a utility/inline shrink on a .loom h1–h3
+   would render display Fraunces prose-tiny. max(1.5rem, …) is a true FLOOR —
    it keeps each tag's intended display size (h1 3.5 / h2 2.5 / h3 1.75rem; the
    responsive shrink below restates h1/h2) yet never drops below 24px, so no
    heading tag can fall under the floor. h4 base is 1.25rem (20px) and h5/h6 are
    ~1rem, so they too clamp up to 1.5rem.
-   Genuine smaller "heading" text is retagged to .hl-serif (Spectral) below. */
+   Genuine smaller "heading" text is retagged to .hl-serif (Source Serif 4) below. */
 .loom h1 { font-size: max(1.5rem, 3.5rem); }
 .loom h2 { font-size: max(1.5rem, 2.5rem); }
 .loom h3 { font-size: max(1.5rem, 1.75rem); }
@@ -2009,11 +2010,11 @@ html {
   .loom h2 { font-size: max(1.5rem, 2rem); }
 }
 /* Escape hatch — .hl-serif must beat the display-face heading rule so any
-   heading tag below the 24px Cormorant floor (BookBuilder h3, Streaks,
-   Challenges, Inherit, …) reads in Spectral, the legible body voice. The
+   heading tag below the 24px Fraunces floor (BookBuilder h3, Streaks,
+   Challenges, Inherit, …) reads in Source Serif 4, the legible body voice. The
    plain .hl-serif rule (~line 960) has lower specificity + no !important, so
    it loses to the rule above without this. Genuine ≥24px display headings
-   simply don't carry .hl-serif and keep Cormorant. */
+   simply don't carry .hl-serif and keep Fraunces. */
 .loom .hl-serif,
 .loom :is(h1, h2, h3, h4, h5, h6).hl-serif {
   font-family: var(--serif) !important;
