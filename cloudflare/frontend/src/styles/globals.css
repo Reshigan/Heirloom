@@ -1476,16 +1476,17 @@ html {
   --loom-bone-faint: rgba(255, 255, 255, 0.66);
   --loom-bone-ghost: rgba(255, 255, 255, 0.22);
   --loom-rule:       rgba(255, 255, 255, 0.22);
-  /* darken muted surfaces so text sits on a deeper ground */
-  --void-surface:  #110c08;
-  --void-elevated: #161009;
-  --ink-card:      #15100a;
-  --loom-ink-card: #15100a;
+  /* darken muted surfaces so text sits on a deeper ground — cool Deep blue,
+     one step below the base ramp (#0c151f/#122031), never warm-black */
+  --void-surface:  #070f17;
+  --void-elevated: #0c1826;
+  --ink-card:      #0c1826;
+  --loom-ink-card: #0c1826;
   letter-spacing: 0.02em;
 }
 
-/* Light scope — invert toward pure black ink on parchment, darken the muted
-   ramp, and darken paper surfaces for crisper edges. */
+/* Light scope — invert toward pure black ink on the shallows, darken the muted
+   ramp, and darken the card surface for crisper edges (cool, not warm tan). */
 .loom[data-theme="light"][data-contrast="true"] {
   --bone:        #000000;
   --bone-dim:    rgba(0, 0, 0, 0.92);
@@ -1499,8 +1500,8 @@ html {
   --loom-bone-faint: rgba(0, 0, 0, 0.74);
   --loom-bone-ghost: rgba(0, 0, 0, 0.26);
   --loom-rule:       rgba(0, 0, 0, 0.26);
-  --ink-card:      #e2d4bc;
-  --loom-ink-card: #e2d4bc;
+  --ink-card:      #c9d4e2;
+  --loom-ink-card: #c9d4e2;
   letter-spacing: 0.02em;
 }
 
