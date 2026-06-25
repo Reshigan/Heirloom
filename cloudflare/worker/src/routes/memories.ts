@@ -390,22 +390,32 @@ memoriesRoutes.get('/search', async (c) => {
     score: number;
   }> = [];
 
-  // Search memories (title, description)
+  // Search memories (title + description). Description is encrypted at rest when
+  // ENCRYPTION_MASTER_KEY is set — the base `description` column is NULLed and the
+  // ciphertext lives in description_enc/iv (see legacyArchive). A raw `description
+  // LIKE ?` is therefore blind to all body text once a key is configured; only the
+  // plaintext title matched. Fetch the user's rows and decrypt-scan via
+  // readDescription, which transparently handles both encrypted and plaintext rows.
+  // The old LIKE was already a full table scan (no FTS index), so this is the same
+  // cost plus a per-row decrypt; it also fixes the latent bug where matches past the
+  // 120-char snippet window never scored.
+  // ponytail: O(n) decrypt scan over one user's memories — fine for a family archive
+  // (hundreds–low thousands). Add a blind/HMAC token index if a single thread ever
+  // holds tens of thousands of entries.
   if (typeParam === 'all' || typeParam === 'memory') {
     const rows = await c.env.DB.prepare(`
-      SELECT id, title, description, created_at
+      SELECT id, title, description, description_enc, description_iv, created_at
       FROM memories
       WHERE user_id = ? AND deleted_at IS NULL
-        AND (title LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\')
       ORDER BY created_at DESC
-    `).bind(userId, likePattern, likePattern).all();
+    `).bind(userId).all();
 
     for (const r of rows.results) {
       const title = (r.title as string) || '';
-      const description = (r.description as string) || '';
-      const snippet = description.slice(0, 120);
-      const score = countOccurrences(title, q) + countOccurrences(snippet, q);
-      results.push({ id: r.id, type: 'memory', title, snippet, created_at: r.created_at, score });
+      const description = (await readDescription(c.env, r)) || '';
+      const score = countOccurrences(title, q) + countOccurrences(description, q);
+      if (score === 0) continue;
+      results.push({ id: r.id, type: 'memory', title, snippet: description.slice(0, 120), created_at: r.created_at, score });
     }
   }
 
