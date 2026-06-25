@@ -59,6 +59,8 @@ export function Login() {
         pointerEvents: 'none',
         zIndex: 0,
       }} />
+      {/* Deep-water legibility veil behind the form (see .auth-scrim, globals.css) */}
+      <div aria-hidden className="auth-scrim" />
       {/* A single calm centered column — vast negative space, the global filament backdrop behind. */}
       <div style={{
         position: 'relative', zIndex: 1,

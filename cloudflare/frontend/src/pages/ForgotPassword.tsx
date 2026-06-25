@@ -66,6 +66,7 @@ export function ForgotPassword() {
       {/* FORM archetype: centered column, vast air, underline-only inputs */}
       <div
         style={{
+          position: 'relative',
           minHeight: '70vh',
           display: 'flex',
           flexDirection: 'column',
@@ -74,7 +75,9 @@ export function ForgotPassword() {
           padding: '60px 24px 120px',
         }}
       >
-        <div style={{ width: '100%', maxWidth: 360 }}>
+        {/* Deep-water legibility veil behind the form (see .auth-scrim, globals.css) */}
+        <div aria-hidden className="auth-scrim" />
+        <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 360 }}>
           {success ? (
             /* ── Success branch ── */
             <div role="status" style={{ textAlign: 'center' }}>

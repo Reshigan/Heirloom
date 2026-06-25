@@ -79,6 +79,7 @@ export function ResetPassword() {
       {/* FORM archetype: centered column, vast air, content vertically centered */}
       <div
         style={{
+          position: 'relative',
           minHeight: 'calc(100vh - 56px)',
           display: 'flex',
           flexDirection: 'column',
@@ -87,7 +88,9 @@ export function ResetPassword() {
           padding: '64px 24px 80px',
         }}
       >
-        <div style={{ width: '100%', maxWidth: 360, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {/* Deep-water legibility veil behind the form (see .auth-scrim, globals.css) */}
+        <div aria-hidden className="auth-scrim" />
+        <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 360, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
           {/* ∞ ceremony mark */}
           <div

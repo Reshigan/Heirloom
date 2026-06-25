@@ -190,6 +190,8 @@ export function Signup() {
         pointerEvents: 'none',
         zIndex: 0,
       }} />
+      {/* Deep-water legibility veil behind the form (see .auth-scrim, globals.css) */}
+      <div aria-hidden className="auth-scrim" />
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 440, margin: '0 auto' }}>
 
         {/* FORM archetype header — mono eyebrow + giant centered serif headline.

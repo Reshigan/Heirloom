@@ -1265,6 +1265,24 @@ html {
 .hl-input::placeholder { color: var(--parchment-faint); }
 .hl-input:disabled { opacity: 0.45; cursor: not-allowed; }
 
+/* Auth legibility vignette — a soft deep-water veil that deepens the centre
+   reading area so titles/inputs read over the brightest part of the global
+   water flare on /login, /signup, /forgot-password, /reset-password. Sits above
+   the WaterCanvas backdrop, below page content (z-index 0 < the content's 1).
+   Soft-edged + token-driven so the water stays visible around it and the veil
+   inverts to a faint light wash in the shallows theme — the backdrop itself is
+   never touched, only veiled where text lands. */
+.auth-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 72% 60% at 50% 42%,
+    color-mix(in srgb, var(--ink) 76%, transparent) 0%,
+    color-mix(in srgb, var(--ink) 50%, transparent) 42%,
+    color-mix(in srgb, var(--ink) 0%, transparent) 78%);
+}
+
 /* hl-input on ink backgrounds (authenticated pages) */
 .hl-screen:not(.parchment) .hl-input {
   color: var(--bone);
