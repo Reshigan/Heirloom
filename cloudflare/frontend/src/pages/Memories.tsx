@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useListener } from '../hooks/useListener';
 import { type Memory } from '../types';
 import { dyeColor, dyeVar, type Dye } from '../loom/dye';
@@ -23,29 +23,20 @@ function personOf(m: Memory): string | null {
   return p && p.trim() ? p.trim() : null;
 }
 
-/** The displayable image for an entry, if it has one. */
-function imageOf(m: Memory): string | null {
-  if (m.fileUrl && m.mimeType && m.mimeType.startsWith('image/')) return m.fileUrl;
-  if (m.fileUrl && (m.type === 'PHOTO' || m.type === 'photo')) return m.fileUrl;
-  const first = m.metadata?.images?.[0]?.fileUrl;
-  return first || null;
-}
-
 type Filters = { year: string; month: string; type: string; query: string; emotion: string; person: string };
 const EMPTY_FILTERS: Filters = { year: '', month: '', type: '', query: '', emotion: '', person: '' };
 
 /**
  * A single ledger row for one woven memory. The serif title rests on the left;
- * a mono cluster of entry-year + dye dot + author/type rests on the right. The
- * row's click-through opens the entry inline — revealing its full prose, any
- * photograph, and the quiet mono edit / delete affordances.
+ * a mono cluster of entry-year rests on the right. The row is the index — its
+ * click-through opens the entry in the paged reader (`/loom/read?entry=`), the
+ * same focused reading surface every other thread surface (Weft, Inbox, search)
+ * routes into. Reading, editing, and unweaving all live there now, so the
+ * ledger stays a quiet scannable index instead of a stack of inline-expanding
+ * panels (the old scrolling/options friction).
  */
-function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; activeEmotion?: string }) {
-  const queryClient = useQueryClient();
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState(false);
-  const [editText, setEditText] = useState(m.description ?? '');
-  const [confirmDelete, setConfirmDelete] = useState(false);
+function MemoryRow({ m, index }: { m: Memory; index: number }) {
+  const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
   const rowRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -59,37 +50,6 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
     return () => io.disconnect();
   }, []);
 
-  const [mutError, setMutError] = useState<string | null>(null);
-
-  const updateMut = useMutation({
-    mutationFn: () => memoriesApi.update(m.id, { description: editText }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
-      setEditing(false);
-      setMutError(null);
-    },
-    onError: () => setMutError('Could not save changes.'),
-  });
-
-  const deleteMut = useMutation({
-    mutationFn: () => memoriesApi.delete(m.id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] }),
-    onError: () => setMutError('Could not remove this entry.'),
-  });
-
-  // An unwoven thread is soft-deleted, not erased — the worker keeps it
-  // restorable for 7 days (memories.ts restore route). Surface that window as a
-  // first-class undo so the archive's permanence promise holds in the UI too.
-  const restoreMut = useMutation({
-    mutationFn: () => memoriesApi.restore(m.id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });
-      deleteMut.reset();
-      setMutError(null);
-    },
-    onError: () => setMutError('Could not restore this entry.'),
-  });
-
   // Dye = the family-member signal (single-source dye.ts), not a content-type
   // palette — the 3px left-thread tells you *whose* memory this is, like the Weft.
   const threadColor = dyeColor(m.id, m.metadata);
@@ -97,30 +57,6 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
   const monthYear = isNaN(entryDate.getTime())
     ? ''
     : `${MONTHS[entryDate.getMonth()]} ${entryDate.getFullYear()}`.toUpperCase();
-  const fullDate = isNaN(entryDate.getTime())
-    ? ''
-    : entryDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
-
-  // Unwoven, but not gone — a 7-day undo strip stands in the row's place.
-  if (deleteMut.isSuccess && !restoreMut.isSuccess) {
-    return (
-      <div style={{ borderLeft: `3px solid ${threadColor}`, paddingLeft: 14 }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, padding: '15px 0', borderBottom: '1px solid var(--rule)' }}>
-          <span className="hl-serif" style={{ fontStyle: 'italic', fontWeight: 300, fontSize: 15, lineHeight: 1.5, color: 'var(--bone-dim)' }}>
-            Unwoven — recoverable for 7 days.
-          </span>
-          <button type="button" onClick={() => restoreMut.mutate()} disabled={restoreMut.isPending}
-            className="hl-mono"
-            style={{ marginLeft: 'auto', background: 'transparent', border: 0, padding: '6px 0', cursor: restoreMut.isPending ? 'wait' : 'pointer', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', opacity: restoreMut.isPending ? 0.6 : 1, touchAction: 'manipulation', minHeight: 44 }}>
-            {restoreMut.isPending ? 'reweaving…' : 'undo'}
-          </button>
-        </div>
-        {mutError && (
-          <p className="hl-mono" role="alert" style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.1em', marginTop: 10 }}>{mutError}</p>
-        )}
-      </div>
-    );
-  }
 
   const delay = (index % 2) * 180; // stagger snapped to the motion grid (0/180ms)
   const title = m.title || (m.description ? (m.description as string).slice(0, 64) : 'Untitled');
@@ -140,13 +76,13 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
         transition: `opacity 720ms var(--ease) ${delay}ms, transform 720ms var(--ease) ${delay}ms`,
       }}
     >
-      {/* The ledger row — click toggles the entry open. Mirrors EntryRow's
-          structure (serif title left; mono year + dye dot + author right). */}
+      {/* The ledger row — opens the entry in the paged reader. Mirrors EntryRow's
+          structure (serif title left; mono year right). */}
       <button
         type="button"
-        onClick={() => setOpen(o => !o)}
-        aria-expanded={open}
+        onClick={() => navigate(`/loom/read?entry=${m.id}`)}
         className="hl-ledger-row"
+        aria-label={`Read “${title}”`}
         style={{
           display: 'flex',
           alignItems: 'baseline',
@@ -177,120 +113,6 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
           </span>
         )}
       </button>
-
-      {open && (
-        <div style={{ padding: '14px 0 22px' }}>
-          {/* Full date + edit / delete affordances (mono text, never icons) */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, marginBottom: 10, flexWrap: 'wrap' }}>
-            {fullDate && (
-              <span className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-dim)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
-                {fullDate}
-              </span>
-            )}
-            {!editing && !confirmDelete && (
-              <div style={{ display: 'flex', gap: 14 }}>
-                <button type="button" onClick={() => { setEditText(m.description ?? ''); setEditing(true); }}
-                  className="hl-mono"
-                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', minHeight: 44, display: 'inline-flex', alignItems: 'center', touchAction: 'manipulation' }}>
-                  edit
-                </button>
-                <button type="button" onClick={() => setConfirmDelete(true)}
-                  className="hl-mono"
-                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', minHeight: 44, display: 'inline-flex', alignItems: 'center', touchAction: 'manipulation' }}>
-                  unweave
-                </button>
-              </div>
-            )}
-          </div>
-
-          {activeEmotion && (() => {
-            const em = EMOTIONS.find(e => e.value === activeEmotion);
-            return em ? (
-              <span style={{
-                display: 'inline-block', fontFamily: 'var(--mono)', fontSize: 9,
-                letterSpacing: '0.18em', textTransform: 'uppercase',
-                color: dyeVar(em.dye), borderLeft: `2px solid ${dyeVar(em.dye)}`,
-                paddingLeft: 6, marginBottom: 10, opacity: 0.85,
-              }}>
-                {em.label}
-              </span>
-            ) : null;
-          })()}
-
-          {imageOf(m) && (
-            <img
-              src={imageOf(m) as string}
-              alt={m.title ?? 'Memory photo'}
-              loading="lazy"
-              style={{
-                display: 'block',
-                width: '100%',
-                maxWidth: 520,
-                height: 'auto',
-                marginBottom: 14,
-                background: 'var(--rule)',
-              }}
-            />
-          )}
-
-          {personOf(m) && (
-            <span className="hl-mono" style={{ display: 'block', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 8 }}>
-              for {personOf(m)}
-            </span>
-          )}
-
-          {editing ? (
-            <div>
-              <textarea value={editText} onChange={(e) => setEditText(e.target.value)} rows={6} autoFocus aria-label="Edit memory text"
-                style={{ width: '100%', maxWidth: 640, background: 'transparent', border: '1px solid var(--rule)', borderRadius: 0, color: 'var(--bone)', caretColor: 'var(--warm)', fontFamily: 'var(--serif)', fontSize: 17, lineHeight: 1.75, padding: '10px 12px', outline: 'none', resize: 'none', boxSizing: 'border-box' }} />
-              <div style={{ display: 'flex', gap: 18, marginTop: 12, alignItems: 'center' }}>
-                <button type="button" onClick={() => updateMut.mutate()} disabled={updateMut.isPending}
-                  className="hl-mono"
-                  style={{ background: 'transparent', border: 0, padding: 0, cursor: updateMut.isPending ? 'wait' : 'pointer', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', opacity: updateMut.isPending ? 0.6 : 1, minHeight: 44, display: 'inline-flex', alignItems: 'center', touchAction: 'manipulation' }}>
-                  {updateMut.isPending ? 'saving…' : 'save'}
-                </button>
-                <button type="button" onClick={() => setEditing(false)}
-                  className="hl-mono"
-                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', minHeight: 44, display: 'inline-flex', alignItems: 'center', touchAction: 'manipulation' }}>
-                  cancel
-                </button>
-              </div>
-              {updateMut.isError && (
-                <p className="hl-mono" style={{ fontSize: 10, color: 'var(--warm)', marginTop: 8, letterSpacing: '0.08em' }}>Could not save — try again.</p>
-              )}
-            </div>
-          ) : (
-            (m.description as string) && (
-              <p className="hl-serif" style={{ fontSize: 17, lineHeight: 1.75, color: 'var(--bone)', margin: 0, maxWidth: '62ch', whiteSpace: 'pre-wrap' }}>
-                {m.description as string}
-              </p>
-            )
-          )}
-
-          {confirmDelete && (
-            <div style={{ marginTop: 14, display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
-              <span className="hl-mono" style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>Unweave this thread?</span>
-              <button type="button" onClick={() => deleteMut.mutate()} disabled={deleteMut.isPending}
-                className="hl-mono"
-                style={{ background: 'transparent', border: 0, padding: '6px 0', cursor: deleteMut.isPending ? 'wait' : 'pointer', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', opacity: deleteMut.isPending ? 0.6 : 1, touchAction: 'manipulation', minHeight: 44 }}>
-                {deleteMut.isPending ? 'removing…' : 'confirm'}
-              </button>
-              <button type="button" onClick={() => { setConfirmDelete(false); setMutError(null); }}
-                className="hl-mono"
-                style={{ background: 'transparent', border: 0, padding: '6px 0', cursor: 'pointer', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', touchAction: 'manipulation', minHeight: 44 }}>
-                cancel
-              </button>
-            </div>
-          )}
-          {mutError && (
-            <p className="hl-mono" role="alert" style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.1em', marginTop: 10 }}>{mutError}</p>
-          )}
-
-          <div className="hl-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.16em', marginTop: 14 }}>
-            #{(index + 1).toString().padStart(3, '0')}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -633,7 +455,7 @@ export function Memories() {
             return (
               <div key={m.id}>
                 {showLabel && <SectionLabel>{`${decade}s`}</SectionLabel>}
-                <MemoryRow m={m} index={i} activeEmotion={filters.emotion || undefined} />
+                <MemoryRow m={m} index={i} />
               </div>
             );
           })}
