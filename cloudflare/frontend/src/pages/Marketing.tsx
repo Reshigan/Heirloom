@@ -230,7 +230,7 @@ export function Marketing() {
             ['A thousand-year horizon.',
              'Not a season. Not a subscription cycle. An archive that outlives its founders and holds the record of a bloodline — perpetually, structurally, by design.'],
             ['Entries only append.',
-             'No silent edits. No deletion. Future generations read exactly what you wrote, exactly when you wrote it. The past is sealed the moment you weave it in.'],
+             'No silent edits. No deletion. Future generations read exactly what you wrote, exactly when you wrote it. The past is sealed the moment it settles.'],
           ] as const).map(([title, body], i) => (
             <div key={i} style={{
               borderBottom: '1px solid var(--rule)',

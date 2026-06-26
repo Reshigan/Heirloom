@@ -28,16 +28,16 @@ interface PastConversation {
 
 const HELP_TOPICS: Array<{ q: string; a: string }> = [
   {
-    q: 'What is the cloth?',
-    a: 'The cloth is the whole of your family thread, woven from every entry. Each memory, letter, or voice recording becomes one thread in it. You read the cloth by hand rather than scrolling a feed — tap any thread to open what it holds.',
+    q: 'What is the Deep?',
+    a: 'The Deep is the whole of your family thread, holding every entry. Each memory, letter, or voice recording settles into it. You read the Deep by hand rather than scrolling a feed — tap any entry to open what it holds.',
   },
   {
     q: 'How do I add a memory?',
-    a: 'Tap "compose" (or the memory mark in the bottom bar), write freely, and weave it into the cloth. The Listener offers a quiet prompt if you want one. Entries are kept forever — they can be revised, never erased.',
+    a: 'Tap "capture" in the bottom bar, speak or write freely, and let it settle into the Deep. The Listener offers a quiet prompt if you want one. Entries are kept forever — they can be revised, never erased.',
   },
   {
     q: 'How do sealed letters work?',
-    a: 'Write a letter, choose who it is for, and seal it with a delivery moment — a date, a birthday, or after you are gone. It waits in the cloth and is delivered at exactly that moment.',
+    a: 'Write a letter, choose who it is for, and seal it with a delivery moment — a date, a birthday, or after you are gone. It waits in the Deep and is delivered at exactly that moment.',
   },
   {
     q: 'How do I invite my family?',
@@ -149,7 +149,7 @@ export function HelpSupport() {
         <CosmicHeader
           eyebrow="help & support"
           title="The questions families ask first."
-          sub="Plain answers about the cloth, sealed letters, and inheritance — and an assistant for anything else."
+          sub="Plain answers about the Deep, sealed letters, and inheritance — and an assistant for anything else."
         />
 
         {/* ── FAQ accordion ───────────────────────────────────────────────── */}

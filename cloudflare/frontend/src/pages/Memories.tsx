@@ -191,12 +191,12 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
               <div style={{ display: 'flex', gap: 14 }}>
                 <button type="button" onClick={() => { setEditText(m.description ?? ''); setEditing(true); }}
                   className="hl-mono"
-                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', minHeight: 44, display: 'inline-flex', alignItems: 'center', touchAction: 'manipulation' }}>
                   edit
                 </button>
                 <button type="button" onClick={() => setConfirmDelete(true)}
                   className="hl-mono"
-                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', minHeight: 44, display: 'inline-flex', alignItems: 'center', touchAction: 'manipulation' }}>
                   unweave
                 </button>
               </div>
@@ -246,12 +246,12 @@ function MemoryRow({ m, index, activeEmotion }: { m: Memory; index: number; acti
               <div style={{ display: 'flex', gap: 18, marginTop: 12, alignItems: 'center' }}>
                 <button type="button" onClick={() => updateMut.mutate()} disabled={updateMut.isPending}
                   className="hl-mono"
-                  style={{ background: 'transparent', border: 0, padding: 0, cursor: updateMut.isPending ? 'wait' : 'pointer', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', opacity: updateMut.isPending ? 0.6 : 1 }}>
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: updateMut.isPending ? 'wait' : 'pointer', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', opacity: updateMut.isPending ? 0.6 : 1, minHeight: 44, display: 'inline-flex', alignItems: 'center', touchAction: 'manipulation' }}>
                   {updateMut.isPending ? 'saving…' : 'save'}
                 </button>
                 <button type="button" onClick={() => setEditing(false)}
                   className="hl-mono"
-                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                  style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', minHeight: 44, display: 'inline-flex', alignItems: 'center', touchAction: 'manipulation' }}>
                   cancel
                 </button>
               </div>

@@ -1113,7 +1113,7 @@ export function Compose() {
 
   // Compute submit label
   const submitLabel = useMemo(() => {
-    if (!isLetter) return 'weave it in →';
+    if (!isLetter) return 'let it settle →';
     if (deliveryTrigger === 'now') return 'send letter →';
     if (deliveryTrigger === 'date' && scheduledDate) {
       const d = new Date(`${scheduledDate}T00:00:00`);
@@ -1442,7 +1442,7 @@ export function Compose() {
 
         {save.isPending ? (
           <span style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.1em', color: 'var(--warm)' }}>
-            {isLetter ? 'sealing…' : 'weaving…'}
+            {isLetter ? 'sealing…' : 'settling…'}
           </span>
         ) : save.isSuccess ? (
           <span style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.1em', color: 'var(--warm)' }}>
@@ -1978,7 +1978,7 @@ export function Compose() {
                 <DyeSuggestButton body={body} onSuggest={setDye} />
               </span>
               <span style={{ color: 'var(--bone-faint)' }}>
-                {save.isPending ? 'weaving…' : 'once saved · immutable in 30 days'}
+                {save.isPending ? 'settling…' : 'once saved · immutable in 30 days'}
               </span>
             </ComposerRail>
           )}
@@ -2117,7 +2117,7 @@ export function Compose() {
                       <span aria-hidden style={{ color: 'var(--warm)' }}>∞</span>
                     </>
                   ) : save.isPending ? (
-                    isLetter ? 'sealing…' : 'weaving…'
+                    isLetter ? 'sealing…' : 'settling…'
                   ) : holding ? (
                     'sealing…'
                   ) : holdHint ? (

@@ -383,7 +383,7 @@ export function PhotoQuick() {
                   opacity: canSave ? 1 : 0.45,
                 }}
               >
-                {save.isPending ? 'weaving…' : 'weave into cloth →'}
+                {save.isPending ? 'settling…' : 'lower into the Deep →'}
               </button>
             </div>
           </>
