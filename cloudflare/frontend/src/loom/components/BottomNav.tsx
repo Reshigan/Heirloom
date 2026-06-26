@@ -2,28 +2,27 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 
 /**
- * BottomNav — the persistent 5-item typographic bar at the foot of the
+ * BottomNav — the persistent 4-item typographic bar at the foot of the
  * authenticated loom PWA shell.
  *
- * Five destinations: cloth · memory · home · voice · profile.
+ * Four destinations: the deep · capture · family · you.
  * Every item is a plain typographic word — no icons (§2.6), no bare mark.
- * "home" is the center anchor: warm when active so it reads as the heart of
- * the bar without an icon. The page WaxSeal ∞ stays the singular ∞ per
- * surface (Rule 5) — the nav stamps no second mark.
+ * "capture" is the center anchor (the voice-first cockpit): warm when active
+ * so it reads as the heart of the bar without an icon. The page WaxSeal ∞
+ * stays the singular ∞ per surface (Rule 5) — the nav stamps no second mark.
  * Anchored above the iPhone home indicator via env(safe-area-inset-bottom).
- * Active route: bone (home: warm). Inactive: bone-dim.
+ * Active route: bone (capture: warm). Inactive: bone-dim.
  *
  * Only renders for authenticated users on app surfaces — never on the
  * marketing site, auth screens, onboarding, or admin (it used to leak a
- * "cloth · memory · ∞" bar over the logged-out landing/login pages).
+ * bar over the logged-out landing/login pages).
  */
 
 const NAV = [
-  { label: 'cloth',   href: '/loom/weft' },
-  { label: 'memory',  href: '/compose' },
-  { label: 'home',    href: '/loom/index', center: true },
-  { label: 'voice',   href: '/record' },
-  { label: 'profile', href: '/loom/profile' },
+  { label: 'the deep', href: '/loom/weft' },
+  { label: 'capture',  href: '/capture', center: true },
+  { label: 'family',   href: '/family' },
+  { label: 'you',      href: '/loom/profile' },
 ] as const;
 
 // Public / chrome-free surfaces where the persistent nav must not appear.
@@ -45,7 +44,7 @@ export function BottomNav() {
 
   return (
     <nav
-      aria-label="Loom navigation"
+      aria-label="The Deep navigation"
       style={{
         position: 'fixed',
         bottom: 0,
@@ -65,13 +64,13 @@ export function BottomNav() {
     >
       {NAV.map((item) => {
         const isCenter = 'center' in item && item.center;
-        // Plain pathname match for every item; the center mark matches /loom/index.
+        // Plain pathname match for every item; the center anchor matches /capture.
         const isActive = pathname === item.href;
         return (
           <Link
             key={item.href}
             to={item.href}
-            aria-label={isCenter ? 'Home' : item.label}
+            aria-label={isCenter ? 'Capture' : item.label}
             aria-current={isActive ? 'page' : undefined}
             style={{
               flex: 1,
@@ -86,9 +85,9 @@ export function BottomNav() {
               // is identical and the bar never shifts on selection.
               borderTop: isActive ? '1px solid var(--warm)' : '1px solid transparent',
               paddingTop: 1,
-              // Home is the warm anchor (warm when active); every tab is a plain
+              // Capture is the warm anchor (warm when active); every tab is a plain
               // legible mono label — no bare unlabelled mark, so the bar reads as
-              // five named destinations.
+              // four named destinations.
               color: isCenter
                 ? isActive ? 'var(--warm)' : 'var(--bone-dim)'
                 : isActive ? 'var(--bone)' : 'var(--bone-dim)',

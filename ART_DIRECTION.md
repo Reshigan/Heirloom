@@ -2,11 +2,20 @@
 
 This is the design constitution. Every visual decision answers to it.
 
+> **Current brand: The Deep.** The home surface is living deep water (ground `#070d14`), seeded by
+> the family's member dyes (`WaterCanvas`). The user-facing word for the archive is **the Deep** —
+> entries *settle* / are *lowered* into it; the capture verb is *"let it settle."* The word "cloth"
+> is retired from user copy (the `Cloth*`/`loom` code names stay). Type stack is **Fraunces**
+> (display ≥~24px), **Source Serif 4** (body/prose/inputs/hand), **JetBrains Mono** (labels). Where
+> this doc still says Cormorant/Spectral/Space Mono/Inter or ground `#0b0907`, the live bundle
+> (`src/styles/globals.css` + `tailwind.config.js`) is authoritative — trust it over this prose.
+
 ---
 
 ## The thesis in one line
 
-**A vault, not a campfire.** The hearth is implied by warmth, not rendered as fire.
+**A vault, not a campfire.** The hearth is implied by warmth, not rendered as fire. (Under The Deep
+the warmth is one copper light on dark water — same restraint, same single light source.)
 
 ---
 
@@ -25,8 +34,8 @@ The hearth's emotional payload is **warmth, vigilance, ritual presence**. None o
 
 ## The five rules
 
-1. **Type is the hero.** Cormorant Garamond for display, set with hand-tuned tracking — DISPLAY ONLY (≥~24px; it turns unreadable smaller). Spectral for body and reading prose (the readable workhorse). Space Mono for archival timestamps and labels. Inter for residual UI chrome. Tangerine is the lone exception, used only for the signature hand.
-2. **One color has emotion.** A single copper warmth (`#e0a062`). Used at <3% surface area, always. Everything else is cream (`#f2e6d0`) on ground (`#0b0907`) at varying opacity.
+1. **Type is the hero.** Fraunces for display, set with hand-tuned tracking — DISPLAY ONLY (≥~24px; it turns unreadable smaller). Source Serif 4 for body, reading prose, inputs, and the intimate hand/italic voice (the readable workhorse). JetBrains Mono for archival timestamps and labels.
+2. **One color has emotion.** A single copper warmth (`#e0a062`). Used at <3% surface area, always. Everything else is cream (`#f2e6d0`) on ground (`#070d14`, deep water) at varying opacity.
 3. **Negative space is the composition.** 60–70% of any view is empty. Empty is not "we couldn't think of what goes there"; empty is the design.
 4. **Motion has meaning or it's removed.** One easing curve (`cubic-bezier(0.16, 1, 0.3, 1)`). One duration vocabulary (180 / 360 / 720 / 1400 ms). Anything decorative gets cut.
 5. **Outside time.** The page should look authored in 1970, 2026, and 2076. If a visual move signals "this is the era," kill it.
@@ -43,11 +52,11 @@ The hearth's emotional payload is **warmth, vigilance, ritual presence**. None o
 
 ### The Names
 
-Family members are typeset names, not avatars or graphic stones. Each name in Cormorant; the active member is the only one in copper, everyone else in cream. Recent activity is a single underdot; "currently being read" is the copper color. No glow, no halo, no `rounded-full` chip. Each member also owns a natural dye (see below) that travels as a 3px left-margin thread.
+Family members are typeset names, not avatars or graphic stones. Each name in Fraunces; the active member is the only one in copper, everyone else in cream. Recent activity is a single underdot; "currently being read" is the copper color. No glow, no halo, no `rounded-full` chip. Each member also owns a natural dye (see below) that travels as a 3px left-margin thread.
 
 ### The Sealed Notes
 
-Time-locked entries are a small typographic block: a date in Space Mono, an em-dash, the recipient's name in italic, a single ∞ glyph in copper above.
+Time-locked entries are a small typographic block: a date in JetBrains Mono, an em-dash, the recipient's name in italic, a single ∞ glyph in copper above.
 
 ```
         ∞
@@ -62,7 +71,7 @@ The artifact is implied, not the centerpiece: a thin horizontal band, each entry
 
 ### The Composer
 
-Editorial, a printed page rather than a form. Spectral body (~22px), leading ~1.85, max measure ~60ch. The textarea is a piece of paper — no borders, no focus glow; the cursor is the only signal of attention. Inputs are forced to Spectral (never Cormorant — display type is unreadable at input size).
+Editorial, a printed page rather than a form. Source Serif 4 body (~22px), leading ~1.85, max measure ~60ch. The textarea is a piece of paper — no borders, no focus glow; the cursor is the only signal of attention. Inputs are forced to Source Serif 4 (never Fraunces — display type is unreadable at input size).
 
 ---
 
@@ -84,7 +93,7 @@ If those five fail, the page fails.
 
 - Glassmorphism, frosted glass, blurred backgrounds.
 - Gradient meshes, conic gradients, animated noise.
-- Inter Display tracked tight at 80px (the SaaS hero pattern).
+- A tech-sans display face tracked tight at 80px (the SaaS hero pattern).
 - "Floating" cards with translateY hover.
 - Any radial gradient that's "atmospheric."
 - Any motion that doesn't carry information.
@@ -101,19 +110,19 @@ Canonical in `src/styles/globals.css` `:root`, mirrored in `tailwind.config.js` 
 
 | Token | Value | Usage |
 |---|---|---|
-| `ink` | `#0b0907` | Page surface (ground) |
+| `ink` | `#070d14` | Page surface (the Deep's deep water) |
 | `ink-card` | `#1b1610` | Cards (the rare ones) |
 | `ink-deep` | `#090706` | Deepest recess (abyss) |
 | `bone` | `#f2e6d0` | Body, headings (cream) |
 | `bone-dim` | `rgba(242,230,208,0.72)` | Secondary text |
-| `bone-faint` | `rgba(242,230,208,0.44)` | Tertiary text |
+| `bone-faint` | `rgba(242,230,208,0.62)` | Tertiary text (lifted from 0.44 for legibility over water) |
 | `rule` | `rgba(242,230,208,0.11)` | Hairline dividers |
 | `warm` | `#e0a062` | Single accent (copper) |
 | `warm-bright` | `#f0c074` | Hover/active warmth (rare) |
 | `warm-dim` | `#b07a3e` | Pressed warmth (rarer) |
 | `warm-glow` | `rgba(224,160,98,0.18)` | Copper bloom on the weave |
 
-Cream on ground ≈16:1. Copper on ground ≈8.5:1 (passes AA for all text, AAA for large). bone-faint is tertiary — use at 16px+ only. A `[data-theme="light"]` bridge flips ground→cream and re-mordants copper darker (`#a86220`) for paper mode; both themes carry the full ramp.
+Cream on ground ≈16:1. Copper on ground ≈8.5:1 (passes AA for all text, AAA for large). bone-faint (0.62α ≈5.8:1) is tertiary but now clears AA for normal text. A `[data-theme="light"]` bridge flips ground→cream and re-mordants copper darker (`#a86220`) for paper mode; both themes carry the full ramp.
 
 ---
 
@@ -134,9 +143,9 @@ Anything else is a violation.
 
 ## Typographic spec
 
-### Cormorant Garamond — DISPLAY ONLY (≥~24px)
+### Fraunces — DISPLAY ONLY (≥~24px)
 
-No optical-size axis (Cormorant uses weight + italic). It turns unreadable below ~24px — never set it smaller, and never on a form input.
+Has an optical-size axis; we run it as static per-weight cuts. It turns unreadable below ~24px — never set it smaller, and never on a form input.
 
 | Use | Size | Tracking | Leading | Weight |
 |---|---|---|---|---|
@@ -144,7 +153,7 @@ No optical-size axis (Cormorant uses weight + italic). It turns unreadable below
 | H2 section | clamp(1.875rem, 4vw, 2.75rem) | `-0.014em` | 1.1 | 400 |
 | H3 entry title | 1.625rem | `-0.008em` | 1.2 | 500 |
 
-### Spectral — body & reading (the workhorse)
+### Source Serif 4 — body & reading (the workhorse)
 
 | Use | Size | Tracking | Leading | Weight |
 |---|---|---|---|---|
@@ -152,14 +161,7 @@ No optical-size axis (Cormorant uses weight + italic). It turns unreadable below
 | Italic prose | 1.125rem italic | `0` | 1.85 | 400 |
 | Inputs / values | 1rem | `0` | 1.5 | 400 |
 
-### Inter — residual UI
-
-| Use | Size | Tracking | Weight |
-|---|---|---|---|
-| Body UI | 0.94rem | `-0.002em` | 400 |
-| Button | 0.94rem | `0` | 500 |
-
-### Space Mono — archival & labels
+### JetBrains Mono — archival & labels
 
 | Use | Size | Tracking |
 |---|---|---|
@@ -171,12 +173,12 @@ No optical-size axis (Cormorant uses weight + italic). It turns unreadable below
 
 ## Current reality
 
-The live UI (`cloudflare/frontend`, deployed to heirloom.blue) is the **cloth/loom** subsystem skinned in **Cormorant / Spectral / Space Mono + copper-on-ground**. The `Horizon`/`NameRoll`/`Fire`/`Bundle` component set named in older drafts of this file no longer exists — it was superseded by `ClothCanvas3D` + `CosmicLoom` (the glowing filament web). Verify any visual claim against the live bundle (`src/styles/globals.css` + `tailwind.config.js`), not against this prose: docs lag the deployed UI.
+The live UI (`cloudflare/frontend`, deployed to heirloom.blue) is **The Deep**: the `cloth/loom` subsystem rendering deep water (`WaterCanvas`, seeded by member dyes) skinned in **Fraunces / Source Serif 4 / JetBrains Mono + copper-on-ground `#070d14`**. The `Horizon`/`NameRoll`/`Fire`/`Bundle` component set named in older drafts no longer exists — superseded by `ClothCanvas3D` + `CosmicLoom` + `WaterCanvas`. Verify any visual claim against the live bundle (`src/styles/globals.css` + `tailwind.config.js`), not against this prose: docs lag the deployed UI.
 
 ---
 
 ## What this is not
 
-This is not the *final* design. A real designer with paint will still bring craft I cannot — the copper accent may want fine-tuning, the Cormorant display sizes may need physical-typography eye-testing, and the cloth itself can be deepened. But what we ship now is **defensible**. It reads as authored. It does not read as amateur because it does not pretend to do what amateurs reach for.
+This is not the *final* design. A real designer with paint will still bring craft I cannot — the copper accent may want fine-tuning, the Fraunces display sizes may need physical-typography eye-testing, and the Deep itself can be deepened. But what we ship now is **defensible**. It reads as authored. It does not read as amateur because it does not pretend to do what amateurs reach for.
 
 — end direction —

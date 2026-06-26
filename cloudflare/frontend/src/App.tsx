@@ -33,6 +33,7 @@ const ForgotPassword = lazy(() => import('./pages/ForgotPassword').then(m => ({ 
 const ResetPassword = lazy(() => import('./pages/ResetPassword').then(m => ({ default: m.ResetPassword })));
 const Compose = lazy(() => import('./pages/Compose').then(m => ({ default: m.Compose })));
 const Record = lazy(() => import('./pages/Record').then(m => ({ default: m.Record })));
+const Capture = lazy(() => import('./pages/Capture').then(m => ({ default: m.Capture })));
 const PhotoQuick = lazy(() => import('./pages/PhotoQuick').then(m => ({ default: m.PhotoQuick })));
 const Family = lazy(() => import('./pages/Family').then(m => ({ default: m.Family })));
 const Settings = lazy(() => import('./pages/Settings').then(m => ({ default: m.Settings })));
@@ -394,6 +395,14 @@ export default function App() {
             element={<Navigate to="/loom/weft" replace />}
           />
           <Route path="/memories" element={<ProtectedRoute><Memories /></ProtectedRoute>} />
+          <Route
+            path="/capture"
+            element={
+              <ProtectedRoute>
+                <Capture />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/compose"
             element={

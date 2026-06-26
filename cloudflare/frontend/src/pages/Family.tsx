@@ -329,7 +329,7 @@ export function Family() {
                 )}
                 <div style={{ gridColumn: '1 / -1' }}>
                   <button type="submit" className="hl-btn" disabled={create.isPending} style={{ opacity: create.isPending ? 0.5 : 1 }}>
-                    {create.isPending ? 'weaving…' : 'weave into cloth →'}
+                    {create.isPending ? 'settling…' : 'lower into the Deep →'}
                   </button>
                 </div>
               </form>
@@ -616,7 +616,7 @@ export function Family() {
                   <div style={{ padding: isEditing ? '0 4px 8px 4px' : '0 4px 18px 4px', display: 'grid', gap: 8 }}>
                     {!relMeta && (
                       <div className="hl-serif" style={{ fontStyle: 'italic', fontSize: 13, color: 'var(--bone-faint)', lineHeight: 1.2 }}>
-                        relationship not set — edit to weave it in
+                        relationship not set — edit to lower it in
                       </div>
                     )}
                     {m.birthDate && (

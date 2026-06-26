@@ -603,8 +603,8 @@ export function Onboarding() {
           dye="walnut"
           entryDate={new Date()}
           seed={user?.lastName?.trim() || 'thread'}
-          eyebrow="woven into the thread"
-          headline="Your first line is part of the cloth."
+          eyebrow="lowered into the Deep"
+          headline="Your first line is part of the Deep."
         />
       </ClothShell>
     );

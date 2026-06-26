@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 
 /**
  * InfinityMenu — the ∞ is the only mark in the product, and on the index it
- * is also the way out to the two artifacts woven FROM the cloth: the Wrapped
- * (the year, read back) and the Book (the printed cloth). Tapping the mark
+ * is also the way out to the two artifacts drawn FROM the Deep: the Wrapped
+ * (the year, read back) and the Book (the printed thread). Tapping the mark
  * opens a quiet hairline menu — never a chatbot, never an icon row.
  */
 
@@ -14,7 +14,7 @@ const ITEMS: Array<{ label: string; to: string; hint: string }> = [
   { label: 'search',      to: '/search',      hint: 'find any thread' },
   { label: 'inbox',       to: '/inbox',       hint: 'what has reached you' },
   { label: 'on this day', to: '/on-this-day', hint: 'this date, before' },
-  { label: 'export',      to: '/export',      hint: 'the cloth, to keep' },
+  { label: 'export',      to: '/export',      hint: 'the Deep, to keep' },
 ];
 
 export function InfinityMenu({ glyph = '∞' }: { glyph?: string } = {}) {
@@ -64,7 +64,7 @@ export function InfinityMenu({ glyph = '∞' }: { glyph?: string } = {}) {
         type="button"
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Open the cloth's artifacts"
+        aria-label="What the Deep holds"
         onClick={() => setOpen((o) => !o)}
         className="loom-serif"
         style={{
@@ -82,7 +82,7 @@ export function InfinityMenu({ glyph = '∞' }: { glyph?: string } = {}) {
       {open && (
         <div
           role="menu"
-          aria-label="The cloth's artifacts"
+          aria-label="What the Deep holds"
           style={{
             position: 'absolute', top: 'calc(100% + 8px)', left: '50%',
             transform: 'translateX(-50%)',
