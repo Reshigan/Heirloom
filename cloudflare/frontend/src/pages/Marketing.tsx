@@ -410,7 +410,7 @@ export function Marketing() {
           {[
             ['letterpress quality', 'Archival paper. Sewn binding. The same craft used for family bibles.'],
             ['every entry included', 'Memories, letters, voice transcripts, milestones. The complete record.'],
-            ['ordered by thread', 'Not chronological. Ordered by the cloth — the way your family wove it.'],
+            ['ordered by thread', 'Not chronological. Ordered by the Deep — the way your family settled it.'],
             ['ships anywhere', 'Printed and bound. Arrives in four to six weeks.'],
           ].map(([label, detail]) => (
             <EntryRow
@@ -423,7 +423,7 @@ export function Marketing() {
       </section>
 
       {/* ════════════════════════════════════════════════════════════
-          FINAL CTA — the cloth waits. WaxSeal + serif hero + mono warm CTA.
+          FINAL CTA — the Deep waits. WaxSeal + serif hero + mono warm CTA.
           ════════════════════════════════════════════════════════════ */}
       <section
         ref={finalCta.ref}
@@ -440,7 +440,7 @@ export function Marketing() {
         </div>
         <CosmicHeader
           align="center"
-          title={<>The cloth waits.<br />Start your thread.</>}
+          title={<>The Deep waits.<br />Start your thread.</>}
           sub="For the ones who come after."
         />
         <div style={{ textAlign: 'center', marginTop: 'clamp(28px, 4.5vh, 44px)' }}>

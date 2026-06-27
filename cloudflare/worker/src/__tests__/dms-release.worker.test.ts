@@ -81,27 +81,59 @@ describe('checkMissedCheckIns — RELEASE_ALL gate', () => {
       .run();
   }
 
-  it('opens AUTHOR_DEATH locks when the switch trips with RELEASE_ALL', async () => {
+  /** Force the next check-in due back into the past so the next sweep re-picks the row. */
+  async function reopenWindow(userId: string) {
+    await env.DB.prepare(`UPDATE dead_man_switches SET next_check_in_due = ? WHERE user_id = ?`)
+      .bind(PAST, userId)
+      .run();
+  }
+
+  it('TRIGGERS but does NOT release on the timer alone — release needs human attestation', async () => {
+    // The kill-shot the board flagged: a living author's sealed entries must NOT
+    // open just because a clock ran out. The timer flips to TRIGGERED and notifies
+    // contacts, but the AUTHOR_DEATH locks stay sealed until someone attests.
     const userId = await seedUser(env.DB, { id: 'u-rel', email: 'rel@heirloom.blue' });
     const lock = await seedLock(userId, 'tm-rel', 'e-rel', 'AUTHOR_DEATH', 'ul-rel');
     await seedSwitch(userId, 'RELEASE_ALL');
 
-    await checkMissedCheckIns(env); // third miss → TRIGGERED → release
+    await checkMissedCheckIns(env); // third miss → TRIGGERED, but NO release
 
     const sw = await env.DB.prepare(`SELECT status FROM dead_man_switches WHERE user_id = ?`).bind(userId).first<any>();
     expect(sw.status).toBe('TRIGGERED');
+    expect((await unlockResolved(lock))?.resolved_at).toBeNull(); // sealed — timer must not open it
+  });
+
+  it('opens locks via the HARD_FLOOR backstop after prolonged unbroken silence', async () => {
+    // Last-resort safety net: if nobody ever attests, RELEASE_ALL still eventually
+    // opens after ~12 missed windows of total silence (missed starts at 2 here).
+    const userId = await seedUser(env.DB, { id: 'u-floor', email: 'floor@heirloom.blue' });
+    const lock = await seedLock(userId, 'tm-floor', 'e-floor', 'AUTHOR_DEATH', 'ul-floor');
+    await seedSwitch(userId, 'RELEASE_ALL');
+
+    // Each sweep advances next_check_in_due into the future; reopen the window
+    // before each one to simulate windows elapsing with no check-in.
+    for (let i = 0; i < 10; i++) {
+      await checkMissedCheckIns(env); // misses climb 3,4,…,12
+      await reopenWindow(userId);
+    }
+
+    const sw = await env.DB.prepare(`SELECT status FROM dead_man_switches WHERE user_id = ?`).bind(userId).first<any>();
+    expect(sw.status).toBe('RELEASED');
     expect((await unlockResolved(lock))?.resolved_at).not.toBeNull();
   });
 
-  it('leaves AUTHOR_DEATH locks sealed for a non-RELEASE_ALL action', async () => {
+  it('leaves AUTHOR_DEATH locks sealed for a non-RELEASE_ALL action even past the floor', async () => {
     const userId = await seedUser(env.DB, { id: 'u-notify', email: 'notify@heirloom.blue' });
     const lock = await seedLock(userId, 'tm-notify', 'e-notify', 'AUTHOR_DEATH', 'ul-notify');
     await seedSwitch(userId, 'NOTIFY_ONLY');
 
-    await checkMissedCheckIns(env);
+    for (let i = 0; i < 10; i++) {
+      await checkMissedCheckIns(env);
+      await reopenWindow(userId);
+    }
 
     const sw = await env.DB.prepare(`SELECT status FROM dead_man_switches WHERE user_id = ?`).bind(userId).first<any>();
-    expect(sw.status).toBe('TRIGGERED');
-    expect((await unlockResolved(lock))?.resolved_at).toBeNull(); // sealed — action wasn't RELEASE_ALL
+    expect(sw.status).toBe('TRIGGERED'); // never RELEASED — action wasn't RELEASE_ALL
+    expect((await unlockResolved(lock))?.resolved_at).toBeNull();
   });
 });

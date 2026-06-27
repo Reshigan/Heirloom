@@ -99,6 +99,11 @@ export interface Env {
   MS_CLIENT_SECRET?: string;
   MS_DEFAULT_SENDER?: string; // Default sender mailbox (e.g., admin@heirloom.blue)
   
+  // Growth / lifecycle email kill-switch. The inactive/reactivation drip funnel
+  // is OFF unless this is explicitly 'true' (or '1'). Transactional + onboarding
+  // email is unaffected. Keeps off-brand "we miss you" nudges dark until opted in.
+  ADOPTION_EMAILS_ENABLED?: string;
+
   // Admin notifications
   ADMIN_NOTIFICATION_EMAIL?: string;
   // Where the in-app support assistant escalates to a human (defaults to admin@heirloom.blue)
@@ -239,11 +244,24 @@ app.get('/health', (c) => {
 // API ROUTES
 // ============================================
 
-// Public health check at /api/health (in addition to /health)
+// Public health check at /api/health (in addition to /health).
+// `readiness` is the post-deploy launch assertion: a single curl tells ops which
+// launch-critical secrets/flags are wired without exposing any value (booleans
+// only). `encryptionKey:false` means at-rest field encryption is DORMANT — the
+// master key secret is unset and memory descriptions are stored in cleartext.
 app.get('/api/health', (c) => {
+  const readiness = {
+    encryptionKey: !!c.env.ENCRYPTION_MASTER_KEY, // at-rest field encryption armed
+    jwtSecret: !!c.env.JWT_SECRET,
+    stripe: !!c.env.STRIPE_SECRET_KEY,
+    email: !!c.env.RESEND_API_KEY || !!c.env.MS_CLIENT_SECRET,
+    cronEnabled: c.env.CRON_ENABLED === 'true',
+    adoptionEmails: c.env.ADOPTION_EMAILS_ENABLED === 'true' || c.env.ADOPTION_EMAILS_ENABLED === '1',
+  };
   return c.json({
     status: 'ok',
-    encrypted: !!c.env.ENCRYPTION_MASTER_KEY,
+    encrypted: readiness.encryptionKey, // kept for back-compat with existing callers
+    readiness,
     timestamp: new Date().toISOString(),
   });
 });
@@ -937,8 +955,15 @@ export default {
       return;
     }
 
+    // Launch assertion (logs, non-fatal): if the master key is unset, at-rest
+    // field encryption is dormant and crons that touch memory descriptions run
+    // against cleartext. Surface it every cron tick so the gap is visible in ops.
+    if (!env.ENCRYPTION_MASTER_KEY) {
+      logger.error('ENCRYPTION_MASTER_KEY is unset — at-rest field encryption is DORMANT (memory descriptions stored in cleartext).');
+    }
+
     const cronType = event.cron;
-    
+
     if (cronType === '0 9 * * *') {
       // ========== DAILY JOBS (9 AM UTC) ==========
       logger.info('Running daily jobs...');
@@ -1294,56 +1319,39 @@ async function verifyJWT(token: string, secret: string): Promise<any> {
   return payload;
 }
 
+// The missed-check-in timer must NEVER, by itself, open a living author's
+// sealed after-death entries. Releasing requires a HUMAN attestation: a VERIFIED
+// legacy contact actively confirming the passing via the one-time token they are
+// emailed at SOFT_THRESHOLD (see sendTriggerNotifications + /deadman/verify).
+// The timer only opens content as a last-resort backstop after HARD_FLOOR
+// windows of total, unbroken silence (≈ months) with no attestation at all.
+const DMS_SOFT_THRESHOLD = 3;   // missed windows → TRIGGERED + ask contacts to attest
+const DMS_HARD_FLOOR = 12;      // missed windows of unbroken silence → release without attestation
+
 export async function checkMissedCheckIns(env: Env) {
   const now = new Date().toISOString();
-  
-  // Find switches that need action
+
+  // Find switches that need action. TRIGGERED rows stay in scope so the counter
+  // keeps climbing toward HARD_FLOOR; RELEASED/CANCELLED rows fall out for good.
   const result = await env.DB.prepare(`
     SELECT dms.*, u.email, u.first_name
     FROM dead_man_switches dms
     JOIN users u ON dms.user_id = u.id
     WHERE dms.enabled = 1
-    AND dms.status IN ('ACTIVE', 'WARNING')
+    AND dms.status IN ('ACTIVE', 'WARNING', 'TRIGGERED')
     AND dms.next_check_in_due < ?
   `).bind(now).all();
-  
-  for (const row of result.results) {
-    // Increment missed check-ins
-    const missed = (row.missed_check_ins as number) + 1;
-    
-    if (missed >= 3) {
-      // Trigger the switch
-      await env.DB.prepare(`
-        UPDATE dead_man_switches 
-        SET status = 'TRIGGERED', 
-            triggered_at = ?,
-            missed_check_ins = ?
-        WHERE id = ?
-      `).bind(now, missed, row.id).run();
-      
-      // Send notifications to legacy contacts
-      await sendTriggerNotifications(env, row.user_id as string);
 
-      // RELEASE_ALL: open the departed author's after-death entries to their
-      // thread. This is the ONLY path that resolves AUTHOR_DEATH entry-locks —
-      // the time-locks cron deliberately skips them (they are death-gated, not
-      // date-gated). Without this the entries stay sealed forever. Best-effort:
-      // a failure here must not abort the rest of the sweep.
-      if ((row.trigger_action as string) === 'RELEASE_ALL') {
-        try {
-          await releaseAuthorDeathEntries(env, row.user_id as string);
-        } catch (err) {
-          console.error(`RELEASE_ALL sweep failed for ${row.user_id}:`, err);
-        }
-      }
-    } else {
-      // Update missed count, send warning, and push next_check_in_due out by
-      // the grace period. Without advancing the due date the row would re-fire
-      // on every cron tick and rocket through all three misses in minutes; and
-      // because the widened sweep above keeps WARNING rows in scope, the count
-      // still climbs toward the trigger on each subsequent missed window.
-      const grace = (row.grace_period_days as number) || 7;
-      const nextDue = new Date(Date.now() + grace * 24 * 60 * 60 * 1000).toISOString();
+  for (const row of result.results) {
+    // Increment missed check-ins. Always advance next_check_in_due by the grace
+    // period so a row can't re-fire on the same tick and rocket through windows.
+    const missed = (row.missed_check_ins as number) + 1;
+    const grace = (row.grace_period_days as number) || 7;
+    const nextDue = new Date(Date.now() + grace * 24 * 60 * 60 * 1000).toISOString();
+    const action = row.trigger_action as string;
+
+    if (missed < DMS_SOFT_THRESHOLD) {
+      // Still in the grace runway — warn the living user, keep counting.
       await env.DB.prepare(`
         UPDATE dead_man_switches
         SET status = 'WARNING',
@@ -1351,9 +1359,50 @@ export async function checkMissedCheckIns(env: Env) {
             next_check_in_due = ?
         WHERE id = ?
       `).bind(missed, nextDue, row.id).run();
-
-      // Send warning email to user
       await sendWarningEmail(env, row.email as string, row.first_name as string, missed);
+      continue;
+    }
+
+    // SOFT_THRESHOLD reached. Enter TRIGGERED and ask VERIFIED legacy contacts to
+    // attest — but DO NOT release. The actual release happens when a contact
+    // confirms via /deadman/verify with the token issued below.
+    if (row.status !== 'TRIGGERED') {
+      // First crossing: flip to TRIGGERED and notify contacts once (this issues
+      // their one-time attestation tokens). Later sweeps just keep counting.
+      await env.DB.prepare(`
+        UPDATE dead_man_switches
+        SET status = 'TRIGGERED',
+            triggered_at = ?,
+            missed_check_ins = ?,
+            next_check_in_due = ?
+        WHERE id = ?
+      `).bind(now, missed, nextDue, row.id).run();
+      await sendTriggerNotifications(env, row.user_id as string);
+    } else {
+      await env.DB.prepare(`
+        UPDATE dead_man_switches
+        SET missed_check_ins = ?,
+            next_check_in_due = ?
+        WHERE id = ?
+      `).bind(missed, nextDue, row.id).run();
+    }
+
+    // Hard-floor backstop: only a RELEASE_ALL switch, only after prolonged total
+    // silence with no human attestation, opens AUTHOR_DEATH entry-locks on the
+    // timer alone. This is the ONLY timer path that resolves those locks — the
+    // time-locks cron skips them (death-gated, not date-gated). Best-effort: a
+    // failure here must not abort the rest of the sweep.
+    // ponytail: single-attestation OR hard-floor is the gate; enforcing
+    // required_verifications (N distinct contacts) needs a confirmed_at column.
+    if (action === 'RELEASE_ALL' && missed >= DMS_HARD_FLOOR) {
+      try {
+        await releaseAuthorDeathEntries(env, row.user_id as string);
+        await env.DB.prepare(`
+          UPDATE dead_man_switches SET status = 'RELEASED', released_at = ? WHERE id = ?
+        `).bind(now, row.id).run();
+      } catch (err) {
+        console.error(`RELEASE_ALL hard-floor sweep failed for ${row.user_id}:`, err);
+      }
     }
   }
 }

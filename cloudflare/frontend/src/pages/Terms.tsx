@@ -28,12 +28,12 @@ const SECTIONS = [
   {
     n: 'iv',
     h: 'The dead-man\'s switch.',
-    b: 'You may arm a check-in interval. Missed check-ins issue a warning, then a 48-hour cancel window, then a trigger. On trigger, your designated successor inherits administrative authority over the thread. Time-locked entries with "on death" conditions release.',
+    b: 'You may arm a check-in interval. Missed check-ins raise warnings across a grace period; after sustained silence the switch enters a triggered state and the legacy contacts you have verified are asked to confirm your passing. Only their confirmation — or, as a last-resort backstop, a prolonged stretch of continued silence — passes administrative authority to your designated successor and releases entries set to open "on death."',
   },
   {
     n: 'v',
     h: 'Payment and continuity.',
-    b: 'Subscription fees keep the platform running. Founder-tier payments fund the successor non-profit named in the bylaws. We do not promise immortality. We promise reasonable, codified provisions for what happens if we cease.',
+    b: 'Subscription fees keep the platform running. Founder-tier payments are earmarked to fund a successor non-profit. We do not promise immortality. We commit to reasonable, documented provisions for what happens if we cease.',
   },
   {
     n: 'vi',

@@ -6,6 +6,7 @@
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
 import { createMemorialForUser } from './q4-features';
+import { releaseAuthorDeathEntries } from '../index';
 
 export const deadmanRoutes = new Hono<AppEnv>();
 
@@ -383,7 +384,12 @@ deadmanRoutes.post('/verify-contact/:token', async (c) => {
   );
 });
 
-// Verify a passing token received by a successor
+// Verify a passing — the HUMAN attestation gate.
+// The token is a one-time switch_verifications token, emailed ONLY to a VERIFIED
+// legacy contact when the switch enters TRIGGERED. Possessing and submitting it
+// IS that contact's active confirmation that the author has passed. This is the
+// gate the missed-check-in timer deliberately does NOT satisfy on its own — so
+// a living-but-disengaged author's sealed entries can't be opened by a clock.
 deadmanRoutes.post('/verify/:token', async (c) => {
   try {
     const token = c.req.param('token');
@@ -392,36 +398,65 @@ deadmanRoutes.post('/verify/:token', async (c) => {
       return c.json({ error: 'Token is required' }, 400);
     }
 
-    const dms = await c.env.DB.prepare(`
-      SELECT * FROM dead_man_switches WHERE passing_token = ?
-    `).bind(token).first();
+    const sv = await c.env.DB.prepare(`
+      SELECT sv.id AS sv_id, sv.expires_at,
+             dms.id AS dms_id, dms.user_id, dms.status, dms.trigger_action
+      FROM switch_verifications sv
+      JOIN dead_man_switches dms ON dms.id = sv.dead_man_switch_id
+      WHERE sv.verification_token = ?
+    `).bind(token).first<any>();
 
-    if (!dms) {
+    if (!sv) {
       return c.json({ error: 'Token not found or already used' }, 404);
     }
+    if (new Date(sv.expires_at as string).getTime() < Date.now()) {
+      return c.json({ error: 'This confirmation link has expired.' }, 410);
+    }
+    // The author checked in again / stood the switch down — refuse to release.
+    if (sv.status === 'ACTIVE' || sv.status === 'CANCELLED') {
+      return c.json({ error: 'This account is active. No action taken.' }, 409);
+    }
 
-    // Mark token as used if not already triggered
-    if (dms.status !== 'TRIGGERED') {
-      const now = new Date().toISOString();
+    const now = new Date().toISOString();
+
+    // Consume the one-time token first so the attestation can't be replayed.
+    await c.env.DB.prepare(`DELETE FROM switch_verifications WHERE id = ?`).bind(sv.sv_id).run();
+
+    if (sv.status !== 'RELEASED') {
       await c.env.DB.prepare(`
-        UPDATE dead_man_switches SET status = 'TRIGGERED', updated_at = ? WHERE id = ?
-      `).bind(now, dms.id).run();
+        UPDATE dead_man_switches
+        SET status = 'RELEASED',
+            verified_at = COALESCE(verified_at, ?),
+            released_at = ?,
+            updated_at = ?
+        WHERE id = ?
+      `).bind(now, now, now, sv.dms_id).run();
+
+      // The irreversible step — open the departed author's after-death entries,
+      // now gated on this human attestation rather than the timer. Best-effort.
+      if ((sv.trigger_action as string) === 'RELEASE_ALL') {
+        try {
+          await releaseAuthorDeathEntries(c.env, sv.user_id as string);
+        } catch (err) {
+          console.error('RELEASE_ALL on attestation failed:', err);
+        }
+      }
     }
 
     // M3: auto-convert the deceased's profile to a memorial. Best-effort and
     // idempotent (skips if one already exists) — never abort the trigger if it fails.
     try {
-      await createMemorialForUser(c.env, dms.user_id as string);
+      await createMemorialForUser(c.env, sv.user_id as string);
     } catch (err) {
       console.error('Failed to auto-create memorial on death confirmation:', err);
     }
 
     return c.json({
       success: true,
-      switchId: dms.id,
-      status: dms.status,
-      triggerAction: dms.trigger_action,
-      triggeredAt: dms.updated_at,
+      switchId: sv.dms_id,
+      status: 'RELEASED',
+      triggerAction: sv.trigger_action,
+      releasedAt: now,
     });
   } catch {
     return c.json({ error: 'Token not found or already used' }, 404);

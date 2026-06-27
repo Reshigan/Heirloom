@@ -1047,9 +1047,20 @@ export async function startWelcomeCampaigns(env: Env) {
 // ============================================
 
 export async function processInactiveUsers(env: Env) {
+  // Default-OFF kill-switch. The inactive/reactivation drip is a guilt-trip
+  // funnel ("we miss you", "last chance") that's off-brand for the Deep — enrol
+  // nobody unless an operator explicitly turns it on. Onboarding/welcome and
+  // transactional mail run regardless; this only gates the re-engagement funnel.
+  // ponytail: gating at enrolment is enough pre-launch (drip table is empty);
+  // already-enrolled rows, if any, would still drain via processDripCampaigns.
+  const flag = env.ADOPTION_EMAILS_ENABLED;
+  if (flag !== 'true' && flag !== '1') {
+    return { started: 0, skipped: 'ADOPTION_EMAILS_ENABLED off' };
+  }
+
   const now = new Date();
   const nowISO = now.toISOString();
-  
+
   // Find users inactive for 3+ days without active re-engagement campaign
   const inactiveUsers = await env.DB.prepare(`
     SELECT u.id, u.email, u.first_name, u.last_login_at,
@@ -1638,31 +1649,31 @@ function getDripEmailContent(campaignType: string, step: number, firstName: stri
     ],
     inactive_3d: [
       {
-        subject: `${name}, we saved your spot`,
+        subject: `${name}, your thread is still here`,
         html: inactiveEmail(name, 3),
       },
     ],
     inactive_7d: [
       {
-        subject: `Your memories are waiting, ${name}`,
+        subject: `Your thread kept its place, ${name}`,
         html: inactiveEmail(name, 7),
       },
       {
-        subject: `A simple way to start`,
+        subject: `A quiet way back in`,
         html: inactiveEmail2(name),
       },
     ],
     inactive_14d: [
       {
-        subject: `We miss you, ${name}`,
+        subject: `Still here whenever you are, ${name}`,
         html: inactiveEmail(name, 14),
       },
       {
-        subject: `One memory can change everything`,
+        subject: `One line is enough to begin`,
         html: inactiveEmail2(name),
       },
       {
-        subject: `Last chance: Your legacy awaits`,
+        subject: `Whenever you're ready`,
         html: inactiveEmailFinal(name),
       },
     ],
@@ -1736,11 +1747,10 @@ function getProspectOutreachEmail(name: string, niche: string | null, voucherCod
 }
 
 function getVoucherFollowUpEmail(name: string, voucherCode: string, daysUntilExpiry: number, followupNumber: number): { subject: string; html: string } {
-  const urgency = daysUntilExpiry <= 7 ? 'expires soon' : 'waiting for you';
   return {
-    subject: followupNumber === 1 
-      ? `Your free trial is ${urgency}, ${name}` 
-      : `Last chance: Your Heirloom trial expires in ${daysUntilExpiry} days`,
+    subject: followupNumber === 1
+      ? `Your Heirloom trial is still open, ${name}`
+      : `Your Heirloom trial ends in ${daysUntilExpiry} days`,
     html: voucherFollowUpTemplate(name, voucherCode, daysUntilExpiry, followupNumber),
   };
 }
@@ -1902,7 +1912,7 @@ function inactiveEmail2(name: string): string {
 function inactiveEmailFinal(name: string): string {
   return emailWrapper(`
     <h2 style="color: #f5f5dc; font-size: 22px; font-weight: normal; margin: 0 0 20px 0;">
-      Your legacy awaits, ${name}
+      Whenever you're ready, ${name}
     </h2>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">

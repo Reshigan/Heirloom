@@ -14,23 +14,23 @@ const POLICY_VERSION = 'v 3.2';
 const SECTIONS = [
   {
     n: 'one',
-    h: 'Your entries are encrypted at rest.',
-    b: 'Entry content is encrypted at rest with strong server-side AES-GCM, and access is controlled by your account and your thread membership — no one outside the thread can read it. We operate the encryption infrastructure, so this is not end-to-end or zero-knowledge encryption: the platform holds the keys. We never read your prose as a matter of policy, and if we are subpoenaed we hand over only what is genuinely demanded.',
+    h: 'Your entries are private to your thread.',
+    b: 'Your data is stored on infrastructure that encrypts it at rest, and moves only over encrypted connections. Access is controlled by your account and your thread membership — no one outside the thread can read it. We operate that infrastructure, so this is not end-to-end or zero-knowledge encryption: the platform holds the keys. Some fields carry an additional layer of application-level encryption, which we are extending. We never read your prose as a matter of policy, and if we are subpoenaed we hand over only what is genuinely demanded.',
   },
   {
     n: 'two',
     h: 'The thread is built to outlive the company.',
-    b: 'Our bylaws name a successor non-profit, funded by Founder-tier payments, and commit us to open-source the export tooling and publish an IPFS mirror on day one of any wind-down. We do not promise immortality — these are codified commitments, and some are still being built. What is live today is the nightly plain-text export below: every family already holds a complete, portable copy that needs nothing from us to open.',
+    b: 'We intend the thread to outlast the company: Founder-tier payments are earmarked to fund a successor non-profit, and we commit to open-source export tooling and an independent mirror in any wind-down. We do not promise immortality — these are commitments, and some are still being built. What is live today is the full plain-text export below: any family can download a complete, portable copy at any time, in a format that needs nothing from us to open.',
   },
   {
     n: 'three',
     h: 'You can always download everything.',
-    b: 'Full export in plain text + original photographs + voice WAV files. No proprietary format. Updated nightly. Free at all tiers. You own this.',
+    b: 'Full export in plain text + original photographs + voice WAV files. No proprietary format. Available on demand, free at all tiers. You own this.',
   },
   {
     n: 'four',
     h: 'We never sell, share, or advertise.',
-    b: 'No third-party trackers, no ad pixels, no analytics that identify individuals. Aggregate metrics only, in service of operating the platform. Pinky promise, codified in the bylaws.',
+    b: 'No third-party trackers, no ad pixels, no analytics that identify individuals. Aggregate metrics only, in service of operating the platform. Pinky promise, and a standing commitment.',
   },
   {
     n: 'five',

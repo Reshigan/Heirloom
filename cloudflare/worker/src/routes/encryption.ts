@@ -349,17 +349,31 @@ encryptionRoutes.post('/recover', async (c) => {
   const escrow = await c.env.DB.prepare(`
     SELECT * FROM key_escrows WHERE user_id = ?
   `).bind(userId).first();
-  
+
   if (!escrow) {
     return c.json({ error: 'No key escrow configured' }, 404);
   }
-  
-  // In production, verify the recovery data matches the escrow type
-  // For now, return the encrypted key
+
+  // The recovery method must match how the escrow was set up. The escrow is
+  // zero-knowledge: `encrypted_key` is the master key wrapped client-side with a
+  // secret the server NEVER sees (security-question answers, a paper key, or a
+  // trusted contact's key). So there is no server-held secret to check the
+  // supplied recoveryData against — the only correctness proof is that the
+  // client can actually decrypt the returned blob with that secret. What the
+  // server CAN and MUST enforce: the caller owns this escrow (WHERE user_id
+  // above), the method matches the configured type, and a credential was
+  // actually supplied. A wrong secret yields an undecryptable blob, not access.
+  // ponytail: real server-side answer verification needs a stored answer-hash
+  // column (schema + client change) — add that if we want to rate-limit guesses.
+  if (recoveryMethod !== escrow.escrow_type) {
+    return c.json({ error: 'Recovery method does not match the configured escrow.' }, 400);
+  }
+
   return c.json({
     success: true,
+    escrowType: escrow.escrow_type,
     encryptedKey: escrow.encrypted_key,
-    message: 'Key recovered successfully. Decrypt with your recovery credentials.',
+    message: 'Encrypted key returned. It only decrypts with your recovery secret — which we never store.',
   });
 });
 
