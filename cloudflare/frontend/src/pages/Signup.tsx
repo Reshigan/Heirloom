@@ -570,7 +570,7 @@ function StepEyebrow({ children }: { children: React.ReactNode }) {
         fontSize: 10,
         letterSpacing: '0.32em',
         textTransform: 'uppercase',
-        color: 'var(--bone-faint)',
+        color: 'var(--bone-dim)',
         marginBottom: 22,
       }}
     >

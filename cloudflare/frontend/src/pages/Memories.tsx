@@ -183,6 +183,9 @@ function FilterBar({ memories, filters, setFilters }: {
 
   const active = filters.year || filters.month || filters.type || filters.query || filters.emotion || filters.person;
 
+  // A set filter lights its own underline copper — shows at a glance which are on.
+  const lit = (v: string) => (v ? { ...selectStyle, borderBottomColor: 'var(--warm)', color: 'var(--bone)' } : selectStyle);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginBottom: 28 }}>
       {/* Row 1: search + type + year + month + clear */}
@@ -193,25 +196,25 @@ function FilterBar({ memories, filters, setFilters }: {
           placeholder="search"
           value={filters.query}
           onChange={e => setFilters({ ...filters, query: e.target.value })}
-          style={{ ...selectStyle, minWidth: 130 }}
+          style={{ ...lit(filters.query), minWidth: 130 }}
         />
 
-        <select aria-label="Filter by type" value={filters.type} onChange={e => setFilters({ ...filters, type: e.target.value })} style={selectStyle}>
+        <select aria-label="Filter by type" value={filters.type} onChange={e => setFilters({ ...filters, type: e.target.value })} style={lit(filters.type)}>
           {ENTRY_TYPES.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
 
-        <select aria-label="Filter by year" value={filters.year} onChange={e => setFilters({ ...filters, year: e.target.value })} style={selectStyle}>
+        <select aria-label="Filter by year" value={filters.year} onChange={e => setFilters({ ...filters, year: e.target.value })} style={lit(filters.year)}>
           <option value="">all years</option>
           {years.map(y => <option key={y} value={String(y)}>{y}</option>)}
         </select>
 
-        <select aria-label="Filter by month" value={filters.month} onChange={e => setFilters({ ...filters, month: e.target.value })} style={selectStyle}>
+        <select aria-label="Filter by month" value={filters.month} onChange={e => setFilters({ ...filters, month: e.target.value })} style={lit(filters.month)}>
           <option value="">all months</option>
           {MONTHS.map((m, i) => <option key={m} value={String(i + 1)}>{m}</option>)}
         </select>
 
         {people.length > 0 && (
-          <select aria-label="Filter by person" value={filters.person} onChange={e => setFilters({ ...filters, person: e.target.value })} style={selectStyle}>
+          <select aria-label="Filter by person" value={filters.person} onChange={e => setFilters({ ...filters, person: e.target.value })} style={lit(filters.person)}>
             <option value="">all people</option>
             {people.map(p => <option key={p} value={p}>{p}</option>)}
           </select>

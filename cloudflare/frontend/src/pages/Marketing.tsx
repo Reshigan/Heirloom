@@ -146,7 +146,7 @@ export function Marketing() {
             lineHeight: 1.6,
             margin: '0 0 clamp(30px, 4.5vh, 44px)',
             maxWidth: '32ch',
-            color: 'var(--bone-dim)',
+            color: 'var(--bone)',
             opacity: taglineIn ? 1 : 0,
             transition: reduceMotion ? 'none' : `opacity 1400ms ${ease}`,
             transitionDelay: '180ms',

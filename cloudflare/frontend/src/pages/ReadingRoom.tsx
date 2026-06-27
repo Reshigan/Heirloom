@@ -230,7 +230,7 @@ function ReadingContent({
   // Eyebrow — mono museum stamp above the title: "<DAY DATE> · WOVEN BY <AUTHOR>"
   const eyebrow = useMemo(() => {
     const stamp = stampDate(t.ord) || t.date;
-    const verb = t.kind === 'voice' ? 'RECORDED BY' : t.kind === 'photo' ? 'KEPT BY' : 'WOVEN BY';
+    const verb = t.kind === 'voice' ? 'RECORDED BY' : t.kind === 'photo' ? 'KEPT BY' : 'WRITTEN BY';
     return `${stamp} · ${verb} ${t.who.toUpperCase()}`;
   }, [t.ord, t.date, t.kind, t.who]);
 
@@ -405,7 +405,7 @@ function ReadingContent({
               textTransform: 'uppercase', color: 'var(--bone-faint)',
               textDecoration: 'none', borderBottom: '1px solid var(--rule)', paddingBottom: 2,
             }}>
-              add to the cloth →
+              lower into the Deep →
             </Link>
           </div>
         )}
@@ -453,7 +453,7 @@ export function ReadingRoom() {
       setDeleteConfirm(false);
       setDeleteError(null);
     },
-    onError: () => setDeleteError('could not unweave this thread — try again'),
+    onError: () => setDeleteError('could not raise this entry — try again'),
   });
 
   const who = useMemo(
@@ -606,7 +606,7 @@ export function ReadingRoom() {
         background: 'var(--ink-translucent)',
         borderBottom: '1px solid var(--rule)',
       }}>
-        <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'reading' }]} />
+        <Breadcrumbs trail={[{ label: 'the deep', to: '/loom/weft' }, { label: 'reading' }]} />
 
         <span className="reading-topmeta" style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
           {t ? (
@@ -657,14 +657,14 @@ export function ReadingRoom() {
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
                 onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
               >
-                unweave
+                raise
               </button>
             </>
           )}
           {t && deleteConfirm && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em', color: 'var(--bone-faint)' }}>
-                remove this thread?
+                raise this entry?
               </span>
               <button
                 type="button"
@@ -676,7 +676,7 @@ export function ReadingRoom() {
                   textTransform: 'uppercase', color: 'var(--warm)',
                 }}
               >
-                {deleteEntry.isPending ? 'unweaving…' : 'yes, unweave →'}
+                {deleteEntry.isPending ? 'raising…' : 'yes, raise →'}
               </button>
               <button
                 type="button"
