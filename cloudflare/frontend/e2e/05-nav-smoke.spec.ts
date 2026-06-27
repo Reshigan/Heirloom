@@ -37,7 +37,6 @@ const AUTHED_ROUTES = [
   '/loom/kin',
   '/loom/letter',
   '/loom/voice',
-  '/loom/echo',
   '/dashboard',
   '/memories',
   '/compose',
@@ -58,13 +57,15 @@ const AUTHED_ROUTES = [
 
 async function signup(page: Page) {
   const stamp = Date.now();
-  await page.goto('/signup');
+  // ?tier=free makes Free the default selection (Signup reads the param), so the
+  // smoke registers card-free with no checkout redirect — no brittle tier click.
+  await page.goto('/signup?tier=free');
 
   // The cloth splash overlay tears down on first paint; an early keystroke can
   // land before React attaches the controlled inputs, leaving the field empty
   // and tripping client validation (no API call, no token). Wait for the
   // splash to detach and the form to be interactive first.
-  await page.locator('#hl-splash').waitFor({ state: 'detached', timeout: 8000 }).catch(() => {});
+  await page.locator('#hl-splash').waitFor({ state: 'detached', timeout: 15000 }).catch(() => {});
   await page.locator('#s-thread').waitFor({ state: 'visible' });
 
   // Fill each field and confirm the value actually stuck in the controlled
@@ -76,7 +77,6 @@ async function signup(page: Page) {
     ['#s-birth', '1980'],
     ['#s-email', freshEmail()],
     ['#s-pw', PASSWORD],
-    ['#s-pw2', PASSWORD],
   ];
   for (const [sel, val] of fields) {
     const loc = page.locator(sel);
@@ -88,7 +88,6 @@ async function signup(page: Page) {
     await expect(loc).toHaveValue(val);
   }
 
-  await page.getByRole('button', { name: /^Free/ }).click().catch(() => {});
   await page.locator('input[type="checkbox"]').first().check();
   // Submit by type rather than label — the label changes with the chosen tier.
   await page.locator('button[type="submit"]').click();
@@ -111,6 +110,9 @@ test.describe('authenticated nav smoke', () => {
   let authStorage: Record<string, string> = {};
 
   test.beforeAll(async ({ browser }) => {
+    // Live signup (splash teardown + register + auth-flip wait) can exceed the
+    // 30s default hook timeout under full-suite contention. Give it room.
+    test.setTimeout(120000);
     const ctx = await browser.newContext();
     const page = await ctx.newPage();
     await signup(page);

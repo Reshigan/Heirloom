@@ -37,7 +37,19 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        // The Deep renders a WebGL WaterCanvas on every screen. Under continuous
+        // animation a long serial run (100+ navigations, one process) exhausts the
+        // GPU's WebGL contexts and crashes. WaterCanvas paints a single static
+        // frame under prefers-reduced-motion (no animation loop), so emulating it
+        // removes the crash AND speeds boot (the #hl-splash overlay clears fast,
+        // unblocking form fills) without the SwiftShader slow-software penalty.
+        reducedMotion: 'reduce',
+        // Bound every action so a stale selector fails in 15s instead of eating
+        // the whole test/hook budget (mobile already caps at 10s).
+        actionTimeout: 15000,
+      },
     },
     {
       name: 'mobile',
@@ -47,6 +59,7 @@ export default defineConfig({
         // device is slower and auth redirects can settle later than on desktop.
         navigationTimeout: 15000,
         actionTimeout: 10000,
+        reducedMotion: 'reduce',
       },
     },
   ],

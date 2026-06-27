@@ -220,7 +220,8 @@ test.describe('memories', () => {
     // Route is /ask (not /qanda)
     await page.goto('/ask', { waitUntil: 'commit' });
     await page.waitForURL(() => true, { timeout: 10000 });
-    const input = page.locator('input[placeholder*="ask"]');
+    // The question box placeholder is "What do you want to know?"
+    const input = page.locator('input[placeholder*="know" i], textarea[placeholder*="know" i]').first();
     await expect(input).toBeVisible({ timeout: 10000 });
     await input.fill('family');
     await page.locator('button[type="submit"]').click();
@@ -246,9 +247,10 @@ test.describe('letters', () => {
   test('future letter form opens', async ({ page }) => {
     await page.goto('/future-letter', { waitUntil: 'commit' });
     await page.waitForURL(() => true, { timeout: 10000 });
-    // Should have a textarea or input
-    const hasInput = await page.locator('textarea, input[type="text"]').count() > 0;
-    expect(hasInput).toBeTruthy();
+    // Wait for React to hydrate the form rather than counting immediately (race).
+    await expect(
+      page.locator('textarea, input[type="text"]').first()
+    ).toBeVisible({ timeout: 10000 });
   });
 });
 
@@ -286,10 +288,14 @@ test.describe('settings', () => {
 
   test('settings page loads all sections', async ({ page }) => {
     await page.goto('/settings', { waitUntil: 'commit' });
-    await page.waitForURL(() => true, { timeout: 10000 });
+    // The #hl-splash boot overlay paints first; on a live serial run the body
+    // can read as the splash placeholder before React hydrates Settings. Poll
+    // until the real page text lands rather than reading once on commit.
+    await expect
+      .poll(async () => (await page.textContent('body'))?.toLowerCase() ?? '', { timeout: 15000 })
+      .toMatch(/settings/);
     const text = await page.textContent('body');
     // Settings sections: the notification group is labelled "the listener" in this design
-    expect(text?.toLowerCase()).toMatch(/settings/);
     expect(text?.toLowerCase()).toMatch(/encryption|the listener|inheritance|danger/);
   });
 
@@ -493,14 +499,17 @@ test.describe('gift system', () => {
     const body = await response.json();
     expect(body.tiers).toBeDefined();
     for (const tier of body.tiers) {
-      expect(tier.quarterly).toBeDefined();
-      expect(typeof tier.quarterly.amount).toBe('number');
-      expect(isNaN(tier.quarterly.amount)).toBe(false);
-      expect(tier.quarterly.amount).toBeGreaterThan(0);
-      expect(tier.yearly).toBeDefined();
-      expect(typeof tier.yearly.amount).toBe('number');
-      expect(isNaN(tier.yearly.amount)).toBe(false);
-      expect(tier.yearly.amount).toBeGreaterThan(0);
+      // Every tier carries a numeric monthly amount (Free is 0).
+      expect(tier.monthly).toBeDefined();
+      expect(typeof tier.monthly.amount).toBe('number');
+      expect(isNaN(tier.monthly.amount)).toBe(false);
+      expect(tier.monthly.amount).toBeGreaterThanOrEqual(0);
+      // Paid tiers also carry a numeric yearly amount > 0; Free has none.
+      if (tier.yearly) {
+        expect(typeof tier.yearly.amount).toBe('number');
+        expect(isNaN(tier.yearly.amount)).toBe(false);
+        expect(tier.yearly.amount).toBeGreaterThan(0);
+      }
     }
   });
 

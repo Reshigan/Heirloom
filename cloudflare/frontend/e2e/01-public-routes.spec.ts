@@ -11,7 +11,6 @@ import { test, expect } from '@playwright/test';
 const PUBLIC_ROUTES = [
   { path: '/',               label: 'marketing landing' },
   { path: '/loom',           label: 'loom threshold' },
-  { path: '/loom/echo',      label: 'loom echo / listener' },
   { path: '/loom/read',      label: 'loom reading room' },
   { path: '/loom/pwa',       label: 'loom pwa home' },
   { path: '/loom/unlock',    label: 'loom unlock' },

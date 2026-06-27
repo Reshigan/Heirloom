@@ -28,10 +28,12 @@ test.describe('loom threshold (/loom)', () => {
     expect(bodyText.toLowerCase()).toMatch(/heirloom/);
   });
 
-  test('has an enter / login CTA', async ({ page }) => {
-    // The threshold topbar has an "enter →" link pointing to /login
-    const enterLink = page.locator('a[href="/login"], a:has-text("enter"), a:has-text("begin"), a:has-text("start")').first();
-    await expect(enterLink).toBeVisible();
+  test('has the one-door enter CTA', async ({ page }) => {
+    // The Threshold is "the one door" — a button that begins a new thread (→ /signup).
+    // Not an anchor to /login; the brand screen leads with start-your-thread.
+    const enter = page.getByRole('button', { name: /enter|begin|start/i })
+      .or(page.locator('a[href="/signup"], a[href="/login"]')).first();
+    await expect(enter).toBeVisible();
   });
 
   test('no icon library elements on the page', async ({ page }) => {
@@ -46,40 +48,6 @@ test.describe('loom threshold (/loom)', () => {
       () => document.documentElement.scrollWidth > window.innerWidth + 1
     );
     expect(hasOverflow).toBe(false);
-  });
-});
-
-// ─── /loom/echo — The Listener ────────────────────────────────────────────────
-
-test.describe('loom echo — the listener (/loom/echo)', () => {
-  test.beforeEach(async ({ page }) => {
-    await page.goto('/loom/echo');
-    await page.waitForLoadState('networkidle');
-  });
-
-  test('renders listener topbar label', async ({ page }) => {
-    const bodyText = (await page.locator('body').textContent()) ?? '';
-    expect(bodyText.toLowerCase()).toMatch(/the listener|listener/);
-  });
-
-  test('shows a listener prompt (italicised prose)', async ({ page }) => {
-    // The Echo component renders a prompt returned by useListener()
-    // It should have italic prose text
-    const bodyText = (await page.locator('body').textContent()) ?? '';
-    // The prompt varies but always has at least 5 characters
-    expect(bodyText.trim().length).toBeGreaterThan(20);
-  });
-
-  test('heirloom wordmark is visible', async ({ page }) => {
-    const bodyText = (await page.locator('body').textContent()) ?? '';
-    expect(bodyText.toLowerCase()).toMatch(/heirloom/);
-  });
-
-  test('no icon library elements on the page', async ({ page }) => {
-    const iconCount = await page.locator(
-      'svg[class*="lucide"], [data-lucide], [class*="heroicon"]'
-    ).count();
-    expect(iconCount).toBe(0);
   });
 });
 

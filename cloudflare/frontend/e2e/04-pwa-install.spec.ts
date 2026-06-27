@@ -59,16 +59,16 @@ test.describe('PWA manifest', () => {
     expect(manifest.icons.length).toBeGreaterThanOrEqual(2);
   });
 
-  test('manifest background_color is ink (#0e0e0c)', async ({ page }) => {
+  test('manifest background_color is The Deep ground (#070d14)', async ({ page }) => {
     const resp = await page.request.get('/manifest.webmanifest');
     const manifest = await resp.json();
-    expect(manifest.background_color?.toLowerCase()).toBe('#0e0e0c');
+    expect(manifest.background_color?.toLowerCase()).toBe('#070d14');
   });
 
-  test('manifest theme_color is ink (#0e0e0c)', async ({ page }) => {
+  test('manifest theme_color is The Deep ground (#070d14)', async ({ page }) => {
     const resp = await page.request.get('/manifest.webmanifest');
     const manifest = await resp.json();
-    expect(manifest.theme_color?.toLowerCase()).toBe('#0e0e0c');
+    expect(manifest.theme_color?.toLowerCase()).toBe('#070d14');
   });
 });
 
@@ -164,7 +164,8 @@ test.describe('PWA meta tags in <head>', () => {
   test('landing page has theme-color meta tag', async ({ page }) => {
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
-    const themeColor = await page.locator('meta[name="theme-color"]').getAttribute('content');
+    // Two theme-color metas ship: prefers-color-scheme light + dark. Take the first.
+    const themeColor = await page.locator('meta[name="theme-color"]').first().getAttribute('content');
     expect(themeColor).toBeTruthy();
   });
 
