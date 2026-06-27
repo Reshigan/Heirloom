@@ -839,7 +839,7 @@ export function ReadingRoom() {
                 color: 'var(--bone-dim)', lineHeight: 1.85, margin: '0 0 16px',
               }}>
                 Heirloom is the thread that outlives that. Not a feed to scroll and forget,
-                but a single woven cloth your bloodline keeps adding to: a letter sealed for
+                but a single Deep your bloodline keeps adding to: a letter sealed for
                 a birthday decades away, a grandparent's voice, the ordinary days that turn
                 out to matter most.
               </p>

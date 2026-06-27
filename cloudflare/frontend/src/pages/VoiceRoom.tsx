@@ -217,7 +217,7 @@ export function VoiceRoom() {
   }, [wantId, wantEdit, recordings.length]);
 
   const topbarLeft = (
-    <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'voice' }]} />
+    <Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/weft' }, { label: 'voice' }]} />
   );
 
   const author = (user?.firstName ?? '').trim();

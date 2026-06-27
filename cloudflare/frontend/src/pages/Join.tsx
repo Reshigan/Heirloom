@@ -196,7 +196,7 @@ export function Join() {
                   margin: '0 0 28px',
                 }}
               >
-                You've joined the family cloth.
+                You've joined the family thread.
               </h1>
               <p
                 style={{

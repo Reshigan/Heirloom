@@ -220,7 +220,7 @@ export function LetterOpeningCeremony({
             }}
           >
             <span className="hl-mono" style={{ fontSize: 9.5, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-              <span style={{ color: 'var(--warm)' }}>∞</span>&nbsp; now woven into your cloth &nbsp;·&nbsp; {dateStr}
+              <span style={{ color: 'var(--warm)' }}>∞</span>&nbsp; now settled into your Deep &nbsp;·&nbsp; {dateStr}
             </span>
             <button
               type="button"
@@ -232,7 +232,7 @@ export function LetterOpeningCeremony({
                 textTransform: 'uppercase', color: 'var(--warm)',
               }}
             >
-              return to your cloth →
+              return to the Deep →
             </button>
           </div>
         </div>

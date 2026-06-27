@@ -360,7 +360,7 @@ function ToField({
             </span>
           </>
         ) : recipientName.trim() ? (
-          <span>letter · a new name in the cloth — {recipientName.trim()}</span>
+          <span>letter · a new name in the Deep — {recipientName.trim()}</span>
         ) : (
           <span>leave empty to write a personal memory</span>
         )}
@@ -1353,13 +1353,13 @@ export function Compose() {
         dye={isLetter ? 'indigo' : dye}
         entryDate={entryDate}
         seed={title || recipientName || 'thread'}
-        eyebrow={isLetter ? 'woven into the cloth' : 'woven into the thread'}
+        eyebrow={isLetter ? 'settled into the Deep' : 'woven into the thread'}
         headline={
           isLetter
             ? recipientName.trim()
-              ? `Your letter to ${recipientName.trim()} is part of the cloth.`
-              : 'Your letter is part of the cloth.'
-            : 'Your memory is part of the cloth.'
+              ? `Your letter to ${recipientName.trim()} has settled into the Deep.`
+              : 'Your letter has settled into the Deep.'
+            : 'Your memory has settled into the Deep.'
         }
         footer={
           <>

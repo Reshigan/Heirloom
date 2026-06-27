@@ -183,7 +183,7 @@ export function LoomIndex() {
   }, [entries, groupBy]);
 
   const topbarLeft = (
-    <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'index' }]} />
+    <Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/weft' }, { label: 'index' }]} />
   );
 
   // Mono header naming the thread and its span — "THE VANCE THREAD · 1947–2026".
@@ -237,7 +237,7 @@ export function LoomIndex() {
           title="The Archive"
           sub={
             entries.length === 0
-              ? 'The whole cloth, once you begin to weave.'
+              ? 'The whole Deep, once you begin to weave.'
               : 'Every thread ever woven — grouped, and searchable.'
           }
         />

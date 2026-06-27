@@ -61,7 +61,7 @@ const stepPrompts: Record<BookStep, { eyebrow: string; prompt: string }> = {
   select: { eyebrow: 'The Volume', prompt: 'Which threads do you bind?' },
   customize: { eyebrow: 'The Book', prompt: 'Bind your thread' },
   page: { eyebrow: 'The Page', prompt: 'Choose a page layout' },
-  preview: { eyebrow: 'The Volume', prompt: 'This is your cloth, bound.' },
+  preview: { eyebrow: 'The Volume', prompt: 'This is your thread, bound.' },
   order: { eyebrow: 'The Volume', prompt: 'Where shall it be sent?' },
 };
 
@@ -889,7 +889,7 @@ export function BookBuilder() {
                 {totalItems} items · ~{estimatedPages} pages · full-colour {config.coverType} · {pageLayouts.find((l) => l.id === pageLayout)?.label} layout
               </p>
               <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', margin: 0, maxWidth: 360, marginInline: 'auto', fontStyle: 'italic' }}>
-                Every entry is one thread, dyed to its kind. This is your cloth as it stands today.
+                Every entry is one thread, dyed to its kind. This is your thread as it stands today.
               </p>
             </div>
           )}

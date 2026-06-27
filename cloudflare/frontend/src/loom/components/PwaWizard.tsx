@@ -26,9 +26,9 @@ const STEPS: Step[] = [
     visual: 'trigger',
   },
   {
-    eyebrow: 'the cloth',
+    eyebrow: 'the Deep',
     heading: 'Every word you write becomes a permanent thread.',
-    body: 'As your family writes, the cloth grows — a living record that belongs to your bloodline, not a platform. Your descendants will read this long after you. The thread never ends.',
+    body: 'As your family writes, the Deep grows — a living record that belongs to your bloodline, not a platform. Your descendants will read this long after you. The thread never ends.',
     visual: 'cloth',
     cta: 'Write your first sealed letter →',
     ctaTo: '/compose',
@@ -95,7 +95,7 @@ function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | 'trigger' |
       </div>
       <div style={{ marginTop: 10, height: 1, background: 'var(--rule)', opacity: 0.4 }} />
       <div className="hl-mono" style={{ fontSize: 9, color: 'var(--warm)', letterSpacing: '0.18em', textTransform: 'uppercase', marginTop: 8, opacity: 0.8 }}>
-        weave into cloth →
+        lower into the Deep →
       </div>
     </div>
   );

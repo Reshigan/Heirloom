@@ -309,7 +309,7 @@ export function StoryArtifact() {
               margin: '0 0 14px',
             }}
           >
-            A piece of the cloth.
+            A piece of the Deep.
           </h1>
           <p
             style={{
@@ -323,7 +323,7 @@ export function StoryArtifact() {
               maxWidth: '38em',
             }}
           >
-            A story artifact takes the cloth you've woven and plays it forward — a micro-documentary from your thread.
+            A story artifact takes the Deep you've gathered and plays it forward — a micro-documentary from your thread.
           </p>
           {/* Create affordance — quiet mono warm text */}
           <button

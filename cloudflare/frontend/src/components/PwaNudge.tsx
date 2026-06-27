@@ -48,7 +48,7 @@ function IOSSteps() {
     marginBottom: 10,
   };
   const numStyle: React.CSSProperties = {
-    fontFamily: 'var(--mono, "Space Mono", monospace)',
+    fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
     fontSize: 9,
     letterSpacing: '0.14em',
     color: 'var(--warm, #e0a062)',
@@ -210,7 +210,7 @@ export function PwaNudge() {
               />
               <div>
                 <p style={{
-                  fontFamily: 'var(--mono, "Space Mono", monospace)',
+                  fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
                   fontSize: 9,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
@@ -222,7 +222,7 @@ export function PwaNudge() {
                   {mode === 'notify' ? 'Stay in the thread' : 'Install on your phone'}
                 </p>
                 <p id="pwa-nudge-title" style={{
-                  fontFamily: 'var(--serif, "Spectral", Georgia, serif)',
+                  fontFamily: 'var(--serif, "Source Serif 4", Georgia, serif)',
                   fontSize: 17,
                   fontWeight: 300,
                   lineHeight: 1.25,
@@ -251,7 +251,7 @@ export function PwaNudge() {
                 justifyContent: 'center',
                 padding: 0,
                 cursor: 'pointer',
-                fontFamily: 'var(--mono, "Space Mono", monospace)',
+                fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
                 fontSize: 14,
                 color: 'var(--bone-dim, rgba(242,230,208,0.55))',
                 lineHeight: 1,
@@ -291,7 +291,7 @@ export function PwaNudge() {
                   border: '1px solid var(--warm, #e0a062)',
                   borderRadius: 0,
                   padding: '9px 20px',
-                  fontFamily: 'var(--mono, "Space Mono", monospace)',
+                  fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
                   fontSize: 11,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
@@ -314,7 +314,7 @@ export function PwaNudge() {
                   border: '1px solid var(--warm, #e0a062)',
                   borderRadius: 0,
                   padding: '9px 20px',
-                  fontFamily: 'var(--mono, "Space Mono", monospace)',
+                  fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
                   fontSize: 11,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
@@ -334,7 +334,7 @@ export function PwaNudge() {
                 border: 0,
                 padding: 0,
                 cursor: 'pointer',
-                fontFamily: 'var(--mono, "Space Mono", monospace)',
+                fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
                 fontSize: 11,
                 letterSpacing: '0.06em',
                 color: 'var(--bone-dim, rgba(242,230,208,0.55))',
@@ -350,7 +350,7 @@ export function PwaNudge() {
               marginTop: 14,
               paddingTop: 12,
               borderTop: '1px solid var(--rule, rgba(242,230,208,0.11))',
-              fontFamily: 'var(--mono, "Space Mono", monospace)',
+              fontFamily: 'var(--mono, "JetBrains Mono", monospace)',
               fontSize: 9,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',

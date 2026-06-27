@@ -448,7 +448,7 @@ export function Offline() {
             }}
           >
             <div>· write entries (held here until you reconnect)</div>
-            <div>· read the last days of the cloth already loaded</div>
+            <div>· read the last days of the Deep already loaded</div>
             <div>· read every letter you have already opened</div>
             <div>· the listener is silent until reconnect</div>
           </div>

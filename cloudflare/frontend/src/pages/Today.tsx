@@ -77,7 +77,7 @@ export function Today() {
   ).values()].slice(0, 3);
 
   const todayTopbar = (
-    <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'today' }]} />
+    <Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/weft' }, { label: 'today' }]} />
   );
 
   // Carry the live Listener prompt into the Composer (consumes ?prompt as seedPrompt).

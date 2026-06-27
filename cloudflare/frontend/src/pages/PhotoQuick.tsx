@@ -130,8 +130,8 @@ export function PhotoQuick() {
         dye="walnut"
         entryDate={new Date()}
         seed={caption || 'photograph'}
-        eyebrow="woven into the cloth"
-        headline="Your photograph is part of the cloth."
+        eyebrow="settled into the Deep"
+        headline="Your photograph has settled into the Deep."
       />
     );
   }
@@ -143,7 +143,7 @@ export function PhotoQuick() {
   const tint = dyeVar('walnut');
 
   const topbarLeft = (
-    <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'index', to: '/loom/index' }, { label: 'photograph' }]} />
+    <Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/weft' }, { label: 'index', to: '/loom/index' }, { label: 'photograph' }]} />
   );
 
   const today = new Date().toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
@@ -153,7 +153,7 @@ export function PhotoQuick() {
       <div style={{ maxWidth: 'var(--page-max-focus)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
         <CosmicHeader
           eyebrow="the fast lane"
-          title="A photograph, straight into the cloth."
+          title="A photograph, straight into the Deep."
           sub="Pick a photo, add one line, weave. The full Composer is there when you want to write."
         />
 

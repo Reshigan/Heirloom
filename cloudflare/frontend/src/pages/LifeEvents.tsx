@@ -351,7 +351,7 @@ export function LifeEvents() {
         {/* Page header — ledger eyebrow stating the count */}
         <CosmicHeader
           eyebrow={`${eventCount} ${eventCount === 1 ? 'moment' : 'moments'}`}
-          title="The moments that shaped the cloth."
+          title="The moments that shaped the Deep."
         />
 
         {/* Add-event affordance — quiet mono control bar above the list */}

@@ -19,14 +19,14 @@ interface Panel {
 
 const PANELS: Panel[] = [
   {
-    eyebrow: 'the cloth is the interface',
-    line: 'This is not a feed. It is a cloth.',
+    eyebrow: 'the Deep is the interface',
+    line: 'This is not a feed. It is the Deep.',
     body: 'Every memory, letter, and voice your family adds is woven in as one thread. The whole becomes a tapestry you read by hand.',
   },
   {
     eyebrow: 'append-only',
     line: 'Nothing here is ever deleted.',
-    body: 'Threads are only ever added. The counter at the edge of the cloth only climbs — a family record that cannot be quietly unwound.',
+    body: 'Threads are only ever added. The counter at the edge of the Deep only climbs — a family record that cannot be quietly unwound.',
   },
   {
     eyebrow: 'the listener',
@@ -36,7 +36,7 @@ const PANELS: Panel[] = [
   {
     eyebrow: 'the sealed letter',
     line: 'Write now. Delivered when it matters.',
-    body: 'Seal a letter to a person and a moment — a birthday, a wedding, the day after you are gone. It waits in the cloth until then.',
+    body: 'Seal a letter to a person and a moment — a birthday, a wedding, the day after you are gone. It waits in the Deep until then.',
   },
   {
     eyebrow: 'the bloodline',

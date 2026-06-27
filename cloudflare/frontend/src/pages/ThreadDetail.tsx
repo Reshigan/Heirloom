@@ -120,7 +120,7 @@ export function ThreadDetail() {
             className="hl-mono"
             style={{ fontSize: 11, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
           >
-            gathering the cloth…
+            gathering the Deep…
           </p>
         </div>
       </ClothShell>
@@ -237,7 +237,7 @@ export function ThreadDetail() {
             /* Empty state — a quiet listener prompt */
             <div style={{ padding: '24px 0 64px' }}>
               <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-dim)', fontSize: 18, margin: 0 }}>
-                The first entry starts the cloth.
+                The first entry starts the thread.
               </p>
               <Link
                 to={`/threads/${threadId}/compose`}

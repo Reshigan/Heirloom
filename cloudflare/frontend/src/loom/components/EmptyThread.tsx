@@ -90,7 +90,7 @@ export function EmptyThread({
             color: 'var(--bone)',
           }}
         >
-          Your cloth is waiting.
+          The Deep is waiting.
           <br />
           The first thread is the hardest.
         </h2>

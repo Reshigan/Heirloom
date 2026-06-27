@@ -173,7 +173,7 @@ export function GiftAMemory() {
               margin: 0,
             }}
           >
-            A piece of the cloth is on its way.
+            A piece of the Deep is on its way.
           </h1>
           <p
             style={{
@@ -277,7 +277,7 @@ export function GiftAMemory() {
             maxWidth: '30em',
           }}
         >
-          Craft a piece of the cloth for a cherished person.
+          Craft a piece of the Deep for a cherished person.
         </p>
 
         <form onSubmit={handleSubmit} noValidate style={{ marginTop: 56 }}>

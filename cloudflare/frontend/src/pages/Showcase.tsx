@@ -32,7 +32,7 @@ export function Showcase() {
           <RoomHeader
             eyebrow="what a thread looks like"
             title="The pattern of a life."
-            lede="Each entry becomes a weft thread. The cloth grows denser with every year. These patterns are illustrative — generated to show the form, not real account data."
+            lede="Each entry becomes a weft thread. The Deep grows denser with every year. These patterns are illustrative — generated to show the form, not real account data."
           />
 
           {/* Illustrative ledger rows */}

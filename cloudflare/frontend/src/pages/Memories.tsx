@@ -434,7 +434,7 @@ export function Memories() {
             aria-level={1}
             style={{ fontFamily: 'var(--serif-display)', fontSize: 'clamp(28px, 5vw, 40px)', fontWeight: 500, color: 'var(--bone)', lineHeight: 1.2, margin: '0 0 12px' }}
           >
-            The cloth has not yet been woven.
+            Nothing has settled into the Deep yet.
           </p>
           <p
             className="hl-serif"

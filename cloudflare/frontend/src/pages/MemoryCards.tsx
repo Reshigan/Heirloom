@@ -123,7 +123,7 @@ export function MemoryCards() {
         {/* H1 */}
         <CosmicHeader
           eyebrow={`${cards.length} ${cards.length === 1 ? 'card' : 'cards'} woven`}
-          title="Cards from the cloth."
+          title="Cards from the Deep."
         />
 
         {/* Tab row */}

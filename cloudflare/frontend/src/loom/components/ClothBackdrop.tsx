@@ -184,7 +184,21 @@ export function ClothBackdrop(_props: ClothBackdropProps) {
   // persists unbroken across navigation). Light theme keeps the contained
   // per-route filament gesture — a dark water sheet behind bone pages would
   // wreck light-mode contrast.
-  if (resolvedDark) return <WaterCanvas />;
+  //
+  // The .deep-scrim sits in this same fixed z0 backdrop layer, painted OVER the
+  // water but UNDER all page content — one global legibility veil so every
+  // surface reads, whether it wraps ClothShell or paints its own ground. It is
+  // viewport-fixed (this whole layer is `position:fixed`), so long-scroll prose
+  // (ReadingRoom) stays legible past the fold. A radial keeps the centre calm
+  // for type while the water still breathes bright at the margins. Dark only —
+  // light theme has no water, so the rule below no-ops there.
+  if (resolvedDark)
+    return (
+      <>
+        <WaterCanvas />
+        <div className="deep-scrim" aria-hidden />
+      </>
+    );
 
   const variant = variantFor(location.pathname);
   // Re-key on (variant, path) so navigation re-weaves the gesture fresh.

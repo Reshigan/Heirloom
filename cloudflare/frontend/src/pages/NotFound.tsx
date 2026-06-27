@@ -65,7 +65,7 @@ export function NotFound() {
             alignItems: 'center',
           }}
         >
-          return to the cloth →
+          return to the Deep →
         </Link>
       </div>
 

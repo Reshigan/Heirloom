@@ -365,7 +365,7 @@ export function TimeCapsule() {
                 lineHeight: 1.5,
               }}
             >
-              Nothing sealed yet. The cloth is waiting.
+              Nothing sealed yet. The Deep is waiting.
             </p>
             <div
               style={{

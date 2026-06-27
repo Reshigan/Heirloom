@@ -1124,8 +1124,8 @@ export function Record() {
           dye="saffron"
           entryDate={entryDate}
           seed={title || addresseeName || 'voice'}
-          eyebrow="spoken · woven into the cloth"
-          headline="Your voice is part of the cloth."
+          eyebrow="spoken · settled into the Deep"
+          headline="Your voice has settled into the Deep."
           footer={
             <span
               style={{

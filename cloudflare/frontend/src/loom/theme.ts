@@ -6,7 +6,10 @@ import { useEffect, useState, useCallback } from 'react';
  * Default is 'dark' (the living dye-bath water — the canonical Heirloom
  * ground). 'light' is the warm-paper opt-out via the toggle. Persisted to
  * localStorage.
- * Applied as `data-theme` on every `.loom` root in the document.
+ * Applied as `data-theme` on the document root (`<html>`). Every `.loom` root
+ * themes off that ancestor via CSS descendant selectors (`[data-theme] .loom`),
+ * so routes that mount a fresh ClothShell `.loom` after a theme change still
+ * theme correctly — no per-element stamping that goes stale on navigation.
  */
 export type LoomTheme = 'light' | 'dark' | 'system';
 const KEY = 'heirloom-theme';
@@ -31,9 +34,6 @@ function readInitial(): LoomTheme {
 function applyTheme(theme: LoomTheme): void {
   const resolved = theme === 'system' ? resolveSystem() : theme;
   document.documentElement.setAttribute('data-theme', resolved);
-  document.querySelectorAll('.loom').forEach((el) => {
-    el.setAttribute('data-theme', resolved);
-  });
 }
 
 export function useLoomTheme() {

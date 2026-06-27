@@ -150,7 +150,7 @@ export function MemoryRoom() {
   const ledgerEyebrow = `${count} ${count === 1 ? 'MEMORY' : 'MEMORIES'} SHARED`;
 
   // Functional on-tab title stays generic — names no room, owner, or content.
-  const roomTitle = 'A room in the cloth';
+  const roomTitle = 'A room in the Deep';
 
   return (
     <ClothShell
@@ -215,7 +215,7 @@ export function MemoryRoom() {
         {/* Room header — the reading-room anchor (chrome preserved) */}
         <RoomHeader
           eyebrow={<>MEMORY ROOM <span style={{ color: 'var(--warm)' }}>·</span> {room.ownerName}</>}
-          title={room.name || 'A room in the cloth.'}
+          title={room.name || 'A room in the Deep.'}
           lede={room.description || undefined}
         />
 

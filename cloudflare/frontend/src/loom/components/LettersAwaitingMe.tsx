@@ -116,7 +116,7 @@ function AwaitingRow({
     return (
       <div style={{ paddingTop: 6, paddingBottom: 6, borderLeft: `3px solid ${dyeVar(dye)}`, paddingLeft: 14 }}>
         <span className="hl-mono" style={{ fontSize: 9.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-          <span style={{ color: 'var(--warm)' }}>∞</span>&nbsp; {letter.from}'s letter is woven into your cloth
+          <span style={{ color: 'var(--warm)' }}>∞</span>&nbsp; {letter.from}'s letter has settled into your Deep
         </span>
       </div>
     );

@@ -107,7 +107,7 @@ export function FamilyFeed() {
               margin: 0,
             }}
           >
-            The cloth holds nothing from this week. Weave the first entry.
+            The Deep holds nothing from this week. Settle the first entry.
           </p>
         ) : (
           <div style={{ borderTop: '1px solid var(--rule)' }}>

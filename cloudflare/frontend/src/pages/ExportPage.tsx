@@ -37,13 +37,15 @@ interface FormatOption {
   format: ExportFormat;
   label: string;
   ext: string;
+  /** One honest line on what this shape actually hands you. */
+  desc: string;
 }
 
 const FORMATS: FormatOption[] = [
-  { format: 'hardcover', label: 'Printed book', ext: 'hardcover' },
-  { format: 'pdf', label: 'Digital archive', ext: 'pdf' },
-  { format: 'txt', label: 'Plain text', ext: 'txt' },
-  { format: 'zip', label: 'The whole thread', ext: 'zip' },
+  { format: 'hardcover', label: 'Printed book', ext: 'hardcover', desc: 'A bound keepsake, set in type and pressed — shipped to your door.' },
+  { format: 'pdf', label: 'Digital archive', ext: 'pdf', desc: 'The bound book as a PDF — read it anywhere, print it yourself.' },
+  { format: 'txt', label: 'Plain text', ext: 'txt', desc: 'Every word, no formatting — the most portable, future-proof form.' },
+  { format: 'zip', label: 'The whole thread', ext: 'zip', desc: 'A self-contained folder — manifest, photos, and voice, kept whole.' },
 ];
 
 /** familyBook payload — the full thread, bound. Cover follows the chosen format. */
@@ -350,6 +352,7 @@ export function ExportPage() {
               key={opt.format}
               label={opt.label}
               ext={opt.ext}
+              desc={opt.desc}
               selected={format === opt.format}
               onSelect={() => setFormat(opt.format)}
             />
@@ -494,11 +497,13 @@ export function ExportPage() {
 function FormatRow({
   label,
   ext,
+  desc,
   selected,
   onSelect,
 }: {
   label: string;
   ext: string;
+  desc: string;
   selected: boolean;
   onSelect: () => void;
 }) {
@@ -525,16 +530,32 @@ function FormatRow({
         transition: 'border-color 360ms var(--ease)',
       }}
     >
-      <span
-        style={{
-          fontFamily: 'var(--serif)',
-          fontSize: 20,
-          fontWeight: selected ? 600 : 400,
-          color: 'var(--text-soft)',
-        }}
-      >
-        {/* Non-color selected cue is the weight swap (above) + the warm bottom-rule. */}
-        {label}
+      <span style={{ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 }}>
+        <span
+          style={{
+            fontFamily: 'var(--serif)',
+            fontSize: 20,
+            fontWeight: selected ? 600 : 400,
+            color: 'var(--text-soft)',
+          }}
+        >
+          {/* Non-color selected cue is the weight swap (above) + the warm bottom-rule. */}
+          {label}
+        </span>
+        {/* The honest one-liner — brightens on select so the chosen shape reads clearly. */}
+        <span
+          className="hl-serif"
+          style={{
+            fontFamily: 'var(--serif)',
+            fontStyle: 'italic',
+            fontSize: 13,
+            lineHeight: 1.5,
+            color: selected ? 'var(--bone-dim)' : 'var(--bone-faint)',
+            transition: 'color 360ms var(--ease)',
+          }}
+        >
+          {desc}
+        </span>
       </span>
       <span
         style={{
@@ -544,6 +565,7 @@ function FormatRow({
           textTransform: 'uppercase',
           color: isHardcover ? 'var(--copper-label)' : 'var(--muted-2)',
           whiteSpace: 'nowrap',
+          flexShrink: 0,
         }}
       >
         {ext}

@@ -115,7 +115,7 @@ export function TiedOff() {
 
   return (
     <ClothShell
-      topbarLeft={<Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'tied off' }]} />}
+      topbarLeft={<Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/weft' }, { label: 'tied off' }]} />}
       backdropOpacity={0.35}
     >
       {/* completion flourish — woven thread, behind everything */}
@@ -156,7 +156,7 @@ export function TiedOff() {
           <CosmicHeader
             eyebrow={`tied off · ${loading ? '…' : `${locked.length} ${locked.length === 1 ? 'thread' : 'threads'} waiting`}`}
             title="sealed against time"
-            sub="each is a thread tied off at the loom's edge. when its date arrives, the loom unties it and weaves it back into the cloth — for whoever is reading then."
+            sub="each is a thread tied off at the loom's edge. when its date arrives, the loom unties it and weaves it back into the Deep — for whoever is reading then."
           />
         </div>
 

@@ -211,7 +211,7 @@ export function Constellation() {
 
   return (
     <ClothShell
-      topbarLeft={<Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'bloodline' }]} />}
+      topbarLeft={<Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/weft' }, { label: 'bloodline' }]} />}
     >
       <div
         style={{

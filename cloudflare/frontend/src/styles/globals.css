@@ -289,7 +289,7 @@
    LIGHT: remap --ink/--bone/* to paper values so ink (dark) pages
    become light surfaces in light mode.                              ──*/
 
-.loom[data-theme="dark"] {
+[data-theme="dark"] .loom {
   --parchment:          #1b1610;
   --parchment-deep:     #090706;
   --parchment-ink:      #f2e6d0;
@@ -305,7 +305,7 @@
   --dye-hero-edge:      rgba(7, 13, 20, 0.52);
 }
 
-.loom[data-theme="light"] {
+[data-theme="light"] .loom {
   --ink:          #eef2f6; /* shallows — cool water-light */
   --ink-card:     #dfe6ee; /* cool shallows card — lightness held ≈ old #ece0cb so copper AA holds */
   --ink-deep:     #d4dde8;
@@ -617,7 +617,7 @@ select.input {
 
 /* Light scope: data-URI can't read tokens, so flip the baked literal to ink
    (%23120d08 = light-theme --bone) or the cream caret vanishes on parchment. */
-.loom[data-theme="light"] select.input {
+[data-theme="light"] .loom select.input {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23120d08' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
 }
 
@@ -631,7 +631,7 @@ input[type="date"] {
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
-.loom[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+[data-theme="dark"] .loom input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1) brightness(1.6);
 }
 
@@ -653,7 +653,7 @@ h1, h2, h3, h4, h5, h6 {
 h1 { font-size: 3.5rem; letter-spacing: -0.02em; }
 h2 { font-size: 2.5rem; letter-spacing: -0.01em; }
 h3 { font-size: 1.75rem; }
-/* Cormorant floor — var(--font-display) turns unreadable below ~24px, so no
+/* Fraunces floor — var(--font-display) turns unreadable below ~24px, so no
    global heading tag may render smaller. h4 was 1.25rem (20px) and h5/h6 were
    unsized (~16px); floor all three to 1.5rem (24px), mirroring the .loom fix. */
 h4, h5, h6 { font-size: 1.5rem; }
@@ -869,16 +869,16 @@ select:focus-visible {
 
 /* Native date/time pickers track the active theme (Compose/Record removed
    their inline colorScheme:'dark' so the picker UI flips with the document). */
-.loom[data-theme="light"] input[type="date"],
-.loom[data-theme="light"] input[type="datetime-local"],
-.loom[data-theme="light"] input[type="time"],
-.loom[data-theme="light"] select {
+[data-theme="light"] .loom input[type="date"],
+[data-theme="light"] .loom input[type="datetime-local"],
+[data-theme="light"] .loom input[type="time"],
+[data-theme="light"] .loom select {
   color-scheme: light;
 }
-.loom[data-theme="dark"] input[type="date"],
-.loom[data-theme="dark"] input[type="datetime-local"],
-.loom[data-theme="dark"] input[type="time"],
-.loom[data-theme="dark"] select {
+[data-theme="dark"] .loom input[type="date"],
+[data-theme="dark"] .loom input[type="datetime-local"],
+[data-theme="dark"] .loom input[type="time"],
+[data-theme="dark"] .loom select {
   color-scheme: dark;
 }
 
@@ -1229,15 +1229,15 @@ html {
    buttons/ghost links to --warm-dim (#824a16 ≈ 5.9:1, passes ≥4.5:1) at full
    opacity. Decorative --warm token / dye threads are untouched. Dark theme keeps
    its already-passing copper. */
-.loom[data-theme="light"] .hl-btn:not(.text):not(.ghost):not(:disabled):not([aria-disabled="true"]) {
+[data-theme="light"] .loom .hl-btn:not(.text):not(.ghost):not(:disabled):not([aria-disabled="true"]) {
   color: var(--warm-dim);
   border-color: var(--warm-dim);
 }
-.loom[data-theme="light"] .hl-btn.text { color: var(--warm-dim); }
-.loom[data-theme="light"] .hl-btn.ghost { opacity: 1; color: var(--warm-dim); }
+[data-theme="light"] .loom .hl-btn.text { color: var(--warm-dim); }
+[data-theme="light"] .loom .hl-btn.ghost { opacity: 1; color: var(--warm-dim); }
 /* Parchment solid-ink primary stays bone-on-ink (already passes) — re-assert it
    after the copper lift so source order keeps the solid primary intact. */
-.loom[data-theme="light"] .hl-screen.parchment .hl-btn:not(.ghost):not(.text) {
+[data-theme="light"] .loom .hl-screen.parchment .hl-btn:not(.ghost):not(.text) {
   color: var(--bone); border-color: transparent;
 }
 
@@ -1421,7 +1421,7 @@ html {
    ───────────────────────────────────────────────────────────────── */
 
 :root,
-.loom[data-theme="dark"] {
+[data-theme="dark"] .loom {
   /* Single-sourced aliases of the canonical token family (:root, ~line 84) so
      the --loom-* surfaces can NEVER drift from --ink/--bone/--warm/--rule. Each
      theme scope re-declares the alias so var() resolves against that scope's
@@ -1448,7 +1448,7 @@ html {
   --loom-dur-veil:   var(--dur-slow);
 }
 
-.loom[data-theme="light"] {
+[data-theme="light"] .loom {
   /* Re-declared here (light scope) so the alias resolves against the light
      canonical tokens (block at ~line 286). Same single-source contract as dark. */
   --loom-ink:        var(--ink);
@@ -1506,7 +1506,7 @@ html {
 
 /* Light scope — invert toward pure black ink on the shallows, darken the muted
    ramp, and darken the card surface for crisper edges (cool, not warm tan). */
-.loom[data-theme="light"][data-contrast="true"] {
+[data-theme="light"] .loom[data-contrast="true"] {
   --bone:        #000000;
   --bone-dim:    rgba(0, 0, 0, 0.92);
   --bone-faint:  rgba(0, 0, 0, 0.74);
@@ -1597,7 +1597,7 @@ html {
 
 /* ∞ brand mark — the ∞heirloom wordmark. At ~19px Fraunces (a thin display
    face) falls below the 24px display floor and turns illegible, so the wordmark
-   uses Spectral (var(--serif), the readable serif voice) which keeps the serif
+   uses Source Serif 4 (var(--serif), the readable serif voice) which keeps the serif
    character of a typeset wordmark while staying legible small.
    (Frame chrome — .loom-frame/.loom-topbar/.loom-horizon — removed: dead,
    superseded by ClothShell/Frame. .loom-mark is still live in AdminDashboard.) */
@@ -1975,7 +1975,7 @@ html {
 }
 /* Bare clause — the typed whitelist above misses untyped inputs (and types like
    url/week/month/time), which would otherwise inherit Inter chrome. This
-   guarantees Spectral var(--serif) on EVERY field. Font-family only; the typed
+   guarantees Source Serif 4 var(--serif) on EVERY field. Font-family only; the typed
    rule above keeps owning background/border/colour/size + ink-bg overrides. */
 .loom input,
 .loom textarea,
@@ -2198,3 +2198,30 @@ input:-webkit-autofill:active {
 
 /* The .dye-veil/.dye-glass/.dye-chip frosted-glass system was retired with The
    Deep — glassmorphism is an anti-pattern and the classes had zero consumers. */
+
+/* ── Legibility veil (.deep-scrim) ───────────────────────────────────────
+   Rendered once in ClothBackdrop's fixed z0 backdrop layer, painted OVER the
+   water but UNDER all page content (the LoomShellRoot content sits at z1+). One
+   global veil so EVERY surface reads — ClothShell pages and full-screen pages
+   that paint their own ground alike — without per-page wiring. Viewport-fixed
+   (the backdrop layer is `position:fixed`), so long-scroll prose (ReadingRoom)
+   stays legible past the fold. Dark theme only — light mode has no water
+   (ClothBackdrop), so the veil is transparent there. Radial, not flat: densest
+   under the centred reading column, fading toward the margins so the Deep still
+   breathes at the edges (rule 3: negative space). No blur — that would be
+   glassmorphism (anti-pattern). */
+.deep-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: none;
+}
+[data-theme='dark'] .loom .deep-scrim {
+  background: radial-gradient(
+    130% 105% at 50% 36%,
+    color-mix(in srgb, var(--ink) 86%, transparent) 0%,
+    color-mix(in srgb, var(--ink) 60%, transparent) 50%,
+    color-mix(in srgb, var(--ink) 24%, transparent) 100%
+  );
+}

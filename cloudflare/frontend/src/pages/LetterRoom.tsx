@@ -128,7 +128,7 @@ export function LetterRoom() {
   }, [featured?.id, expandedId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const topbarLeft = (
-    <Breadcrumbs trail={[{ label: 'cloth', to: '/loom/weft' }, { label: 'letters' }]} />
+    <Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/weft' }, { label: 'letters' }]} />
   );
 
   return (
