@@ -11,11 +11,13 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { env } from 'cloudflare:test';
+import { env, SELF } from 'cloudflare:test';
 import { applyMigrations, seedUser } from './helpers/migrate';
 import { releaseAuthorDeathEntries, checkMissedCheckIns } from '../index';
 
 const PAST = '2020-01-01T00:00:00.000Z';
+const FUTURE = '2099-01-01T00:00:00.000Z';
+const API = 'https://api.heirloom.blue';
 
 beforeEach(async () => {
   await applyMigrations(env.DB);
@@ -134,6 +136,57 @@ describe('checkMissedCheckIns — RELEASE_ALL gate', () => {
 
     const sw = await env.DB.prepare(`SELECT status FROM dead_man_switches WHERE user_id = ?`).bind(userId).first<any>();
     expect(sw.status).toBe('TRIGGERED'); // never RELEASED — action wasn't RELEASE_ALL
+    expect((await unlockResolved(lock))?.resolved_at).toBeNull();
+  });
+});
+
+describe('verify-passing — the human attestation fast-path', () => {
+  // Seed a TRIGGERED RELEASE_ALL switch plus the one-time token a VERIFIED legacy
+  // contact is emailed, then hit the PUBLIC confirm endpoint with no auth header.
+  async function seedTriggeredWithToken(userId: string, token: string, expires = FUTURE) {
+    await env.DB.prepare(
+      `INSERT INTO dead_man_switches (id, user_id, enabled, status, grace_period_days, missed_check_ins, next_check_in_due, trigger_action)
+       VALUES (?, ?, 1, 'TRIGGERED', 7, 5, ?, 'RELEASE_ALL')`,
+    ).bind(`dms-${userId}`, userId, PAST).run();
+    await env.DB.prepare(
+      `INSERT INTO switch_verifications (id, dead_man_switch_id, legacy_contact_id, verification_token, expires_at)
+       VALUES (?, ?, ?, ?, ?)`,
+    ).bind(`sv-${userId}`, `dms-${userId}`, `lc-${userId}`, token, expires).run();
+  }
+
+  it('releases on an unauthenticated confirm POST and is replay-safe', async () => {
+    const userId = await seedUser(env.DB, { id: 'u-att', email: 'att@heirloom.blue', first_name: 'Mara' });
+    const lock = await seedLock(userId, 'tm-att', 'e-att', 'AUTHOR_DEATH', 'ul-att');
+    await seedTriggeredWithToken(userId, 'tok-good');
+
+    // No Authorization header — the griever isn't a logged-in user. The allowlist
+    // must let this through (regression guard for the auth-gate fix).
+    const res = await SELF.fetch(`${API}/api/deadman/verify-passing/tok-good`, { method: 'POST' });
+    expect(res.status).toBe(200);
+
+    const sw = await env.DB.prepare(`SELECT status FROM dead_man_switches WHERE user_id = ?`).bind(userId).first<any>();
+    expect(sw.status).toBe('RELEASED');
+    expect((await unlockResolved(lock))?.resolved_at).not.toBeNull();
+
+    // Token consumed — a replay can't re-run the release.
+    const gone = await env.DB.prepare(`SELECT id FROM switch_verifications WHERE verification_token = ?`).bind('tok-good').first();
+    expect(gone).toBeNull();
+    const replay = await SELF.fetch(`${API}/api/deadman/verify-passing/tok-good`, { method: 'POST' });
+    const body = await replay.text();
+    expect(body).toContain('couldn');
+  });
+
+  it('refuses to release on an expired token', async () => {
+    const userId = await seedUser(env.DB, { id: 'u-exp', email: 'exp@heirloom.blue', first_name: 'Joss' });
+    const lock = await seedLock(userId, 'tm-exp', 'e-exp', 'AUTHOR_DEATH', 'ul-exp');
+    await seedTriggeredWithToken(userId, 'tok-old', PAST); // already expired
+
+    const res = await SELF.fetch(`${API}/api/deadman/verify-passing/tok-old`, { method: 'POST' });
+    expect(res.status).toBe(200); // on-brand HTML, not a release
+    expect((await res.text())).toContain('couldn');
+
+    const sw = await env.DB.prepare(`SELECT status FROM dead_man_switches WHERE user_id = ?`).bind(userId).first<any>();
+    expect(sw.status).toBe('TRIGGERED'); // unchanged
     expect((await unlockResolved(lock))?.resolved_at).toBeNull();
   });
 });

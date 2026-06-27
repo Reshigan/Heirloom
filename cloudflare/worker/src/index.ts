@@ -806,6 +806,10 @@ const PUBLIC_API_PREFIXES = [
   '/api/memorials/page/',     // shared memorial pages (QR/short-url) + tributes — public by design
   '/api/deadman/verify-contact/', // legacy-contact verification (token in URL) — unauthenticated by design
   '/deadman/verify-contact/',     // relative-path variant inside the /api mount
+  '/api/deadman/verify-passing/', // death-attestation confirm page (token in URL) — emailed to a contact, not logged in
+  '/deadman/verify-passing/',     // relative-path variant inside the /api mount
+  '/api/deadman/verify/',         // JSON death-attestation (SPA verifyPassing) — token-authenticated, not session
+  '/deadman/verify/',             // relative-path variant inside the /api mount
 ];
 
 // JWT middleware for protected routes. Bypasses for paths in

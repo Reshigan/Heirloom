@@ -4,9 +4,15 @@
  */
 
 import { Hono } from 'hono';
-import type { AppEnv } from '../index';
+import type { AppEnv, Env } from '../index';
 import { createMemorialForUser } from './q4-features';
 import { releaseAuthorDeathEntries } from '../index';
+
+// Escape user-controlled text (an author's first name) before it lands in the
+// server-rendered confirm pages below. The page bodies are otherwise static.
+const esc = (s: string): string =>
+  String(s).replace(/[&<>"']/g, (ch) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch] as string));
 
 export const deadmanRoutes = new Hono<AppEnv>();
 
@@ -384,83 +390,184 @@ deadmanRoutes.post('/verify-contact/:token', async (c) => {
   );
 });
 
-// Verify a passing — the HUMAN attestation gate.
-// The token is a one-time switch_verifications token, emailed ONLY to a VERIFIED
-// legacy contact when the switch enters TRIGGERED. Possessing and submitting it
-// IS that contact's active confirmation that the author has passed. This is the
-// gate the missed-check-in timer deliberately does NOT satisfy on its own — so
-// a living-but-disengaged author's sealed entries can't be opened by a clock.
+// ── The HUMAN attestation gate ───────────────────────────────────────────────
+// A one-time switch_verifications token is emailed ONLY to a VERIFIED legacy
+// contact when the switch enters TRIGGERED. Possessing and submitting it IS that
+// contact's active confirmation that the author has passed. This is the gate the
+// missed-check-in timer deliberately does NOT satisfy on its own — so a
+// living-but-disengaged author's sealed entries can't be opened by a clock.
+//
+// Two public surfaces share one release path:
+//   • GET/POST /verify-passing/:token — the browser flow the trigger email links
+//     to (server-rendered confirm page → form POST → result page).
+//   • POST /verify/:token — JSON, for the SPA `verifyPassing` api method.
+
+type PassingResult =
+  | { ok: false; code: 404 | 410 | 409; message: string }
+  | { ok: true; switchId: string; userId: string; triggerAction: string; releasedAt: string };
+
+// Read-only lookup of a passing token — no mutation. Powers the GET confirm page.
+async function lookupPassing(env: Env, token: string) {
+  return env.DB.prepare(`
+    SELECT sv.id AS sv_id, sv.expires_at,
+           dms.id AS dms_id, dms.user_id, dms.status, dms.trigger_action,
+           u.first_name AS user_name
+    FROM switch_verifications sv
+    JOIN dead_man_switches dms ON dms.id = sv.dead_man_switch_id
+    JOIN users u ON u.id = dms.user_id
+    WHERE sv.verification_token = ?
+  `).bind(token).first<any>();
+}
+
+// Consume the token and release. Idempotent on an already-RELEASED switch.
+// Single source of truth for both the JSON and the browser handlers.
+async function consumeAndRelease(env: Env, token: string): Promise<PassingResult> {
+  const sv = await lookupPassing(env, token);
+  if (!sv) {
+    return { ok: false, code: 404, message: 'Token not found or already used' };
+  }
+  if (new Date(sv.expires_at as string).getTime() < Date.now()) {
+    return { ok: false, code: 410, message: 'This confirmation link has expired.' };
+  }
+  // The author checked in again / stood the switch down — refuse to release.
+  if (sv.status === 'ACTIVE' || sv.status === 'CANCELLED') {
+    return { ok: false, code: 409, message: 'This account is active. No action taken.' };
+  }
+
+  const now = new Date().toISOString();
+
+  // Consume the one-time token first so the attestation can't be replayed.
+  await env.DB.prepare(`DELETE FROM switch_verifications WHERE id = ?`).bind(sv.sv_id).run();
+
+  if (sv.status !== 'RELEASED') {
+    await env.DB.prepare(`
+      UPDATE dead_man_switches
+      SET status = 'RELEASED',
+          verified_at = COALESCE(verified_at, ?),
+          released_at = ?,
+          updated_at = ?
+      WHERE id = ?
+    `).bind(now, now, now, sv.dms_id).run();
+
+    // The irreversible step — open the departed author's after-death entries,
+    // now gated on this human attestation rather than the timer. Best-effort.
+    if ((sv.trigger_action as string) === 'RELEASE_ALL') {
+      try {
+        await releaseAuthorDeathEntries(env, sv.user_id as string);
+      } catch (err) {
+        console.error('RELEASE_ALL on attestation failed:', err);
+      }
+    }
+  }
+
+  // M3: auto-convert the deceased's profile to a memorial. Best-effort and
+  // idempotent (skips if one already exists) — never abort the trigger if it fails.
+  try {
+    await createMemorialForUser(env, sv.user_id as string);
+  } catch (err) {
+    console.error('Failed to auto-create memorial on death confirmation:', err);
+  }
+
+  return {
+    ok: true,
+    switchId: sv.dms_id as string,
+    userId: sv.user_id as string,
+    triggerAction: sv.trigger_action as string,
+    releasedAt: now,
+  };
+}
+
+// JSON variant — for the SPA `verifyPassing(token)` api method.
 deadmanRoutes.post('/verify/:token', async (c) => {
   try {
     const token = c.req.param('token');
+    if (!token) return c.json({ error: 'Token is required' }, 400);
 
-    if (!token) {
-      return c.json({ error: 'Token is required' }, 400);
-    }
-
-    const sv = await c.env.DB.prepare(`
-      SELECT sv.id AS sv_id, sv.expires_at,
-             dms.id AS dms_id, dms.user_id, dms.status, dms.trigger_action
-      FROM switch_verifications sv
-      JOIN dead_man_switches dms ON dms.id = sv.dead_man_switch_id
-      WHERE sv.verification_token = ?
-    `).bind(token).first<any>();
-
-    if (!sv) {
-      return c.json({ error: 'Token not found or already used' }, 404);
-    }
-    if (new Date(sv.expires_at as string).getTime() < Date.now()) {
-      return c.json({ error: 'This confirmation link has expired.' }, 410);
-    }
-    // The author checked in again / stood the switch down — refuse to release.
-    if (sv.status === 'ACTIVE' || sv.status === 'CANCELLED') {
-      return c.json({ error: 'This account is active. No action taken.' }, 409);
-    }
-
-    const now = new Date().toISOString();
-
-    // Consume the one-time token first so the attestation can't be replayed.
-    await c.env.DB.prepare(`DELETE FROM switch_verifications WHERE id = ?`).bind(sv.sv_id).run();
-
-    if (sv.status !== 'RELEASED') {
-      await c.env.DB.prepare(`
-        UPDATE dead_man_switches
-        SET status = 'RELEASED',
-            verified_at = COALESCE(verified_at, ?),
-            released_at = ?,
-            updated_at = ?
-        WHERE id = ?
-      `).bind(now, now, now, sv.dms_id).run();
-
-      // The irreversible step — open the departed author's after-death entries,
-      // now gated on this human attestation rather than the timer. Best-effort.
-      if ((sv.trigger_action as string) === 'RELEASE_ALL') {
-        try {
-          await releaseAuthorDeathEntries(c.env, sv.user_id as string);
-        } catch (err) {
-          console.error('RELEASE_ALL on attestation failed:', err);
-        }
-      }
-    }
-
-    // M3: auto-convert the deceased's profile to a memorial. Best-effort and
-    // idempotent (skips if one already exists) — never abort the trigger if it fails.
-    try {
-      await createMemorialForUser(c.env, sv.user_id as string);
-    } catch (err) {
-      console.error('Failed to auto-create memorial on death confirmation:', err);
-    }
+    const result = await consumeAndRelease(c.env, token);
+    if (!result.ok) return c.json({ error: result.message }, result.code);
 
     return c.json({
       success: true,
-      switchId: sv.dms_id,
+      switchId: result.switchId,
       status: 'RELEASED',
-      triggerAction: sv.trigger_action,
-      releasedAt: now,
+      triggerAction: result.triggerAction,
+      releasedAt: result.releasedAt,
     });
   } catch {
     return c.json({ error: 'Token not found or already used' }, 404);
   }
+});
+
+// Browser flow — the GET target of the trigger email. Renders an on-brand confirm
+// page (no release yet); the actual release happens on the POST below. Public.
+deadmanRoutes.get('/verify-passing/:token', async (c) => {
+  const token = c.req.param('token');
+  const sv = await lookupPassing(c.env, token);
+
+  if (!sv) {
+    return c.html(verifyContactPage(
+      'This link is no longer valid.',
+      `<p>We couldn't find a confirmation request for this link. It may have already
+       been used, or it may have expired. If you believe this is a mistake, please
+       contact us at heirloom.blue.</p>`,
+    ));
+  }
+  if (new Date(sv.expires_at as string).getTime() < Date.now()) {
+    return c.html(verifyContactPage(
+      'This link has expired.',
+      `<p>For everyone's safety these confirmation links are short-lived. If
+       confirmation is still needed, a fresh link will follow.</p>`,
+    ));
+  }
+  if (sv.status === 'ACTIVE' || sv.status === 'CANCELLED') {
+    return c.html(verifyContactPage(
+      'No action is needed.',
+      `<p><span style="color:#e0a062">${esc(sv.user_name as string)}</span> has since
+       checked in. Nothing is required of you. You may close this window.</p>`,
+    ));
+  }
+  if (sv.status === 'RELEASED') {
+    return c.html(verifyContactPage(
+      'Already confirmed.',
+      `<p>This passing has already been confirmed and what was left has been carried
+       forward. There is nothing more to do.</p>`,
+    ));
+  }
+
+  const action = `/api/deadman/verify-passing/${encodeURIComponent(token)}`;
+  return c.html(verifyContactPage(
+    'A difficult confirmation.',
+    `<p>You were named a legacy contact by
+       <span style="color:#e0a062">${esc(sv.user_name as string)}</span>. We have not
+       been able to reach them for their scheduled check-in.</p>
+     <p>Only confirm below if you know that ${esc(sv.user_name as string)} has passed
+       away. Doing so releases the entries they set to open on their death to the
+       people they chose. This cannot be undone.</p>
+     <form method="POST" action="${action}">
+       <button type="submit">I confirm — ${esc(sv.user_name as string)} has passed</button>
+     </form>
+     <p style="font-size:13px;color:rgba(242,230,208,0.44)">If they are still with us,
+       do nothing — and please ask them to check in.</p>`,
+  ));
+});
+
+// Browser flow — the POST target of the confirm form. Runs the release. Public.
+deadmanRoutes.post('/verify-passing/:token', async (c) => {
+  const token = c.req.param('token');
+  const result = await consumeAndRelease(c.env, token);
+
+  if (!result.ok) {
+    return c.html(verifyContactPage(
+      'We couldn’t complete that.',
+      `<p>${esc(result.message)}</p>`,
+    ));
+  }
+  return c.html(verifyContactPage(
+    'Thank you.',
+    `<p>You have confirmed this passing. What was entrusted has been carried forward
+       to the people who were chosen. We are sorry for your loss.</p>
+     <p>You may close this window.</p>`,
+  ));
 });
 
 // Test trigger (for testing purposes)

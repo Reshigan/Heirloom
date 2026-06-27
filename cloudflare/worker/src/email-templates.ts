@@ -403,7 +403,7 @@ export const deathVerificationRequestEmail = (contactName: string, userName: str
     <div class="urgent">
       <strong>Important:</strong> Only click the button below if you can confirm that ${esc(userName)} has passed away. This action cannot be easily undone.
     </div>
-    <a href="${APP_URL}/verify-passing?token=${token}" class="button">VERIFY STATUS</a>
+    <a href="https://api.heirloom.blue/api/deadman/verify-passing/${token}" class="button">VERIFY STATUS</a>
     <p>If ${esc(userName)} is still alive, please encourage them to check in to their Heirloom account.</p>
   `),
 });
