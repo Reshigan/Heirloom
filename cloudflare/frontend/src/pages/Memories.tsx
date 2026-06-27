@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
@@ -292,13 +292,36 @@ export function Memories() {
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const { prompt: listenerPrompt } = useListener();
 
-  const { data, isLoading, isError, refetch } = useQuery({
+  // The worker paginates server-side (offset, hard-capped at 100/page). Page
+  // through it so a thread with hundreds of entries shows every one instead of
+  // silently truncating at the first 100. The sentinel below auto-loads the
+  // next page as it scrolls into view.
+  const PAGE_SIZE = 100;
+  const { data, isLoading, isError, refetch, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteQuery({
     queryKey: ['memories-mosaic'],
-    queryFn: () => memoriesApi.getAll({ limit: 200 }).then((r) => (r.data as any)?.data ?? []),
     enabled: isAuthenticated,
+    initialPageParam: 1,
+    queryFn: ({ pageParam }) => memoriesApi.getAll({ page: pageParam, limit: PAGE_SIZE }).then((r) => r.data),
+    getNextPageParam: (last: any) => {
+      const p = last?.pagination;
+      return p && p.page < p.totalPages ? p.page + 1 : undefined;
+    },
   });
 
-  const allMemories: Memory[] = Array.isArray(data) ? data : [];
+  const allMemories: Memory[] = (data?.pages ?? []).flatMap((pg: any) => pg?.data ?? []);
+
+  // Auto-load the next page when the end of the ledger nears the viewport.
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasNextPage) return;
+    const io = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage(); },
+      { rootMargin: '400px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // The thread's name + lived year span — the mono eyebrow over the ledger.
   const threadName = `The ${user?.lastName ?? ''} Thread`.replace(/\s+/g, ' ').trim();
@@ -459,6 +482,15 @@ export function Memories() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Auto-load sentinel — pulls the next page as it nears view. Sits outside
+          the filtered list so older pages keep loading even when a filter hides
+          everything on the pages fetched so far. */}
+      {hasNextPage && (
+        <div ref={sentinelRef} style={{ padding: '8px var(--page-pad-x) 24px' }} aria-hidden="true">
+          {isFetchingNextPage && <ProgressHair label="drawing more thread…" />}
         </div>
       )}
       </div>
