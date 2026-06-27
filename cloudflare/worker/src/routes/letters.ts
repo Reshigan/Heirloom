@@ -8,7 +8,7 @@ import type { AppEnv } from '../index';
 import { classifyEmotionWithAI } from '../services/tinyllm';
 import { mirrorIntoDefaultThread, mirrorLetterUpdate, mirrorLetterDelete } from '../services/threadMesh';
 import { recordRevision, withinGrace, mutableUntilFrom, listRevisions } from '../lib/legacyArchive';
-import { sendEmail } from '../utils/email';
+import { sendEmail, notifyAuthorDeliveryFailed } from '../utils/email';
 import { letterDeliveryEmail, letterMilestoneTeaserEmail, letterOpenedNotificationEmail } from '../email-templates';
 
 export const lettersRoutes = new Hono<AppEnv>();
@@ -686,6 +686,7 @@ lettersRoutes.post('/:id/seal', async (c) => {
       // this an IMMEDIATE letter sat as a PENDING row that nothing sent until
       // the recipient's family record was next edited (redeliverPendingLetters).
       let delivered = 0;
+      const failedEmails: string[] = [];
       for (const recipient of recipientsWithEmail) {
         try {
           const { subject, html } = letterDeliveryEmail(recipient.name || 'there', senderName, {
@@ -693,7 +694,14 @@ lettersRoutes.post('/:id/seal', async (c) => {
             body: String(existing.body || ''),
             signature: String(existing.signature || ''),
           });
-          await sendEmail(c.env, { from: 'Heirloom <noreply@heirloom.blue>', to: recipient.email, subject, html }, 'letter_delivery');
+          const result = await sendEmail(c.env, { from: 'Heirloom <noreply@heirloom.blue>', to: recipient.email, subject, html }, 'letter_delivery');
+          // Only mark DELIVERED / stamp delivered_at when the provider accepted
+          // the send. A failed send leaves the row PENDING so redeliverPendingLetters
+          // can retry it later — never silently swallow the failure.
+          if (!result.success) {
+            failedEmails.push(recipient.email);
+            continue;
+          }
           await c.env.DB.prepare(`
             UPDATE letter_deliveries SET status = 'DELIVERED', sent_at = ?, delivered_at = ?, updated_at = ?
             WHERE letter_id = ? AND recipient_email = ?
@@ -701,12 +709,14 @@ lettersRoutes.post('/:id/seal', async (c) => {
           delivered++;
         } catch (err) {
           console.error('Immediate letter delivery failed', recipient.email, err);
+          failedEmails.push(recipient.email);
         }
       }
       if (delivered > 0) {
         await c.env.DB.prepare(`UPDATE letters SET delivered_at = ?, updated_at = ? WHERE id = ?`)
           .bind(now, now, letterId).run();
       }
+      await notifyAuthorDeliveryFailed(c.env, userId, failedEmails);
     }
   }
 
@@ -771,8 +781,11 @@ lettersRoutes.post('/:id/release', async (c) => {
   }
   const now = new Date().toISOString();
   const deliveredEmails: string[] = [];
+  const failedEmails: string[] = [];
 
-  // Send emails first (each gated on success); defer all DB writes to one batch.
+  // Send emails first (each gated on result.success); defer all DB writes to one
+  // batch. A failed send is NOT pushed to deliveredEmails, so its delivery row
+  // stays PENDING for a later retry rather than being marked DELIVERED unsent.
   for (const recipient of recipientsWithEmail) {
     try {
       const { subject, html } = letterDeliveryEmail(recipient.name || 'there', senderName, {
@@ -780,7 +793,7 @@ lettersRoutes.post('/:id/release', async (c) => {
         body: letter.body || '',
         signature: letter.signature || '',
       });
-      await sendEmail(
+      const result = await sendEmail(
         c.env,
         {
           from: 'Heirloom <noreply@heirloom.blue>',
@@ -790,9 +803,14 @@ lettersRoutes.post('/:id/release', async (c) => {
         },
         'letter_delivery'
       );
-      deliveredEmails.push(recipient.email);
+      if (result.success) {
+        deliveredEmails.push(recipient.email);
+      } else {
+        failedEmails.push(recipient.email);
+      }
     } catch (err) {
       console.error('Letter release email failed', recipient.email, err);
+      failedEmails.push(recipient.email);
     }
   }
 
@@ -803,13 +821,20 @@ lettersRoutes.post('/:id/release', async (c) => {
       WHERE letter_id = ? AND recipient_email = ?
     `).bind(now, now, now, letterId, email)
   );
-  writes.push(
-    c.env.DB.prepare(`UPDATE letters SET delivered_at = ?, updated_at = ? WHERE id = ?`).bind(now, now, letterId)
-  );
-  await c.env.DB.batch(writes);
+  // Mark the letter released only when nothing failed (all sent, or there were no
+  // emailable recipients). If any send failed, leave delivered_at NULL so the
+  // author can re-release to retry — the `already released` guard would otherwise
+  // permanently lock a letter that never reached someone.
+  if (failedEmails.length === 0) {
+    writes.push(
+      c.env.DB.prepare(`UPDATE letters SET delivered_at = ?, updated_at = ? WHERE id = ?`).bind(now, now, letterId)
+    );
+  }
+  if (writes.length > 0) await c.env.DB.batch(writes);
+  await notifyAuthorDeliveryFailed(c.env, userId, failedEmails);
   const sent = deliveredEmails.length;
 
-  return c.json({ id: letterId, deliveredAt: now, emailsSent: sent, message: 'Letter released' });
+  return c.json({ id: letterId, deliveredAt: failedEmails.length === 0 ? now : null, emailsSent: sent, failed: failedEmails.length, message: 'Letter released' });
 });
 
 // Open a milestone letter (recipient action).

@@ -444,6 +444,30 @@ export const letterDeliveryEmail = (
   `),
 });
 
+// Sent to the AUTHOR when one or more of their letter's recipients could not be
+// reached (the email provider rejected the send). The letter stays unsent for
+// those addresses so it can be retried; this tells the author to re-aim while
+// they still can.
+export const letterDeliveryFailedEmail = (
+  authorName: string,
+  failedEmails: string[]
+) => ({
+  subject: `A letter didn't reach ${failedEmails.length === 1 ? 'its recipient' : 'everyone'}`,
+  html: baseTemplate(`
+    <h2>A letter couldn't be delivered</h2>
+    <p>Dear ${esc(authorName)},</p>
+    <p>We couldn't deliver your letter to the following ${failedEmails.length === 1 ? 'address' : 'addresses'}:</p>
+    <div class="letter-box">
+      <p style="white-space: pre-wrap;">${esc(failedEmails.join('\n'))}</p>
+    </div>
+    <p>The letter has <strong>not</strong> been marked delivered for ${failedEmails.length === 1 ? 'this recipient' : 'these recipients'}.
+       Check the address is right and that the person still has it on their record, then release or re-send when you're ready.</p>
+    <div style="text-align:center; margin: 28px 0;">
+      <a href="${APP_URL}" class="button-warm">Open your letters</a>
+    </div>
+  `),
+});
+
 // Milestone teaser — sent the moment a milestone letter is sealed, to a
 // recipient who may not yet be on Heirloom. The content stays sealed; this only
 // tells them something is waiting for a named moment ("your wedding day"). It is

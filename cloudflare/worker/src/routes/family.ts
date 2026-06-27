@@ -7,7 +7,7 @@ import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { mirrorFamilyMemberIntoDefaultThread } from '../services/threadMesh';
 import { readDescription } from '../lib/legacyArchive';
-import { sendEmail } from '../utils/email';
+import { sendEmail, notifyAuthorDeliveryFailed } from '../utils/email';
 import { letterDeliveryEmail } from '../email-templates';
 
 export const familyRoutes = new Hono<AppEnv>();
@@ -69,6 +69,7 @@ async function redeliverPendingLetters(
   const toName = member?.name || 'there';
 
   let sent = 0;
+  let anyFailed = false;
   for (const letter of rows) {
     try {
       const { subject, html } = letterDeliveryEmail(toName, senderName, {
@@ -76,11 +77,18 @@ async function redeliverPendingLetters(
         body: letter.body || '',
         signature: letter.signature || '',
       });
-      await sendEmail(
+      const result = await sendEmail(
         env,
         { from: 'Heirloom <noreply@heirloom.blue>', to: email, subject, html },
         'letter_delivery',
       );
+      // Only mark DELIVERED when the provider accepted the send. A failed send
+      // leaves the row PENDING (or absent), so the next email change re-attempts
+      // it rather than recording an unsent letter as delivered.
+      if (!result.success) {
+        anyFailed = true;
+        continue;
+      }
 
       const now = new Date().toISOString();
       // Mark this recipient's delivery DELIVERED. A PENDING row may already
@@ -98,8 +106,11 @@ async function redeliverPendingLetters(
       sent++;
     } catch (err) {
       console.error('redeliverPendingLetters failed', letter.id, email, err);
+      anyFailed = true;
     }
   }
+  // One alert to the author if any of their letters couldn't be re-delivered.
+  if (anyFailed) await notifyAuthorDeliveryFailed(env, authorId, [email]);
   return sent;
 }
 

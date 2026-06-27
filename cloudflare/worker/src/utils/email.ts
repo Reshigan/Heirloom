@@ -4,6 +4,7 @@
  */
 
 import type { Env } from '../index';
+import { letterDeliveryFailedEmail } from '../email-templates';
 
 interface EmailPayload {
   from: string;
@@ -260,6 +261,26 @@ export async function sendEmail(
   }
 
   return result;
+}
+
+/**
+ * Tell a living author one or more of their letter's recipients couldn't be
+ * reached, so they can re-aim. Called from every delivery path AFTER it has
+ * decided a send failed (result.success === false). Best-effort: a failure to
+ * send the alert itself is swallowed (already logged by sendEmail).
+ */
+export async function notifyAuthorDeliveryFailed(
+  env: Env,
+  authorUserId: string | undefined,
+  failedEmails: string[]
+): Promise<void> {
+  if (!authorUserId || failedEmails.length === 0) return;
+  const author = await env.DB.prepare(
+    `SELECT email, first_name FROM users WHERE id = ?`
+  ).bind(authorUserId).first() as { email: string; first_name: string } | null;
+  if (!author?.email) return;
+  const { subject, html } = letterDeliveryFailedEmail(author.first_name || 'there', failedEmails);
+  await sendEmail(env, { from: 'Heirloom <noreply@heirloom.blue>', to: author.email, subject, html }, 'letter_delivery_failed');
 }
 
 /**

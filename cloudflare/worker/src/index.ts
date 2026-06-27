@@ -60,7 +60,7 @@ import { bookOrderRoutes, bookOrderProtectedRoutes } from './routes/books';
 import { syncOpenPrintJobs } from './services/book';
 import { founderRoutes } from './routes/founders';
 import { urgentCheckInEmail, checkInReminderEmail, deathVerificationRequestEmail, upcomingCheckInReminderEmail, postReminderMemoryEmail, postReminderVoiceEmail, postReminderLetterEmail, postReminderWeeklyDigestEmail, letterDeliveryEmail } from './email-templates';
-import { sendEmail } from './utils/email';
+import { sendEmail, notifyAuthorDeliveryFailed } from './utils/email';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processInfluencerFollowUps, processAutomatedPayouts, discoverFromTikTok, discoverFromInstagram, enrichPlaceholderEmails } from './jobs/adoption-jobs';
 import { processPushNotificationQueue, cleanupOldNotifications } from './services/pushSender';
 
@@ -1195,7 +1195,7 @@ export default {
 // is the marker, so a delivered letter is never re-sent. SCHEDULED letters with
 // a NULL scheduled_date are sealed milestone/event letters released by hand
 // (POST /:id/release) and are deliberately left untouched here.
-async function processScheduledLetters(env: Env): Promise<{ delivered: number; recipients: number; errors: number }> {
+export async function processScheduledLetters(env: Env): Promise<{ delivered: number; recipients: number; errors: number }> {
   const now = new Date().toISOString();
   let delivered = 0;
   let recipients = 0;
@@ -1243,6 +1243,7 @@ async function processScheduledLetters(env: Env): Promise<{ delivered: number; r
         recipientsWithEmail.push({ email: r.email, name: r.name });
       }
       const deliveredEmails: string[] = [];
+      const failedEmails: string[] = [];
 
       for (const recipient of recipientsWithEmail) {
         try {
@@ -1251,31 +1252,42 @@ async function processScheduledLetters(env: Env): Promise<{ delivered: number; r
             body: String(letter.body || ''),
             signature: String(letter.signature || ''),
           });
-          await sendEmail(
+          const result = await sendEmail(
             env,
             { from: 'Heirloom <noreply@heirloom.blue>', to: recipient.email, subject, html },
             'letter_delivery'
           );
-          deliveredEmails.push(recipient.email);
+          if (result.success) {
+            deliveredEmails.push(recipient.email);
+          } else {
+            failedEmails.push(recipient.email);
+            errors++;
+          }
         } catch (err) {
           console.error('Scheduled letter email failed', recipient.email, err);
+          failedEmails.push(recipient.email);
           errors++;
         }
       }
 
-      // One batch: mark each existing delivery row DELIVERED + stamp the letter.
-      // delivered_at on the letter is set regardless so a recipient-less or
-      // email-less SCHEDULED letter is not re-examined every day.
+      // One batch: mark each accepted delivery row DELIVERED + stamp the letter.
+      // The letter's delivered_at is stamped only when nothing failed (all sent,
+      // or no emailable recipients) — a partial/total failure leaves delivered_at
+      // NULL so the next cron pass re-picks the row (delivered_at IS NULL) and
+      // retries the unsent recipients instead of silently giving up.
       const writes = deliveredEmails.map((email) =>
         env.DB.prepare(`
           UPDATE letter_deliveries SET status = 'DELIVERED', sent_at = ?, delivered_at = ?, updated_at = ?
           WHERE letter_id = ? AND recipient_email = ?
         `).bind(now, now, now, letter.id, email)
       );
-      writes.push(
-        env.DB.prepare(`UPDATE letters SET delivered_at = ?, updated_at = ? WHERE id = ?`).bind(now, now, letter.id)
-      );
-      await env.DB.batch(writes);
+      if (failedEmails.length === 0) {
+        writes.push(
+          env.DB.prepare(`UPDATE letters SET delivered_at = ?, updated_at = ? WHERE id = ?`).bind(now, now, letter.id)
+        );
+      }
+      if (writes.length > 0) await env.DB.batch(writes);
+      await notifyAuthorDeliveryFailed(env, letter.user_id, failedEmails);
 
       delivered++;
       recipients += deliveredEmails.length;

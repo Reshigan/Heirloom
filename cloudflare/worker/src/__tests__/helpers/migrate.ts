@@ -221,6 +221,7 @@ CREATE TABLE IF NOT EXISTS letters (
   delivery_trigger TEXT,
   scheduled_date TEXT,
   sealed_at TEXT,
+  delivered_at TEXT,
   deleted_at TEXT,
   created_at TEXT DEFAULT (datetime('now')),
   updated_at TEXT DEFAULT (datetime('now'))
@@ -236,6 +237,27 @@ CREATE TABLE IF NOT EXISTS family_members (
   birth_date TEXT,
   notes TEXT,
   created_at TEXT DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS letter_recipients (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  letter_id TEXT NOT NULL,
+  family_member_id TEXT NOT NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  UNIQUE(letter_id, family_member_id)
+);
+
+CREATE TABLE IF NOT EXISTS letter_deliveries (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  letter_id TEXT NOT NULL,
+  recipient_email TEXT NOT NULL,
+  status TEXT DEFAULT 'PENDING',
+  sent_at TEXT,
+  delivered_at TEXT,
+  failed_at TEXT,
+  failure_reason TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now'))
 );
 
 CREATE TABLE IF NOT EXISTS letter_legacy_recipients (
