@@ -37,17 +37,25 @@ npm run preview       # dry-run, writes to output/, no posts go out
 
 ## Required environment
 
+Generation — pick ONE provider (auto-selects Cloudflare → Anthropic → Ollama by which creds exist; force with `GEN_PROVIDER`):
+
 | Variable | Required | Notes |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | yes | content generation |
-| `ANTHROPIC_MODEL` | no | default `claude-sonnet-4-6` (~$3/mo at this volume) |
-| `META_PAGE_ACCESS_TOKEN` + `META_PAGE_ID` | optional | enable direct FB posting |
-| `META_IG_USER_ID` | optional | enable direct IG posting (also needs META_PAGE_ACCESS_TOKEN) |
-| `LINKEDIN_ACCESS_TOKEN` + `LINKEDIN_AUTHOR_URN` | optional | enable direct LinkedIn posting |
-| `PINTEREST_ACCESS_TOKEN` + `PINTEREST_BOARD_ID` | optional | enable direct Pinterest posting |
+| `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` | one provider | free Workers AI tier; preferred. Token needs the Workers AI permission |
+| `CLOUDFLARE_AI_MODEL` | no | default `@cf/meta/llama-3.3-70b-instruct-fp8-fast` |
+| `ANTHROPIC_API_KEY` | one provider | fallback; ~$3/mo at this volume |
+| `ANTHROPIC_MODEL` | no | default `claude-sonnet-4-6` |
+| `OLLAMA_BASE_URL` + `OLLAMA_MODEL` | one provider | self-hosted text-only backend (local GPU or self-hosted runner). Text-only — never receives images |
+| `GEN_PROVIDER` | no | force `cloudflare` / `anthropic` / `ollama` |
+
+Posting — the two surfaces the brand maintains (all others retired):
+
+| Variable | Required | Notes |
+|---|---|---|
+| `META_PAGE_ACCESS_TOKEN` + `META_PAGE_ID` | optional | enable direct Facebook posting |
 | `BLUESKY_HANDLE` + `BLUESKY_APP_PASSWORD` | optional | enable direct Bluesky posting |
-| `QUEUE_WEBHOOK_URL` | optional | Discord/Slack webhook for queue-mode notifications |
-| `PLATFORMS` | no | comma-separated, default `instagram,tiktok,pinterest,facebook,linkedin,x` |
+| `SOCIAL_UPLOAD_TOKEN` | optional | shared secret for R2 image upload; without it URL-only paths fall back to the static brand card |
+| `PLATFORMS` | no | comma-separated, default `bluesky,facebook` |
 
 ## Run modes
 
@@ -61,10 +69,10 @@ npm run metrics    # pull engagement metrics for today's post IDs
 
 ## Daily cron
 
-`.github/workflows/social-autopost.yml` runs `npm run daily` every day at 14:00 UTC. To switch on:
+`.github/workflows/social-autopost.yml` runs `npm run daily` twice a day (13:00 + 23:00 UTC, year-round; a third seasonal slot at 17:00 UTC fires only inside peak windows). To switch on:
 
-1. Set repo secrets `ANTHROPIC_API_KEY` and `AYRSHARE_API_KEY`.
-2. Optionally set repo variables `ANTHROPIC_MODEL` and `PLATFORMS`.
+1. Set one generation provider's creds (Cloudflare AI token + account, or `ANTHROPIC_API_KEY`, or `OLLAMA_BASE_URL` on a self-hosted runner).
+2. Set the posting secrets for the surfaces you want (`META_PAGE_ACCESS_TOKEN` + `META_PAGE_ID`, `BLUESKY_HANDLE` + `BLUESKY_APP_PASSWORD`).
 3. Manually trigger once via workflow_dispatch with `mode=preview` to verify output.
 4. Once preview output looks right, leave on auto-schedule.
 

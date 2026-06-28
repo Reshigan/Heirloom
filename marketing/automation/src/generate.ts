@@ -15,9 +15,11 @@ import { monthlyHashtagPool } from "./hashtags.js";
 // Generation provider. Cloudflare Workers AI is preferred when its creds are
 // present (free tier, ~10k neurons/day — this workload of a few short JSON
 // generations a day costs $0 and reuses the platform we already run on).
-// Anthropic is the fallback when only ANTHROPIC_API_KEY is set. Force either
-// explicitly with GEN_PROVIDER=cloudflare|anthropic.
-export type GenProvider = "cloudflare" | "anthropic";
+// Anthropic is the fallback when only ANTHROPIC_API_KEY is set. Ollama is a
+// self-hosted text-only backend (OLLAMA_BASE_URL + OLLAMA_MODEL) — for local
+// dev or a private GPU; it never receives images, only the JSON text prompt.
+// Force any explicitly with GEN_PROVIDER=cloudflare|anthropic|ollama.
+export type GenProvider = "cloudflare" | "anthropic" | "ollama";
 
 // NB: use `||` not `??` — GitHub Actions injects an *empty string* for an unset
 // `vars.X`, which `??` would pass through. An empty model collapses the request
@@ -27,20 +29,40 @@ const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 // for marketing copy. Override with CLOUDFLARE_AI_MODEL.
 const CLOUDFLARE_MODEL =
   process.env.CLOUDFLARE_AI_MODEL || "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+// Ollama default — a capable local instruct model for the JSON-shaped source
+// post. Override with OLLAMA_MODEL (e.g. llama3.1:8b, qwen2.5:14b, gemma2:9b).
+const OLLAMA_MODEL = process.env.OLLAMA_MODEL || "llama3.1:8b";
+const OLLAMA_BASE_URL = process.env.OLLAMA_BASE_URL || "http://localhost:11434";
 
 function hasCloudflare(): boolean {
   return Boolean(process.env.CLOUDFLARE_API_TOKEN && process.env.CLOUDFLARE_ACCOUNT_ID);
 }
 
+function hasOllama(): boolean {
+  return Boolean(process.env.OLLAMA_BASE_URL && process.env.OLLAMA_MODEL !== undefined) ||
+    Boolean(process.env.GEN_PROVIDER === "ollama" && process.env.OLLAMA_BASE_URL);
+}
+
+// Anthropic is usable via either a direct ANTHROPIC_API_KEY or the
+// ANTHROPIC_AUTH_TOKEN + ANTHROPIC_BASE_URL pair (e.g. the Claude Code local
+// proxy) — the SDK reads both. Lets the engine run preview locally with no
+// paid key.
+function hasAnthropic(): boolean {
+  return Boolean(process.env.ANTHROPIC_API_KEY) ||
+    Boolean(process.env.ANTHROPIC_AUTH_TOKEN && process.env.ANTHROPIC_BASE_URL);
+}
+
 // The provider that will actually run, honoring an explicit GEN_PROVIDER and
-// otherwise auto-selecting Cloudflare → Anthropic by which creds exist. Returns
-// null when nothing is configured (engine stays dormant rather than crashing).
+// otherwise auto-selecting Cloudflare → Anthropic → Ollama by which creds exist.
+// Returns null when nothing is configured (engine stays dormant rather than crashing).
 export function activeProvider(): GenProvider | null {
   const explicit = process.env.GEN_PROVIDER as GenProvider | undefined;
   if (explicit === "cloudflare") return hasCloudflare() ? "cloudflare" : null;
-  if (explicit === "anthropic") return process.env.ANTHROPIC_API_KEY ? "anthropic" : null;
+  if (explicit === "anthropic") return hasAnthropic() ? "anthropic" : null;
+  if (explicit === "ollama") return hasOllama() ? "ollama" : null;
   if (hasCloudflare()) return "cloudflare";
-  if (process.env.ANTHROPIC_API_KEY) return "anthropic";
+  if (hasAnthropic()) return "anthropic";
+  if (hasOllama()) return "ollama";
   return null;
 }
 
@@ -79,7 +101,11 @@ interface GenerateInput {
 // crash a Cloudflare-only run at import time.
 let _anthropic: Anthropic | null = null;
 function anthropic(): Anthropic {
-  if (!_anthropic) _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  if (!_anthropic) {
+    // The SDK reads ANTHROPIC_API_KEY, or ANTHROPIC_AUTH_TOKEN +
+    // ANTHROPIC_BASE_URL (Claude Code local proxy) from env automatically.
+    _anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  }
   return _anthropic;
 }
 
@@ -135,23 +161,39 @@ async function chat(system: string, user: string): Promise<string> {
   const provider = activeProvider();
   if (provider === "cloudflare") return chatCloudflare(system, user);
   if (provider === "anthropic") return chatAnthropic(system, user);
+  if (provider === "ollama") return chatOllama(system, user);
   throw new Error(
-    "No generation provider configured. Set CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID (free) or ANTHROPIC_API_KEY.",
+    "No generation provider configured. Set CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID (free), ANTHROPIC_API_KEY, or OLLAMA_BASE_URL + OLLAMA_MODEL.",
   );
 }
 
 async function chatAnthropic(system: string, user: string): Promise<string> {
   const response = await anthropic().messages.create({
     model: ANTHROPIC_MODEL,
-    max_tokens: 1500,
+    // Generous budget: some Anthropic-compatible proxies (e.g. ollama.com) emit
+    // a `thinking` block before the text answer; 1500 can exhaust on thinking
+    // alone and never produce the text block. 4096 leaves room for both.
+    max_tokens: 4096,
+    // Disable extended thinking. The marketing JSON prompts need a direct text
+    // answer, not a reasoning trace — and some local proxies force a thinking
+    // block that eats the whole budget before any JSON is emitted. Explicit
+    // disabled is a no-op on real Anthropic (thinking is off by default) and
+    // asks the proxy to skip the trace. The stripFences/JSON.parse path still
+    // guards against any prose that leaks through.
+    thinking: { type: "disabled" },
     system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
     messages: [{ role: "user", content: user }],
   });
   const textBlock = response.content.find((c) => c.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("No text content in Claude response");
-  }
-  return textBlock.text;
+  if (textBlock && textBlock.type === "text") return textBlock.text;
+  // Fallback: a proxy that returned only a thinking block, or a non-standard
+  // content shape. Use the last block's `text`/`thinking` field rather than
+  // crashing — stripFences + JSON.parse downstream will reject garbage safely.
+  const last = response.content[response.content.length - 1] as
+    | { text?: string; thinking?: string } | undefined;
+  const fallback = last?.text ?? last?.thinking;
+  if (fallback) return fallback;
+  throw new Error("No text content in Claude response");
 }
 
 async function chatCloudflare(system: string, user: string): Promise<string> {
@@ -193,6 +235,35 @@ async function chatCloudflare(system: string, user: string): Promise<string> {
   return typeof out === "string" ? out : JSON.stringify(out);
 }
 
+async function chatOllama(system: string, user: string): Promise<string> {
+  // Ollama /api/chat — text-only. format:json forces a JSON-shaped reply so the
+  // shared stripFences/JSON.parse path works the same as Cloudflare. Images are
+  // never sent (the Ollama provider is text-only by design).
+  const res = await fetch(`${OLLAMA_BASE_URL.replace(/\/$/, "")}/api/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: OLLAMA_MODEL,
+      stream: false,
+      format: "json",
+      messages: [
+        { role: "system", content: system },
+        { role: "user", content: user },
+      ],
+      options: { num_predict: 1500, temperature: 0.8 },
+    }),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Ollama ${res.status}: ${body.slice(0, 300)}`);
+  }
+  const data = (await res.json()) as { message?: { content?: string }; error?: string };
+  if (data.error) throw new Error(`Ollama error: ${data.error}`);
+  const out = data.message?.content;
+  if (!out) throw new Error("Ollama returned no message content");
+  return out;
+}
+
 // Generic one-shot completion against the active provider. Used by engage.ts to
 // draft genuine reply openers. Guard with hasGenProvider() before calling —
 // chat() throws when nothing is configured.
@@ -211,7 +282,7 @@ export async function generateSourcePost(input: GenerateInput): Promise<SourcePo
   try {
     parsed = JSON.parse(json);
   } catch (err) {
-    throw new Error(`Claude returned non-JSON: ${raw.slice(0, 300)}`);
+    throw new Error(`${activeProvider()} returned non-JSON: ${raw.slice(0, 300)}`);
   }
 
   return sourcePostSchema.parse(parsed);

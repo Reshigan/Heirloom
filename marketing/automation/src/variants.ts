@@ -42,9 +42,11 @@ const IMAGE_SPECS: Record<PlatformKey, { aspectRatio: string; width: number; hei
   bluesky: { aspectRatio: "16:9", width: 1600, height: 900 },
 };
 
-const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
+// apiKey only when set; otherwise the SDK auto-reads ANTHROPIC_AUTH_TOKEN +
+// ANTHROPIC_BASE_URL (Claude Code local proxy) from env.
+const client = new Anthropic(
+  process.env.ANTHROPIC_API_KEY ? { apiKey: process.env.ANTHROPIC_API_KEY } : {},
+);
 
 interface VariantInput {
   source: SourcePost;
@@ -159,7 +161,12 @@ JSON only.`;
 
   const response = await client.messages.create({
     model: MODEL,
-    max_tokens: 2500,
+    // Generous budget: some Anthropic-compatible proxies (e.g. ollama.com) emit
+    // a `thinking` block before the text answer; 2500 can exhaust on thinking
+    // alone and never produce the text block. 4096 leaves room for both.
+    max_tokens: 4096,
+    // Disable extended thinking — see generate.ts chatAnthropic for rationale.
+    thinking: { type: "disabled" },
     system: [
       {
         type: "text",
@@ -171,11 +178,20 @@ JSON only.`;
   });
 
   const textBlock = response.content.find((c) => c.type === "text");
-  if (!textBlock || textBlock.type !== "text") {
-    throw new Error("No text content in Claude response");
+  if (textBlock && textBlock.type === "text") {
+    return parseVariants(textBlock.text, source, seasonHashtags);
   }
+  // Fallback: a proxy that returned only a thinking block, or a non-standard
+  // content shape. Use the last block's `text`/`thinking` field rather than
+  // crashing — stripFences + JSON.parse downstream rejects garbage safely.
+  const last = response.content[response.content.length - 1] as
+    | { text?: string; thinking?: string } | undefined;
+  const fallback = last?.text ?? last?.thinking;
+  if (fallback) return parseVariants(fallback, source, seasonHashtags);
+  throw new Error("No text content in Claude response");
+}
 
-  const raw = textBlock.text.trim();
+function parseVariants(raw: string, source: SourcePost, seasonHashtags?: string[]): Variant[] {
   const json = stripFences(raw);
 
   let parsed: unknown;

@@ -76,6 +76,11 @@ jobs:
           GEN_PROVIDER: ${{ vars.GEN_PROVIDER }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           ANTHROPIC_MODEL: ${{ vars.ANTHROPIC_MODEL || 'claude-sonnet-4-6' }}
+          # Ollama — self-hosted text-only backend. Only useful on a self-hosted
+          # runner with a local Ollama daemon; the github-hosted runner can't
+          # reach localhost. Set GEN_PROVIDER=ollama + OLLAMA_BASE_URL to use it.
+          OLLAMA_BASE_URL: ${{ vars.OLLAMA_BASE_URL }}
+          OLLAMA_MODEL: ${{ vars.OLLAMA_MODEL }}
           META_PAGE_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
           META_PAGE_ID: ${{ vars.META_PAGE_ID }}
           META_IG_USER_ID: ${{ vars.META_IG_USER_ID }}

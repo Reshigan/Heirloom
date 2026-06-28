@@ -215,10 +215,10 @@ async function postAll(source?: SourcePost): Promise<void> {
     ? [sanitizeCaption(today.body).slice(0, 280), sanitizeCaption(today.cta).slice(0, 200)]
     : undefined;
 
-  // Render + upload one distinct cloth image per variant, keyed to today's
-  // saying. Done before posting so each platform gets its own woven image rather
+  // Render + upload one distinct Deep-water image per variant, keyed to today's
+  // saying. Done before posting so each platform gets its own water surface rather
   // than the same static picture every day.
-  console.log(`[image] rendering ${variants.length} cloth images for saying: "${today.saying}"`);
+  console.log(`[image] rendering ${variants.length} deep-water images for saying: "${today.saying}"`);
   const images = await Promise.all(
     variants.map((v) => imageForVariant(v, today.saying, dateKey, slot)),
   );

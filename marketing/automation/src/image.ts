@@ -1,34 +1,28 @@
-// image.ts — render a distinct image per post, with the post's saying set as the
-// hero, then upload it to R2 (via the worker) so the social platforms can fetch
-// it by URL.
+// image.ts — render a distinct Deep-water image per post, with the post's
+// saying set as the hero, then upload it to R2 (via the worker) so the social
+// platforms can fetch it by URL.
 //
 // Why this exists: the engine already generates a unique `saying` per post, but
 // every post used to fall back to one static og-image.png. Seeing the same
 // picture every day reads as a dead account. Each post now gets its own image —
-// the pitch, jitter, and light angle are derived deterministically from the
-// post's seed, so the same post always renders identically (cache-safe) while
-// different posts look distinct.
+// the dye tint, depth-ring spacing, and light angle are derived deterministically
+// from the post's seed, so the same post always renders identically (cache-safe)
+// while different posts look distinct.
 //
-// The saying IS the image. At feed thumbnail size (≈300px wide) the card has one
-// job: be readable. The type is set large and centered, and the ground rotates
-// per seed between the two brand surfaces — bone type on the ink ground and ink
-// type on the paper ground — so a row of these cards never reads as one repeated
-// dark rectangle.
+// The image IS The Deep (brand/BRAND.md §6 + ART_DIRECTION.md): a close-up of
+// deep still water — ink-dark ground #070d14, the family's natural-dye colour
+// subtly seeding the water (a faint tint, never a flat fill), slow concentric
+// depth-rings (the Sounding mark) faintly visible, one thin warm (copper)
+// surface-line, soft directional light from one side, film grain. The saying is
+// set large and centered in Source Serif 4; the ∞ mark sits above in copper; the
+// archival wordmark sits below in JetBrains Mono. No photography of people,
+// hands, letters, or objects — only the water surface itself.
 //
 // Palette + type follow ART_DIRECTION.md + brand/BRAND.md: ink/bone grounds, the
 // one warm accent at <3% surface, Source Serif 4 for the saying, JetBrains Mono
 // for the archival wordmark. No gradients-as-decoration, no glass, the ∞ as the
-// only mark.
-//
-// ⚠ KNOWN GAP — the canonical brand image is The Deep: a close-up of deep still
-// water (ground #070d14) with a warm copper surface-line and the Sounding mark
-// (concentric depth-rings) faintly visible, the family's dye tint seeding the
-// water. The generate.ts `imagePrompt` field already briefs that image. The
-// renderer below, however, still draws a woven CLOTH (warp/weft threads, the old
-// pre-Deep identity). Converting drawWeave → drawWater + Sounding depth-rings is
-// real engineering, not a comment swap, and the engine is dormant until
-// ANTHROPIC_API_KEY is set — so no cloth image ships today. Rewrite is the
-// follow-up task that brings this file in line with The Deep.
+// only mark. The `renderWeave` export name is kept for back-compat with run.ts
+// (code names keep the loom lineage); `renderDeep` is the honest alias.
 
 import { createCanvas, GlobalFonts, type SKRSContext2D } from "@napi-rs/canvas";
 import path from "node:path";
@@ -46,7 +40,7 @@ function ensureFonts(): { serif: string; mono: string } {
       GlobalFonts.registerFromPath(path.join(FONT_DIR, "JetBrainsMono.ttf"), "Heirloom Mono");
     } catch {
       // If the bundled fonts are missing, fall back to system families. The
-      // weave still renders; only the typeface differs.
+      // water still renders; only the typeface differs.
     }
     fontsReady = true;
   }
@@ -56,12 +50,29 @@ function ensureFonts(): { serif: string; mono: string } {
   };
 }
 
-// Canonical tokens (ART_DIRECTION.md).
-const INK = "#0e0e0c";
-const BONE = "#f4ecd8";
-const WARM = "#b07a4a";
+// Canonical tokens (ART_DIRECTION.md + src/styles/globals.css).
+const INK = "#070d14"; // the Deep's deep water
+const BONE = "#f2e6d0"; // cream
+const WARM = "#e0a062"; // copper (the single warm accent)
 
-// Deterministic seeded RNG so a given seed string always yields the same cloth.
+// The 10-stop natural-dye palette (dark-theme tokens, src/styles/globals.css).
+// Each post's water is seeded by one dye — a faint tint, never a fill. The dye
+// is chosen deterministically from the seed so a given post always carries the
+// same family colour.
+const DYES: { name: string; hex: string }[] = [
+  { name: "madder", hex: "#d94f38" },
+  { name: "cochineal", hex: "#8a5578" },
+  { name: "kermes", hex: "#c46a7a" },
+  { name: "saffron", hex: "#d4a32f" },
+  { name: "weld", hex: "#c9941f" },
+  { name: "walnut", hex: "#7d5635" },
+  { name: "oakgall", hex: "#6d8a56" },
+  { name: "woad", hex: "#4f8a8a" },
+  { name: "indigo", hex: "#46679c" },
+  { name: "iron", hex: "#56707a" },
+];
+
+// Deterministic seeded RNG so a given seed string always yields the same water.
 function hashSeed(str: string): number {
   let h = 2166136261 >>> 0;
   for (let i = 0; i < str.length; i++) {
@@ -87,69 +98,65 @@ function withAlpha(hex: string, alpha: number): string {
   return `rgba(${r},${g},${b},${alpha})`;
 }
 
-// One of the two brand surfaces: the ink cloth (bone type on near-black weave)
-// or the paper cloth (ink type on bone weave). Rotated per seed in renderWeave.
-interface Ground {
-  bg: string;
-  thread: string;
-  text: string;
-  markAlpha: number;
-  paper: boolean;
-}
-const INK_GROUND: Ground = { bg: INK, thread: BONE, text: BONE, markAlpha: 0.55, paper: false };
-const PAPER_GROUND: Ground = { bg: BONE, thread: INK, text: INK, markAlpha: 0.62, paper: true };
-
-// Draw the woven field: warp (vertical) + weft (horizontal) threads with an
-// over-under interlace illusion, jittered per seed.
-function drawWeave(
+// The deep-water ground: ink fill, then the family dye seeding the water as a
+// soft off-centre radial tint (very low alpha — a hint of colour, not a fill),
+// then the Sounding mark — slow concentric depth-rings faintly visible — and
+// one thin warm surface-line near the top (the warm line of the Sounding mark,
+// kept well under 3% of surface and pinned clear of the centered saying).
+function drawWater(
   ctx: SKRSContext2D,
   w: number,
   h: number,
   rnd: () => number,
-  g: Ground,
-): void {
-  // Pitch (thread spacing) varies the weave tightness between posts.
-  const pitch = Math.round(Math.min(w, h) / (44 + Math.floor(rnd() * 36))); // ~tight..loose
-  const threadW = pitch * 0.62;
-
-  ctx.fillStyle = g.bg;
+): { dyeHex: string } {
+  // Ink ground.
+  ctx.fillStyle = INK;
   ctx.fillRect(0, 0, w, h);
 
-  const cols = Math.ceil(w / pitch) + 1;
-  const rows = Math.ceil(h / pitch) + 1;
+  const dye = DYES[Math.floor(rnd() * DYES.length)];
 
-  // Warp — vertical threads.
-  for (let c = 0; c < cols; c++) {
-    const x = c * pitch + (rnd() - 0.5) * pitch * 0.12;
-    const tone = 0.06 + rnd() * 0.05; // thread alpha against the ground, jittered
-    ctx.fillStyle = withAlpha(g.thread, tone);
-    ctx.fillRect(x - threadW / 2, 0, threadW, h);
+  // Dye tint seeding the water — a soft radial wash off-centre. The centre
+  // drifts per seed so two same-dye posts still feel distinct.
+  const tCx = w * (0.3 + rnd() * 0.4);
+  const tCy = h * (0.25 + rnd() * 0.5);
+  const tR = Math.max(w, h) * (0.55 + rnd() * 0.35);
+  const tint = ctx.createRadialGradient(tCx, tCy, 0, tCx, tCy, tR);
+  tint.addColorStop(0, withAlpha(dye.hex, 0.10 + rnd() * 0.05));
+  tint.addColorStop(0.5, withAlpha(dye.hex, 0.04));
+  tint.addColorStop(1, withAlpha(dye.hex, 0));
+  ctx.fillStyle = tint;
+  ctx.fillRect(0, 0, w, h);
+
+  // Sounding mark — concentric depth-rings. Centre drifts per seed; rings fade
+  // outward so they read as depth, not as a target. Bone hairline, 1px.
+  const rCx = w * (0.35 + rnd() * 0.3);
+  const rCy = h * (0.4 + rnd() * 0.25);
+  const ringCount = 5 + Math.floor(rnd() * 4); // 5–8 rings
+  const ringStep = Math.max(w, h) * (0.07 + rnd() * 0.04);
+  ctx.lineWidth = 1;
+  for (let i = 1; i <= ringCount; i++) {
+    const radius = ringStep * i;
+    const a = 0.11 * (1 - i / (ringCount + 1)) + 0.02; // fade outward
+    ctx.strokeStyle = withAlpha(BONE, a);
+    ctx.beginPath();
+    ctx.arc(rCx, rCy, radius, 0, Math.PI * 2);
+    ctx.stroke();
   }
 
-  // Weft — horizontal threads, drawn as the over-strands of the interlace: at
-  // each cell we either let the weft show (over) or the warp show (under), in a
-  // checker so the cloth reads as woven rather than as a grid.
-  for (let r = 0; r < rows; r++) {
-    const y = r * pitch + (rnd() - 0.5) * pitch * 0.12;
-    for (let c = 0; c < cols; c++) {
-      if ((r + c) % 2 === 0) continue; // under — let warp show through
-      const x = c * pitch;
-      const tone = 0.07 + rnd() * 0.06;
-      ctx.fillStyle = withAlpha(g.thread, tone);
-      ctx.fillRect(x - threadW / 2, y - threadW / 2, pitch, threadW);
-    }
-  }
+  // One warm surface-line — the Sounding mark's warm line, thin, near the top,
+  // full width. Pinned high so it stays clear of the centered saying. This is
+  // the only warm fill on the card (signal only, <3% surface).
+  const surfY = h * (0.07 + rnd() * 0.04);
+  ctx.fillStyle = withAlpha(WARM, 0.7);
+  ctx.fillRect(0, surfY, w, Math.max(1, Math.round(h * 0.0015)));
 
-  // A single warm weft thread — the one bloodline-dye signal, kept well under
-  // 3% of surface. Pinned high so it stays clear of the centered saying.
-  const warmY = h * (0.06 + rnd() * 0.05);
-  ctx.fillStyle = withAlpha(WARM, g.paper ? 0.65 : 0.5);
-  ctx.fillRect(0, warmY - threadW / 2, w, threadW * 0.8);
+  return { dyeHex: dye.hex };
 }
 
-// Directional raking light: one soft highlight from a seed-chosen corner, fading
-// to shadow — the light angle is what makes two same-pitch cloths feel distinct.
-function drawLight(ctx: SKRSContext2D, w: number, h: number, rnd: () => number, g: Ground): void {
+// Directional raking light: one soft highlight from a seed-chosen side, fading
+// to deep shadow at the far edges — the light angle is what makes two same-dye
+// waters feel distinct, and the fall-off reads as depth.
+function drawLight(ctx: SKRSContext2D, w: number, h: number, rnd: () => number): void {
   const corner = Math.floor(rnd() * 4);
   const [cx, cy] = [
     [0, 0],
@@ -157,30 +164,22 @@ function drawLight(ctx: SKRSContext2D, w: number, h: number, rnd: () => number, 
     [0, h],
     [w, h],
   ][corner];
-  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(w, h) * 0.9);
-  if (g.paper) {
-    // Paper ground: faint white raking light, gentle ink fall-off — the shadow
-    // must stay light enough that ink type keeps full contrast everywhere.
-    grad.addColorStop(0, "rgba(255,255,255,0.20)");
-    grad.addColorStop(0.45, "rgba(255,255,255,0)");
-    grad.addColorStop(1, withAlpha(INK, 0.10));
-  } else {
-    grad.addColorStop(0, withAlpha(BONE, 0.07));
-    grad.addColorStop(0.45, withAlpha(BONE, 0.0));
-    grad.addColorStop(1, "rgba(0,0,0,0.45)");
-  }
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.hypot(w, h) * 0.95);
+  grad.addColorStop(0, withAlpha(BONE, 0.06));
+  grad.addColorStop(0.4, withAlpha(BONE, 0));
+  grad.addColorStop(1, "rgba(0,0,0,0.55)"); // deep water shadow
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, w, h);
 }
 
 // Film grain — scattered low-alpha specks, breaks up the digital flatness.
-function drawGrain(ctx: SKRSContext2D, w: number, h: number, rnd: () => number, g: Ground): void {
+function drawGrain(ctx: SKRSContext2D, w: number, h: number, rnd: () => number): void {
   const count = Math.floor((w * h) / 1400);
   for (let i = 0; i < count; i++) {
     const x = rnd() * w;
     const y = rnd() * h;
-    const a = rnd() * 0.05;
-    ctx.fillStyle = rnd() > 0.5 ? withAlpha(g.thread, a) : `rgba(0,0,0,${a})`;
+    const a = rnd() * 0.045;
+    ctx.fillStyle = rnd() > 0.5 ? withAlpha(BONE, a) : `rgba(0,0,0,${a})`;
     ctx.fillRect(x, y, 1, 1);
   }
 }
@@ -210,38 +209,35 @@ export interface RenderOpts {
   seed: string;
 }
 
-// Render one cloth image and return PNG bytes.
-export function renderWeave({ saying, width, height, seed }: RenderOpts): Buffer {
+// Render one Deep-water image and return PNG bytes. `renderWeave` is the
+// original export name (run.ts imports it); `renderDeep` is the honest alias.
+export function renderDeep({ saying, width, height, seed }: RenderOpts): Buffer {
   const { serif, mono } = ensureFonts();
   const rnd = mulberry32(hashSeed(seed));
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext("2d");
 
-  // Ground rotates deterministically with the seed — roughly half the cards
-  // are bone type on the ink cloth, half ink type on the paper cloth.
-  const g = rnd() < 0.5 ? PAPER_GROUND : INK_GROUND;
-
-  drawWeave(ctx, width, height, rnd, g);
-  drawLight(ctx, width, height, rnd, g);
-  drawGrain(ctx, width, height, rnd, g);
+  drawWater(ctx, width, height, rnd);
+  drawLight(ctx, width, height, rnd);
+  drawGrain(ctx, width, height, rnd);
 
   // Soft vignette of the ground color behind the type block — keeps the saying
-  // legible over the weave without flattening the cloth.
+  // legible over the water without flattening the depth.
   const vg = ctx.createRadialGradient(
     width / 2, height * 0.5, Math.min(width, height) * 0.12,
     width / 2, height * 0.5, Math.max(width, height) * 0.72,
   );
-  vg.addColorStop(0, withAlpha(g.bg, 0.5));
-  vg.addColorStop(1, withAlpha(g.bg, 0));
+  vg.addColorStop(0, withAlpha(INK, 0.55));
+  vg.addColorStop(1, withAlpha(INK, 0));
   ctx.fillStyle = vg;
   ctx.fillRect(0, 0, width, height);
 
   const margin = width * 0.09;
   const maxTextWidth = width - margin * 2;
 
-  // The saying IS the image — Source Serif, large, centered. At thumbnail size
-  // the type either reads or the card is a blank rectangle, so start big and
-  // shrink only until the block fits.
+  // The saying IS the image — Source Serif, large, centered, bone on the deep
+  // water. At thumbnail size the type either reads or the card is a blank
+  // rectangle, so start big and shrink only until the block fits.
   let fontSize = Math.round(Math.min(width, height) * 0.095);
   ctx.textAlign = "center";
   ctx.textBaseline = "alphabetic";
@@ -257,12 +253,12 @@ export function renderWeave({ saying, width, height, seed }: RenderOpts): Buffer
   const firstBaseline = height * 0.52 - blockHeight / 2 + lineHeight * 0.72;
 
   ctx.font = `400 ${fontSize}px "${serif}"`;
-  ctx.fillStyle = g.text;
+  ctx.fillStyle = BONE;
   lines.forEach((ln, i) => {
     ctx.fillText(ln, width / 2, firstBaseline + i * lineHeight);
   });
 
-  // Eyebrow ∞ mark in warm, above the saying.
+  // Eyebrow ∞ mark in warm copper, above the saying.
   ctx.font = `400 ${Math.round(fontSize * 0.66)}px "${serif}"`;
   ctx.fillStyle = WARM;
   ctx.fillText("∞", width / 2, firstBaseline - lineHeight * 1.1);
@@ -270,16 +266,19 @@ export function renderWeave({ saying, width, height, seed }: RenderOpts): Buffer
   // Archival wordmark, JetBrains Mono, bottom-centered, letter-spaced.
   const markSize = Math.round(Math.min(width, height) * 0.024);
   ctx.font = `400 ${markSize}px "${mono}"`;
-  ctx.fillStyle = withAlpha(g.text, g.markAlpha);
+  ctx.fillStyle = withAlpha(BONE, 0.55);
   const wordmark = "H E I R L O O M . B L U E";
   ctx.fillText(wordmark, width / 2, height - margin * 0.55);
 
   return canvas.toBuffer("image/png");
 }
 
+// Back-compat alias — run.ts imports renderWeave.
+export const renderWeave = renderDeep;
+
 // Upload PNG bytes to the worker, which stores them in R2 and returns a public
-// URL. Returns null when the engine is dormant (no admin token / API url) so the
-// caller can fall back to the static image.
+// URL. Returns null when the engine is dormant (no upload token / API url) so
+// the caller can fall back to the static image.
 export async function uploadWeave(png: Buffer, filename: string): Promise<string | null> {
   const apiUrl = process.env.HEIRLOOM_API_URL || "https://api.heirloom.blue";
   // Dedicated upload secret — deliberately NOT HEIRLOOM_ADMIN_TOKEN. That var
