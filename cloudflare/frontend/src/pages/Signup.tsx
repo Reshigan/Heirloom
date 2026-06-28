@@ -70,7 +70,9 @@ export function Signup() {
   });
   const [tier, setTier] = useState<Tier>(() => {
     const t = searchParams.get('tier')?.toLowerCase();
-    return t === 'free' || t === 'family' ? t : 'family';
+    // Default to FREE — the free tier is the acquisition door. Paid (Family)
+    // only when an explicit ?tier=family CTA (e.g. Pricing) asks for it.
+    return t === 'free' || t === 'family' ? t : 'free';
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);

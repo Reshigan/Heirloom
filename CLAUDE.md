@@ -1,20 +1,25 @@
 # Heirloom — Project Memory (CLAUDE.md)
 
-> Heirloom is a **Family Thread**: a perpetual, append-only, multi-author, multi-generational
-> story archive owned by a bloodline, not a single user. Positioning: *"Start your family's
-> thousand-year thread."* Web at `heirloom.blue` + installable PWA. The authoritative design
-> constitution is [ART_DIRECTION.md](ART_DIRECTION.md) — read it before touching UI.
+> Heirloom is **the Deep** — the deep water a family keeps the conversation in across
+> generations: a perpetual, append-only, multi-author, multi-generational archive owned by a
+> bloodline, not a single user. Hero line: *"Some things only get deeper."* The durability proof
+> *"Start your family's thousand-year thread"* stays true but is **demoted to a proof-point —
+> never the first thing anyone reads** (see brand/BRAND.md §3). Web at `heirloom.blue` +
+> installable PWA. The authoritative design constitution is [ART_DIRECTION.md](ART_DIRECTION.md)
+> — read it before touching UI.
 >
 > **Brand: The Deep.** The user-facing surface is deep water (ground `#070d14`), and the
 > user-facing word for the family archive is **the Deep** — entries *settle* / are *lowered*
-> into it. The word "cloth" is retired from user copy. Internally the rendering subsystem keeps
-> its `Cloth*`/`loom` names and `/loom/*` routes — those are code, not copy.
+> into it. The capture verb is *"let it settle."* The word "cloth" is retired from user copy.
+> The mark is the **Sounding mark** — concentric depth-rings crossed by one warm surface-line
+> (never a glowing filament web). Internally the rendering subsystem keeps its `Cloth*`/`loom`
+> names and `/loom/*` routes — those are code, not copy.
 
 ## Repository map
 
 | Path | Stack | What it is |
 |---|---|---|
-| **`cloudflare/frontend/`** ⭐ | React 18 + Vite + TS + Tailwind | **THE LIVE, DEPLOYED web app + PWA.** Deployed to Cloudflare Pages via `.github/workflows/deploy-cloudflare.yml`. The `src/loom/` subsystem is the canonical cloth interface — `ClothCanvas3D`, `ClothShell`, `ClothBackdrop`, and room components. **This is the tree to edit for product/UX work.** |
+| **`cloudflare/frontend/`** ⭐ | React 18 + Vite + TS + Tailwind | **THE LIVE, DEPLOYED web app + PWA.** Deployed to Cloudflare Pages via `.github/workflows/deploy-cloudflare.yml`. The `src/loom/` subsystem is the canonical Deep interface — `WaterCanvas` (the deep-water home surface, seeded by member dyes), `Filament` (the quiet token-woven ambient ground), `ClothShell`, `ClothBackdrop`, and room components. **This is the tree to edit for product/UX work.** |
 | `cloudflare/worker/`, `cloudflare/` ⭐ | Workers, D1/R2/KV | **THE LIVE EDGE API — single source of truth for all server behaviour.** D1 schema + migrations live here; the deployed app talks only to this. Soft-delete/append-only, encryption, billing, moderation all live in `src/routes/`. |
 | `mobile/` | Capacitor | Native shells. |
 | `marketing/automation/` | TS + tsx + Anthropic SDK + zod | **Autonomous content engine** — daily generate + multi-platform post. Runs via GitHub Actions. |
@@ -23,7 +28,7 @@
 ## Design constitution (full detail in ART_DIRECTION.md)
 
 The interface is built on **the Deep** — a living water surface (`WaterCanvas`, seeded by the
-family's member dyes) rendered by the `ClothCanvas3D`/`CosmicLoom` subsystem. The Deep is the home
+family's member dyes) with a quiet token-woven ambient ground (`Filament`). The Deep is the home
 surface. Everything else (Composer, Rooms, Letters, Voice, Settings) sits on top of it via
 `ClothShell` + `ClothBackdrop`.
 
@@ -51,13 +56,14 @@ variants). Dyes are signal only — no dye backgrounds, buttons, or fills.
 - Avatar circles / `rounded-full` identity chips
 - Any motion that doesn't carry information
 
-> ⚠️ The **`cloudflare/frontend/src/loom/`** subsystem is the canonical product implementation.
-> `ClothCanvas3D`/`WaterCanvas` render the Deep. `ClothShell` is the app chrome. `ClothBackdrop`
-> is the global ambient surface layer. When building new screens, extend these — never add a global
-> nav bar, tab bar, or dashboard grid on top of the Deep.
->
 > `STITCH_BRIEF.md` in the repo root is a legacy design-tool directive (for Google Stitch) and
 > is **no longer the authoritative spec**. Ignore it.
+
+> ⚠️ The **`cloudflare/frontend/src/loom/`** subsystem is the canonical product implementation.
+> `WaterCanvas` renders the Deep (deep water, seeded by member dyes). `Filament` is the quiet
+> token-woven ambient ground (no copper glow — copper is signal only). `ClothShell` is the app
+> chrome. `ClothBackdrop` is the global ambient surface layer. When building new screens, extend
+> these — never add a global nav bar, tab bar, or dashboard grid on top of the Deep.
 
 ## Commands
 
@@ -84,15 +90,16 @@ npm run typecheck
 
 ## Marketing automation — how it works
 
-Pipeline: `themes.ts` (52-week + seasonal calendar) → `generate.ts` (source post, Sonnet) →
-`variants.ts` (per-platform) → `post.ts` (direct Meta/LinkedIn/Pinterest/Bluesky API + queue webhook
-for TikTok/X/Threads/YT). Single entrypoint `src/run.ts` (subcommands: generate, post, daily,
-preview, metrics). CI: `.github/workflows/social-autopost.yml` runs daily 14:00 UTC. All platform
-creds are optional env — absent creds → that platform is skipped (graceful). `ANTHROPIC_API_KEY` is
-the only hard requirement for generation.
+Pipeline: `themes.ts` (52-week + seasonal calendar) → `generate.ts` (source post, Claude/Llama via Cloudflare Workers AI) →
+`variants.ts` (per-platform) → `post.ts` (direct Facebook + Bluesky API). The engine posts to
+**TWO surfaces only — Facebook and Bluesky**; everything else was retired. Single entrypoint
+`src/run.ts` (subcommands: generate, post, daily, preview, metrics). CI:
+`.github/workflows/social-autopost.yml` runs daily 14:00 UTC. All creds are optional env — absent
+creds → that platform is skipped (graceful). `ANTHROPIC_API_KEY` (or `CLOUDFLARE_API_TOKEN` +
+`CLOUDFLARE_ACCOUNT_ID` for the free Workers AI path) is the only hard requirement for generation.
 
 ## Conventions
 
 - TS strict throughout. Pages are lazy-loaded in `App.tsx` (Landing eager). Auth via `useAuthStore` (Zustand).
 - Match the surrounding file's idiom. Canonical user-facing vocabulary: **the Deep** (entries *settle* / are *lowered* in), the Wall, the Sealed Note, the Composer, the Bloodline. Capture verb is *"let it settle"*. Code/component names keep the `Cloth*`/`loom` lineage.
-- Extend the Deep system (`ClothCanvas3D`/`WaterCanvas`, `ClothShell`, `ClothBackdrop`, room components) rather than building outside it.
+- Extend the Deep system (`WaterCanvas`, `Filament`, `ClothShell`, `ClothBackdrop`, room components) rather than building outside it.

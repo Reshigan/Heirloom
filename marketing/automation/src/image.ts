@@ -1,24 +1,34 @@
-// image.ts — render a distinct woven-cloth image per post, with the post's
-// saying set as the hero, then upload it to R2 (via the worker) so the social
-// platforms can fetch it by URL.
+// image.ts — render a distinct image per post, with the post's saying set as the
+// hero, then upload it to R2 (via the worker) so the social platforms can fetch
+// it by URL.
 //
 // Why this exists: the engine already generates a unique `saying` per post, but
 // every post used to fall back to one static og-image.png. Seeing the same
-// picture every day reads as a dead account. Each post now gets its own cloth —
-// the weave pitch, thread jitter, and light angle are derived deterministically
-// from the post's seed, so the same post always renders identically (cache-safe)
-// while different posts look distinct.
+// picture every day reads as a dead account. Each post now gets its own image —
+// the pitch, jitter, and light angle are derived deterministically from the
+// post's seed, so the same post always renders identically (cache-safe) while
+// different posts look distinct.
 //
 // The saying IS the image. At feed thumbnail size (≈300px wide) the card has one
 // job: be readable. The type is set large and centered, and the ground rotates
-// per seed between the two brand surfaces — bone type on the ink cloth and ink
-// type on the paper cloth — so a row of these cards never reads as one repeated
+// per seed between the two brand surfaces — bone type on the ink ground and ink
+// type on the paper ground — so a row of these cards never reads as one repeated
 // dark rectangle.
 //
-// Palette + type follow ART_DIRECTION.md exactly: ink/bone grounds, the one warm
-// accent at <3% surface, Source Serif 4 for the saying, JetBrains Mono for the
-// archival wordmark. No gradients-as-decoration, no glass, the ∞ as the only
-// mark. The cloth IS the Heirloom identity.
+// Palette + type follow ART_DIRECTION.md + brand/BRAND.md: ink/bone grounds, the
+// one warm accent at <3% surface, Source Serif 4 for the saying, JetBrains Mono
+// for the archival wordmark. No gradients-as-decoration, no glass, the ∞ as the
+// only mark.
+//
+// ⚠ KNOWN GAP — the canonical brand image is The Deep: a close-up of deep still
+// water (ground #070d14) with a warm copper surface-line and the Sounding mark
+// (concentric depth-rings) faintly visible, the family's dye tint seeding the
+// water. The generate.ts `imagePrompt` field already briefs that image. The
+// renderer below, however, still draws a woven CLOTH (warp/weft threads, the old
+// pre-Deep identity). Converting drawWeave → drawWater + Sounding depth-rings is
+// real engineering, not a comment swap, and the engine is dormant until
+// ANTHROPIC_API_KEY is set — so no cloth image ships today. Rewrite is the
+// follow-up task that brings this file in line with The Deep.
 
 import { createCanvas, GlobalFonts, type SKRSContext2D } from "@napi-rs/canvas";
 import path from "node:path";

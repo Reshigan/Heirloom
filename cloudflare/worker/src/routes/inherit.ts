@@ -76,6 +76,58 @@ inheritRoutes.get('/:token', async (c) => {
     new Date().toISOString()
   ).run();
   
+  // Close the loop: hand this verified recipient an invite to the owner's
+  // thread so they can become the next author (the Successor path). The
+  // recipient is already a verified legacy_contact; an INV- code lets them
+  // /join the bloodline thread directly instead of starting an orphan thread.
+  // Reuse a pending invite for the same email+thread if one exists.
+  let inviteCode: string | null = null;
+  let threadName: string | null = null;
+  try {
+    const ownerThread = await c.env.DB.prepare(`
+      SELECT id AS id FROM threads WHERE founder_user_id = ? ORDER BY created_at ASC LIMIT 1
+    `).bind(verification.owner_id).first();
+    const threadId = (ownerThread?.id as string | undefined) || null;
+
+    if (threadId) {
+      const recipientEmail = (verification.recipient_email as string | undefined)?.toLowerCase() || null;
+      const existing = recipientEmail
+        ? await c.env.DB.prepare(`
+            SELECT invite_code FROM family_invites
+            WHERE thread_id = ? AND invitee_email = ? AND status = 'pending'
+            ORDER BY sent_at DESC LIMIT 1
+          `).bind(threadId, recipientEmail).first()
+        : null;
+
+      if (existing?.invite_code) {
+        inviteCode = existing.invite_code as string;
+      } else {
+        inviteCode = `INV-${crypto.randomUUID().substring(0, 8).toUpperCase()}`;
+        const now = new Date();
+        const inviteExpires = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        await c.env.DB.prepare(`
+          INSERT INTO family_invites (id, inviter_user_id, invitee_email, invitee_name, invite_code, thread_id, sent_at, expires_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `).bind(
+          crypto.randomUUID(),
+          verification.owner_id,
+          recipientEmail,
+          verification.recipient_name || null,
+          inviteCode,
+          threadId,
+          now.toISOString(),
+          inviteExpires,
+        ).run();
+      }
+
+      const thread = await c.env.DB.prepare(`SELECT name FROM threads WHERE id = ?`).bind(threadId).first();
+      threadName = (thread?.name as string | null) ?? null;
+    }
+  } catch {
+    // Best-effort: an invite failure must not block the recipient from reading.
+    inviteCode = null;
+  }
+
   return c.json({
     valid: true,
     sessionToken,
@@ -86,6 +138,8 @@ inheritRoutes.get('/:token', async (c) => {
     owner: {
       name: `${verification.owner_first_name} ${verification.owner_last_name}`,
     },
+    inviteCode,
+    threadName,
     expiresAt: sessionExpires,
   });
 });

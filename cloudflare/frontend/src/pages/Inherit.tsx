@@ -83,6 +83,10 @@ export function Inherit() {
   const [recipientName, setRecipientName] = useState<string>('');
   const [relationship, setRelationship] = useState<string>('');
   const [content, setContent] = useState<InheritContent | null>(null);
+  // Invite code for the owner's thread — handed back by /inherit/:token so this
+  // recipient can /join the bloodline thread and become the next author
+  // (the Successor path), closing the loop instead of starting an orphan.
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>('letters');
   const [selectedLetter, setSelectedLetter] = useState<Letter | null>(null);
   const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null);
@@ -170,6 +174,7 @@ export function Inherit() {
       setOwnerName(data.owner.name);
       setRecipientName(data.recipient.name);
       setRelationship(data.recipient.relationship);
+      setInviteCode(data.inviteCode ?? null);
     } catch (err: any) {
       if (err?.name === 'AbortError') return;
       setError('Failed to validate access link');
@@ -351,8 +356,8 @@ export function Inherit() {
             <WarmDot size={6} />
             <span>the {threadName} thread</span>
           </span>
-          <Link to="/signup" style={monoAction(true, { textDecoration: 'none', letterSpacing: '0.2em', fontSize: 10.5 })}>
-            create an account →
+          <Link to={inviteCode ? `/join?code=${inviteCode}` : '/signup?tier=free'} style={monoAction(true, { textDecoration: 'none', letterSpacing: '0.2em', fontSize: 10.5 })}>
+            {inviteCode ? 'add your voice →' : 'create an account →'}
           </Link>
         </div>
 
@@ -473,8 +478,8 @@ export function Inherit() {
           <WarmDot size={6} />
           <span>the {threadName} thread</span>
         </span>
-        <Link to="/signup" style={monoAction(true, { textDecoration: 'none', letterSpacing: '0.22em', fontSize: 10.5 })}>
-          create an account →
+        <Link to={inviteCode ? `/join?code=${inviteCode}` : '/signup?tier=free'} style={monoAction(true, { textDecoration: 'none', letterSpacing: '0.22em', fontSize: 10.5 })}>
+          {inviteCode ? 'add your voice →' : 'create an account →'}
         </Link>
       </div>
 

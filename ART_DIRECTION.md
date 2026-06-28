@@ -44,11 +44,11 @@ The hearth's emotional payload is **warmth, vigilance, ritual presence**. None o
 
 ## Component grammar
 
-> The grammar below was first written for a pre-cloth era (a "Hearth" page with a `Horizon`/`NameRoll`/`Fire` component set). Those components are gone. The interface is now built on **the cloth** — a 3D woven fabric (`ClothCanvas3D`) where every family entry is a weft thread, with `CosmicLoom` rendering it as a glowing filament web under the copper skin. The principles below survive; the cloth/loom subsystem realizes them.
+> The grammar below was first written for a pre-cloth era (a "Hearth" page with a `Horizon`/`NameRoll`/`Fire` component set). Those components are gone, and the cloth/woven-fabric direction that followed is gone too. The interface is now built on **the Deep** — a living deep-water surface (`WaterCanvas`, seeded by the family's member dyes) with a quiet token-woven ambient ground (`Filament`). There is no `ClothCanvas3D` and no `CosmicLoom` in the live bundle — `CosmicLoom` was the old glowing-filament-web direction, explicitly retired (copper is signal only, never a viewport-scale bloom). The principles below survive; the `loom` subsystem (code names kept) realizes them on water, not cloth.
 
-### The cloth (the home surface)
+### The Deep (the home surface)
 
-`ClothCanvas3D` is the home surface — a woven field, not a feed. `ClothBackdrop` mounts it once globally so every screen sits on the same ambient cloth; `ClothShell` is the app chrome (56px topbar + safe-area + content). Build new screens by extending these — never a global nav bar, tab grid, or dashboard on top of the cloth. The warmth is a single copper light on the weave, abstract — think Hammershøi's interior windows, not a campfire. It breathes slowly (the ambient aura cycle), never flickers.
+`WaterCanvas` is the home surface — a field of deep still water, not a feed. `ClothBackdrop` mounts it once globally so every screen sits on the same ambient water; `ClothShell` is the app chrome (56px topbar + safe-area + content). Build new screens by extending these — never a global nav bar, tab grid, or dashboard on top of the water. The warmth is a single copper surface-line — the **Sounding mark** (concentric depth-rings crossed by one warm line), abstract — think Hammershøi's interior windows, not a campfire. It breathes slowly (the water's ambient cycle), never flickers.
 
 ### The Names
 
@@ -67,7 +67,7 @@ When the date arrives it does not burn or unfold — it **dissolves**. The ∞ f
 
 ### The Tapestry
 
-The artifact is implied, not the centerpiece: a thin horizontal band, each entry one weft pick at ~2px height. Compact by default; hover/expand to inspect.
+The artifact is implied, not the centerpiece: a thin horizontal band, each entry one line at ~2px height. Compact by default; hover/expand to inspect.
 
 ### The Composer
 
@@ -77,7 +77,7 @@ Editorial, a printed page rather than a form. Source Serif 4 body (~22px), leadi
 
 ## The first impression test
 
-When a stranger lands on `heirloom.blue` (the cloth), in the first 3 seconds, they should feel:
+When a stranger lands on `heirloom.blue` (the Deep), in the first 3 seconds, they should feel:
 
 1. *Quiet.* The page is silent. No movement except the breath.
 2. *Weight.* The darkness has gravity. This is not a feed.
@@ -120,7 +120,7 @@ Canonical in `src/styles/globals.css` `:root`, mirrored in `tailwind.config.js` 
 | `warm` | `#e0a062` | Single accent (copper) |
 | `warm-bright` | `#f0c074` | Hover/active warmth (rare) |
 | `warm-dim` | `#b07a3e` | Pressed warmth (rarer) |
-| `warm-glow` | `rgba(224,160,98,0.18)` | Copper bloom on the weave |
+| `warm-glow` | `rgba(224,160,98,0.18)` | Copper bloom on the water (signal only) |
 
 Cream on ground ≈16:1. Copper on ground ≈8.5:1 (passes AA for all text, AAA for large). bone-faint (0.62α ≈5.8:1) is tertiary but now clears AA for normal text. A `[data-theme="light"]` bridge flips ground→cream and re-mordants copper darker (`#a86220`) for paper mode; both themes carry the full ramp.
 
@@ -135,7 +135,7 @@ Cream on ground ≈16:1. Copper on ground ≈8.5:1 (passes AA for all text, AAA 
 | `--dur-mid` | 360ms | Page transitions, card entry |
 | `--dur-slow` | 720ms | Reading view enter, composer enter |
 | `--dur-ceremony` | 1400ms | Reveal / unlock dissolve |
-| ambient | ~9–12s | The cloth's slow aura breath (a loop, not a transition) |
+| ambient | ~9–12s | The water's slow breath (a loop, not a transition) |
 
 Anything else is a violation.
 
@@ -173,7 +173,7 @@ Has an optical-size axis; we run it as static per-weight cuts. It turns unreadab
 
 ## Current reality
 
-The live UI (`cloudflare/frontend`, deployed to heirloom.blue) is **The Deep**: the `cloth/loom` subsystem rendering deep water (`WaterCanvas`, seeded by member dyes) skinned in **Fraunces / Source Serif 4 / JetBrains Mono + copper-on-ground `#070d14`**. The `Horizon`/`NameRoll`/`Fire`/`Bundle` component set named in older drafts no longer exists — superseded by `ClothCanvas3D` + `CosmicLoom` + `WaterCanvas`. Verify any visual claim against the live bundle (`src/styles/globals.css` + `tailwind.config.js`), not against this prose: docs lag the deployed UI.
+The live UI (`cloudflare/frontend`, deployed to heirloom.blue) is **The Deep**: the `loom` subsystem rendering deep water (`WaterCanvas`, seeded by member dyes) with a quiet token-woven ambient ground (`Filament`), skinned in **Fraunces / Source Serif 4 / JetBrains Mono + copper-on-ground `#070d14`**. The `Horizon`/`NameRoll`/`Fire`/`Bundle` component set named in older drafts no longer exists — and neither do the later `ClothCanvas3D`/`CosmicLoom` cloth/filament-web components; the live home surface is `WaterCanvas` + `Filament`. Verify any visual claim against the live bundle (`src/styles/globals.css` + `tailwind.config.js`), not against this prose: docs lag the deployed UI.
 
 ---
 
