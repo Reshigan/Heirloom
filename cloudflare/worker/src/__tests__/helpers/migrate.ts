@@ -263,6 +263,10 @@ CREATE TABLE IF NOT EXISTS family_invites (
   expires_at TEXT,
   accepted_at TEXT,
   reward_claimed INTEGER DEFAULT 0,
+  -- B1: where the invite originated. 'inherit' = minted from a delivered letter
+  -- (recipient→author loop); 'manual' = direct author invite; NULL = legacy.
+  source TEXT,
+  source_letter_id TEXT REFERENCES letters(id) ON DELETE SET NULL,
   created_at TEXT DEFAULT (datetime('now'))
 );
 
@@ -308,6 +312,18 @@ CREATE TABLE IF NOT EXISTS letter_legacy_recipients (
   added_at TEXT DEFAULT (datetime('now')),
   PRIMARY KEY (letter_id, legacy_contact_id)
 );
+
+-- B4: share-this-note — public read-only letter path. An opaque token unlocks
+-- a single letter for unauthenticated readers; revocable by the author.
+CREATE TABLE IF NOT EXISTS letter_share_tokens (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  letter_id TEXT NOT NULL REFERENCES letters(id) ON DELETE CASCADE,
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token TEXT NOT NULL UNIQUE,
+  revoked_at TEXT,
+  created_at TEXT DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_letter_share_tokens_token ON letter_share_tokens(token);
 
 CREATE TABLE IF NOT EXISTS memory_legacy_recipients (
   memory_id TEXT NOT NULL,

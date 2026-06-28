@@ -323,6 +323,76 @@ lettersRoutes.get('/received', async (c) => {
   });
 });
 
+// B4 (Day 23): share-this-note — mint an opaque, revocable read-only link.
+// Registered before GET /:id so "shared" is never parsed as a letter id. The
+// token is a high-entropy opaque string (never the letter id), so a leaked link
+// can be killed without rotating the letter. Owner-only: only the letter's
+// author can mint a share link for it.
+lettersRoutes.post('/:id/share-token', async (c) => {
+  const userId = c.get('userId');
+  const letterId = c.req.param('id');
+
+  const owned = await c.env.DB.prepare(
+    `SELECT id FROM letters WHERE id = ? AND user_id = ? AND deleted_at IS NULL`,
+  ).bind(letterId, userId).first();
+  if (!owned) return c.json({ error: 'Letter not found' }, 404);
+
+  const token = crypto.randomUUID() + crypto.randomUUID();
+  const id = crypto.randomUUID();
+  await c.env.DB.prepare(
+    `INSERT INTO letter_share_tokens (id, letter_id, user_id, token) VALUES (?, ?, ?, ?)`,
+  ).bind(id, letterId, userId, token).run();
+
+  const origin = c.env?.APP_URL || new URL(c.req.url).origin;
+  return c.json({ token, url: `${origin}/note/${token}` });
+});
+
+// B4: list this letter's active share links (author only). Lets the author see
+// and revoke links they've already minted without minting a new one each time.
+lettersRoutes.get('/:id/share-tokens', async (c) => {
+  const userId = c.get('userId');
+  const letterId = c.req.param('id');
+
+  const owned = await c.env.DB.prepare(
+    `SELECT id FROM letters WHERE id = ? AND user_id = ? AND deleted_at IS NULL`,
+  ).bind(letterId, userId).first();
+  if (!owned) return c.json({ error: 'Letter not found' }, 404);
+
+  const rows = await c.env.DB.prepare(
+    `SELECT id, token, revoked_at, created_at FROM letter_share_tokens
+     WHERE letter_id = ? AND user_id = ? ORDER BY created_at DESC`,
+  ).bind(letterId, userId).all();
+
+  return c.json({
+    data: (rows.results as any[]).map((r) => ({
+      id: r.id,
+      token: r.token,
+      revokedAt: r.revoked_at,
+      createdAt: r.created_at,
+      url: `${c.env?.APP_URL || new URL(c.req.url).origin}/note/${r.token}`,
+    })),
+  });
+});
+
+// B4: revoke a share link. The token row carries user_id, so only its author can
+// revoke. Idempotent: revoking an already-revoked link is a no-op.
+lettersRoutes.delete('/share-token/:tokenId', async (c) => {
+  const userId = c.get('userId');
+  const tokenId = c.req.param('tokenId');
+
+  const row = await c.env.DB.prepare(
+    `SELECT id, user_id, revoked_at FROM letter_share_tokens WHERE id = ?`,
+  ).bind(tokenId).first() as { id: string; user_id: string; revoked_at: string | null } | null;
+  if (!row) return c.json({ error: 'Share link not found' }, 404);
+  if (row.user_id !== userId) return c.json({ error: 'Not yours to revoke' }, 403);
+  if (row.revoked_at) return c.json({ ok: true });
+
+  await c.env.DB.prepare(
+    `UPDATE letter_share_tokens SET revoked_at = datetime('now') WHERE id = ?`,
+  ).bind(tokenId).run();
+  return c.json({ ok: true });
+});
+
 // Get a specific letter
 // Selvedge: the append-only revision log for one letter, newest first.
 // No deleted_at filter — revoked entries keep their history readable.

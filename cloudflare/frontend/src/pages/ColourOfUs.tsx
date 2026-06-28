@@ -44,6 +44,79 @@ function tokenRGB(probe: HTMLElement, dye: Dye): [number, number, number] | null
   return [Number(m[0]), Number(m[1]), Number(m[2])];
 }
 
+/**
+ * B3 (Day 22): Family Spectrum share card. Renders the family's blended colour
+ * + each member's dye as a horizontal spectrum onto a 1200×630 canvas — the
+ * same shape as an OG card — so a family can post their thread's colour to
+ * social. Deep-water ground, Sounding-mark wordmark, no cloth/filament.
+ */
+function renderSpectrumCard(
+  members: Member[],
+  blend: [number, number, number] | null,
+  caption: string,
+  threadName: string,
+): HTMLCanvasElement {
+  const W = 1200, H = 630;
+  const cv = document.createElement('canvas');
+  cv.width = W; cv.height = H;
+  const ctx = cv.getContext('2d')!;
+  const INK = '#070d14', BONE = '#f2e6d0', BONE_DIM = 'rgba(242,230,208,0.72)';
+
+  // Deep-water ground — a soft radial so it isn't a flat black.
+  const ground = ctx.createRadialGradient(W * 0.5, H * 0.42, 40, W * 0.5, H * 0.5, W * 0.7);
+  ground.addColorStop(0, '#0c1822');
+  ground.addColorStop(1, INK);
+  ctx.fillStyle = ground;
+  ctx.fillRect(0, 0, W, H);
+
+  // Eyebrow.
+  ctx.fillStyle = 'rgba(242,230,208,0.62)';
+  ctx.font = '600 22px "JetBrains Mono", ui-monospace, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('THE COLOUR OF US', W / 2, 92);
+
+  // Title — the thread name, or the brand line.
+  ctx.fillStyle = BONE;
+  ctx.font = '400 64px "Fraunces", Georgia, serif';
+  ctx.fillText(threadName || 'One thread, every hand', W / 2, 168);
+
+  // The orb — the blended family colour. Falls back to copper if no blend.
+  const [r, g, b] = blend ?? [224, 160, 98];
+  const cx = W / 2, cy = 330, rad = 150;
+  const orb = ctx.createRadialGradient(cx - 50, cy - 55, 20, cx, cy, rad);
+  orb.addColorStop(0, `rgb(${Math.min(255, r + 40)}, ${Math.min(255, g + 40)}, ${Math.min(255, b + 40)})`);
+  orb.addColorStop(0.6, `rgb(${r}, ${g}, ${b})`);
+  orb.addColorStop(1, `rgb(${Math.max(0, r - 50)}, ${Math.max(0, g - 50)}, ${Math.max(0, b - 50)})`);
+  ctx.beginPath();
+  ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+  ctx.fillStyle = orb;
+  ctx.fill();
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(224,160,98,0.5)';
+  ctx.stroke();
+
+  // The spectrum bar — each member's dye, weighted by entries authored.
+  const barX = 200, barW = W - 400, barY = 540, barH = 8;
+  const total = members.reduce((s, m) => s + (m.count > 0 ? m.count : 1), 0) || members.length;
+  let x = barX;
+  for (const m of members) {
+    const w = (m.count > 0 ? m.count : 1) / total * barW;
+    ctx.fillStyle = dyeVar(m.dye);
+    ctx.fillRect(x, barY, Math.max(2, w), barH);
+    x += w;
+  }
+
+  // Caption + wordmark.
+  ctx.fillStyle = BONE_DIM;
+  ctx.font = 'italic 300 26px "Source Serif 4", Georgia, serif';
+  ctx.fillText(caption, W / 2, 588);
+  ctx.fillStyle = 'rgba(224,160,98,0.7)';
+  ctx.font = '600 16px "JetBrains Mono", ui-monospace, monospace';
+  ctx.fillText('HEIRLOOM.BLUE', W / 2, 612);
+
+  return cv;
+}
+
 export function ColourOfUs() {
   const { isAuthenticated, user } = useAuthStore();
   const [members, setMembers] = useState<Member[]>([]);
@@ -115,7 +188,7 @@ export function ColourOfUs() {
 
   // Weighted average of each member's dye → the one colour. themeTick forces a
   // recompute on theme flip; the probe span is mounted hidden below.
-  const blend = useMemo(() => {
+  const blendRGB = useMemo<{ rgb: [number, number, number]; css: string } | null>(() => {
     void themeTick;
     const probe = probeRef.current;
     if (!probe || members.length === 0) return null;
@@ -128,8 +201,10 @@ export function ColourOfUs() {
       r += rgb[0] * weight; g += rgb[1] * weight; b += rgb[2] * weight; w += weight;
     }
     if (w === 0) return null;
-    return `rgb(${Math.round(r / w)}, ${Math.round(g / w)}, ${Math.round(b / w)})`;
+    const R = Math.round(r / w), G = Math.round(g / w), B = Math.round(b / w);
+    return { rgb: [R, G, B], css: `rgb(${R}, ${G}, ${B})` };
   }, [members, youngThread, themeTick]);
+  const blend = blendRGB?.css ?? null;
 
   // Legend / bar order: loudest thread first, so the dominant voice reads top.
   const ranked = useMemo(
@@ -141,6 +216,35 @@ export function ColourOfUs() {
   const caption = youngThread
     ? 'your family’s colour, before the first word'
     : `${totalEntries} ${totalEntries === 1 ? 'memory' : 'memories'}, one colour`;
+
+  // B3: render the family spectrum to a 1200×630 PNG and share it (Web Share
+  // API where available, otherwise download). The card is the family's dye
+  // identity — safe to post: it carries no names, no entry text, no link back.
+  const [sharing, setSharing] = useState(false);
+  const shareSpectrum = async () => {
+    if (members.length === 0) return;
+    setSharing(true);
+    try {
+      const cv = renderSpectrumCard(ranked, blendRGB?.rgb ?? null, caption, user?.lastName ?? '');
+      const blob: Blob = await new Promise((res) => cv.toBlob((b) => res(b!), 'image/png'));
+      const file = new File([blob], 'our-colour.png', { type: 'image/png' });
+      const canShare = typeof navigator !== 'undefined' && !!navigator.share &&
+        !!(navigator as any).canShare?.({ files: [file] });
+      if (canShare) {
+        await navigator.share({ files: [file], title: 'The colour of us', text: 'our family’s colour, on Heirloom' });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'our-colour.png';
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 4000);
+      }
+    } catch {
+      // user cancelled or share unavailable — quiet no-op.
+    } finally {
+      setSharing(false);
+    }
+  };
 
   return (
     <ClothShell
@@ -220,11 +324,29 @@ export function ColourOfUs() {
             <p
               style={{
                 fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
-                fontSize: 18, color: 'var(--bone-dim)', lineHeight: 1.6, margin: '0 0 56px',
+                fontSize: 18, color: 'var(--bone-dim)', lineHeight: 1.6, margin: '0 0 24px',
               }}
             >
               {caption}
             </p>
+
+            {/* B3: share the family spectrum as a PNG card. */}
+            <button
+              type="button"
+              disabled={sharing || members.length === 0}
+              onClick={shareSpectrum}
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--copper-border)',
+                color: 'var(--gold-text)',
+                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
+                textTransform: 'uppercase', padding: '12px 26px', cursor: 'pointer',
+                opacity: sharing ? 0.5 : 1, marginBottom: 32,
+                transition: `opacity 180ms var(--ease)`,
+              }}
+            >
+              {sharing ? 'rendering…' : 'share our colour →'}
+            </button>
 
             {/* The weave bar — each author's share of the cloth, in their dye.
                 A proportional ledger, not decoration: width = entries authored. */}

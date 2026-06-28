@@ -49,6 +49,101 @@ function opensCondition(letter: Letter): string {
 import { EASE } from '../loom/motion';
 
 /**
+ * B4 (Day 23): share-this-note. Lets the author mint an opaque, revocable
+ * read-only link to this letter — a public /note/:token page that shows the
+ * letter's readable fields only. A leaked link can be killed here without
+ * rotating the letter.
+ */
+function ShareLink({ letterId }: { letterId: string }) {
+  const qc = useQueryClient();
+  const [copied, setCopied] = useState(false);
+
+  const tokens = useQuery({
+    queryKey: ['letter-share-tokens', letterId],
+    queryFn: () => lettersApi.shareTokens(letterId).then((r) => r.data ?? []),
+    enabled: Boolean(letterId),
+  });
+
+  const mint = useMutation({
+    mutationFn: () => lettersApi.mintShareToken(letterId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['letter-share-tokens', letterId] });
+      setCopied(false);
+    },
+  });
+
+  const revoke = useMutation({
+    mutationFn: (tokenId: string) => lettersApi.revokeShareToken(tokenId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['letter-share-tokens', letterId] }),
+  });
+
+  const active = (tokens.data ?? []).filter((t: any) => !t.revokedAt);
+  const monoBtn: React.CSSProperties = {
+    background: 'transparent',
+    border: 0,
+    padding: 0,
+    cursor: 'pointer',
+    fontFamily: 'var(--mono)',
+    fontSize: 10,
+    letterSpacing: '0.2em',
+    textTransform: 'uppercase',
+    color: 'var(--warm-dim)',
+  };
+
+  const copy = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2400);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  if (active.length === 0) {
+    return (
+      <button
+        type="button"
+        disabled={mint.isPending}
+        onClick={() => mint.mutate()}
+        style={{ ...monoBtn, opacity: mint.isPending ? 0.5 : 1 }}
+      >
+        {mint.isPending ? 'making link…' : 'share this note →'}
+      </button>
+    );
+  }
+
+  const url = active[0].url;
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', gap: 14, alignItems: 'center', flexWrap: 'wrap' }}>
+        <button type="button" onClick={() => copy(url)} style={monoBtn}>
+          {copied ? 'copied ✓' : 'copy link'}
+        </button>
+        <button
+          type="button"
+          disabled={revoke.isPending}
+          onClick={() => revoke.mutate(active[0].id)}
+          style={{ ...monoBtn, color: 'var(--bone-faint)', opacity: revoke.isPending ? 0.5 : 1 }}
+        >
+          {revoke.isPending ? 'revoking…' : 'revoke'}
+        </button>
+      </div>
+      <code
+        style={{
+          fontFamily: 'var(--mono)',
+          fontSize: 10,
+          color: 'var(--bone-faint)',
+          wordBreak: 'break-all',
+        }}
+      >
+        {url}
+      </code>
+    </div>
+  );
+}
+
+/**
  * Choose the letter the room leads with as a full seal ceremony. We surface the
  * letter that most wants attention right now: the first unsealed DRAFT (so the
  * reader can finish the rite and seal it), and failing that the next letter to
@@ -315,6 +410,11 @@ export function LetterRoom() {
                   </Link>
                 </div>
               )}
+
+              {/* B4: share-this-note — mint a public read-only link. */}
+              <div style={{ marginTop: 18 }}>
+                <ShareLink letterId={featured.id} />
+              </div>
             </section>
           );
         })()}

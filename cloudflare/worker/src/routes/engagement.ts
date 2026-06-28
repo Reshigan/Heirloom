@@ -61,8 +61,8 @@ engagementRoutes.post('/invite', requireAuth, async (c) => {
 
   const id = crypto.randomUUID();
   await c.env.DB.prepare(`
-    INSERT INTO family_invites (id, inviter_user_id, invitee_email, invitee_name, invite_code, thread_id, sent_at, expires_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO family_invites (id, inviter_user_id, invitee_email, invitee_name, invite_code, thread_id, sent_at, expires_at, source)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'manual')
   `).bind(id, userId, email.toLowerCase(), name || null, inviteCode, threadId, now.toISOString(), expiresAt.toISOString()).run();
   
   // Send invite email

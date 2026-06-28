@@ -105,9 +105,28 @@ inheritRoutes.get('/:token', async (c) => {
         inviteCode = `INV-${crypto.randomUUID().substring(0, 8).toUpperCase()}`;
         const now = new Date();
         const inviteExpires = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        // B1: this invite is minted from a delivered letter, so tag its source.
+        // source_letter_id = the first letter shared with this recipient (best
+        // effort; null if none can be resolved). Lets /join?code= attribute the
+        // signup back to the delivering letter and feeds the recipients→authors
+        // metric. The recipient is a legacy_contact; their letters are joined
+        // through letter_legacy_recipients → legacy_contacts.
+        let sourceLetterId: string | null = null;
+        try {
+          const letter = await c.env.DB.prepare(`
+            SELECT l.id AS letter_id
+            FROM letters l
+            JOIN letter_legacy_recipients llr ON llr.letter_id = l.id
+            WHERE llr.legacy_contact_id = ? AND l.deleted_at IS NULL
+            ORDER BY l.created_at ASC LIMIT 1
+          `).bind(verification.legacy_contact_id).first();
+          sourceLetterId = (letter?.letter_id as string | undefined) ?? null;
+        } catch {
+          sourceLetterId = null;
+        }
         await c.env.DB.prepare(`
-          INSERT INTO family_invites (id, inviter_user_id, invitee_email, invitee_name, invite_code, thread_id, sent_at, expires_at)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+          INSERT INTO family_invites (id, inviter_user_id, invitee_email, invitee_name, invite_code, thread_id, sent_at, expires_at, source, source_letter_id)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'inherit', ?)
         `).bind(
           crypto.randomUUID(),
           verification.owner_id,
@@ -117,6 +136,7 @@ inheritRoutes.get('/:token', async (c) => {
           threadId,
           now.toISOString(),
           inviteExpires,
+          sourceLetterId,
         ).run();
       }
 

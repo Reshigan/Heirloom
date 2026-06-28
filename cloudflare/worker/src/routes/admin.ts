@@ -221,7 +221,7 @@ adminRoutes.get('/me', adminAuth, async (c) => {
 adminRoutes.get('/analytics', adminAuth, async (c) => {
   // All six dashboard reads are independent — fire them in parallel (one
   // round-trip's worth of latency instead of six sequential).
-  const [userStats, subStats, contentStats, storageStats, voiceStorage, recentUsers] = await Promise.all([
+  const [userStats, subStats, contentStats, storageStats, voiceStorage, recentUsers, viralStats] = await Promise.all([
     c.env.DB.prepare(`
       SELECT
         COUNT(*) as total_users,
@@ -260,6 +260,20 @@ adminRoutes.get('/analytics', adminAuth, async (c) => {
       ORDER BY created_at DESC
       LIMIT 10
     `).all(),
+    // B2: the one viral metric — recipients who became authors. An invite with
+    // source='inherit' is one minted from a delivered letter; once accepted,
+    // that recipient joined the bloodline thread (became the next author).
+    // Count accepted inherit-sourced invites, this week and total, plus the
+    // conversion ratio vs all accepted invites. Best-effort: NULL source
+    // (legacy rows) counts as neither.
+    c.env.DB.prepare(`
+      SELECT
+        COUNT(*) AS total_accepted,
+        SUM(CASE WHEN source = 'inherit' THEN 1 ELSE 0 END) AS recipients_to_authors,
+        SUM(CASE WHEN source = 'inherit' AND accepted_at > datetime('now', '-7 days') THEN 1 ELSE 0 END) AS recipients_to_authors_week,
+        SUM(CASE WHEN accepted_at > datetime('now', '-7 days') THEN 1 ELSE 0 END) AS accepted_week
+      FROM family_invites WHERE status = 'accepted'
+    `).first(),
   ]);
   
   return c.json({
@@ -291,6 +305,25 @@ adminRoutes.get('/analytics', adminAuth, async (c) => {
       name: `${u.first_name} ${u.last_name}`,
       createdAt: u.created_at,
     })),
+    // B2: recipients→authors — the viral coefficient in disguise. ≥0.3 weekly
+    // ratio = the loop compounds; <0.1 = the product is a journal, not a thread.
+    viral: (() => {
+      const v = (viralStats ?? {}) as {
+        recipients_to_authors?: number;
+        recipients_to_authors_week?: number;
+        accepted_week?: number;
+        total_accepted?: number;
+      };
+      const acceptedWeek = Number(v.accepted_week) || 0;
+      const r2aWeek = Number(v.recipients_to_authors_week) || 0;
+      return {
+        recipientsToAuthors: Number(v.recipients_to_authors) || 0,
+        recipientsToAuthorsThisWeek: r2aWeek,
+        acceptedThisWeek: acceptedWeek,
+        totalAccepted: Number(v.total_accepted) || 0,
+        weeklyRatio: acceptedWeek > 0 ? Number((r2aWeek / acceptedWeek).toFixed(2)) : 0,
+      };
+    })(),
   });
 });
 

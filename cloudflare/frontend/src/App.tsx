@@ -69,6 +69,7 @@ const MemorialPublic = lazy(() => import('./pages/MemorialPublic').then(m => ({ 
 const Milestones = lazy(() => import('./pages/Milestones').then(m => ({ default: m.Milestones })));
 const CardView = lazy(() => import('./pages/CardView').then(m => ({ default: m.CardView })));
 const MemoryCards = lazy(() => import('./pages/MemoryCards').then(m => ({ default: m.MemoryCards })));
+const NoteRead = lazy(() => import('./pages/NoteRead').then(m => ({ default: m.NoteRead })));
 
 // Heirloom v2 pages
 const InterviewMode = lazy(() => import('./pages/InterviewMode').then(m => ({ default: m.InterviewMode })));
@@ -346,6 +347,7 @@ export default function App() {
                                                             <Route path="/gold/redeem" element={<GoldLegacyRedeem />} />
                                                             <Route path="/card/:id" element={<CardView />} />
                                                             <Route path="/m/:token" element={<MemorialPublic />} />
+                                                            <Route path="/note/:token" element={<NoteRead />} />
           <Route path="/gift-memory/:token" element={<GiftReceive />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/showcase" element={<Showcase />} />

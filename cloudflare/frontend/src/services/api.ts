@@ -196,6 +196,18 @@ export const lettersApi = {
   received: () => api.get('/letters/received'),
   getRevisions: (id: string) => api.get(`/letters/${id}/revisions`),
   restore: (id: string) => api.patch(`/letters/${id}/restore`),
+  // B4: share-this-note — mint/list/revoke opaque read-only links.
+  shareTokens: (id: string) => api.get(`/letters/${id}/share-tokens`),
+  mintShareToken: (id: string) => api.post(`/letters/${id}/share-token`),
+  revokeShareToken: (tokenId: string) => api.delete(`/letters/share-token/${tokenId}`),
+};
+
+// B4: public, unauthenticated letter read. Plain fetch against the worker origin
+// (the public share endpoint lives under /api/share, on the same host as the
+// authed API). No auth header — a share token unlocks the letter on its own.
+export const shareApi = {
+  getNote: (token: string) =>
+    fetch(`${API_URL}/share/note/${token}`).then((r) => (r.ok ? r.json() : Promise.reject(r.status))),
 };
 
 // Voice API
