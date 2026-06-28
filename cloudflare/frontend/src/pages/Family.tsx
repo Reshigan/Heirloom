@@ -6,11 +6,12 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { usePageMeta } from '../lib/usePageMeta';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { copyToClipboard } from '../utils/clipboard';
-import { type FamilyMember } from '../types';
+import { type FamilyMember, type FamilyRelationship } from '../types';
 import { formatDate } from '../utils/date';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { RoomError } from '../loom/components/RoomError';
 import { ProgressHair } from '../loom/components/ProgressHair';
+import { AddRelationshipPicker, relationshipLine } from '../loom/components/AddRelationshipPicker';
 import { dyeForId, dyeVar, dyeTextVar, DYES, DYE_MOTIF, type Dye } from '../loom/dye';
 import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
@@ -21,6 +22,10 @@ interface PendingInvite {
   invite_code: string;
   status: string;
   sent_at: string;
+  relationship?: string | null;
+  dye?: string | null;
+  birth_date?: string | null;
+  notes?: string | null;
 }
 
 // The member's name carries their dye hue; the 3px left thread carries the same
@@ -62,11 +67,19 @@ export function Family() {
   const [editDye, setEditDye] = useState('');
   const [editError, setEditError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
-  // Inline-edit state for a pending invite (name + email, before it's accepted).
+  // Inline-edit state for a pending invite (full family-tree fields, before
+  // the invitee accepts). On accept, the worker seeds a family_members row
+  // from these — so editing them here is editing the future roster entry.
   const [editInviteId, setEditInviteId] = useState<string | null>(null);
   const [editInviteName, setEditInviteName] = useState('');
   const [editInviteEmail, setEditInviteEmail] = useState('');
+  const [editInviteRelationship, setEditInviteRelationship] = useState('');
+  const [editInviteBirthDate, setEditInviteBirthDate] = useState('');
+  const [editInviteNotes, setEditInviteNotes] = useState('');
+  const [editInviteDye, setEditInviteDye] = useState('');
   const [editInviteError, setEditInviteError] = useState<string | null>(null);
+  // Which member row currently shows the add-relation picker.
+  const [addRelFor, setAddRelFor] = useState<string | null>(null);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['family'],
@@ -85,6 +98,15 @@ export function Family() {
   const pendingInvites: PendingInvite[] = (
     (invitesData as any)?.invites ?? []
   ).filter((i: PendingInvite) => i.status === 'pending');
+
+  // Family-tree edges (parent/child/spouse/sibling). Used to render each
+  // member row's kin line ("mother of Ava · spouse of Ben"). Kept as its own
+  // query so adding/removing a link invalidates only this, not the whole roster.
+  const { data: relData } = useQuery({
+    queryKey: ['family-relationships'],
+    queryFn: () => familyApi.getRelationships().then((r) => r.data).catch(() => ({ relationships: [] })),
+  });
+  const relationships: FamilyRelationship[] = (relData as any)?.relationships ?? [];
 
   const create = useMutation({
     mutationFn: () =>
@@ -175,7 +197,14 @@ export function Family() {
 
   const saveInviteEdit = useMutation({
     mutationFn: (id: string) =>
-      engagementApi.editInvite(id, { email: editInviteEmail.trim(), name: editInviteName.trim() || null }),
+      engagementApi.editInvite(id, {
+        email: editInviteEmail.trim(),
+        name: editInviteName.trim() || null,
+        relationship: editInviteRelationship.trim() || null,
+        birthDate: editInviteBirthDate || null,
+        notes: editInviteNotes.trim() || null,
+        dye: editInviteDye || null,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invites'] });
       setEditInviteId(null);
@@ -190,6 +219,10 @@ export function Family() {
     setEditInviteId(inv.id);
     setEditInviteName(inv.invitee_name ?? '');
     setEditInviteEmail(inv.invitee_email);
+    setEditInviteRelationship(inv.relationship ?? '');
+    setEditInviteBirthDate(inv.birth_date ?? '');
+    setEditInviteNotes(inv.notes ?? '');
+    setEditInviteDye(inv.dye ?? '');
     setEditInviteError(null);
   };
 
@@ -501,6 +534,32 @@ export function Family() {
                       className="hl-mono"
                       style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', color: 'var(--bone)', caretColor: 'var(--warm)', fontSize: 13, padding: '4px 0', outline: 'none' }}
                     />
+                    <input
+                      value={editInviteRelationship}
+                      onChange={(e) => setEditInviteRelationship(e.target.value)}
+                      placeholder="relationship — daughter, father, chosen sister"
+                      aria-label="Relationship"
+                      className="hl-serif"
+                      style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', color: 'var(--bone)', caretColor: 'var(--warm)', fontSize: 15, padding: '4px 0', outline: 'none' }}
+                    />
+                    <input
+                      type="date"
+                      value={editInviteBirthDate}
+                      onChange={(e) => setEditInviteBirthDate(e.target.value)}
+                      aria-label="Birthday"
+                      className="hl-serif"
+                      style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', color: 'var(--bone)', caretColor: 'var(--warm)', fontSize: 15, padding: '4px 0', outline: 'none' }}
+                    />
+                    <textarea
+                      value={editInviteNotes}
+                      onChange={(e) => setEditInviteNotes(e.target.value)}
+                      placeholder="notes — optional"
+                      aria-label="Notes"
+                      rows={2}
+                      className="hl-serif"
+                      style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', color: 'var(--bone)', caretColor: 'var(--warm)', fontSize: 15, lineHeight: 1.6, padding: '4px 0', outline: 'none', resize: 'vertical' }}
+                    />
+                    <DyePicker value={editInviteDye} onChange={(d) => { setEditInviteDye(d); setEditInviteError(null); }} />
                     {editInviteError && (
                       <p role="alert" className="hl-mono" style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.14em', margin: 0 }}>{editInviteError}</p>
                     )}
@@ -736,6 +795,20 @@ export function Family() {
                         <>
                           <button
                             type="button"
+                            onClick={() => setAddRelFor(addRelFor === m.id ? null : m.id)}
+                            style={{
+                              background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                              fontFamily: 'var(--mono)', fontSize: 12, color: addRelFor === m.id ? 'var(--warm)' : 'var(--bone-faint)',
+                              letterSpacing: '0.18em', textTransform: 'uppercase',
+                              transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
+                            }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = addRelFor === m.id ? 'var(--warm)' : 'var(--bone-faint)'; }}
+                          >
+                            {addRelFor === m.id ? 'close kin' : 'add relation →'}
+                          </button>
+                          <button
+                            type="button"
                             onClick={() => navigate(`/compose?recipientId=${m.id}`)}
                             style={{
                               background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
@@ -783,6 +856,32 @@ export function Family() {
                       )}
                     </div>
                   </div>
+
+                  {/* Kin line — the member's typed edges into the rest of the
+                      bloodline, from the family_relationships table. Quiet mono,
+                      sits below the action row. */}
+                  {!isEditing && (() => {
+                    const kin = relationships
+                      .filter((r) => r.fromMemberId === m.id || r.toMemberId === m.id)
+                      .map((r) => relationshipLine(r, m.id));
+                    if (kin.length === 0) return null;
+                    return (
+                      <div className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-faint)', padding: '0 4px 14px', lineHeight: 1.6 }}>
+                        {kin.join(' · ')}
+                      </div>
+                    );
+                  })()}
+
+                  {/* Add-relation picker — opens inline under the row. */}
+                  {!isEditing && addRelFor === m.id && (
+                    <div style={{ padding: '0 4px 18px 4px', borderTop: '1px solid var(--rule)', marginTop: 4, paddingTop: 14 }}>
+                      <AddRelationshipPicker
+                        selfId={m.id}
+                        members={members}
+                        onClose={() => setAddRelFor(null)}
+                      />
+                    </div>
+                  )}
 
                   {/* Inline edit form */}
                   {isEditing && (

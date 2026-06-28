@@ -5,7 +5,8 @@ import api, { familyApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
-import { type FamilyMember } from '../types';
+import { AddRelationshipPicker, relationshipLine } from '../loom/components/AddRelationshipPicker';
+import { type FamilyMember, type FamilyRelationship } from '../types';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { dyeColor, dyeFromMetadata, type Dye } from '../loom/dye';
 
@@ -63,6 +64,33 @@ export function PersonPage() {
   const [editEmail, setEditEmail] = useState('');
   const [editNotes, setEditNotes] = useState('');
   const [editError, setEditError] = useState<string | null>(null);
+  const [showAddRel, setShowAddRel] = useState(false);
+
+  // Full roster — the AddRelationshipPicker target list (everyone but this member).
+  const { data: rosterData } = useQuery<FamilyMember[]>({
+    queryKey: ['family'],
+    queryFn: () => familyApi.getAll().then((r) => r.data),
+    enabled: !!id,
+  });
+  const roster = (rosterData ?? []) as FamilyMember[];
+
+  // Typed family-tree edges for this bloodline. The kin section reads its own
+  // slice (edges touching this member) and lets the viewer remove a link.
+  const { data: relData } = useQuery<{ relationships: FamilyRelationship[] }>({
+    queryKey: ['family-relationships'],
+    queryFn: () => familyApi.getRelationships().then((r) => r.data),
+    enabled: !!id,
+  });
+  const allRelationships = relData?.relationships ?? [];
+  const kinEdges = allRelationships.filter((r) => r.fromMemberId === id || r.toMemberId === id);
+
+  const removeRel = useMutation({
+    mutationFn: (relId: string) => familyApi.removeRelationship(relId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['family-relationships'] });
+      queryClient.invalidateQueries({ queryKey: ['family'] });
+    },
+  });
 
   const { data: member, isLoading } = useQuery<PersonMember>({
     queryKey: ['family', id],
@@ -296,6 +324,74 @@ export function PersonPage() {
             </button>
           </div>
         )}
+
+        {/* ── KIN (typed family-tree edges) ── parent/child/spouse/sibling,
+            optional freeform label, removable. The add-relation picker is the
+            shared AddRelationshipPicker used on the Family roster. */}
+        <div style={{ marginTop: 48 }}>
+          <SectionLabel>kin</SectionLabel>
+          {kinEdges.length > 0 ? (
+            <div>
+              {kinEdges.map((edge) => (
+                <div
+                  key={edge.id}
+                  style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    gap: 16, padding: '12px 0', borderBottom: '1px solid var(--rule)',
+                  }}
+                >
+                  <span className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', fontStyle: 'italic' }}>
+                    {relationshipLine(edge, id!)}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeRel.mutate(edge.id)}
+                    disabled={removeRel.isPending}
+                    style={{
+                      background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                      fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--bone-faint)',
+                      letterSpacing: '0.18em', textTransform: 'uppercase',
+                      transition: 'color 180ms var(--ease)', touchAction: 'manipulation', minHeight: 36,
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+                  >
+                    unlink
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 15, color: 'var(--bone-faint)', margin: '18px 0 0' }}>
+              No kin lowered in yet.
+            </p>
+          )}
+
+          {showAddRel ? (
+            <div style={{ marginTop: 20, borderTop: '1px solid var(--rule)', paddingTop: 18 }}>
+              <AddRelationshipPicker
+                selfId={id!}
+                members={roster}
+                onClose={() => setShowAddRel(false)}
+              />
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setShowAddRel(true)}
+              style={{
+                background: 'transparent', border: 0, padding: '8px 0', cursor: 'pointer',
+                fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--bone-faint)',
+                letterSpacing: '0.2em', textTransform: 'uppercase', marginTop: 14,
+                transition: 'color 180ms var(--ease)', touchAction: 'manipulation', minHeight: 36,
+              }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+            >
+              add a relation →
+            </button>
+          )}
+        </div>
 
         {/* ── LEDGER (their entries) ── */}
         <div style={{ marginTop: 52 }}>

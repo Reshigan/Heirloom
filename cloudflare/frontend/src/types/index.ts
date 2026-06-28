@@ -19,9 +19,25 @@ export interface FamilyMember {
   role?: string | null;
   lastEntry?: string | null;
   dye?: string | null;
+  linkedUserId?: string | null;
   deletedAt?: string | null;
   pendingDeletion?: boolean;
   status?: string | null;
+}
+
+// Typed family-tree edge between two members (parent/child/spouse/sibling) with
+// an optional freeform label ("mother", "step-father", "chosen sister").
+// fromName/toName are joined server-side for display.
+export type RelationshipType = 'parent' | 'child' | 'spouse' | 'sibling';
+
+export interface FamilyRelationship {
+  id: string;
+  fromMemberId: string;
+  toMemberId: string;
+  fromName?: string | null;
+  toName?: string | null;
+  type: RelationshipType;
+  label?: string | null;
 }
 
 export interface Memory {

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { RelationshipType } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'https://api.heirloom.blue/api';
 
@@ -152,6 +153,11 @@ export const familyApi = {
     api.patch(`/family/${id}`, data),
   delete: (id: string) => api.delete(`/family/${id}`),
   restore: (id: string) => api.patch(`/family/${id}/restore`),
+  // Typed member-to-member family-tree edges (migration 0071).
+  getRelationships: () => api.get('/family/relationships'),
+  addRelationship: (data: { fromMemberId: string; toMemberId: string; type: RelationshipType; label?: string }) =>
+    api.post('/family/relationships', data),
+  removeRelationship: (id: string) => api.delete(`/family/relationships/${id}`),
 };
 
 // Memories API
@@ -254,8 +260,14 @@ export const engagementApi = {
     api.post('/engagement/invite/accept', { inviteCode }),
   getInvites: () => api.get('/engagement/invites'),
   deleteInvite: (id: string) => api.delete(`/engagement/invites/${id}`),
-  editInvite: (id: string, data: { email?: string; name?: string | null }) =>
-    api.patch(`/engagement/invites/${id}`, data),
+  editInvite: (id: string, data: {
+    email?: string;
+    name?: string | null;
+    relationship?: string | null;
+    dye?: string | null;
+    birthDate?: string | null;
+    notes?: string | null;
+  }) => api.patch(`/engagement/invites/${id}`, data),
   // Public (unauthed) preview of what a joiner is being invited into.
   invitePreview: (code: string) => api.get(`/engagement/invite/${encodeURIComponent(code)}/preview`),
 };

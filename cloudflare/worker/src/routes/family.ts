@@ -178,6 +178,104 @@ familyRoutes.get('/', async (c) => {
 });
 
 // Get a specific family member
+// ---------------------------------------------------------------------------
+// Member-to-member family-tree edges (migration 0071).
+// Registered BEFORE `GET /:id` so the literal `/relationships` segment is not
+// captured by the `/:id` param. type ∈ parent|child|spouse|sibling; label is an
+// optional freeform ("mother", "step-father", "chosen sister"). Symmetric types
+// (spouse/sibling) are canonicalized lower-id-first so a reversed edge cannot
+// sneak past the UNIQUE(user_id, from_member_id, to_member_id, type). Both
+// endpoints must belong to the caller and not be soft-deleted. Hard-delete —
+// structural metadata, not legacy content.
+// ---------------------------------------------------------------------------
+
+const RELATION_TYPES = new Set(['parent', 'child', 'spouse', 'sibling']);
+const SYMMETRIC = new Set(['spouse', 'sibling']);
+
+familyRoutes.get('/relationships', async (c) => {
+  const userId = c.get('userId');
+  const rows = await c.env.DB.prepare(`
+    SELECT fr.id, fr.from_member_id, fr.to_member_id, fr.type, fr.label,
+           fm.name AS from_name, tm.name AS to_name
+    FROM family_relationships fr
+    JOIN family_members fm ON fm.id = fr.from_member_id
+    JOIN family_members tm ON tm.id = fr.to_member_id
+    WHERE fr.user_id = ?
+      AND fm.deleted_at IS NULL AND tm.deleted_at IS NULL
+    ORDER BY fr.created_at DESC
+  `).bind(userId).all();
+  return c.json({
+    relationships: (rows.results as any[]).map((r) => ({
+      id: r.id,
+      fromMemberId: r.from_member_id,
+      toMemberId: r.to_member_id,
+      fromName: r.from_name,
+      toName: r.to_name,
+      type: r.type,
+      label: r.label,
+    })),
+  });
+});
+
+familyRoutes.post('/relationships', async (c) => {
+  const userId = c.get('userId');
+  const body = await c.req
+    .json<{ fromMemberId?: string; toMemberId?: string; type?: string; label?: string | null }>()
+    .catch(() => ({} as { fromMemberId?: string; toMemberId?: string; type?: string; label?: string | null }));
+
+  const fromId = body.fromMemberId?.trim();
+  const toId = body.toMemberId?.trim();
+  const type = body.type?.trim();
+  const label = body.label?.trim() || null;
+
+  if (!fromId || !toId) return c.json({ error: 'Two members are required' }, 400);
+  if (fromId === toId) return c.json({ error: 'A member cannot be linked to themself' }, 400);
+  if (!type || !RELATION_TYPES.has(type)) {
+    return c.json({ error: 'Relationship type must be parent, child, spouse, or sibling' }, 400);
+  }
+
+  // Both endpoints must belong to the caller and not be soft-deleted.
+  const endpoints = await c.env.DB.prepare(`
+    SELECT id FROM family_members
+    WHERE id IN (?, ?) AND user_id = ? AND deleted_at IS NULL
+  `).bind(fromId, toId, userId).all();
+  if ((endpoints.results as any[]).length !== 2) {
+    return c.json({ error: 'Both members must be in your family' }, 404);
+  }
+
+  // Canonicalize symmetric edges lower-id-first so a reversed duplicate is
+  // caught by the UNIQUE constraint instead of creating a phantom second edge.
+  let from = fromId;
+  let to = toId;
+  if (SYMMETRIC.has(type) && from > to) {
+    [from, to] = [to, from];
+  }
+
+  const id = crypto.randomUUID();
+  try {
+    await c.env.DB.prepare(`
+      INSERT INTO family_relationships (id, user_id, from_member_id, to_member_id, type, label)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `).bind(id, userId, from, to, type, label).run();
+  } catch {
+    return c.json({ error: 'These two are already linked that way' }, 409);
+  }
+
+  return c.json({ id, fromMemberId: from, toMemberId: to, type, label }, 201);
+});
+
+familyRoutes.delete('/relationships/:id', async (c) => {
+  const userId = c.get('userId');
+  const edgeId = c.req.param('id');
+  const result = await c.env.DB.prepare(`
+    DELETE FROM family_relationships WHERE id = ? AND user_id = ?
+  `).bind(edgeId, userId).run();
+  if ((result as any).meta.changes === 0) {
+    return c.json({ error: 'Link not found' }, 404);
+  }
+  return c.body(null, 204);
+});
+
 familyRoutes.get('/:id', async (c) => {
   const userId = c.get('userId');
   const memberId = c.req.param('id');

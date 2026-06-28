@@ -91,7 +91,8 @@ engagementRoutes.get('/invites', requireAuth, async (c) => {
   const userId = c.get('userId');
   
   const invites = await c.env.DB.prepare(`
-    SELECT id, invitee_email, invitee_name, invite_code, status, sent_at, accepted_at, reward_claimed
+    SELECT id, invitee_email, invitee_name, invite_code, status, sent_at, accepted_at, reward_claimed,
+           relationship, dye, birth_date, notes
     FROM family_invites WHERE inviter_user_id = ?
     ORDER BY sent_at DESC
   `).bind(userId).all();
@@ -172,6 +173,47 @@ engagementRoutes.post('/invite/accept', requireAuth, async (c) => {
     }
   }
 
+  // Seed a family_members row in the INVITER's roster from the invite's pre-set
+  // identity fields (migration 0071), so the joiner appears in the inviter's
+  // family tree with their chosen dye/relationship/birthday/notes — not just as
+  // a thread co-author. linked_user_id ties the row to the joining account for
+  // future profile sync. Best-effort: the accept stands regardless of a hiccup
+  // here, mirroring the defensive joinedThread pattern above. Idempotent: a
+  // re-accept (same linked_user_id + inviter) does not create a second row.
+  try {
+    const inviterId = invite.inviter_user_id as string;
+    const inviteeName = (invite.invitee_name as string | undefined) || null;
+    const inviteeEmail = (invite.invitee_email as string | undefined) || null;
+
+    const existing = await c.env.DB.prepare(`
+      SELECT id FROM family_members
+      WHERE user_id = ? AND linked_user_id = ? AND deleted_at IS NULL
+      LIMIT 1
+    `).bind(inviterId, userId).first();
+
+    if (!existing) {
+      await c.env.DB.prepare(`
+        INSERT INTO family_members
+          (id, user_id, name, relationship, email, birth_date, notes, dye, linked_user_id, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `).bind(
+        crypto.randomUUID(),
+        inviterId,
+        inviteeName,
+        (invite as any).relationship ?? null,
+        inviteeEmail,
+        (invite as any).birth_date ?? null,
+        (invite as any).notes ?? null,
+        (invite as any).dye ?? null,
+        userId,
+        new Date().toISOString(),
+        new Date().toISOString(),
+      ).run();
+    }
+  } catch (err) {
+    console.error('family_members seed on accept failed', err);
+  }
+
   // Award badge to inviter
   await checkAndAwardBadges(c.env, invite.inviter_user_id as string, 'referral_success', 1);
 
@@ -227,13 +269,32 @@ engagementRoutes.delete('/invites/:id', requireAuth, async (c) => {
   return c.body(null, 204);
 });
 
-// Edit a pending invite's name / email (before it's accepted).
+// Edit a pending invite's full identity (before it's accepted). The inviter can
+// pre-set name, email, relationship, thread colour (dye), birthday, and notes —
+// the same fields a manually-added member carries. On accept (see /invite/accept)
+// these seed a real family_members row in the inviter's roster, closing the gap
+// where an accepted invite used to only create a thread_members co-author.
+// Convention: undefined = leave as-is; '' = clear to null. email/name unchanged.
 engagementRoutes.patch('/invites/:id', requireAuth, async (c) => {
   const userId = c.get('userId');
   const inviteId = c.req.param('id');
   const body = await c.req
-    .json<{ email?: string; name?: string | null }>()
-    .catch(() => ({} as { email?: string; name?: string | null }));
+    .json<{
+      email?: string;
+      name?: string | null;
+      relationship?: string | null;
+      dye?: string | null;
+      birthDate?: string | null;
+      notes?: string | null;
+    }>()
+    .catch(() => ({} as {
+      email?: string;
+      name?: string | null;
+      relationship?: string | null;
+      dye?: string | null;
+      birthDate?: string | null;
+      notes?: string | null;
+    }));
 
   const invite = await c.env.DB.prepare(`
     SELECT id, invitee_name FROM family_invites WHERE id = ? AND inviter_user_id = ? AND status = 'pending'
@@ -252,9 +313,30 @@ engagementRoutes.patch('/invites/:id', requireAuth, async (c) => {
     return c.json({ error: 'A valid email is required' }, 400);
   }
 
+  // relationship/dye/birthDate/notes: undefined = leave; '' = clear to null.
+  const relationship = body.relationship === undefined ? undefined : (body.relationship?.trim() || null);
+  const dye = body.dye === undefined ? undefined : (body.dye?.trim().toLowerCase() || null);
+  const birthDate = body.birthDate === undefined ? undefined : (body.birthDate?.trim() || null);
+  const notes = body.notes === undefined ? undefined : (body.notes?.trim() || null);
+
   await c.env.DB.prepare(`
-    UPDATE family_invites SET invitee_email = COALESCE(?, invitee_email), invitee_name = ? WHERE id = ?
-  `).bind(email ?? null, name, inviteId).run();
+    UPDATE family_invites
+    SET invitee_email = COALESCE(?, invitee_email),
+        invitee_name = ?,
+        relationship = COALESCE(?, relationship),
+        dye = COALESCE(?, dye),
+        birth_date = COALESCE(?, birth_date),
+        notes = COALESCE(?, notes)
+    WHERE id = ?
+  `).bind(
+    email ?? null,
+    name,
+    relationship ?? null,
+    dye ?? null,
+    birthDate ?? null,
+    notes ?? null,
+    inviteId,
+  ).run();
 
   return c.body(null, 204);
 });

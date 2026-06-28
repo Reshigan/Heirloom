@@ -236,7 +236,49 @@ CREATE TABLE IF NOT EXISTS family_members (
   phone TEXT,
   birth_date TEXT,
   notes TEXT,
+  avatar_url TEXT,
+  dye TEXT,
+  linked_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now')),
+  deleted_at TEXT
+);
+
+-- Pending email invitations to join the inviter's bloodline thread.
+-- relationship/dye/birth_date/notes are the inviter's pre-set identity fields
+-- (migration 0071) that seed a family_members row on accept.
+CREATE TABLE IF NOT EXISTS family_invites (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  inviter_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  invitee_email TEXT NOT NULL,
+  invitee_name TEXT,
+  invite_code TEXT NOT NULL,
+  thread_id TEXT,
+  relationship TEXT,
+  dye TEXT,
+  birth_date TEXT,
+  notes TEXT,
+  status TEXT DEFAULT 'pending',
+  sent_at TEXT,
+  expires_at TEXT,
+  accepted_at TEXT,
+  reward_claimed INTEGER DEFAULT 0,
   created_at TEXT DEFAULT (datetime('now'))
+);
+
+-- Typed family-tree edges between two family_members (migration 0071).
+-- Symmetric types (spouse/sibling) are canonicalized lower-id-first at the
+-- route so a reversed edge cannot sneak past the UNIQUE.
+CREATE TABLE IF NOT EXISTS family_relationships (
+  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
+  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  from_member_id TEXT NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
+  to_member_id TEXT NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
+  type TEXT NOT NULL CHECK (type IN ('parent','child','spouse','sibling')),
+  label TEXT,
+  created_at TEXT DEFAULT (datetime('now')),
+  updated_at TEXT DEFAULT (datetime('now')),
+  UNIQUE (user_id, from_member_id, to_member_id, type)
 );
 
 CREATE TABLE IF NOT EXISTS letter_recipients (
