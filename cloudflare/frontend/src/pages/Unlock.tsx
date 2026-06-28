@@ -609,7 +609,7 @@ function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean })
               prose fading up exactly when you meant it to arrive.
             </div>
             <div className="loom-eyebrow" style={{ marginTop: 32, display: 'flex', justifyContent: 'center', gap: 22 }}>
-              <Link to="/compose" className="loom-btn" style={{ textDecoration: 'none' }}>
+              <Link to="/capture" className="loom-btn" style={{ textDecoration: 'none' }}>
                 seal a letter
               </Link>
               {authed && (

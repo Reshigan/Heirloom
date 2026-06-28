@@ -369,9 +369,7 @@ export function Memories() {
           <span className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-dim)', letterSpacing: '0.1em' }}>
             {memories.length}/{allMemories.length}
           </span>
-          <Link to="/compose" className="hl-link" style={{ fontSize: 12, letterSpacing: '0.08em' }}>write</Link>
-          <Link to="/photo" className="hl-link" style={{ fontSize: 12, letterSpacing: '0.08em' }}>photo</Link>
-          <Link to="/record" className="hl-link warm" style={{ fontSize: 12, letterSpacing: '0.08em' }}>voice</Link>
+          <Link to="/capture" className="hl-link warm" style={{ fontSize: 12, letterSpacing: '0.08em' }}>speak something →</Link>
         </div>
       }
     >
@@ -444,14 +442,8 @@ export function Memories() {
             Write what only you remember.
           </p>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'center', marginBottom: 56 }}>
-            <Link to="/compose" className="hl-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
-              Write a memory →
-            </Link>
-            <Link to="/photo" className="hl-link warm" style={{ fontSize: 14 }}>
-              add a photograph →
-            </Link>
-            <Link to="/record" className="hl-link warm" style={{ fontSize: 14 }}>
-              record a voice →
+            <Link to="/capture" className="hl-btn" style={{ textDecoration: 'none', display: 'inline-block' }}>
+              Speak something →
             </Link>
           </div>
           <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 24, maxWidth: '46ch' }}>

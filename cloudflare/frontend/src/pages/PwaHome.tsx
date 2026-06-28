@@ -240,13 +240,9 @@ function FirstThreadPrompt({ prompt }: { prompt: string }) {
       </div>
 
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center', marginBottom: 36 }}>
-        <Link to="/compose" className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>
-          Write your first sealed letter →
+        <Link to="/capture" className="hl-btn" style={{ fontSize: 13, padding: '11px 20px' }}>
+          Speak your first memory →
         </Link>
-        <Link to="/record" style={{
-          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
-          color: 'var(--bone-dim)', textDecoration: 'none', borderBottom: '1px solid var(--rule)', paddingBottom: 1,
-        }}>or speak →</Link>
       </div>
 
       {prompt && (
@@ -464,7 +460,7 @@ function AuthHome({
           {!isReadOnly && (
             <button
               type="button"
-              onClick={() => navigate('/record')}
+              onClick={() => navigate('/capture')}
               className="hl-cta-warm"
               style={{
                 padding: '12px 28px',

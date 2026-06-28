@@ -400,7 +400,7 @@ function ReadingContent({
 
         {isLastEntry && (
           <div style={{ marginTop: 48, paddingTop: 24, borderTop: '1px solid var(--rule)', textAlign: 'center' }}>
-            <Link to="/compose" style={{
+            <Link to="/capture" style={{
               fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em',
               textTransform: 'uppercase', color: 'var(--bone-faint)',
               textDecoration: 'none', borderBottom: '1px solid var(--rule)', paddingBottom: 2,
@@ -850,7 +850,7 @@ export function ReadingRoom() {
                 Append-only. Encrypted. Owned by your family, never a platform. Begin one
                 thread today and it can still be read a thousand years from now.
               </p>
-              <Link to="/compose" style={{
+              <Link to="/capture" style={{
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
                 textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none',
                 borderLeft: '1px solid var(--warm)', paddingLeft: 14, display: 'inline-block',

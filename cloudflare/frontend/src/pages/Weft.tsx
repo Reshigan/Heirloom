@@ -213,7 +213,7 @@ export function Weft() {
         topbarRight={<UserMenu />}
         backdropOpacity={0.3}
       >
-        {isLoading ? <ProgressHair /> : <EmptyThread onWeave={() => navigate('/compose')} onRecord={() => navigate('/record')} />}
+        {isLoading ? <ProgressHair /> : <EmptyThread onWeave={() => navigate('/capture')} onRecord={() => navigate('/capture')} />}
       </ClothShell>
     );
   }

@@ -401,7 +401,7 @@ export function Frame({ left, right, trial, showEdge = true, children }: FramePr
           {right ? (
             <span className="hl-link warm hl-topbar-action">{right}</span>
           ) : (
-            <Link to="/compose" className="hl-link warm hl-topbar-action">compose →</Link>
+            <Link to="/capture" className="hl-link warm hl-topbar-action">speak something →</Link>
           )}
           <SecurityDot />
           <UserMenu />

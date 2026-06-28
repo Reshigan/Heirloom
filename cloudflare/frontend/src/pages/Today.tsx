@@ -80,13 +80,8 @@ export function Today() {
     <Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/weft' }, { label: 'today' }]} />
   );
 
-  // Carry the live Listener prompt into the Composer (consumes ?prompt as seedPrompt).
-  const composeTo = !promptUnavailable && prompt
-    ? `/compose?prompt=${encodeURIComponent(prompt)}`
-    : '/compose';
-
-  // The outlined amber mono pill — the cosmic-home WRITE / SPEAK affordance,
-  // mirroring Login's "enter" pill. warm = the lead action, quiet = the second.
+  // The outlined amber mono pill — the cosmic-home capture affordance,
+  // mirroring Login's "enter" pill. Voice is the one primary door (/capture).
   const pillStyle = (_lead: boolean): CSSProperties => ({
     padding: '12px 30px',
     background: 'transparent',
@@ -172,10 +167,9 @@ export function Today() {
             </div>
           </div>
 
-          {/* Capture affordances — outlined amber WRITE / quiet SPEAK pills */}
+          {/* One primary capture door — the voice-first cockpit. */}
           <div style={{ display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginBottom: 56 }}>
-            <Link to={composeTo} style={pillStyle(true)}>write</Link>
-            <Link to="/record" style={pillStyle(false)}>speak</Link>
+            <Link to="/capture" style={pillStyle(true)}>speak something →</Link>
           </div>
 
           {/* The Listener prompt */}
@@ -255,10 +249,9 @@ export function Today() {
           </h1>
         </header>
 
-        {/* Capture affordances — outlined amber WRITE / quiet SPEAK pills */}
+        {/* One primary capture door — the voice-first cockpit. */}
         <div style={{ display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginBottom: 56 }}>
-          <Link to={composeTo} style={pillStyle(true)}>write</Link>
-          <Link to="/record" style={pillStyle(false)}>speak</Link>
+          <Link to="/capture" style={pillStyle(true)}>speak something →</Link>
         </div>
 
         {/* Recent voices — centred ledger lines */}

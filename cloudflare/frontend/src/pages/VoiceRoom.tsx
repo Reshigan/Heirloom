@@ -252,7 +252,7 @@ export function VoiceRoom() {
 
         {/* CTA */}
         <Link
-          to="/record"
+          to="/capture"
           style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
             borderLeft: '1px solid var(--warm)', padding: '12px 16px',
@@ -293,7 +293,7 @@ export function VoiceRoom() {
               Your family will hear it long after you're gone.
             </p>
             <Link
-              to="/record"
+              to="/capture"
               style={{
                 textDecoration: 'none', display: 'inline-block', marginTop: 24,
                 fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.24em',

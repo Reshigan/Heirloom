@@ -32,6 +32,10 @@ import { enqueueVoice } from '../lib/voiceOfflineQueue';
 const MAX_RECORDING_SECS = 120; // 2 min — hairline progress + auto-stop
 
 type RecState = 'idle' | 'recording' | 'paused' | 'recorded';
+// The three things a capture can become. Voice is the primary input; after it
+// transcribes you choose deliberately — keep the audio, send it as a letter, or
+// let it settle as a memory (the default). A photo forces 'memory'.
+type Intent = 'voice' | 'letter' | 'memory';
 
 export function Capture() {
   usePageMeta('Capture');
@@ -53,7 +57,7 @@ export function Capture() {
   const [elapsed, setElapsed] = useState(0);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [keepAsVoice, setKeepAsVoice] = useState(false);
+  const [intent, setIntent] = useState<Intent>('memory');
   const [transcribing, setTranscribing] = useState(false);
 
   // ── photo ─────────────────────────────────────────────────────────────
@@ -76,8 +80,8 @@ export function Capture() {
   const streamRef = useRef<MediaStream | null>(null);
   const navTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // A photo always settles as a Memory; recipient only routes text/voice.
-  const isLetter = !photo && !!(recipientId || recipientName.trim());
+  // A photo always settles as a Memory; otherwise the explicit fork decides.
+  const isLetter = !photo && intent === 'letter';
   const hasContent = body.trim().length > 0 || !!audioBlob || !!photo;
 
   const { data: familyData } = useQuery({
@@ -171,7 +175,7 @@ export function Capture() {
     setAudioUrl(null);
     setElapsed(0);
     setRecState('idle');
-    setKeepAsVoice(false);
+    setIntent('memory');
     setTranscribing(false);
     setError(null);
   };
@@ -182,6 +186,7 @@ export function Capture() {
     const bad = validateImage(file);
     if (bad) { setError(bad); return; }
     setError(null);
+    setIntent('memory'); // a picture always settles as a memory
     if (photoPreview) URL.revokeObjectURL(photoPreview);
     setPhotoPreview(URL.createObjectURL(file));
     setUploadingPhoto(true);
@@ -200,17 +205,13 @@ export function Capture() {
   const save = useMutation<{ held: boolean }, unknown, void>({
     mutationFn: async () => {
       // 1. Voice kept as voice.
-      if (audioBlob && keepAsVoice) {
+      if (intent === 'voice' && audioBlob) {
         const mime = mimeTypeRef.current || audioBlob.type || 'audio/webm';
         const ext = mime.includes('mp4') ? 'm4a' : mime.includes('ogg') ? 'ogg' : 'webm';
         const contentType = mime.split(';')[0];
         const filename = `recording-${Date.now()}.${ext}`;
         const clientKey = randomKey();
-        const metadata = {
-          to: recipientName.trim() || undefined,
-          recipientId: recipientId || undefined,
-          entryDate,
-        };
+        const metadata = { entryDate };
         const holdToQueue = async () => {
           try {
             await enqueueVoice({
@@ -316,8 +317,9 @@ export function Capture() {
     setError(null);
     if (uploadingPhoto) { setError('Wait for the picture to finish.'); return false; }
     if (!hasContent) { setError('Speak, write, or add a picture first.'); return false; }
+    if (isLetter && !(recipientId || recipientName.trim())) { setError('A letter needs someone to receive it.'); return false; }
     return true;
-  }, [uploadingPhoto, hasContent]);
+  }, [uploadingPhoto, hasContent, isLetter, recipientId, recipientName]);
   const startHold = useCallback(() => {
     if (submitDisabled) return;
     if (!validate()) return;
@@ -342,9 +344,9 @@ export function Capture() {
 
   const ceremonyCopy = useMemo(() => {
     if (isLetter) return { eyebrow: 'lowered into the Deep', headline: `Your letter to ${recipientName.trim() || 'them'} has settled.` };
-    if (audioBlob && keepAsVoice) return { eyebrow: 'lowered into the Deep', headline: 'Your voice has settled into the Deep.' };
+    if (intent === 'voice' && audioBlob) return { eyebrow: 'lowered into the Deep', headline: 'Your voice has settled into the Deep.' };
     return { eyebrow: 'lowered into the Deep', headline: 'It has settled into the Deep.' };
-  }, [isLetter, audioBlob, keepAsVoice, recipientName]);
+  }, [isLetter, audioBlob, intent, recipientName]);
 
   if (woven) {
     return (
@@ -438,10 +440,6 @@ export function Capture() {
             {audioUrl && !writing && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap' }}>
                 <audio src={audioUrl} controls style={{ height: 32 }} />
-                <label style={{ ...mono, color: 'var(--bone-dim)', display: 'inline-flex', alignItems: 'center', gap: 8, cursor: 'pointer', minHeight: 44 }}>
-                  <input type="checkbox" checked={keepAsVoice} onChange={(e) => setKeepAsVoice(e.target.checked)} />
-                  keep as voice
-                </label>
                 <button type="button" onClick={resetVoice} style={ghost}>re-record</button>
               </div>
             )}
@@ -454,20 +452,32 @@ export function Capture() {
 
         <input ref={fileRef} type="file" accept="image/*" hidden onChange={(e) => { pickPhoto(e.target.files); e.target.value = ''; }} />
 
-        {/* ── recipient (optional, hidden for photos) ────────────── */}
+        {/* ── the fork: what should this become? (hidden for photos) ─ */}
         {showBody && !photo && (
-          <div style={{ width: '100%' }}>
-            <RecipientPicker
-              members={familyMembers}
-              name={recipientName}
-              selectedId={recipientId}
-              onChange={(name, id) => { setRecipientName(name); setRecipientId(id); }}
-              label="to"
-              placeholder="someone in your bloodline (optional)"
-            />
-            <p style={{ ...mono, color: 'var(--bone-faint)', marginTop: 8 }}>
-              {isLetter ? 'this becomes a letter, sent to them' : 'leave empty and it settles as a memory'}
-            </p>
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 14 }}>
+            <p style={{ ...mono, color: 'var(--bone-faint)', textAlign: 'center' }}>let it become…</p>
+            <div style={{ display: 'flex', gap: 24, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {audioBlob && (
+                <button type="button" onClick={() => setIntent('voice')} style={forkBtn(intent === 'voice')}>keep as voice</button>
+              )}
+              <button type="button" onClick={() => setIntent('letter')} style={forkBtn(intent === 'letter')}>a letter</button>
+              <button type="button" onClick={() => setIntent('memory')} style={forkBtn(intent === 'memory')}>a memory</button>
+            </div>
+
+            {/* A letter needs a recipient — reveal the picker only here. */}
+            {intent === 'letter' && (
+              <div style={{ width: '100%', marginTop: 4 }}>
+                <RecipientPicker
+                  members={familyMembers}
+                  name={recipientName}
+                  selectedId={recipientId}
+                  onChange={(name, id) => { setRecipientName(name); setRecipientId(id); }}
+                  label="to"
+                  placeholder="someone in your bloodline"
+                />
+                <p style={{ ...mono, color: 'var(--bone-faint)', marginTop: 8 }}>sent to them, sealed the moment it settles</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -514,6 +524,18 @@ export default Capture;
 const mono: React.CSSProperties = { fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase' };
 const crumb: React.CSSProperties = { ...mono, color: 'var(--bone-faint)', textDecoration: 'none' };
 const ghost: React.CSSProperties = { ...mono, background: 'none', border: 0, color: 'var(--bone-dim)', cursor: 'pointer', minHeight: 44, display: 'inline-flex', alignItems: 'center', padding: 0 };
+// The fork chips — warm copper hairline + copper text when chosen, faint
+// otherwise. No fill (dyes/copper are signal only, never backgrounds).
+const forkBtn = (active: boolean): React.CSSProperties => ({
+  ...mono,
+  background: 'none',
+  border: `1px solid ${active ? 'var(--warm)' : 'var(--rule)'}`,
+  color: active ? 'var(--warm)' : 'var(--bone-dim)',
+  cursor: 'pointer',
+  minHeight: 44,
+  padding: '0 18px',
+  transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
+});
 
 /* ─── helpers (copied lean from Compose/Record to keep this page standalone) ─ */
 function deriveTitle(text: string): string {
