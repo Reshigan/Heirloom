@@ -1,28 +1,25 @@
 /**
  * Heirloom Billing Routes - PRODUCTION VERSION
  *
- * PPP volume ladder (the Deep) — one cheap global anchor + local-currency parity,
- * tuned for emerging-market adoption at volume:
+ * Flat USD globally — one price for the whole world, no per-country parity:
  * - Free:    $0 forever - capped (the mass-adoption on-ramp)
- * - Family:  $2.99/mo or $29/yr - the volume paid tier (PPP-adjusted locally)
+ * - Family:  $2.99/mo or $29/yr - the volume paid tier
  * - Deep:    $7.99/mo or $79/yr - unlimited members + 250 GB + priority
- * - Founder: $249 one-time, lifetime — WITHDRAWN from buy surfaces (kept in the
- *            PRICING table + TIER_LIMITS only so existing founders retain access;
- *            no Founder card is rendered on /pricing or /signup).
+ * - Founder: $249 one-time, lifetime — WITHDRAWN from buy surfaces (kept in
+ *            PRICING + TIER_LIMITS only so existing founders retain access; no
+ *            Founder card is rendered on /pricing or /signup).
  *
  * Checkout always uses dynamic Stripe price_data built from the table below, so
  * Stripe charges exactly the displayed amount (no fixed Price IDs to drift).
  * Existing subscribers keep the amount Stripe recorded at signup; repricing the
  * table only changes what NEW checkouts charge (standard grandfathering).
  *
- * Regional Pricing Tiers:
- * - Tier 1: US, UK, CA, AU, NZ (full anchor price)
- * - Tier 2: EU, Western Europe (EUR pricing)
- * - Tier 3: ZA, BR, MX, AR, Southeast Asia (PPP, monthly allowed)
- * - Tier 4: IN, NG, KE, PK (annual-only, deepest PPP)
+ * Location's only effect: a small set of deepest-PPP regions (IN/NG/KE/PK/BD/
+ * EG/GH) are ANNUAL-ONLY — the monthly toggle is suppressed there. Everyone
+ * else pays the same flat USD price, monthly or annual.
  *
  * 30-day Family trial, no credit card; drops to Free (never locks out).
- * Auto-detects country from Cloudflare for regional pricing.
+ * Country is auto-detected from Cloudflare's cf.country.
  */
 
 import { Hono } from 'hono';
@@ -34,105 +31,39 @@ import { FREE_STORAGE_BYTES } from '../lib/quota';
 export const billingRoutes = new Hono<AppEnv>();
 
 // =============================================================================
-// PRICING TIER CONFIGURATION
+// ANNUAL-ONLY REGIONS — location's only effect on pricing
 // =============================================================================
-type PricingTier = 'tier1' | 'tier2' | 'tier3' | 'tier4';
+// Flat USD everywhere; no per-country parity. A small set of deepest-PPP
+// regions are annual-only (monthly toggle suppressed). Everyone else pays the
+// same flat USD price, monthly or annual.
+const ANNUAL_ONLY_COUNTRIES = new Set(['IN', 'NG', 'KE', 'PK', 'BD', 'EG', 'GH']);
 
-const COUNTRY_TO_PRICING_TIER: Record<string, PricingTier> = {
-  // Tier 1 - Full price (US, UK, CA, AU, NZ)
-  US: 'tier1', GB: 'tier1', CA: 'tier1', AU: 'tier1', NZ: 'tier1',
-  
-  // Tier 2 - EU pricing (Western Europe)
-  DE: 'tier2', FR: 'tier2', IT: 'tier2', ES: 'tier2', NL: 'tier2',
-  BE: 'tier2', AT: 'tier2', IE: 'tier2', PT: 'tier2', FI: 'tier2',
-  GR: 'tier2', SK: 'tier2', SI: 'tier2', LT: 'tier2', LV: 'tier2',
-  EE: 'tier2', CY: 'tier2', MT: 'tier2', LU: 'tier2',
-  
-  // Tier 3 - 50% PPP (ZA, BR, MX, Southeast Asia)
-  ZA: 'tier3', BR: 'tier3', MX: 'tier3', AR: 'tier3',
-  TH: 'tier3', MY: 'tier3', PH: 'tier3', ID: 'tier3',
-  
-  // Tier 4 - 30% PPP, annual-only (IN, NG, KE, PK, BD, EG, GH)
-  IN: 'tier4', NG: 'tier4', KE: 'tier4', PK: 'tier4',
-  BD: 'tier4', EG: 'tier4', GH: 'tier4',
-};
+function isAnnualOnlyCountry(countryCode: string): boolean {
+  return ANNUAL_ONLY_COUNTRIES.has(countryCode?.toUpperCase());
+}
 
 // =============================================================================
-// COUNTRY → CURRENCY MAPPING (for display)
+// PRICING — flat USD, the single global standard
 // =============================================================================
-const COUNTRY_CURRENCY: Record<string, string> = {
-  // Tier 1
-  US: 'USD', GB: 'GBP', CA: 'CAD', AU: 'AUD', NZ: 'NZD',
-  
-  // Tier 2 (EUR)
-  DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR', BE: 'EUR', AT: 'EUR', 
-  IE: 'EUR', PT: 'EUR', FI: 'EUR', GR: 'EUR', SK: 'EUR', SI: 'EUR', LT: 'EUR',
-  LV: 'EUR', EE: 'EUR', CY: 'EUR', MT: 'EUR', LU: 'EUR',
-  
-  // Tier 3
-  ZA: 'ZAR', BR: 'BRL', MX: 'MXN', AR: 'ARS',
-  TH: 'THB', MY: 'MYR', PH: 'PHP', ID: 'IDR',
-  
-  // Tier 4
-  IN: 'INR', NG: 'NGN', KE: 'KES', PK: 'PKR', BD: 'BDT', EG: 'EGP', GH: 'GHS',
-};
-
-// =============================================================================
-// PRICING BY CURRENCY - Updated for new pricing structure
-// =============================================================================
-// Freemium model (mass adoption):
-//   FREE     — $0 forever (capped; never charged — no PRICING row needed)
-//   FAMILY   — recurring monthly/yearly subscription (yearly = 2 months free)
-//   FOUNDER  — single one-time lifetime purchase (the old 'LEGACY' tier slot)
-// Localized PPP amounts re-scaled to the new model. Stripe is charged the exact
-// number below via dynamic price_data (no fixed price IDs), so the displayed
-// price always equals the charged price.
-const PRICING: Record<string, {
+// Stripe is charged the exact number below via dynamic price_data (no fixed
+// Price IDs), so the displayed price always equals the charged price.
+type TierPrices = { monthly: number; yearly: number };
+const PRICING: {
   symbol: string;
   code: string;
-  tier: PricingTier;
-  annualOnly?: boolean;
-  FAMILY: { monthly: number; yearly: number };
-  DEEP: { monthly: number; yearly: number };
+  FAMILY: TierPrices;
+  DEEP: TierPrices;
   // FOUNDER kept for existing founders only — no Founder card is rendered on
   // /pricing or /signup (tier withdrawn). The webhook's founder-pledge branch
   // still grants LEGACY/FOREVER from /founder, independent of this table.
   FOUNDER: { lifetime: number };
-}> = {
-  // Tier 1 — full anchor price. Family is the cheap volume anchor ($2.99);
-  // Deep is the unlimited-members upgrade ($7.99).
-  USD: { symbol: '$',   code: 'USD', tier: 'tier1', FAMILY: { monthly: 2.99,  yearly: 29  }, DEEP: { monthly: 7.99,  yearly: 79  }, FOUNDER: { lifetime: 249 } },
-  GBP: { symbol: '£',   code: 'GBP', tier: 'tier1', FAMILY: { monthly: 2.49,  yearly: 25  }, DEEP: { monthly: 6.99,  yearly: 69  }, FOUNDER: { lifetime: 199 } },
-  CAD: { symbol: 'C$',  code: 'CAD', tier: 'tier1', FAMILY: { monthly: 3.49,  yearly: 35  }, DEEP: { monthly: 9.99,  yearly: 99  }, FOUNDER: { lifetime: 329 } },
-  AUD: { symbol: 'A$',  code: 'AUD', tier: 'tier1', FAMILY: { monthly: 4.49,  yearly: 45  }, DEEP: { monthly: 11.99, yearly: 119 }, FOUNDER: { lifetime: 369 } },
-  NZD: { symbol: 'NZ$', code: 'NZD', tier: 'tier1', FAMILY: { monthly: 4.99,  yearly: 49  }, DEEP: { monthly: 12.99, yearly: 129 }, FOUNDER: { lifetime: 399 } },
-
-  // Tier 2 — EU pricing
-  EUR: { symbol: '€',   code: 'EUR', tier: 'tier2', FAMILY: { monthly: 2.99,  yearly: 29  }, DEEP: { monthly: 7.99,  yearly: 79  }, FOUNDER: { lifetime: 229 } },
-
-  // Tier 3 — PPP, monthly allowed. ARS/IDR/THB/MYR now have their own rows so
-  // they no longer silently fall back to the USD anchor (the prior latent gap).
-  ZAR: { symbol: 'R',   code: 'ZAR', tier: 'tier3', FAMILY: { monthly: 45,    yearly: 450  }, DEEP: { monthly: 119,   yearly: 1190  }, FOUNDER: { lifetime: 3999 } },
-  BRL: { symbol: 'R$',  code: 'BRL', tier: 'tier3', FAMILY: { monthly: 8,     yearly: 80   }, DEEP: { monthly: 24,    yearly: 240   }, FOUNDER: { lifetime: 999 } },
-  MXN: { symbol: 'MX$', code: 'MXN', tier: 'tier3', FAMILY: { monthly: 49,    yearly: 490  }, DEEP: { monthly: 129,   yearly: 1290  }, FOUNDER: { lifetime: 3999 } },
-  PHP: { symbol: '₱',   code: 'PHP', tier: 'tier3', FAMILY: { monthly: 149,   yearly: 1490 }, DEEP: { monthly: 399,   yearly: 3990  }, FOUNDER: { lifetime: 9999 } },
-  ARS: { symbol: '$',   code: 'ARS', tier: 'tier3', FAMILY: { monthly: 2900,  yearly: 29000 }, DEEP: { monthly: 7900,  yearly: 79000 }, FOUNDER: { lifetime: 39999 } },
-  IDR: { symbol: 'Rp',  code: 'IDR', tier: 'tier3', FAMILY: { monthly: 39000, yearly: 390000 }, DEEP: { monthly: 99000, yearly: 990000 }, FOUNDER: { lifetime: 499000 } },
-  THB: { symbol: '฿',   code: 'THB', tier: 'tier3', FAMILY: { monthly: 99,    yearly: 990  }, DEEP: { monthly: 249,   yearly: 2490  }, FOUNDER: { lifetime: 3999 } },
-  MYR: { symbol: 'RM',  code: 'MYR', tier: 'tier3', FAMILY: { monthly: 12,    yearly: 120  }, DEEP: { monthly: 32,    yearly: 320   }, FOUNDER: { lifetime: 399 } },
-
-  // Tier 4 — deepest PPP, annual-only (no monthly). BDT/EGP/GHS now have rows
-  // too, so they no longer fall back to the USD anchor.
-  INR: { symbol: '₹',   code: 'INR', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 999  }, DEEP: { monthly: 0, yearly: 2499  }, FOUNDER: { lifetime: 14999 } },
-  NGN: { symbol: '₦',   code: 'NGN', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 6999 }, DEEP: { monthly: 0, yearly: 17999 }, FOUNDER: { lifetime: 199999 } },
-  KES: { symbol: 'KSh', code: 'KES', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 3499 }, DEEP: { monthly: 0, yearly: 8999  }, FOUNDER: { lifetime: 24999 } },
-  PKR: { symbol: 'Rs',  code: 'PKR', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 6999 }, DEEP: { monthly: 0, yearly: 17999 }, FOUNDER: { lifetime: 49999 } },
-  BDT: { symbol: '৳',   code: 'BDT', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 999  }, DEEP: { monthly: 0, yearly: 2499  }, FOUNDER: { lifetime: 14999 } },
-  EGP: { symbol: 'E£',  code: 'EGP', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 999  }, DEEP: { monthly: 0, yearly: 2499  }, FOUNDER: { lifetime: 4999 } },
-  GHS: { symbol: '₵',   code: 'GHS', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 299  }, DEEP: { monthly: 0, yearly: 899   }, FOUNDER: { lifetime: 1999 } },
+} = {
+  symbol: '$',
+  code: 'USD',
+  FAMILY: { monthly: 2.99, yearly: 29 },
+  DEEP:   { monthly: 7.99, yearly: 79 },
+  FOUNDER: { lifetime: 249 },
 };
-
-const DEFAULT_CURRENCY = 'USD';
 
 // Trial configuration
 const TRIAL_DAYS = 30;
@@ -141,11 +72,6 @@ const TRIAL_TIER = 'FAMILY'; // Trial users get Family tier features
 // =============================================================================
 // HELPERS
 // =============================================================================
-function getCurrencyForCountry(countryCode: string): string {
-  const currency = COUNTRY_CURRENCY[countryCode?.toUpperCase()];
-  return (currency && PRICING[currency]) ? currency : DEFAULT_CURRENCY;
-}
-
 function getCountryFromRequest(c: any): string {
   // Cloudflare provides country in cf object
   const cfCountry = c.req.raw?.cf?.country;
@@ -336,32 +262,27 @@ function normalizeTier(tier: string): keyof typeof TIER_LIMITS {
 // ROUTES
 // =============================================================================
 
-// Auto-detect country/currency
+// Auto-detect country (currency is always USD — flat global pricing)
 billingRoutes.get('/detect', async (c) => {
   const country = getCountryFromRequest(c);
-  const currency = getCurrencyForCountry(country);
-  const prices = PRICING[currency];
-  
-  return c.json({ country, currency, symbol: prices.symbol });
+  return c.json({ country, currency: PRICING.code, symbol: PRICING.symbol });
 });
 
-// Get pricing - auto-detects currency from country
+// Get pricing — flat USD worldwide; location only sets annual-only for tier4.
 billingRoutes.get('/pricing', async (c) => {
-  const overrideCurrency = c.req.query('currency')?.toUpperCase();
   const country = getCountryFromRequest(c);
-  const currency = overrideCurrency && PRICING[overrideCurrency] ? overrideCurrency : getCurrencyForCountry(country);
-  const prices = PRICING[currency];
-  const pricingTier = COUNTRY_TO_PRICING_TIER[country] || 'tier1';
-  const isAnnualOnly = prices.annualOnly || false;
+  const prices = PRICING;
+  const pricingTier = isAnnualOnlyCountry(country) ? 'tier4' : 'tier1';
+  const isAnnualOnly = isAnnualOnlyCountry(country);
 
   return c.json({
     country,
-    currency,
+    currency: PRICING.code,
     symbol: prices.symbol,
     pricingTier,
     isAnnualOnly,
     trialDays: TRIAL_DAYS,
-    // Flat fields the web Pricing page reads directly for localized display.
+    // Flat fields the web Pricing page reads directly for display.
     FAMILY: { monthly: prices.FAMILY.monthly, yearly: prices.FAMILY.yearly },
     DEEP: { monthly: prices.DEEP.monthly, yearly: prices.DEEP.yearly },
     // FOUNDER flat field kept for the Billing page of existing founders (the
@@ -580,14 +501,18 @@ billingRoutes.post('/calculate', async (c) => {
   const { tier, billingCycle, couponCode } = await c.req.json();
   
   const country = getCountryFromRequest(c);
-  const currency = getCurrencyForCountry(country);
-  const prices = PRICING[currency];
+  const currency = PRICING.code;
+  const prices = PRICING;
   const normalizedTier = normalizeTier(tier);
   // Family + Deep are the recurring plans; Free is $0 and Founder is a one-time pledge (/founder).
   if (normalizedTier !== 'FAMILY' && normalizedTier !== 'DEEP') return c.json({ error: 'Only the Family and Deep plans are billed here.' }, 400);
   const tierPrices = prices[normalizedTier];
 
   const isYearly = billingCycle === 'yearly';
+  // Annual-only regions: monthly billing is not offered.
+  if (!isYearly && isAnnualOnlyCountry(country)) {
+    return c.json({ error: 'Monthly billing is not available in your region — choose annual.' }, 400);
+  }
   let basePrice = isYearly ? tierPrices.yearly : tierPrices.monthly;
   let discount = 0;
   
@@ -612,8 +537,8 @@ billingRoutes.post('/checkout', async (c) => {
   const { tier, billingCycle, couponCode, influencerCode } = await c.req.json();
   
   const country = getCountryFromRequest(c);
-  const currency = getCurrencyForCountry(country);
-  const prices = PRICING[currency];
+  const currency = PRICING.code;
+  const prices = PRICING;
   const normalizedTier = normalizeTier(tier);
   // Family + Deep are the recurring checkouts. Free needs no payment; Founder
   // is the one-time lifetime pledge handled at /founder (founders.ts).
@@ -623,6 +548,11 @@ billingRoutes.post('/checkout', async (c) => {
   const tierPrices = prices[normalizedTier];
 
   const isYearly = billingCycle === 'yearly';
+  // Annual-only regions: reject monthly checkout so Stripe never builds a
+  // monthly subscription for a market that's annual-only.
+  if (!isYearly && isAnnualOnlyCountry(country)) {
+    return c.json({ error: 'Monthly billing is not available in your region — choose annual.' }, 400);
+  }
   let finalPrice = isYearly ? tierPrices.yearly : tierPrices.monthly;
   let appliedDiscount: { type: 'coupon' | 'influencer'; code: string; percent: number } | null = null;
   let influencerId: string | null = null;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
@@ -58,6 +58,25 @@ export function Signup() {
   const [cycle, setCycle] = useState<'monthly' | 'annual'>(() =>
     searchParams.get('cycle') === 'annual' ? 'annual' : 'monthly'
   );
+  // Annual-only regions (deepest-PPP markets) — the worker suppresses monthly
+  // billing there. Fetch the server flag on mount and force annual so a tier4
+  // visitor can never pick monthly and hit the /checkout 400.
+  const [annualOnly, setAnnualOnly] = useState(false);
+  useEffect(() => {
+    const controller = new AbortController();
+    billingApi.getPricing().then((r: any) => {
+      if (controller.signal.aborted) return;
+      const d = r.data ?? r;
+      if (d?.isAnnualOnly) {
+        setAnnualOnly(true);
+        setCycle('annual');
+      }
+    }).catch(() => {});
+    return () => controller.abort();
+  }, []);
+  useEffect(() => {
+    if (annualOnly && cycle !== 'annual') setCycle('annual');
+  }, [annualOnly, cycle]);
 
   const [form, setForm] = useState({
     threadName: '',
@@ -327,21 +346,23 @@ export function Signup() {
           <div style={{ marginTop: 44 }}>
             <StepEyebrow>step three · how to begin</StepEyebrow>
             <div role="radiogroup" aria-label="billing cycle" style={{ display: 'flex', alignItems: 'center', gap: 18, marginBottom: 18 }}>
-              <CycleTab
-                active={cycle !== 'annual'}
-                warm={false}
-                onClick={() => setCycle('monthly')}
-                onArrow={(e) => handleRadioArrowKeys(e, 0, 2, (n) => setCycle(n === 1 ? 'annual' : 'monthly'))}
-              >
-                monthly
-              </CycleTab>
+              {!annualOnly && (
+                <CycleTab
+                  active={cycle !== 'annual'}
+                  warm={false}
+                  onClick={() => setCycle('monthly')}
+                  onArrow={(e) => handleRadioArrowKeys(e, 0, 2, (n) => setCycle(n === 1 ? 'annual' : 'monthly'))}
+                >
+                  monthly
+                </CycleTab>
+              )}
               <CycleTab
                 active={cycle === 'annual'}
                 warm
                 onClick={() => setCycle('annual')}
-                onArrow={(e) => handleRadioArrowKeys(e, 1, 2, (n) => setCycle(n === 1 ? 'annual' : 'monthly'))}
+                onArrow={(e) => handleRadioArrowKeys(e, annualOnly ? 0 : 1, annualOnly ? 1 : 2, () => setCycle('annual'))}
               >
-                annually · 2 months free
+                {annualOnly ? 'annual · the only cadence here' : 'annually · 2 months free'}
               </CycleTab>
             </div>
             <div

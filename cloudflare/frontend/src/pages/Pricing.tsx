@@ -16,6 +16,7 @@ const CANONICAL = 'https://heirloom.blue/pricing';
 interface PricingData {
   symbol: string;
   code: string;
+  isAnnualOnly?: boolean;
   FAMILY?: { monthly: number; yearly: number };
   DEEP?: { monthly: number; yearly: number };
   FOUNDER?: { lifetime?: number };
@@ -23,6 +24,7 @@ interface PricingData {
 
 const FALLBACK: PricingData = {
   symbol: '$', code: 'USD',
+  isAnnualOnly: false,
   FAMILY: { monthly: PLAN_PRICE_NUM.FAMILY.monthly, yearly: PLAN_PRICE_NUM.FAMILY.annual },
   DEEP: { monthly: PLAN_PRICE_NUM.DEEP.monthly, yearly: PLAN_PRICE_NUM.DEEP.annual },
   FOUNDER: { lifetime: PLAN_PRICE_NUM.FOUNDER.lifetime },
@@ -47,9 +49,10 @@ export function Pricing() {
   }, []);
 
   const s = pricing.symbol;
-  // Some currencies (e.g. INR) are yearly-only — monthly is 0. Force the annual
-  // view there so Family never renders a "$0 / month".
-  const annualOnly = !pricing.FAMILY?.monthly;
+  // The worker flags annual-only regions (deepest-PPP markets) via isAnnualOnly.
+  // Flat USD everywhere now, so monthly is always present — rely on the server
+  // flag, not on a zero monthly price, to suppress the monthly toggle.
+  const annualOnly = pricing.isAnnualOnly ?? false;
   const showAnnual = annual || annualOnly;
 
   const familyMonthly = fmt(s, pricing.FAMILY?.monthly ?? PLAN_PRICE_NUM.FAMILY.monthly);
