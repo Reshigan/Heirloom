@@ -364,7 +364,7 @@ export function DailySentence() {
                 margin: 0,
               }}
             >
-              You've written today's sentence. It's woven.
+              You've written today's sentence. It's settled.
             </p>
             <span
               style={{
@@ -481,7 +481,7 @@ export function DailySentence() {
                 {saveState === 'saving'
                   ? 'SAVING'
                   : saveState === 'saved'
-                    ? 'WOVEN'
+                    ? 'SETTLED'
                     : 'SAVE'}
               </button>
 

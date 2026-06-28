@@ -235,7 +235,7 @@ export function MemoryRoom() {
                 margin: 0,
               }}
             >
-              Thank you — your memory is woven in.
+              Thank you — your memory has settled into the deep.
             </p>
           </div>
         )}

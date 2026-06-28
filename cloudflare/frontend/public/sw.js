@@ -24,7 +24,7 @@
  * cache.addAll() reject on the redirected response and the whole install fails.
  * Precache `/offline` (the served URL) — never the redirecting alias.
  */
-const CACHE = 'heirloom-v210-deep';
+const CACHE = 'heirloom-v211-deep';
 const API_CACHE = 'heirloom-api-v1'; // preserved across shell bumps — offline read data
 // Canonical shell URL. Cloudflare Pages 308-redirects `/index.html` → `/`, and
 // the Cache API rejects redirected responses — so precaching `/index.html`

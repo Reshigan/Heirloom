@@ -97,7 +97,7 @@ export function GiftSuccess() {
               transition: 'opacity 180ms var(--ease)',
             }}
           >
-            RETURN TO THE CLOTH →
+            RETURN TO THE DEEP →
           </Link>
 
           {/* WaxSeal foot mark */}

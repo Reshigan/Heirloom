@@ -81,7 +81,7 @@ function stepConfig(
     case 'type':
       return {
         eyebrow: 'the medium',
-        question: 'How do you want to weave it?',
+        question: 'How do you want to let it settle?',
         description: 'Choose your medium.',
       };
     case 'prompt':

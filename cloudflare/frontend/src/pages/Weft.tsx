@@ -304,7 +304,7 @@ export function Weft() {
     if (entry.kind === 'letter' && entry.recipient) return `Letter to ${entry.recipient}`;
     if (entry.kind === 'letter') return 'A sealed letter';
     if (entry.kind === 'voice') return 'A voice note';
-    return 'A woven memory';
+    return 'A settled memory';
   };
 
   return (
@@ -471,7 +471,7 @@ export function Weft() {
             <HomeCard
               eyebrow="Challenges"
               title="Prompts"
-              hint="Gentle nudges to weave one more."
+              hint="Gentle nudges to let one more settle."
               onClick={() => navigate('/challenges')}
             />
           </div>
@@ -481,8 +481,8 @@ export function Weft() {
           <EntryRow
             title="Add family"
             sub={memberCount != null && memberCount > 0
-              ? `${memberCount} ${memberCount === 1 ? 'hand weaves' : 'hands weave'} this thread.`
-              : 'Invite the hands who will weave beside you.'}
+              ? `${memberCount} ${memberCount === 1 ? 'hand settles' : 'hands settle'} this thread.`
+              : 'Invite the hands who will settle things beside you.'}
             meta="FAMILY →"
             subFont="serif"
             subColor="var(--muted-2)"

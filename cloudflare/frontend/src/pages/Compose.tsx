@@ -318,7 +318,7 @@ function ToField({
                     flexShrink: 0,
                   }}
                 >
-                  woven in
+                  settled
                 </span>
               </button>
             ))}
@@ -353,7 +353,7 @@ function ToField({
               }}
             />
             <span style={{ fontStyle: 'normal', letterSpacing: '0.06em' }}>
-              already woven into your bloodline ·{' '}
+              already settled into your bloodline ·{' '}
               <span className="hl-serif" style={{ color: dyeTextColor(selectedMember.id, selectedMember.dye) }}>
                 {selectedMember.name}
               </span>
@@ -706,7 +706,7 @@ function EmotionField({
         <span style={{ letterSpacing: '0.06em', textTransform: 'none', fontStyle: 'italic', color: 'var(--bone-faint)' }}>
           {value
             ? aiNamed ? 'named by the listener — change it freely' : 'your word'
-            : 'optional · the listener will name one when you weave'}
+            : 'optional · the listener will name one when you let it settle'}
         </span>
       </div>
       <div role="radiogroup" aria-label="the feeling" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px 18px', alignItems: 'baseline' }}>
