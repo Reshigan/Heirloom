@@ -127,9 +127,9 @@ Platforms to produce variants for:
 
 ${platformBlock}
 
-HASHTAG RULES — follow exactly. Few and quiet beats many — tag walls get posts downranked and read as marketing, which kills both surfaces. Pick tags from the candidates above (and the active-season tags when present) that fit a family-keeper audience. Calm community tags only (#familystories, #familyhistory) — never branded, never decorative:
-- facebook: 0-2 tags.
-- bluesky: 0-2 tags, and they ride the FINAL post only, counting against the 300-char budget.
+HASHTAG RULES — follow exactly. Enough discovery tags to land on the family-history / genealogy / memory-keeping group pages where the audience already gathers, but never a tag wall — walls get posts downranked and read as marketing. Pick tags from the candidates above (and the active-season tags when present) that fit a family-keeper audience. Calm community + discovery tags only (#familystories, #familyhistory, #genealogy, #oralhistory, #memorykeeping, #familyroots, #knowyourroots) — never branded, never decorative:
+- facebook: 1-3 tags.
+- bluesky: 1-4 tags, and they ride the FINAL post only, counting against the 300-char budget.
 
 Do NOT write hashtags inside the caption text — they go in the hashtags array ONLY and are appended automatically. The caption field must NEVER contain any # symbols.
 
@@ -225,7 +225,7 @@ function parseVariants(raw: string, source: SourcePost, seasonHashtags?: string[
   // Hard caps per 2026 platform norms — a model that ignores the prompt and
   // returns a tag wall would otherwise get the account downranked.
   const HASHTAG_MAXIMUMS: Partial<Record<PlatformKey, number>> = {
-    facebook: 2, bluesky: 2,
+    facebook: 3, bluesky: 4,
   };
   for (const v of result.variants) {
     // Strip any thread-plan scaffolding the model leaked into the single-post
