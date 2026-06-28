@@ -102,6 +102,14 @@
   --woven-veil: 0.14;
   --rule: rgba(242, 230, 208, 0.11);
   --rule-strong: rgba(242, 230, 208, 0.20);
+  /* ── The single emotion accent (ART_DIRECTION §2), now user-chosen ──────────
+     One hue, <3% surface, signal only. Default seafoam — set per-user as
+     data-accent on <html> (theme-boot.js cold-boot + useLoomAccent). The whole
+     warm/copper family below is DERIVED from this pair inside the dark scope
+     (color-mix); the [data-accent="…"] blocks only swap these two values. Light
+     theme ignores accent entirely — it re-hardcodes AA copper-browns. */
+  --accent: #7fd4c4;
+  --accent-bright: #a0e8d8;
   --warm: #e0a062;
   --warm-bright: #f0c074;
   --warm-dim: #b07a3e;
@@ -304,7 +312,31 @@
      keeps the headline clear. Light theme (below) keeps this opaque — no water
      there, so the edge must stay solid parchment. */
   --dye-hero-edge:      rgba(7, 13, 20, 0.52);
+
+  /* ── Accent-derived warm family (dark only) ────────────────────────────────
+     Drive every copper/warm token from the single --accent pair so one user
+     choice re-tints the whole emotion layer. Shades land by mixing toward the
+     ground (dimmer) or toward bone (paler) — same ratios the original copper
+     used. Light theme keeps its hardcoded AA browns and never reaches here. */
+  --warm:         var(--accent);
+  --warm-bright:  var(--accent-bright);
+  --warm-dim:     color-mix(in srgb, var(--accent) 70%, var(--ink));
+  --copper-label: color-mix(in srgb, var(--accent) 70%, var(--ink));
+  --copper-border:color-mix(in srgb, var(--accent) 85%, var(--ink));
+  --gold-text:    color-mix(in srgb, var(--accent-bright) 78%, var(--bone));
+  --ember:        var(--accent-bright);
+  --rule-warm:    color-mix(in srgb, var(--accent) 24%, transparent);
+  --thread-warm:  color-mix(in srgb, var(--accent) 55%, transparent);
 }
+
+/* Per-user accent — set on <html> by theme-boot.js + useLoomAccent. Only the
+   --accent pair changes; the dark derivation above expands it. Cascades into
+   .loom as a descendant. Keep this set in sync with LoomAccent in theme.ts. */
+[data-accent="copper"]    { --accent: #e0a062; --accent-bright: #f0c074; }
+[data-accent="seafoam"]   { --accent: #7fd4c4; --accent-bright: #a0e8d8; }
+[data-accent="glacial"]   { --accent: #6cc9dd; --accent-bright: #92dcea; }
+[data-accent="jade"]      { --accent: #86d2ab; --accent-bright: #a8e4c6; }
+[data-accent="moonstone"] { --accent: #a9c8dc; --accent-bright: #c4dcea; }
 
 [data-theme="light"] .loom {
   --ink:          #eef2f6; /* shallows — cool water-light */

@@ -13,6 +13,7 @@ import {
 import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { RecipientPicker } from '../loom/components/RecipientPicker';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { uploadMemoryImage, validateImage } from '../utils/uploadImage';
@@ -395,8 +396,7 @@ export function Capture() {
 
   return (
     <ClothShell
-      topbarLeft={<Link to="/loom/weft" style={crumb}>← the deep</Link>}
-      topbarCenter="capture"
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'capture' }]} />}
     >
       {live && (
         <div aria-hidden="true" style={{ position: 'absolute', top: 0, left: 0, height: 1, width: `${progress * 100}%`, background: 'var(--bone-dim)', transition: 'width 720ms var(--ease)', zIndex: 30 }} />
@@ -548,7 +548,6 @@ export default Capture;
 
 /* ─── styles ──────────────────────────────────────────────────────────── */
 const mono: React.CSSProperties = { fontFamily: 'var(--mono)', fontSize: 12.5, letterSpacing: '0.12em', textTransform: 'uppercase' };
-const crumb: React.CSSProperties = { ...mono, color: 'var(--bone-faint)', textDecoration: 'none' };
 const ghost: React.CSSProperties = { ...mono, background: 'none', border: 0, color: 'var(--bone-dim)', cursor: 'pointer', minHeight: 44, display: 'inline-flex', alignItems: 'center', padding: 0 };
 // The fork chips — warm copper hairline + copper text when chosen, faint
 // otherwise. No fill (dyes/copper are signal only, never backgrounds).

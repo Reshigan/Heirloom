@@ -288,7 +288,7 @@ export function Unlock() {
                     zIndex: 1,
                     fontFamily: 'var(--mono)',
                     fontSize: 11,
-                    letterSpacing: '0.28em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: 'var(--muted-2)',
                     textAlign: 'center',
@@ -344,7 +344,7 @@ export function Unlock() {
                           marginTop: 40,
                           fontFamily: 'var(--mono)',
                           fontSize: 11,
-                          letterSpacing: '0.26em',
+                          letterSpacing: '0.2em',
                           textTransform: 'uppercase',
                           color: 'var(--warm)',
                           background: 'none',
@@ -510,8 +510,8 @@ export function Unlock() {
               <span
                 className="loom-mono"
                 style={{
-                  fontSize: 9,
-                  letterSpacing: '0.22em',
+                  fontSize: 10,
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: phase >= 2 ? 'var(--warm)' : 'var(--bone-faint)',
                   transition: 'color var(--loom-dur-shift) var(--loom-ease)',
@@ -591,7 +591,7 @@ function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean })
           <>
             <div
               className="loom-mono"
-              style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.26em', textTransform: 'uppercase', marginBottom: 18 }}
+              style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 18 }}
             >
               the unlock
             </div>

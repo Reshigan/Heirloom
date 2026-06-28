@@ -204,7 +204,7 @@ export function PhotoQuick() {
               style={{
                 fontFamily: 'var(--mono)',
                 fontSize: 13,
-                letterSpacing: '0.26em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--warm)',
               }}

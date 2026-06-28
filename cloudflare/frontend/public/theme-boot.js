@@ -22,6 +22,21 @@
   }
   // Drive the splash + root substrate CSS (html[data-theme="light"] overrides).
   document.documentElement.setAttribute('data-theme', resolved);
+
+  // Accent cold-boot — the single emotion hue ([data-accent] swaps --accent).
+  // Default 'seafoam'; keep the valid set in sync with LoomAccent in theme.ts.
+  var ACCENT_KEY = 'heirloom-accent';
+  var accent = 'seafoam';
+  try {
+    var savedAccent = localStorage.getItem(ACCENT_KEY);
+    if (savedAccent === 'copper' || savedAccent === 'seafoam' || savedAccent === 'glacial' ||
+        savedAccent === 'jade' || savedAccent === 'moonstone') {
+      accent = savedAccent;
+    }
+  } catch (e) {
+    /* localStorage blocked — keep the seafoam default */
+  }
+  document.documentElement.setAttribute('data-accent', accent);
   // Keep the mobile status-bar tint honest with the resolved theme.
   try {
     var meta = document.querySelector('meta[name="theme-color"]');

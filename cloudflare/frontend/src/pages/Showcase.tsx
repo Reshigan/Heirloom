@@ -57,7 +57,7 @@ export function Showcase() {
               paddingTop: 16,
               borderTop: '1px solid var(--rule)',
               fontSize: 10,
-              letterSpacing: '0.24em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--bone-faint)',
             }}
@@ -93,7 +93,7 @@ export function Showcase() {
               className="hl-mono"
               style={{
                 fontSize: 10,
-                letterSpacing: '0.24em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-faint)',
               }}

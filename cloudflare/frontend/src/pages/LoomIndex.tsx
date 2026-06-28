@@ -267,7 +267,7 @@ export function LoomIndex() {
               }}
               style={{
                 background: 'none', border: 0, padding: '10px 0', cursor: 'pointer',
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: groupBy === g ? 'var(--copper-label)' : 'var(--muted-2)',
                 borderBottom: groupBy === g ? '1px solid var(--copper-border)' : '1px solid transparent',
@@ -295,7 +295,7 @@ export function LoomIndex() {
               key={to}
               to={to}
               style={{
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: 'var(--muted-2)',
                 textDecoration: 'none',
                 minHeight: 44, display: 'inline-flex', alignItems: 'center',

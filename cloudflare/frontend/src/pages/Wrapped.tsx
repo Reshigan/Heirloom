@@ -245,7 +245,7 @@ export default function Wrapped() {
           style={{
             fontFamily: 'var(--mono)',
             fontSize: 11,
-            letterSpacing: '0.28em',
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'var(--muted-2)',
             textAlign: 'center',
@@ -283,7 +283,7 @@ export default function Wrapped() {
             </div>
             <div
               style={{
-                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
+                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: 'var(--bone-dim)',
                 marginTop: 'clamp(16px,3vh,28px)',
               }}
@@ -330,7 +330,7 @@ export default function Wrapped() {
           >
             <span
               style={{
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.26em',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: 'var(--warm)',
                 borderBottom: '1px solid var(--warm-dim)', paddingBottom: 3,
               }}

@@ -195,8 +195,8 @@ export function GiftSubscriptions() {
                 <span
                   className="hl-mono"
                   style={{
-                    fontSize: 9,
-                    letterSpacing: '0.28em',
+                    fontSize: 10,
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color:
                       s === step
@@ -248,8 +248,8 @@ export function GiftSubscriptions() {
                       border: '1px solid var(--rule)',
                       borderLeft: i === 0 ? '1px solid var(--rule)' : 'none',
                       padding: '6px 16px',
-                      fontSize: 9,
-                      letterSpacing: '0.24em',
+                      fontSize: 10,
+                      letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       cursor: 'pointer',
                       minHeight: 44,
@@ -265,7 +265,7 @@ export function GiftSubscriptions() {
                         background: 'var(--rule)',
                         color: 'var(--bone-dim)',
                         fontFamily: 'var(--mono)',
-                        fontSize: 8,
+                        fontSize: 10,
                         letterSpacing: '0.12em',
                         padding: '1px 5px',
                         textTransform: 'uppercase',
@@ -351,7 +351,7 @@ export function GiftSubscriptions() {
                         </span>
                         <span
                           className="hl-mono"
-                          style={{ fontSize: 9, letterSpacing: '0.22em', textTransform: 'uppercase', color: selected ? 'var(--warm)' : 'var(--bone-faint)' }}
+                          style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: selected ? 'var(--warm)' : 'var(--bone-faint)' }}
                         >
                           {isFree ? 'free' : selected ? 'selected' : 'select'}
                         </span>
@@ -398,14 +398,14 @@ export function GiftSubscriptions() {
                       </span>
                       <span
                         className="hl-mono"
-                        style={{ fontSize: 9, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-dim)', marginTop: 6 }}
+                        style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-dim)', marginTop: 6 }}
                       >
                         {subLabel}
                       </span>
                       {!isFree && pp?.giftDiscount && (
                         <span
                           className="hl-mono"
-                          style={{ fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', marginTop: 4 }}
+                          style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', marginTop: 4 }}
                         >
                           10% gift discount
                         </span>
@@ -466,7 +466,7 @@ export function GiftSubscriptions() {
                   style={{
                     display:       'block',
                     fontSize:      10,
-                    letterSpacing: '0.24em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color:         'var(--bone-dim)',
                     marginBottom:  8,
@@ -497,7 +497,7 @@ export function GiftSubscriptions() {
                   style={{
                     display:       'block',
                     fontSize:      10,
-                    letterSpacing: '0.24em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color:         'var(--bone-dim)',
                     marginBottom:  8,
@@ -528,7 +528,7 @@ export function GiftSubscriptions() {
                   style={{
                     display:       'block',
                     fontSize:      10,
-                    letterSpacing: '0.24em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color:         'var(--bone-dim)',
                     marginBottom:  8,
@@ -551,7 +551,7 @@ export function GiftSubscriptions() {
                   style={{
                     display:       'block',
                     fontSize:      10,
-                    letterSpacing: '0.24em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color:         'var(--bone-dim)',
                     marginBottom:  8,
@@ -593,7 +593,7 @@ export function GiftSubscriptions() {
                   style={{
                     display:       'block',
                     fontSize:      10,
-                    letterSpacing: '0.24em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color:         'var(--bone-dim)',
                     marginBottom:  8,
@@ -624,7 +624,7 @@ export function GiftSubscriptions() {
                   style={{
                     display:       'block',
                     fontSize:      10,
-                    letterSpacing: '0.24em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color:         'var(--bone-dim)',
                     marginBottom:  8,
@@ -696,8 +696,8 @@ export function GiftSubscriptions() {
                 <span
                   className="hl-mono"
                   style={{
-                    fontSize:      9,
-                    letterSpacing: '0.22em',
+                    fontSize:      10,
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color:         'var(--warm)',
                   }}
@@ -794,8 +794,8 @@ export function GiftSubscriptions() {
                   <p
                     className="hl-mono"
                     style={{
-                      fontSize:      9,
-                      letterSpacing: '0.24em',
+                      fontSize:      10,
+                      letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       color:         'var(--bone-faint)',
                       marginBottom:  8,
@@ -914,7 +914,7 @@ export function GiftSubscriptions() {
               style={{
                 fontFamily:    'var(--mono)',
                 fontSize:      10,
-                letterSpacing: '0.3em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color:         'var(--bone-faint)',
                 paddingTop:    32,
@@ -982,7 +982,7 @@ export function GiftSubscriptions() {
               className="hl-mono"
               style={{
                 fontSize:      10,
-                letterSpacing: '0.32em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color:         'var(--bone-dim)',
                 marginBottom:  22,
@@ -1028,8 +1028,8 @@ export function GiftSubscriptions() {
                 <p
                   className="hl-mono"
                   style={{
-                    fontSize:      9,
-                    letterSpacing: '0.28em',
+                    fontSize:      10,
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color:         'var(--bone-faint)',
                     marginBottom:  8,

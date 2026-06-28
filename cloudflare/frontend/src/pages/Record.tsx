@@ -440,7 +440,7 @@ export function Record() {
           style={{
             fontFamily: 'var(--mono)',
             fontSize: 11,
-            letterSpacing: '0.3em',
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'var(--bone-faint)',
             marginBottom: 28,
@@ -503,7 +503,7 @@ export function Record() {
                 fontFamily: 'var(--mono)',
                 fontSize: 13,
                 fontWeight: 600,
-                letterSpacing: '0.32em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 transition: 'background 180ms var(--ease)',
               }}
@@ -525,7 +525,7 @@ export function Record() {
                 fontFamily: 'var(--mono)',
                 fontSize: 13,
                 fontWeight: 600,
-                letterSpacing: '0.32em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 animation: 'none', // ponytail: live state carried by timer/level/progress hairline; infinite pulse was redundant
               }}
@@ -585,7 +585,7 @@ export function Record() {
                 color: 'var(--warm)',
                 fontFamily: 'var(--mono)',
                 fontSize: 10,
-                letterSpacing: '0.32em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 borderBottom: '1px solid currentColor',
               }}
@@ -603,7 +603,7 @@ export function Record() {
                 color: 'var(--bone-faint)',
                 fontFamily: 'var(--mono)',
                 fontSize: 10,
-                letterSpacing: '0.28em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
               }}
             >
@@ -654,7 +654,7 @@ export function Record() {
               <div
                 style={{
                   fontFamily: 'var(--mono)',
-                  fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase',
+                  fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
                   color: 'var(--bone-faint)', marginBottom: 6,
                 }}
               >
@@ -681,7 +681,7 @@ export function Record() {
               <div
                 style={{
                   fontFamily: 'var(--mono)',
-                  fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase',
+                  fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
                   color: 'var(--bone-faint)', marginBottom: 6,
                 }}
               >
@@ -934,7 +934,7 @@ export function Record() {
                   color: 'var(--warm-dim)',
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.3em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   opacity: transcribing ? 0.5 : 1,
                   transition: 'color 180ms var(--ease)',
@@ -1066,7 +1066,7 @@ export function Record() {
                 color: 'var(--bone-faint)',
                 fontFamily: 'var(--mono)',
                 fontSize: 10,
-                letterSpacing: '0.28em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 borderBottom: '1px solid var(--rule)',
               }}
@@ -1132,7 +1132,7 @@ export function Record() {
                 fontFamily: 'var(--mono)',
                 fontSize: 11,
                 color: 'var(--bone-faint)',
-                letterSpacing: '0.22em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
               }}
             >

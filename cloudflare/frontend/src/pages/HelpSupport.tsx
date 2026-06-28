@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { settingsApi } from '../services/api';
 
@@ -128,17 +128,8 @@ export function HelpSupport() {
     }
   }
 
-  const topbarLeft = (
-    <Link to="/loom" style={{
-      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em',
-      textTransform: 'uppercase', color: 'var(--muted-3)', textDecoration: 'none',
-    }}>
-      ← loom
-    </Link>
-  );
-
   return (
-    <ClothShell topbarLeft={topbarLeft} topbarCenter="help & support">
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'help' }]} />}>
       <div style={{
         padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         maxWidth: 'var(--page-max-prose)',
@@ -190,7 +181,7 @@ export function HelpSupport() {
                   <span style={{
                     fontFamily: 'var(--mono)',
                     fontSize: 11,
-                    letterSpacing: '0.3em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: open ? 'var(--copper-label)' : 'var(--muted-3)',
                     flexShrink: 0,
@@ -266,8 +257,8 @@ export function HelpSupport() {
             <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
               <span style={{
                 fontFamily: 'var(--mono)',
-                fontSize: 9,
-                letterSpacing: '0.3em',
+                fontSize: 10,
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: m.role === 'user' ? 'var(--copper-label)' : 'var(--muted-3)',
               }}>
@@ -289,8 +280,8 @@ export function HelpSupport() {
           {sending && (
             <span style={{
               fontFamily: 'var(--mono)',
-              fontSize: 9,
-              letterSpacing: '0.3em',
+              fontSize: 10,
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--muted-3)',
             }}>
@@ -334,7 +325,7 @@ export function HelpSupport() {
               border: 0,
               fontFamily: 'var(--mono)',
               fontSize: 10,
-              letterSpacing: '0.3em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: sending || !input.trim() ? 'var(--muted-3)' : 'var(--gold-text)',
               cursor: sending || !input.trim() ? 'default' : 'pointer',
@@ -363,7 +354,7 @@ export function HelpSupport() {
               opacity: messages.length === 0 ? 0.35 : 1,
               fontFamily: 'var(--mono)',
               fontSize: 10,
-              letterSpacing: '0.3em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--gold-text)',
               touchAction: 'manipulation',
@@ -424,8 +415,8 @@ export function HelpSupport() {
                       </span>
                       <span style={{
                         fontFamily: 'var(--mono)',
-                        fontSize: 9,
-                        letterSpacing: '0.3em',
+                        fontSize: 10,
+                        letterSpacing: '0.2em',
                         textTransform: 'uppercase',
                         color: c.ticket_number ? 'var(--copper-label)' : 'var(--muted-3)',
                         flexShrink: 0,
@@ -445,8 +436,8 @@ export function HelpSupport() {
                           <div key={idx}>
                             <span style={{
                               fontFamily: 'var(--mono)',
-                              fontSize: 8,
-                              letterSpacing: '0.3em',
+                              fontSize: 10,
+                              letterSpacing: '0.2em',
                               textTransform: 'uppercase',
                               color: m.role === 'user' ? 'var(--copper-label)' : 'var(--muted-3)',
                             }}>

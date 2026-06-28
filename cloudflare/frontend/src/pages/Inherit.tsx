@@ -52,7 +52,7 @@ import { EASE } from '../loom/motion';
 const monoEyebrow = (extra?: React.CSSProperties): React.CSSProperties => ({
   fontFamily: 'var(--mono)',
   fontSize: 11,
-  letterSpacing: '0.28em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase',
   color: 'var(--bone-faint)',
   ...extra,
@@ -66,7 +66,7 @@ const monoAction = (active = true, extra?: React.CSSProperties): React.CSSProper
   cursor: 'pointer',
   fontFamily: 'var(--mono)',
   fontSize: 11,
-  letterSpacing: '0.22em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase',
   color: active ? 'var(--warm)' : 'var(--bone-faint)',
   transition: `color 180ms ${EASE}`,
@@ -343,7 +343,7 @@ export function Inherit() {
             justifyContent: 'space-between',
             gap: 16,
             padding: isMobile ? '20px' : '24px 56px',
-            ...monoEyebrow({ marginBottom: 0, letterSpacing: '0.22em', fontSize: 10.5 }),
+            ...monoEyebrow({ marginBottom: 0, letterSpacing: '0.2em', fontSize: 10.5 }),
           }}
         >
           <span>inherit</span>
@@ -351,7 +351,7 @@ export function Inherit() {
             <WarmDot size={6} />
             <span>the {threadName} thread</span>
           </span>
-          <Link to="/signup" style={monoAction(true, { textDecoration: 'none', letterSpacing: '0.22em', fontSize: 10.5 })}>
+          <Link to="/signup" style={monoAction(true, { textDecoration: 'none', letterSpacing: '0.2em', fontSize: 10.5 })}>
             create an account →
           </Link>
         </div>
@@ -401,7 +401,7 @@ export function Inherit() {
     cursor: 'pointer',
     fontFamily: 'var(--mono)',
     fontSize: 10,
-    letterSpacing: '0.22em',
+    letterSpacing: '0.2em',
     textTransform: 'uppercase' as const,
     color: activeTab === id ? 'var(--bone)' : 'var(--bone-faint)',
     transition: `color 180ms ${EASE}, border-color 180ms ${EASE}`,
@@ -465,7 +465,7 @@ export function Inherit() {
           gap: 16,
           flexWrap: 'wrap',
           padding: isMobile ? '20px' : '24px 56px',
-          ...monoEyebrow({ marginBottom: 0, letterSpacing: '0.22em', fontSize: 10.5 }),
+          ...monoEyebrow({ marginBottom: 0, letterSpacing: '0.2em', fontSize: 10.5 }),
         }}
       >
         <span>inherit</span>
@@ -665,7 +665,7 @@ export function Inherit() {
                   top: '50%',
                   transform: 'translateY(-50%)',
                   fontSize: 10,
-                  letterSpacing: '0.22em',
+                  letterSpacing: '0.2em',
                   cursor: searchLoading || searchQuery.trim().length < 3 ? 'not-allowed' : 'pointer',
                   opacity: searchLoading || searchQuery.trim().length < 3 ? 0.4 : 1,
                 })}
@@ -727,7 +727,7 @@ export function Inherit() {
                     >
                       {selectedLetter.title}
                     </h2>
-                    <p style={monoEyebrow({ color: 'var(--warm)', fontSize: 10, letterSpacing: '0.26em', margin: 0 })}>
+                    <p style={monoEyebrow({ color: 'var(--warm)', fontSize: 10, letterSpacing: '0.2em', margin: 0 })}>
                       A letter · {formatDate(selectedLetter.createdAt)}
                     </p>
                     {(() => {
@@ -737,7 +737,7 @@ export function Inherit() {
                         : selectedLetter.recipients;
                       const names = (bequest ?? []).map((r) => r.name).filter(Boolean);
                       return names.length ? (
-                        <p style={monoEyebrow({ fontSize: 10, letterSpacing: '0.22em', margin: '8px 0 0' })}>
+                        <p style={monoEyebrow({ fontSize: 10, letterSpacing: '0.2em', margin: '8px 0 0' })}>
                           Left to: {names.join(', ')}
                         </p>
                       ) : null;
@@ -875,7 +875,7 @@ export function Inherit() {
                             alignItems: 'center',
                             justifyContent: 'center',
                             fontFamily: 'var(--mono)',
-                            fontSize: 9,
+                            fontSize: 10,
                             letterSpacing: '0.18em',
                             textTransform: 'uppercase',
                             color: 'var(--bone-faint)',
@@ -953,7 +953,7 @@ export function Inherit() {
                           alignItems: 'center',
                           justifyContent: 'center',
                           fontFamily: 'var(--mono)',
-                          fontSize: 9,
+                          fontSize: 10,
                           letterSpacing: '0.1em',
                           textTransform: 'uppercase',
                           color: 'var(--warm)',
@@ -1024,7 +1024,7 @@ export function Inherit() {
                     margin: '8px 0 32px',
                   }}
                 >
-                  <p style={monoEyebrow({ color: 'var(--warm)', letterSpacing: '0.26em', marginBottom: 12 })}>
+                  <p style={monoEyebrow({ color: 'var(--warm)', letterSpacing: '0.2em', marginBottom: 12 })}>
                     the listener
                   </p>
                   <p
@@ -1060,7 +1060,7 @@ export function Inherit() {
                   </>
                 ) : null}
 
-                <p style={monoEyebrow({ fontSize: 9, letterSpacing: '0.14em', marginTop: 28, textAlign: 'center' })}>
+                <p style={monoEyebrow({ fontSize: 10, letterSpacing: '0.14em', marginTop: 28, textAlign: 'center' })}>
                   searched {searchResponse.totalItems} entries · "{searchResponse.query}"
                 </p>
               </div>

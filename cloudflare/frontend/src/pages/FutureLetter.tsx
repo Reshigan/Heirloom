@@ -33,7 +33,7 @@ const labelStyle: React.CSSProperties = {
   fontFamily: 'var(--mono)',
   fontSize: 10,
   fontWeight: 400,
-  letterSpacing: '0.32em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase',
   color: 'var(--bone-faint)',
   marginBottom: 10,
@@ -195,7 +195,7 @@ export function FutureLetter() {
           </h1>
           <div
             className="hl-mono"
-            style={{ fontSize: 11, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--warm)', marginTop: 18 }}
+            style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)', marginTop: 18 }}
           >
             {generatedLetter
               ? `Sealed · ${new Date().getFullYear()}`
@@ -372,7 +372,7 @@ export function FutureLetter() {
                     color: 'var(--warm)',
                     cursor: generateMutation.isPending ? 'default' : 'pointer',
                     fontSize: 11,
-                    letterSpacing: '0.24em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     padding: '13px 28px',
                     opacity: generateMutation.isPending ? 0.5 : 1,
@@ -392,7 +392,7 @@ export function FutureLetter() {
           style={{
             textAlign: 'center',
             fontSize: 10,
-            letterSpacing: '0.24em',
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'var(--bone-faint)',
             margin: '28px 0 0',

@@ -150,7 +150,7 @@ export function Streaks() {
                   style={{
                     fontSize: 10,
                     color: 'var(--bone-faint)',
-                    letterSpacing: '0.3em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     display: 'block',
                     marginTop: 8,
@@ -177,7 +177,7 @@ export function Streaks() {
                     Add an entry today to continue the thread.
                     <Link
                       to="/compose"
-                      style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none', marginLeft: 10 }}
+                      style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none', marginLeft: 10 }}
                     >
                       write now →
                     </Link>
@@ -190,7 +190,7 @@ export function Streaks() {
                     Begin a new thread today.
                     <Link
                       to="/compose"
-                      style={{ fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none', marginLeft: 10 }}
+                      style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none', marginLeft: 10 }}
                     >
                       write now →
                     </Link>
@@ -227,7 +227,7 @@ export function Streaks() {
                   </span>
                   <span
                     className="hl-mono"
-                    style={{ fontSize: 9.5, color: 'var(--bone-faint)', letterSpacing: '0.3em', textTransform: 'uppercase', display: 'block', marginTop: 8 }}
+                    style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.2em', textTransform: 'uppercase', display: 'block', marginTop: 8 }}
                   >
                     longest run
                   </span>
@@ -241,7 +241,7 @@ export function Streaks() {
                   </span>
                   <span
                     className="hl-mono"
-                    style={{ fontSize: 9.5, color: 'var(--bone-faint)', letterSpacing: '0.3em', textTransform: 'uppercase', display: 'block', marginTop: 8 }}
+                    style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.2em', textTransform: 'uppercase', display: 'block', marginTop: 8 }}
                   >
                     entries total
                   </span>
@@ -256,7 +256,7 @@ export function Streaks() {
                     </span>
                     <span
                       className="hl-mono"
-                      style={{ fontSize: 9.5, color: 'var(--bone-faint)', letterSpacing: '0.3em', textTransform: 'uppercase', display: 'block', marginTop: 8 }}
+                      style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.2em', textTransform: 'uppercase', display: 'block', marginTop: 8 }}
                     >
                       since
                     </span>

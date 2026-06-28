@@ -148,7 +148,7 @@ export function LetterRoom() {
         {!isLoading && !featured && (
           <div style={{ textAlign: 'center', paddingTop: 'clamp(24px,8vh,72px)' }}>
             <div style={{
-              fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.32em',
+              fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
               textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 16,
             }}>
               a letter to
@@ -188,7 +188,7 @@ export function LetterRoom() {
           return (
             <section style={{ textAlign: 'center', animation: `hl-fade 360ms ${EASE}` }}>
               <div style={{
-                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.32em',
+                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: 'var(--copper-label)', marginBottom: 16,
               }}>
                 a letter to
@@ -262,7 +262,7 @@ export function LetterRoom() {
                       border: '1px solid var(--copper-border)', borderRadius: 0,
                       color: 'var(--gold-text)', textDecoration: 'none',
                       fontFamily: 'var(--mono)', fontSize: 11,
-                      letterSpacing: '0.26em', textTransform: 'uppercase',
+                      letterSpacing: '0.2em', textTransform: 'uppercase',
                       padding: '12px 26px', cursor: 'default',
                     }}
                   >
@@ -279,7 +279,7 @@ export function LetterRoom() {
                       borderRadius: 0,
                       color: 'var(--gold-text)',
                       fontFamily: 'var(--mono)', fontSize: 11,
-                      letterSpacing: '0.26em', textTransform: 'uppercase',
+                      letterSpacing: '0.2em', textTransform: 'uppercase',
                       padding: '12px 26px',
                       cursor: sealMutation.isPending ? 'default' : 'pointer',
                       opacity: sealMutation.isPending ? 0.5 : 1,
@@ -294,7 +294,7 @@ export function LetterRoom() {
               {/* The quiet open-condition line. */}
               <div style={{
                 marginTop: 16,
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: 'var(--bone-faint)',
               }}>
                 {opensCondition(featured)}
@@ -361,7 +361,7 @@ export function LetterRoom() {
                         <div style={{
                           marginTop: 10, display: 'flex', alignItems: 'center', gap: 9,
                           flexWrap: 'wrap',
-                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.26em',
+                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                           textTransform: 'uppercase', color: 'var(--warm)',
                         }}>
                           {isSealed ? (
@@ -432,7 +432,7 @@ export function LetterRoom() {
                 </picture>
                           <div style={{
                             marginTop: 18,
-                            fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
+                            fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
                             textTransform: 'uppercase', color: 'var(--copper-label)',
                           }}>
                             sealed{year ? ` · opens ${year}` : ''}
@@ -456,7 +456,7 @@ export function LetterRoom() {
                           }}
                         >
                           <div style={{
-                            fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.32em',
+                            fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
                             textTransform: 'uppercase', color: 'var(--copper-label)',
                             textAlign: 'center', marginBottom: 14,
                           }}>
@@ -518,7 +518,7 @@ export function LetterRoom() {
                                 borderRadius: 0,
                                 color: 'var(--gold-text)',
                                 fontFamily: 'var(--mono)', fontSize: 11,
-                                letterSpacing: '0.26em', textTransform: 'uppercase',
+                                letterSpacing: '0.2em', textTransform: 'uppercase',
                                 padding: '12px 26px',
                                 cursor: sealMutation.isPending ? 'default' : 'pointer',
                                 opacity: sealMutation.isPending ? 0.5 : 1,
@@ -530,7 +530,7 @@ export function LetterRoom() {
                           </div>
                           <div style={{
                             marginTop: 16, textAlign: 'center',
-                            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                             textTransform: 'uppercase', color: 'var(--bone-faint)',
                           }}>
                             {opensCondition(letter)}
@@ -553,7 +553,7 @@ export function LetterRoom() {
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 10,
                 textDecoration: 'none',
-                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
+                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: 'var(--warm)',
               }}
             >

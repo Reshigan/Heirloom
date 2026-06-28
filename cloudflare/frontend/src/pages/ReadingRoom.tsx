@@ -124,7 +124,7 @@ function SelvedgeHistory({ t }: { t: Thread }) {
         aria-expanded={open}
         style={{
           background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-          fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em',
+          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
           textTransform: 'uppercase', color: 'var(--bone-faint)',
         }}
       >
@@ -346,7 +346,7 @@ function ReadingContent({
             type="button" onClick={onPrev} disabled={!onPrev}
             style={{
               background: 'transparent', border: 0, padding: 0,
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: onPrev ? 'var(--bone-faint)' : 'var(--bone-ghost)',
               cursor: onPrev ? 'pointer' : 'default',
@@ -388,7 +388,7 @@ function ReadingContent({
             type="button" onClick={onNext} disabled={!onNext}
             style={{
               background: 'transparent', border: 0, padding: 0,
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: onNext ? dye : 'var(--bone-ghost)',
               cursor: onNext ? 'pointer' : 'default',
@@ -401,7 +401,7 @@ function ReadingContent({
         {isLastEntry && (
           <div style={{ marginTop: 48, paddingTop: 24, borderTop: '1px solid var(--rule)', textAlign: 'center' }}>
             <Link to="/capture" style={{
-              fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.22em',
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
               textTransform: 'uppercase', color: 'var(--bone-faint)',
               textDecoration: 'none', borderBottom: '1px solid var(--rule)', paddingBottom: 2,
             }}>
@@ -576,7 +576,7 @@ export function ReadingRoom() {
             position: 'fixed', top: 20, left: 28, zIndex: 20,
             background: 'transparent', border: 0,
             fontFamily: 'var(--mono)', fontSize: 10,
-            letterSpacing: '0.22em', textTransform: 'uppercase',
+            letterSpacing: '0.2em', textTransform: 'uppercase',
             color: 'var(--bone-faint)', cursor: 'pointer',
             minHeight: 44, display: 'flex', alignItems: 'center',
           }}
@@ -637,7 +637,7 @@ export function ReadingRoom() {
                 }}
                 style={{
                   background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                   textTransform: 'uppercase', color: 'var(--bone-faint)',
                 }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
@@ -651,7 +651,7 @@ export function ReadingRoom() {
                 onClick={() => setDeleteConfirm(true)}
                 style={{
                   background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                   textTransform: 'uppercase', color: 'var(--bone-faint)',
                 }}
                 onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
@@ -672,7 +672,7 @@ export function ReadingRoom() {
                 disabled={deleteEntry.isPending}
                 style={{
                   background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                   textTransform: 'uppercase', color: 'var(--warm)',
                 }}
               >
@@ -683,7 +683,7 @@ export function ReadingRoom() {
                 onClick={() => setDeleteConfirm(false)}
                 style={{
                   background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                   textTransform: 'uppercase', color: 'var(--bone-faint)',
                 }}
               >
@@ -702,7 +702,7 @@ export function ReadingRoom() {
             disabled={entries.length === 0}
             style={{
               background: 'transparent', border: '1px solid var(--rule-strong)', padding: '3px 12px',
-              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: entries.length === 0 ? 'var(--bone-ghost)' : 'var(--bone-faint)',
               cursor: entries.length === 0 ? 'default' : 'pointer',
@@ -725,7 +725,7 @@ export function ReadingRoom() {
           style={{
             position: 'fixed', left: 0, top: '50%', transform: 'translateY(-50%)',
             background: 'var(--rule)', border: 'none', color: 'var(--bone-faint)',
-            fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.15em',
+            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.15em',
             padding: '8px 4px', cursor: 'pointer', writingMode: 'vertical-rl',
             textTransform: 'uppercase', zIndex: 16, display: 'none',
           }}
@@ -822,7 +822,7 @@ export function ReadingRoom() {
           }}>
             <div style={{ maxWidth: 540, width: '100%' }}>
               <div style={{
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: 'var(--warm)', marginBottom: 22,
               }}>
                 why heirloom exists
@@ -851,7 +851,7 @@ export function ReadingRoom() {
                 thread today and it can still be read a thousand years from now.
               </p>
               <Link to="/capture" style={{
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none',
                 borderLeft: '1px solid var(--warm)', paddingLeft: 14, display: 'inline-block',
               }}>
@@ -882,13 +882,13 @@ export function ReadingRoom() {
               alignItems: 'center', justifyContent: 'center',
               gap: 14, padding: 44, background: 'var(--ink)',
             }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--warm)', letterSpacing: '0.22em', textTransform: 'uppercase' }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--warm)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
                 {t.kind} · {t.date}
               </div>
               <div style={{ fontFamily: 'var(--serif)', fontSize: 26, fontWeight: 300, fontStyle: 'italic', textAlign: 'center', maxWidth: '18ch', lineHeight: 1.25, color: 'var(--bone)' }}>
                 {t.title}
               </div>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>
                 {t.who}
               </div>
             </div>
@@ -994,7 +994,7 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
           display: 'flex', flexDirection: 'column',
         }}>
           <div style={{
-            fontSize: 10, color: 'var(--letter-eyebrow)', letterSpacing: '0.32em',
+            fontSize: 10, color: 'var(--letter-eyebrow)', letterSpacing: '0.2em',
             textTransform: 'uppercase', marginBottom: 36, fontFamily: 'var(--mono)',
           }}>
             {numeral(ch)} · {c.kind} · {c.year}

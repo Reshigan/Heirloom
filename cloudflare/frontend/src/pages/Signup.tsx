@@ -303,8 +303,8 @@ export function Signup() {
                       border: 0,
                       cursor: 'pointer',
                       padding: '4px 0',
-                      fontSize: 9,
-                      letterSpacing: '0.22em',
+                      fontSize: 10,
+                      letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       color: 'var(--bone-faint)',
                       transition: `color 180ms ${EASE}`,
@@ -380,7 +380,7 @@ export function Signup() {
                         className="hl-mono"
                         style={{
                           fontSize: 10,
-                          letterSpacing: '0.3em',
+                          letterSpacing: '0.2em',
                           textTransform: 'uppercase',
                           color: selected ? 'var(--warm)' : 'var(--bone-faint)',
                           transition: `color 180ms ${EASE}`,
@@ -411,7 +411,7 @@ export function Signup() {
                       <div
                         className="hl-mono"
                         style={{
-                          fontSize: 9,
+                          fontSize: 10,
                           letterSpacing: '0.16em',
                           textTransform: 'uppercase',
                           color: 'var(--bone-faint)',
@@ -485,7 +485,7 @@ export function Signup() {
               padding: '14px 24px',
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.3em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               opacity: isLoading ? 0.5 : 1,
               transition: `opacity 360ms ${EASE}, border-color 360ms ${EASE}`,
@@ -522,7 +522,7 @@ export function Signup() {
             textAlign: 'center',
             marginTop: 'clamp(40px,7vh,64px)',
             fontSize: 10,
-            letterSpacing: '0.26em',
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'var(--bone-faint)',
           }}
@@ -548,7 +548,7 @@ export function Signup() {
             className="hl-mono"
             style={{
               marginTop: 14,
-              fontSize: 9,
+              fontSize: 10,
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--bone-faint)',
@@ -693,8 +693,8 @@ function Field({
           className="hl-mono"
           style={{
             display: 'block',
-            fontSize: 9,
-            letterSpacing: '0.26em',
+            fontSize: 10,
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'var(--bone-dim)',
           }}

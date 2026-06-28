@@ -380,7 +380,7 @@ export function TimeCapsule() {
                 className="hl-mono"
                 style={{
                   fontSize: 10,
-                  letterSpacing: '0.28em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                   margin: 0,
@@ -393,8 +393,8 @@ export function TimeCapsule() {
                 onClick={() => setShowCreateModal(true)}
                 style={{
                   fontFamily: 'var(--mono)',
-                  fontSize: 9,
-                  letterSpacing: '0.22em',
+                  fontSize: 10,
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
                   background: 'none',
@@ -446,8 +446,8 @@ export function TimeCapsule() {
                         to={`/compose?capsuleId=${capsule.id}`}
                         style={{
                           fontFamily: 'var(--mono)',
-                          fontSize: 9,
-                          letterSpacing: '0.22em',
+                          fontSize: 10,
+                          letterSpacing: '0.2em',
                           textTransform: 'uppercase',
                           color: 'var(--warm)',
                           textDecoration: 'none',
@@ -476,7 +476,7 @@ export function TimeCapsule() {
                 className="hl-mono"
                 style={{
                   fontSize: 10,
-                  letterSpacing: '0.28em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                   margin: 0,
@@ -489,8 +489,8 @@ export function TimeCapsule() {
                 onClick={() => setShowCreateModal(true)}
                 style={{
                   fontFamily: 'var(--mono)',
-                  fontSize: 9,
-                  letterSpacing: '0.22em',
+                  fontSize: 10,
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
                   background: 'none',
@@ -546,7 +546,7 @@ export function TimeCapsule() {
                 className="hl-mono"
                 style={{
                   fontSize: 11,
-                  letterSpacing: '0.28em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--copper-label)',
                   marginBottom: 18,
@@ -809,7 +809,7 @@ export function TimeCapsule() {
                   flex: 1,
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.24em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--gold-text)',
                   background: 'transparent',

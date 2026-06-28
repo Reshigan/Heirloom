@@ -303,7 +303,7 @@ function EmptyState({ onSeal }: { onSeal: () => void }) {
         style={{
           fontFamily: 'var(--mono)',
           fontSize: 11,
-          letterSpacing: '0.22em',
+          letterSpacing: '0.2em',
           textTransform: 'uppercase',
           color: 'var(--warm)',
           background: 'none',

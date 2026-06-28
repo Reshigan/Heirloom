@@ -108,7 +108,7 @@ export function InheritanceCard() {
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.3em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--copper-label)',
               marginBottom: 20,
@@ -140,7 +140,7 @@ export function InheritanceCard() {
               style={{
                 fontFamily: 'var(--mono)',
                 fontSize: 11,
-                letterSpacing: '0.3em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--muted-2)',
                 marginBottom: 56,
@@ -174,7 +174,7 @@ export function InheritanceCard() {
                   padding: 0,
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.3em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--copper-label)',
                   cursor: 'pointer',
@@ -211,7 +211,7 @@ export function InheritanceCard() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.3em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--copper-label)',
                   textDecoration: 'none',

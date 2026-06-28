@@ -52,8 +52,8 @@ export function ForgotPassword() {
           to="/login"
           style={{
             fontFamily: 'var(--mono)',
-            fontSize: 9,
-            letterSpacing: '0.22em',
+            fontSize: 10,
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'var(--bone-faint)',
             textDecoration: 'none',
@@ -101,7 +101,7 @@ export function ForgotPassword() {
                     style={{
                       fontFamily: 'var(--mono)',
                       fontSize: 10,
-                      letterSpacing: '0.22em',
+                      letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       color: 'var(--warm)',
                       margin: 0,
@@ -121,7 +121,7 @@ export function ForgotPassword() {
                       cursor: isLoading ? 'not-allowed' : 'pointer',
                       fontFamily: 'var(--mono)',
                       fontSize: 10,
-                      letterSpacing: '0.22em',
+                      letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       color: 'var(--bone-faint)',
                       opacity: isLoading ? 0.4 : 1,
@@ -138,7 +138,7 @@ export function ForgotPassword() {
                   style={{
                     fontFamily: 'var(--mono)',
                     fontSize: 10,
-                    letterSpacing: '0.32em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: 'var(--bone-dim)',
                     textDecoration: 'none',
@@ -178,7 +178,7 @@ export function ForgotPassword() {
                     marginBottom: 8,
                     fontFamily: 'var(--mono)',
                     fontSize: 10,
-                    letterSpacing: '0.32em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: 'var(--bone-faint)',
                   }}
@@ -243,7 +243,7 @@ export function ForgotPassword() {
                     cursor: isLoading || !email.trim() ? 'not-allowed' : 'pointer',
                     fontFamily: 'var(--mono)',
                     fontSize: 12,
-                    letterSpacing: '0.26em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: 'var(--warm)',
                     opacity: isLoading || !email.trim() ? 0.4 : 1,
@@ -261,7 +261,7 @@ export function ForgotPassword() {
                   style={{
                     fontFamily: 'var(--mono)',
                     fontSize: 10,
-                    letterSpacing: '0.32em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: 'var(--bone-dim)',
                     textDecoration: 'none',

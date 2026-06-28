@@ -8,7 +8,7 @@ import { usePageMeta } from '../lib/usePageMeta';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
-import { useLoomTheme } from '../loom/theme';
+import { useLoomTheme, useLoomAccent, type LoomAccent } from '../loom/theme';
 import { useDisplayPreferences } from '../loom/useDisplayPreferences';
 import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
@@ -157,7 +157,7 @@ const RESPONSIVE_CSS = `
   font-family: var(--mono);
   font-size: 10px;
   color: var(--muted-4);
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   padding-top: 2px;
 }
@@ -253,6 +253,7 @@ export function Settings() {
   const checkoutSucceeded = searchParams.get('success') === 'true';
   const checkoutCanceled = searchParams.get('canceled') === 'true';
   const { theme, setTheme } = useLoomTheme();
+  const { accent, setAccent } = useLoomAccent();
   // `theme` is the RAW setting ('light'|'dark'|'system'); 'system' must be
   // resolved to the OS preference before it can drive the date picker's
   // colorScheme — otherwise a system-light page hardpins a dark picker.
@@ -666,6 +667,49 @@ export function Settings() {
                   >
                     {opt}
                   </button>
+                ))}
+              </span>
+            }
+          />
+
+          {/* Accent — the single emotion hue. Each user picks one; <3% surface,
+              signal only (ART_DIRECTION §2). Dark theme only — light keeps copper. */}
+          <LedgerRow
+            label="Accent"
+            hint="the one colour that carries feeling — chosen by you, worn across the Deep"
+            value={
+              <span role="radiogroup" aria-label="Accent" style={{ display: 'inline-flex', gap: 14, alignItems: 'center' }}>
+                {([
+                  { key: 'copper',    swatch: '#e0a062' },
+                  { key: 'seafoam',   swatch: '#7fd4c4' },
+                  { key: 'glacial',   swatch: '#6cc9dd' },
+                  { key: 'jade',      swatch: '#86d2ab' },
+                  { key: 'moonstone', swatch: '#a9c8dc' },
+                ] as const).map((opt, i, arr) => (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    title={opt.key}
+                    onClick={() => setAccent(opt.key as LoomAccent)}
+                    onKeyDown={(e) => handleRadioArrowKeys(e, i, arr.length, (next) => setAccent(arr[next].key as LoomAccent))}
+                    role="radio"
+                    aria-label={opt.key}
+                    aria-checked={accent === opt.key}
+                    tabIndex={accent === opt.key ? 0 : -1}
+                    style={{
+                      width: 18,
+                      height: 18,
+                      padding: 0,
+                      borderRadius: '50%',
+                      background: opt.swatch,
+                      border: 'none',
+                      cursor: 'pointer',
+                      // Selected ring = a bone halo offset off the swatch; matches
+                      // the underline affordance the other rows use, in colour form.
+                      boxShadow: accent === opt.key ? '0 0 0 2px var(--ink), 0 0 0 3px var(--bone)' : 'none',
+                      transition: 'box-shadow 180ms var(--ease)',
+                    }}
+                  />
                 ))}
               </span>
             }

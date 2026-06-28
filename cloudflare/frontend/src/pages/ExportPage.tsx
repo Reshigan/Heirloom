@@ -392,7 +392,7 @@ export function ExportPage() {
               borderRadius: 0,
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.28em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               cursor: bind.isPending ? 'default' : 'pointer',
               transition:

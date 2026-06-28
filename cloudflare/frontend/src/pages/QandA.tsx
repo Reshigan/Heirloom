@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { searchApi } from '../services/api';
 import { DYES, dyeVar, type Dye } from '../loom/dye';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
@@ -100,8 +101,7 @@ export function QandA() {
 
   return (
     <ClothShell
-      topbarLeft={<Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>}
-      topbarCenter="the listener"
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'q&a' }]} />}
     >
       <div
         style={{
@@ -120,7 +120,7 @@ export function QandA() {
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.28em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--copper-label)',
               marginTop: 8,
@@ -155,7 +155,7 @@ export function QandA() {
                   style={{
                     fontFamily: 'var(--mono)',
                     fontSize: 10,
-                    letterSpacing: '0.3em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: 'var(--bone-faint)',
                     margin: '0 0 6px',
@@ -232,7 +232,7 @@ export function QandA() {
                       width: 1,
                       flex: '0 0 auto',
                       alignSelf: 'stretch',
-                      background: 'linear-gradient(180deg, var(--copper-border), transparent)',
+                      background: 'var(--rule)',
                     }}
                   />
                   <p
@@ -288,7 +288,7 @@ export function QandA() {
                 display: 'block',
                 fontFamily: 'var(--mono)',
                 fontSize: 10,
-                letterSpacing: '0.28em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--copper-label)',
                 margin: '0 0 10px',
@@ -328,7 +328,7 @@ export function QandA() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 10,
-                  letterSpacing: '0.22em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
                   background: 'transparent',
@@ -353,7 +353,7 @@ export function QandA() {
                   cursor: 'pointer',
                   fontFamily: 'var(--mono)',
                   fontSize: 10,
-                  letterSpacing: '0.22em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                   padding: '6px 0',

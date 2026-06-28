@@ -65,8 +65,8 @@ export function ResetPassword() {
           to="/login"
           style={{
             fontFamily: 'var(--mono)',
-            fontSize: 9,
-            letterSpacing: '0.22em',
+            fontSize: 10,
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'var(--bone-faint)',
             textDecoration: 'none',
@@ -114,7 +114,7 @@ export function ResetPassword() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.28em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                   marginBottom: 18,
@@ -157,7 +157,7 @@ export function ResetPassword() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.26em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
                   textDecoration: 'none',
@@ -178,7 +178,7 @@ export function ResetPassword() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.28em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                   marginBottom: 18,
@@ -221,7 +221,7 @@ export function ResetPassword() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.26em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
                   textDecoration: 'none',
@@ -242,7 +242,7 @@ export function ResetPassword() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.28em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                   marginBottom: 18,
@@ -290,7 +290,7 @@ export function ResetPassword() {
                       display: 'block',
                       fontFamily: 'var(--mono)',
                       fontSize: 10,
-                      letterSpacing: '0.32em',
+                      letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       color: 'var(--bone-faint)',
                       marginBottom: 10,
@@ -346,7 +346,7 @@ export function ResetPassword() {
                       display: 'block',
                       fontFamily: 'var(--mono)',
                       fontSize: 10,
-                      letterSpacing: '0.32em',
+                      letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       color: 'var(--bone-faint)',
                       marginBottom: 10,
@@ -405,7 +405,7 @@ export function ResetPassword() {
                   style={{
                     fontFamily: 'var(--mono)',
                     fontSize: 11,
-                    letterSpacing: '0.26em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: 'var(--warm)',
                     background: 'transparent',

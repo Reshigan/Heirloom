@@ -163,7 +163,7 @@ export function Login() {
                 borderRadius: 0,
                 color: 'var(--warm)',
                 fontFamily: 'var(--mono)',
-                fontSize: 11, letterSpacing: '0.3em', textTransform: 'uppercase',
+                fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase',
                 cursor: isLoading || !email.trim() || !password.trim() ? 'default' : 'pointer',
                 opacity: isLoading || !email.trim() || !password.trim() ? 0.45 : 1,
                 transition: 'opacity 360ms var(--ease)',

@@ -70,7 +70,7 @@ export function Unsubscribe() {
     marginBottom: 8,
     fontFamily: 'var(--mono)',
     fontSize: 10,
-    letterSpacing: '0.32em',
+    letterSpacing: '0.2em',
     textTransform: 'uppercase',
     color: 'var(--bone-dim)',
   };
@@ -136,7 +136,7 @@ export function Unsubscribe() {
               style={{
                 fontFamily: 'var(--mono)',
                 fontSize: 11,
-                letterSpacing: '0.26em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--warm)',
                 textDecoration: 'none',
@@ -218,7 +218,7 @@ export function Unsubscribe() {
                       padding: '12px 0',
                       fontFamily: 'var(--mono)',
                       fontSize: 11,
-                      letterSpacing: '0.26em',
+                      letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       color: 'var(--warm)',
                       cursor: 'pointer',

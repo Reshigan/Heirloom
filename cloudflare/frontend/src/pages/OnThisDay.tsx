@@ -1,22 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { memoryCardsApi, aiApi } from '../services/api';
 import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { dyeForId } from '../loom/dye';
-import type { Dye } from '../loom/dye';
-
-// ── Dye resolution — map entry type to a canonical dye name ──────────────────
-const TYPE_DYE: Record<string, Dye> = {
-  memory: 'madder',
-  voice:  'woad',
-  letter: 'saffron',
-};
-
-function dyeForType(type: string): Dye {
-  return TYPE_DYE[type] ?? 'oakgall';
-}
 
 // ── Types ────────────────────────────────────────────────────────────────────
 interface OnThisDayMemory {
@@ -78,22 +67,7 @@ export function OnThisDay() {
 
   return (
     <ClothShell
-      topbarLeft={
-        <Link
-          to="/loom/index"
-          style={{
-            fontFamily: 'var(--mono)',
-            fontSize: 10,
-            letterSpacing: '0.16em',
-            color: 'var(--bone-faint)',
-            textDecoration: 'none',
-            textTransform: 'uppercase',
-          }}
-        >
-          ← heirloom
-        </Link>
-      }
-      topbarCenter="on this day"
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'on this day' }]} />}
     >
       <div
         style={{
@@ -159,7 +133,9 @@ export function OnThisDay() {
                 memory.yearsAgo > 0
                   ? `${memory.yearsAgo === 1 ? '1 yr ago' : `${memory.yearsAgo} yrs ago`}`
                   : undefined;
-              const dye = dyeForType(memory.type) ?? dyeForId(memory.id);
+              // Dye = per-entry identity signal (single-source dye.ts), never a
+              // content-type palette — matches the Weft/Memories convention.
+              const dye = dyeForId(memory.id);
 
               return (
                 <EntryRow

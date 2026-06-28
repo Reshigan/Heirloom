@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { RoomSection } from '../loom/components/room';
 import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { dyeFromMetadata, dyeForId, dyeVar, type Dye } from '../loom/dye';
@@ -278,7 +279,7 @@ function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string 
           <span
             style={{
               fontFamily: 'var(--mono)',
-              fontSize: 8,
+              fontSize: 10,
               letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--gold-text)',
@@ -409,8 +410,7 @@ export function BookBuilder() {
 
   return (
     <ClothShell
-      topbarLeft={<Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>}
-      topbarCenter="book builder"
+      topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'book' }]} />}
     >
       {/* scrollable inner */}
       <div style={{ maxWidth: 'var(--page-max-wide)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>

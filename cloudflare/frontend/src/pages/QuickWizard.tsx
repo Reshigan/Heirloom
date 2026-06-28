@@ -153,7 +153,7 @@ function StepProgress({ current, total, label }: { current: number; total: numbe
           style={{
             fontFamily: 'var(--mono)',
             fontSize: 10,
-            letterSpacing: '0.22em',
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'var(--bone-faint)',
           }}
@@ -275,7 +275,7 @@ function SummaryRow({ label, value }: { label: string; value: React.ReactNode })
       <div style={{ display: 'flex', gap: 24, alignItems: 'baseline', padding: '12px 0' }}>
         <span
           className="hl-mono"
-          style={{ fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.22em', textTransform: 'uppercase', minWidth: 72 }}
+          style={{ fontSize: 10, color: 'var(--bone-dim)', letterSpacing: '0.2em', textTransform: 'uppercase', minWidth: 72 }}
         >
           {label}
         </span>
@@ -297,7 +297,7 @@ function ActionPill({ label, onClick }: { label: string; onClick: () => void }) 
       style={{
         fontFamily: 'var(--mono)',
         fontSize: 11,
-        letterSpacing: '0.22em',
+        letterSpacing: '0.2em',
         textTransform: 'uppercase',
         color: 'var(--warm)',
         background: 'transparent',
@@ -667,7 +667,7 @@ export function QuickWizard() {
                       <div style={{ marginTop: 24, textAlign: 'left' }}>
                         <p
                           className="hl-mono"
-                          style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.22em', marginBottom: 8, textTransform: 'uppercase' }}
+                          style={{ fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.2em', marginBottom: 8, textTransform: 'uppercase' }}
                         >
                           suggested beginnings
                         </p>
@@ -697,7 +697,7 @@ export function QuickWizard() {
                               className="hl-mono"
                               style={{
                                 display: 'block',
-                                fontSize: 9,
+                                fontSize: 10,
                                 color: 'var(--bone-faint)',
                                 letterSpacing: '0.14em',
                                 marginTop: 4,

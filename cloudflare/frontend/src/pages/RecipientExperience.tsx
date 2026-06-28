@@ -54,7 +54,7 @@ function LoadingBar() {
 const monoMeta: React.CSSProperties = {
   fontFamily: 'var(--mono)',
   fontSize: 11,
-  letterSpacing: '0.26em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase',
   margin: 0,
 };
@@ -121,7 +121,7 @@ export function RecipientExperience() {
         style={{
           fontFamily: 'var(--mono)',
           fontSize: 10.5,
-          letterSpacing: '0.32em',
+          letterSpacing: '0.2em',
           textTransform: 'uppercase',
           color: 'var(--bone-faint)',
         }}
@@ -162,7 +162,7 @@ export function RecipientExperience() {
         style={{
           fontFamily: 'var(--mono)',
           fontSize: 10.5,
-          letterSpacing: '0.22em',
+          letterSpacing: '0.2em',
           textTransform: 'uppercase',
           color: 'var(--warm)',
           textDecoration: 'none',
@@ -241,7 +241,7 @@ export function RecipientExperience() {
               style={{
                 fontFamily: 'var(--mono)',
                 fontSize: 12,
-                letterSpacing: '0.26em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--warm)',
                 textDecoration: 'none',
@@ -364,7 +364,7 @@ export function RecipientExperience() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 12,
-                  letterSpacing: '0.26em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
                   textDecoration: 'none',
@@ -383,7 +383,7 @@ export function RecipientExperience() {
                   cursor: 'pointer',
                   fontFamily: 'var(--mono)',
                   fontSize: 12,
-                  letterSpacing: '0.26em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
                 }}

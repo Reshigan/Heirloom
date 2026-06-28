@@ -64,7 +64,7 @@ const labelBase: React.CSSProperties = {
   display:       'block',
   fontFamily:    'var(--mono)',
   fontSize:      10,
-  letterSpacing: '0.26em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase',
   color:         'var(--bone-faint)',
   marginBottom:  8,
@@ -197,7 +197,7 @@ export function Founder() {
           style={{
             fontFamily:    'var(--mono)',
             fontSize:       10,
-            letterSpacing: '0.28em',
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color:         'var(--bone-faint)',
             margin:        '0 0 28px',
@@ -459,7 +459,7 @@ export function Founder() {
               style={{
                 fontFamily:     'var(--mono)',
                 fontSize:        11,
-                letterSpacing:  '0.26em',
+                letterSpacing:  '0.2em',
                 textTransform:  'uppercase',
                 color:          'var(--warm)',
                 background:     'transparent',
@@ -571,7 +571,7 @@ export function Founder() {
             style={{
               fontFamily:    'var(--mono)',
               fontSize:       10,
-              letterSpacing: '0.22em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color:         'var(--bone-faint)',
               margin:        '0 0 16px',

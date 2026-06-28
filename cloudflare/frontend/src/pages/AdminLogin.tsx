@@ -65,7 +65,7 @@ export function AdminLogin() {
         style={{
           fontFamily: 'var(--mono)',
           fontSize: 11,
-          letterSpacing: '0.28em',
+          letterSpacing: '0.2em',
           textTransform: 'uppercase',
           color: 'var(--bone-faint)',
           marginBottom: 20,
@@ -162,7 +162,7 @@ export function AdminLogin() {
             color: 'var(--warm)',
             fontFamily: 'var(--mono)',
             fontSize: 11,
-            letterSpacing: '0.26em',
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             padding: '14px 0',
             minHeight: 44,

@@ -209,7 +209,7 @@ export function StoryView() {
               marginTop: 18,
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.26em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--copper-label)',
             }}
@@ -305,7 +305,7 @@ export function StoryView() {
                     cursor: atStart ? 'default' : 'pointer',
                     fontFamily: 'var(--mono)',
                     fontSize: 10.5,
-                    letterSpacing: '0.22em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: atStart ? 'var(--bone-ghost)' : 'var(--bone-dim)',
                   }}
@@ -355,7 +355,7 @@ export function StoryView() {
                     cursor: atEnd ? 'default' : 'pointer',
                     fontFamily: 'var(--mono)',
                     fontSize: 10.5,
-                    letterSpacing: '0.22em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: atEnd ? 'var(--bone-ghost)' : 'var(--copper-label)',
                   }}
@@ -400,7 +400,7 @@ export function StoryView() {
                 textAlign: 'center',
                 fontFamily: 'var(--mono)',
                 fontSize: 10,
-                letterSpacing: '0.22em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-faint)',
                 marginTop: 16,

@@ -124,7 +124,7 @@ const labelStyle: React.CSSProperties = {
   fontFamily: 'var(--mono)',
   fontSize: 10,
   fontWeight: 500,
-  letterSpacing: '0.22em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase',
   color: 'var(--bone-faint)',
   marginBottom: 10,
@@ -361,7 +361,7 @@ export function LifeEvents() {
             aria-haspopup="dialog"
             style={{
               background: 'none', border: 0, padding: '8px 0', cursor: 'pointer',
-              fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.22em',
+              fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
               textTransform: 'uppercase', color: 'var(--warm)',
             }}
           >

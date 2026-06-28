@@ -45,7 +45,7 @@ function ScenarioPage({
         <Link to="/" style={{
           fontFamily: 'var(--mono)',
           fontSize: 13,
-          letterSpacing: '0.22em',
+          letterSpacing: '0.2em',
           textTransform: 'uppercase',
           color: 'var(--copper-label)',
           textDecoration: 'none',
@@ -105,7 +105,7 @@ function ScenarioPage({
             </span>
             <span style={{
               fontFamily: 'var(--mono)',
-              fontSize: 9,
+              fontSize: 10,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
               color: 'var(--copper-label)',
@@ -117,8 +117,8 @@ function ScenarioPage({
           </span>
           <span className="scenario-sealed-label" style={{
             fontFamily: 'var(--mono)',
-            fontSize: 9,
-            letterSpacing: '0.22em',
+            fontSize: 10,
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'var(--bone-faint)',
             flex: '0 0 auto',
@@ -156,7 +156,7 @@ function ScenarioPage({
           }}>
             <span style={{
               fontFamily: 'var(--mono)',
-              fontSize: 9,
+              fontSize: 10,
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
               color: 'var(--copper-label)',

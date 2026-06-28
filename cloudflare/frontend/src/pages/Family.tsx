@@ -289,7 +289,7 @@ export function Family() {
                     fontFamily: 'var(--mono)',
                     fontSize: 13,
                     fontWeight: mode === m ? 700 : 400,
-                    letterSpacing: '0.28em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: mode === m ? 'var(--warm)' : 'var(--bone-dim)',
                     transition: 'color 180ms var(--ease)',
@@ -674,7 +674,7 @@ export function Family() {
                           flex: '0 0 auto',
                           whiteSpace: 'nowrap',
                           fontSize: 10,
-                          letterSpacing: '0.22em',
+                          letterSpacing: '0.2em',
                           textTransform: 'uppercase',
                           color: 'var(--muted-3)',
                         }}
@@ -884,7 +884,7 @@ export function Family() {
               onClick={() => openForm('invite')}
               style={{
                 background: 'transparent', border: 0, padding: '8px 0', cursor: 'pointer',
-                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.3em',
+                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: 'var(--muted-4)',
                 transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
               }}
@@ -916,7 +916,7 @@ function InputField({
 }) {
   return (
     <label style={{ display: 'block' }}>
-      <span className="hl-mono" style={{ display: 'block', fontSize: 12, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-dim)', marginBottom: 8 }}>
+      <span className="hl-mono" style={{ display: 'block', fontSize: 12, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-dim)', marginBottom: 8 }}>
         {label}
       </span>
       <input

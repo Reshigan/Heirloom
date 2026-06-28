@@ -318,7 +318,7 @@ export function Offline() {
                 cursor: draft.trim() ? 'pointer' : 'default',
                 fontSize: 10,
                 color: draft.trim() ? 'var(--warm)' : 'var(--bone-faint)',
-                letterSpacing: '0.22em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 opacity: draft.trim() ? 1 : 0.5,
                 minHeight: 44,
@@ -332,7 +332,7 @@ export function Offline() {
             <span
               className="loom-mono"
               style={{
-                fontSize: 9,
+                fontSize: 10,
                 color: 'var(--bone-faint)',
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
@@ -354,9 +354,9 @@ export function Offline() {
             <div
               className="loom-mono"
               style={{
-                fontSize: 9,
+                fontSize: 10,
                 color: 'var(--bone-faint)',
-                letterSpacing: '0.22em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 marginBottom: 12,
               }}
@@ -399,7 +399,7 @@ export function Offline() {
                 <span
                   className="loom-mono"
                   style={{
-                    fontSize: 9,
+                    fontSize: 10,
                     color: 'var(--bone-faint)',
                     letterSpacing: '0.18em',
                     textTransform: 'uppercase',
@@ -412,7 +412,7 @@ export function Offline() {
             <div
               className="loom-mono"
               style={{
-                fontSize: 9,
+                fontSize: 10,
                 color: 'var(--bone-faint)',
                 letterSpacing: '0.18em',
                 textTransform: 'uppercase',
@@ -429,9 +429,9 @@ export function Offline() {
           <div
             className="loom-mono"
             style={{
-              fontSize: 9,
+              fontSize: 10,
               color: 'var(--bone-faint)',
-              letterSpacing: '0.22em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               marginBottom: 12,
             }}
@@ -467,7 +467,7 @@ export function Offline() {
               cursor: 'pointer',
               fontSize: 10,
               color: 'var(--warm)',
-              letterSpacing: '0.22em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               minHeight: 44,
               display: 'inline-flex',
@@ -488,7 +488,7 @@ export function Offline() {
             role="status"
             style={{
               marginTop: 18,
-              fontSize: 9,
+              fontSize: 10,
               color: 'var(--bone-faint)',
               letterSpacing: '0.18em',
               textTransform: 'uppercase',
@@ -505,7 +505,7 @@ export function Offline() {
           className="loom-mono"
           style={{
             marginTop: 10,
-            fontSize: 9,
+            fontSize: 10,
             color: 'var(--bone-faint)',
             letterSpacing: '0.18em',
             textTransform: 'uppercase',

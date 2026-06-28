@@ -161,7 +161,7 @@ function ToField({
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 12,
-              letterSpacing: '0.22em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--bone-dim)',
               flexShrink: 0,
@@ -311,7 +311,7 @@ function ToField({
                   style={{
                     marginLeft: 'auto',
                     fontFamily: 'var(--mono)',
-                    fontSize: 8.5,
+                    fontSize: 10,
                     color: 'var(--bone-faint)',
                     letterSpacing: '0.18em',
                     textTransform: 'uppercase',
@@ -401,7 +401,7 @@ function DeliveryField({
         style={{
           fontFamily: 'var(--mono)',
           fontSize: 11,
-          letterSpacing: '0.22em',
+          letterSpacing: '0.2em',
           textTransform: 'uppercase',
           color: 'var(--bone-faint)',
           marginBottom: 10,
@@ -539,7 +539,7 @@ function EntryDateField({
         style={{
           fontFamily: 'var(--mono)',
           fontSize: 11,
-          letterSpacing: '0.22em',
+          letterSpacing: '0.2em',
           textTransform: 'uppercase',
           color: 'var(--bone-faint)',
           marginBottom: 8,
@@ -558,7 +558,7 @@ function EntryDateField({
         >
           {formatted}
         </span>
-        <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>edit</span>
+        <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase' }}>edit</span>
         <input
           type="date"
           value={value}
@@ -584,7 +584,7 @@ function EntryDateField({
 const fieldLabel: React.CSSProperties = {
   fontFamily: 'var(--mono)',
   fontSize: 11,
-  letterSpacing: '0.22em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase',
   color: 'var(--bone-faint)',
   marginBottom: 10,
@@ -1572,7 +1572,7 @@ export function Compose() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 10,
-                  letterSpacing: '0.22em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                   margin: '0 0 8px',
@@ -2073,7 +2073,7 @@ export function Compose() {
                   minHeight: 44,
                   fontFamily: 'var(--mono)',
                   fontSize: 12,
-                  letterSpacing: '0.26em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--gold-text)',
                   cursor: submitDisabled ? 'default' : 'pointer',
@@ -2135,7 +2135,7 @@ export function Compose() {
                 aria-hidden
                 style={{
                   fontFamily: 'var(--mono)',
-                  fontSize: 9.5,
+                  fontSize: 10,
                   letterSpacing: '0.16em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',

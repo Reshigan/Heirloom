@@ -78,7 +78,7 @@ export function Referrals() {
     fontFamily: 'var(--mono)',
     fontSize: 10,
     fontWeight: 500,
-    letterSpacing: '0.32em',
+    letterSpacing: '0.2em',
     textTransform: 'uppercase',
     color: 'var(--bone-faint)',
     marginBottom: 10,

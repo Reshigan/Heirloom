@@ -137,7 +137,7 @@ export function Pricing() {
             position: 'relative',
             zIndex: 1,
             fontSize: 11,
-            letterSpacing: '0.3em',
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'var(--copper-label)',
             marginBottom: 18,
@@ -237,7 +237,7 @@ export function Pricing() {
                   className="hl-mono"
                   style={{
                     fontSize: 10,
-                    letterSpacing: '0.22em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: 'var(--bone-faint)',
                     marginTop: 12,
@@ -289,7 +289,7 @@ export function Pricing() {
                     color: 'var(--warm)',
                     fontFamily: 'var(--mono)',
                     fontSize: 11,
-                    letterSpacing: '0.26em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     textDecoration: 'none',
                   }}
@@ -323,7 +323,7 @@ export function Pricing() {
               onKeyDown={(e) => handleRadioArrowKeys(e, 0, 2, (next) => setAnnual(next === 1))}
               style={{
                 background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
                 color: !showAnnual ? 'var(--bone)' : 'var(--bone-faint)',
                 borderBottom: !showAnnual ? '1px solid var(--bone)' : '1px solid transparent',
                 transition: 'color 360ms var(--ease)',
@@ -340,7 +340,7 @@ export function Pricing() {
               onKeyDown={(e) => handleRadioArrowKeys(e, 1, 2, (next) => setAnnual(next === 1))}
               style={{
                 background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
-                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em', textTransform: 'uppercase',
+                fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
                 color: showAnnual ? 'var(--bone)' : 'var(--bone-faint)',
                 borderBottom: showAnnual ? '1px solid var(--bone)' : '1px solid transparent',
                 transition: 'color 360ms var(--ease)',

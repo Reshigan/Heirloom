@@ -40,7 +40,7 @@ export function GiftSuccess() {
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.26em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--warm)',
               marginBottom: 20,
@@ -86,7 +86,7 @@ export function GiftSuccess() {
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.26em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--warm)',
               textDecoration: 'none',

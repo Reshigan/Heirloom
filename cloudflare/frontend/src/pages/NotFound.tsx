@@ -12,7 +12,7 @@ export function NotFound() {
     <ClothShell
       topbarLeft={<HLogo href="/" />}
       topbarCenter="not found"
-      topbarRight={<Link to={home} className="hl-link warm">the cloth →</Link>}
+      topbarRight={<Link to={home} className="hl-link warm">the Deep →</Link>}
     >
       <div
         style={{
@@ -59,7 +59,7 @@ export function NotFound() {
           style={{
             fontSize: 11,
             textTransform: 'uppercase',
-            letterSpacing: '0.22em',
+            letterSpacing: '0.2em',
             minHeight: 44,
             display: 'inline-flex',
             alignItems: 'center',

@@ -370,7 +370,7 @@ export function DailySentence() {
               style={{
                 fontFamily: 'var(--mono)',
                 fontSize: 10,
-                letterSpacing: '0.26em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-faint)',
               }}
@@ -463,7 +463,7 @@ export function DailySentence() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.26em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: saveState === 'saved' ? 'var(--bone-dim)' : 'var(--gold-text)',
                   background: 'transparent',
@@ -490,7 +490,7 @@ export function DailySentence() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 10,
-                  letterSpacing: '0.22em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                   border: '1px solid var(--rule)',
@@ -526,7 +526,7 @@ export function DailySentence() {
                   style={{
                     fontFamily: 'var(--mono)',
                     fontSize: 10,
-                    letterSpacing: '0.22em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: 'var(--bone-faint)',
                     marginBottom: 10,

@@ -254,7 +254,7 @@ export function PersonPage() {
                   background: 'transparent', border: 0, padding: 0,
                   cursor: (!editName.trim() || !editRelationship.trim() || updateMember.isPending) ? 'default' : 'pointer',
                   fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--copper-label)',
-                  letterSpacing: '0.26em', textTransform: 'uppercase', minHeight: 44,
+                  letterSpacing: '0.2em', textTransform: 'uppercase', minHeight: 44,
                   opacity: (!editName.trim() || !editRelationship.trim() || updateMember.isPending) ? 0.4 : 1,
                 }}
               >
@@ -266,7 +266,7 @@ export function PersonPage() {
                 style={{
                   background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                   fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--bone-faint)',
-                  letterSpacing: '0.26em', textTransform: 'uppercase', minHeight: 44,
+                  letterSpacing: '0.2em', textTransform: 'uppercase', minHeight: 44,
                 }}
               >
                 cancel
@@ -286,7 +286,7 @@ export function PersonPage() {
               style={{
                 background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                 fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--bone-faint)',
-                letterSpacing: '0.26em', textTransform: 'uppercase',
+                letterSpacing: '0.2em', textTransform: 'uppercase',
                 marginTop: 4, display: 'inline-block', minHeight: 44,
               }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--copper-label)'; }}

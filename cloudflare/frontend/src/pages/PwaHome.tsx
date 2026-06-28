@@ -228,7 +228,7 @@ function FirstThreadPrompt({ prompt }: { prompt: string }) {
         borderLeft: '1px solid var(--rule)',
         marginBottom: 28,
       }}>
-        <div className="hl-mono" style={{ fontSize: 8.5, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+        <div className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
           sealed · delivery: your choice
         </div>
         {/* ponytail: dropped the ∞ glyph — BottomNav already renders the singular mark on this authed surface */}
@@ -401,7 +401,7 @@ function AuthHome({
           <Link to={echoRoute} className="hl-mono" style={{
             display: 'block',
             marginBottom: 12,
-            fontSize: 10, letterSpacing: '0.28em', textTransform: 'uppercase',
+            fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
             color: 'var(--bone-faint)', textDecoration: 'none',
           }}>
             one year ago today —
@@ -411,7 +411,7 @@ function AuthHome({
         {/* Warm mono eyebrow — the Listener (or, on the first session, the author's own thread) */}
         <div className="hl-mono" style={{
           marginBottom: 18,
-          fontSize: 10, letterSpacing: '0.34em', textTransform: 'uppercase',
+          fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
           color: ownFirstThread ? 'var(--bone-faint)' : 'var(--warm)',
         }}>
           {ownFirstThread ? 'your first thread' : isReadOnly ? 'the thread' : 'the listener asks'}
@@ -451,7 +451,7 @@ function AuthHome({
               borderRadius: 0,
               color: 'var(--warm)',
               fontFamily: 'var(--mono)',
-              fontSize: 11, letterSpacing: '0.3em', textTransform: 'uppercase',
+              fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase',
               cursor: 'pointer',
             }}
           >
@@ -469,7 +469,7 @@ function AuthHome({
                 borderRadius: 0,
                 color: 'var(--warm)',
                 fontFamily: 'var(--mono)',
-                fontSize: 11, letterSpacing: '0.3em', textTransform: 'uppercase',
+                fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase',
                 cursor: 'pointer',
               }}
             >

@@ -108,7 +108,7 @@ export function Marketing() {
           <HLogo size="md" wordmark />
           <span style={{
             display: 'flex', gap: 'clamp(18px, 3vw, 32px)', alignItems: 'center',
-            fontFamily: 'var(--mono)', fontSize: 11.5, letterSpacing: '0.22em',
+            fontFamily: 'var(--mono)', fontSize: 11.5, letterSpacing: '0.2em',
             textTransform: 'uppercase', color: 'var(--bone-dim)',
           }}>
             <Link to="/pricing"  style={{ color: 'inherit', textDecoration: 'none' }} className="mkt-nav-hide-sm">pricing</Link>
@@ -169,7 +169,7 @@ export function Marketing() {
                 borderRadius: 0,
                 color: 'var(--warm-bright, var(--warm))',
                 background: 'transparent',
-                fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.30em',
+                fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.2em',
                 textTransform: 'uppercase', textDecoration: 'none',
                 transition: `background 360ms ${ease}, color 360ms ${ease}`,
               }}
@@ -185,7 +185,7 @@ export function Marketing() {
                   background: 'transparent', border: '1px solid var(--rule)',
                   borderRadius: 0,
                   color: 'var(--bone-dim)', fontFamily: 'var(--mono)', fontSize: 10,
-                  letterSpacing: '0.24em', textTransform: 'uppercase',
+                  letterSpacing: '0.2em', textTransform: 'uppercase',
                   cursor: 'pointer', padding: '12px 26px', minHeight: 44, boxSizing: 'border-box',
                 }}
               >
@@ -358,7 +358,7 @@ export function Marketing() {
       >
         <div>
           <div style={{
-            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em',
+            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
             textTransform: 'uppercase', color: 'var(--copper-label)',
             marginBottom: 28,
           }}>
@@ -399,7 +399,7 @@ export function Marketing() {
               display: 'inline-block', padding: '11px 28px', minHeight: 44, boxSizing: 'border-box',
               color: 'var(--warm)',
               fontFamily: 'var(--mono)', fontSize: 10,
-              letterSpacing: '0.22em', textTransform: 'uppercase',
+              letterSpacing: '0.2em', textTransform: 'uppercase',
               textDecoration: 'none',
             }}
           >
@@ -450,7 +450,7 @@ export function Marketing() {
             style={{
               display: 'inline-block', padding: '14px 36px', minHeight: 44, boxSizing: 'border-box',
               fontFamily: 'var(--mono)', fontSize: 11,
-              letterSpacing: '0.22em', textTransform: 'uppercase',
+              letterSpacing: '0.2em', textTransform: 'uppercase',
               textDecoration: 'none',
             }}
           >
@@ -458,7 +458,7 @@ export function Marketing() {
           </Link>
           <p style={{
             marginTop: 24,
-            fontFamily: 'var(--mono)', fontSize: 9.5,
+            fontFamily: 'var(--mono)', fontSize: 10,
             letterSpacing: '0.20em', textTransform: 'uppercase',
             color: 'var(--bone-faint)',
           }}>
@@ -476,7 +476,7 @@ export function Marketing() {
         borderTop: '1px solid var(--rule)',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         flexWrap: 'wrap', gap: 16,
-        fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.18em',
+        fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
         textTransform: 'uppercase', color: 'var(--bone-faint)',
       }}>
         <HLogo size="sm" wordmark />

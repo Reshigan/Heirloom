@@ -29,7 +29,7 @@ surface. Everything else (Composer, Rooms, Letters, Voice, Settings) sits on top
 
 **The five rules (from ART_DIRECTION.md):**
 1. Type is the hero — Fraunces (display only, ≥~24px — turns unreadable smaller; token `--font-display`/`--serif-display`), Source Serif 4 (body/prose/reading/inputs — the readable workhorse; token `--serif`/`--font-body`, and the hand/italic voice), JetBrains Mono (labels/archival, uppercase letterspaced; token `--mono`).
-2. One color has emotion — copper `warm #e0a062` at <3% surface area. Everything else is cream `#f2e6d0` on ground `#070d14` (The Deep's deep water).
+2. One color has emotion — a single accent at <3% surface area, **user-chosen** from 5 hues (copper `#e0a062`, seafoam `#7fd4c4` = default, glacial, jade, moonstone). Device-local (`heirloom-accent` localStorage), signal only. Dark-theme only for v1 (light keeps AA copper-browns). Derived from one `--accent`/`--accent-bright` pair via `color-mix`; `[data-accent]` on `<html>` swaps it (set by `theme-boot.js` + `useLoomAccent`). Everything else is cream `#f2e6d0` on ground `#070d14` (The Deep's deep water).
 3. Negative space is the composition — 60–70% of any view is empty.
 4. Motion has meaning or it's removed — one curve `cubic-bezier(0.16,1,0.3,1)`; durations 180/360/720/1400ms only.
 5. Outside time — if a visual move signals "this is 2026," cut it.

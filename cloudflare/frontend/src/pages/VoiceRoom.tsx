@@ -260,7 +260,7 @@ export function VoiceRoom() {
           }}
         >
           <span style={{
-            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+            fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
             textTransform: 'uppercase', color: 'var(--warm)',
           }}>
             record a voice thread
@@ -296,7 +296,7 @@ export function VoiceRoom() {
               to="/capture"
               style={{
                 textDecoration: 'none', display: 'inline-block', marginTop: 24,
-                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.24em',
+                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: 'var(--warm)',
               }}
             >
@@ -394,7 +394,7 @@ export function VoiceRoom() {
                         style={{
                           background: 'transparent', border: 0, padding: 0,
                           cursor: entry.fileUrl ? 'pointer' : 'default',
-                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                           textTransform: 'uppercase',
                           color: 'var(--warm)',
                           opacity: entry.fileUrl ? 1 : 0.4,
@@ -416,7 +416,7 @@ export function VoiceRoom() {
                         }}
                         style={{
                           background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                          fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.18em',
+                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em',
                           textTransform: 'uppercase', color: 'var(--bone-dim)',
                         }}
                       >
@@ -432,7 +432,7 @@ export function VoiceRoom() {
                           disabled={deleteVoice.isPending}
                           style={{
                             background: 'transparent', border: 0, padding: 0,
-                            cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9,
+                            cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10,
                             letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)',
                           }}
                         >
@@ -443,7 +443,7 @@ export function VoiceRoom() {
                           onClick={() => setConfirmDeleteId(null)}
                           style={{
                             background: 'transparent', border: 0, padding: 0,
-                            cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9,
+                            cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10,
                             letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)',
                           }}
                         >
@@ -456,7 +456,7 @@ export function VoiceRoom() {
                         onClick={() => setConfirmDeleteId(entry.id)}
                         style={{
                           background: 'transparent', border: 0, padding: 0,
-                          cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 9,
+                          cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10,
                           letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-dim)',
                         }}
                       >
@@ -470,7 +470,7 @@ export function VoiceRoom() {
                   {isPlaying && entry.fileUrl && (
                     <div id={`audio-${entry.id}`} style={{ animation: `hl-fade 360ms ${EASE}`, paddingBottom: 28, textAlign: 'center' }}>
                       <div style={{
-                        fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.28em',
+                        fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
                         textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 22,
                       }}>
                         what you said
@@ -515,7 +515,7 @@ export function VoiceRoom() {
                   {!isEditing && entry.transcript && (
                     <div style={{ paddingBottom: 18, maxWidth: '52ch' }}>
                       <div style={{
-                        fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.24em',
+                        fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                         textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 12,
                       }}>
                         what you said
@@ -545,7 +545,7 @@ export function VoiceRoom() {
                           background: 'transparent', border: 0, padding: 0,
                           marginBottom: 18,
                           cursor: 'pointer',
-                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.24em',
+                          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                           textTransform: 'uppercase', color: 'var(--warm)',
                           textDecoration: 'underline', textUnderlineOffset: 4,
                           textDecorationColor: 'var(--warm-dim)',

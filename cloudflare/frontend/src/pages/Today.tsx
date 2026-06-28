@@ -90,7 +90,7 @@ export function Today() {
     color: 'var(--warm)',
     fontFamily: 'var(--mono)',
     fontSize: 11,
-    letterSpacing: '0.3em',
+    letterSpacing: '0.2em',
     textTransform: 'uppercase',
     textDecoration: 'none',
     minHeight: 44,
@@ -154,7 +154,7 @@ export function Today() {
             marginBottom: 44, textAlign: 'left',
           }}>
             <div style={{
-              fontFamily: 'var(--mono)', fontSize: 8.5, letterSpacing: '0.26em',
+              fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
               textTransform: 'uppercase', color: 'var(--bone-faint)',
             }}>
               sealed · delivery: your choice
@@ -229,7 +229,7 @@ export function Today() {
             Fraunces listener-question scale — muted eyebrow, ~28–34px display. */}
         <header style={{ textAlign: 'center', marginBottom: 40 }}>
           <div style={{
-            fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em',
+            fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
             textTransform: 'uppercase', color: 'var(--muted-2)', marginBottom: 18,
           }}>
             the listener asks

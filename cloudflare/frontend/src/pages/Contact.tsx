@@ -59,7 +59,7 @@ export function Contact() {
     marginBottom: 8,
     fontFamily: 'var(--mono)',
     fontSize: 10,
-    letterSpacing: '0.32em',
+    letterSpacing: '0.2em',
     textTransform: 'uppercase',
     color: 'var(--bone-dim)',
   };
@@ -124,7 +124,7 @@ export function Contact() {
               style={{
                 fontFamily: 'var(--mono)',
                 fontSize: 11,
-                letterSpacing: '0.26em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--warm)',
                 textDecoration: 'none',
@@ -265,7 +265,7 @@ export function Contact() {
                   padding: '12px 0',
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.26em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
                   cursor: isSubmitting ? 'default' : 'pointer',

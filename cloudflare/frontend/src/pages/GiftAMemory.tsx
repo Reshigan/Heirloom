@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { dyeForId, dyeVar } from '../loom/dye';
 import { giftsApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
@@ -21,7 +22,7 @@ import { EASE } from '../loom/motion';
 const eyebrow: React.CSSProperties = {
   fontFamily: 'var(--mono)',
   fontSize: 11,
-  letterSpacing: '0.28em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase',
   color: 'var(--bone-faint)',
 };
@@ -31,7 +32,7 @@ const fieldLabel: React.CSSProperties = {
   marginBottom: 12,
   fontFamily: 'var(--mono)',
   fontSize: 10,
-  letterSpacing: '0.22em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase',
   color: 'var(--bone-faint)',
 };
@@ -142,14 +143,13 @@ export function GiftAMemory() {
   const recipientKey = config.recipientEmail.trim() || config.recipientName.trim();
   const recipientDye = recipientKey ? dyeVar(dyeForId(recipientKey)) : 'var(--warm)';
 
-  const topbar = {
-    left: <Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--bone-faint)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>,
-    center: 'gift a memory',
-  };
+  const breadcrumbs = (
+    <Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'gift' }]} />
+  );
 
   if (sendMutation.isSuccess) {
     return (
-      <ClothShell topbarLeft={topbar.left} topbarCenter={topbar.center}>
+      <ClothShell topbarLeft={breadcrumbs}>
         <div
           style={{
             padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
@@ -159,7 +159,7 @@ export function GiftAMemory() {
           }}
         >
           <WaxSeal size={44} />
-          <div style={{ ...eyebrow, color: 'var(--warm)', letterSpacing: '0.26em', margin: '28px 0 16px' }}>
+          <div style={{ ...eyebrow, color: 'var(--warm)', letterSpacing: '0.2em', margin: '28px 0 16px' }}>
             sent · a gift for {config.recipientName}
           </div>
           <h1
@@ -242,7 +242,7 @@ export function GiftAMemory() {
   }
 
   return (
-    <ClothShell topbarLeft={topbar.left} topbarCenter={topbar.center}>
+    <ClothShell topbarLeft={breadcrumbs}>
       <div
         style={{
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
@@ -327,7 +327,7 @@ export function GiftAMemory() {
                       padding: '6px 16px 8px',
                       fontFamily: 'var(--mono)',
                       fontSize: 10,
-                      letterSpacing: '0.22em',
+                      letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       color: config.memoryType === t ? 'var(--warm)' : 'var(--bone-faint)',
                       cursor: 'pointer',
@@ -455,7 +455,7 @@ export function GiftAMemory() {
                 padding: '11px 26px',
                 fontFamily: 'var(--mono)',
                 fontSize: 11,
-                letterSpacing: '0.22em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--warm)',
                 opacity: canSubmit ? 1 : 0.4,

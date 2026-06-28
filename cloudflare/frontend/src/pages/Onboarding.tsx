@@ -38,7 +38,7 @@ const stage: React.CSSProperties = {
 const stepLabel: React.CSSProperties = {
   fontFamily: 'var(--mono)',
   fontSize: 10,
-  letterSpacing: '0.32em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase' as const,
   color: 'var(--bone-faint)',
   textAlign: 'center',
@@ -50,7 +50,7 @@ const stepLabel: React.CSSProperties = {
 const eyebrowStyle: React.CSSProperties = {
   fontFamily: 'var(--mono)',
   fontSize: 11,
-  letterSpacing: '0.26em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase' as const,
   color: 'var(--warm)',
   textAlign: 'center',
@@ -232,7 +232,7 @@ const welcomeActions: React.CSSProperties = {
 const welcomeFoot: React.CSSProperties = {
   fontFamily: 'var(--mono)',
   fontSize: 10,
-  letterSpacing: '0.22em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase' as const,
   color: 'var(--bone-faint)',
   textAlign: 'center',
@@ -258,7 +258,7 @@ const pillStyle: React.CSSProperties = {
   color: 'var(--warm-bright)',
   fontFamily: 'var(--mono)',
   fontSize: 11,
-  letterSpacing: '0.28em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase' as const,
   cursor: 'pointer',
   touchAction: 'manipulation',
@@ -287,7 +287,7 @@ const ctaTextStyle: React.CSSProperties = {
   color: 'var(--warm)',
   fontFamily: 'var(--mono)',
   fontSize: 11,
-  letterSpacing: '0.26em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase' as const,
   cursor: 'pointer',
   touchAction: 'manipulation',
@@ -547,7 +547,7 @@ export function Onboarding() {
             cursor: 'pointer',
             fontFamily: 'var(--mono)',
             fontSize: 11,
-            letterSpacing: '0.22em',
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
             color: 'var(--bone-dim)',
           }}
@@ -566,7 +566,7 @@ export function Onboarding() {
               style={{
                 fontFamily: 'var(--mono)',
                 fontSize: 11,
-                letterSpacing: '0.22em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--warm)',
                 textDecoration: 'none',

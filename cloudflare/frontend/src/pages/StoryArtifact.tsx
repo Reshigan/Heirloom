@@ -93,7 +93,7 @@ const monoAffordance: React.CSSProperties = {
   cursor: 'pointer',
   fontFamily: 'var(--mono)',
   fontSize: 10,
-  letterSpacing: '0.28em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase',
   lineHeight: 1,
 };
@@ -290,7 +290,7 @@ export function StoryArtifact() {
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 10,
-              letterSpacing: '0.28em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--bone-faint)',
               marginBottom: 20,
@@ -363,7 +363,7 @@ export function StoryArtifact() {
                       style={{
                         fontFamily: 'var(--mono)',
                         fontSize: 10,
-                        letterSpacing: '0.26em',
+                        letterSpacing: '0.2em',
                         textTransform: 'uppercase',
                         color: 'var(--warm)',
                         margin: '0 0 14px',
@@ -541,7 +541,7 @@ export function StoryArtifact() {
             onClick={e => e.stopPropagation()}
           >
             {/* Mono eyebrow */}
-            <p style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--warm)', margin: '0 0 16px' }}>
+            <p style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)', margin: '0 0 16px' }}>
               Share your story
             </p>
             {/* Serif headline */}
@@ -642,7 +642,7 @@ export function StoryArtifact() {
                     {wizardStep === 2 && 'Select your photos'}
                     {wizardStep === 3 && 'Review and create'}
                   </h3>
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
                     Step {wizardStep} of 3
                   </span>
                 </div>
@@ -795,7 +795,7 @@ export function StoryArtifact() {
                             border: '1px solid var(--warm)',
                             color: 'var(--warm)',
                             fontFamily: 'var(--mono)',
-                            fontSize: 9,
+                            fontSize: 10,
                             lineHeight: 1,
                             letterSpacing: '0.14em',
                             textTransform: 'uppercase',
@@ -859,7 +859,7 @@ export function StoryArtifact() {
 
                 {/* Title — flat underline input */}
                 <div>
-                  <label style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', display: 'block', marginBottom: 10 }}>
+                  <label style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)', display: 'block', marginBottom: 10 }}>
                     Story title
                   </label>
                   <input
@@ -873,7 +873,7 @@ export function StoryArtifact() {
 
                 {/* Description — flat underline textarea */}
                 <div>
-                  <label style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', display: 'block', marginBottom: 10 }}>
+                  <label style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)', display: 'block', marginBottom: 10 }}>
                     Description (optional)
                   </label>
                   <textarea
@@ -888,7 +888,7 @@ export function StoryArtifact() {
                 {/* Voice narration — shown only when voiceRecordings exist */}
                 {voiceRecordings.length > 0 && (
                   <div>
-                    <label style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', display: 'block', marginBottom: 10 }}>
+                    <label style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)', display: 'block', marginBottom: 10 }}>
                       Add voice narration (optional)
                     </label>
                     <div style={{ display: 'grid', gap: 4, maxHeight: 96, overflowY: 'auto' }}>

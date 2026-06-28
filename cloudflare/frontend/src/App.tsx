@@ -22,7 +22,7 @@ import { BottomNav } from './loom/components/BottomNav';
 import { ClothBackdrop } from './loom/components/ClothBackdrop';
 import { WarpThreads } from './loom/components/WarpThreads';
 import { OfflineGate } from './pages/Offline';
-import { useLoomTheme } from './loom/theme';
+import { useLoomTheme, useLoomAccent } from './loom/theme';
 import { useDisplayPreferences } from './loom/useDisplayPreferences';
 
 import { Login } from './pages/Login';
@@ -241,6 +241,9 @@ function PushNotificationHandler() {
  */
 function LoomShellRoot({ children }: { children: React.ReactNode }) {
   const { theme } = useLoomTheme();
+  // Mount the accent hook app-wide: applies data-accent on <html> and keeps it
+  // synced across tabs (theme-boot cold-boots it; Settings drives live changes).
+  useLoomAccent();
   const { textScale, highContrast } = useDisplayPreferences();
   // The CSS token blocks key ONLY off data-theme="light" / "dark"; binding the
   // raw "system" value matches neither and fails the palette closed to dark.

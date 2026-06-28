@@ -133,7 +133,7 @@ export function GiftPurchase() {
               className="hl-mono"
               style={{
                 fontSize: 11,
-                letterSpacing: '0.26em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--warm)',
                 marginTop: 18,
@@ -171,7 +171,7 @@ export function GiftPurchase() {
               className="hl-mono"
               style={{
                 fontSize: 10,
-                letterSpacing: '0.28em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--bone)',
               }}
@@ -241,7 +241,7 @@ export function GiftPurchase() {
                     className="hl-mono"
                     style={{
                       fontSize: 10,
-                      letterSpacing: '0.28em',
+                      letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       fontWeight: isSelected ? 700 : 400,
                       textDecoration: isSelected ? 'underline' : 'none',
@@ -288,7 +288,7 @@ export function GiftPurchase() {
                   <span
                     className="hl-mono"
                     style={{
-                      fontSize: 9,
+                      fontSize: 10,
                       letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       color: 'var(--bone-faint)',
@@ -323,7 +323,7 @@ export function GiftPurchase() {
               style={{
                 display: 'block',
                 fontSize: 10,
-                letterSpacing: '0.24em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-dim)',
                 marginBottom: 8,
@@ -364,7 +364,7 @@ export function GiftPurchase() {
               style={{
                 display: 'block',
                 fontSize: 10,
-                letterSpacing: '0.24em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-dim)',
                 marginBottom: 8,
@@ -403,7 +403,7 @@ export function GiftPurchase() {
               style={{
                 display: 'block',
                 fontSize: 10,
-                letterSpacing: '0.24em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-dim)',
                 marginBottom: 8,
@@ -452,7 +452,7 @@ export function GiftPurchase() {
               style={{
                 display: 'block',
                 fontSize: 10,
-                letterSpacing: '0.24em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-dim)',
                 marginBottom: 8,
@@ -493,7 +493,7 @@ export function GiftPurchase() {
               style={{
                 display: 'block',
                 fontSize: 10,
-                letterSpacing: '0.24em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-dim)',
                 marginBottom: 8,
@@ -583,7 +583,7 @@ export function GiftPurchase() {
                 border: 0,
                 padding: 0,
                 fontSize: 11,
-                letterSpacing: '0.22em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--warm)',
                 opacity: isLoading || !formData.purchaserEmail || !price ? 0.45 : 1,

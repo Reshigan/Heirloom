@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { challengesApi } from '../services/api';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
@@ -92,22 +92,6 @@ export function Challenges() {
     textTransform: 'uppercase',
   };
 
-  const backLink = (
-    <Link
-      to="/loom/index"
-      style={{
-        fontFamily: 'var(--mono)',
-        fontSize: 10,
-        letterSpacing: '0.16em',
-        color: 'var(--bone-faint)',
-        textDecoration: 'none',
-        textTransform: 'uppercase',
-      }}
-    >
-      ← heirloom
-    </Link>
-  );
-
   const upcoming = challenges
     ? (challenges as any[])
         .filter((c: any) => new Date(c.start_date) > new Date())
@@ -124,7 +108,7 @@ export function Challenges() {
     : 'NO ACTIVE THREAD';
 
   return (
-    <ClothShell topbarLeft={backLink} topbarCenter="challenges">
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'challenges' }]} />}>
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '40px clamp(16px, 4vw, 40px) 80px' }}>
 
         <CosmicHeader eyebrow={eyebrow} title="The weaving challenges." />
@@ -318,7 +302,7 @@ export function Challenges() {
                   display: 'block',
                   fontFamily: 'var(--mono)',
                   fontSize: 10,
-                  letterSpacing: '0.22em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                   marginBottom: 10,
@@ -405,7 +389,7 @@ export function Challenges() {
             </p>
 
             <div style={{ borderLeft: '1px solid var(--rule)', paddingLeft: 16, marginBottom: 20 }}>
-              <p style={{ ...metaText, fontSize: 10, letterSpacing: '0.22em', color: 'var(--bone-faint)', margin: '0 0 6px' }}>Prompt</p>
+              <p style={{ ...metaText, fontSize: 10, letterSpacing: '0.2em', color: 'var(--bone-faint)', margin: '0 0 6px' }}>Prompt</p>
               <p
                 className="hl-serif hl-italic"
                 style={{ fontSize: 15, color: 'var(--bone)', margin: 0 }}

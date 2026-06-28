@@ -362,7 +362,7 @@ function SealedCeremony({ deliverYear, title, author, writtenYear }: TiedEntry) 
         className="loom-mono"
         style={{
           fontSize: 11,
-          letterSpacing: '0.26em',
+          letterSpacing: '0.2em',
           textTransform: 'uppercase',
           color: 'var(--copper-label)',
         }}

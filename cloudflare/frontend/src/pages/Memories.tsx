@@ -228,7 +228,7 @@ function FilterBar({ memories, filters, setFilters }: {
             style={{
               background: 'transparent', border: 0, padding: 0,
               cursor: 'pointer',
-              fontSize: 9, letterSpacing: '0.18em', textTransform: 'uppercase',
+              fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase',
               color: 'var(--warm)', minHeight: 32,
             }}
           >
@@ -240,8 +240,8 @@ function FilterBar({ memories, filters, setFilters }: {
       {/* Row 2: emotion chips */}
       <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
         <span style={{
-          fontFamily: 'var(--mono)', fontSize: 9,
-          letterSpacing: '0.3em', textTransform: 'uppercase',
+          fontFamily: 'var(--mono)', fontSize: 10,
+          letterSpacing: '0.2em', textTransform: 'uppercase',
           color: 'var(--bone-faint)', marginRight: 2,
         }}>
           feel
@@ -400,7 +400,7 @@ export function Memories() {
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.28em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--bone-faint)',
               textAlign: 'center',

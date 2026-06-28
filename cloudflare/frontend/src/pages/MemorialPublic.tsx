@@ -170,7 +170,7 @@ export function MemorialPublic() {
                   style={{
                     fontFamily: 'var(--mono)',
                     fontSize: 11,
-                    letterSpacing: '0.3em',
+                    letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     color: 'var(--copper-label)',
                     margin: '0 0 28px',
@@ -203,7 +203,7 @@ export function MemorialPublic() {
                     style={{
                       fontFamily: 'var(--mono)',
                       fontSize: 12,
-                      letterSpacing: '0.26em',
+                      letterSpacing: '0.2em',
                       textTransform: 'uppercase',
                       color: 'var(--warm)',
                       margin: '0 0 36px',
@@ -286,7 +286,7 @@ export function MemorialPublic() {
                             style={{
                               fontFamily: 'var(--mono)',
                               fontSize: 10,
-                              letterSpacing: '0.22em',
+                              letterSpacing: '0.2em',
                               textTransform: 'uppercase',
                               color: 'var(--bone-faint)',
                               margin: '0 0 10px',

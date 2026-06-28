@@ -380,7 +380,7 @@ export function Weft() {
               <span
                 className="hl-mono"
                 style={{
-                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em',
+                  fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                   textTransform: 'uppercase', color: 'var(--warm)',
                 }}
               >
@@ -396,7 +396,7 @@ export function Weft() {
                   <div
                     className="hl-mono"
                     style={{
-                      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.28em',
+                      fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                       textTransform: 'uppercase', color: 'var(--muted-4)', marginBottom: 2,
                     }}
                   >
@@ -517,7 +517,7 @@ function FutureRow({ year, offset, first }: { year: number; offset: number; firs
       <span
         className="hl-mono"
         style={{
-          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em',
+          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
           textTransform: 'uppercase', color: 'var(--bone-faint)', whiteSpace: 'nowrap',
         }}
       >
@@ -560,7 +560,7 @@ function HomeCard({
       <span
         className="hl-mono"
         style={{
-          fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.26em',
+          fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
           textTransform: 'uppercase', color: 'var(--copper-label)',
         }}
       >

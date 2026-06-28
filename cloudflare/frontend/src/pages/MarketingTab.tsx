@@ -109,7 +109,7 @@ const affordanceStyle: React.CSSProperties = {
   padding: 0,
   fontFamily: 'var(--mono)',
   fontSize: 11,
-  letterSpacing: '0.22em',
+  letterSpacing: '0.2em',
   textTransform: 'uppercase',
   cursor: 'pointer',
   transition: 'color 180ms var(--loom-ease)',
@@ -419,7 +419,7 @@ function EmptyLine({ children, listen }: { children: React.ReactNode; listen?: s
         {children}
       </p>
       {listen && (
-        <p style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase', color: 'var(--bone-faint)', margin: '14px 0 0' }}>
+        <p style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)', margin: '14px 0 0' }}>
           {listen}
         </p>
       )}

@@ -119,7 +119,7 @@ export function VerifyEmail() {
                   color: 'var(--warm)',
                   textDecoration: 'none',
                   fontSize: 13,
-                  letterSpacing: '0.26em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   borderBottom: '1px solid var(--warm)',
                   paddingBottom: 2,
@@ -158,7 +158,7 @@ export function VerifyEmail() {
                   cursor: isResending ? 'default' : 'pointer',
                   color: 'var(--warm)',
                   fontSize: 13,
-                  letterSpacing: '0.26em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -208,7 +208,7 @@ export function VerifyEmail() {
                 className="hl-mono"
                 style={{
                   fontSize: 10,
-                  letterSpacing: '0.22em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                   textDecoration: 'none',
@@ -248,7 +248,7 @@ export function VerifyEmail() {
                   cursor: isResending ? 'default' : 'pointer',
                   color: 'var(--warm)',
                   fontSize: 13,
-                  letterSpacing: '0.26em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -298,7 +298,7 @@ export function VerifyEmail() {
                 className="hl-mono"
                 style={{
                   fontSize: 10,
-                  letterSpacing: '0.22em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
                   textDecoration: 'none',

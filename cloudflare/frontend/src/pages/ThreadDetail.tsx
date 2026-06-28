@@ -118,7 +118,7 @@ export function ThreadDetail() {
         <div style={{ padding: '56px clamp(20px, 5vw, 56px)' }}>
           <p
             className="hl-mono"
-            style={{ fontSize: 11, letterSpacing: '0.28em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
+            style={{ fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}
           >
             gathering the Deep…
           </p>
@@ -217,7 +217,7 @@ export function ThreadDetail() {
               className="hl-mono"
               style={{
                 fontSize: 12,
-                letterSpacing: '0.34em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: 'var(--bone-dim)',
               }}

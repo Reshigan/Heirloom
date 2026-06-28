@@ -138,7 +138,7 @@ export function CardView() {
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.26em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--copper-label)',
               textDecoration: 'none',
@@ -244,7 +244,7 @@ export function CardView() {
             style={{
               fontFamily: 'var(--mono)',
               fontSize: 11,
-              letterSpacing: '0.26em',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: 'var(--copper-label)',
               marginBottom: 36,
@@ -316,7 +316,7 @@ export function CardView() {
               style={{
                 fontFamily: 'var(--mono)',
                 fontSize: 11,
-                letterSpacing: '0.26em',
+                letterSpacing: '0.2em',
                 textTransform: 'uppercase',
                 color: copied ? 'var(--muted-3)' : 'var(--copper-label)',
                 background: 'none',
@@ -357,7 +357,7 @@ export function CardView() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 11,
-                  letterSpacing: '0.26em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--copper-label)',
                   textDecoration: 'none',

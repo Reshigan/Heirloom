@@ -336,7 +336,7 @@ export function Constellation() {
                 style={{
                   fontFamily: 'var(--mono)',
                   fontSize: 10,
-                  letterSpacing: '0.22em',
+                  letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--warm)',
                   textDecoration: 'none',
