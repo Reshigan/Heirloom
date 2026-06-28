@@ -34,10 +34,9 @@ import { lifeEventsRoutes } from './routes/life-events';
 import marketingRoutes from './routes/marketing';
 import { announcementsRoutes } from './routes/announcements';
 import engagementRoutes from './routes/engagement';
-import { streaksRoutes, challengesRoutes, referralsRoutes, giftRoutes, memorialRoutes, milestonesRoutes, notificationsRoutes } from './routes/q4-features';
+import { challengesRoutes, giftRoutes, memorialRoutes, milestonesRoutes, notificationsRoutes } from './routes/q4-features';
 import memoryCardsRoutes from './routes/memory-cards';
 import pushNotificationRoutes, { sendPushToUser, sendPushToAllUsers } from './routes/push-notifications';
-import { referralRoutes } from './routes/referrals';
 import { influencerRoutes } from './routes/influencers';
 import { partnerRoutes } from './routes/partners';
 import { socialImportRoutes } from './routes/social-import';
@@ -319,7 +318,6 @@ app.route('/api/inherit', inheritRoutes);
 // Public share surfaces (OG meta + SVG cards) — zero-budget viral reach.
 app.route('/api/share', shareRoutes);
 app.route('/api/gift-vouchers', giftVoucherRoutes);
-app.route('/api/referral', referralRoutes);
 app.route('/api/influencer', influencerRoutes);
 app.route('/api/partner', partnerRoutes);
 // PUBLIC R2 serving for generated marketing images. The autopost engine renders
@@ -883,9 +881,7 @@ protectedApp.route('/story-artifacts', storyArtifactsRoutes);
 protectedApp.route('/life-events', lifeEventsRoutes);
 
 // Q4 2025 Features
-protectedApp.route('/streaks', streaksRoutes);
 protectedApp.route('/challenges', challengesRoutes);
-protectedApp.route('/referrals', referralsRoutes);
 protectedApp.route('/gifts', giftRoutes);
 protectedApp.route('/memorials', memorialRoutes);
 protectedApp.route('/milestones', milestonesRoutes);

@@ -563,13 +563,6 @@ export const referralApi = {
 
 // Engagement feature APIs
 
-// Memory Streaks API
-export const streaksApi = {
-  getStatus: () => api.get('/streaks'),
-  recordActivity: () => api.post('/streaks/activity'),
-  freezeStreak: () => api.post('/streaks/freeze'),
-};
-
 // Weekly Challenges API
 export const challengesApi = {
   getAll: () => api.get('/challenges'),
@@ -579,15 +572,6 @@ export const challengesApi = {
     api.post(`/challenges/${challengeId}/submit`, data),
   recordShare: (submissionId: string, platform: string) =>
     api.post(`/challenges/submissions/${submissionId}/share`, { platform }),
-};
-
-// Family Referrals API
-export const familyReferralsApi = {
-  getStats: () => api.get('/referrals'),
-  createInvite: (data: { email: string; branch?: string; relationship?: string }) =>
-    api.post('/referrals/invite', data),
-  acceptInvite: (inviteCode: string, userId: string, firstName?: string) =>
-    api.post('/referrals/accept', { inviteCode, userId, firstName }),
 };
 
 // Gift Subscriptions API

@@ -62,9 +62,6 @@ const MemoryRoom = lazy(() => import('./pages/MemoryRoom').then(m => ({ default:
 const StoryView = lazy(() => import('./pages/StoryView').then(m => ({ default: m.StoryView })));
 const PersonPage = lazy(() => import('./pages/PersonPage').then(m => ({ default: m.PersonPage })));
 const QuickWizard = lazy(() => import('./pages/QuickWizard').then(m => ({ default: m.QuickWizard })));
-// Streaks + Referrals — RETIRED from the live surface (no reference screen in the
-// golive set). Page files (pages/Streaks.tsx, pages/Referrals.tsx) and their api.ts
-// methods are kept dormant for a clean revival; only the routes are removed.
 const Challenges = lazy(() => import('./pages/Challenges').then(m => ({ default: m.Challenges })));
 const GiftSubscriptions = lazy(() => import('./pages/GiftSubscriptions').then(m => ({ default: m.GiftSubscriptions })));
 const Memorials = lazy(() => import('./pages/Memorials').then(m => ({ default: m.Memorials })));
@@ -543,7 +540,6 @@ export default function App() {
                                                                                                                                                                   }
                                                                                                                                                                 />
 
-                                                                                                    {/* Engagement features ( /streaks + /referrals retired — no golive screen ) */}
                                                                                                     <Route
                                                                                                       path="/challenges"
                                                                                                       element={

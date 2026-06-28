@@ -1,6 +1,6 @@
 /**
  * Engagement Routes - Automated Adoption Engine
- * Handles streaks, badges, drip campaigns, family invites, shareable cards
+ * Handles badges, drip campaigns, family invites, shareable cards
  */
 
 import { Hono } from 'hono';
@@ -12,113 +12,6 @@ import { requireAuth } from '../lib/auth';
 
 export const engagementRoutes = new Hono<AppEnv>();
 
-// ============================================
-// STREAKS & BADGES
-// ============================================
-
-// Get user's streak and badges
-engagementRoutes.get('/streaks', requireAuth, async (c) => {
-  const userId = c.get('userId');
-  
-  // Streak and badges are independent reads — fetch in parallel. (The streak
-  // INSERT below only fires on first-ever visit, so the common path is 1 round-trip.)
-  let [streak, badges] = await Promise.all([
-    c.env.DB.prepare(`SELECT * FROM user_streaks WHERE user_id = ?`).bind(userId).first(),
-    c.env.DB.prepare(`
-      SELECT badge_type, badge_name, badge_description, earned_at
-      FROM user_badges WHERE user_id = ?
-      ORDER BY earned_at DESC
-    `).bind(userId).all(),
-  ]);
-
-  if (!streak) {
-    const now = new Date().toISOString();
-    const id = crypto.randomUUID();
-    await c.env.DB.prepare(`
-      INSERT INTO user_streaks (id, user_id, current_streak, longest_streak, total_activity_days, created_at, updated_at)
-      VALUES (?, ?, 0, 0, 0, ?, ?)
-    `).bind(id, userId, now, now).run();
-    streak = { id, user_id: userId, current_streak: 0, longest_streak: 0, total_activity_days: 0 };
-  }
-  
-  return c.json({
-    streak: {
-      current: streak.current_streak,
-      longest: streak.longest_streak,
-      totalDays: streak.total_activity_days,
-      lastActivity: streak.last_activity_date,
-    },
-    badges: badges.results,
-  });
-});
-
-// Record activity (called when user creates content)
-engagementRoutes.post('/activity', async (c) => {
-  const userId = c.get('userId');
-  if (!userId) {
-    return c.json({ error: 'Unauthorized' }, 401);
-  }
-  const { activityType } = await c.req.json();
-  
-  const today = new Date().toISOString().split('T')[0];
-  const now = new Date().toISOString();
-  
-  // Get current streak
-  let streak = await c.env.DB.prepare(`
-    SELECT * FROM user_streaks WHERE user_id = ?
-  `).bind(userId).first();
-  
-  if (!streak) {
-    const id = crypto.randomUUID();
-    await c.env.DB.prepare(`
-      INSERT INTO user_streaks (id, user_id, current_streak, longest_streak, last_activity_date, total_activity_days, created_at, updated_at)
-      VALUES (?, ?, 1, 1, ?, 1, ?, ?)
-    `).bind(id, userId, today, now, now).run();
-    streak = { current_streak: 1, longest_streak: 1 };
-  } else {
-    const lastActivity = streak.last_activity_date as string;
-    const lastDate = lastActivity ? new Date(lastActivity) : null;
-    const todayDate = new Date(today);
-    
-    let newStreak = streak.current_streak as number;
-    let newTotal = streak.total_activity_days as number;
-    
-    if (lastDate) {
-      const daysDiff = Math.floor((todayDate.getTime() - lastDate.getTime()) / (1000 * 60 * 60 * 24));
-      
-      if (daysDiff === 0) {
-        // Same day, no change to streak
-      } else if (daysDiff === 1) {
-        // Consecutive day, increment streak
-        newStreak += 1;
-        newTotal += 1;
-      } else {
-        // Streak broken, reset to 1
-        newStreak = 1;
-        newTotal += 1;
-      }
-    } else {
-      newStreak = 1;
-      newTotal = 1;
-    }
-    
-    const newLongest = Math.max(newStreak, streak.longest_streak as number);
-    
-    await c.env.DB.prepare(`
-      UPDATE user_streaks 
-      SET current_streak = ?, longest_streak = ?, last_activity_date = ?, total_activity_days = ?, updated_at = ?
-      WHERE user_id = ?
-    `).bind(newStreak, newLongest, today, newTotal, now, userId).run();
-    
-    // Check for streak badges
-    await checkAndAwardBadges(c.env, userId, 'streak', newStreak);
-  }
-  
-  // Check for activity-specific badges
-  await checkAndAwardBadges(c.env, userId, activityType, 1);
-  
-  return c.json({ success: true });
-});
 
 // ============================================
 // FAMILY INVITES
