@@ -15,7 +15,7 @@ import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 export const SIGNUP_INTENT_KEY = 'heirloom_signup_intent';
 
-type Tier = 'free' | 'family' | 'founder';
+type Tier = 'free' | 'family' | 'deep';
 
 interface SignupErrors {
   threadName?: string;
@@ -42,14 +42,15 @@ const TIERS: {
   sub: string;
   body: string;
 }[] = [
-  { id: 'free', name: 'Free', price: PLAN_PRICE.FREE.amount, sub: PLAN_PRICE.FREE.cycle, body: '1 thread · 500 MB · try every feature' },
-  { id: 'family', name: 'Family', price: PLAN_PRICE.FAMILY.monthly, sub: PLAN_PRICE.FAMILY.perMonth, body: 'unlimited · up to 5 members · voice · sealed notes' },
+  { id: 'free', name: 'Free', price: PLAN_PRICE.FREE.amount, sub: PLAN_PRICE.FREE.cycle, body: '1 bloodline · 500 MB · try every feature' },
+  { id: 'family', name: 'Family', price: PLAN_PRICE.FAMILY.monthly, sub: PLAN_PRICE.FAMILY.perMonth, body: 'unlimited entries · up to 5 members · voice · sealed notes' },
+  { id: 'deep', name: 'Deep', price: PLAN_PRICE.DEEP.monthly, sub: PLAN_PRICE.DEEP.perMonth, body: 'everything in Family · unlimited members · 250 GB · priority' },
 ];
 
 import { EASE } from '../loom/motion';
 
 export function Signup() {
-  usePageMeta('Start your thread', "Begin your family's thousand-year thread. Free to start.");
+  usePageMeta('Begin your family\'s Deep', "Let the first entry settle into the Deep. Free to start.");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { register, updateUser } = useAuthStore();
@@ -70,9 +71,9 @@ export function Signup() {
   });
   const [tier, setTier] = useState<Tier>(() => {
     const t = searchParams.get('tier')?.toLowerCase();
-    // Default to FREE — the free tier is the acquisition door. Paid (Family)
-    // only when an explicit ?tier=family CTA (e.g. Pricing) asks for it.
-    return t === 'free' || t === 'family' ? t : 'free';
+    // Default to FREE — the free tier is the acquisition door. Paid (Family or
+    // Deep) only when an explicit ?tier=family|deep CTA (e.g. Pricing) asks.
+    return t === 'free' || t === 'family' || t === 'deep' ? t : 'free';
   });
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -146,10 +147,11 @@ export function Signup() {
       // to Stripe checkout (mirrors Billing.tsx). A deep-link redirect (invite,
       // etc.) still wins over checkout; if checkout can't start, fall through to
       // the ceremony — never trap the user at a dead end.
-      if (!redirectUrl && intent.tier === 'family') {
+      if (!redirectUrl && (intent.tier === 'family' || intent.tier === 'deep')) {
         try {
           const billingCycle = intent.cycle === 'annual' ? 'yearly' : 'monthly';
-          const { url } = (await billingApi.checkout({ tier: 'FAMILY', billingCycle })).data;
+          const apiTier = intent.tier === 'deep' ? 'DEEP' : 'FAMILY';
+          const { url } = (await billingApi.checkout({ tier: apiTier, billingCycle })).data;
           if (url) {
             window.location.href = url;
             return;
@@ -408,7 +410,9 @@ export function Signup() {
                       <div
                         style={{ fontFamily: 'var(--serif-display)', fontSize: 26, fontWeight: 300, letterSpacing: '-0.018em', lineHeight: 1, color: 'var(--bone)' }}
                       >
-                        {t.id === 'family' && cycle === 'annual' ? PLAN_PRICE.FAMILY.annual : t.price}
+                        {t.id === 'family' && cycle === 'annual' ? PLAN_PRICE.FAMILY.annual
+                          : t.id === 'deep' && cycle === 'annual' ? PLAN_PRICE.DEEP.annual
+                          : t.price}
                       </div>
                       <div
                         className="hl-mono"
@@ -420,7 +424,9 @@ export function Signup() {
                           marginTop: 6,
                         }}
                       >
-                        {t.id === 'family' && cycle === 'annual' ? `${PLAN_PRICE.FAMILY.perYear} · 2 mo free` : t.sub}
+                        {t.id === 'family' && cycle === 'annual' ? `${PLAN_PRICE.FAMILY.perYear} · 2 mo free`
+                          : t.id === 'deep' && cycle === 'annual' ? `${PLAN_PRICE.DEEP.perYear} · 2 mo free`
+                          : t.sub}
                       </div>
                     </div>
                   </button>
@@ -513,7 +519,9 @@ export function Signup() {
           >
             {tier === 'family'
               ? 'next: set up Family at checkout · cancel anytime · your archive always exports free'
-              : 'no card on file · you begin free — 1 thread, 500 MB, free forever · upgrade to Family whenever you’re ready'}
+              : tier === 'deep'
+              ? 'next: set up Deep at checkout · unlimited bloodline · cancel anytime'
+              : 'no card on file · you begin free — 1 bloodline, 500 MB, free forever · upgrade whenever you’re ready'}
           </p>
         </form>
 

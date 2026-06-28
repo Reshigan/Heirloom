@@ -1,13 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { billingApi, threadsApi } from '../services/api';
-import { isFounderTier, isPaidTier, isFreeTier } from '../lib/plans';
+import { isFounderTier, isPaidTier, isFreeTier, isDeepTier } from '../lib/plans';
 
 export type UserRole =
   | 'visitor'
   | 'free'
   | 'trial'
   | 'family'
+  | 'deep'
   | 'founder'
   | 'reader'
   | 'successor';
@@ -47,6 +48,7 @@ export function useRole(): UserRole {
   }
 
   if (isFounderTier(tier)) return 'founder';
+  if (isDeepTier(tier) && !isTrialing) return 'deep';
   if (isPaidTier(tier) && !isTrialing) return 'family';
   if (isTrialing) return 'trial';
   // An authenticated FREE/STARTER account is a real writing member (gated by

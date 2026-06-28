@@ -17,12 +17,14 @@ interface PricingData {
   symbol: string;
   code: string;
   FAMILY?: { monthly: number; yearly: number };
+  DEEP?: { monthly: number; yearly: number };
   FOUNDER?: { lifetime?: number };
 }
 
 const FALLBACK: PricingData = {
   symbol: '$', code: 'USD',
   FAMILY: { monthly: PLAN_PRICE_NUM.FAMILY.monthly, yearly: PLAN_PRICE_NUM.FAMILY.annual },
+  DEEP: { monthly: PLAN_PRICE_NUM.DEEP.monthly, yearly: PLAN_PRICE_NUM.DEEP.annual },
   FOUNDER: { lifetime: PLAN_PRICE_NUM.FOUNDER.lifetime },
 };
 
@@ -39,7 +41,7 @@ export function Pricing() {
     billingApi.getPricing().then((r: any) => {
       if (controller.signal.aborted) return;
       const d = r.data ?? r;
-      if (d?.FAMILY && d?.FOUNDER) setPricing(d);
+      if (d?.FAMILY) setPricing(d);
     }).catch(() => {});
     return () => controller.abort();
   }, []);
@@ -52,6 +54,8 @@ export function Pricing() {
 
   const familyMonthly = fmt(s, pricing.FAMILY?.monthly ?? PLAN_PRICE_NUM.FAMILY.monthly);
   const familyYearly = fmt(s, pricing.FAMILY?.yearly ?? PLAN_PRICE_NUM.FAMILY.annual);
+  const deepMonthly = fmt(s, pricing.DEEP?.monthly ?? PLAN_PRICE_NUM.DEEP.monthly);
+  const deepYearly = fmt(s, pricing.DEEP?.yearly ?? PLAN_PRICE_NUM.DEEP.annual);
 
   const tiers = [
     {
@@ -60,7 +64,7 @@ export function Pricing() {
       // FREE always shows $0 regardless of cycle.
       price: fmt(s, 0),
       cadence: null as string | null,
-      note: 'One thread · 500MB',
+      note: 'One bloodline · 500 MB',
       lines: PLAN_FEATURES.STARTER,
       cta: 'Start',
       to: '/signup',
@@ -79,6 +83,17 @@ export function Pricing() {
       cta: 'Choose Family',
       to: showAnnual ? '/signup?tier=family&cycle=annual' : '/signup?tier=family',
       emphasized: true,
+    },
+    {
+      id: 'DEEP',
+      name: 'Deep',
+      price: showAnnual ? deepYearly : deepMonthly,
+      cadence: showAnnual ? '/year' : '/month',
+      note: annualOnly ? null : (showAnnual ? `or ${deepMonthly}/month` : `or ${deepYearly}/year`),
+      lines: PLAN_FEATURES.DEEP,
+      cta: 'Choose Deep',
+      to: showAnnual ? '/signup?tier=deep&cycle=annual' : '/signup?tier=deep',
+      emphasized: false,
     },
   ];
 
@@ -110,26 +125,6 @@ export function Pricing() {
           textAlign: 'center',
         }}
       >
-        {/* WOVEN — decorative thread-band, bottom-left, behind cards */}
-        <picture style={{ display: 'contents' }}>
-          <source type="image/avif" srcSet="/woven/thread-band.avif" />
-          <source type="image/webp" srcSet="/woven/thread-band.webp" />
-          <img
-            src="/woven/thread-band.png"
-            alt=""
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              left: -40,
-              bottom: 24,
-              width: 'clamp(220px,42vw,340px)',
-              transform: 'rotate(-12deg)',
-              opacity: 0.5,
-              pointerEvents: 'none',
-              zIndex: 0,
-            }}
-          />
-        </picture>
         {/* Eyebrow + centred serif headline */}
         <div
           className="hl-mono"
@@ -143,7 +138,7 @@ export function Pricing() {
             marginBottom: 18,
           }}
         >
-          keep the thread
+          let it settle
         </div>
         <h1
           className="hl-tight"
@@ -159,7 +154,7 @@ export function Pricing() {
             margin: '0 0 clamp(36px,8vh,72px)',
           }}
         >
-          Choose how you keep it
+          Choose how you keep the Deep
         </h1>
 
         {/* Continuity pledge — echoed from Billing, above the tiers */}

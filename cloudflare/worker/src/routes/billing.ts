@@ -1,16 +1,25 @@
 /**
  * Heirloom Billing Routes - PRODUCTION VERSION
- * 
- * Freemium 3-tier model with regional PPP adjustments:
+ *
+ * PPP volume ladder (the Deep) — one cheap global anchor + local-currency parity,
+ * tuned for emerging-market adoption at volume:
  * - Free:    $0 forever - capped (the mass-adoption on-ramp)
- * - Family:  $6.99/mo or $69/yr - the paid family subscription
- * - Founder: $249 one-time, lifetime (the old 'LEGACY' slot, now one-time)
+ * - Family:  $2.99/mo or $29/yr - the volume paid tier (PPP-adjusted locally)
+ * - Deep:    $7.99/mo or $79/yr - unlimited members + 250 GB + priority
+ * - Founder: $249 one-time, lifetime — WITHDRAWN from buy surfaces (kept in the
+ *            PRICING table + TIER_LIMITS only so existing founders retain access;
+ *            no Founder card is rendered on /pricing or /signup).
+ *
+ * Checkout always uses dynamic Stripe price_data built from the table below, so
+ * Stripe charges exactly the displayed amount (no fixed Price IDs to drift).
+ * Existing subscribers keep the amount Stripe recorded at signup; repricing the
+ * table only changes what NEW checkouts charge (standard grandfathering).
  *
  * Regional Pricing Tiers:
- * - Tier 1: US, UK, CA, AU, NZ (full price)
+ * - Tier 1: US, UK, CA, AU, NZ (full anchor price)
  * - Tier 2: EU, Western Europe (EUR pricing)
- * - Tier 3: ZA, BR, MX, Southeast Asia (50% PPP)
- * - Tier 4: IN, NG, KE, PK (annual-only, 30% PPP)
+ * - Tier 3: ZA, BR, MX, AR, Southeast Asia (PPP, monthly allowed)
+ * - Tier 4: IN, NG, KE, PK (annual-only, deepest PPP)
  *
  * 30-day Family trial, no credit card; drops to Free (never locks out).
  * Auto-detects country from Cloudflare for regional pricing.
@@ -84,29 +93,43 @@ const PRICING: Record<string, {
   tier: PricingTier;
   annualOnly?: boolean;
   FAMILY: { monthly: number; yearly: number };
+  DEEP: { monthly: number; yearly: number };
+  // FOUNDER kept for existing founders only — no Founder card is rendered on
+  // /pricing or /signup (tier withdrawn). The webhook's founder-pledge branch
+  // still grants LEGACY/FOREVER from /founder, independent of this table.
   FOUNDER: { lifetime: number };
 }> = {
-  // Tier 1 — full price
-  USD: { symbol: '$',   code: 'USD', tier: 'tier1', FAMILY: { monthly: 6.99,  yearly: 69  }, FOUNDER: { lifetime: 249 } },
-  GBP: { symbol: '£',   code: 'GBP', tier: 'tier1', FAMILY: { monthly: 5.99,  yearly: 59  }, FOUNDER: { lifetime: 199 } },
-  CAD: { symbol: 'C$',  code: 'CAD', tier: 'tier1', FAMILY: { monthly: 9.99,  yearly: 99  }, FOUNDER: { lifetime: 329 } },
-  AUD: { symbol: 'A$',  code: 'AUD', tier: 'tier1', FAMILY: { monthly: 10.99, yearly: 109 }, FOUNDER: { lifetime: 369 } },
-  NZD: { symbol: 'NZ$', code: 'NZD', tier: 'tier1', FAMILY: { monthly: 11.99, yearly: 119 }, FOUNDER: { lifetime: 399 } },
+  // Tier 1 — full anchor price. Family is the cheap volume anchor ($2.99);
+  // Deep is the unlimited-members upgrade ($7.99).
+  USD: { symbol: '$',   code: 'USD', tier: 'tier1', FAMILY: { monthly: 2.99,  yearly: 29  }, DEEP: { monthly: 7.99,  yearly: 79  }, FOUNDER: { lifetime: 249 } },
+  GBP: { symbol: '£',   code: 'GBP', tier: 'tier1', FAMILY: { monthly: 2.49,  yearly: 25  }, DEEP: { monthly: 6.99,  yearly: 69  }, FOUNDER: { lifetime: 199 } },
+  CAD: { symbol: 'C$',  code: 'CAD', tier: 'tier1', FAMILY: { monthly: 3.49,  yearly: 35  }, DEEP: { monthly: 9.99,  yearly: 99  }, FOUNDER: { lifetime: 329 } },
+  AUD: { symbol: 'A$',  code: 'AUD', tier: 'tier1', FAMILY: { monthly: 4.49,  yearly: 45  }, DEEP: { monthly: 11.99, yearly: 119 }, FOUNDER: { lifetime: 369 } },
+  NZD: { symbol: 'NZ$', code: 'NZD', tier: 'tier1', FAMILY: { monthly: 4.99,  yearly: 49  }, DEEP: { monthly: 12.99, yearly: 129 }, FOUNDER: { lifetime: 399 } },
 
   // Tier 2 — EU pricing
-  EUR: { symbol: '€',   code: 'EUR', tier: 'tier2', FAMILY: { monthly: 5.99,  yearly: 59  }, FOUNDER: { lifetime: 229 } },
+  EUR: { symbol: '€',   code: 'EUR', tier: 'tier2', FAMILY: { monthly: 2.99,  yearly: 29  }, DEEP: { monthly: 7.99,  yearly: 79  }, FOUNDER: { lifetime: 229 } },
 
-  // Tier 3 — 50% PPP
-  ZAR: { symbol: 'R',   code: 'ZAR', tier: 'tier3', FAMILY: { monthly: 69,    yearly: 690 }, FOUNDER: { lifetime: 3999 } },
-  BRL: { symbol: 'R$',  code: 'BRL', tier: 'tier3', FAMILY: { monthly: 19.99, yearly: 199 }, FOUNDER: { lifetime: 999 } },
-  MXN: { symbol: 'MX$', code: 'MXN', tier: 'tier3', FAMILY: { monthly: 69,    yearly: 690 }, FOUNDER: { lifetime: 3999 } },
-  PHP: { symbol: '₱',   code: 'PHP', tier: 'tier3', FAMILY: { monthly: 199,   yearly: 1999 }, FOUNDER: { lifetime: 9999 } },
+  // Tier 3 — PPP, monthly allowed. ARS/IDR/THB/MYR now have their own rows so
+  // they no longer silently fall back to the USD anchor (the prior latent gap).
+  ZAR: { symbol: 'R',   code: 'ZAR', tier: 'tier3', FAMILY: { monthly: 45,    yearly: 450  }, DEEP: { monthly: 119,   yearly: 1190  }, FOUNDER: { lifetime: 3999 } },
+  BRL: { symbol: 'R$',  code: 'BRL', tier: 'tier3', FAMILY: { monthly: 8,     yearly: 80   }, DEEP: { monthly: 24,    yearly: 240   }, FOUNDER: { lifetime: 999 } },
+  MXN: { symbol: 'MX$', code: 'MXN', tier: 'tier3', FAMILY: { monthly: 49,    yearly: 490  }, DEEP: { monthly: 129,   yearly: 1290  }, FOUNDER: { lifetime: 3999 } },
+  PHP: { symbol: '₱',   code: 'PHP', tier: 'tier3', FAMILY: { monthly: 149,   yearly: 1490 }, DEEP: { monthly: 399,   yearly: 3990  }, FOUNDER: { lifetime: 9999 } },
+  ARS: { symbol: '$',   code: 'ARS', tier: 'tier3', FAMILY: { monthly: 2900,  yearly: 29000 }, DEEP: { monthly: 7900,  yearly: 79000 }, FOUNDER: { lifetime: 39999 } },
+  IDR: { symbol: 'Rp',  code: 'IDR', tier: 'tier3', FAMILY: { monthly: 39000, yearly: 390000 }, DEEP: { monthly: 99000, yearly: 990000 }, FOUNDER: { lifetime: 499000 } },
+  THB: { symbol: '฿',   code: 'THB', tier: 'tier3', FAMILY: { monthly: 99,    yearly: 990  }, DEEP: { monthly: 249,   yearly: 2490  }, FOUNDER: { lifetime: 3999 } },
+  MYR: { symbol: 'RM',  code: 'MYR', tier: 'tier3', FAMILY: { monthly: 12,    yearly: 120  }, DEEP: { monthly: 32,    yearly: 320   }, FOUNDER: { lifetime: 399 } },
 
-  // Tier 4 — 30% PPP, annual-only (no monthly)
-  INR: { symbol: '₹',   code: 'INR', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 1999 },  FOUNDER: { lifetime: 14999 } },
-  NGN: { symbol: '₦',   code: 'NGN', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 13999 }, FOUNDER: { lifetime: 199999 } },
-  KES: { symbol: 'KSh', code: 'KES', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 6999 },  FOUNDER: { lifetime: 24999 } },
-  PKR: { symbol: 'Rs',  code: 'PKR', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 13999 }, FOUNDER: { lifetime: 49999 } },
+  // Tier 4 — deepest PPP, annual-only (no monthly). BDT/EGP/GHS now have rows
+  // too, so they no longer fall back to the USD anchor.
+  INR: { symbol: '₹',   code: 'INR', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 999  }, DEEP: { monthly: 0, yearly: 2499  }, FOUNDER: { lifetime: 14999 } },
+  NGN: { symbol: '₦',   code: 'NGN', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 6999 }, DEEP: { monthly: 0, yearly: 17999 }, FOUNDER: { lifetime: 199999 } },
+  KES: { symbol: 'KSh', code: 'KES', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 3499 }, DEEP: { monthly: 0, yearly: 8999  }, FOUNDER: { lifetime: 24999 } },
+  PKR: { symbol: 'Rs',  code: 'PKR', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 6999 }, DEEP: { monthly: 0, yearly: 17999 }, FOUNDER: { lifetime: 49999 } },
+  BDT: { symbol: '৳',   code: 'BDT', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 999  }, DEEP: { monthly: 0, yearly: 2499  }, FOUNDER: { lifetime: 14999 } },
+  EGP: { symbol: 'E£',  code: 'EGP', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 999  }, DEEP: { monthly: 0, yearly: 2499  }, FOUNDER: { lifetime: 4999 } },
+  GHS: { symbol: '₵',   code: 'GHS', tier: 'tier4', annualOnly: true, FAMILY: { monthly: 0, yearly: 299  }, DEEP: { monthly: 0, yearly: 899   }, FOUNDER: { lifetime: 1999 } },
 };
 
 const DEFAULT_CURRENCY = 'USD';
@@ -218,6 +241,39 @@ const TIER_LIMITS = {
     apiAccess: true,
     whiteGloveOnboarding: true,
   },
+  // DEEP tier — the upgrade above Family: unlimited members + 250 GB + priority
+  // support. The volume ladder's "best" tier. Trial still honours FAMILY (not
+  // DEEP) — DEEP is an explicit paid upgrade from Family.
+  DEEP: {
+    maxStorage: 250 * 1024 * 1024 * 1024, // 250GB
+    maxStorageLabel: '250 GB',
+    maxThreads: -1,
+    maxMemoriesPerMonth: -1, // unlimited
+    maxFamilyMembers: -1, // unlimited — the multi-generational bloodline tier
+    maxRecipients: -1,
+    maxLetters: -1,
+    maxVoiceMinutes: -1,
+    maxPhotos: -1,
+    maxVideoMinutes: -1, // unlimited
+    posthumousDelivery: true,
+    deadManSwitchDays: 7,
+    familyTree: true,
+    aiTranscription: true,
+    aiLetterHelp: true,
+    aiMemoryPrompts: true,
+    aiMemoryInsights: true,
+    livingLegacyAvatar: true,
+    voiceToMemory: true,
+    collaborativeEditing: true,
+    yearWrapped: true,
+    prioritySupport: true,
+    dedicatedSupport: true,
+    premiumExport: true,
+    videoMontage: true,
+    physicalMemoryBook: true, // 1/year
+    apiAccess: true,
+    whiteGloveOnboarding: true,
+  },
   // Alias for backward compatibility
   FOREVER: {
     maxStorage: 500 * 1024 * 1024 * 1024, // 500GB
@@ -307,20 +363,23 @@ billingRoutes.get('/pricing', async (c) => {
     trialDays: TRIAL_DAYS,
     // Flat fields the web Pricing page reads directly for localized display.
     FAMILY: { monthly: prices.FAMILY.monthly, yearly: prices.FAMILY.yearly },
+    DEEP: { monthly: prices.DEEP.monthly, yearly: prices.DEEP.yearly },
+    // FOUNDER flat field kept for the Billing page of existing founders (the
+    // tier is withdrawn from buy surfaces — no FOUNDER card in `tiers` below).
     FOUNDER: { lifetime: prices.FOUNDER.lifetime },
     tiers: [
       {
         id: 'FREE',
         name: 'Free',
-        description: 'Start your family thread at no cost, forever',
+        description: 'Let the first entry settle into the Deep — no cost, forever',
         storage: '500 MB',
         maxThreads: 1,
         maxFamilyMembers: -1,
         price: { amount: 0, display: `${prices.symbol}0` },
         features: [
-          'One family thread',
+          'One bloodline in the Deep',
           '500 MB storage',
-          'Try every feature — voice, photo & written',
+          'Try every feature — voice, photo & written entries',
           'Invite your whole family',
           'Export anytime — no lock-in',
         ],
@@ -328,7 +387,7 @@ billingRoutes.get('/pricing', async (c) => {
       {
         id: 'FAMILY',
         name: 'Family',
-        description: 'The whole family, unlimited, with the keepsake features',
+        description: 'The whole bloodline, unlimited entries, with the keepsake features',
         storage: '50 GB',
         maxThreads: -1,
         maxFamilyMembers: 5,
@@ -345,31 +404,39 @@ billingRoutes.get('/pricing', async (c) => {
           savings: '2 months free'
         },
         features: [
-          'Unlimited threads & entries',
+          'Unlimited entries in the Deep',
           'Voice entries',
-          'Time-locked & sealed entries',
+          'Sealed & time-locked notes',
           'Up to 5 family members',
-          '50GB storage',
+          '50 GB storage',
           'Family tree + premium export',
         ],
       },
       {
-        id: 'FOUNDER',
-        name: 'Founder',
-        description: 'Everything in Family, once, for life',
-        storage: '500 GB',
+        id: 'DEEP',
+        name: 'Deep',
+        description: 'The multi-generational bloodline — unlimited members, 250 GB, priority',
+        storage: '250 GB',
         maxThreads: -1,
         maxFamilyMembers: -1,
-        oneTime: {
-          amount: prices.FOUNDER.lifetime,
-          display: `${prices.symbol}${prices.FOUNDER.lifetime}`,
+        maxMemoriesPerMonth: -1,
+        monthly: isAnnualOnly ? null : {
+          amount: prices.DEEP.monthly,
+          display: `${prices.symbol}${prices.DEEP.monthly}`
+        },
+        yearly: {
+          amount: prices.DEEP.yearly,
+          display: `${prices.symbol}${prices.DEEP.yearly}`,
+          perMonth: `${prices.symbol}${(prices.DEEP.yearly / 12).toFixed(2)}`,
+          savings: '2 months free'
         },
         features: [
-          'Everything in Family, forever',
-          'One-time payment — never billed again',
-          'Founder badge + pledge number',
-          'Locked price for life',
-          'Vote on the product roadmap',
+          'Everything in Family',
+          'Unlimited family members — the whole bloodline',
+          '250 GB storage',
+          'Unlimited voice & video entries',
+          'Priority support + dedicated onboarding',
+          'Annual physical memory book',
         ],
       },
     ],
@@ -516,9 +583,9 @@ billingRoutes.post('/calculate', async (c) => {
   const currency = getCurrencyForCountry(country);
   const prices = PRICING[currency];
   const normalizedTier = normalizeTier(tier);
-  // Family is the only recurring plan; Free is $0 and Founder is a one-time pledge (/founder).
-  if (normalizedTier !== 'FAMILY') return c.json({ error: 'Only the Family plan is billed here.' }, 400);
-  const tierPrices = prices.FAMILY;
+  // Family + Deep are the recurring plans; Free is $0 and Founder is a one-time pledge (/founder).
+  if (normalizedTier !== 'FAMILY' && normalizedTier !== 'DEEP') return c.json({ error: 'Only the Family and Deep plans are billed here.' }, 400);
+  const tierPrices = prices[normalizedTier];
 
   const isYearly = billingCycle === 'yearly';
   let basePrice = isYearly ? tierPrices.yearly : tierPrices.monthly;
@@ -548,12 +615,12 @@ billingRoutes.post('/checkout', async (c) => {
   const currency = getCurrencyForCountry(country);
   const prices = PRICING[currency];
   const normalizedTier = normalizeTier(tier);
-  // Family is the only recurring checkout. Free needs no payment; Founder is the
-  // one-time lifetime pledge handled at /founder (founders.ts).
-  if (normalizedTier !== 'FAMILY') {
-    return c.json({ error: 'The Founder plan is a one-time pledge — visit /founder. Only the Family plan is billed here.' }, 400);
+  // Family + Deep are the recurring checkouts. Free needs no payment; Founder
+  // is the one-time lifetime pledge handled at /founder (founders.ts).
+  if (normalizedTier !== 'FAMILY' && normalizedTier !== 'DEEP') {
+    return c.json({ error: 'Only the Family and Deep plans are billed here. Founder is a one-time pledge at /founder.' }, 400);
   }
-  const tierPrices = prices.FAMILY;
+  const tierPrices = prices[normalizedTier];
 
   const isYearly = billingCycle === 'yearly';
   let finalPrice = isYearly ? tierPrices.yearly : tierPrices.monthly;
@@ -1119,17 +1186,19 @@ billingRoutes.post('/webhook', async (c) => {
                 break;
               }
         
-              // Handle regular subscription checkout.
-              // This branch only ever grants FAMILY: Founder pledges, gift
+              // Handle regular subscription checkout. Founder pledges, gift
               // vouchers, and book orders each `break` in their own branches
-              // above, and /checkout rejects any tier !== 'FAMILY' with a 400.
-              // The old amount-derived cross-check could return 'FOUNDER', which
-              // is NOT a valid subscriptions.tier (the CHECK constraint rejects
-              // it) — so a localised (non-USD) Family payment whose amount
-              // crossed the $249 threshold 500'd and never granted the tier.
-              // FAMILY is the only tier that reaches here, so grant it directly.
+              // above, so only recurring checkouts (Family or Deep) reach here.
+              // Grant the tier from metadata — /checkout stamps the normalized
+              // tier there and validates it's FAMILY or DEEP. Default to FAMILY
+              // only when metadata is missing (legacy sessions pre-dating Deep).
+              // Never trust the amount: a localised Deep payment could cross the
+              // old $249 founder threshold, and 'FOUNDER' is not a valid
+              // subscriptions.tier (CHECK rejects it) — the metadata is source of
+              // truth, not the price.
               const userId = session.metadata?.user_id;
-              const tier = 'FAMILY';
+              const metaTier = (session.metadata?.tier || 'FAMILY').toUpperCase();
+              const tier = (metaTier === 'DEEP') ? 'DEEP' : 'FAMILY';
               const billingCycle = session.metadata?.billing_cycle || 'monthly';
 
               if (userId) {

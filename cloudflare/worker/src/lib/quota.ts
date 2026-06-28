@@ -27,6 +27,7 @@ export function storageCapBytes(tier: string | null | undefined, trialActive: bo
   if (trialActive) return 50 * GB; // Family trial gets the Family cap
   const t = (tier ?? 'STARTER').toUpperCase();
   if (t === 'LEGACY' || t === 'FOREVER') return 500 * GB; // Founder / lifetime
+  if (t === 'DEEP') return 250 * GB; // Deep — the multi-generational bloodline tier
   if (t === 'FAMILY' || t === 'ESSENTIAL') return 50 * GB; // Family
   return FREE_STORAGE_BYTES; // FREE / STARTER
 }

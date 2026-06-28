@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE TABLE IF NOT EXISTS subscriptions (
   id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
   user_id TEXT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  tier TEXT DEFAULT 'FREE' CHECK (tier IN ('FREE', 'ESSENTIAL', 'FAMILY', 'LEGACY', 'STARTER', 'FOREVER')),
+  tier TEXT DEFAULT 'FREE' CHECK (tier IN ('FREE', 'ESSENTIAL', 'FAMILY', 'LEGACY', 'STARTER', 'FOREVER', 'DEEP')),
   status TEXT DEFAULT 'TRIALING' CHECK (status IN ('ACTIVE', 'CANCELLED', 'PAST_DUE', 'TRIALING')),
   stripe_customer_id TEXT UNIQUE,
   stripe_subscription_id TEXT UNIQUE,
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS gift_vouchers (
   recipient_email TEXT,
   recipient_name TEXT,
   recipient_message TEXT,
-  tier TEXT NOT NULL CHECK (tier IN ('STARTER', 'FAMILY', 'FOREVER')),
+  tier TEXT NOT NULL CHECK (tier IN ('STARTER', 'FAMILY', 'FOREVER', 'DEEP')),
   billing_cycle TEXT NOT NULL CHECK (billing_cycle IN ('monthly', 'quarterly', 'yearly', 'lifetime')),
   duration_months INTEGER NOT NULL DEFAULT 12,
   amount INTEGER NOT NULL,

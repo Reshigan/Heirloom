@@ -4,7 +4,7 @@ import { billingApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
-import { planLabel, isPaidTier, isFounderTier, isFreeTier, PLAN_LIMITS, PLAN_PRICE } from '../lib/plans';
+import { planLabel, isPaidTier, isFounderTier, isFreeTier, isDeepTier, PLAN_LIMITS, PLAN_PRICE } from '../lib/plans';
 
 const ROW: React.CSSProperties = {
   display: 'flex',
@@ -71,8 +71,8 @@ export function Billing() {
   });
 
   const checkout = useMutation({
-    mutationFn: (cycle: 'monthly' | 'yearly') =>
-      billingApi.checkout({ tier: 'FAMILY', billingCycle: cycle }).then((r) => r.data),
+    mutationFn: (vars: { tier: 'FAMILY' | 'DEEP'; cycle: 'monthly' | 'yearly' }) =>
+      billingApi.checkout({ tier: vars.tier, billingCycle: vars.cycle }).then((r) => r.data),
     onSuccess: (data: any) => {
       if (data?.url) window.location.href = data.url;
       setBusy(null);
@@ -95,10 +95,18 @@ export function Billing() {
   const trialEndsAt = (subscription as any)?.trial_ends_at ?? null;
   const trialDaysRemaining = (subscription as any)?.trialDaysRemaining ?? 0;
   const isTrialing = status === 'TRIALING';
-  const priceLabel = isFounderTier(currentTier) ? 'lifetime' : isFreeTier(currentTier) ? 'free' : PLAN_PRICE.FAMILY.monthly;
+  const priceLabel = isFounderTier(currentTier)
+    ? 'lifetime'
+    : isDeepTier(currentTier)
+    ? PLAN_PRICE.DEEP.monthly
+    : isFreeTier(currentTier)
+    ? 'free'
+    : PLAN_PRICE.FAMILY.monthly;
   const isFounder = isFounderTier(currentTier);
   const counterText = isFounder
     ? 'founder · once · lifetime'
+    : isDeepTier(currentTier)
+    ? `deep · ${PLAN_PRICE.DEEP.monthly}/mo`
     : isTrialing
     ? `trial · ${trialDaysRemaining}d left`
     : currentTier === 'FAMILY'
@@ -147,7 +155,7 @@ export function Billing() {
               {planLabel(currentTier)}{isTrialing ? ' · trialing' : ''}
             </span>
             <span style={VALUE_STATIC}>
-              {priceLabel}{currentTier === 'FAMILY' && !isTrialing ? ' / mo' : ''}
+              {priceLabel}{(currentTier === 'FAMILY' || currentTier === 'DEEP') && !isTrialing ? ' / mo' : ''}
             </span>
           </div>
           <div style={ROW}>
@@ -159,15 +167,23 @@ export function Billing() {
           {currentTier === 'FAMILY' && (
             <div style={ROW}>
               <span style={LABEL}>annual billing</span>
-              <button type="button" className="billing-action" onClick={() => { setBusy('FAMILY_ANNUAL'); checkout.mutate('yearly'); }} disabled={!!busy} style={{ ...ACTION, ...(busy ? { opacity: 0.5, cursor: 'default' } : null) }}>
+              <button type="button" className="billing-action" onClick={() => { setBusy('FAMILY_ANNUAL'); checkout.mutate({ tier: 'FAMILY', cycle: 'yearly' }); }} disabled={!!busy} style={{ ...ACTION, ...(busy ? { opacity: 0.5, cursor: 'default' } : null) }}>
                 {busy === 'FAMILY_ANNUAL' ? 'opening…' : 'switch to annual →'}
+              </button>
+            </div>
+          )}
+          {currentTier === 'FAMILY' && (
+            <div style={ROW}>
+              <span style={LABEL}>upgrade to deep — unlimited bloodline</span>
+              <button type="button" className="billing-action" onClick={() => { setBusy('DEEP'); checkout.mutate({ tier: 'DEEP', cycle: 'monthly' }); }} disabled={!!busy} style={{ ...ACTION, ...(busy ? { opacity: 0.5, cursor: 'default' } : null) }}>
+                {busy === 'DEEP' ? 'opening…' : 'go Deep →'}
               </button>
             </div>
           )}
           {isFreeTier(currentTier) && (
             <div style={ROW}>
               <span style={LABEL}>upgrade to family</span>
-              <button type="button" className="billing-action" onClick={() => { setBusy('FAMILY'); checkout.mutate('monthly'); }} disabled={!!busy} style={{ ...ACTION, ...(busy ? { opacity: 0.5, cursor: 'default' } : null) }}>
+              <button type="button" className="billing-action" onClick={() => { setBusy('FAMILY'); checkout.mutate({ tier: 'FAMILY', cycle: 'monthly' }); }} disabled={!!busy} style={{ ...ACTION, ...(busy ? { opacity: 0.5, cursor: 'default' } : null) }}>
                 {busy === 'FAMILY' ? 'opening…' : 'start 30-day trial →'}
               </button>
             </div>
@@ -233,7 +249,7 @@ export function Billing() {
         {/* ── Ending the subscription ───────────────── */}
         <SectionLabel>ending the subscription</SectionLabel>
         <p style={NOTE}>
-          Your thread is never deleted. It freezes in place and is downloadable for life.
+          Your Deep is never deleted. It freezes in place and is downloadable for life.
         </p>
         <div style={{ marginTop: 14, paddingTop: 14, borderTop: '1px solid var(--rule)', display: 'flex', justifyContent: 'flex-end' }}>
           <button type="button" className="billing-action" onClick={() => portal.mutate()} disabled={portal.isPending} style={{ ...ACTION_QUIET, ...(portal.isPending ? { opacity: 0.5, cursor: 'default' } : null) }}>

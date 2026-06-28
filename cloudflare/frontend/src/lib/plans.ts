@@ -2,37 +2,47 @@
 // API values (UPPERCASE) come from the Cloudflare worker.
 // Never hardcode tier strings elsewhere — import from here.
 
-export type ApiTier = 'STARTER' | 'FAMILY' | 'LEGACY' | 'FOREVER' | 'FREE' | 'ESSENTIAL';
+export type ApiTier = 'STARTER' | 'FAMILY' | 'DEEP' | 'LEGACY' | 'FOREVER' | 'FREE' | 'ESSENTIAL';
 
 export const PLAN_DISPLAY: Record<string, string> = {
   STARTER: 'free',
   FREE:    'free',
   ESSENTIAL: 'family',
   FAMILY:  'family',
+  DEEP:    'deep',
   LEGACY:  'founder',
   FOREVER: 'founder',
 };
 
 export const PLAN_CTA: Record<string, string> = {
   STARTER:  'Begin free',
-  FAMILY:   'Upgrade to Family',
+  FAMILY:   'Go Family',
+  DEEP:     'Go Deep',
   LEGACY:   'Become a founder',
 };
 
 export const PLAN_FEATURES: Record<string, string[]> = {
   STARTER: [
-    'One family thread',
+    'One bloodline in the Deep',
     '500 MB storage',
-    'Try every feature — voice, photo & written',
+    'Try every feature — voice, photo & written entries',
     'Invite your whole family',
     'Export anytime — no lock-in',
   ],
   FAMILY: [
-    'Unlimited threads & entries',
+    'Unlimited entries in the Deep',
     'Voice entries',
-    'Time-locked & sealed entries',
+    'Sealed & time-locked notes',
     'Up to 5 family members',
     '50 GB storage',
+  ],
+  DEEP: [
+    'Everything in Family',
+    'Unlimited family members — the whole bloodline',
+    '250 GB storage',
+    'Unlimited voice & video entries',
+    'Priority support + dedicated onboarding',
+    'Annual physical memory book',
   ],
   LEGACY: [
     'Everything in Family, forever',
@@ -45,19 +55,25 @@ export const PLAN_FEATURES: Record<string, string[]> = {
 
 export const PLAN_LIMITS: Record<string, Array<[string, string]>> = {
   STARTER: [
-    ['threads', '1'],
+    ['entries', 'unlimited'],
     ['members', 'unlimited'],
     ['voice', 'included'],
     ['storage', '500 MB'],
   ],
   FAMILY: [
-    ['threads', 'unlimited'],
+    ['entries', 'unlimited'],
     ['members', '5'],
     ['voice', 'unlimited'],
     ['storage', '50 GB'],
   ],
+  DEEP: [
+    ['entries', 'unlimited'],
+    ['members', 'unlimited'],
+    ['voice', 'unlimited'],
+    ['storage', '250 GB'],
+  ],
   LEGACY: [
-    ['threads', 'unlimited'],
+    ['entries', 'unlimited'],
     ['members', 'unlimited'],
     ['voice', 'unlimited'],
     ['storage', '500 GB'],
@@ -69,10 +85,14 @@ export const PLAN_LIMITS: Record<string, Array<[string, string]>> = {
  * Single source of truth for the static plan cards (Signup, Billing) so the
  * numbers can never drift apart. Live currency-localized amounts (e.g. ZAR)
  * come from the worker /billing/tiers endpoint and are deliberately NOT here.
+ *
+ * FOUNDER is kept for existing founders' Billing display only — the tier is
+ * withdrawn from buy surfaces (no Founder card on Pricing/Signup).
  */
 export const PLAN_PRICE = {
   FREE:    { amount: 'free',  cycle: 'forever' },
-  FAMILY:  { monthly: '$6.99', annual: '$69', perMonth: '/ month', perYear: '/ year' },
+  FAMILY:  { monthly: '$2.99', annual: '$29', perMonth: '/ month', perYear: '/ year' },
+  DEEP:    { monthly: '$7.99', annual: '$79', perMonth: '/ month', perYear: '/ year' },
   FOUNDER: { amount: '$249', cycle: 'once · lifetime' },
 } as const;
 
@@ -84,7 +104,8 @@ export const PLAN_PRICE = {
  * the worker /billing/tiers endpoint and are deliberately NOT here.
  */
 export const PLAN_PRICE_NUM = {
-  FAMILY:  { monthly: 6.99, annual: 69 },
+  FAMILY:  { monthly: 2.99, annual: 29 },
+  DEEP:    { monthly: 7.99, annual: 79 },
   FOUNDER: { lifetime: 249 },
 } as const;
 
@@ -96,7 +117,13 @@ export function planLabel(apiTier: string): string {
 /** Returns true if the API tier has access to paid features. */
 export function isPaidTier(apiTier: string): boolean {
   const t = apiTier?.toUpperCase();
-  return t === 'FAMILY' || t === 'LEGACY' || t === 'FOREVER' || t === 'ESSENTIAL' || t === 'FOUNDER';
+  return t === 'FAMILY' || t === 'DEEP' || t === 'LEGACY' || t === 'FOREVER' || t === 'ESSENTIAL' || t === 'FOUNDER';
+}
+
+/** Returns true if this is the Deep (unlimited-bloodline) tier. */
+export function isDeepTier(apiTier: string): boolean {
+  const t = apiTier?.toUpperCase();
+  return t === 'DEEP';
 }
 
 /** Returns true if this is the founder/lifetime tier. The worker stores this
