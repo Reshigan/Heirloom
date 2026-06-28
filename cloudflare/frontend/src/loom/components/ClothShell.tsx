@@ -45,11 +45,11 @@ export function ClothShell({
             zIndex: 20,
             display: 'flex', alignItems: 'flex-end',
             padding: '0 24px',
-            // Floats over the filament web: a translucent ink scrim (no blur —
-            // §2.6) with a filament underline. CosmicLoom already settles the
-            // top band into ink, so topbar text stays legible.
+            // Floats over the deep water: a translucent ink scrim (no blur —
+            // §2.6) with a hairline rule. The water already settles the top
+            // band into ink, so topbar text stays legible.
             background: 'var(--ink-translucent)',
-            borderBottom: '1px solid var(--filament)',
+            borderBottom: '1px solid var(--rule)',
           }}
         >
           {/* Three collision-proof columns. The side columns share width
