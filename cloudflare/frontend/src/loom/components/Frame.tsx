@@ -404,7 +404,7 @@ export function Frame({ left, right, trial, showEdge = true, children }: FramePr
             <Link to="/capture" className="hl-link warm hl-topbar-action">speak something →</Link>
           )}
           <SecurityDot />
-          <UserMenu />
+          {/* user-initial avatar retired from chrome — account + sign-out on the "you" tab */}
         </span>
       </div>
 

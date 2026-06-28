@@ -6,6 +6,7 @@ import {
   lettersApi,
   voiceApi,
   familyApi,
+  engagementApi,
   aiApi,
   getAuthHeaders,
 } from '../services/api';
@@ -89,8 +90,33 @@ export function Capture() {
     queryFn: familyApi.list,
     enabled: isAuthenticated,
   });
-  const familyMembers: { id: string; name: string; relationship?: string | null }[] =
+  const registeredMembers: { id: string; name: string; relationship?: string | null }[] =
     Array.isArray(familyData) ? familyData : [];
+
+  // Pending (not-yet-accepted) invites belong on the recipient roster too — a
+  // letter can be addressed to someone still on the doorstep. They carry no
+  // member id, so RecipientPicker resolves them by name (free-name path).
+  const { data: invitesData } = useQuery({
+    queryKey: ['invites'],
+    queryFn: () => engagementApi.getInvites().then((r) => r.data).catch(() => ({ invites: [] })),
+    enabled: isAuthenticated && isLetter,
+  });
+  const pendingMembers = useMemo(() => {
+    const list: { invitee_email: string; invitee_name: string | null; invite_code: string; status: string }[] =
+      (invitesData as { invites?: typeof list })?.invites ?? [];
+    return list
+      .filter((i) => i.status === 'pending')
+      .map((i) => ({
+        id: `invite:${i.invite_code}`,
+        name: i.invitee_name || i.invitee_email,
+        relationship: null,
+        pending: true,
+      }));
+  }, [invitesData]);
+  const familyMembers = useMemo(
+    () => [...registeredMembers, ...pendingMembers],
+    [registeredMembers, pendingMembers],
+  );
 
   // ── cleanup ───────────────────────────────────────────────────────────
   useEffect(() => () => {
@@ -521,7 +547,7 @@ export function Capture() {
 export default Capture;
 
 /* ─── styles ──────────────────────────────────────────────────────────── */
-const mono: React.CSSProperties = { fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase' };
+const mono: React.CSSProperties = { fontFamily: 'var(--mono)', fontSize: 12.5, letterSpacing: '0.12em', textTransform: 'uppercase' };
 const crumb: React.CSSProperties = { ...mono, color: 'var(--bone-faint)', textDecoration: 'none' };
 const ghost: React.CSSProperties = { ...mono, background: 'none', border: 0, color: 'var(--bone-dim)', cursor: 'pointer', minHeight: 44, display: 'inline-flex', alignItems: 'center', padding: 0 };
 // The fork chips — warm copper hairline + copper text when chosen, faint

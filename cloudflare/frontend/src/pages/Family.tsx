@@ -62,6 +62,11 @@ export function Family() {
   const [editDye, setEditDye] = useState('');
   const [editError, setEditError] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  // Inline-edit state for a pending invite (name + email, before it's accepted).
+  const [editInviteId, setEditInviteId] = useState<string | null>(null);
+  const [editInviteName, setEditInviteName] = useState('');
+  const [editInviteEmail, setEditInviteEmail] = useState('');
+  const [editInviteError, setEditInviteError] = useState<string | null>(null);
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['family'],
@@ -167,6 +172,26 @@ export function Family() {
       queryClient.invalidateQueries({ queryKey: ['invites'] });
     },
   });
+
+  const saveInviteEdit = useMutation({
+    mutationFn: (id: string) =>
+      engagementApi.editInvite(id, { email: editInviteEmail.trim(), name: editInviteName.trim() || null }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['invites'] });
+      setEditInviteId(null);
+      setEditInviteError(null);
+    },
+    onError: (err: any) => {
+      setEditInviteError(err?.response?.data?.error ?? 'Could not save changes.');
+    },
+  });
+
+  const startInviteEdit = (inv: PendingInvite) => {
+    setEditInviteId(inv.id);
+    setEditInviteName(inv.invitee_name ?? '');
+    setEditInviteEmail(inv.invitee_email);
+    setEditInviteError(null);
+  };
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -455,47 +480,100 @@ export function Family() {
             {pendingInvites.map((inv) => (
               <div
                 key={inv.id}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, paddingBottom: 12, borderBottom: '1px solid var(--rule)', gap: 12 }}
+                style={{ paddingTop: 12, paddingBottom: 12, borderBottom: '1px solid var(--rule)' }}
               >
-                <div>
-                  <div className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)', lineHeight: 1.3 }}>
-                    {inv.invitee_name || inv.invitee_email}
-                  </div>
-                  {inv.invitee_name && (
-                    <div className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-faint)', marginTop: 2 }}>
-                      {inv.invitee_email}
+                {editInviteId === inv.id ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <input
+                      value={editInviteName}
+                      onChange={(e) => setEditInviteName(e.target.value)}
+                      placeholder="name (optional)"
+                      aria-label="Invitee name"
+                      className="hl-serif"
+                      style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', color: 'var(--bone)', caretColor: 'var(--warm)', fontSize: 15, padding: '4px 0', outline: 'none' }}
+                    />
+                    <input
+                      value={editInviteEmail}
+                      onChange={(e) => setEditInviteEmail(e.target.value)}
+                      type="email"
+                      placeholder="email"
+                      aria-label="Invitee email"
+                      className="hl-mono"
+                      style={{ background: 'transparent', border: 0, borderBottom: '1px solid var(--rule)', color: 'var(--bone)', caretColor: 'var(--warm)', fontSize: 13, padding: '4px 0', outline: 'none' }}
+                    />
+                    {editInviteError && (
+                      <p role="alert" className="hl-mono" style={{ fontSize: 11, color: 'var(--warm)', letterSpacing: '0.14em', margin: 0 }}>{editInviteError}</p>
+                    )}
+                    <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => saveInviteEdit.mutate(inv.id)}
+                        disabled={saveInviteEdit.isPending || !editInviteEmail.trim()}
+                        style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', color: editInviteEmail.trim() ? 'var(--warm)' : 'var(--bone-faint)', touchAction: 'manipulation' }}
+                      >
+                        {saveInviteEdit.isPending ? 'saving…' : 'save'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => { setEditInviteId(null); setEditInviteError(null); }}
+                        style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', touchAction: 'manipulation' }}
+                      >
+                        cancel
+                      </button>
                     </div>
-                  )}
-                </div>
-                <div style={{ display: 'flex', gap: 16, flexShrink: 0, alignItems: 'center' }}>
-                  <button
-                    type="button"
-                    onClick={() => copyLink(inv.invite_code)}
-                    style={{
-                      background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                      fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em',
-                      textTransform: 'uppercase', color: copiedKey === inv.invite_code ? 'var(--warm)' : 'var(--bone-dim)',
-                      transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
-                    }}
-                  >
-                    {copiedKey === inv.invite_code ? 'link copied' : 'copy link'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => cancelInvite.mutate(inv.id)}
-                    disabled={cancelInvite.isPending}
-                    style={{
-                      background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                      fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em',
-                      textTransform: 'uppercase', color: 'var(--bone-faint)',
-                      transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
-                    }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
-                  >
-                    cancel
-                  </button>
-                </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                    <div>
+                      <div className="hl-serif" style={{ fontSize: 15, color: 'var(--bone)', lineHeight: 1.3 }}>
+                        {inv.invitee_name || inv.invitee_email}
+                      </div>
+                      {inv.invitee_name && (
+                        <div className="hl-mono" style={{ fontSize: 12, color: 'var(--bone-faint)', marginTop: 2 }}>
+                          {inv.invitee_email}
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: 16, flexShrink: 0, alignItems: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => startInviteEdit(inv)}
+                        style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-dim)', transition: 'color 180ms var(--ease)', touchAction: 'manipulation' }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-dim)'; }}
+                      >
+                        edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => copyLink(inv.invite_code)}
+                        style={{
+                          background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                          fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em',
+                          textTransform: 'uppercase', color: copiedKey === inv.invite_code ? 'var(--warm)' : 'var(--bone-dim)',
+                          transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
+                        }}
+                      >
+                        {copiedKey === inv.invite_code ? 'link copied' : 'copy link'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => cancelInvite.mutate(inv.id)}
+                        disabled={cancelInvite.isPending}
+                        style={{
+                          background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
+                          fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em',
+                          textTransform: 'uppercase', color: 'var(--bone-faint)',
+                          transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
+                        }}
+                        onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+                        onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
+                      >
+                        cancel
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>

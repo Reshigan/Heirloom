@@ -334,6 +334,38 @@ engagementRoutes.delete('/invites/:id', requireAuth, async (c) => {
   return c.body(null, 204);
 });
 
+// Edit a pending invite's name / email (before it's accepted).
+engagementRoutes.patch('/invites/:id', requireAuth, async (c) => {
+  const userId = c.get('userId');
+  const inviteId = c.req.param('id');
+  const body = await c.req
+    .json<{ email?: string; name?: string | null }>()
+    .catch(() => ({} as { email?: string; name?: string | null }));
+
+  const invite = await c.env.DB.prepare(`
+    SELECT id, invitee_name FROM family_invites WHERE id = ? AND inviter_user_id = ? AND status = 'pending'
+  `).bind(inviteId, userId).first();
+
+  if (!invite) {
+    return c.json({ error: 'Invite not found' }, 404);
+  }
+
+  const email = body.email?.trim().toLowerCase();
+  // name: undefined = leave as-is; '' = clear to null; else the trimmed value.
+  const name = body.name === undefined
+    ? ((invite as { invitee_name?: string | null }).invitee_name ?? null)
+    : (body.name?.trim() || null);
+  if (email !== undefined && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return c.json({ error: 'A valid email is required' }, 400);
+  }
+
+  await c.env.DB.prepare(`
+    UPDATE family_invites SET invitee_email = COALESCE(?, invitee_email), invitee_name = ? WHERE id = ?
+  `).bind(email ?? null, name, inviteId).run();
+
+  return c.body(null, 204);
+});
+
 // Public invite preview — UNAUTHED. A prospective joiner opening an invite link
 // sees proof the thread is real and alive BEFORE signing up: who invited them,
 // the thread name, how many hands, since when, and ONE safe memory title.

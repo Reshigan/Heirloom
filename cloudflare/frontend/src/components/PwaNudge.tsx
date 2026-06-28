@@ -31,10 +31,14 @@ const MOTIF_DYES: Dye[] = (['madder', 'saffron', 'indigo', 'cochineal', 'weld', 
  */
 type Mode = 'hidden' | 'install' | 'ios' | 'notify';
 
-const APPEAR_DELAY_MS = 15_000;
+const APPEAR_DELAY_MS = 8_000;
 
-// Only show after 3+ page views (not on the first landing page impression)
-const MIN_VIEWS = 3;
+// ponytail: this counter increments at module load, which in the SPA only
+// fires on a hard reload — route changes don't re-run it. MIN_VIEWS>1 meant
+// the nudge needed several full page loads and so almost never appeared
+// "automatically." Gate on the first visit + the dwell timer instead: one
+// session, 8s in, the install prompt surfaces on its own.
+const MIN_VIEWS = 1;
 const pageViewKey = 'hl-pwa-views';
 const pageViews = parseInt(localStorage.getItem(pageViewKey) ?? '0', 10) + 1;
 localStorage.setItem(pageViewKey, String(pageViews));

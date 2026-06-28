@@ -254,6 +254,8 @@ export const engagementApi = {
     api.post('/engagement/invite/accept', { inviteCode }),
   getInvites: () => api.get('/engagement/invites'),
   deleteInvite: (id: string) => api.delete(`/engagement/invites/${id}`),
+  editInvite: (id: string, data: { email?: string; name?: string | null }) =>
+    api.patch(`/engagement/invites/${id}`, data),
   // Public (unauthed) preview of what a joiner is being invited into.
   invitePreview: (code: string) => api.get(`/engagement/invite/${encodeURIComponent(code)}/preview`),
 };

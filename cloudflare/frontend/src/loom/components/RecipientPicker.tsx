@@ -8,6 +8,8 @@ export interface RecipientMember {
   name: string;
   relationship?: string | null;
   dye?: string | null;
+  /** A not-yet-accepted invite — selectable by name, but carries no member id. */
+  pending?: boolean;
 }
 
 interface RecipientPickerProps {
@@ -83,7 +85,8 @@ export function RecipientPicker({
   }, [open]);
 
   const select = (m: RecipientMember) => {
-    onChange(m.name, m.id);
+    // A pending invitee has no member id yet — resolve by name (free-name path).
+    onChange(m.name, m.pending ? null : m.id);
     setOpen(false);
     setActiveIndex(-1);
   };
@@ -140,10 +143,10 @@ export function RecipientPicker({
         <div
           style={{
             fontFamily: MONO,
-            fontSize: 10,
-            letterSpacing: '0.28em',
+            fontSize: 11.5,
+            letterSpacing: '0.2em',
             textTransform: 'uppercase',
-            color: 'var(--bone-faint)',
+            color: 'var(--bone-dim)',
             marginBottom: 6,
           }}
         >
@@ -238,7 +241,7 @@ export function RecipientPicker({
               }}
             >
               {m.name}
-              {m.relationship && (
+              {(m.pending || m.relationship) && (
                 <span
                   style={{
                     marginLeft: 8,
@@ -248,11 +251,39 @@ export function RecipientPicker({
                     letterSpacing: '0.16em',
                   }}
                 >
-                  {m.relationship}
+                  {m.pending ? 'invited' : m.relationship}
                 </span>
               )}
             </button>
           ))}
+          {/* "add someone new" — always-present footer so the roster never
+              dead-ends. Clicking focuses the field; typing a fresh name reveals
+              the inline create flow below. */}
+          <button
+            type="button"
+            tabIndex={-1}
+            onMouseDown={(e) => {
+              e.preventDefault();
+              onChange('', null);
+              inputRef.current?.focus();
+            }}
+            style={{
+              display: 'block',
+              width: '100%',
+              textAlign: 'left',
+              background: 'transparent',
+              border: 0,
+              padding: '11px 12px',
+              cursor: 'pointer',
+              fontFamily: MONO,
+              fontSize: 11,
+              letterSpacing: '0.16em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-dim)',
+            }}
+          >
+            + someone new
+          </button>
         </div>
       )}
       {canAdd && (

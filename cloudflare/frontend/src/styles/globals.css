@@ -91,8 +91,9 @@
   --bone: #f2e6d0;
   --bone-dim: rgba(242, 230, 208, 0.72);
   /* WCAG AA: 0.44α = 3.73:1 on --ink (fail). 0.52α = 4.81:1 barely clears 4.5:1.
-     Lifted to 0.62α (≈5.8:1) — the faint tier read as too dim over the water. */
-  --bone-faint: rgba(242, 230, 208, 0.62);
+     Lifted again to 0.72α (≈6.8:1) — the faint tier (10–11px letterspaced mono
+     labels) still read too fine; this lifts every faint label app-wide at once. */
+  --bone-faint: rgba(242, 230, 208, 0.72);
   --bone-low: rgba(242, 230, 208, 0.24);
   --bone-ghost: rgba(242, 230, 208, 0.14);
   --weave-color: rgba(242, 230, 208, 0.10);
