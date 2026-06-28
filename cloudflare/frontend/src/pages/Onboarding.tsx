@@ -153,8 +153,8 @@ const skipStyle: React.CSSProperties = {
 
 // ── Welcome ceremony ────────────────────────────────────────────────────
 // The opening surface: a full-height column, the promise held low so the
-// global crescent filament owns the empty upper air, the verb beneath it, and
-// a quiet sign-in foot. Centered, vast negative space — no page-owned canvas.
+// deep water owns the empty upper air, the verb beneath it, and a quiet
+// sign-in foot. Centered, vast negative space — no page-owned canvas.
 const welcomeStage: React.CSSProperties = {
   flex: 1,
   display: 'flex',
@@ -199,25 +199,6 @@ const welcomeRule: React.CSSProperties = {
   maxWidth: 420,
   background: 'var(--hairline-2)',
   margin: '0 auto',
-};
-
-// Woven thread-band anchoring the bottom of the welcome step — full width,
-// grounded by an ink fade so it dissolves into the floor. Decorative only.
-const welcomeWovenBand: React.CSSProperties = {
-  position: 'absolute',
-  left: 0,
-  right: 0,
-  bottom: 0,
-  height: '38vh',
-  backgroundImage: 'image-set(url("/woven/thread-band.avif") type("image/avif"), url("/woven/thread-band.webp") type("image/webp"), url("/woven/thread-band.png") type("image/png"))',
-  backgroundSize: 'cover',
-  backgroundPosition: 'bottom center',
-  backgroundRepeat: 'no-repeat',
-  opacity: 0.8,
-  WebkitMaskImage: 'linear-gradient(180deg, transparent 40%, var(--ink))',
-  maskImage: 'linear-gradient(180deg, transparent 40%, var(--ink))',
-  pointerEvents: 'none',
-  zIndex: 0,
 };
 
 const welcomeActions: React.CSSProperties = {
@@ -591,10 +572,10 @@ export function Onboarding() {
     ? 'invitation sent'
     : step === 'entry' ? 'start your thread' : 'invite →';
 
-  // The welcome ceremony opens onboarding — vast air, the global crescent
-  // filament crowning the top, the promise held low in serif, and one outlined
-  // amber verb that begins the thread. No page-owned backdrop: the global
-  // ClothBackdrop paints the crescent for this route.
+  // The welcome ceremony opens onboarding — vast air, the deep water
+  // crowning the top, the promise held low in serif, and one outlined amber
+  // verb that begins the thread. No page-owned backdrop: the global
+  // ClothBackdrop paints the deep water for this route.
   // The aha beat — the first line woven into the global cloth, before the invite.
   if (woven) {
     return (
@@ -614,10 +595,7 @@ export function Onboarding() {
     return (
       <ClothShell noTopbar>
         <div style={{ ...welcomeStage, position: 'relative' }}>
-          {/* woven thread-band grounding the bottom — decorative, behind content */}
-          <div style={welcomeWovenBand} aria-hidden />
-
-          {/* the upper two-thirds is left empty — the crescent filament breathes there */}
+          {/* the upper two-thirds is left empty — the deep water breathes there */}
           <div style={{ flex: 1, position: 'relative', zIndex: 1 }} aria-hidden />
 
           <div style={welcomeRule} aria-hidden />
@@ -645,7 +623,7 @@ export function Onboarding() {
             </button>
 
             <div style={welcomeFoot}>
-              already weaving?&nbsp;·&nbsp;
+              already have a thread?&nbsp;·&nbsp;
               <Link to="/login" style={welcomeFootLink}>
                 sign in
               </Link>
@@ -683,7 +661,7 @@ export function Onboarding() {
       </div>
 
       {/* Stage — one question, centered in negative space, over the global
-          filament backdrop (no page-owned canvas) */}
+          deep-water backdrop (no page-owned canvas) */}
       <div style={{ ...stage, position: 'relative' }}>
         <div style={{ ...stepLabel, marginTop: 18, position: 'relative', zIndex: 1 }}>
           step {numberedIndex + 1} of {TOTAL_STEPS}

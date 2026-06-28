@@ -285,7 +285,7 @@ export function FirstThread() {
             <div style={{ flex: 1 }} />
             <button type="button" onClick={stopRec} style={{ display: 'flex', alignItems: 'center', gap: 10, border: '1px solid var(--copper-border)', background: 'transparent', borderRadius: 0, padding: '13px 26px', color: 'var(--warm-bright)', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.24em', cursor: 'pointer' }}>
               <span style={{ width: 11, height: 11, border: '1px solid var(--rule-strong)', background: 'transparent', borderRadius: 0, display: 'inline-block' }} />
-              STOP &amp; WEAVE
+              STOP &amp; SETTLE
             </button>
           </div>
         )}
@@ -297,7 +297,7 @@ export function FirstThread() {
               <div style={{ height: 1, width: '100%', background: 'linear-gradient(90deg,transparent,var(--bone),transparent)', transformOrigin: 'left', animation: `hl-grow 1400ms ${EASE} both` }} />
               <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', fontFamily: 'var(--mono)', fontSize: 18, lineHeight: 1, color: 'var(--warm)', animation: `hl-node 720ms ${EASE} 720ms both` }}>∞</div>
             </div>
-            <div style={{ fontFamily: 'var(--serif-display)', fontSize: 34, color: 'var(--bone)', marginTop: 30, textAlign: 'center', animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>Woven into the thread.</div>
+            <div style={{ fontFamily: 'var(--serif-display)', fontSize: 34, color: 'var(--bone)', marginTop: 30, textAlign: 'center', animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>Settled into the Deep.</div>
             <div style={{ fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone-faint)', marginTop: 10, textAlign: 'center', animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>Now part of your family's story.</div>
             <button type="button" onClick={toSeal} style={{ marginTop: 34, border: '1px solid var(--copper-border)', background: 'transparent', borderRadius: 0, padding: '13px 30px', color: 'var(--warm-bright)', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.24em', cursor: 'pointer', animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>SEAL ONE FOR THE FUTURE</button>
           </div>
