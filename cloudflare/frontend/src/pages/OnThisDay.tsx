@@ -132,7 +132,7 @@ export function OnThisDay() {
               nothing written on this date yet
             </p>
             <Link
-              to="/compose"
+              to="/capture"
               style={{
                 fontFamily: 'var(--mono)',
                 fontSize: 11,

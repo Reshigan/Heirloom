@@ -69,7 +69,7 @@ export function Letters() {
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'letters' }]} />}
-      topbarRight={<Link to="/letters/new" className="hl-link warm">seal a letter →</Link>}
+      topbarRight={<Link to="/capture" className="hl-link warm">seal a letter →</Link>}
     >
       <div
         style={{
@@ -167,7 +167,7 @@ export function Letters() {
               No letters sealed yet. The future waits for your words.
             </p>
             <Link
-              to="/letters/new"
+              to="/capture"
               className="hl-mono"
               style={{ fontSize: 11, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}
             >

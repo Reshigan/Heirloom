@@ -5,11 +5,11 @@ import { useAuthStore } from '../../stores/authStore';
  * BottomNav — the persistent 4-item typographic bar at the foot of the
  * authenticated loom PWA shell.
  *
- * Four destinations: the deep · capture · family · you.
- * Every item is a plain typographic word — no icons (§2.6), no bare mark.
- * "capture" is the center anchor (the voice-first cockpit): warm when active
- * so it reads as the heart of the bar without an icon. The page WaxSeal ∞
- * stays the singular ∞ per surface (Rule 5) — the nav stamps no second mark.
+ * Four destinations: the deep · ∞ · family · you.
+ * The three side items are plain typographic words — no icons (§2.6). The
+ * center is the singular ∞ mark (the voice-first capture cockpit): the one
+ * bare glyph the product allows, warm when active so it reads as the heart of
+ * the bar — "this is how you add."
  * Anchored above the iPhone home indicator via env(safe-area-inset-bottom).
  * Active route: bone (capture: warm). Inactive: bone-dim.
  *
@@ -20,7 +20,7 @@ import { useAuthStore } from '../../stores/authStore';
 
 const NAV = [
   { label: 'the deep', href: '/loom/weft' },
-  { label: 'capture',  href: '/capture', center: true },
+  { label: '∞',        href: '/capture', center: true },
   { label: 'family',   href: '/family' },
   { label: 'you',      href: '/loom/profile' },
 ] as const;
@@ -91,10 +91,15 @@ export function BottomNav() {
               color: isCenter
                 ? isActive ? 'var(--warm)' : 'var(--bone-dim)'
                 : isActive ? 'var(--bone)' : 'var(--bone-dim)',
+              // The center is the singular ∞ mark — the one bare glyph the
+              // product allows (the "how you add" anchor). It reads larger and
+              // un-letterspaced so it sits as a mark, not a mono word; the other
+              // three stay typographic labels.
               fontFamily: 'var(--mono)',
-              fontSize: 12,
-              letterSpacing: '0.16em',
-              textTransform: 'uppercase',
+              fontSize: isCenter ? 26 : 12,
+              lineHeight: 1,
+              letterSpacing: isCenter ? '0' : '0.16em',
+              textTransform: isCenter ? 'none' : 'uppercase',
               transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
             }}
           >

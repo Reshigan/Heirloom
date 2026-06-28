@@ -278,7 +278,7 @@ export function TiedOff() {
             >
               no threads are tied off yet.{' '}
               <Link
-                to="/compose"
+                to="/capture"
                 style={{ color: 'var(--copper-label)', textDecoration: 'none' }}
               >
                 seal a letter →
