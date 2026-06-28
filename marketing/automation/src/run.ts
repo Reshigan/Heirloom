@@ -14,7 +14,7 @@
 import "dotenv/config";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { themeForDate, evergreenThemeForDate, seasonForDate, seasonalHashtagsForDate } from "./themes.js";
+import { themeForDate, evergreenThemeForDate, brandThemeForDate, seasonForDate, seasonalHashtagsForDate } from "./themes.js";
 import { generateSourcePost, SourcePost, hasGenProvider, activeProvider } from "./generate.js";
 import { generateVariants, sanitizeCaption } from "./variants.js";
 import { post } from "./post.js";
@@ -91,8 +91,21 @@ async function generate(): Promise<SourcePost> {
   // In-season variety: the day's first slot carries the seasonal theme; later
   // slots pull an evergreen theme so a peak window doesn't turn the feed into
   // one occasion on loop.
-  const theme =
-    seasonForDate(date) && ledger.length > 0
+  //
+  // Brand cadence: roughly one late slot in three carries a BRAND theme (the
+  // product differentiators — the family-water, the book, the seal) instead of
+  // a story hook. Story-hook → product, never product-first: brand only ever
+  // runs in a LATER slot, so the day always opens on the elder/question, then
+  // earns the right to talk about what keeps it. dayOfYear rotates which brand
+  // theme and whether the slot is brand at all, so it never lands the same two
+  // days running.
+  const dayOfYear = Math.floor(
+    (date.getTime() - Date.UTC(date.getUTCFullYear(), 0, 0)) / 86_400_000,
+  );
+  const isBrandSlot = ledger.length > 0 && dayOfYear % 3 === 0;
+  const theme = isBrandSlot
+    ? brandThemeForDate(date, ledger.length)
+    : seasonForDate(date) && ledger.length > 0
       ? evergreenThemeForDate(date, ledger.length)
       : themeForDate(date);
   const recent = [

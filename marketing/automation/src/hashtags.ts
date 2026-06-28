@@ -77,6 +77,62 @@ const NICHE = [
   "generationalstories",
   "familyhistorian",
   "genealogyresearch",
+  "familyphotoarchive",
+  "voicememoir",
+  "audiolegacy",
+  "memoirwriting",
+  "lifewriting",
+  "passiton",
+  "familytraditions",
+  "familyrecipes",
+  "heirloom",
+  "keepsake",
+];
+
+// GROUP — tags that map to the actual family-history / genealogy / memory-
+// keeping community pages and group clusters on Facebook, Reddit, and the
+// forums. These are the "groups" the posts land on: a single GROUP tag on a
+// Facebook post surfaces it to that community's hashtag page. The monthly
+// rotation cycles through these so the account keeps reaching NEW groups
+// instead of camping on one cluster — "dynamically choosing new groups".
+// Lowercase, no '#'.
+const GROUP = [
+  "genealogy",
+  "familyhistory",
+  "oralhistory",
+  "memorykeeping",
+  "familyroots",
+  "knowyourroots",
+  "familystories",
+  "ancestryresearch",
+  "genealogylife",
+  "familyhistoryresearch",
+  "genealogycommunity",
+  "familyhistorysociety",
+  "genealogyhelp",
+  "rootstech",
+  "familysearch",
+  "findagrave",
+  "ancestrydna",
+  "myheritage",
+  "genealogist",
+  "familyhistorian",
+  "preservehistory",
+  "historicalphotos",
+  "familyphotographs",
+  "oldphotographs",
+  "vintagefamilyphotos",
+  "forgottenstories",
+  "eldermemories",
+  "grandparentslegacy",
+  "storycorps",
+  "lifestorywriting",
+  "memoircommunity",
+  "writingcommunity",
+  "giftideas",
+  "meaningfulgifts",
+  "giftsforgrandparents",
+  "giftsforparents",
 ];
 
 // Slide a window of `take` tags over `bank`, advancing by a stride each month.
@@ -92,14 +148,18 @@ function monthlyWindow(bank: string[], take: number, monthIndex: number, stride:
   return out;
 }
 
-// The month's candidate pool: ~20 tags the generator chooses from. Distinct
-// every month, deterministic (same month → same pool, so CI runs agree).
+// The month's candidate pool: ~26 tags the generator chooses from. Distinct
+// every month, deterministic (same month → same pool, so CI runs agree). The
+// GROUP window is the dynamic-groups lever — a fresh slice of community/group
+// tags each month, so the account keeps landing on NEW group pages instead of
+// the same cluster forever.
 export function monthlyHashtagPool(date: Date = new Date()): string[] {
   const monthIndex = date.getUTCFullYear() * 12 + date.getUTCMonth();
   return [
     ...monthlyWindow(BROAD, 4, monthIndex, 3),
     ...monthlyWindow(MID, 7, monthIndex, 5),
     ...monthlyWindow(NICHE, 9, monthIndex, 7),
+    ...monthlyWindow(GROUP, 6, monthIndex, 11),
   ];
 }
 

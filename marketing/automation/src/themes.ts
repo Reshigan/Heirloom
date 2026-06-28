@@ -195,3 +195,57 @@ export function evergreenThemeForDate(date: Date = new Date(), offset = 0): Them
   );
   return pool[(isoWeek(date) + offset) % pool.length];
 }
+
+// ── Brand / product selling-point themes ─────────────────────────────────
+// The 52-week calendar is story-hooks (the elder, the question, the regret of
+// not asking). BRAND_THEMES are the product itself — the differentiators that
+// make Heirloom worth starting, framed in the same quiet, anti-generic voice
+// as the story posts. The engine rotates one in on a cadence (see run.ts) so
+// the feed mixes "ask your dad" with "here's what you're keeping it in" —
+// story-hook → product, never product-first. relation is "self" (the Keeper
+// who starts the thread), never the elder.
+export const BRAND_THEMES: Theme[] = [
+  {
+    id: "b01-family-water",
+    title: "Your family's water is yours alone",
+    hook: "Every family that joins Heirloom gets a different deep water — because the water is seeded by that family's own colours.",
+    relation: "self",
+    angles: [
+      "each member owns a natural dye (madder, woad, indigo, walnut…); the dye enters the water — your bloodline tints the Deep",
+      "one author → a single hue; many authors → a gradient through every member's colour, surface to deep",
+      "add a member, the water recolours live — the water is a living portrait of who's in the bloodline right now",
+      "no two families share the same water; yours is mixed from your dyes alone",
+    ],
+  },
+  {
+    id: "b02-the-book",
+    title: "One day the Deep becomes a book",
+    hook: "The things you settle into the Deep online become a real book on a shelf — hardcover or softcover, the family's water on the cover.",
+    relation: "self",
+    angles: [
+      "memories, letters, and voice → four page layouts → a physical heirloom book",
+      "voice entries carry their transcriptions into print",
+      "the cover snapshots the family's own water — the same water, bound",
+      "a thread that starts as one line and ends as a book your great-granddaughter holds",
+    ],
+  },
+  {
+    id: "b03-the-seal",
+    title: "Press and hold to seal it across time",
+    hook: "You don't hit save. You seal. Press and hold, and your colour fills the seal — the entry is closed across time.",
+    relation: "self",
+    angles: [
+      "the commit gesture is a press-and-hold seal filled with your own dye, not a save button",
+      "time-lock an entry for a grandchild not yet born — sealed until their 18th birthday",
+      "append-only: nothing is deleted, only settled deeper",
+      "your colour, your seal, your thread — identity as gesture, not a profile pic",
+    ],
+  },
+];
+
+// Pick a brand theme on a rotating offset so the same selling point doesn't
+// repeat back-to-back. Deterministic off the date + slot so a re-run doesn't
+// flip the choice.
+export function brandThemeForDate(date: Date = new Date(), offset = 0): Theme {
+  return BRAND_THEMES[(isoWeek(date) + offset) % BRAND_THEMES.length];
+}

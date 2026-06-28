@@ -126,6 +126,16 @@ function buildUserPrompt({ theme, date, recentHooks, slotSeed, signalHint }: Gen
       ? theme.angles[Math.floor(Math.random() * theme.angles.length)]
       : theme.angles[slotSeed % theme.angles.length];
 
+  // Brand themes (id prefix "b0") talk about the product itself — the family
+  // water, the book, the seal. The story-hook saying rule bans product language
+  // ("thread"/"weave"/"loom"); brand posts NEED it, so swap in a brand saying
+  // brief that still bans generic motivational poetry but permits the Deep's
+  // own vocabulary (water, dye, seal, deep, settle, thread).
+  const isBrand = theme.id.startsWith("b0");
+  const sayingBrief = isBrand
+    ? `"saying": "The image headline — at thumbnail size the reader sees ONLY this line. 8-20 words of plain spoken English. Name the differentiator concretely: the family's own water, their dye, the seal, the book. Permitted vocabulary: water, deep, dye, seal, settle, thread, family, colour. BANNED: generic 'memories/legacy/forever' language, poetry fragments, hashtags, emoji, product name 'Heirloom'. Examples: 'Every family's water is a different colour. Yours is mixed from your own dyes.' / 'You don't hit save. You seal it — in your own colour.' / 'One day the deep water becomes a book your great-granddaughter holds.'",`
+    : `"saying": "The headline of the image — at thumbnail size the reader sees ONLY this line, so it must stop the scroll on its own. 8-20 words of plain spoken English a 50-year-old would text to a sibling. Use the taggable-question or asymmetry shape: a question so specific the reader knows exactly who to send it to, or a contrast that reframes something familiar. Examples: 'Ask your dad how he knew he was in love with your mom. Not how you met — how he knew.' / 'Your kids can Google anything. They can't Google your father's voice.' / 'Do you know what your dad was doing at your age? Most people never ask.' NOT poetry fragments, NOT product language (no 'thread', 'weave', 'loom'), no hashtags, no product name, no emoji.",`;
+
   return `Today is ${dayOfWeek}, ${isoDate}.
 
 Theme: ${theme.title}
@@ -139,7 +149,7 @@ Produce ONE source post we'll adapt across platforms. Output strict JSON, no pro
   "hook": "First 1-2 sentences. Must stop the scroll. Specific, present-tense, no abstract 'memories' / 'legacy' language. 80-200 chars.",
   "body": "The middle. 80-500 chars. One concrete observation, one small example, one human moment. No generic motivational content.",
   "cta": "A small, specific action. 'Ask one question this Sunday.' Not 'start your legacy.' Not a URL — leave linking to the variant layer.",
-  "saying": "The headline of the image — at thumbnail size the reader sees ONLY this line, so it must stop the scroll on its own. 8-20 words of plain spoken English a 50-year-old would text to a sibling. Use the taggable-question or asymmetry shape: a question so specific the reader knows exactly who to send it to, or a contrast that reframes something familiar. Examples: 'Ask your dad how he knew he was in love with your mom. Not how you met — how he knew.' / 'Your kids can Google anything. They can't Google your father's voice.' / 'Do you know what your dad was doing at your age? Most people never ask.' NOT poetry fragments, NOT product language (no 'thread', 'weave', 'loom'), no hashtags, no product name, no emoji.",
+  ${sayingBrief}
   "imagePrompt": "A 40-80 word visual brief for the Heirloom Deep image — always a close-up of deep still water with a warm surface line and the family's natural-dye colour subtly seeding the water (a faint tint, never a flat colour fill). The Deep is the Heirloom identity: ink-dark ground #070d14, a thin warm (copper) line at the surface, slow concentric depth-rings (the Sounding mark) faintly visible, soft directional light from one side, film grain. Leave the lower third clear for the saying text overlay. NOT: photography of people, hands, letters, objects, scenery, or woven cloth/textile — only the deep water surface itself. Vary the dye tint, depth-ring spacing, and light angle across posts so each feels distinct. Example: 'Close-up of deep still water, ink-dark with a faint copper surface line, slow concentric depth-rings barely visible, raking light from the left, film grain, no objects, lower third in shadow for text overlay.'",
   "hashtags": ["10-12 lowercase tag candidates without the # symbol, chosen ONLY from this month's rotation pool (the pool rotates monthly so the account never repeats a fixed block): ${monthlyHashtagPool(date).join(", ")}. Pick the ones most relevant to THIS post's relation and angle — not the same 10 every day."]
 }
