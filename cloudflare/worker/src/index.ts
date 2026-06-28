@@ -543,22 +543,18 @@ app.post('/api/contact', async (c) => {
 // /api/billing/detect is registered on the public app so it never needs the prefix.
 
 app.get('/api/billing/detect', async (c) => {
-  const COUNTRY_CURRENCY: Record<string, string> = {
-    ZA: 'ZAR', NG: 'NGN', KE: 'KES', GH: 'GHS', GB: 'GBP',
-    DE: 'EUR', FR: 'EUR', IT: 'EUR', ES: 'EUR', NL: 'EUR',
-    IN: 'INR', US: 'USD', CA: 'CAD', AU: 'AUD',
-  };
-  const PRICING_SYMBOLS: Record<string, string> = {
-    USD: '$', ZAR: 'R', GBP: '£', EUR: '€', CAD: 'C$', AUD: 'A$', INR: '₹',
-  };
-
+  // Flat USD globally — one price for the whole world. Location's only
+  // effect: a small set of deepest-PPP regions are annual-only.
+  const ANNUAL_ONLY = new Set(['IN', 'NG', 'KE', 'PK', 'BD', 'EG', 'GH']);
   const cfCountry = c.req.raw?.cf?.country as string;
   const headerCountry = c.req.header('cf-ipcountry') || c.req.header('x-country');
-  const country = cfCountry || headerCountry || 'US';
-  const currency = COUNTRY_CURRENCY[country?.toUpperCase()] || 'USD';
-  const symbol = PRICING_SYMBOLS[currency] || '$';
-
-  return c.json({ country, currency, symbol });
+  const country = (cfCountry || headerCountry || 'US').toUpperCase();
+  return c.json({
+    country,
+    currency: 'USD',
+    symbol: '$',
+    isAnnualOnly: ANNUAL_ONLY.has(country),
+  });
 });
 
 // File serving routes — for <img>/<video> tags that cannot send Authorization headers.

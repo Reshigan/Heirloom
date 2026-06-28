@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { billingApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
@@ -64,6 +64,18 @@ const NOTE: React.CSSProperties = {
 export function Billing() {
   const [busy, setBusy] = useState<string | null>(null);
   const [billingError, setBillingError] = useState<string | null>(null);
+  // Annual-only regions: the worker rejects monthly checkout there. Detect
+  // once on mount so the upgrade CTAs pick the right cycle and never 400.
+  const [annualOnly, setAnnualOnly] = useState(false);
+  useEffect(() => {
+    const controller = new AbortController();
+    billingApi.getPricing().then((r: any) => {
+      if (controller.signal.aborted) return;
+      const d = r.data ?? r;
+      if (d?.isAnnualOnly) setAnnualOnly(true);
+    }).catch(() => {});
+    return () => controller.abort();
+  }, []);
 
   const { data: subscription, isError: subscriptionError } = useQuery({
     queryKey: ['subscription'],
@@ -175,8 +187,8 @@ export function Billing() {
           {currentTier === 'FAMILY' && (
             <div style={ROW}>
               <span style={LABEL}>upgrade to deep — unlimited bloodline</span>
-              <button type="button" className="billing-action" onClick={() => { setBusy('DEEP'); checkout.mutate({ tier: 'DEEP', cycle: 'monthly' }); }} disabled={!!busy} style={{ ...ACTION, ...(busy ? { opacity: 0.5, cursor: 'default' } : null) }}>
-                {busy === 'DEEP' ? 'opening…' : 'go Deep →'}
+              <button type="button" className="billing-action" onClick={() => { setBusy('DEEP'); checkout.mutate({ tier: 'DEEP', cycle: annualOnly ? 'yearly' : 'monthly' }); }} disabled={!!busy} style={{ ...ACTION, ...(busy ? { opacity: 0.5, cursor: 'default' } : null) }}>
+                {busy === 'DEEP' ? 'opening…' : (annualOnly ? 'go Deep · annual →' : 'go Deep →')}
               </button>
             </div>
           )}
