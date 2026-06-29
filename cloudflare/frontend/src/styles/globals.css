@@ -470,6 +470,15 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+/* Every interactive surface is a single-tap target — no 300ms double-tap zoom
+   delay anywhere, including the quiet pager hairlines and row micro-actions
+   that stay small by design (constitution: negative space is the composition,
+   type is the hero). touch-action: manipulation keeps their size/look intact
+   while making each a clean tap on touch. */
+button, a, [role="button"], input[type="submit"], input[type="button"], input[type="reset"], summary, label[for] {
+  touch-action: manipulation;
+}
+
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
