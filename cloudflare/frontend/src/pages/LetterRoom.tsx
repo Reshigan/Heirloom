@@ -266,7 +266,7 @@ export function LetterRoom() {
             </p>
             <div style={{ marginTop: 40, display: 'flex', justifyContent: 'center' }}>
               <Link
-                to="/loom/compose-letter"
+                to="/compose"
                 className="hl-btn"
               >
                 write a letter
@@ -304,7 +304,6 @@ export function LetterRoom() {
                 borderRadius: 0,
                 padding: 'clamp(24px,6vw,44px)',
                 background: 'var(--bg-letter)',
-                boxShadow: 'var(--cosmic-glow)',
                 maxWidth: '38em', margin: '0 auto', textAlign: 'left',
               }}>
                 {isSealed && !body ? (
@@ -350,7 +349,7 @@ export function LetterRoom() {
                 </picture>
                 {isSealed ? (
                   <Link
-                    to={`/loom/compose-letter?id=${featured.id}`}
+                    to={`/compose?id=${featured.id}`}
                     aria-disabled
                     onClick={(e) => e.preventDefault()}
                     style={{
@@ -399,7 +398,7 @@ export function LetterRoom() {
               {!isSealed && (
                 <div style={{ marginTop: 18 }}>
                   <Link
-                    to={`/loom/compose-letter?id=${featured.id}`}
+                    to={`/compose?id=${featured.id}`}
                     style={{
                       fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                       textTransform: 'uppercase', color: 'var(--warm-dim)',
@@ -498,7 +497,7 @@ export function LetterRoom() {
                         </button>
                         {!isSealed && (
                           <Link
-                            to={`/loom/compose-letter?id=${letter.id}`}
+                            to={`/compose?id=${letter.id}`}
                             style={{
                               fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
                               textTransform: 'uppercase', color: 'var(--warm-dim)',
@@ -577,7 +576,6 @@ export function LetterRoom() {
                             borderRadius: 0,
                             padding: 'clamp(24px,6vw,40px)',
                             background: 'var(--bg-letter)',
-                            boxShadow: 'var(--cosmic-glow)',
                             maxWidth: '38em', margin: '0 auto',
                           }}>
                             <p style={{
@@ -649,7 +647,7 @@ export function LetterRoom() {
         {featured && (
           <div style={{ marginTop: 56, textAlign: 'center' }}>
             <Link
-              to="/loom/compose-letter"
+              to="/compose"
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 10,
                 textDecoration: 'none',

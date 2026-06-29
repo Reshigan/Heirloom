@@ -238,18 +238,15 @@ function PushNotificationHandler() {
  * and back.
  */
 function LoomShellRoot({ children }: { children: React.ReactNode }) {
-  const { theme } = useLoomTheme();
+  // The Deep is water-only — useLoomTheme pins data-theme="dark" app-wide.
+  useLoomTheme();
   // Mount the accent hook app-wide: applies data-accent on <html> and keeps it
   // synced across tabs (theme-boot cold-boots it; Settings drives live changes).
   useLoomAccent();
   const { textScale, highContrast } = useDisplayPreferences();
-  // The CSS token blocks key ONLY off data-theme="light" / "dark"; binding the
-  // raw "system" value matches neither and fails the palette closed to dark.
-  // Resolve to a concrete 'light' | 'dark' so React owns a valid attribute.
-  const resolved =
-    theme === 'system'
-      ? (typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-      : theme;
+  // The Deep is deep water only — always 'dark'. `theme` is retained for the
+  // hook contract but is always 'dark' now (see src/loom/theme.ts).
+  const resolved: 'light' | 'dark' = 'dark';
   return (
     <div className="loom" data-theme={resolved} data-text-scale={String(textScale)} data-contrast={highContrast ? 'true' : undefined} style={{ minHeight: '100vh', position: 'relative', background: 'var(--ink)' }}>
       {/* Global cloth substrate — the woven canvas behind every screen,

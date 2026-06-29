@@ -434,6 +434,8 @@ export function ResetPassword() {
                 <Link
                   to="/login"
                   style={{
+                    display: 'inline-block',
+                    padding: '14px 0', minHeight: 44,
                     fontFamily: 'var(--mono)',
                     fontSize: 10,
                     letterSpacing: '0.18em',

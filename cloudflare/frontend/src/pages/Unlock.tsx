@@ -424,13 +424,13 @@ export function Unlock() {
                     {letter.salutation}
                   </div>
 
-                  {/* warm-tinted serif prose */}
+                  {/* serif prose — copper is signal-only, body reads in bone */}
                   <div
                     className="loom-body"
                     style={{
                       fontFamily: 'var(--serif)',
                       fontSize: 17,
-                      color: 'var(--warm-bright)',
+                      color: 'var(--bone)',
                       lineHeight: 1.95,
                       textWrap: 'pretty',
                       whiteSpace: 'pre-wrap',

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { RoomHeader } from '../loom/components/room';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { dyeColor } from '../loom/dye';
@@ -105,12 +106,7 @@ export function MemoryRoom() {
     return (
       <ClothShell topbarCenter="memory room">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
-          <p
-            className="hl-mono"
-            style={{ fontSize: 11, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}
-          >
-            loading the room…
-          </p>
+          <ProgressHair label="loading the room…" width={180} />
         </div>
       </ClothShell>
     );

@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
@@ -193,12 +194,7 @@ export function Memorials() {
 
         {/* Memorial list — vertical ledger of EntryRows */}
         {isLoading ? (
-          <p
-            className="hl-serif hl-italic"
-            style={{ color: 'var(--bone-dim)', fontSize: 16 }}
-          >
-            Gathering the names…
-          </p>
+          <ProgressHair label="gathering the names…" width={180} />
         ) : isError ? (
           /* A failed read must not read as "no names rest here yet" — the names
              are sealed and permanent; this is only a reach failure. */

@@ -6,7 +6,6 @@ import { usePageMeta } from '../lib/usePageMeta';
 import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { useLoomTheme } from '../loom/theme';
 import { dyeForId, dyeTextVar, dyeVar, moodForDye } from '../loom/dye';
-import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 /**
  * Profile — the member's own page of the ledger.
@@ -25,7 +24,8 @@ export function Profile() {
   usePageMeta('Profile');
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
-  const { theme, setTheme } = useLoomTheme();
+  // The Deep is water-only — useLoomTheme pins data-theme="dark" app-wide.
+  useLoomTheme();
 
   // The member's dye is their identity colour. There is no stored dye on the
   // User record, so it is derived deterministically from the user id — the same
@@ -137,9 +137,9 @@ export function Profile() {
         />
 
         {/* ════════ APPEARANCE ════════
-            Theme lives inline here, mirroring Settings.tsx — there is no shared
-            ThemeToggle component in this tree to reuse. The default ground is
-            paper (light); the words read warm only on the active mode. */}
+            The Deep is deep water only — no theme toggle. Show the surface as
+            a quiet fixed value; the deeper appearance levers (accent, text
+            size, contrast) live on the full Settings page. */}
         <SectionLabel>Appearance</SectionLabel>
 
         <div
@@ -154,40 +154,14 @@ export function Profile() {
         >
           <span style={{ flex: 1, minWidth: 0 }}>
             <span style={{ fontFamily: 'var(--serif)', fontSize: 19, lineHeight: 1.3, color: 'var(--bone)', display: 'block' }}>
-              Theme
+              Surface
             </span>
             <span style={{ fontFamily: 'var(--serif)', fontSize: 13, color: 'var(--bone-dim)', display: 'block', marginTop: 4, lineHeight: 1.5 }}>
-              The thread reads in either light
+              the Deep is deep water — it only reads one way
             </span>
           </span>
-          <span role="radiogroup" aria-label="Theme" style={{ display: 'inline-flex', gap: 22, flex: '0 0 auto' }}>
-            {(['dark', 'light', 'system'] as const).map((opt, i, arr) => (
-              <button
-                key={opt}
-                type="button"
-                onClick={() => setTheme(opt)}
-                onKeyDown={(e) => handleRadioArrowKeys(e, i, arr.length, (next) => setTheme(arr[next]))}
-                role="radio"
-                aria-checked={theme === opt}
-                tabIndex={theme === opt ? 0 : -1}
-                style={{
-                  background: 'transparent',
-                  border: 0,
-                  borderBottom: theme === opt ? '1px solid var(--warm)' : '1px solid transparent',
-                  padding: '0 0 3px',
-                  margin: 0,
-                  cursor: 'pointer',
-                  fontFamily: 'var(--mono)',
-                  fontSize: 12,
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  color: theme === opt ? 'var(--warm)' : 'var(--bone-dim)',
-                  transition: 'color 360ms var(--ease)',
-                }}
-              >
-                {opt}
-              </button>
-            ))}
+          <span className="hl-mono" style={{ flex: '0 0 auto', fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>
+            deep water
           </span>
         </div>
 

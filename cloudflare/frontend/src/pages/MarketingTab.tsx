@@ -142,19 +142,19 @@ export function MarketingTab() {
     }).then(r => r.data),
   });
 
-  const { data: campaigns } = useQuery({
+  const { data: campaigns, isLoading: loadingCampaigns } = useQuery({
     queryKey: ['marketing-campaigns'],
     queryFn: () => marketingApi.getCampaigns().then(r => r.data),
     enabled: activeSubTab === 'campaigns',
   });
 
-  const { data: creatorSignups } = useQuery({
+  const { data: creatorSignups, isLoading: loadingSignups } = useQuery({
     queryKey: ['marketing-creator-signups'],
     queryFn: () => marketingApi.getCreatorSignups().then(r => r.data),
     enabled: activeSubTab === 'signups',
   });
 
-  const { data: content } = useQuery({
+  const { data: content, isLoading: loadingContent } = useQuery({
     queryKey: ['marketing-content'],
     queryFn: () => marketingApi.getContent().then(r => r.data),
     enabled: activeSubTab === 'content',
@@ -303,7 +303,9 @@ export function MarketingTab() {
       {/* Campaigns tab */}
       {activeSubTab === 'campaigns' && (
         <div>
-          {campaigns?.campaigns?.length === 0 ? (
+          {loadingCampaigns ? (
+            <div style={{ padding: '32px 0' }}><ProgressHair label="Loading…" /></div>
+          ) : campaigns?.campaigns?.length === 0 ? (
             <EmptyLine>No campaigns yet.</EmptyLine>
           ) : (
             campaigns?.campaigns?.map((c: any) => (
@@ -332,7 +334,9 @@ export function MarketingTab() {
           <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 15, color: 'var(--bone-dim)', marginBottom: 24, lineHeight: 1.55, maxWidth: '34em' }}>
             Creators who signed up through the public form. Approve to add to the thread database.
           </p>
-          {creatorSignups?.signups?.length === 0 ? (
+          {loadingSignups ? (
+            <div style={{ padding: '32px 0' }}><ProgressHair label="Loading…" /></div>
+          ) : creatorSignups?.signups?.length === 0 ? (
             <EmptyLine>No signups yet.</EmptyLine>
           ) : (
             creatorSignups?.signups?.map((s: any) => (
@@ -364,7 +368,9 @@ export function MarketingTab() {
       {activeSubTab === 'content' && (
         <div>
           <SectionLabel>Marketing content, captions, and templates</SectionLabel>
-          {content?.content?.length === 0 ? (
+          {loadingContent ? (
+            <div style={{ padding: '32px 0' }}><ProgressHair label="Loading…" /></div>
+          ) : content?.content?.length === 0 ? (
             <EmptyLine>No content yet.</EmptyLine>
           ) : (
             content?.content?.map((c: any) => (

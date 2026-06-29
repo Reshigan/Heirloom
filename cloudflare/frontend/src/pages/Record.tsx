@@ -580,7 +580,7 @@ export function Record() {
               style={{
                 background: 'transparent',
                 border: 0,
-                padding: '0 0 2px',
+                padding: '14px 0', minHeight: 44,
                 cursor: 'pointer',
                 color: 'var(--warm)',
                 fontFamily: 'var(--mono)',
@@ -598,7 +598,7 @@ export function Record() {
               style={{
                 background: 'transparent',
                 border: 0,
-                padding: 0,
+                padding: '14px 0', minHeight: 44,
                 cursor: 'pointer',
                 color: 'var(--bone-faint)',
                 fontFamily: 'var(--mono)',

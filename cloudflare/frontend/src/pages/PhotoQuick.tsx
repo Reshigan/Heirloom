@@ -126,13 +126,15 @@ export function PhotoQuick() {
 
   if (woven) {
     return (
-      <WeaveCeremony
-        dye="walnut"
-        entryDate={new Date()}
-        seed={caption || 'photograph'}
-        eyebrow="settled into the Deep"
-        headline="Your photograph has settled into the Deep."
-      />
+      <ClothShell noTopbar>
+        <WeaveCeremony
+          dye="walnut"
+          entryDate={new Date()}
+          seed={caption || 'photograph'}
+          eyebrow="settled into the Deep"
+          headline="Your photograph has settled into the Deep."
+        />
+      </ClothShell>
     );
   }
 

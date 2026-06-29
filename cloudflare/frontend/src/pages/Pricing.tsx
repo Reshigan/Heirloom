@@ -192,7 +192,7 @@ export function Pricing() {
               <div
                 style={{
                   fontFamily: 'var(--serif-display)',
-                  fontSize: 'clamp(20px,4vw,26px)',
+                  fontSize: 'clamp(24px,4vw,28px)',
                   fontWeight: 400,
                   lineHeight: 1.1,
                   color: 'var(--bone)',
@@ -280,7 +280,8 @@ export function Pricing() {
                   className="pricing-cta"
                   style={{
                     display: 'inline-block',
-                    padding: '11px 28px',
+                    padding: '16px 28px',
+                    minHeight: 44,
                     background: 'transparent',
                     border: `1px solid var(--warm${tier.emphasized ? '' : '-dim'})`,
                     borderRadius: 0,
@@ -320,7 +321,7 @@ export function Pricing() {
               onClick={() => setAnnual(false)}
               onKeyDown={(e) => handleRadioArrowKeys(e, 0, 2, (next) => setAnnual(next === 1))}
               style={{
-                background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
+                background: 'transparent', border: 0, cursor: 'pointer', padding: '12px 0', minHeight: 44,
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
                 color: !showAnnual ? 'var(--bone)' : 'var(--bone-faint)',
                 borderBottom: !showAnnual ? '1px solid var(--bone)' : '1px solid transparent',
@@ -337,7 +338,7 @@ export function Pricing() {
               onClick={() => setAnnual(true)}
               onKeyDown={(e) => handleRadioArrowKeys(e, 1, 2, (next) => setAnnual(next === 1))}
               style={{
-                background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 0',
+                background: 'transparent', border: 0, cursor: 'pointer', padding: '12px 0', minHeight: 44,
                 fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
                 color: showAnnual ? 'var(--bone)' : 'var(--bone-faint)',
                 borderBottom: showAnnual ? '1px solid var(--bone)' : '1px solid transparent',

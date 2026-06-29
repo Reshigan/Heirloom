@@ -644,7 +644,7 @@ export function LifeEvents() {
                           </p>
                           <p className="hl-mono" style={{ margin: 0, fontSize: 10, color: 'var(--bone-faint)' }}>{member.relationship}</p>
                         </div>
-                        <span className="hl-mono" aria-hidden="true" style={{ fontSize: 12, color: 'var(--bone-faint)' }}>{checked ? '✓' : '→'}</span>
+                        <span className="hl-mono" aria-hidden="true" style={{ fontSize: 12, color: checked ? 'var(--warm)' : 'var(--bone-faint)' }}>{checked ? 'chosen' : '→'}</span>
                       </button>
                       );
                     })}

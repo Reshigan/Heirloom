@@ -1,75 +1,43 @@
 import { useEffect, useState, useCallback } from 'react';
 
 /**
- * Loom theme management — three modes: light · dark · system.
+ * Loom theme — the Deep is deep water only.
  *
- * Default is 'dark' (the living dye-bath water — the canonical Heirloom
- * ground). 'light' is the warm-paper opt-out via the toggle. Persisted to
- * localStorage.
- * Applied as `data-theme` on the document root (`<html>`). Every `.loom` root
- * themes off that ancestor via CSS descendant selectors (`[data-theme] .loom`),
- * so routes that mount a fresh ClothShell `.loom` after a theme change still
- * theme correctly — no per-element stamping that goes stale on navigation.
+ * There is no light/paper theme. The app always resolves to 'dark' (the living
+ * dye-bath water — the canonical Heirloom ground). The `LoomTheme` type and
+ * `setTheme` are retained so existing call sites compile, but `setTheme` is a
+ * no-op and `theme` is always 'dark'. Applied as `data-theme` on the document
+ * root (`<html>`); every `.loom` root themes off that ancestor via CSS
+ * descendant selectors. Cold-booted pre-paint by public/theme-boot.js.
  */
 export type LoomTheme = 'light' | 'dark' | 'system';
 const KEY = 'heirloom-theme';
 
-function resolveSystem(): 'light' | 'dark' {
-  if (typeof window !== 'undefined' && window.matchMedia) {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  }
-  return 'light';
-}
-
-function readInitial(): LoomTheme {
-  try {
-    const saved = localStorage.getItem(KEY);
-    if (saved === 'dark' || saved === 'light' || saved === 'system') return saved;
-  } catch {
-    /* ignore */
-  }
-  return 'dark';
-}
-
-function applyTheme(theme: LoomTheme): void {
-  const resolved = theme === 'system' ? resolveSystem() : theme;
-  document.documentElement.setAttribute('data-theme', resolved);
+function applyTheme(): void {
+  document.documentElement.setAttribute('data-theme', 'dark');
 }
 
 export function useLoomTheme() {
-  const [theme, setThemeState] = useState<LoomTheme>(readInitial);
+  const [, setThemeState] = useState<LoomTheme>('dark');
 
   useEffect(() => {
-    applyTheme(theme);
+    applyTheme();
+    // Persist 'dark' so any legacy 'light'/'system' value is overwritten and
+    // older builds reading the key still land on dark.
     try {
-      localStorage.setItem(KEY, theme);
+      localStorage.setItem(KEY, 'dark');
     } catch {
       /* ignore */
     }
-  }, [theme]);
-
-  // When in system mode, re-apply whenever the OS preference changes
-  useEffect(() => {
-    if (theme !== 'system') return;
-    const mq = window.matchMedia?.('(prefers-color-scheme: dark)');
-    if (!mq) return;
-    const onChange = () => applyTheme('system');
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
-  }, [theme]);
-
-  useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === KEY && (e.newValue === 'dark' || e.newValue === 'light' || e.newValue === 'system')) {
-        setThemeState(e.newValue);
-      }
-    };
-    window.addEventListener('storage', onStorage);
-    return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  const setTheme = useCallback((t: LoomTheme) => setThemeState(t), []);
-  return { theme, setTheme };
+  // setTheme is retained for call-site compatibility but is a no-op — the
+  // Deep is water-only, there is nothing to switch to.
+  const setTheme = useCallback((_t: LoomTheme) => {
+    setThemeState('dark');
+    applyTheme();
+  }, []);
+  return { theme: 'dark', setTheme };
 }
 
 /**

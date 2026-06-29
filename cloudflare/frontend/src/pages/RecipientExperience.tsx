@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import api from '../services/api';
 import { WaxSeal, WarmDot } from '../loom/cosmic/CosmicUI';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { dyeColor } from '../loom/dye';
 
 /* ── Types ─────────────────────────────────────────────────────────── */
@@ -28,25 +29,6 @@ function useGiftToken(): string | null {
   const { token: routeToken } = useParams<{ token?: string }>();
   const [searchParams] = useSearchParams();
   return routeToken ?? searchParams.get('token');
-}
-
-/* ── Loading state — hairline progress bar (no spinner) ────────────── */
-
-function LoadingBar() {
-  return (
-    <div
-      aria-hidden
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '62%',
-        height: 1,
-        background: 'var(--warm)',
-        opacity: 0.7,
-      }}
-    />
-  );
 }
 
 /* ── Mono eyebrow / meta line (READING subline language) ───────────── */
@@ -78,16 +60,9 @@ export function RecipientExperience() {
 
   const thread = data?.thread;
 
-  /* Standalone public link — render OUTSIDE the .loom shell, so resolve the
-     theme the same way ErrorBoundary does and wrap returns in a .loom root. */
-  let resolved: 'light' | 'dark' = 'dark';
-  try {
-    const saved = localStorage.getItem('heirloom-theme');
-    if (saved === 'light') resolved = 'light';
-    else if (saved === 'system' && !window.matchMedia?.('(prefers-color-scheme: dark)').matches) resolved = 'light';
-  } catch {
-    /* ignore — keep dark default */
-  }
+  /* Standalone public link — render OUTSIDE the .loom shell, so wrap returns
+     in a .loom root. The Deep is water-only — always dark. */
+  const resolved: 'light' | 'dark' = 'dark';
 
   /* ── Screen wrapper ─────────────────────────────────────────────── */
   const screenStyle: React.CSSProperties = {
@@ -96,7 +71,7 @@ export function RecipientExperience() {
     background: 'var(--ink)',
     color: 'var(--bone)',
     overflow: 'hidden auto',
-    fontFamily: 'var(--sans)',
+    fontFamily: 'var(--serif)',
     boxSizing: 'border-box',
   };
 
@@ -184,12 +159,9 @@ export function RecipientExperience() {
   if (isLoading || !token) {
     return (
       <div className="loom" data-theme={resolved} style={screenStyle}>
-        <LoadingBar />
         {topbar}
         <div style={{ padding: '120px clamp(20px, 6vw, 56px)' }}>
-          <p style={{ ...monoMeta, color: 'var(--bone-faint)' }}>
-            unsealing your gift…
-          </p>
+          <ProgressHair label="unsealing your gift…" width={180} />
         </div>
       </div>
     );

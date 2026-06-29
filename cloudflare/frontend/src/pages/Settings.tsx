@@ -252,19 +252,10 @@ export function Settings() {
   // (or &canceled=true). Entitlement is webhook-driven; this is acknowledgment only.
   const checkoutSucceeded = searchParams.get('success') === 'true';
   const checkoutCanceled = searchParams.get('canceled') === 'true';
-  const { theme, setTheme } = useLoomTheme();
+  useLoomTheme();
   const { accent, setAccent } = useLoomAccent();
-  // `theme` is the RAW setting ('light'|'dark'|'system'); 'system' must be
-  // resolved to the OS preference before it can drive the date picker's
-  // colorScheme — otherwise a system-light page hardpins a dark picker.
-  const resolvedScheme: 'light' | 'dark' =
-    theme === 'system'
-      ? (typeof window !== 'undefined' &&
-         window.matchMedia &&
-         window.matchMedia('(prefers-color-scheme: dark)').matches
-          ? 'dark'
-          : 'light')
-      : theme;
+  // The Deep is water-only — the native date picker always reads in dark.
+  const resolvedScheme: 'light' | 'dark' = 'dark';
   const { textScale, setTextScale, highContrast, setHighContrast } = useDisplayPreferences();
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
@@ -650,24 +641,10 @@ export function Settings() {
 
           <LedgerRow
             label="Theme"
-            hint="the thread is written for the dark — but it reads in either light"
+            hint="the Deep is deep water — it only reads one way"
             value={
-              <span role="radiogroup" aria-label="Theme" style={{ display: 'inline-flex', gap: 22 }}>
-                {(['dark', 'light', 'system'] as const).map((opt, i, arr) => (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => setTheme(opt)}
-                    onKeyDown={(e) => handleRadioArrowKeys(e, i, arr.length, (next) => setTheme(arr[next]))}
-                    role="radio"
-                    aria-checked={theme === opt}
-                    tabIndex={theme === opt ? 0 : -1}
-                    className="hl-monoaction"
-                    style={{ color: theme === opt ? 'var(--warm)' : 'var(--bone-dim)', borderBottom: theme === opt ? '1px solid var(--warm)' : '1px solid transparent', paddingBottom: 2 }}
-                  >
-                    {opt}
-                  </button>
-                ))}
+              <span className="hl-mono" style={{ fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>
+                deep water
               </span>
             }
           />

@@ -445,7 +445,7 @@ function AuthHome({
             )}
             className="hl-cta-warm"
             style={{
-              padding: '12px 28px',
+              padding: '16px 28px', minHeight: 44,
               background: 'transparent',
               border: '1px solid var(--warm)',
               borderRadius: 0,
@@ -463,7 +463,7 @@ function AuthHome({
               onClick={() => navigate('/capture')}
               className="hl-cta-warm"
               style={{
-                padding: '12px 28px',
+                padding: '16px 28px', minHeight: 44,
                 background: 'transparent',
                 border: '1px solid var(--warm)',
                 borderRadius: 0,

@@ -333,7 +333,7 @@ export function QandA() {
                   color: 'var(--warm)',
                   background: 'transparent',
                   border: 0,
-                  padding: '6px 0',
+                  padding: '14px 0', minHeight: 44,
                   cursor: canAsk ? 'pointer' : 'default',
                   opacity: canAsk ? 1 : 0.4,
                   whiteSpace: 'nowrap',

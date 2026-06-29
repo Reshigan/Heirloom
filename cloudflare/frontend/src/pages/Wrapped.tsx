@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 import { EASE } from '../loom/motion';
@@ -106,24 +107,28 @@ export default function Wrapped() {
   // Wrapped stats are historical — stale for 24h to avoid redundant API fetches on revisit.
   const WRAPPED_STALE = 1000 * 60 * 60 * 24;
 
-  const { data: memoriesData } = useQuery({
+  const { data: memoriesData, isLoading: memLoading } = useQuery({
     queryKey: ['wrapped-memories'],
     queryFn: () => memoriesApi.getAll({ limit: 500 }).then((r) => (r.data as any)?.data ?? []),
     enabled: isAuthenticated,
     staleTime: WRAPPED_STALE,
   });
-  const { data: lettersData } = useQuery({
+  const { data: lettersData, isLoading: letLoading } = useQuery({
     queryKey: ['wrapped-letters'],
     queryFn: () => lettersApi.getAll({ limit: 500 }).then((r) => (r.data as any)?.data ?? []),
     enabled: isAuthenticated,
     staleTime: WRAPPED_STALE,
   });
-  const { data: voiceData } = useQuery({
+  const { data: voiceData, isLoading: voxLoading } = useQuery({
     queryKey: ['wrapped-voice'],
     queryFn: () => voiceApi.getAll({ limit: 500 }).then((r) => (r.data as any)?.data ?? []),
     enabled: isAuthenticated,
     staleTime: WRAPPED_STALE,
   });
+
+  // Hold the surface on a hairline until the archive has resolved — otherwise the
+  // empty-year state flashes "still being woven" before the entries land.
+  const loading = isAuthenticated && (memLoading || letLoading || voxLoading);
 
   const allEntries: Entry[] = useMemo(() => {
     const mems = Array.isArray(memoriesData) ? memoriesData : [];
@@ -258,7 +263,17 @@ export default function Wrapped() {
           The Year Woven · {YEAR}
         </div>
 
-        {isEmpty ? (
+        {loading ? (
+          <div
+            style={{
+              width: '100%', maxWidth: 520, marginTop: 'clamp(40px,10vh,96px)',
+              display: 'flex', justifyContent: 'center',
+              position: 'relative', zIndex: 1,
+            }}
+          >
+            <ProgressHair label="gathering the year woven…" width={200} />
+          </div>
+        ) : isEmpty ? (
           // First-thread state — a single quiet serif line, no zeros.
           <div
             style={{
@@ -322,7 +337,7 @@ export default function Wrapped() {
             aria-live="polite"
             style={{
               marginTop: 'clamp(28px,5vh,56px)',
-              background: 'transparent', border: 0, padding: '6px 2px', cursor: 'pointer',
+              background: 'transparent', border: 0, padding: '16px 2px', cursor: 'pointer',
               opacity: visible ? 1 : 0,
               transition: `opacity 1400ms ${EASE} 1400ms`,
               position: 'relative', zIndex: 1,
