@@ -328,7 +328,8 @@ export function ThreadDetail() {
                   style={{
                     background: 'transparent',
                     border: 0,
-                    padding: 0,
+                    padding: '12px 0',
+                    minHeight: 44,
                     cursor: 'pointer',
                     fontSize: 10,
                     letterSpacing: '0.18em',
@@ -607,7 +608,8 @@ const fieldSelectStyle: React.CSSProperties = {
 const ghostActionStyle: React.CSSProperties = {
   background: 'transparent',
   border: 0,
-  padding: 0,
+  padding: '12px 0',
+  minHeight: 44,
   cursor: 'pointer',
   fontFamily: 'var(--mono)',
   fontSize: 10,

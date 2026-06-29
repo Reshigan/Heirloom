@@ -335,7 +335,7 @@ function LetterRow({ letter }: { letter: Letter }) {
                   <p className="hl-serif" style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--bone-dim)', fontStyle: 'italic', margin: '0 0 12px', maxWidth: '52ch' }}>
                     Has this milestone arrived? Release the letter to deliver it to {recipient || 'the recipient'} by email. This can't be undone.
                   </p>
-                  <button type="button" onClick={() => setConfirmRelease(true)} className="hl-mono" style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 11, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--warm)' }}>
+                  <button type="button" onClick={() => setConfirmRelease(true)} className="hl-mono" style={{ background: 'transparent', border: 0, padding: '12px 0', minHeight: 44, cursor: 'pointer', fontSize: 11, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--warm)' }}>
                     Release this letter →
                   </button>
                 </>
@@ -345,7 +345,7 @@ function LetterRow({ letter }: { letter: Letter }) {
                     Deliver now?
                   </span>
                   <button type="button" onClick={() => releaseMut.mutate()} disabled={releaseMut.isPending}
-                    className="hl-mono" style={{ background: 'transparent', border: 0, padding: 0, cursor: releaseMut.isPending ? 'wait' : 'pointer', opacity: releaseMut.isPending ? 0.6 : 1, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)' }}>
+                    className="hl-mono" style={{ background: 'transparent', border: 0, padding: '12px 0', minHeight: 44, cursor: releaseMut.isPending ? 'wait' : 'pointer', opacity: releaseMut.isPending ? 0.6 : 1, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)' }}>
                     {releaseMut.isPending ? 'releasing…' : 'confirm release'}
                   </button>
                   <button type="button" onClick={() => setConfirmRelease(false)} disabled={releaseMut.isPending}
@@ -368,13 +368,13 @@ function LetterRow({ letter }: { letter: Letter }) {
           <Link
             to={`/compose?id=${letter.id}`}
             className="hl-mono"
-            style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}
+            style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: 44, padding: '12px 0' }}
           >
             edit draft →
           </Link>
           <button type="button" onClick={() => setConfirmDelete(true)}
             className="hl-mono"
-            style={{ background: 'transparent', border: 0, padding: 0, cursor: 'pointer', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>
+            style={{ background: 'transparent', border: 0, padding: '12px 0', minHeight: 44, cursor: 'pointer', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-dim)' }}>
             delete
           </button>
         </div>
@@ -383,7 +383,7 @@ function LetterRow({ letter }: { letter: Letter }) {
         <div style={{ paddingBottom: 14, display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
           <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>Delete this draft?</span>
           <button type="button" onClick={() => { setDeleteError(null); deleteMut.mutate(); }} disabled={deleteMut.isPending}
-            className="hl-mono" style={{ background: 'transparent', border: 0, padding: 0, cursor: deleteMut.isPending ? 'wait' : 'pointer', opacity: deleteMut.isPending ? 0.6 : 1, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)' }}>
+            className="hl-mono" style={{ background: 'transparent', border: 0, padding: '12px 0', minHeight: 44, cursor: deleteMut.isPending ? 'wait' : 'pointer', opacity: deleteMut.isPending ? 0.6 : 1, fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--warm)' }}>
             {deleteMut.isPending ? 'deleting…' : 'confirm'}
           </button>
           <button type="button" onClick={() => { setConfirmDelete(false); setDeleteError(null); }}

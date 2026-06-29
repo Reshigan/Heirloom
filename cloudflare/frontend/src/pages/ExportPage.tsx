@@ -617,7 +617,8 @@ function HistoryRow({ job }: { job: ExportJob }) {
             background: 'transparent',
             border: 0,
             cursor: 'pointer',
-            padding: 0,
+            padding: '12px 0',
+            minHeight: 44,
             whiteSpace: 'nowrap',
           }}
         >

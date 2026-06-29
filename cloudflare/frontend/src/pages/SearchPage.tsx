@@ -194,22 +194,14 @@ export function SearchPage() {
                 className="hl-filter-btn"
                 onClick={() => setTypeFilter(f.value)}
                 aria-pressed={active}
-                style={{ position: 'relative', color: active ? 'var(--warm)' : 'var(--bone-dim)' }}
+                style={{
+                  position: 'relative',
+                  color: active ? 'var(--warm)' : 'var(--bone-dim)',
+                  borderBottom: `1px solid ${active ? 'var(--warm)' : 'transparent'}`,
+                  paddingBottom: 4,
+                }}
               >
                 {f.label}
-                {active && (
-                  <span
-                    aria-hidden="true"
-                    style={{
-                      position: 'absolute',
-                      left: 0,
-                      right: 0,
-                      bottom: -7,
-                      height: 1,
-                      background: 'var(--warm)',
-                    }}
-                  />
-                )}
               </button>
             );
           })}

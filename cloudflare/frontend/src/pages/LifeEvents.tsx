@@ -360,7 +360,7 @@ export function LifeEvents() {
             onClick={() => setShowCreate(true)}
             aria-haspopup="dialog"
             style={{
-              background: 'none', border: 0, padding: '8px 0', cursor: 'pointer',
+              background: 'none', border: 0, padding: '12px 0', minHeight: 44, cursor: 'pointer',
               fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
               textTransform: 'uppercase', color: 'var(--warm)',
             }}
@@ -586,7 +586,7 @@ export function LifeEvents() {
                   <button
                     onClick={() => { setWizardStep(2); setSelectedTemplate(null); }}
                     style={{
-                      background: 'none', border: 0, padding: '8px 0', cursor: 'pointer', width: '100%',
+                      background: 'none', border: 0, padding: '12px 0', minHeight: 44, cursor: 'pointer', width: '100%',
                       fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.12em',
                       textTransform: 'uppercase', color: 'var(--bone-faint)', textAlign: 'center',
                     }}

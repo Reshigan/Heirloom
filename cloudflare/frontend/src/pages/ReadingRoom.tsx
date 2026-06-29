@@ -374,9 +374,9 @@ function ReadingContent({
                 >
                   <span style={{
                     display: 'block',
-                    width: i === activeIndex ? 20 : 6, height: 2,
-                    background: i === activeIndex ? dye : 'var(--bone-ghost)',
-                    transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
+                    width: i === activeIndex ? 20 : 6, height: 0,
+                    borderTop: `2px solid ${i === activeIndex ? dye : 'var(--bone-ghost)'}`,
+                    transition: `width 360ms ${EASE}, border-color 360ms ${EASE}`,
                     flexShrink: 0,
                   }} />
                 </button>
@@ -1125,10 +1125,10 @@ function BookView({ entries, threadName, onExit }: { entries: Thread[]; threadNa
                 <span
                   aria-hidden
                   style={{
-                    display: 'block', height: 1,
+                    display: 'block', height: 0,
                     width: i === ch ? 20 : 6,
-                    background: i === ch ? 'var(--letter-gold)' : 'rgba(var(--letter-copper-rgb), 0.3)',
-                    transition: `width 360ms ${EASE}, background 360ms ${EASE}`,
+                    borderTop: `1px solid ${i === ch ? 'var(--letter-gold)' : 'rgba(var(--letter-copper-rgb), 0.3)'}`,
+                    transition: `width 360ms ${EASE}, border-color 360ms ${EASE}`,
                   }}
                 />
               </button>

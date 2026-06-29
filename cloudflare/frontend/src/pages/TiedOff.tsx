@@ -193,7 +193,7 @@ export function TiedOff() {
               top: 0,
               bottom: 0,
               width: 1,
-              background: 'var(--warm)',
+              background: 'var(--bone-faint)',
               opacity: 0.5,
             }}
           />
@@ -279,7 +279,7 @@ export function TiedOff() {
               no threads are tied off yet.{' '}
               <Link
                 to="/capture"
-                style={{ color: 'var(--copper-label)', textDecoration: 'none' }}
+                style={{ color: 'var(--copper-label)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', minHeight: 44, padding: '0 4px' }}
               >
                 seal a letter →
               </Link>

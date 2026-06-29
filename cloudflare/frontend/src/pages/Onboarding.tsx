@@ -141,7 +141,8 @@ const actions: React.CSSProperties = {
 const skipStyle: React.CSSProperties = {
   background: 'transparent',
   border: 0,
-  padding: '8px 0',
+  padding: '12px 0',
+  minHeight: 44,
   cursor: 'pointer',
   fontFamily: 'var(--mono)',
   fontSize: 10,
@@ -232,6 +233,7 @@ const pillStyle: React.CSSProperties = {
   alignItems: 'center',
   justifyContent: 'center',
   minWidth: 200,
+  minHeight: 44,
   padding: '13px 30px',
   borderRadius: 0,
   border: '1px solid var(--warm-dim)',

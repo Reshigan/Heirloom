@@ -493,7 +493,6 @@ export function Marketing() {
       <style>{`
         .mkt-nav-hide-sm { display: inline; }
         @media (max-width: 520px) { .mkt-nav-hide-sm { display: none; } }
-        .loom[data-theme="light"] .mkt-begin-cta { color: var(--warm-dim); }
       `}</style>
     </main>
   );

@@ -158,6 +158,7 @@ export function Login() {
               style={{
                 width: '100%', marginTop: 14,
                 padding: '13px 24px',
+                minHeight: 44,
                 background: 'transparent',
                 border: '1px solid var(--warm)',
                 borderRadius: 0,

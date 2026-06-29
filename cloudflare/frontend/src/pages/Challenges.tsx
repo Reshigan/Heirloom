@@ -77,7 +77,8 @@ export function Challenges() {
     color: 'var(--copper-label)',
     background: 'none',
     border: 0,
-    padding: 0,
+    padding: '12px 0',
+    minHeight: 44,
     cursor: 'pointer',
   };
   const affordanceQuiet: React.CSSProperties = {

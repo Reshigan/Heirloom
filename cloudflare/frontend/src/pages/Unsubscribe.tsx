@@ -140,6 +140,10 @@ export function Unsubscribe() {
                 textTransform: 'uppercase',
                 color: 'var(--warm)',
                 textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                minHeight: 44,
+                padding: '12px 0',
               }}
             >
               Return home →

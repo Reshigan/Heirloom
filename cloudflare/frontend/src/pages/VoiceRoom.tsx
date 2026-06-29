@@ -2,6 +2,7 @@ import { useRef, useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { ProgressHair } from '../loom/components/ProgressHair';
 import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { voiceApi } from '../services/api';
@@ -229,14 +230,11 @@ export function VoiceRoom() {
   return (
     <ClothShell topbarLeft={topbarLeft} topbarRight={<UserMenu />}>
       {/* Hairline loading bar */}
-      <div
-        aria-hidden
-        style={{
-          position: 'fixed', top: 0, left: 0, right: 0, height: 1,
-          background: 'var(--warm)', opacity: isLoading ? 0.6 : 0,
-          transition: `opacity 360ms ${EASE}`, zIndex: 30, pointerEvents: 'none',
-        }}
-      />
+      {isLoading && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 30, pointerEvents: 'none' }}>
+          <ProgressHair />
+        </div>
+      )}
 
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-prose)', margin: '0 auto' }}>
         <CosmicHeader
@@ -255,7 +253,8 @@ export function VoiceRoom() {
           to="/capture"
           style={{
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            borderLeft: '1px solid var(--warm)', padding: '12px 16px',
+            borderLeft: '1px solid var(--warm)', padding: '16px 16px',
+            minHeight: 44,
             marginBottom: 48, textDecoration: 'none',
           }}
         >
@@ -295,7 +294,8 @@ export function VoiceRoom() {
             <Link
               to="/capture"
               style={{
-                textDecoration: 'none', display: 'inline-block', marginTop: 24,
+                textDecoration: 'none', display: 'inline-flex', alignItems: 'center',
+                marginTop: 24, minHeight: 44, padding: '12px 0',
                 fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
                 textTransform: 'uppercase', color: 'var(--warm)',
               }}

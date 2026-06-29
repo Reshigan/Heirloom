@@ -254,7 +254,8 @@ export function GoldLegacyRedeem() {
                 style={{
                   background: 'transparent',
                   border: 0,
-                  padding: 0,
+                  padding: '12px 0',
+                  minHeight: 44,
                   fontSize: 11,
                   letterSpacing: '0.26em',
                   textTransform: 'uppercase',
@@ -418,7 +419,8 @@ export function GoldLegacyRedeem() {
                         style={{
                           background: 'transparent',
                           border: 0,
-                          padding: 0,
+                          padding: '12px 0',
+                          minHeight: 44,
                           fontSize: 11,
                           letterSpacing: '0.26em',
                           textTransform: 'uppercase',

@@ -352,6 +352,10 @@ export function Founder() {
                 color:          'var(--warm)',
                 textDecoration: 'none',
                 marginTop:       8,
+                display:        'inline-flex',
+                alignItems:     'center',
+                minHeight:      44,
+                padding:        '12px 0',
               }}
             >
               back to heirloom →
@@ -487,6 +491,10 @@ export function Founder() {
                 color:          'var(--bone-faint)',
                 textDecoration: 'none',
                 marginTop:      -8,
+                display:        'inline-flex',
+                alignItems:     'center',
+                minHeight:      44,
+                padding:        '12px 0',
               }}
             >
               or gift one →

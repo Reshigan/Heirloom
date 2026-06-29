@@ -38,7 +38,7 @@ function entryTo(kind: string, id: string): string {
 
 const PAGE_WRAP: React.CSSProperties = {
   padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
-  maxWidth: 'var(--page-max)',
+  maxWidth: 'var(--page-max-reading)',
   margin: '0 auto',
 };
 
@@ -49,7 +49,10 @@ const BACK_LINK: React.CSSProperties = {
   textTransform: 'uppercase',
   color: 'var(--copper-label)',
   textDecoration: 'none',
-  display: 'inline-block',
+  display: 'inline-flex',
+  alignItems: 'center',
+  minHeight: 44,
+  padding: '12px 0',
   marginBottom: 32,
 };
 
@@ -351,7 +354,7 @@ export function PersonPage() {
                       background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
                       fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--bone-faint)',
                       letterSpacing: '0.18em', textTransform: 'uppercase',
-                      transition: 'color 180ms var(--ease)', touchAction: 'manipulation', minHeight: 36,
+                      transition: 'color 180ms var(--ease)', touchAction: 'manipulation', minHeight: 44,
                     }}
                     onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
                     onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
@@ -383,7 +386,7 @@ export function PersonPage() {
                 background: 'transparent', border: 0, padding: '8px 0', cursor: 'pointer',
                 fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--bone-faint)',
                 letterSpacing: '0.2em', textTransform: 'uppercase', marginTop: 14,
-                transition: 'color 180ms var(--ease)', touchAction: 'manipulation', minHeight: 36,
+                transition: 'color 180ms var(--ease)', touchAction: 'manipulation', minHeight: 44,
               }}
               onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
               onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}

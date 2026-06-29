@@ -175,6 +175,10 @@ export function BookPage() {
             textTransform: 'uppercase',
             color: 'var(--bone-faint)',
             textDecoration: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            minHeight: 44,
+            padding: '12px 0',
           }}
         >
           build your book

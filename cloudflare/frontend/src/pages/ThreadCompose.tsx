@@ -57,7 +57,7 @@ const fieldStyle: React.CSSProperties = {
  * The dropdown chevron is a data-URI SVG; a data URI cannot read CSS `var()`,
  * so its stroke colour is injected from the live, theme-resolved `--bone`
  * token (see useTokenColor) instead of being baked to a fixed cream rgba.
- * This lets the chevron flip with dark / light (paper) themes.
+ * This lets the chevron track the live water theme.
  */
 function selectStyle(chevron: string): React.CSSProperties {
   const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><polyline points='0,0 5,6 10,0' fill='none' stroke='${chevron}' stroke-width='1.2'/></svg>`;
@@ -97,8 +97,8 @@ function pillStyle(warm: boolean, disabled = false): React.CSSProperties {
 
 /**
  * Resolve a CSS custom property (e.g. `--bone`) to a concrete colour from the
- * live `.loom` theme root, re-reading whenever the root's `data-theme` flips
- * (dark ↔ light/paper). A data URI cannot read `var()`, so the select chevron
+ * live `.loom` theme root, re-reading whenever the root's `data-theme` flips.
+ * A data URI cannot read `var()`, so the select chevron
  * needs the resolved value injected — this keeps it token-driven and
  * theme-aware without baking a fixed colour. Returns a data-URI-safe string
  * (`#` encoded so hex tokens don't read as a URL fragment).
@@ -130,7 +130,7 @@ export function ThreadCompose() {
   const navigate = useNavigate();
 
   // Theme-resolved colour for the data-URI select chevron (token-driven so it
-  // flips with dark / light instead of the old baked cream rgba).
+  // tracks the water theme instead of a baked cream rgba).
   const chevronColor = useTokenColor('--bone-low', 'currentColor');
   const selStyle = selectStyle(chevronColor);
 
@@ -279,7 +279,8 @@ export function ThreadCompose() {
       style={{
         background: 'transparent',
         border: 0,
-        padding: 0,
+        padding: '12px 0',
+        minHeight: 44,
         cursor: canSave ? 'pointer' : 'default',
         fontFamily: "var(--mono, 'JetBrains Mono', monospace)",
         fontSize: 11,
@@ -716,6 +717,10 @@ export function ThreadCompose() {
                   color: 'var(--bone-faint)',
                   textDecoration: 'none',
                   marginLeft: 'auto',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  minHeight: 44,
+                  padding: '12px 0',
                   transition: `color 180ms ${EASE}`,
                 }}
                 onMouseEnter={(e) => {

@@ -351,7 +351,8 @@ export function Unlock() {
                           border: 'none',
                           borderBottom: '1px solid var(--rule-warm)',
                           cursor: 'pointer',
-                          paddingBottom: 4,
+                          padding: '12px 0 4px',
+                          minHeight: 44,
                           transition: `color 360ms var(--loom-ease)`,
                         }}
                       >
@@ -467,7 +468,8 @@ export function Unlock() {
                           border: 'none',
                           borderBottom: '1px solid var(--rule)',
                           cursor: 'pointer',
-                          paddingBottom: 2,
+                          padding: '12px 0 2px',
+                          minHeight: 44,
                           opacity: 1,
                           transition: `opacity 360ms var(--loom-ease)`,
                         }}

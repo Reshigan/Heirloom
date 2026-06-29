@@ -62,7 +62,8 @@ const monoEyebrow = (extra?: React.CSSProperties): React.CSSProperties => ({
 const monoAction = (active = true, extra?: React.CSSProperties): React.CSSProperties => ({
   background: 'transparent',
   border: 0,
-  padding: 0,
+  padding: '12px 0',
+  minHeight: 44,
   cursor: 'pointer',
   fontFamily: 'var(--mono)',
   fontSize: 11,

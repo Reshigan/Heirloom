@@ -473,6 +473,7 @@ export function Memorials() {
                     letterSpacing: '0.12em',
                     textTransform: 'uppercase',
                     padding: '12px 20px',
+                    minHeight: 44,
                     cursor: 'pointer',
                     transition: 'border-color 180ms var(--ease)',
                   }}
@@ -638,6 +639,7 @@ export function Memorials() {
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
                   padding: '12px 20px',
+                  minHeight: 44,
                   cursor: 'pointer',
                   transition: 'border-color 180ms var(--ease)',
                 }}

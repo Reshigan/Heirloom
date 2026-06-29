@@ -662,7 +662,8 @@ export function MemoryCards() {
                               style={{
                                 background: 'transparent',
                                 border: 0,
-                                padding: 0,
+                                padding: '12px 0',
+                                minHeight: 44,
                                 cursor: 'pointer',
                                 fontFamily: 'var(--mono)',
                                 fontSize: 11,
@@ -679,7 +680,8 @@ export function MemoryCards() {
                               style={{
                                 background: 'transparent',
                                 border: 0,
-                                padding: 0,
+                                padding: '12px 0',
+                                minHeight: 44,
                                 cursor: 'pointer',
                                 fontFamily: 'var(--mono)',
                                 fontSize: 11,
