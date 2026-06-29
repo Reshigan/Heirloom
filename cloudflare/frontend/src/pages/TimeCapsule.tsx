@@ -401,7 +401,8 @@ export function TimeCapsule() {
                   border: 'none',
                   borderBottom: '1px solid var(--rule-strong, var(--rule))',
                   cursor: 'pointer',
-                  paddingBottom: 3,
+                  padding: '12px 0 3px',
+                  minHeight: 44,
                   flexShrink: 0,
                 }}
               >
@@ -497,7 +498,8 @@ export function TimeCapsule() {
                   border: 'none',
                   borderBottom: '1px solid var(--rule-strong, var(--rule))',
                   cursor: 'pointer',
-                  paddingBottom: 3,
+                  padding: '12px 0 3px',
+                  minHeight: 44,
                   flexShrink: 0,
                 }}
               >
@@ -816,6 +818,7 @@ export function TimeCapsule() {
                   border: '1px solid var(--copper-border)',
                   borderRadius: 0,
                   padding: '14px 38px',
+                  minHeight: 44,
                   cursor: canSeal ? 'pointer' : 'default',
                   opacity: canSeal ? 1 : 0.45,
                   transition: `opacity 180ms ${EASE}`,

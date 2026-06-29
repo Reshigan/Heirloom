@@ -1219,7 +1219,8 @@ export function BookBuilder() {
                   style={{
                     background: 'transparent',
                     border: 0,
-                    padding: '6px 0 0',
+                    padding: '12px 0',
+                    minHeight: 44,
                     marginTop: 6,
                     cursor: orderMutation.isPending ? 'default' : 'pointer',
                     fontSize: 12,

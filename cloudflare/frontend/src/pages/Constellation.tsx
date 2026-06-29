@@ -334,6 +334,10 @@ export function Constellation() {
               <Link
                 to="/family"
                 style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  minHeight: 44,
+                  padding: '12px 0',
                   fontFamily: 'var(--mono)',
                   fontSize: 10,
                   letterSpacing: '0.2em',

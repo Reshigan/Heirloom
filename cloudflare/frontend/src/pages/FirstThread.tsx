@@ -268,7 +268,7 @@ export function FirstThread() {
               <div style={{ fontSize: 11, letterSpacing: '0.34em', color: 'var(--warm-dim)', marginBottom: 18, animation: `hl-fadeup 720ms ${EASE} both` }}>THE LISTENER ASKS</div>
               <div style={{ fontFamily: 'var(--serif-display)', fontSize: 31, lineHeight: 1.16, color: 'var(--bone)', animation: `hl-fadeup 720ms ${EASE} 180ms both` }}>What did you almost forget to write down today?</div>
               <div style={{ display: 'flex', gap: 14, marginTop: 30, animation: `hl-fadeup 720ms ${EASE} 360ms both` }}>
-                <button type="button" onClick={record} style={{ border: '1px solid var(--warm)', borderRadius: 0, padding: '13px 30px', color: 'var(--warm)', background: 'transparent', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.22em', cursor: 'pointer' }}>BEGIN</button>
+                <button type="button" onClick={record} style={{ border: '1px solid var(--warm)', borderRadius: 0, padding: '13px 30px', minHeight: 44, color: 'var(--warm)', background: 'transparent', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.22em', cursor: 'pointer' }}>BEGIN</button>
               </div>
             </div>
           </div>
@@ -299,7 +299,7 @@ export function FirstThread() {
             </div>
             <div style={{ fontFamily: 'var(--serif-display)', fontSize: 34, color: 'var(--bone)', marginTop: 30, textAlign: 'center', animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>Settled into the Deep.</div>
             <div style={{ fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone-faint)', marginTop: 10, textAlign: 'center', animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>Now part of your family's story.</div>
-            <button type="button" onClick={toSeal} style={{ marginTop: 34, border: '1px solid var(--copper-border)', background: 'transparent', borderRadius: 0, padding: '13px 30px', color: 'var(--warm-bright)', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.24em', cursor: 'pointer', animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>SEAL ONE FOR THE FUTURE</button>
+            <button type="button" onClick={toSeal} style={{ marginTop: 34, border: '1px solid var(--copper-border)', background: 'transparent', borderRadius: 0, padding: '13px 30px', minHeight: 44, color: 'var(--warm-bright)', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.24em', cursor: 'pointer', animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>SEAL ONE FOR THE FUTURE</button>
           </div>
         )}
 
@@ -347,7 +347,7 @@ export function FirstThread() {
                   </div>
                   <div style={{ fontFamily: 'var(--serif-display)', fontSize: 32, color: 'var(--bone)', marginTop: 26, animation: `hl-fadeup 720ms ${EASE} 360ms both` }}>Sealed until {new Date().getFullYear() + SEAL_YEARS_AHEAD}.</div>
                   <div style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15, color: 'var(--bone-faint)', marginTop: 10, animation: `hl-fadeup 720ms ${EASE} 360ms both` }}>For generations to come.</div>
-                  <button type="button" onClick={enterThread} style={{ marginTop: 32, border: '1px solid var(--warm)', background: 'transparent', borderRadius: 0, padding: '13px 32px', color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.22em', cursor: 'pointer', animation: `hl-fadeup 720ms ${EASE} 720ms both` }}>ENTER YOUR THREAD</button>
+                  <button type="button" onClick={enterThread} style={{ marginTop: 32, border: '1px solid var(--warm)', background: 'transparent', borderRadius: 0, padding: '13px 32px', minHeight: 44, color: 'var(--warm)', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.22em', cursor: 'pointer', animation: `hl-fadeup 720ms ${EASE} 720ms both` }}>ENTER YOUR THREAD</button>
                 </div>
                 <div
                   role="button"

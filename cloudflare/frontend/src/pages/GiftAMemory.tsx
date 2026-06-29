@@ -453,6 +453,7 @@ export function GiftAMemory() {
                 border: '1px solid var(--warm)',
                 borderRadius: 0,
                 padding: '11px 26px',
+                minHeight: 44,
                 fontFamily: 'var(--mono)',
                 fontSize: 11,
                 letterSpacing: '0.2em',

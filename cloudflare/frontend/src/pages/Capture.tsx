@@ -531,7 +531,7 @@ export function Capture() {
               opacity: submitDisabled ? 0.5 : 1,
             }}
           >
-            <span aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'var(--warm-glow)', transformOrigin: 'left', transform: `scaleX(${holding ? 1 : 0})`, transition: holding ? 'transform 720ms var(--ease)' : 'none' }} />
+            <span aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'var(--rule)', transformOrigin: 'left', transform: `scaleX(${holding ? 1 : 0})`, transition: holding ? 'transform 720ms var(--ease)' : 'none' }} />
             <span style={{ position: 'relative' }}>
               {save.isPending ? 'settling…' : holdHint ? 'keep holding…' : 'let it settle →'}
             </span>

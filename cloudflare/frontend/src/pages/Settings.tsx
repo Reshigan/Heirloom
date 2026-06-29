@@ -674,19 +674,31 @@ export function Settings() {
                     aria-checked={accent === opt.key}
                     tabIndex={accent === opt.key ? 0 : -1}
                     style={{
-                      width: 18,
-                      height: 18,
+                      width: 44,
+                      height: 44,
                       padding: 0,
-                      borderRadius: '50%',
-                      background: opt.swatch,
                       border: 'none',
+                      background: 'transparent',
                       cursor: 'pointer',
-                      // Selected ring = a bone halo offset off the swatch; matches
-                      // the underline affordance the other rows use, in colour form.
-                      boxShadow: accent === opt.key ? '0 0 0 2px var(--ink), 0 0 0 3px var(--bone)' : 'none',
-                      transition: 'box-shadow 180ms var(--ease)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
-                  />
+                  >
+                    <span
+                      aria-hidden
+                      style={{
+                        width: 18,
+                        height: 18,
+                        borderRadius: '50%',
+                        background: opt.swatch,
+                        // Selected ring = a bone halo offset off the swatch; matches
+                        // the underline affordance the other rows use, in colour form.
+                        boxShadow: accent === opt.key ? '0 0 0 2px var(--ink), 0 0 0 3px var(--bone)' : 'none',
+                        transition: 'box-shadow 180ms var(--ease)',
+                      }}
+                    />
+                  </button>
                 ))}
               </span>
             }

@@ -1606,7 +1606,7 @@ function UserActionsModal({ user, onClose }: { user: any; onClose: () => void })
         <div style={{ paddingTop: 16, borderTop: '1px solid var(--rule)' }}>
           <div className="loom-eyebrow" style={{ color: 'var(--warm)', marginBottom: 8 }}>Danger Zone</div>
           <button
-            style={{ width: '100%', background: 'transparent', border: '1px solid var(--warm)', color: 'var(--warm)', padding: '8px 16px', cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.08em', opacity: cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE' ? 0.4 : 1 }}
+            style={{ width: '100%', minHeight: 44, background: 'transparent', border: '1px solid var(--warm)', color: 'var(--warm)', padding: '12px 16px', cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.08em', opacity: cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE' ? 0.4 : 1 }}
             onClick={() => setConfirmingCancel(true)}
             disabled={cancelSubscriptionMutation.isPending || !user.subscriptionStatus || user.subscriptionStatus === 'NONE'}
           >

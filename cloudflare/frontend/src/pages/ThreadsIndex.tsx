@@ -206,7 +206,8 @@ export function ThreadsIndex() {
                   style={{
                     background: 'transparent',
                     border: 0,
-                    padding: 0,
+                    padding: '12px 0',
+                    minHeight: 44,
                     cursor: !newName.trim() || create.isPending ? 'default' : 'pointer',
                     fontFamily: 'var(--mono)',
                     fontSize: 12,

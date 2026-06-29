@@ -312,7 +312,7 @@ export function ColourOfUs() {
                 backgroundImage: waterShot
                   ? `url(${waterShot})`
                   : blend
-                    ? `radial-gradient(circle at 38% 32%, color-mix(in srgb, ${blend} 78%, #fff 22%), ${blend} 64%, color-mix(in srgb, ${blend} 72%, #000 28%))`
+                    ? `radial-gradient(circle at 38% 32%, color-mix(in srgb, ${blend} 78%, var(--bone) 22%), ${blend} 64%, color-mix(in srgb, ${blend} 72%, var(--ink) 28%))`
                     : undefined,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
@@ -340,7 +340,7 @@ export function ColourOfUs() {
                 border: '1px solid var(--copper-border)',
                 color: 'var(--gold-text)',
                 fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
-                textTransform: 'uppercase', padding: '12px 26px', cursor: 'pointer',
+                textTransform: 'uppercase', padding: '15px 26px', minHeight: 44, cursor: 'pointer',
                 opacity: sharing ? 0.5 : 1, marginBottom: 32,
                 transition: `opacity 180ms var(--ease)`,
               }}

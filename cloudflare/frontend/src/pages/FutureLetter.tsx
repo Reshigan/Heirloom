@@ -375,6 +375,7 @@ export function FutureLetter() {
                     letterSpacing: '0.2em',
                     textTransform: 'uppercase',
                     padding: '13px 28px',
+                    minHeight: 44,
                     opacity: generateMutation.isPending ? 0.5 : 1,
                     transition: `opacity 180ms ${EASE}`,
                   }}

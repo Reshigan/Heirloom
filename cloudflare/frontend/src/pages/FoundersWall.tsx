@@ -192,7 +192,10 @@ export function FoundersWall() {
               color: 'var(--gold-text)',
               textDecoration: 'none',
               whiteSpace: 'nowrap',
+              display: 'inline-flex',
+              alignItems: 'center',
               padding: '12px 0',
+              minHeight: 44,
             }}
           >
             put your name in the record →
