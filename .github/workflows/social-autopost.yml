@@ -66,7 +66,7 @@ jobs:
       # Animated packs are encoded to MP4 with ffmpeg. ubuntu-latest ships it;
       # install only if a future image drops it, so the video path never breaks.
       - name: Ensure ffmpeg
-        run: ffmpeg -version | head -1 || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+        run: command -v ffmpeg >/dev/null || { sudo apt-get update && sudo apt-get install -y ffmpeg; }
 
       - name: Run
         working-directory: marketing/automation

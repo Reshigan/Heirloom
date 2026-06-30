@@ -463,21 +463,35 @@ export async function renderDeepVideo(opts: RenderVideoOpts): Promise<Buffer> {
     "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
     "-r", String(fps), tmp,
   ], { stdio: ["pipe", "ignore", "pipe"] });
+
+  // ffmpeg missing/dying must reject this promise — never crash the process — so
+  // the caller falls back to the static image. Swallow stdin EPIPE for the same
+  // reason; capture the spawn error and surface it after the pipe drains.
+  let spawnErr: Error | null = null;
+  ff.on("error", (e) => { spawnErr = e; });
+  ff.stdin.on("error", () => {});
   let stderr = "";
   ff.stderr.on("data", (d) => { stderr += d.toString(); });
-  const done = new Promise<number>((res, rej) => {
-    ff.on("close", res);
-    ff.on("error", rej); // ffmpeg not installed → reject so caller can fall back
-  });
+  const closed = new Promise<number | null>((res) => ff.on("close", (code) => res(code)));
 
-  for (let f = 0; f < total; f++) {
-    paintFrame(ctx, width, height, { saying, dye, eyebrow }, serif, mono, layout, (f / fps) * 1000, durMs);
-    const png = canvas.toBuffer("image/png");
-    if (!ff.stdin.write(png)) await new Promise((r) => ff.stdin.once("drain", r));
+  // Let an ENOENT (ffmpeg not installed) surface before we stream frames.
+  await new Promise((r) => setImmediate(r));
+  if (spawnErr) { ff.stdin.end(); throw new Error(`ffmpeg unavailable: ${(spawnErr as Error).message}`); }
+
+  try {
+    for (let f = 0; f < total && !spawnErr; f++) {
+      paintFrame(ctx, width, height, { saying, dye, eyebrow }, serif, mono, layout, (f / fps) * 1000, durMs);
+      const png = canvas.toBuffer("image/png");
+      if (!ff.stdin.write(png)) {
+        await new Promise<void>((r) => { ff.stdin.once("drain", () => r()); ff.once("close", () => r()); });
+      }
+    }
+  } finally {
+    ff.stdin.end();
   }
-  ff.stdin.end();
 
-  const code = await done;
+  const code = await closed;
+  if (spawnErr) throw new Error(`ffmpeg unavailable: ${(spawnErr as Error).message}`);
   if (code !== 0) throw new Error(`ffmpeg exited ${code}: ${stderr.slice(-400)}`);
   const buf = await readFile(tmp);
   await unlink(tmp).catch(() => {});
