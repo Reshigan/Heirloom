@@ -15,6 +15,7 @@ import "dotenv/config";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { themeForDate, evergreenThemeForDate, brandThemeForDate, seasonForDate, seasonalHashtagsForDate } from "./themes.js";
+import { resolveSlotHour } from "./slot.js";
 import { generateSourcePost, SourcePost, hasGenProvider, activeProvider } from "./generate.js";
 import { generateVariants, sanitizeCaption } from "./variants.js";
 import { post } from "./post.js";
@@ -64,7 +65,7 @@ async function readDayLedger(dateKey: string): Promise<LedgerEntry[]> {
 async function generate(): Promise<SourcePost> {
   const date = new Date();
   const dateKey = date.toISOString().slice(0, 10);
-  const hour = date.getUTCHours();
+  const hour = resolveSlotHour(date);
 
   const ledger = await readDayLedger(dateKey);
 
@@ -210,7 +211,7 @@ async function postAll(source?: SourcePost): Promise<void> {
 
   const now = new Date();
   const dateKey = now.toISOString().slice(0, 10);
-  const slot = now.getUTCHours();
+  const slot = resolveSlotHour(now);
   await writeJson(`output/${dateKey}/variants.json`, variants);
 
   // Observability: output/ is gitignored, so log the per-platform hashtag count
@@ -301,7 +302,7 @@ async function daily(): Promise<void> {
   // it never skips.
   const now = new Date();
   const season = seasonForDate(now);
-  const isAlwaysOnSlot = ALWAYS_ON_HOURS.has(now.getUTCHours());
+  const isAlwaysOnSlot = ALWAYS_ON_HOURS.has(resolveSlotHour(now));
   const scheduled = process.env.GITHUB_EVENT_NAME === "schedule";
   if (scheduled && !isAlwaysOnSlot && !season) {
     console.log("[skip] seasonal-only slot and no season is active today. Nothing posted.");

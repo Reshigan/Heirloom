@@ -110,6 +110,14 @@ jobs:
           # two surfaces the brand actively maintains. All others were retired.
           PLATFORMS: ${{ vars.PLATFORMS || 'bluesky,facebook' }}
           SOCIAL_IMAGE_URL: ${{ vars.SOCIAL_IMAGE_URL }}
+          # Intended slot hour for THIS cron. GitHub's scheduler drifts off the
+          # cron minute (a "0 13" job can fire at 13:40 or later), and run.ts
+          # decides whether to post by matching the slot hour against
+          # ALWAYS_ON_HOURS — so reading the drifted wall-clock hour silently
+          # skipped the day's posts. Pass the cron's intended hour instead; empty
+          # on workflow_dispatch (run.ts then falls back to wall-clock, which is
+          # harmless because manual runs never skip).
+          SLOT_HOUR: ${{ github.event.schedule == '0 13 * * *' && '13' || github.event.schedule == '0 23 * * *' && '23' || github.event.schedule == '0 17 * * *' && '17' || '' }}
         run: npm run ${{ github.event.inputs.mode || 'daily' }}
 
       - name: Commit output

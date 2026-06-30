@@ -147,7 +147,7 @@ function drawWater(
   // full width. Pinned high so it stays clear of the centered saying. This is
   // the only warm fill on the card (signal only, <3% surface).
   const surfY = h * (0.07 + rnd() * 0.04);
-  ctx.fillStyle = withAlpha(WARM, 0.7);
+  ctx.fillStyle = withAlpha(WARM, 0.4);
   ctx.fillRect(0, surfY, w, Math.max(1, Math.round(h * 0.0015)));
 
   return { dyeHex: dye.hex };
@@ -266,7 +266,7 @@ export function renderDeep({ saying, width, height, seed }: RenderOpts): Buffer 
   // Archival wordmark, JetBrains Mono, bottom-centered, letter-spaced.
   const markSize = Math.round(Math.min(width, height) * 0.024);
   ctx.font = `400 ${markSize}px "${mono}"`;
-  ctx.fillStyle = withAlpha(BONE, 0.55);
+  ctx.fillStyle = withAlpha(BONE, 0.72);
   const wordmark = "H E I R L O O M . B L U E";
   ctx.fillText(wordmark, width / 2, height - margin * 0.55);
 

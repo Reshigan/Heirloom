@@ -15,6 +15,7 @@ import path from "node:path";
 import { themeForDate, evergreenThemeForDate, seasonForDate } from "./themes.js";
 import { generateSourcePost, SourcePost } from "./generate.js";
 import { fetchSignals, signalHint } from "./signals.js";
+import { resolveSlotHour } from "./slot.js";
 
 // Slots per day, UTC hours — must match ALWAYS_ON_HOURS + the seasonal slot in
 // run.ts and the crons in social-autopost.yml.
@@ -106,7 +107,7 @@ export async function plannedPostFor(date: Date): Promise<SourcePost | null> {
   try {
     const raw = await fs.readFile(path.resolve(process.cwd(), file), "utf-8");
     const plan = JSON.parse(raw) as Record<string, PlannedPost>;
-    const entry = plan[planKey(date.toISOString().slice(0, 10), date.getUTCHours())];
+    const entry = plan[planKey(date.toISOString().slice(0, 10), resolveSlotHour(date))];
     return entry?.source ?? null;
   } catch {
     return null;
