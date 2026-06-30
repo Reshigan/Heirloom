@@ -299,15 +299,37 @@ async function uploadBlueskyBlob(imageUrl: string, token: string): Promise<Blues
 // or null on any failure (caller falls back to the static image). Flow per the
 // AT Protocol: service-auth token → uploadVideo (returns a job) → poll
 // getJobStatus until the blob is ready.
+// The video service-auth token must be audienced to the user's own PDS, not to
+// did:web:video.bsky.app (accounts on bsky.network PDSs are rejected otherwise).
+// Resolve the PDS host from the session DID doc, falling back to plc.directory.
+type DidDoc = { service?: Array<{ id?: string; type?: string; serviceEndpoint?: string }> };
+function pdsHostFromDidDoc(doc: DidDoc | undefined): string | null {
+  const svc = doc?.service?.find((s) => s.id === "#atproto_pds" || s.type === "AtprotoPersonalDataServer");
+  if (svc?.serviceEndpoint) { try { return new URL(svc.serviceEndpoint).hostname; } catch { /* noop */ } }
+  return null;
+}
+async function resolvePdsHost(did: string, didDoc: DidDoc | undefined): Promise<string | null> {
+  const fromSession = pdsHostFromDidDoc(didDoc);
+  if (fromSession) return fromSession;
+  try {
+    if (did.startsWith("did:plc:")) {
+      const r = await fetch(`https://plc.directory/${did}`);
+      if (r.ok) return pdsHostFromDidDoc((await r.json()) as DidDoc);
+    }
+  } catch { /* fall through */ }
+  return null;
+}
+
 async function uploadBlueskyVideo(
   bytes: Uint8Array,
   did: string,
   accessJwt: string,
+  pdsHost: string,
 ): Promise<BlueskyBlob | null> {
   try {
     const exp = Math.floor(Date.now() / 1000) + 30 * 60;
     const authRes = await fetch(
-      `https://bsky.social/xrpc/com.atproto.server.getServiceAuth?aud=did:web:video.bsky.app&lxm=app.bsky.video.uploadVideo&exp=${exp}`,
+      `https://bsky.social/xrpc/com.atproto.server.getServiceAuth?aud=${encodeURIComponent(`did:web:${pdsHost}`)}&lxm=app.bsky.video.uploadVideo&exp=${exp}`,
       { headers: { Authorization: `Bearer ${accessJwt}` } },
     );
     const authJson = (await authRes.json().catch(() => ({}))) as { token?: string };
@@ -370,7 +392,7 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ identifier: handle, password }),
   });
-  const session = (await sessionRes.json().catch(() => ({}))) as { accessJwt?: string; did?: string };
+  const session = (await sessionRes.json().catch(() => ({}))) as { accessJwt?: string; did?: string; didDoc?: DidDoc };
   if (!sessionRes.ok || !session.accessJwt || !session.did) {
     return { platform: input.variant.platform, ok: false, error: "auth failed", mode: "direct" };
   }
@@ -386,8 +408,9 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
 
   // Animated pack: upload the MP4 to the video service. Null on any failure, so
   // the first post falls back to the static image embed below.
-  const videoBlob = input.videoBytes
-    ? await uploadBlueskyVideo(input.videoBytes, session.did, session.accessJwt)
+  const pdsHost = input.videoBytes ? await resolvePdsHost(session.did, session.didDoc) : null;
+  const videoBlob = input.videoBytes && pdsHost
+    ? await uploadBlueskyVideo(input.videoBytes, session.did, session.accessJwt, pdsHost)
     : null;
 
   // Hashtags ride the FINAL post, not the opener. The opener is the longest
