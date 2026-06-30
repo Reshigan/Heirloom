@@ -232,7 +232,6 @@ export function GiftPurchase() {
                     borderBottom: isSelected
                       ? '1px solid var(--copper-border)'
                       : '1px solid var(--rule)',
-                    outline: 'none',
                     transition:
                       'background 180ms var(--ease), border-color 180ms var(--ease)',
                   }}
@@ -350,7 +349,6 @@ export function GiftPurchase() {
                 fontFamily: 'var(--serif)',
                 fontSize: 17,
                 color: 'var(--bone)',
-                outline: 'none',
                 boxSizing: 'border-box',
               }}
             />
@@ -389,7 +387,6 @@ export function GiftPurchase() {
                 fontFamily: 'var(--serif)',
                 fontSize: 17,
                 color: 'var(--bone)',
-                outline: 'none',
                 boxSizing: 'border-box',
               }}
             />
@@ -427,7 +424,6 @@ export function GiftPurchase() {
                 fontFamily: 'var(--serif)',
                 fontSize: 17,
                 color: 'var(--bone)',
-                outline: 'none',
                 resize: 'none',
                 minHeight: 100,
                 boxSizing: 'border-box',
@@ -480,7 +476,6 @@ export function GiftPurchase() {
                 fontFamily: 'var(--serif)',
                 fontSize: 17,
                 color: 'var(--bone)',
-                outline: 'none',
                 boxSizing: 'border-box',
               }}
             />
@@ -518,7 +513,6 @@ export function GiftPurchase() {
                 fontFamily: 'var(--serif)',
                 fontSize: 17,
                 color: 'var(--bone)',
-                outline: 'none',
                 boxSizing: 'border-box',
               }}
             />

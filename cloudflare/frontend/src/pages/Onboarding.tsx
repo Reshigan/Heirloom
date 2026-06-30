@@ -115,13 +115,13 @@ const inputStyle: React.CSSProperties = {
   lineHeight: 1.6,
   padding: '12px 2px',
   textAlign: 'center',
-  outline: 'none',
   boxSizing: 'border-box' as const,
   transition: 'border-color 180ms var(--ease)',
 };
 
 const textareaStyle: React.CSSProperties = {
   ...inputStyle,
+  outline: 'none', // composer is intentionally ring-free (ART_DIRECTION: "no focus glow")
   resize: 'none' as const,
   minHeight: 120,
   fontSize: 17,

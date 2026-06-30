@@ -75,7 +75,7 @@ function PwaMenu() {
         aria-label="Account menu"
         onClick={() => setOpen(v => !v)}
         style={{
-          width: 36, height: 36,
+          width: 44, height: 44,
           background: 'transparent',
           border: '1px solid var(--rule)',
           borderRadius: 0,

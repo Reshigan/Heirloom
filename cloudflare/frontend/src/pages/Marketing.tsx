@@ -125,7 +125,7 @@ export function Marketing() {
           <h1 style={{
             fontFamily: 'var(--serif-display)',
             fontSize: 'clamp(40px, 8vw, 64px)',
-            fontWeight: 500,
+            fontWeight: 400,
             lineHeight: 1.04,
             letterSpacing: '-0.012em',
             color: 'var(--bone)',
@@ -135,7 +135,7 @@ export function Marketing() {
             transform: taglineIn ? 'translateY(0)' : 'translateY(24px)',
             transition: reduceMotion ? 'none' : `opacity 1400ms ${ease}, transform 1400ms ${ease}`,
           }}>
-            Start your family's thousand-year thread.
+            Some things only get deeper.
           </h1>
 
           <p style={{
@@ -246,7 +246,7 @@ export function Marketing() {
               <h2 style={{
                 fontFamily: 'var(--serif-display)',
                 fontSize: 'clamp(26px, 3.4vw, 48px)',
-                fontWeight: 500, lineHeight: 1.08, margin: 0,
+                fontWeight: 400, lineHeight: 1.08, margin: 0,
                 color: 'var(--bone)',
               }}>{title}</h2>
               <p style={{

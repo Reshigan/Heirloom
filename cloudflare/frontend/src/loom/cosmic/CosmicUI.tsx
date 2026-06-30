@@ -47,7 +47,7 @@ export function CosmicHeader({
           letterSpacing: '-0.012em',
           color: 'var(--bone)',
           margin: 0,
-          fontWeight: 500,
+          fontWeight: 400,
         }}
       >
         {title}
