@@ -295,6 +295,71 @@ async function uploadBlueskyBlob(imageUrl: string, token: string): Promise<Blues
   }
 }
 
+// Upload an MP4 to Bluesky's video service and return the processed video blob,
+// or null on any failure (caller falls back to the static image). Flow per the
+// AT Protocol: service-auth token → uploadVideo (returns a job) → poll
+// getJobStatus until the blob is ready.
+async function uploadBlueskyVideo(
+  bytes: Uint8Array,
+  did: string,
+  accessJwt: string,
+): Promise<BlueskyBlob | null> {
+  try {
+    const exp = Math.floor(Date.now() / 1000) + 30 * 60;
+    const authRes = await fetch(
+      `https://bsky.social/xrpc/com.atproto.server.getServiceAuth?aud=did:web:video.bsky.app&lxm=app.bsky.video.uploadVideo&exp=${exp}`,
+      { headers: { Authorization: `Bearer ${accessJwt}` } },
+    );
+    const authJson = (await authRes.json().catch(() => ({}))) as { token?: string };
+    if (!authRes.ok || !authJson.token) {
+      console.warn("[bsky] video service-auth failed — falling back to image");
+      return null;
+    }
+    const svc = authJson.token;
+
+    const name = `pack-${Date.now()}.mp4`;
+    const upRes = await fetch(
+      `https://video.bsky.app/xrpc/app.bsky.video.uploadVideo?did=${encodeURIComponent(did)}&name=${encodeURIComponent(name)}`,
+      { method: "POST", headers: { Authorization: `Bearer ${svc}`, "Content-Type": "video/mp4" }, body: bytes as unknown as BodyInit },
+    );
+    const upJson = (await upRes.json().catch(() => ({}))) as {
+      jobId?: string;
+      jobStatus?: { jobId?: string; blob?: BlueskyBlob; state?: string };
+      error?: string;
+    };
+    if (upJson.jobStatus?.blob) return upJson.jobStatus.blob; // already processed (dedup)
+    const jobId = upJson.jobId ?? upJson.jobStatus?.jobId;
+    if (!jobId) {
+      console.warn(`[bsky] video upload returned no job (${upJson.error ?? upRes.status}) — falling back`);
+      return null;
+    }
+
+    // Poll until the encode completes. Capped well under the 10-min CI budget.
+    const deadline = Date.now() + 4 * 60 * 1000;
+    while (Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 3000));
+      const stRes = await fetch(
+        `https://video.bsky.app/xrpc/app.bsky.video.getJobStatus?jobId=${encodeURIComponent(jobId)}`,
+        { headers: { Authorization: `Bearer ${svc}` } },
+      );
+      const st = ((await stRes.json().catch(() => ({}))) as {
+        jobStatus?: { state?: string; blob?: BlueskyBlob; error?: string };
+      }).jobStatus;
+      if (!st) continue;
+      if (st.state === "JOB_STATE_COMPLETED" && st.blob) return st.blob;
+      if (st.error || st.state === "JOB_STATE_FAILED") {
+        console.warn(`[bsky] video encode failed (${st.error ?? st.state}) — falling back`);
+        return null;
+      }
+    }
+    console.warn("[bsky] video encode timed out — falling back to image");
+    return null;
+  } catch (err: any) {
+    console.warn(`[bsky] video upload threw — falling back to image: ${err?.message ?? err}`);
+    return null;
+  }
+}
+
 async function postBluesky(input: PostInput): Promise<PostResult> {
   const handle = process.env.BLUESKY_HANDLE;
   const password = process.env.BLUESKY_APP_PASSWORD;
@@ -311,12 +376,19 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
   }
 
   // Prefer the rendered woven-cloth bytes (the saying-image); fall back to a
-  // public image URL only when bytes aren't available.
+  // public image URL only when bytes aren't available. The image is always
+  // uploaded so it can back the video (fallback) and the link-card thumb.
   const imageBlob = input.imageBytes
     ? await uploadBlueskyBlobBytes(input.imageBytes, "image/png", session.accessJwt)
     : input.imageUrl
       ? await uploadBlueskyBlob(input.imageUrl, session.accessJwt)
       : null;
+
+  // Animated pack: upload the MP4 to the video service. Null on any failure, so
+  // the first post falls back to the static image embed below.
+  const videoBlob = input.videoBytes
+    ? await uploadBlueskyVideo(input.videoBytes, session.did, session.accessJwt)
+    : null;
 
   // Hashtags ride the FINAL post, not the opener. The opener is the longest
   // post (hook + body) and slicing it to 300 would shear off any appended tags;
@@ -359,7 +431,14 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
       };
     }
 
-    if (isFirst && imageBlob) {
+    if (isFirst && videoBlob) {
+      record.embed = {
+        $type: "app.bsky.embed.video",
+        video: videoBlob,
+        aspectRatio: { width: 1, height: 1 }, // packs render square
+        alt: input.imageAlt ?? "Heirloom — some things are meant to be kept.",
+      };
+    } else if (isFirst && imageBlob) {
       record.embed = {
         $type: "app.bsky.embed.images",
         images: [{ image: imageBlob, alt: input.imageAlt ?? "Heirloom — some things are meant to be kept." }],

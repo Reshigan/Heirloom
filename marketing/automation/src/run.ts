@@ -277,9 +277,9 @@ async function postAll(
         variant: v,
         imageUrl: images[i].url,
         ...(images[i].bytes ? { imageBytes: images[i].bytes! } : {}),
-        // Facebook gets the animated video (with image as automatic fallback in
-        // postFacebook). Bluesky stays on the proven static-image blob path.
-        ...(video && v.platform === "facebook" ? { videoBytes: video } : {}),
+        // Both platforms get the animated video; each falls back to its static
+        // image automatically if the video upload/encode fails.
+        ...(video ? { videoBytes: video } : {}),
         ...(v.platform === "bluesky" && blueskyThread ? { blueskyThread } : {}),
         imageAlt: today.saying,
       }),
