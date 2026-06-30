@@ -17,13 +17,14 @@ import path from "node:path";
 import { themeForDate, evergreenThemeForDate, brandThemeForDate, seasonForDate, seasonalHashtagsForDate } from "./themes.js";
 import { resolveSlotHour } from "./slot.js";
 import { generateSourcePost, SourcePost, hasGenProvider, activeProvider } from "./generate.js";
-import { generateVariants, sanitizeCaption } from "./variants.js";
+import { generateVariants, buildPackVariants, sanitizeCaption } from "./variants.js";
 import { post } from "./post.js";
 import { pullMetrics, topHooks } from "./metrics.js";
 import { engage } from "./engage.js";
 import { planMonth, plannedPostFor } from "./plan.js";
 import { PlatformKey } from "./voice.js";
-import { renderWeave, uploadWeave } from "./image.js";
+import { renderWeave, renderDeepVideo, uploadWeave } from "./image.js";
+import { packForSlot } from "./packs.js";
 import type { Variant } from "./variants.js";
 
 const DEFAULT_PLATFORMS: PlatformKey[] = ["facebook", "bluesky"];
@@ -164,6 +165,7 @@ async function imageForVariant(
   saying: string,
   dateKey: string,
   slot: number,
+  packVisual?: { dye: string; eyebrow: string },
 ): Promise<RenderedImage> {
   try {
     const png = renderWeave({
@@ -173,6 +175,8 @@ async function imageForVariant(
       // Slot in the seed so a day's separate runs weave a visibly different
       // cloth, not the same pattern repeated under different sayings.
       seed: `${dateKey}-${slot}-${v.platform}`,
+      // Pack mode: the need-state's signature dye + copper addressing line.
+      ...(packVisual ? { dye: packVisual.dye, eyebrow: packVisual.eyebrow } : {}),
     });
     const filename = `weave-${dateKey}-${slot}-${v.platform}.png`;
     // Persist locally so preview/CI runs leave the images on disk for review.
@@ -195,7 +199,10 @@ async function imageForVariant(
   return { url: imageForPlatform(v.platform), bytes: null };
 }
 
-async function postAll(source?: SourcePost): Promise<void> {
+async function postAll(
+  source?: SourcePost,
+  packVisual?: { dye: string; eyebrow: string },
+): Promise<void> {
   const today = source ?? (await readJson<{ source: SourcePost }>("output/source.json"))?.source;
   if (!today) {
     throw new Error("No source post found. Run `generate` first or check output/source.json.");
@@ -206,8 +213,14 @@ async function postAll(source?: SourcePost): Promise<void> {
   if (seasonHashtags.length) {
     console.log(`[variants] seasonal discovery tags active: ${seasonHashtags.join(", ")}`);
   }
-  console.log(`[variants] generating ${platforms.length} platform variants…`);
-  const variants = await generateVariants({ source: today, platforms, seasonHashtags });
+  // Packs carry final, hand-written copy — build variants deterministically
+  // (no LLM). The live engine path still generates per-platform variants.
+  const variants = packVisual
+    ? buildPackVariants(today, platforms, seasonHashtags)
+    : await (async () => {
+        console.log(`[variants] generating ${platforms.length} platform variants…`);
+        return generateVariants({ source: today, platforms, seasonHashtags });
+      })();
 
   const now = new Date();
   const dateKey = now.toISOString().slice(0, 10);
@@ -234,8 +247,28 @@ async function postAll(source?: SourcePost): Promise<void> {
   // than the same static picture every day.
   console.log(`[image] rendering ${variants.length} deep-water images for saying: "${today.saying}"`);
   const images = await Promise.all(
-    variants.map((v) => imageForVariant(v, today.saying, dateKey, slot)),
+    variants.map((v) => imageForVariant(v, today.saying, dateKey, slot, packVisual)),
   );
+
+  // Pack mode: render the animated MP4 once (square, reused per video platform).
+  // ffmpeg-gated and wrapped — any failure leaves video=null and every platform
+  // falls back to its gorgeous static image, so a render hiccup never drops a post.
+  let video: Buffer | null = null;
+  if (packVisual) {
+    try {
+      console.log(`[video] rendering animated pack for: "${today.saying}"`);
+      video = await renderDeepVideo({
+        saying: today.saying, width: 1080, height: 1080,
+        seed: `${dateKey}-${slot}-pack`, dye: packVisual.dye, eyebrow: packVisual.eyebrow,
+      });
+      const vpath = path.resolve(process.cwd(), `output/${dateKey}/images/pack-${dateKey}-${slot}.mp4`);
+      await fs.mkdir(path.dirname(vpath), { recursive: true });
+      await fs.writeFile(vpath, video);
+      console.log(`[video] rendered ${video.length} bytes → ${vpath}`);
+    } catch (err) {
+      console.error(`[video] render failed — falling back to static image`, err);
+    }
+  }
 
   console.log(`[post] dispatching ${variants.length} posts…`);
   const results = await Promise.all(
@@ -244,6 +277,9 @@ async function postAll(source?: SourcePost): Promise<void> {
         variant: v,
         imageUrl: images[i].url,
         ...(images[i].bytes ? { imageBytes: images[i].bytes! } : {}),
+        // Facebook gets the animated video (with image as automatic fallback in
+        // postFacebook). Bluesky stays on the proven static-image blob path.
+        ...(video && v.platform === "facebook" ? { videoBytes: video } : {}),
         ...(v.platform === "bluesky" && blueskyThread ? { blueskyThread } : {}),
         imageAlt: today.saying,
       }),
@@ -302,13 +338,27 @@ async function daily(): Promise<void> {
   // it never skips.
   const now = new Date();
   const season = seasonForDate(now);
-  const isAlwaysOnSlot = ALWAYS_ON_HOURS.has(resolveSlotHour(now));
+  const slotNow = resolveSlotHour(now);
+  const isAlwaysOnSlot = ALWAYS_ON_HOURS.has(slotNow);
   const scheduled = process.env.GITHUB_EVENT_NAME === "schedule";
   if (scheduled && !isAlwaysOnSlot && !season) {
     console.log("[skip] seasonal-only slot and no season is active today. Nothing posted.");
     return;
   }
   if (season) console.log(`[daily] seasonal window active: ${season.id}`);
+
+  // Packs mode (POST_MODE=packs): the curated need-state track — a deterministic,
+  // animated pack per slot, no LLM call. The default path keeps the live LLM
+  // engine, so nothing changes unless the workflow opts in.
+  if (process.env.POST_MODE === "packs") {
+    const pack = packForSlot(now, slotNow);
+    console.log(`[packs] ${pack.needState} · "${pack.saying}"`);
+    const dateKey = now.toISOString().slice(0, 10);
+    await writeJson(`output/${dateKey}/source.json`, { source: pack.source });
+    await postAll(pack.source, { dye: pack.dye, eyebrow: pack.eyebrow });
+    return;
+  }
+
   const source = await generate();
   await postAll(source);
 }
@@ -421,7 +471,10 @@ const cmd = process.argv[2] ?? "preview";
 // only thing that should ever stop a run, and it stops it quietly. Add either
 // Cloudflare Workers AI (free) or Anthropic creds in repo settings to wake it.
 const NEEDS_LLM = new Set(["generate", "daily", "preview", "post", "purge", "plan-month"]);
-if (NEEDS_LLM.has(cmd) && !hasGenProvider()) {
+// Packs mode is curated content — it drives no LLM, so the dormancy guard must
+// not idle the daily run when only the provider (not the packs) is missing.
+const packsDaily = cmd === "daily" && process.env.POST_MODE === "packs";
+if (NEEDS_LLM.has(cmd) && !packsDaily && !hasGenProvider()) {
   console.log(
     "[dormant] no generation provider configured — marketing engine is idle. " +
       "Add CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID (free Workers AI) or " +
@@ -429,7 +482,7 @@ if (NEEDS_LLM.has(cmd) && !hasGenProvider()) {
   );
   process.exit(0);
 }
-if (NEEDS_LLM.has(cmd)) console.log(`[provider] generating with ${activeProvider()}`);
+if (NEEDS_LLM.has(cmd) && !packsDaily) console.log(`[provider] generating with ${activeProvider()}`);
 
 const handlers: Record<string, () => Promise<void>> = {
   generate: async () => {

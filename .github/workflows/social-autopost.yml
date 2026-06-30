@@ -63,6 +63,11 @@ jobs:
         working-directory: marketing/automation
         run: npm install --no-audit --no-fund
 
+      # Animated packs are encoded to MP4 with ffmpeg. ubuntu-latest ships it;
+      # install only if a future image drops it, so the video path never breaks.
+      - name: Ensure ffmpeg
+        run: ffmpeg -version | head -1 || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+
       - name: Run
         working-directory: marketing/automation
         env:
@@ -110,6 +115,10 @@ jobs:
           # two surfaces the brand actively maintains. All others were retired.
           PLATFORMS: ${{ vars.PLATFORMS || 'bluesky,facebook' }}
           SOCIAL_IMAGE_URL: ${{ vars.SOCIAL_IMAGE_URL }}
+          # Content track. 'packs' = the curated, animated need-state packs
+          # (new parents / loss / parents / grandparents). Unset/anything else
+          # keeps the live LLM engine. Set as a repo var to override.
+          POST_MODE: ${{ vars.POST_MODE || 'packs' }}
           # Intended slot hour for THIS cron. GitHub's scheduler drifts off the
           # cron minute (a "0 13" job can fire at 13:40 or later), and run.ts
           # decides whether to post by matching the slot hour against

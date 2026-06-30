@@ -33,6 +33,10 @@ export interface PostInput {
   // /photos source) — it carries the actual saying-image without needing a
   // public URL / R2 round-trip (which is gated on HEIRLOOM_ADMIN_TOKEN).
   imageBytes?: Uint8Array;
+  // Raw rendered MP4 bytes (the animated pack). When present, video platforms
+  // post the video and fall back to imageBytes if the video upload fails — so a
+  // video hiccup never drops the post.
+  videoBytes?: Uint8Array;
   videoUrl?: string;
   scheduleAt?: string;
   // Bluesky thread: additional post texts posted as replies to variant.caption.
@@ -183,6 +187,30 @@ async function postFacebook(input: PostInput): Promise<PostResult> {
   if (!token || !pageId) return queue(input);
 
   const cap = caption(input.variant);
+
+  // Animated pack: post the MP4 to /videos. On any failure, fall through to the
+  // static-image path below so the post still goes out.
+  if (input.videoBytes) {
+    try {
+      const vform = new FormData();
+      vform.set("description", cap);
+      vform.set("access_token", token);
+      vform.set("source", new Blob([input.videoBytes as unknown as BlobPart], { type: "video/mp4" }), "pack.mp4");
+      const vres = await fetch(`https://graph.facebook.com/v21.0/${pageId}/videos`, { method: "POST", body: vform });
+      const vjson = (await vres.json().catch(() => ({}))) as { id?: string; error?: { message: string } };
+      console.log(`[fb] video(${input.videoBytes.byteLength}B) → ${vres.status} id=${vjson.id ?? "-"}${vjson.error ? ` err=${vjson.error.message}` : ""}`);
+      if (vres.ok && vjson.id && !vjson.error) {
+        await fetch(`https://graph.facebook.com/v21.0/${vjson.id}/comments`, {
+          method: "POST",
+          body: new URLSearchParams({ message: "Some things are meant to be kept → heirloom.blue", access_token: token }),
+        }).catch(() => undefined);
+        return { platform: input.variant.platform, ok: true, id: vjson.id, mode: "direct" };
+      }
+      console.warn("[fb] video post failed — falling back to static image");
+    } catch (err: any) {
+      console.warn(`[fb] video post threw — falling back to static image: ${err?.message ?? err}`);
+    }
+  }
 
   // Prefer uploading the rendered woven-cloth bytes directly to /photos via a
   // multipart `source` — that puts the actual saying-image on the post with no

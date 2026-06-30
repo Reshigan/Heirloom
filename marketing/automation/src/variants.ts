@@ -42,6 +42,25 @@ const IMAGE_SPECS: Record<PlatformKey, { aspectRatio: string; width: number; hei
   bluesky: { aspectRatio: "16:9", width: 1600, height: 900 },
 };
 
+// Deterministic variants for the curated packs track — no LLM. The pack already
+// carries clean, hand-written copy (saying + prompt + cta) and discovery tags,
+// so we shape it straight into per-platform variants instead of asking a model
+// to rewrite what's already final.
+export function buildPackVariants(
+  source: SourcePost,
+  platforms: PlatformKey[],
+  seasonHashtags: string[] = [],
+): Variant[] {
+  const hashtags = [...source.hashtags, ...seasonHashtags].slice(0, 3);
+  const caption = `${source.body}\n\n${source.cta}`.trim();
+  return platforms.map((platform) => ({
+    platform,
+    caption,
+    hashtags,
+    imageSpec: IMAGE_SPECS[platform],
+  }));
+}
+
 // apiKey only when set; otherwise the SDK auto-reads ANTHROPIC_AUTH_TOKEN +
 // ANTHROPIC_BASE_URL (Claude Code local proxy) from env.
 const client = new Anthropic(

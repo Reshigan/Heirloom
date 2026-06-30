@@ -24,8 +24,11 @@
 // only mark. The `renderWeave` export name is kept for back-compat with run.ts
 // (code names keep the loom lineage); `renderDeep` is the honest alias.
 
-import { createCanvas, GlobalFonts, type SKRSContext2D } from "@napi-rs/canvas";
+import { createCanvas, GlobalFonts, type Canvas, type SKRSContext2D } from "@napi-rs/canvas";
 import path from "node:path";
+import os from "node:os";
+import { spawn } from "node:child_process";
+import { readFile, unlink } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -108,24 +111,44 @@ function drawWater(
   w: number,
   h: number,
   rnd: () => number,
+  dyeName?: string,
 ): { dyeHex: string } {
   // Ink ground.
   ctx.fillStyle = INK;
   ctx.fillRect(0, 0, w, h);
 
-  const dye = DYES[Math.floor(rnd() * DYES.length)];
+  // Always consume one rnd() so the rest of the water is identical whether or
+  // not a pack forces its signature dye.
+  const pick = Math.floor(rnd() * DYES.length);
+  const dye = (dyeName ? DYES.find((d) => d.name === dyeName) : undefined) ?? DYES[pick];
 
   // Dye tint seeding the water — a soft radial wash off-centre. The centre
-  // drifts per seed so two same-dye posts still feel distinct.
+  // drifts per seed so two same-dye posts still feel distinct. Pack mode (a
+  // forced signature dye) pushes the wash bold so each need-state reads as its
+  // own colour at a glance; legacy daily posts (random dye) stay a faint hint.
+  const bold = !!dyeName;
   const tCx = w * (0.3 + rnd() * 0.4);
   const tCy = h * (0.25 + rnd() * 0.5);
   const tR = Math.max(w, h) * (0.55 + rnd() * 0.35);
+  const aJit = rnd() * 0.05;
   const tint = ctx.createRadialGradient(tCx, tCy, 0, tCx, tCy, tR);
-  tint.addColorStop(0, withAlpha(dye.hex, 0.10 + rnd() * 0.05));
-  tint.addColorStop(0.5, withAlpha(dye.hex, 0.04));
-  tint.addColorStop(1, withAlpha(dye.hex, 0));
+  tint.addColorStop(0, withAlpha(dye.hex, bold ? 0.34 : 0.10 + aJit));
+  tint.addColorStop(0.5, withAlpha(dye.hex, bold ? 0.16 : 0.04));
+  tint.addColorStop(1, withAlpha(dye.hex, bold ? 0.03 : 0));
   ctx.fillStyle = tint;
   ctx.fillRect(0, 0, w, h);
+
+  // Pack mode: a second deep wash anchored to a bottom corner so the colour
+  // wraps the frame and survives the centre vignette behind the type.
+  if (bold) {
+    const bx = rnd() > 0.5 ? w : 0;
+    const wash = ctx.createRadialGradient(bx, h, 0, bx, h, Math.hypot(w, h) * 0.85);
+    wash.addColorStop(0, withAlpha(dye.hex, 0.22));
+    wash.addColorStop(0.55, withAlpha(dye.hex, 0.07));
+    wash.addColorStop(1, withAlpha(dye.hex, 0));
+    ctx.fillStyle = wash;
+    ctx.fillRect(0, 0, w, h);
+  }
 
   // Sounding mark — concentric depth-rings. Centre drifts per seed; rings fade
   // outward so they read as depth, not as a target. Bone hairline, 1px.
@@ -207,17 +230,20 @@ export interface RenderOpts {
   width: number;
   height: number;
   seed: string;
+  // Pack identity (optional, fully back-compat — omit for the original behaviour):
+  dye?: string;      // force the water's signature dye (a DYES name) per need-state
+  eyebrow?: string;  // a quiet copper mono addressing line above the ∞ ("FOR A NEW MOTHER")
 }
 
 // Render one Deep-water image and return PNG bytes. `renderWeave` is the
 // original export name (run.ts imports it); `renderDeep` is the honest alias.
-export function renderDeep({ saying, width, height, seed }: RenderOpts): Buffer {
+export function renderDeep({ saying, width, height, seed, dye, eyebrow }: RenderOpts): Buffer {
   const { serif, mono } = ensureFonts();
   const rnd = mulberry32(hashSeed(seed));
   const canvas = createCanvas(width, height);
   const ctx = canvas.getContext("2d");
 
-  drawWater(ctx, width, height, rnd);
+  drawWater(ctx, width, height, rnd, dye);
   drawLight(ctx, width, height, rnd);
   drawGrain(ctx, width, height, rnd);
 
@@ -263,6 +289,21 @@ export function renderDeep({ saying, width, height, seed }: RenderOpts): Buffer 
   ctx.fillStyle = WARM;
   ctx.fillText("∞", width / 2, firstBaseline - lineHeight * 1.1);
 
+  // Need-state addressing line — a quiet copper mono label above the ∞ ("FOR A
+  // NEW MOTHER"). Lets the reader feel seen the instant the post loads; copper
+  // because it is the signal that says "this one is for you". Letter-spaced via
+  // thin spaces (canvas has no reliable tracking).
+  if (eyebrow) {
+    const ebSize = Math.round(Math.min(width, height) * 0.021);
+    ctx.font = `500 ${ebSize}px "${mono}"`;
+    ctx.fillStyle = withAlpha(WARM, 0.9);
+    ctx.fillText(
+      eyebrow.toUpperCase().split("").join(" "),
+      width / 2,
+      firstBaseline - lineHeight * 2.0,
+    );
+  }
+
   // Archival wordmark, JetBrains Mono, bottom-centered, letter-spaced.
   const markSize = Math.round(Math.min(width, height) * 0.024);
   ctx.font = `400 ${markSize}px "${mono}"`;
@@ -275,6 +316,173 @@ export function renderDeep({ saying, width, height, seed }: RenderOpts): Buffer 
 
 // Back-compat alias — run.ts imports renderWeave.
 export const renderWeave = renderDeep;
+
+// ── Animated packs ─────────────────────────────────────────────────────────
+// A short, looping, on-brand motion video per pack: the water breathes, the
+// Sounding rings ping outward, and the message settles in (eyebrow → ∞ → saying)
+// on the brand easing. Rendered frame-by-frame and encoded to H.264 MP4 via
+// ffmpeg (both Facebook and Bluesky accept video; MP4 keeps the water gradients
+// smooth where GIF would band). This is the same motion approved in the preview.
+
+const dyeHex = (name?: string): string =>
+  (name ? DYES.find((d) => d.name === name)?.hex : undefined) ?? DYES[0].hex;
+const ease01 = (x: number): number => {
+  x = Math.max(0, Math.min(1, x));
+  return 1 - Math.pow(1 - x, 3);
+};
+
+// Seeded, frame-stable layout — fixed for the whole clip so only time animates.
+interface FrameLayout {
+  lightCorner: [number, number];
+  surfY: number;
+  grain: Canvas;
+}
+function frameLayout(w: number, h: number, seed: string): FrameLayout {
+  const rnd = mulberry32(hashSeed(seed));
+  const corner = Math.floor(rnd() * 4);
+  const lightCorner = ([[0, 0], [w, 0], [0, h], [w, h]] as [number, number][])[corner];
+  const surfY = h * (0.07 + rnd() * 0.04);
+  const grain: Canvas = createCanvas(w, h);
+  const gctx = grain.getContext("2d");
+  const count = Math.floor((w * h) / 1500);
+  for (let i = 0; i < count; i++) {
+    const a = rnd() * 0.045;
+    gctx.fillStyle = rnd() > 0.5 ? withAlpha(BONE, a) : `rgba(0,0,0,${a})`;
+    gctx.fillRect(rnd() * w, rnd() * h, 1, 1);
+  }
+  return { lightCorner, surfY, grain };
+}
+
+interface FramePack { saying: string; dye?: string; eyebrow?: string }
+
+function paintFrame(
+  ctx: SKRSContext2D, W: number, H: number, p: FramePack,
+  serif: string, mono: string, L: FrameLayout, tMs: number, durMs: number,
+): void {
+  const dye = dyeHex(p.dye);
+  const breath = 0.5 + 0.5 * Math.sin((2 * Math.PI * tMs) / durMs);
+
+  ctx.fillStyle = INK;
+  ctx.fillRect(0, 0, W, H);
+  // main dye wash, off-centre, gently drifting (bold pack tint)
+  const cx = W * 0.42, cy = H * 0.42 + Math.sin((2 * Math.PI * tMs) / durMs) * H * 0.02;
+  let g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * 0.95);
+  g.addColorStop(0, withAlpha(dye, 0.30 + breath * 0.06));
+  g.addColorStop(0.5, withAlpha(dye, 0.15));
+  g.addColorStop(1, withAlpha(dye, 0.03));
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+  const g2 = ctx.createRadialGradient(W, H, 0, W, H, Math.hypot(W, H) * 0.85);
+  g2.addColorStop(0, withAlpha(dye, 0.22));
+  g2.addColorStop(0.55, withAlpha(dye, 0.07));
+  g2.addColorStop(1, withAlpha(dye, 0));
+  ctx.fillStyle = g2;
+  ctx.fillRect(0, 0, W, H);
+  // Sounding rings — one full emanation per clip, so the loop is seamless.
+  const rCx = W * 0.5, rCy = H * 0.46, maxR = Math.max(W, H) * 0.62, N = 6;
+  ctx.lineWidth = 1;
+  for (let i = 0; i < N; i++) {
+    const ph = ((tMs / durMs) + i / N) % 1;
+    ctx.strokeStyle = withAlpha(BONE, (1 - ph) * 0.10);
+    ctx.beginPath();
+    ctx.arc(rCx, rCy, ph * maxR, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  // raking light
+  const [lx, ly] = L.lightCorner;
+  const lg = ctx.createRadialGradient(lx, ly, 0, lx, ly, Math.hypot(W, H) * 0.95);
+  lg.addColorStop(0, withAlpha(BONE, 0.06));
+  lg.addColorStop(0.4, withAlpha(BONE, 0));
+  lg.addColorStop(1, "rgba(0,0,0,0.55)");
+  ctx.fillStyle = lg;
+  ctx.fillRect(0, 0, W, H);
+  ctx.drawImage(L.grain, 0, 0);
+  // warm surface-line
+  ctx.fillStyle = withAlpha(WARM, 0.4);
+  ctx.fillRect(0, L.surfY, W, Math.max(1, Math.round(H * 0.0015)));
+  // centre vignette behind type
+  const vg = ctx.createRadialGradient(W / 2, H * 0.5, Math.min(W, H) * 0.12, W / 2, H * 0.5, Math.max(W, H) * 0.72);
+  vg.addColorStop(0, withAlpha(INK, 0.55));
+  vg.addColorStop(1, withAlpha(INK, 0));
+  ctx.fillStyle = vg;
+  ctx.fillRect(0, 0, W, H);
+
+  // type with the settle-in reveal
+  const fontSize = Math.round(Math.min(W, H) * 0.082);
+  const font = `400 ${fontSize}px "${serif}"`;
+  ctx.font = font;
+  const lines = wrapText(ctx, p.saying, W * 0.82);
+  const lh = fontSize * 1.28, block = lines.length * lh, firstBase = H * 0.53 - block / 2 + lh * 0.72;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "alphabetic";
+
+  if (p.eyebrow) {
+    const a = ease01((tMs - 100) / 700);
+    ctx.font = `500 ${Math.round(Math.min(W, H) * 0.021)}px "${mono}"`;
+    ctx.fillStyle = withAlpha(WARM, 0.9 * a);
+    ctx.fillText(p.eyebrow.toUpperCase().split("").join(" "), W / 2, firstBase - lh * 2.0 - (1 - a) * 12);
+  }
+  const infA = ease01((tMs - 350) / 700);
+  ctx.save();
+  ctx.font = `400 ${Math.round(fontSize * 0.66)}px "${serif}"`;
+  ctx.fillStyle = withAlpha(WARM, infA);
+  ctx.shadowColor = withAlpha(WARM, 0.6 * infA);
+  ctx.shadowBlur = 8 + Math.sin((2 * Math.PI * tMs) / durMs) * 6;
+  ctx.fillText("∞", W / 2, firstBase - lh * 1.05);
+  ctx.restore();
+  ctx.font = font;
+  lines.forEach((ln, i) => {
+    const a = ease01((tMs - 700 - i * 170) / 750);
+    if (a <= 0.001) return;
+    ctx.fillStyle = withAlpha(BONE, a);
+    ctx.fillText(ln, W / 2, firstBase + i * lh + (1 - a) * 14);
+  });
+  ctx.font = `400 ${Math.round(Math.min(W, H) * 0.024)}px "${mono}"`;
+  ctx.fillStyle = withAlpha(BONE, 0.72);
+  ctx.fillText("H E I R L O O M . B L U E", W / 2, H - Math.min(W, H) * 0.09 * 0.55);
+}
+
+export interface RenderVideoOpts extends RenderOpts {
+  seconds?: number;
+  fps?: number;
+}
+
+// Render the animated pack and return MP4 (H.264) bytes. Requires ffmpeg on PATH.
+export async function renderDeepVideo(opts: RenderVideoOpts): Promise<Buffer> {
+  const { saying, width, height, seed, dye, eyebrow, fps = 30, seconds = 6 } = opts;
+  const { serif, mono } = ensureFonts();
+  const layout = frameLayout(width, height, seed);
+  const durMs = seconds * 1000;
+  const total = Math.round(fps * seconds);
+  const canvas = createCanvas(width, height);
+  const ctx = canvas.getContext("2d");
+  const tmp = path.join(os.tmpdir(), `deep-${process.pid}-${seed.replace(/\W/g, "")}.mp4`);
+
+  const ff = spawn("ffmpeg", [
+    "-y", "-f", "image2pipe", "-framerate", String(fps), "-i", "-",
+    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-movflags", "+faststart",
+    "-r", String(fps), tmp,
+  ], { stdio: ["pipe", "ignore", "pipe"] });
+  let stderr = "";
+  ff.stderr.on("data", (d) => { stderr += d.toString(); });
+  const done = new Promise<number>((res, rej) => {
+    ff.on("close", res);
+    ff.on("error", rej); // ffmpeg not installed → reject so caller can fall back
+  });
+
+  for (let f = 0; f < total; f++) {
+    paintFrame(ctx, width, height, { saying, dye, eyebrow }, serif, mono, layout, (f / fps) * 1000, durMs);
+    const png = canvas.toBuffer("image/png");
+    if (!ff.stdin.write(png)) await new Promise((r) => ff.stdin.once("drain", r));
+  }
+  ff.stdin.end();
+
+  const code = await done;
+  if (code !== 0) throw new Error(`ffmpeg exited ${code}: ${stderr.slice(-400)}`);
+  const buf = await readFile(tmp);
+  await unlink(tmp).catch(() => {});
+  return buf;
+}
 
 // Upload PNG bytes to the worker, which stores them in R2 and returns a public
 // URL. Returns null when the engine is dormant (no upload token / API url) so
