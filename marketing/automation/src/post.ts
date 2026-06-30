@@ -329,7 +329,7 @@ async function uploadBlueskyVideo(
   try {
     const exp = Math.floor(Date.now() / 1000) + 30 * 60;
     const authRes = await fetch(
-      `https://bsky.social/xrpc/com.atproto.server.getServiceAuth?aud=${encodeURIComponent(`did:web:${pdsHost}`)}&lxm=app.bsky.video.uploadVideo&exp=${exp}`,
+      `https://bsky.social/xrpc/com.atproto.server.getServiceAuth?aud=${encodeURIComponent(`did:web:${pdsHost}`)}&lxm=com.atproto.repo.uploadBlob&exp=${exp}`,
       { headers: { Authorization: `Bearer ${accessJwt}` } },
     );
     const authJson = (await authRes.json().catch(() => ({}))) as { token?: string };
