@@ -425,41 +425,64 @@ async function updateBlueskyProfile(): Promise<void> {
 
 // Delete all posts from the Bluesky account and repost today's content.
 // Used to purge old-branding posts when the social image changes.
-async function purgeBluesky(): Promise<void> {
+async function blueskySession(): Promise<{ accessJwt: string; did: string } | null> {
   const handle = process.env.BLUESKY_HANDLE;
   const password = process.env.BLUESKY_APP_PASSWORD;
-  if (!handle || !password) { console.log("[purge] BLUESKY_HANDLE or BLUESKY_APP_PASSWORD not set"); return; }
-
-  const sessRes = await fetch("https://bsky.social/xrpc/com.atproto.server.createSession", {
+  if (!handle || !password) { console.log("[bsky] BLUESKY_HANDLE or BLUESKY_APP_PASSWORD not set"); return null; }
+  const res = await fetch("https://bsky.social/xrpc/com.atproto.server.createSession", {
     method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ identifier: handle, password }),
   });
-  const sess = (await sessRes.json().catch(() => ({}))) as { accessJwt?: string; did?: string };
-  if (!sess.accessJwt || !sess.did) { console.error("[purge] auth failed"); return; }
+  const j = (await res.json().catch(() => ({}))) as { accessJwt?: string; did?: string };
+  if (!j.accessJwt || !j.did) { console.error("[bsky] auth failed"); return null; }
+  return { accessJwt: j.accessJwt, did: j.did };
+}
 
-  // List all posts
+async function listBlueskyRkeys(accessJwt: string, did: string): Promise<string[]> {
+  const rkeys: string[] = [];
   let cursor: string | undefined;
-  const toDelete: { uri: string; rkey: string }[] = [];
   do {
-    const url = `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${sess.did}&collection=app.bsky.feed.post&limit=100${cursor ? `&cursor=${cursor}` : ""}`;
-    const r = await fetch(url, { headers: { Authorization: `Bearer ${sess.accessJwt}` } });
+    const url = `https://bsky.social/xrpc/com.atproto.repo.listRecords?repo=${did}&collection=app.bsky.feed.post&limit=100${cursor ? `&cursor=${cursor}` : ""}`;
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${accessJwt}` } });
     const j = (await r.json().catch(() => ({}))) as { records?: { uri: string }[]; cursor?: string };
-    for (const rec of j.records ?? []) {
-      const rkey = rec.uri.split("/").pop()!;
-      toDelete.push({ uri: rec.uri, rkey });
-    }
+    for (const rec of j.records ?? []) rkeys.push(rec.uri.split("/").pop()!);
     cursor = j.cursor;
   } while (cursor);
+  return rkeys;
+}
 
-  console.log(`[purge] deleting ${toDelete.length} Bluesky posts…`);
-  for (const { rkey } of toDelete) {
+// Gather every published Facebook object id across the edges FB exposes (feed +
+// photo/video edges overlap; the Set dedupes), with per-edge counts.
+async function listFacebookIds(token: string, pageId: string): Promise<{ ids: Set<string>; perEdge: Record<string, number> }> {
+  const ids = new Set<string>();
+  const perEdge: Record<string, number> = {};
+  for (const edge of ["published_posts", "videos", "feed"]) {
+    let url: string | undefined = `https://graph.facebook.com/v21.0/${pageId}/${edge}?fields=id&limit=100&access_token=${token}`;
+    let guard = 0, count = 0;
+    while (url && guard++ < 50) {
+      const r = await fetch(url);
+      const j = (await r.json().catch(() => ({}))) as { data?: { id: string }[]; paging?: { next?: string }; error?: { message: string } };
+      if (j.error) { console.warn(`[fb] list ${edge}: ${j.error.message}`); break; }
+      for (const p of j.data ?? []) { ids.add(p.id); count++; }
+      url = j.paging?.next;
+    }
+    perEdge[edge] = count;
+  }
+  return { ids, perEdge };
+}
+
+async function purgeBluesky(): Promise<void> {
+  const sess = await blueskySession();
+  if (!sess) return;
+  const rkeys = await listBlueskyRkeys(sess.accessJwt, sess.did);
+  console.log(`[purge] deleting ${rkeys.length} Bluesky posts…`);
+  for (const rkey of rkeys) {
     await fetch("https://bsky.social/xrpc/com.atproto.repo.deleteRecord", {
       method: "POST", headers: { Authorization: `Bearer ${sess.accessJwt}`, "Content-Type": "application/json" },
       body: JSON.stringify({ repo: sess.did, collection: "app.bsky.feed.post", rkey }),
     });
-    console.log(`[purge] deleted ${rkey}`);
   }
-  console.log(`[purge] Bluesky: deleted ${toDelete.length} posts`);
+  console.log(`[purge] Bluesky: deleted ${rkeys.length} posts`);
 }
 
 async function purgeFacebook(): Promise<void> {
@@ -470,26 +493,7 @@ async function purgeFacebook(): Promise<void> {
     return;
   }
 
-  // Gather every published object across the edges Facebook exposes (feed +
-  // photo/video edges overlap; the Set dedupes), following paging cursors.
-  const ids = new Set<string>();
-  for (const edge of ["published_posts", "videos", "feed"]) {
-    let url: string | undefined =
-      `https://graph.facebook.com/v21.0/${pageId}/${edge}?fields=id&limit=100&access_token=${token}`;
-    let guard = 0;
-    while (url && guard++ < 50) {
-      const r = await fetch(url);
-      const j = (await r.json().catch(() => ({}))) as {
-        data?: { id: string }[];
-        paging?: { next?: string };
-        error?: { message: string };
-      };
-      if (j.error) { console.warn(`[purge] FB list ${edge}: ${j.error.message}`); break; }
-      for (const p of j.data ?? []) ids.add(p.id);
-      url = j.paging?.next;
-    }
-  }
-
+  const { ids } = await listFacebookIds(token, pageId);
   console.log(`[purge] deleting ${ids.size} Facebook objects…`);
   let ok = 0, fail = 0;
   for (const id of ids) {
@@ -548,6 +552,23 @@ const handlers: Record<string, () => Promise<void>> = {
     } else {
       const source = await generate();
       await postAll(source);
+    }
+  },
+  // audit: read-only — count remaining posts on both platforms. Deletes and
+  // posts nothing. After a purge, FB videos should equal just the fresh pack (1);
+  // more means test videos survived the wipe.
+  audit: async () => {
+    const token = process.env.META_PAGE_ACCESS_TOKEN, pageId = process.env.META_PAGE_ID;
+    if (token && pageId) {
+      const { ids, perEdge } = await listFacebookIds(token, pageId);
+      console.log(`[audit] Facebook: ${ids.size} unique objects — ${Object.entries(perEdge).map(([e, n]) => `${e}=${n}`).join(" ")}`);
+    } else {
+      console.log("[audit] Facebook creds not set");
+    }
+    const sess = await blueskySession();
+    if (sess) {
+      const rkeys = await listBlueskyRkeys(sess.accessJwt, sess.did);
+      console.log(`[audit] Bluesky: ${rkeys.length} records`);
     }
   },
   // update-profile: refresh Bluesky avatar + bio (no post generated)

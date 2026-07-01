@@ -38,6 +38,7 @@ on:
           - daily
           - metrics
           - purge
+          - audit
           - update-profile
 
 concurrency:
