@@ -562,6 +562,12 @@ const handlers: Record<string, () => Promise<void>> = {
     if (token && pageId) {
       const { ids, perEdge } = await listFacebookIds(token, pageId);
       console.log(`[audit] Facebook: ${ids.size} unique objects — ${Object.entries(perEdge).map(([e, n]) => `${e}=${n}`).join(" ")}`);
+      // Dump each published post so we can see whether any pre-purge post survived.
+      const dr = await fetch(`https://graph.facebook.com/v21.0/${pageId}/published_posts?fields=id,created_time,message&limit=25&access_token=${token}`);
+      const dj = (await dr.json().catch(() => ({}))) as { data?: { id: string; created_time?: string; message?: string }[] };
+      for (const p of dj.data ?? []) {
+        console.log(`[audit]   ${p.created_time ?? "?"} ${p.id} — ${(p.message ?? "(no message)").replace(/\n/g, " ").slice(0, 60)}`);
+      }
     } else {
       console.log("[audit] Facebook creds not set");
     }
