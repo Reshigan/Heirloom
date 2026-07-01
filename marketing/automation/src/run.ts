@@ -456,7 +456,10 @@ async function listBlueskyRkeys(accessJwt: string, did: string): Promise<string[
 async function listFacebookIds(token: string, pageId: string): Promise<{ ids: Set<string>; perEdge: Record<string, number> }> {
   const ids = new Set<string>();
   const perEdge: Record<string, number> = {};
-  for (const edge of ["published_posts", "videos", "feed"]) {
+  // /photos + /videos yield the deletable media-OBJECT ids; a photo/video post's
+  // feed-story id often rejects DELETE ("does not support this operation"), so
+  // listing the objects is what actually clears media posts.
+  for (const edge of ["published_posts", "videos", "photos", "feed"]) {
     let url: string | undefined = `https://graph.facebook.com/v21.0/${pageId}/${edge}?fields=id&limit=100&access_token=${token}`;
     let guard = 0, count = 0;
     while (url && guard++ < 50) {
