@@ -46,17 +46,26 @@ const IMAGE_SPECS: Record<PlatformKey, { aspectRatio: string; width: number; hei
 // carries clean, hand-written copy (saying + prompt + cta) and discovery tags,
 // so we shape it straight into per-platform variants instead of asking a model
 // to rewrite what's already final.
+// Per-platform tag ceiling. Facebook barely uses hashtags for organic reach and
+// >3 reads as spam; Bluesky's tags are searchable, so it carries a couple more —
+// both within brand/social/STRATEGY.md's "1-3 (FB) / 1-4 (Bluesky), never a wall".
+const PACK_TAG_CAP: Record<PlatformKey, number> = { facebook: 3, bluesky: 4 };
+
 export function buildPackVariants(
   source: SourcePost,
   platforms: PlatformKey[],
   seasonHashtags: string[] = [],
 ): Variant[] {
-  const hashtags = [...source.hashtags, ...seasonHashtags].slice(0, 3);
   const caption = `${source.body}\n\n${source.cta}`.trim();
+  // Rotate the (larger-than-a-post) pool by slot so successive posts surface
+  // different tags — coverage spreads across communities over the quarter while
+  // each post stays calm and on-brand.
+  const now = new Date();
+  const pool = rotateForSlot([...source.hashtags, ...seasonHashtags], now.getUTCDate() * 24 + now.getUTCHours());
   return platforms.map((platform) => ({
     platform,
     caption,
-    hashtags,
+    hashtags: pool.slice(0, PACK_TAG_CAP[platform]),
     imageSpec: IMAGE_SPECS[platform],
   }));
 }

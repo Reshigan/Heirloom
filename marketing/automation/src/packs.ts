@@ -31,7 +31,10 @@ export const PACK_LIBRARY: Record<NeedState, Pack> = {
     needState: "newmom",
     dye: "kermes",
     eyebrow: "For a new mother",
-    hashtags: ["newmom", "motherhood", "babymemories", "firstyear", "momlife"],
+    // Pool is intentionally larger than a single post uses — buildPackVariants
+    // rotates through it per slot so coverage spreads across communities over the
+    // quarter without ever tag-walling one post (brand: no hashtag spam).
+    hashtags: ["newmom", "motherhood", "momlife", "newbaby", "babymemories", "firstyear", "familystories", "memorykeeping"],
     prompt: "What's the one thing about her right now you never want to forget?",
     cta: "Start her thread at heirloom.blue",
     sayings: [
@@ -55,7 +58,7 @@ export const PACK_LIBRARY: Record<NeedState, Pack> = {
     needState: "loss",
     dye: "indigo",
     eyebrow: "When someone is gone",
-    hashtags: ["grief", "grieving", "inmemory", "remembrance", "familystories"],
+    hashtags: ["grief", "grieving", "griefjourney", "inmemory", "remembrance", "familystories", "memorykeeping", "familyhistory"],
     prompt: "What's the small thing about them you'd keep if you could keep only one?",
     cta: "Keep their voice at heirloom.blue",
     sayings: [
@@ -79,7 +82,7 @@ export const PACK_LIBRARY: Record<NeedState, Pack> = {
     needState: "parents",
     dye: "saffron",
     eyebrow: "For the ones raising them",
-    hashtags: ["parenting", "familystories", "raisingkids", "fatherhood", "motherhood"],
+    hashtags: ["parenting", "raisingkids", "momlife", "dadlife", "familystories", "familytime", "memorykeeping", "familyhistory"],
     prompt: "What's a story your kids haven't heard yet?",
     cta: "Begin yours at heirloom.blue",
     sayings: [
@@ -103,7 +106,7 @@ export const PACK_LIBRARY: Record<NeedState, Pack> = {
     needState: "grand",
     dye: "oakgall",
     eyebrow: "For the keeper of the stories",
-    hashtags: ["grandparents", "familyhistory", "genealogy", "legacy", "grandchildren"],
+    hashtags: ["grandparents", "grandchildren", "familyhistory", "genealogy", "ancestry", "familystories", "memorykeeping", "legacy"],
     prompt: "Whose voice in your family should outlast all of us?",
     cta: "Leave the stories at heirloom.blue",
     sayings: [
