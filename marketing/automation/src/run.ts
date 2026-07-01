@@ -459,7 +459,46 @@ async function purgeBluesky(): Promise<void> {
     });
     console.log(`[purge] deleted ${rkey}`);
   }
-  console.log("[purge] done — reposting with new image…");
+  console.log(`[purge] Bluesky: deleted ${toDelete.length} posts`);
+}
+
+async function purgeFacebook(): Promise<void> {
+  const token = process.env.META_PAGE_ACCESS_TOKEN;
+  const pageId = process.env.META_PAGE_ID;
+  if (!token || !pageId) {
+    console.log("[purge] META_PAGE_ACCESS_TOKEN or META_PAGE_ID not set — skipping Facebook");
+    return;
+  }
+
+  // Gather every published object across the edges Facebook exposes (feed +
+  // photo/video edges overlap; the Set dedupes), following paging cursors.
+  const ids = new Set<string>();
+  for (const edge of ["published_posts", "videos", "feed"]) {
+    let url: string | undefined =
+      `https://graph.facebook.com/v21.0/${pageId}/${edge}?fields=id&limit=100&access_token=${token}`;
+    let guard = 0;
+    while (url && guard++ < 50) {
+      const r = await fetch(url);
+      const j = (await r.json().catch(() => ({}))) as {
+        data?: { id: string }[];
+        paging?: { next?: string };
+        error?: { message: string };
+      };
+      if (j.error) { console.warn(`[purge] FB list ${edge}: ${j.error.message}`); break; }
+      for (const p of j.data ?? []) ids.add(p.id);
+      url = j.paging?.next;
+    }
+  }
+
+  console.log(`[purge] deleting ${ids.size} Facebook objects…`);
+  let ok = 0, fail = 0;
+  for (const id of ids) {
+    const r = await fetch(`https://graph.facebook.com/v21.0/${id}?access_token=${token}`, { method: "DELETE" });
+    const j = (await r.json().catch(() => ({}))) as { success?: boolean; error?: { message: string } };
+    if (r.ok && !j.error) ok++;
+    else { fail++; if (fail <= 5) console.warn(`[purge] FB delete ${id} failed: ${j.error?.message ?? `HTTP ${r.status}`}`); }
+  }
+  console.log(`[purge] Facebook: ${ok} deleted, ${fail} failed`);
 }
 
 const cmd = process.argv[2] ?? "preview";
@@ -472,8 +511,9 @@ const cmd = process.argv[2] ?? "preview";
 // Cloudflare Workers AI (free) or Anthropic creds in repo settings to wake it.
 const NEEDS_LLM = new Set(["generate", "daily", "preview", "post", "purge", "plan-month"]);
 // Packs mode is curated content — it drives no LLM, so the dormancy guard must
-// not idle the daily run when only the provider (not the packs) is missing.
-const packsDaily = cmd === "daily" && process.env.POST_MODE === "packs";
+// not idle the daily run (or a purge-and-repost) when only the provider is missing.
+const packsDaily =
+  process.env.POST_MODE === "packs" && (cmd === "daily" || cmd === "purge");
 if (NEEDS_LLM.has(cmd) && !packsDaily && !hasGenProvider()) {
   console.log(
     "[dormant] no generation provider configured — marketing engine is idle. " +
@@ -494,11 +534,21 @@ const handlers: Record<string, () => Promise<void>> = {
   preview,
   daily,
   metrics,
-  // purge + repost: wipe all Bluesky posts then post fresh with new image
+  // purge + repost: wipe ALL posts on both platforms, then start fresh with
+  // today's content. In packs mode that's the deterministic pack for this slot
+  // (no LLM); otherwise the live engine generates one.
   purge: async () => {
+    await purgeFacebook();
     await purgeBluesky();
-    const source = await generate();
-    await postAll(source);
+    if (process.env.POST_MODE === "packs") {
+      const now = new Date();
+      const pack = packForSlot(now, resolveSlotHour(now));
+      console.log(`[purge] reposting fresh pack: ${pack.needState} · "${pack.saying}"`);
+      await postAll(pack.source, { dye: pack.dye, eyebrow: pack.eyebrow });
+    } else {
+      const source = await generate();
+      await postAll(source);
+    }
   },
   // update-profile: refresh Bluesky avatar + bio (no post generated)
   "update-profile": async () => {
