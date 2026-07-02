@@ -224,19 +224,23 @@ export async function sendEmail(
 
   let result: SendEmailResult;
 
-  // Try Microsoft Graph API first (if configured)
+  // Try Microsoft Graph API first (if configured). Capture WHY it fell back so
+  // the reason is recoverable from email_logs, not just live console tails.
+  let providerNote: string | null = null;
   const msToken = await getMsGraphToken(env);
   if (msToken) {
     result = await sendViaMsGraph(env, payload, msToken);
-    
+
     // If MS Graph fails, fall back to Resend
     // This includes: 400 (bad request), 401 (unauthorized), 403 (forbidden), 404 (mailbox not found), 5xx (server errors)
     if (!result.success) {
+      providerNote = `graph-fallback: ${result.error}`;
       console.warn(`MS Graph failed (${result.error}), falling back to Resend`);
       result = await sendViaResend(env, payload);
     }
   } else {
     // Fall back to Resend if MS Graph not configured
+    providerNote = 'graph-unconfigured (no MS_* secrets or token fetch failed)';
     result = await sendViaResend(env, payload);
   }
 
@@ -247,14 +251,14 @@ export async function sendEmail(
   try {
     if (result.success) {
       await env.DB.prepare(`
-        INSERT INTO email_logs (id, to_email, subject, body, status, sent_at, created_at)
-        VALUES (?, ?, ?, ?, 'SENT', ?, ?)
-      `).bind(logId, toEmail, subject, html?.substring(0, 50000), now, now).run();
+        INSERT INTO email_logs (id, to_email, subject, body, status, sent_at, created_at, provider, provider_note)
+        VALUES (?, ?, ?, ?, 'SENT', ?, ?, ?, ?)
+      `).bind(logId, toEmail, subject, html?.substring(0, 50000), now, now, result.provider ?? null, providerNote).run();
     } else {
       await env.DB.prepare(`
-        INSERT INTO email_logs (id, to_email, subject, body, status, error_message, created_at)
-        VALUES (?, ?, ?, ?, 'FAILED', ?, ?)
-      `).bind(logId, toEmail, subject, html?.substring(0, 50000), result.error, now).run();
+        INSERT INTO email_logs (id, to_email, subject, body, status, error_message, created_at, provider, provider_note)
+        VALUES (?, ?, ?, ?, 'FAILED', ?, ?, ?, ?)
+      `).bind(logId, toEmail, subject, html?.substring(0, 50000), result.error, now, result.provider ?? null, providerNote).run();
     }
   } catch (dbError) {
     console.error('Failed to log email:', dbError);
