@@ -146,7 +146,7 @@ const RESPONSIVE_CSS = `
   grid-template-columns: 160px 1fr;
   gap: 8px 20px;
   padding: 15px 0;
-  border-bottom: 1px solid var(--rule);
+  /* no row divider — the input underline IS the line (a row rule doubled it) */
   align-items: baseline;
 }
 @media (max-width: 639px) {
