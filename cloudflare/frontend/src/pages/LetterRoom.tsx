@@ -519,8 +519,17 @@ export function LetterRoom() {
                             animation: `hl-fade 360ms ${EASE}`,
                           }}
                         >
-                          {/* The Sealed Note rite (ART_DIRECTION): the ∞ in copper, crowning the date. */}
-                          <div aria-hidden style={{ fontSize: 30, lineHeight: 1, color: 'var(--warm)' }}>∞</div>
+                          {/* The Sealed Note rite, water-native: the ripple where the
+                              letter was lowered in — Sounding rings fading outward,
+                              one warm point at the centre where it went down. */}
+                          <svg aria-hidden viewBox="0 0 48 48" width="44" height="44" fill="none" style={{ display: 'block', margin: '0 auto' }}>
+                            <g stroke="var(--bone)" strokeWidth="1.4">
+                              <circle cx="24" cy="24" r="7" strokeOpacity="0.8" />
+                              <circle cx="24" cy="24" r="14" strokeOpacity="0.42" />
+                              <circle cx="24" cy="24" r="21" strokeOpacity="0.18" />
+                            </g>
+                            <circle cx="24" cy="24" r="1.8" fill="var(--warm)" />
+                          </svg>
                           <div style={{
                             marginTop: 18,
                             fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
