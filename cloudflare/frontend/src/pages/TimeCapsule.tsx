@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Verb } from '../loom/components/Verb';
 import { CosmicHeader, SectionLabel } from '../loom/cosmic/CosmicUI';
 import { capsulesApi, threadsApi } from '../services/api';
 import { useFocusTrap } from '../lib/useFocusTrap';
@@ -798,29 +799,9 @@ export function TimeCapsule() {
                 gap: 22,
               }}
             >
-              <button
-                type="button"
-                onClick={handleSeal}
-                disabled={!canSeal}
-                style={{
-                  flex: 1,
-                  fontFamily: 'var(--mono)',
-                  fontSize: 11,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  color: 'var(--gold-text)',
-                  background: 'transparent',
-                  border: '1px solid var(--copper-border)',
-                  borderRadius: 0,
-                  padding: '14px 38px',
-                  minHeight: 44,
-                  cursor: canSeal ? 'pointer' : 'default',
-                  opacity: canSeal ? 1 : 0.45,
-                  transition: `opacity 180ms ${EASE}`,
-                }}
-              >
-                {createMutation.isPending ? 'sealing…' : 'Seal it'}
-              </button>
+              <Verb drop onClick={handleSeal} disabled={!canSeal}>
+                {createMutation.isPending ? 'sealing…' : 'seal it'}
+              </Verb>
             </div>
 
             <div style={{ textAlign: 'center', marginTop: 20 }}>

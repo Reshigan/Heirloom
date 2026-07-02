@@ -7,6 +7,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { HLogo } from '../loom/components/HLogo';
 import { PwaMenu } from './PwaHome';
+import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
 import { dyeVar, type Dye } from '../loom/dye';
 
 /**
@@ -92,6 +93,9 @@ export function Descent() {
   const { prompt } = useListener();
   const { entries, isLoading } = useTapestryEntries();
   const [depthLabel, setDepthLabel] = useState('now');
+  // First-install ceremony — the wizard rides the home (as it did before the
+  // Descent) until it has been seen once.
+  const [wizardDone, setWizardDone] = useState(() => !shouldShowWizard());
   const [progress, setProgress] = useState(0);
   const yearRefs = useRef<Record<number, HTMLElement | null>>({});
 
@@ -142,6 +146,8 @@ export function Descent() {
       topbarLeft={<HLogo size="sm" wordmark href="/loom/pwa" />}
       topbarRight={<PwaMenu />}
     >
+      {!wizardDone && <PwaWizard onDone={() => setWizardDone(true)} />}
+
       {/* ── Bathymeter — the years are the navigation ── */}
       <div aria-hidden style={{ position: 'fixed', top: 'var(--topbar-h)', right: 22, bottom: 96, width: 1, background: 'rgba(242,230,208,0.13)', zIndex: 24 }} />
       <nav aria-label="Descend to a year" style={{ position: 'fixed', top: 'var(--topbar-h)', right: 0, bottom: 96, width: 64, zIndex: 25 }}>
