@@ -54,6 +54,13 @@ export async function runDailyScoreboard(env: Env): Promise<void> {
     week, day, day);
   const retPct = ret && ret.cohort > 0 ? Math.round((100 * (ret.kept ?? 0)) / ret.cohort) : null;
 
+  // Commercial + support signal (replaces the retired daily admin summary)
+  const subs = await one<{ active: number; trialing: number }>(env,
+    `SELECT COUNT(CASE WHEN status='ACTIVE' THEN 1 END) active,
+            COUNT(CASE WHEN status='TRIALING' THEN 1 END) trialing FROM subscriptions`);
+  const tickets = (await one<{ n: number }>(env,
+    `SELECT COUNT(*) n FROM support_tickets WHERE status NOT IN ('RESOLVED','CLOSED')`))?.n ?? null;
+
   // Content settling in (letters written by real users)
   const lDay = (await one<{ n: number }>(env,
     `SELECT COUNT(*) n FROM letters l JOIN users u ON u.id = l.user_id
@@ -82,6 +89,8 @@ export async function runDailyScoreboard(env: Env): Promise<void> {
       ${row('Active · 7d (WAU)', String(wau))}
       ${row('Week-1 retention', retPct === null ? '— (cohort empty)' : `${retPct}% of ${ret!.cohort}`)}
       ${row('Letters written', String(lDay))}
+      ${row('Subscriptions', subs ? `${subs.active} active · ${subs.trialing} trial` : '—')}
+      ${row('Open support tickets', tickets === null ? '—' : String(tickets))}
     </table>
     <p style="color:rgba(242,230,208,0.72);font-family:Georgia,serif;font-size:14px;line-height:1.7;margin:20px 0 6px"><span style="color:#e0a062;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase">Visits by source · 7d</span><br>${list(vByRef.map((r) => ({ k: r.ref, n: r.n })))}</p>
     <p style="color:rgba(242,230,208,0.72);font-family:Georgia,serif;font-size:14px;line-height:1.7;margin:14px 0 0"><span style="color:#e0a062;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase">Signups by source · 7d</span><br>${list(sBySrc.map((r) => ({ k: r.src, n: r.n })))}</p>
