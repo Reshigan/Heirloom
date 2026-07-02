@@ -212,12 +212,22 @@ export function SectionLabel({ children, tone = 'muted' }: { children: ReactNode
   return <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: tone === 'copper' ? 'var(--copper-label)' : 'var(--muted-4)', margin: '34px 0 8px' }}>{children}</div>;
 }
 
-/** The ∞ wax seal — the product's only mark, resting warm at the foot of a page. */
+/** The page-foot mark, water-native: the ripple where something was lowered
+ * into the Deep — Sounding rings fading outward, one warm point at the centre.
+ * (Replaces the ∞ wax seal; the ∞ survives only as the capture anchor.) */
 export function WaxSeal({ size = 30 }: { size?: number }) {
+  const d = size * 1.5;
   return (
     <div aria-hidden style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
       width: size * 2.2, height: size * 2.2 }}>
-      <span style={{ color: 'var(--warm-dim)', fontSize: size, lineHeight: 1 }}>∞</span>
+      <svg viewBox="0 0 48 48" width={d} height={d} fill="none">
+        <g stroke="var(--bone)" strokeWidth="1.6">
+          <circle cx="24" cy="24" r="7" strokeOpacity="0.55" />
+          <circle cx="24" cy="24" r="14" strokeOpacity="0.3" />
+          <circle cx="24" cy="24" r="21" strokeOpacity="0.13" />
+        </g>
+        <circle cx="24" cy="24" r="1.8" fill="var(--warm-dim)" />
+      </svg>
     </div>
   );
 }
