@@ -509,14 +509,24 @@ function paintFrame(
     ctx.fillStyle = withAlpha(WARM, 0.9 * a);
     ctx.fillText(p.eyebrow.toUpperCase().split("").join(" "), W / 2, firstBase - lh * 2.0 - (1 - a) * 12);
   }
+  // The Drop crest fades in where the ∞ used to sit — same brushed geometry
+  // as the still renderer, breathing softly over the video's duration.
   const infA = ease01((tMs - 350) / 700);
-  ctx.save();
-  ctx.font = `400 ${Math.round(fontSize * 0.66)}px "${serif}"`;
-  ctx.fillStyle = withAlpha(WARM, infA);
-  ctx.shadowColor = withAlpha(WARM, 0.6 * infA);
-  ctx.shadowBlur = 8 + Math.sin((2 * Math.PI * tMs) / durMs) * 6;
-  ctx.fillText("∞", W / 2, firstBase - lh * 1.05);
-  ctx.restore();
+  {
+    const mh = fontSize * 0.9;
+    const sc = mh / 48;
+    const mx = W / 2 - 24 * sc;
+    const my = firstBase - lh * 1.35 - 24 * sc;
+    ctx.save();
+    ctx.globalAlpha = infA * (0.82 + 0.18 * Math.sin((2 * Math.PI * tMs) / durMs));
+    ctx.translate(mx, my);
+    ctx.scale(sc, sc);
+    const P = (d: string, fill: string) => { ctx.fillStyle = fill; ctx.fill(new Path2D(d)); };
+    P("M4 13.9 C 15 11.9, 29 15.3, 44 13 C 30 16.3, 15 14, 4 15 Z", WARM);
+    P("M23.6 24.9 C 26.8 24.8, 28.7 27.2, 28.2 30 C 27.8 32.6, 25.2 34.1, 22.8 33.4 C 20.5 32.7, 19.5 30.3, 20.3 27.9 C 21 26, 22.2 25.1, 23.6 24.9 Z", WARM);
+    P("M10 31.4 C 14.5 41.2, 33.5 41.9, 38.4 30.7 C 33.5 40.2, 14.5 40.2, 10 31.4 Z", withAlpha(BONE, 0.55));
+    ctx.restore();
+  }
   ctx.font = font;
   lines.forEach((ln, i) => {
     const a = ease01((tMs - 700 - i * 170) / 750);
