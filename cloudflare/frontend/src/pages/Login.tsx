@@ -74,7 +74,7 @@ export function Login() {
             margin: sessionExpired ? '0 0 24px' : '0 0 56px',
             color: 'var(--bone)',
           }}>
-            Return to the thread
+            Return to the water
           </h1>
 
           {sessionExpired ? (
@@ -137,26 +137,21 @@ export function Login() {
               </p>
             ) : null}
 
-            {/* Outlined amber pill — the single accent */}
+            {/* The Verb — Open Water: the breathing drop and the word, no box */}
             <button
               type="submit"
               disabled={isLoading || !email.trim() || !password.trim()}
               style={{
-                width: '100%', marginTop: 14,
-                padding: '13px 24px',
-                minHeight: 44,
-                background: 'transparent',
-                border: '1px solid var(--warm)',
-                borderRadius: 0,
-                color: 'var(--warm)',
-                fontFamily: 'var(--mono)',
-                fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase',
+                display: 'inline-flex', alignItems: 'center', gap: 16,
+                marginTop: 14, padding: '8px 0', minHeight: 44,
+                background: 'transparent', border: 0,
                 cursor: isLoading || !email.trim() || !password.trim() ? 'default' : 'pointer',
                 opacity: isLoading || !email.trim() || !password.trim() ? 0.45 : 1,
                 transition: 'opacity 360ms var(--ease)',
               }}
             >
-              enter
+              <span aria-hidden className="hl-drop-breathe" style={{ width: 11, height: 11, borderRadius: '50%', background: 'var(--warm)', flex: 'none' }} />
+              <span style={{ fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 360, fontSize: 24, color: 'var(--warm)' }}>enter</span>
             </button>
 
             {isLoading ? (
@@ -170,9 +165,9 @@ export function Login() {
             fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase',
             color: 'var(--bone-faint)',
           }}>
-            no thread yet?&nbsp;·&nbsp;
+            no water of your own yet?&nbsp;·&nbsp;
             <Link to="/signup" style={{ color: 'var(--bone-dim)', textDecoration: 'none', borderBottom: '1px solid var(--rule-strong)', paddingBottom: 4 }}>
-              start one
+              begin your family's Deep
             </Link>
           </div>
 
