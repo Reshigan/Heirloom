@@ -519,6 +519,8 @@ export function LetterRoom() {
                             animation: `hl-fade 360ms ${EASE}`,
                           }}
                         >
+                          {/* The Sealed Note rite (ART_DIRECTION): the ∞ in copper, crowning the date. */}
+                          <div aria-hidden style={{ fontSize: 30, lineHeight: 1, color: 'var(--warm)' }}>∞</div>
                           <div style={{
                             marginTop: 18,
                             fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
