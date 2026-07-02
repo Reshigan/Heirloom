@@ -102,6 +102,7 @@ const Memories        = lazy(() => import('./pages/Memories').then(m => ({ defau
 
 const ThreadsIndex    = lazy(() => import('./pages/ThreadsIndex').then(m => ({ default: m.ThreadsIndex })));
 const PwaHome         = lazy(() => import('./pages/PwaHome').then(m => ({ default: m.PwaHome })));
+const Descent         = lazy(() => import('./pages/Descent').then(m => ({ default: m.Descent })));
 const LoomIndex       = lazy(() => import('./pages/LoomIndex').then(m => ({ default: m.LoomIndex })));
 const InheritanceCard = lazy(() => import('./pages/InheritanceCard').then(m => ({ default: m.InheritanceCard })));
 
@@ -615,7 +616,8 @@ export default function App() {
               /onboarding or /signup at the end. */}
           <Route path="/begin" element={<FirstThread />} />
           <Route path="/loom/today" element={<ProtectedRoute><Today /></ProtectedRoute>} />
-          <Route path="/loom/pwa"   element={<PwaHome />} />
+          <Route path="/loom/pwa"   element={<Descent />} />
+          <Route path="/loom/surface" element={<PwaHome />} />
           <Route path="/loom/index" element={<ProtectedRoute><LoomIndex /></ProtectedRoute>} />
           <Route path="/loom/weft" element={<Navigate to="/loom/pwa" replace />} />
           <Route path="/loom/compose" element={<Navigate to="/compose" replace />} />

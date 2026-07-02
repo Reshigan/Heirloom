@@ -17,7 +17,7 @@ import { dyeVar, type Dye } from '../loom/dye';
 import type { CanvasEntry } from '../hooks/useTapestryEntries';
 
 /* ─── PWA profile menu ────────────────────────────────────────────────────── */
-function PwaMenu() {
+export function PwaMenu() {
   const { user, logout } = useAuthStore();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);

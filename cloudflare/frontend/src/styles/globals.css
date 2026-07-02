@@ -2299,3 +2299,14 @@ input:-webkit-autofill:active {
   font-variation-settings: 'WONK' 1;
 }
 
+
+/* ── The drop, breathing (Descent's capture point) ──────────────────────── */
+@media (prefers-reduced-motion: no-preference) {
+  .hl-drop-breathe {
+    box-shadow: 0 0 0 10px rgba(224, 160, 98, 0.12), 0 0 0 22px rgba(224, 160, 98, 0.05);
+    animation: hl-drop-breathe 4500ms ease-in-out infinite;
+  }
+  @keyframes hl-drop-breathe {
+    50% { box-shadow: 0 0 0 16px rgba(224, 160, 98, 0.10), 0 0 0 34px rgba(224, 160, 98, 0.04); }
+  }
+}
