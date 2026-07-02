@@ -2310,3 +2310,15 @@ input:-webkit-autofill:active {
     50% { box-shadow: 0 0 0 16px rgba(224, 160, 98, 0.10), 0 0 0 34px rgba(224, 160, 98, 0.04); }
   }
 }
+
+/* Softer breath for the large nav anchor (the 10px-dot halo reads too heavy
+   at 46px scale). */
+@media (prefers-reduced-motion: no-preference) {
+  .hl-drop-breathe--soft {
+    box-shadow: 0 0 0 8px rgba(224, 160, 98, 0.06), 0 0 0 18px rgba(224, 160, 98, 0.025);
+    animation: hl-drop-breathe-soft 4500ms ease-in-out infinite;
+  }
+  @keyframes hl-drop-breathe-soft {
+    50% { box-shadow: 0 0 0 12px rgba(224, 160, 98, 0.05), 0 0 0 26px rgba(224, 160, 98, 0.02); }
+  }
+}

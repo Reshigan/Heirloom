@@ -101,18 +101,22 @@ export function BottomNav() {
                 textDecoration: 'none',
               }}
             >
-              <span style={{
-                width: 54,
-                height: 54,
-                marginTop: -16,
-                background: 'var(--ink)',
-                border: `1px solid ${isActive ? 'var(--warm)' : 'var(--copper-border, var(--warm-dim))'}`,
+              {/* No box — the Drop itself rises out of the bar, breathing on
+                  the water. A soft ink pool beneath keeps it legible without
+                  ever drawing an edge. */}
+              <span className="hl-drop-breathe--soft" style={{
+                width: 46,
+                height: 46,
+                marginTop: -14,
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, var(--ink) 30%, rgba(7,13,20,0.55) 62%, transparent 74%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                transition: 'border-color 180ms var(--ease)',
+                filter: isActive ? 'drop-shadow(0 0 10px rgba(224,160,98,0.4))' : 'none',
+                transition: 'filter 360ms var(--ease)',
               }}>
-                <svg viewBox="0 0 48 48" width="30" height="30" fill="none" aria-hidden>
+                <svg viewBox="0 0 48 48" width="34" height="34" fill="none" aria-hidden>
                   <path d="M6 13.9 C 16 12.1, 30 15.1, 42 13.1 C 30 16.1, 16 14.1, 6 14.9 Z" fill="var(--warm)" />
                   <path d="M23.6 23.9 C 27 23.8, 29 26.4, 28.5 29.4 C 28 32.2, 25.2 33.8, 22.6 33 C 20.2 32.3, 19.1 29.7, 20 27.2 C 20.7 25.2, 22 24.1, 23.6 23.9 Z" fill="var(--warm)" />
                   <path d="M10.5 32 C 15 41.4, 33 42, 37.6 31.3 C 33 40.4, 15 40.4, 10.5 32 Z" fill="var(--bone)" fillOpacity="0.5" />
