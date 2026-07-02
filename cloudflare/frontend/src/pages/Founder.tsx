@@ -171,27 +171,6 @@ export function Founder() {
           padding:        'clamp(48px, 8vh, 96px) 24px 80px',
         }}
       >
-        {/* ── Woven accent — corner, behind, rotated ─────────────────────── */}
-        <picture style={{ display: 'contents' }}>
-          <source type="image/avif" srcSet="/woven/thread-band.avif" />
-          <source type="image/webp" srcSet="/woven/thread-band.webp" />
-          <img
-            src="/woven/thread-band.png"
-            alt=""
-            aria-hidden
-            style={{
-              position:      'absolute',
-              top:           -40,
-              right:         -60,
-              width:         320,
-              maxWidth:      '40vw',
-              opacity:       0.06,
-              transform:     'rotate(-18deg)',
-              pointerEvents: 'none',
-              zIndex:        0,
-            }}
-          />
-        </picture>
         {/* ── Mono eyebrow ─────────────────────────────────────────────── */}
         <p
           style={{

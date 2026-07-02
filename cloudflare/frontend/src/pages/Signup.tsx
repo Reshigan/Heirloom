@@ -201,20 +201,6 @@ export function Signup() {
         padding: 'clamp(48px,9vh,100px) clamp(20px,6vw,40px) 100px',
       }}
     >
-      {/* WOVEN — flipped thread-band header, full width, gradient-fades to ink at its bottom edge (matches Login) */}
-      <div aria-hidden style={{
-        position: 'absolute', top: 0, left: 0, right: 0,
-        height: 'clamp(180px, 32vh, 320px)',
-        transform: 'scaleY(-1)',
-        opacity: 0.7,
-        // ink fade sits over the band; after scaleY(-1) the fade lands on the visual bottom edge
-        backgroundImage: 'linear-gradient(to top, var(--ink) 0%, color-mix(in srgb, var(--ink) 0%, transparent) 62%), image-set(url("/woven/thread-band.avif") type("image/avif"), url("/woven/thread-band.webp") type("image/webp"), url("/woven/thread-band.png") type("image/png"))',
-        backgroundSize: 'cover, cover',
-        backgroundPosition: 'center, center top',
-        backgroundRepeat: 'no-repeat, no-repeat',
-        pointerEvents: 'none',
-        zIndex: 0,
-      }} />
       {/* Deep-water legibility veil behind the form (see .auth-scrim, globals.css) */}
       <div aria-hidden className="auth-scrim" />
       <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 440, margin: '0 auto' }}>

@@ -337,16 +337,11 @@ export function LetterRoom() {
                 )}
               </div>
 
-              {/* Foot of the ceremony — wax seal at left, the rite pill at right. */}
+              {/* Foot of the ceremony — the rite pill. */}
               <div style={{
                 marginTop: 28, display: 'flex', alignItems: 'center',
                 justifyContent: 'center', gap: 18, flexWrap: 'wrap',
               }}>
-                <picture style={{ display: 'contents' }}>
-                  <source type="image/avif" srcSet="/woven/seal.avif" />
-                  <source type="image/webp" srcSet="/woven/seal.webp" />
-                  <img src="/woven/seal.png" width="54" height="54" alt="" aria-hidden />
-                </picture>
                 {isSealed ? (
                   <Link
                     to={`/compose?id=${featured.id}`}
@@ -524,11 +519,6 @@ export function LetterRoom() {
                             animation: `hl-fade 360ms ${EASE}`,
                           }}
                         >
-                          <picture style={{ display: 'contents' }}>
-                  <source type="image/avif" srcSet="/woven/seal.avif" />
-                  <source type="image/webp" srcSet="/woven/seal.webp" />
-                  <img src="/woven/seal.png" width="54" height="54" alt="" aria-hidden />
-                </picture>
                           <div style={{
                             marginTop: 18,
                             fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
@@ -596,16 +586,11 @@ export function LetterRoom() {
                             )}
                           </div>
 
-                          {/* Wax-seal dot + SEAL THIS LETTER pill, OPENS WHEN beneath. */}
+                          {/* SEAL THIS LETTER pill, OPENS WHEN beneath. */}
                           <div style={{
                             marginTop: 28, display: 'flex', alignItems: 'center',
                             justifyContent: 'center', gap: 18, flexWrap: 'wrap',
                           }}>
-                            <picture style={{ display: 'contents' }}>
-                  <source type="image/avif" srcSet="/woven/seal.avif" />
-                  <source type="image/webp" srcSet="/woven/seal.webp" />
-                  <img src="/woven/seal.png" width="54" height="54" alt="" aria-hidden />
-                </picture>
                             <button
                               type="button"
                               disabled={sealMutation.isPending}

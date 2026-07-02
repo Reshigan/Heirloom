@@ -264,25 +264,6 @@ export function GiftReceive() {
   return (
     <ClothShell topbarCenter="a gift">
       <div style={{ position: 'relative', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', minHeight: '100%' }}>
-        {/* Woven unwrap mark — behind the gift, the seal being broken (§woven) */}
-        <picture style={{ display: 'contents' }}>
-          <source type="image/avif" srcSet="/woven/seal.avif" />
-          <source type="image/webp" srcSet="/woven/seal.webp" />
-          <img
-            src="/woven/seal.png"
-            alt=""
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              top: 'var(--page-pad-top)',
-              right: 'clamp(-40px, 2vw, 40px)',
-              width: 'clamp(180px, 26vw, 320px)',
-              opacity: 0.06,
-              pointerEvents: 'none',
-              zIndex: 0,
-            }}
-          />
-        </picture>
         <article
           style={{
             position: 'relative',

@@ -1403,27 +1403,6 @@ export function Compose() {
         color: 'var(--bone)',
       }}
     >
-      {/* Woven thread-band — top of the composer, fading into the ground, behind everything */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 'clamp(160px, 28vh, 280px)',
-          backgroundImage: 'image-set(url("/woven/thread-band.avif") type("image/avif"), url("/woven/thread-band.webp") type("image/webp"), url("/woven/thread-band.png") type("image/png"))',
-          backgroundSize: 'cover',
-          backgroundPosition: 'top center',
-          backgroundRepeat: 'no-repeat',
-          opacity: 0.8,
-          pointerEvents: 'none',
-          zIndex: 0,
-          WebkitMaskImage: 'linear-gradient(to bottom, var(--ink) 0%, transparent 100%)',
-          maskImage: 'linear-gradient(to bottom, var(--ink) 0%, transparent 100%)',
-        }}
-      />
-
       {/* Topbar */}
       <div className="hl-topbar" style={{ borderBottom: '1px solid var(--rule)', position: 'relative', zIndex: 10 }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>

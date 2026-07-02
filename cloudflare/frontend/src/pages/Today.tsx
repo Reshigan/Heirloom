@@ -193,24 +193,6 @@ export function Today() {
 
   return (
     <ClothShell topbarLeft={todayTopbar}>
-      {/* Woven header band — thread-band PNG fading into the ground, behind content */}
-      <div
-        aria-hidden
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 240,
-          backgroundImage: `linear-gradient(180deg, transparent 55%, var(--ink)), image-set(url("/woven/thread-band.avif") type("image/avif"), url("/woven/thread-band.webp") type("image/webp"), url("/woven/thread-band.png") type("image/png"))`,
-          backgroundSize: 'cover, cover',
-          backgroundPosition: 'center, center',
-          backgroundRepeat: 'no-repeat, no-repeat',
-          opacity: 0.5,
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-      />
       <div style={{
         position: 'relative',
         zIndex: 1,

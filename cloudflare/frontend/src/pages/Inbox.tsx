@@ -206,16 +206,7 @@ export function Inbox() {
                     titleColor="var(--copper-label)"
                     subFont="serif"
                     subColor="var(--muted-2)"
-                    title={
-                      <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <picture style={{ display: 'contents' }}>
-                          <source type="image/avif" srcSet="/woven/seal.avif" />
-                          <source type="image/webp" srcSet="/woven/seal.webp" />
-                          <img src="/woven/seal.png" width={22} alt="" aria-hidden style={{ flex: '0 0 auto', display: 'inline-block' }} />
-                        </picture>
-                        <span>{u.entry_title ?? 'A sealed note for the future'}</span>
-                      </span>
-                    }
+                    title={u.entry_title ?? 'A sealed note for the future'}
                     sub={
                       <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}>
                         <span aria-hidden style={{ color: 'var(--warm)', fontWeight: 300, fontSize: 12, lineHeight: 1 }}>∞</span>

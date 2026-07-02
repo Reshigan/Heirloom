@@ -207,28 +207,6 @@ export default function Wrapped() {
           position: 'relative',
         }}
       >
-        {/* woven thread-swoosh — decorative backdrop behind the figures */}
-        <picture style={{ display: 'contents' }}>
-          <source type="image/avif" srcSet="/woven/thread-swoosh.avif" />
-          <source type="image/webp" srcSet="/woven/thread-swoosh.webp" />
-          <img
-            src="/woven/thread-swoosh.png"
-            alt=""
-            aria-hidden
-            style={{
-              position: 'absolute',
-              top: 0, left: '50%',
-              height: '100%',
-              transform: 'translateX(-50%)',
-              objectFit: 'cover',
-              // ponytail: per-theme veil token (0.14 dark / 0.04 light) so this
-              // dark raster reads as warm texture on paper, subtle on ink.
-              opacity: 'var(--woven-veil)',
-              pointerEvents: 'none',
-              zIndex: 0,
-            }}
-          />
-        </picture>
         {/* radial vignette — focuses the eye on the centred numerals. Stops ride
             the theme-flipping vignette token so the centre dims toward parchment
             in light mode (no near-black blotch behind dark numerals) and toward

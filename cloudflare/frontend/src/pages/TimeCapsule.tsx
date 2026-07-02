@@ -789,7 +789,7 @@ export function TimeCapsule() {
               </p>
             )}
 
-            {/* Woven seal mark (left) + SEAL IT pill — the foot of the note */}
+            {/* SEAL IT pill — the foot of the note */}
             <div
               style={{
                 marginTop: 44,
@@ -798,11 +798,6 @@ export function TimeCapsule() {
                 gap: 22,
               }}
             >
-              <picture style={{ display: 'contents' }}>
-                <source type="image/avif" srcSet="/woven/seal.avif" />
-                <source type="image/webp" srcSet="/woven/seal.webp" />
-                <img src="/woven/seal.png" width={50} alt="" aria-hidden style={{ flexShrink: 0 }} />
-              </picture>
               <button
                 type="button"
                 onClick={handleSeal}

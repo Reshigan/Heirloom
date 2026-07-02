@@ -60,27 +60,6 @@ export function MemorialPublic() {
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        {/* woven seal — centered ceremonial mark behind the page */}
-        <picture style={{ display: 'contents' }}>
-          <source type="image/avif" srcSet="/woven/seal.avif" />
-          <source type="image/webp" srcSet="/woven/seal.webp" />
-          <img
-            src="/woven/seal.png"
-            alt=""
-            aria-hidden
-            style={{
-              position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: 'min(60vw, 480px)',
-              maxWidth: '90%',
-              opacity: 0.05,
-              pointerEvents: 'none',
-              zIndex: 0,
-            }}
-          />
-        </picture>
         <div
           style={{
             position: 'relative',

@@ -70,27 +70,6 @@ export function InheritanceCard() {
           padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)',
         }}
       >
-        {/* Woven seal — ceremonial backdrop, behind content */}
-        <picture style={{ display: 'contents' }}>
-          <source type="image/avif" srcSet="/woven/seal.avif" />
-          <source type="image/webp" srcSet="/woven/seal.webp" />
-          <img
-            src="/woven/seal.png"
-            alt=""
-            aria-hidden
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: 'min(560px, 90vw)',
-              maxWidth: '90vw',
-              opacity: 0.07,
-              pointerEvents: 'none',
-              userSelect: 'none',
-            }}
-          />
-        </picture>
 
         {/* Centered ceremonial card with top dye thread */}
         <div

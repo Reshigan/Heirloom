@@ -493,27 +493,6 @@ export function Inherit() {
           marginBottom: isMobile ? 24 : 64,
         }}
       >
-        {/* Woven inheritance seal — behind, ambient, decorative only */}
-        <picture style={{ display: 'contents' }}>
-          <source type="image/avif" srcSet="/woven/seal.avif" />
-          <source type="image/webp" srcSet="/woven/seal.webp" />
-          <img
-            src="/woven/seal.png"
-            alt=""
-            aria-hidden="true"
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%,-50%)',
-              width: isMobile ? 280 : 380,
-              height: 'auto',
-              opacity: 0.12,
-              pointerEvents: 'none',
-              userSelect: 'none',
-            }}
-          />
-        </picture>
         <div style={{ position: 'relative', textAlign: 'center', animation: `hl-fadeup 1400ms ${EASE} both` }}>
           <CosmicHeader
             align="center"

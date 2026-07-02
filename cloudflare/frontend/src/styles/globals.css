@@ -895,18 +895,21 @@ select:focus-visible {
 /* Skip to content link for screen readers */
 .skip-to-content {
   position: absolute;
-  top: -40px;
+  top: 0;
   left: 0;
   background: var(--ink);
   color: var(--warm);
   border: 1px solid var(--warm);
   padding: 8px 16px;
   z-index: 100;
-  transition: top 180ms var(--ease);
+  /* Height-proof hide: the old fixed -40px was shorter than the link's rendered
+     height, so a sliver peeked into the viewport on every page. */
+  transform: translateY(-150%);
+  transition: transform 180ms var(--ease);
 }
 
 .skip-to-content:focus {
-  top: 0;
+  transform: translateY(0);
 }
 
 /* Native date/time pickers track the active theme (Compose/Record removed

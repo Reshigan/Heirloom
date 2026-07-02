@@ -81,28 +81,6 @@ export function Letters() {
           margin: '0 auto',
         }}
       >
-        {/* The wax seal — the letters mark, resting behind the ledger. */}
-        <picture style={{ display: 'contents' }}>
-          <source type="image/avif" srcSet="/woven/seal.avif" />
-          <source type="image/webp" srcSet="/woven/seal.webp" />
-          <img
-          src="/woven/seal.png"
-          alt=""
-          aria-hidden
-          style={{
-            position: 'absolute',
-            top: '8%',
-            right: '-4%',
-            width: 320,
-            maxWidth: '46%',
-            opacity: 0.05,
-            pointerEvents: 'none',
-            userSelect: 'none',
-            zIndex: 0,
-          }}
-        />
-        </picture>
-
         <div style={{ position: 'relative', zIndex: 1 }}>
 
         <CosmicHeader

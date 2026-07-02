@@ -140,27 +140,6 @@ export function Memorials() {
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'memorials' }]} />} topbarRight={<UserMenu />}>
       <div style={{ position: 'relative', maxWidth: 'var(--page-max-reading)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
-        {/* Woven seal — the memorial mark, faint behind the names (never an icon) */}
-        <picture style={{ display: 'contents' }}>
-          <source type="image/avif" srcSet="/woven/seal.avif" />
-          <source type="image/webp" srcSet="/woven/seal.webp" />
-          <img
-            src="/woven/seal.png"
-            alt=""
-            aria-hidden
-            style={{
-              position: 'absolute',
-              top: 'var(--page-pad-top)',
-              right: 'var(--page-pad-x)',
-              width: 220,
-              maxWidth: '40%',
-              opacity: 0.06,
-              pointerEvents: 'none',
-              zIndex: 0,
-              userSelect: 'none',
-            }}
-          />
-        </picture>
 
         {/* Page header — count eyebrow + serif title; quiet mono create affordance */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap', marginBottom: 56 }}>

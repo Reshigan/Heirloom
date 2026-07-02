@@ -259,29 +259,6 @@ export function Constellation() {
             alignItems: 'center',
           }}
         >
-          {/* woven sigil — the lineage tree, layered behind the live nodes */}
-          <picture style={{ display: 'contents' }}>
-            <source type="image/avif" srcSet="/woven/thread-tree.avif" />
-            <source type="image/webp" srcSet="/woven/thread-tree.webp" />
-            <img
-              src="/woven/thread-tree.png"
-              alt=""
-              aria-hidden
-              style={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                height: 520,
-                width: 'auto',
-                maxWidth: '100%',
-                objectFit: 'contain',
-                opacity: 0.5,
-                pointerEvents: 'none',
-                zIndex: 0,
-              }}
-            />
-          </picture>
           {/* curved connector lines — page content, drawn behind the chips */}
           {paths.length > 0 && (
             <svg
