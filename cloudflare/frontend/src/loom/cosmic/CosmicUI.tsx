@@ -47,7 +47,7 @@ export function CosmicHeader({
     );
   }
   return (
-    <header style={{ textAlign: align, marginBottom: 48, maxWidth: align === 'center' ? undefined : '15em' }}>
+    <header style={{ textAlign: align, marginBottom: 48 }}>
       {eyebrow && (
         <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--warm)', marginBottom: 20 }}>
           {eyebrow}
@@ -62,6 +62,9 @@ export function CosmicHeader({
           color: 'var(--bone)',
           margin: 0,
           fontWeight: 340,
+          // Width in the h1's own em so it scales with the type — a header-level
+          // em constraint computed against 16px and wrapped one word per line.
+          maxWidth: align === 'center' ? undefined : '11em',
         }}
       >
         {shown}
