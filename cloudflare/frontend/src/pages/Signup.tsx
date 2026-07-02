@@ -244,7 +244,7 @@ export function Signup() {
             id="s-thread"
             value={form.threadName}
             onChange={(v) => set({ threadName: v })}
-            placeholder="The Vance-Okonkwo Deep"
+            placeholder="e.g. The Smith Family Deep"
             error={errors.threadName}
           />
           <Helper>It can be changed later. The Deep takes your name unless you give it its own.</Helper>
