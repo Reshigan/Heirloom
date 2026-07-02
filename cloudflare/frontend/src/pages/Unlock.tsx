@@ -207,7 +207,7 @@ export function Unlock() {
               borderRadius: 0,
             }}
           />
-          {letter.openable ? 'a thread unties · today' : `sealed · opens ${letter.openedYear}`}
+          {letter.openable ? 'one surfaces · today' : `sealed · opens ${letter.openedYear}`}
           {broken && (
             <button
               type="button"

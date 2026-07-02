@@ -186,15 +186,15 @@ export function CardView() {
          * The real title/quote still render on-page below; the image is pinned
          * to the static "milestone" card (no private photo — see metaImage).
          */}
-        <meta property="og:title" content="A keepsake from a family thread." />
+        <meta property="og:title" content="A keepsake from a family Deep." />
         <meta
           property="og:description"
-          content="Someone made you a card from their family’s archive — a single thread, set aside to be passed on."
+          content="Someone made you a card from their family’s archive — a single memory, set aside to be passed on."
         />
-        <meta name="twitter:title" content="A keepsake from a family thread." />
+        <meta name="twitter:title" content="A keepsake from a family Deep." />
         <meta
           name="twitter:description"
-          content="Someone made you a card from their family’s archive — a single thread, set aside to be passed on."
+          content="Someone made you a card from their family’s archive — a single memory, set aside to be passed on."
         />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={window.location.href} />

@@ -59,10 +59,10 @@ const stepLabels: Record<BookStep, string> = {
 
 // COMPOSER: each step leads with its own mono eyebrow + giant serif prompt.
 const stepPrompts: Record<BookStep, { eyebrow: string; prompt: string }> = {
-  select: { eyebrow: 'The Volume', prompt: 'Which threads do you bind?' },
-  customize: { eyebrow: 'The Book', prompt: 'Bind your thread' },
+  select: { eyebrow: 'The Volume', prompt: 'What do you draw up to bind?' },
+  customize: { eyebrow: 'The Book', prompt: 'Bind your Deep' },
   page: { eyebrow: 'The Page', prompt: 'Choose a page layout' },
-  preview: { eyebrow: 'The Volume', prompt: 'This is your thread, bound.' },
+  preview: { eyebrow: 'The Volume', prompt: 'This is your Deep, bound.' },
   order: { eyebrow: 'The Volume', prompt: 'Where shall it be sent?' },
 };
 
@@ -486,7 +486,7 @@ export function BookBuilder() {
                   className="hl-serif"
                   style={{ fontSize: 15, color: 'var(--bone-dim)', margin: 0, fontStyle: 'italic' }}
                 >
-                  Choose the threads to bind. Each becomes a chapter, kept in its own hand and year.
+                  Choose the entries to bind. Each becomes a chapter, kept in its own hand and year.
                 </p>
 
                 {([
@@ -622,7 +622,7 @@ export function BookBuilder() {
           {step === 'customize' && (
             <div style={{ display: 'grid', gap: 28 }}>
               {/* the volume itself — embossed leather book with the ∞ seal (content) */}
-              <LeatherBook title={config.title?.trim() || 'Our Family Thread'} yearsLabel={yearsLabel} />
+              <LeatherBook title={config.title?.trim() || 'Our Family Deep'} yearsLabel={yearsLabel} />
 
               {/* the quiet ledger of the volume — serif label left, mono value
                   right (Copies / Order / Chapters, per cosmic-book-builder).
@@ -883,7 +883,7 @@ export function BookBuilder() {
                 {totalItems} items · ~{estimatedPages} pages · full-colour {config.coverType} · {pageLayouts.find((l) => l.id === pageLayout)?.label} layout
               </p>
               <p className="hl-serif" style={{ fontSize: 15, color: 'var(--bone-dim)', margin: 0, maxWidth: 360, marginInline: 'auto', fontStyle: 'italic' }}>
-                Every entry is one thread, dyed to its kind. This is your thread as it stands today.
+                Every entry is one point of dye. This is your Deep as it stands today.
               </p>
             </div>
           )}

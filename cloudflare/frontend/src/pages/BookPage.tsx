@@ -48,7 +48,7 @@ export function BookPage() {
         }}
       >
         {/* mono eyebrow → serif title (centred ceremony) */}
-        <CosmicHeader eyebrow="The Book" title="Bind your thread" align="center" />
+        <CosmicHeader eyebrow="The Book" title="Bind your Deep" align="center" />
 
         {/* glowing book illustration — warm-outline volume.
             content, not backdrop (the bound-book glow that IS the data). */}

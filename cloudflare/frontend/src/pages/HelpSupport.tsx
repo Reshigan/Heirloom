@@ -29,7 +29,7 @@ interface PastConversation {
 const HELP_TOPICS: Array<{ q: string; a: string }> = [
   {
     q: 'What is the Deep?',
-    a: 'The Deep is the whole of your family thread, holding every entry. Each memory, letter, or voice recording settles into it. You read the Deep by hand rather than scrolling a feed — tap any entry to open what it holds.',
+    a: 'The Deep is the whole of your family\'s water, holding every entry. Each memory, letter, or voice recording settles into it. You read the Deep by hand rather than scrolling a feed — tap any entry to open what it holds.',
   },
   {
     q: 'How do I add a memory?',
@@ -41,14 +41,14 @@ const HELP_TOPICS: Array<{ q: string; a: string }> = [
   },
   {
     q: 'How do I invite my family?',
-    a: 'Go to Settings → family and send an invitation. Each person who joins tends the same thread and is given their own natural-dye colour, which marks every thread they add.',
+    a: 'Go to Settings → family and send an invitation. Each person who joins tends the same Deep and is given their own natural-dye colour, which marks every entry they add.',
   },
   {
-    q: 'Who can see our thread? Is it private?',
-    a: 'Your thread is private to your family and encrypted. Heirloom is owned by your bloodline, never sold or mined. You can set the visibility of individual entries when you compose them.',
+    q: 'Who can see our Deep? Is it private?',
+    a: 'Your Deep is private to your family and encrypted. Heirloom is owned by your bloodline, never sold or mined. You can set the visibility of individual entries when you compose them.',
   },
   {
-    q: 'What happens to the thread after I die?',
+    q: 'What happens to the Deep after I die?',
     a: 'You can name stewards and successors under /threads so the thread is inherited, not lost. Sealed letters set to deliver "after I go" are released to their recipients.',
   },
   {

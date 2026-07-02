@@ -8,7 +8,7 @@ import { PLAN_PRICE } from '../lib/plans';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 const META_TITLE = 'Founder Access';
-const META_DESCRIPTION = 'Permanent access to Heirloom — one lifetime fee for the whole family thread.';
+const META_DESCRIPTION = 'Permanent access to Heirloom — one lifetime fee for the whole family Deep.';
 const OG_IMAGE = 'https://heirloom.blue/og-image.png?v=20260615b';
 const CANONICAL = 'https://heirloom.blue/founder';
 

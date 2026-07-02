@@ -381,7 +381,7 @@ const TRIGGER_OPTIONS: {
 }[] = [
   { value: 'now',       label: 'open now',       hint: 'recipient can read this immediately' },
   { value: 'date',      label: 'on a date',      hint: 'sealed until a date you choose' },
-  { value: 'death',     label: 'after death',    hint: 'unseals when your thread is closed' },
+  { value: 'death',     label: 'after death',    hint: 'unseals when you are gone' },
   { value: 'milestone', label: 'on a milestone', hint: 'unseals on a family milestone you define later' },
   { value: 'event' as const, label: 'on an event', hint: 'unseals on a named family event — a birth, an age, a milestone you define' },
 ];
@@ -1354,8 +1354,8 @@ export function Compose() {
       <WeaveCeremony
         dye={isLetter ? 'indigo' : dye}
         entryDate={entryDate}
-        seed={title || recipientName || 'thread'}
-        eyebrow={isLetter ? 'settled into the Deep' : 'woven into the thread'}
+        seed={title || recipientName || 'deep'}
+        eyebrow={isLetter ? 'settled into the Deep' : 'settled into the Deep'}
         headline={
           isLetter
             ? recipientName.trim()
@@ -1496,7 +1496,7 @@ export function Compose() {
                   margin: '0 0 12px',
                 }}
               >
-                {isLetter ? 'New letter' : 'New thread'}
+                {isLetter ? 'New letter' : 'New entry'}
               </p>
               <p
                 role="heading"

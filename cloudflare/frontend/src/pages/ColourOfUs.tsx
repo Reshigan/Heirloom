@@ -270,7 +270,7 @@ export function ColourOfUs() {
           textAlign: 'center',
         }}
       >
-        <CosmicHeader eyebrow="The Colour of Us" title="One thread, every hand" align="center" />
+        <CosmicHeader eyebrow="The Colour of Us" title="One water, every hand" align="center" />
 
         {/* Empty: no roster yet — send them to add kin (each carries a dye). */}
         {!loading && members.length === 0 && !error && (
@@ -351,7 +351,7 @@ export function ColourOfUs() {
                 A proportional ledger, not decoration: width = entries authored. */}
             <div
               role="img"
-              aria-label={`Each member's share of the thread: ${ranked.map((m) => `${m.name}, ${m.count}`).join('; ')}`}
+              aria-label={`Each member's share of the water: ${ranked.map((m) => `${m.name}, ${m.count}`).join('; ')}`}
               style={{
                 display: 'flex', width: '100%', maxWidth: 420, height: 6,
                 marginBottom: 48, overflow: 'hidden',

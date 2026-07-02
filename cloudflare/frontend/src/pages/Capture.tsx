@@ -380,7 +380,7 @@ export function Capture() {
       <WeaveCeremony
         dye="indigo"
         entryDate={entryDate}
-        seed={deriveTitle(body) || recipientName || 'thread'}
+        seed={deriveTitle(body) || recipientName || 'deep'}
         eyebrow={ceremonyCopy.eyebrow}
         headline={ceremonyCopy.headline}
       />

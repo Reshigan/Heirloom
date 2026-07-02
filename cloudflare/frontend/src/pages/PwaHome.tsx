@@ -133,7 +133,7 @@ export function PwaMenu() {
           { to: '/settings',           label: 'settings' },
           { to: '/billing',            label: 'billing' },
           { to: '/family',             label: 'family' },
-          { to: '/gift-subscriptions', label: 'gift a thread' },
+          { to: '/gift-subscriptions', label: 'gift the deep' },
         ].map((item, i) => (
           <Link
             key={item.to}
@@ -354,7 +354,7 @@ function AuthHome({
     .slice(0, 6)
     .map((e) => ({
       id: e.id,
-      title: (e.title && String(e.title)) || (e.sealed ? 'a sealed letter' : 'an unwoven thread'),
+      title: (e.title && String(e.title)) || (e.sealed ? 'a sealed letter' : 'an unnamed entry'),
       year: e.date.getFullYear(),
       dye: e.dye as Dye,
       sealed: !!e.sealed,
@@ -414,7 +414,7 @@ function AuthHome({
           fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase',
           color: ownFirstThread ? 'var(--bone-faint)' : 'var(--warm)',
         }}>
-          {ownFirstThread ? 'your first thread' : isReadOnly ? 'the thread' : 'the listener asks'}
+          {ownFirstThread ? 'your first entry' : isReadOnly ? 'the deep' : 'the listener asks'}
         </div>
 
         {/* The hero line — the author's own first line on session one, else the rotating prompt */}

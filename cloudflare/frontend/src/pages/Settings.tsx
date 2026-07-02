@@ -615,7 +615,7 @@ export function Settings() {
 
           {([
             { key: 'weeklyDigest',       label: 'Weekly digest',   hint: 'family entries since last week',      ariaLabel: 'Enable weekly digest emails' },
-            { key: 'reminderEmails',     label: 'Quarterly',       hint: 'gentle prompt to add a thread',       ariaLabel: 'Enable quarterly reminder emails' },
+            { key: 'reminderEmails',     label: 'Quarterly',       hint: 'gentle prompt to add a memory',       ariaLabel: 'Enable quarterly reminder emails' },
             { key: 'pushNotifications',  label: 'Locks opening',   hint: 'when sealed entries unlock',          ariaLabel: 'Enable push notifications for sealed entry unlocks' },
             { key: 'emailNotifications', label: 'Receipts',        hint: 'transactional only',                  ariaLabel: 'Enable transactional email notifications' },
             { key: 'marketingEmails',    label: 'Product updates', hint: 'occasional · unsubscribe any time',   ariaLabel: 'Enable product update emails' },

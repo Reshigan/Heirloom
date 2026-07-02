@@ -275,14 +275,14 @@ function routeLabel(pathname: string): string {
   if (pathname.startsWith('/compose'))      return 'composing';
   if (pathname.startsWith('/record'))       return 'voice';
   if (pathname.startsWith('/challenges'))   return 'challenges';
-  if (pathname.startsWith('/ask'))          return 'ask the thread';
+  if (pathname.startsWith('/ask'))          return 'ask the deep';
   if (pathname.startsWith('/on-this-day'))  return 'on this day';
   if (pathname.startsWith('/loom/today'))   return 'today';
   if (pathname.startsWith('/loom/pwa'))     return 'home';
   if (pathname.startsWith('/pricing'))      return 'pricing';
   if (pathname.startsWith('/showcase'))     return 'showcase';
   if (pathname.startsWith('/memories'))     return 'memories';
-  if (pathname.startsWith('/qa'))           return 'ask the thread';
+  if (pathname.startsWith('/qa'))           return 'ask the deep';
   if (pathname.startsWith('/invite'))       return 'invite';
   if (pathname.startsWith('/wrapped'))      return 'wrapped';
   if (pathname.startsWith('/loom/letter'))         return 'letter';

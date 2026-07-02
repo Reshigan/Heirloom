@@ -259,7 +259,7 @@ export function GiftReceive() {
   // Dye thread for the left margin, hashed off the gift id (stable per gift).
   const dye = gift ? dyeColor(gift.id) : 'var(--rule)';
   const senderName = gift?.sender_name || 'someone';
-  const headline = gift?.content?.title || 'Someone gave you a thread.';
+  const headline = gift?.content?.title || 'Someone gave you a Deep.';
 
   return (
     <ClothShell topbarCenter="a gift">

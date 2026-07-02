@@ -24,7 +24,7 @@ interface GoldLegacyVoucherInfo {
 
 const BENEFITS = [
   'lifetime access to every feature',
-  '500 GB thread storage',
+  '500 GB storage',
   'priority support',
   'gold legacy member designation',
   'early access to new features',
@@ -151,7 +151,7 @@ export function GoldLegacyRedeem() {
   };
 
   return (
-    <ClothShell topbarLeft={<HLogo href="/" />} topbarCenter="gold thread">
+    <ClothShell topbarLeft={<HLogo href="/" />} topbarCenter="gold legacy">
       {/* Content */}
       <div
         style={{

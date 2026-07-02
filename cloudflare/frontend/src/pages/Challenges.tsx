@@ -121,7 +121,7 @@ export function Challenges() {
             {/* Active challenge — the prompt as a ledger entry, its meta on the right */}
             {currentChallenge ? (
               <section>
-                <SectionLabel>This week's thread</SectionLabel>
+                <SectionLabel>This week's prompt</SectionLabel>
 
                 <div style={{ borderBottom: '1px solid var(--rule)', padding: '15px 0' }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 20, flexWrap: 'wrap' }}>
@@ -227,9 +227,9 @@ export function Challenges() {
             <section>
               <SectionLabel>How challenges work</SectionLabel>
               {[
-                { n: '01', h: 'A theme arrives.', b: 'Each week a new prompt surfaces — something to bring from memory into the thread.' },
-                { n: '02', h: 'You write into it.', b: 'Add an entry, a voice note, or a letter. The prompt is the door; what you bring is the thread.' },
-                { n: '03', h: 'It joins the bloodline.', b: 'What you set down stays in your family’s thread — kept for the generations who come after.' },
+                { n: '01', h: 'A theme arrives.', b: 'Each week a new prompt surfaces — something to bring from memory into the Deep.' },
+                { n: '02', h: 'You write into it.', b: 'Add an entry, a voice note, or a letter. The prompt is the door; what you bring is the memory.' },
+                { n: '03', h: 'It joins the bloodline.', b: 'What you set down stays in your family’s Deep — kept for the generations who come after.' },
               ].map(({ n, h, b }) => (
                 <div
                   key={n}
@@ -342,7 +342,7 @@ export function Challenges() {
                   cursor: (!submissionContent.trim() || submitMutation.isPending) ? 'default' : 'pointer',
                 }}
               >
-                {submitMutation.isPending ? 'settling…' : 'add to the thread →'}
+                {submitMutation.isPending ? 'settling…' : 'let it settle →'}
               </button>
             </div>
           </div>

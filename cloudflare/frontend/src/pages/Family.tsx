@@ -47,7 +47,7 @@ function daysUntilExpiry(deletedAt: string): number {
 type Mode = 'add' | 'invite';
 
 export function Family() {
-  usePageMeta('Your thread');
+  usePageMeta('Your family');
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
@@ -280,7 +280,7 @@ export function Family() {
         {/* heading — ledger headline; warm mono eyebrow names the bloodline */}
         <CosmicHeader
           eyebrow="THE BLOODLINE"
-          title="Who holds the thread"
+          title="Who keeps the Deep"
         />
 
         {/* primary acts — Open Water: verbs in the hand voice, no boxes */}
@@ -399,7 +399,7 @@ export function Family() {
                 )}
                 <div style={{ gridColumn: '1 / -1', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 16 }}>
                   <button type="submit" className="hl-btn" disabled={invite.isPending} style={{ opacity: invite.isPending ? 0.5 : 1 }}>
-                    {invite.isPending ? 'calling…' : 'call to thread →'}
+                    {invite.isPending ? 'calling…' : 'call to the water →'}
                   </button>
                   <button
                     type="button"
@@ -420,7 +420,7 @@ export function Family() {
             {mode === 'invite' && inviteSent && (
               <div style={{ animation: 'hl-rise 360ms var(--ease) both' }}>
                 <p className="hl-serif" style={{ fontSize: 16, color: 'var(--bone)', margin: '0 0 4px', lineHeight: 1.6 }}>
-                  You've called them to the thread.
+                  You've called them to the water.
                 </p>
                 <p className="hl-serif" style={{ fontSize: 14, fontStyle: 'italic', color: 'var(--bone-dim)', margin: '0 0 20px', lineHeight: 1.6 }}>
                   A summons is on its way to their inbox.
@@ -646,7 +646,7 @@ export function Family() {
         ) : members.length === 0 ? (
           <div style={{ paddingTop: 8 }}>
             <p className="hl-serif" style={{ fontStyle: 'italic', color: 'var(--bone-dim)', fontSize: 18, margin: 0, lineHeight: 1.7 }}>
-              No one else is on this thread yet. Add the first name above.
+              No one else is in the water yet. Add the first name above.
             </p>
           </div>
         ) : (
@@ -1041,7 +1041,7 @@ function DyePicker({ value, onChange }: { value: string; onChange: (d: string) =
   return (
     <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
       <legend className="hl-mono" style={{ display: 'block', fontSize: 11, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)', marginBottom: 12, padding: 0 }}>
-        thread colour — optional
+        their dye — optional
       </legend>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: 4 }}>
         {DYES.map((key) => {

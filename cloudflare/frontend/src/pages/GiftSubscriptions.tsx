@@ -106,11 +106,11 @@ export function GiftSubscriptions() {
   // filtered out even if the API still returns it, so it is never giftable.
   const tiers = (pricing?.tiers || [
     {
-      id: 'STARTER', name: 'Free', description: 'Anyone can begin a thread — no gift needed', storage: '500 MB', free: true,
+      id: 'STARTER', name: 'Free', description: 'Anyone can begin a Deep — no gift needed', storage: '500 MB', free: true,
       monthly: { amount: 0, display: 'Free' },
     },
     {
-      id: 'FAMILY', name: 'Family', description: 'The full thread — for the whole bloodline', storage: '50 GB', popular: true,
+      id: 'FAMILY', name: 'Family', description: 'The full Deep — for the whole bloodline', storage: '50 GB', popular: true,
       monthly: { amount: 6.29, display: '$6.29', listAmount: PLAN_PRICE_NUM.FAMILY.monthly, listDisplay: `$${PLAN_PRICE_NUM.FAMILY.monthly.toFixed(2)}`, giftDiscount: '10% off' },
       yearly:  { amount: 62.1, display: '$62.10', listAmount: PLAN_PRICE_NUM.FAMILY.annual, listDisplay: `$${PLAN_PRICE_NUM.FAMILY.annual.toFixed(2)}`, giftDiscount: '10% off', savings: '2 months free' },
     },
@@ -289,7 +289,7 @@ export function GiftSubscriptions() {
 
                 const forLine =
                   tier.id === 'STARTER'
-                    ? 'for a single thread'
+                    ? 'for a single Deep'
                     : tier.id === 'FAMILY'
                     ? 'for the whole bloodline'
                     : 'for every generation';

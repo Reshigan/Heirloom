@@ -106,12 +106,12 @@ export function MemorialPublic() {
                 <title>A life remembered · Heirloom</title>
                 <meta
                   name="description"
-                  content="A memorial kept inside a perpetual family thread — permanent, in order, and meant to be carried forward."
+                  content="A memorial kept inside a perpetual family Deep — permanent, in order, and meant to be carried forward."
                 />
                 <meta property="og:title" content="A life remembered · Heirloom" />
                 <meta
                   property="og:description"
-                  content="A memorial kept inside a perpetual family thread — permanent, in order, and meant to be carried forward."
+                  content="A memorial kept inside a perpetual family Deep — permanent, in order, and meant to be carried forward."
                 />
                 <meta property="og:type" content="article" />
                 <meta property="og:url" content={window.location.href} />
@@ -122,7 +122,7 @@ export function MemorialPublic() {
                 <meta name="twitter:title" content="A life remembered · Heirloom" />
                 <meta
                   name="twitter:description"
-                  content="A memorial kept inside a perpetual family thread — permanent, in order, and meant to be carried forward."
+                  content="A memorial kept inside a perpetual family Deep — permanent, in order, and meant to be carried forward."
                 />
                 <meta name="twitter:image" content="https://heirloom.blue/og/milestone.png" />
                 <link rel="canonical" href={window.location.href} />

@@ -270,7 +270,7 @@ export function RecipientExperience() {
 
           {/* Mono copper subline — A MEMORY BY <AUTHOR> · <YEAR> (+ for recipient) */}
           <p style={{ ...monoMeta, color: 'var(--copper-label)', display: 'flex', alignItems: 'center', gap: 9, flexWrap: 'wrap' }}>
-            <span>a thread by {thread.senderName} · {year}</span>
+            <span>a memory by {thread.senderName} · {year}</span>
             {thread.recipientName ? (
               <>
                 <WarmDot color={dye} size={5} />

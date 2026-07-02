@@ -424,7 +424,7 @@ export function Inherit() {
   const firstLetter = content?.letters[0] ?? null;
 
   // Functional on-tab title stays generic — names no sender or recipient.
-  const inheritTitle = 'You have inherited a thread · Heirloom';
+  const inheritTitle = 'You have inherited a Deep · Heirloom';
 
   return (
     <div

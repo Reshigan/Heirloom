@@ -27,7 +27,7 @@ interface PricingData {
 // ── GiftPurchase ──────────────────────────────────────────────────────────────
 
 export function GiftPurchase() {
-  usePageMeta('Give Heirloom', 'Give someone the gift of a family thread.');
+  usePageMeta('Give Heirloom', 'Give someone the gift of a family Deep.');
   const [pricing, setPricing] = useState<PricingData | null>(null);
   const [selectedTier, setSelectedTier] = useState<string>('FAMILY');
   const billingCycle: 'yearly' = 'yearly';
@@ -106,7 +106,7 @@ export function GiftPurchase() {
   return (
     <ClothShell
       topbarLeft={<HLogo href="/" />}
-      topbarCenter="gift a thread"
+      topbarCenter="gift the deep"
       topbarRight={<Link to="/login">sign in →</Link>}
     >
       {/* Content */}

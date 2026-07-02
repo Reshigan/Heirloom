@@ -44,7 +44,7 @@ type SpeakTrigger = 'now' | 'date' | 'death' | 'milestone' | 'event';
 const SPEAK_TRIGGERS: { value: SpeakTrigger; label: string; hint: string }[] = [
   { value: 'now',       label: 'open now',      hint: 'recipient can hear this immediately' },
   { value: 'date',      label: 'on a date',     hint: 'sealed until a date you choose' },
-  { value: 'death',     label: 'after death',   hint: 'unseals when your thread is closed' },
+  { value: 'death',     label: 'after death',   hint: 'unseals when you are gone' },
   { value: 'milestone', label: 'on a milestone', hint: 'unseals on a family milestone' },
   { value: 'event',     label: 'on an event',   hint: 'unseals on a named family event' },
 ];

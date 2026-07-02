@@ -143,12 +143,12 @@ export function StoryView() {
         <meta property="og:title" content="A family story has been shared with you." />
         <meta
           property="og:description"
-          content="An entry from a perpetual family thread, kept in order and meant to last. Open the link to read it."
+          content="An entry from a perpetual family Deep, kept in order and meant to last. Open the link to read it."
         />
         <meta name="twitter:title" content="A family story has been shared with you." />
         <meta
           name="twitter:description"
-          content="An entry from a perpetual family thread, kept in order and meant to last. Open the link to read it."
+          content="An entry from a perpetual family Deep, kept in order and meant to last. Open the link to read it."
         />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={canonical} />

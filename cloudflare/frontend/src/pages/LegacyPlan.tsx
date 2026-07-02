@@ -153,7 +153,7 @@ export function LegacyPlan() {
         {/* H1 */}
         <CosmicHeader
           eyebrow="legacy plan"
-          title="The thread continues."
+          title="The water continues."
           sub="Name your successors, arm the check-in, and keep an exportable copy — so the bloodline outlives any one author."
         />
 

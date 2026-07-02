@@ -12,7 +12,7 @@ import { EASE } from '../motion';
 import { SurfaceRing } from '../cosmic/CosmicUI';
 
 const ITEMS: Array<{ label: string; to: string; hint: string }> = [
-  { label: 'search',      to: '/search',      hint: 'find any thread' },
+  { label: 'search',      to: '/search',      hint: 'find anything settled' },
   { label: 'inbox',       to: '/inbox',       hint: 'what has reached you' },
   { label: 'on this day', to: '/on-this-day', hint: 'this date, before' },
   { label: 'export',      to: '/export',      hint: 'the Deep, to keep' },

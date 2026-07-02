@@ -14,7 +14,7 @@ import { useOpenWaterBloom } from '../loom/water/useOpenWater';
 export function Login() {
   // open water: visible drift + the memories-bloom, randomized per arrival
   useOpenWaterBloom();
-  usePageMeta('Sign in', 'Sign in to your Heirloom family thread.');
+  usePageMeta('Sign in', 'Sign in to your family Deep.');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login } = useAuthStore();

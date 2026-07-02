@@ -21,7 +21,7 @@ const PANELS: Panel[] = [
   {
     eyebrow: 'the Deep is the interface',
     line: 'This is not a feed. It is the Deep.',
-    body: 'Every memory, letter, and voice your family adds is woven in as one thread. The whole becomes a tapestry you read by hand.',
+    body: 'Every memory, letter, and voice your family adds settles as its own point of dye. The whole becomes a water you read by hand.',
   },
   {
     eyebrow: 'append-only',
@@ -41,7 +41,7 @@ const PANELS: Panel[] = [
   {
     eyebrow: 'the bloodline',
     line: 'Owned by your family. For a thousand years.',
-    body: 'Invite the people who tend this thread with you. Private, encrypted, inherited — never a platform, always yours.',
+    body: 'Invite the people who tend this Deep with you. Private, encrypted, inherited — never a platform, always yours.',
   },
 ];
 

@@ -150,7 +150,7 @@ export function Profile() {
           onClick={() => navigate('/wrapped')}
         />
         <EntryRow
-          title="Gift a thread"
+          title="Gift the Deep"
           sub="Give another family a Deep of their own"
           meta="GIVE →"
           onClick={() => navigate('/gift-subscriptions')}
@@ -161,13 +161,13 @@ export function Profile() {
 
         <EntryRow
           title="Your family"
-          sub="The kin woven into your thread"
+          sub="The kin who share your Deep"
           meta="VIEW →"
           onClick={() => navigate('/family')}
         />
         <EntryRow
           title="Threads & successors"
-          sub="Stewardship and who inherits the thread"
+          sub="Stewardship and who inherits the Deep"
           meta="MANAGE →"
           onClick={() => navigate('/threads')}
         />

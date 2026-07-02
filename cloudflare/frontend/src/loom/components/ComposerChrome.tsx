@@ -260,7 +260,7 @@ export function DyeControl({
     <button
       type="button"
       onClick={cycle}
-      title="cycle the thread's dye"
+      title="cycle the entry's dye"
       style={{
         background: 'transparent',
         border: 0,
@@ -274,7 +274,7 @@ export function DyeControl({
         gap: 0,
       }}
     >
-      <span style={{ color: 'var(--bone-faint)' }}>thread ·</span>
+      <span style={{ color: 'var(--bone-faint)' }}>dye ·</span>
       <span
         aria-hidden
         style={{

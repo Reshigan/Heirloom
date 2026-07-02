@@ -45,7 +45,7 @@ const FORMATS: FormatOption[] = [
   { format: 'hardcover', label: 'Printed book', ext: 'hardcover', desc: 'A bound keepsake, set in type and pressed — shipped to your door.' },
   { format: 'pdf', label: 'Digital archive', ext: 'pdf', desc: 'The bound book as a PDF — read it anywhere, print it yourself.' },
   { format: 'txt', label: 'Plain text', ext: 'txt', desc: 'Every word, no formatting — the most portable, future-proof form.' },
-  { format: 'zip', label: 'The whole thread', ext: 'zip', desc: 'A self-contained folder — manifest, photos, and voice, kept whole.' },
+  { format: 'zip', label: 'The whole Deep', ext: 'zip', desc: 'A self-contained folder — manifest, photos, and voice, kept whole.' },
 ];
 
 /** familyBook payload — the full thread, bound. Cover follows the chosen format. */
@@ -243,7 +243,7 @@ async function buildThreadZip(
     `Exported ${new Date().toISOString()}`,
     `Schema version: ${data?.schemaVersion ?? 'unknown'}`,
     '',
-    'This archive is a self-contained, offline copy of your family thread.',
+    'This archive is a self-contained, offline copy of your family Deep.',
     'It needs no account, no login, and no internet connection to read — every',
     'photo, voice recording, and written entry is included here as actual files,',
     'not links. It will outlive your subscription and your access token.',
@@ -328,7 +328,7 @@ export function ExportPage() {
         }}
       >
         {/* ── header ── */}
-        <CosmicHeader eyebrow="take it with you" title="Export the thread" align="left" />
+        <CosmicHeader eyebrow="take it with you" title="Export the Deep" align="left" />
 
         {/* ── format — how the archive leaves with you ── */}
         <div
