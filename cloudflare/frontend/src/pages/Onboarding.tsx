@@ -608,7 +608,7 @@ export function Onboarding() {
               only get deeper.
             </h1>
             <p style={welcomeSubhead}>
-              A journal of shared history, preserved for generations.
+              A perpetual family archive — owned by a bloodline, not a login.
             </p>
           </div>
           <div style={welcomeRule} aria-hidden />
