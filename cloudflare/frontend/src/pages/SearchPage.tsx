@@ -164,7 +164,7 @@ export function SearchPage() {
           className="hl-search-flat"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Search the thread"
+          placeholder="a name, a place, a word…"
           aria-label="search"
           style={{
             display: 'block',

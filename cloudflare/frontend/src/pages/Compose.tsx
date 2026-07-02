@@ -14,6 +14,7 @@ import { uploadMemoryImage, validateImage } from '../utils/uploadImage';
 import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 import LegacyRecipientPicker from '../components/LegacyRecipientPicker';
 import { SurfaceRing } from '../loom/cosmic/CosmicUI';
+import { Verb } from '../loom/components/Verb';
 import {
   ComposerRail,
   DyeControl,
@@ -1599,35 +1600,7 @@ export function Compose() {
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={() => navigate('/record')}
-              style={{
-                flexShrink: 0,
-                background: 'transparent',
-                border: '1px solid var(--rule)',
-                borderRadius: 0,
-                padding: '11px 18px',
-                minHeight: 44,
-                cursor: 'pointer',
-                fontFamily: 'var(--mono)',
-                fontSize: 11,
-                letterSpacing: '0.18em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-dim)',
-                transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = 'var(--bone)';
-                e.currentTarget.style.borderColor = 'var(--bone-dim)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'var(--bone-dim)';
-                e.currentTarget.style.borderColor = 'var(--rule)';
-              }}
-            >
-              speak it aloud instead →
-            </button>
+            <Verb onClick={() => navigate('/record')} quiet style={{ flexShrink: 0 }}>speak it aloud instead</Verb>
           </div>
 
           {/* ── Step 1: Who is this for? ──────────────────────────────── */}

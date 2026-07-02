@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Verb } from '../loom/components/Verb';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
@@ -507,9 +508,9 @@ export function Settings() {
             Used only to tailor the Listener's prompts to your life — never shown to anyone, never required.
           </p>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, margin: '14px 0 6px', flexWrap: 'wrap' }}>
-            <button type="button" onClick={() => save.mutate()} disabled={save.isPending} className="hl-btn" style={{ fontSize: 11, padding: '9px 18px' }}>
+            <Verb onClick={() => save.mutate()} disabled={save.isPending} size={18}>
               {save.isPending ? 'saving…' : 'save'}
-            </button>
+            </Verb>
             {savedFlash && (
               <span className="hl-mono" style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--warm)' }}>saved</span>
             )}
