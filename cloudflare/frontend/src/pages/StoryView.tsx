@@ -116,7 +116,7 @@ export function StoryView() {
 
   // ── Share / SEO metadata ──────────────────────────────────────────────────
   const metaTitle = `${artifact.title} · Heirloom`;
-  const metaDescription = (artifact.description || `A story by ${artifact.creatorName}, woven into the family thread.`)
+  const metaDescription = (artifact.description || `A story by ${artifact.creatorName}, settled into the family's Deep.`)
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, 200);

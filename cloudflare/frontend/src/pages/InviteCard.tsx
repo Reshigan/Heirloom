@@ -195,7 +195,7 @@ export function InviteCard() {
               margin: '0 auto 56px',
             }}
           >
-            {senderName} has been weaving a family thread — a permanent record of memories,
+            {senderName} has been keeping a family Deep — a permanent record of memories,
             letters, and stories that belongs to your bloodline. You are part of it now.
             Add your voice, or simply read what has been written. Entries are append-only.
             Nothing is silently deleted or rewritten.

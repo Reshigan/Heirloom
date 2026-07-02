@@ -210,7 +210,7 @@ export function Join() {
                   margin: '0 auto 64px',
                 }}
               >
-                Your first thread is waiting to be woven.
+                Your family's Deep is waiting for its first drop.
               </p>
               <div style={{ display: 'flex', justifyContent: 'center' }}>
                 <WaxSeal size={28} />
@@ -326,8 +326,8 @@ export function Join() {
                 }}
               >
                 {preview
-                  ? `${preview.inviterName} has woven a permanent record of memories, letters, and stories, and has kept a place in it for you. Add your voice, or simply read what has been written. The thread is owned by your bloodline, not a platform.`
-                  : 'Someone in your family has woven a permanent record of memories, letters, and stories, and has included you in it. Add your voice, or simply read what has been written. The thread is owned by your bloodline, not a platform.'}
+                  ? `${preview.inviterName} keeps a permanent record of memories, letters, and stories, and has kept a place in it for you. Add your voice, or simply read what has been written. The Deep is owned by your bloodline, not a platform.`
+                  : 'Someone in your family keeps a permanent record of memories, letters, and stories, and has included you in it. Add your voice, or simply read what has been written. The Deep is owned by your bloodline, not a platform.'}
               </p>
 
               {/* A glimpse — proof the thread already holds something real. */}
@@ -358,7 +358,7 @@ export function Join() {
                     }}
                   >
                     {[
-                      preview.sinceYear ? `woven since ${preview.sinceYear}` : null,
+                      preview.sinceYear ? `settled since ${preview.sinceYear}` : null,
                       preview.memberCount > 1 ? `${preview.memberCount} hands` : null,
                     ].filter(Boolean).join(' · ')}
                   </p>

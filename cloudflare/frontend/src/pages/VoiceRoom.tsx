@@ -459,7 +459,7 @@ export function VoiceRoom() {
                           letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-dim)',
                         }}
                       >
-                        unweave
+                        release
                       </button>
                     )}
                   </div>

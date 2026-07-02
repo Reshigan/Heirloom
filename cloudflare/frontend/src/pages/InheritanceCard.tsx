@@ -142,7 +142,7 @@ export function InheritanceCard() {
                   maxWidth: '46ch',
                 }}
               >
-                A thread has been woven for you — generations of memory, voice, and story passed down through the bloodline. To read and contribute, open the thread.
+                A Deep has been kept for you — generations of memory, voice, and story passed down through the bloodline. To read and add your own, enter the water.
               </p>
               <button
                 type="button"

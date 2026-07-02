@@ -96,7 +96,7 @@ export function ThreadsIndex() {
               margin: '32px 0 48px',
             }}
           >
-            No threads yet. Weave the first one.
+            No threads yet. Begin the first.
           </p>
         )}
 
@@ -198,7 +198,7 @@ export function ThreadsIndex() {
                     color: !newName.trim() || create.isPending ? 'var(--bone-faint)' : 'var(--warm)',
                   }}
                 >
-                  Weave it
+                  Begin it
                 </button>
                 <button
                   type="button"

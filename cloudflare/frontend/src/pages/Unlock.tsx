@@ -535,7 +535,7 @@ function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean })
         </div>
         {loading ? (
           <div className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
-            reading the loom…
+            reading the water…
           </div>
         ) : (
           <>
@@ -549,13 +549,13 @@ function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean })
               className="loom-serif"
               style={{ fontSize: 'clamp(28px, 6vw, 40px)', fontStyle: 'italic', fontWeight: 300, color: 'var(--bone)', lineHeight: 1.2, letterSpacing: '-0.015em' }}
             >
-              No thread has untied yet.
+              Nothing has surfaced yet.
             </div>
             <div
               className="loom-body loom-dim"
               style={{ fontSize: 15, marginTop: 14, lineHeight: 1.7 }}
             >
-              When a sealed letter reaches its date, the loom unties it here — its
+              When a sealed letter reaches its date, it surfaces here — its
               prose fading up exactly when you meant it to arrive.
             </div>
             <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 28 }}>
@@ -595,7 +595,7 @@ function ShareCard({ letter }: { letter: UnlockLetter }) {
           textTransform: 'uppercase',
         }}
       >
-        heirloom · the loom
+        heirloom · the deep
       </div>
 
       <div style={{ display: 'grid', placeItems: 'center', textAlign: 'center' }}>
