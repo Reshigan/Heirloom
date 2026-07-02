@@ -27,14 +27,24 @@ assert.ok(bound(s.saying, 8, 160) && bound(s.imagePrompt, 20, 600) && s.hashtags
 const sched = previewSchedule(d, 90);
 const states = new Set(sched.map((x) => x.needState));
 assert.strictEqual(states.size, 4, "all four need-states must appear over the quarter");
-for (let i = 0; i < sched.length; i += 2) {
-  assert.notStrictEqual(sched[i].needState, sched[i + 1].needState, `day ${sched[i].date}: both slots same audience`);
+// Within a day: the two always-on slots never share an audience, and no saying
+// repeats (the seasonal 17:00 slot MAY repeat the season's audience — that is
+// the peak push — but never a saying).
+const byDate = new Map<string, { slot: number; needState: string; saying: string }[]>();
+for (const x of sched) byDate.set(x.date, [...(byDate.get(x.date) ?? []), x]);
+for (const [date, rows] of byDate) {
+  const alwaysOn = rows.filter((r) => r.slot !== 17).map((r) => r.needState);
+  assert.strictEqual(new Set(alwaysOn).size, alwaysOn.length, `day ${date}: always-on slots repeat audience`);
+  const sayings = rows.map((r) => r.saying);
+  assert.strictEqual(new Set(sayings).size, sayings.length, `day ${date}: repeated saying`);
 }
 
-// A saying should not repeat within ~3 weeks (well-spaced rotation).
+// A saying should not repeat within ~3 weeks across the ALWAYS-ON rotation.
+// (The seasonal 17:00 push reuses its 14-saying library more densely by design,
+// so it's excluded here; same-day uniqueness above still covers it.)
 const seen = new Map<string, number>();
 let minGap = Infinity;
-sched.forEach((x, i) => {
+sched.filter((x) => x.slot !== 17).forEach((x, i) => {
   const key = `${x.needState}:${x.saying}`;
   if (seen.has(key)) minGap = Math.min(minGap, i - seen.get(key)!);
   seen.set(key, i);

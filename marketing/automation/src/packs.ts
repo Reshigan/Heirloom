@@ -11,6 +11,7 @@
 // call and repeats spaced ~a month apart.
 import type { SourcePost } from "./generate.js";
 import { resolveSlotHour } from "./slot.js";
+import { seasonForDate } from "./themes.js";
 
 export type NeedState = "newmom" | "loss" | "parents" | "grand";
 
@@ -27,6 +28,9 @@ export interface Pack {
   // Message-matched landing page — the link the post carries. The page's eyebrow
   // mirrors the pack's addressing line so post → page reads as one thought.
   landing: string;
+  // The forward-nudge (Facebook only) — the documented share vector: family
+  // members forwarding to each other IS the growth loop (brand/social/STRATEGY.md).
+  share: string;
 }
 
 export const PACK_LIBRARY: Record<NeedState, Pack> = {
@@ -41,6 +45,7 @@ export const PACK_LIBRARY: Record<NeedState, Pack> = {
     prompt: "What's the one thing about her right now you never want to forget?",
     cta: "Start her thread at heirloom.blue",
     landing: "https://heirloom.blue/for/their-first-year",
+    share: "Send this to someone in the middle of the newborn nights.",
     sayings: [
       "One day she won't remember being this small. You will.",
       "She'll ask what she was like as a baby. Have the answer ready.",
@@ -66,6 +71,7 @@ export const PACK_LIBRARY: Record<NeedState, Pack> = {
     prompt: "What's the small thing about them you'd keep if you could keep only one?",
     cta: "Keep their voice at heirloom.blue",
     landing: "https://heirloom.blue/for/when-someone-is-gone",
+    share: "Send this to the one who keeps their stories.",
     sayings: [
       "His voice is the first thing you'll forget. Keep it before you do.",
       "Grief is love with nowhere to go. Give it somewhere.",
@@ -91,6 +97,7 @@ export const PACK_LIBRARY: Record<NeedState, Pack> = {
     prompt: "What's a story your kids haven't heard yet?",
     cta: "Begin yours at heirloom.blue",
     landing: "https://heirloom.blue/for/eighteenth-birthday",
+    share: "Send this to the sibling who asks the questions.",
     sayings: [
       "Your kids will want the stories you're too busy to tell.",
       "They'll spend their whole lives quoting you. Choose the words.",
@@ -116,6 +123,7 @@ export const PACK_LIBRARY: Record<NeedState, Pack> = {
     prompt: "Whose voice in your family should outlast all of us?",
     cta: "Leave the stories at heirloom.blue",
     landing: "https://heirloom.blue/for/grandchildren",
+    share: "Show this to the keeper of your family's stories.",
     sayings: [
       "Your grandchildren will know you through what you leave behind.",
       "You are the last one who remembers them. Don't let it end with you.",
@@ -151,11 +159,21 @@ function postIndex(date: Date, slotHour: number): number {
   return dayOfYear(date) * SLOT_ORDER.length + (pos < 0 ? 0 : pos);
 }
 
+// During a seasonal window the bonus 17:00 slot carries the season's audience
+// (Grandparents Day speaks to the grand pack, etc.) instead of blind rotation.
+const SEASON_PACK: Record<string, NeedState> = {
+  "mothers-day": "newmom",
+  "fathers-day": "parents",
+  "grandparents-day": "grand",
+  christmas: "parents",
+};
+
 export interface ResolvedPack {
   needState: NeedState;
   dye: string;
   eyebrow: string;
   landing: string;
+  share: string;
   saying: string;
   source: SourcePost;
 }
@@ -164,8 +182,24 @@ export interface ResolvedPack {
 // pipeline, plus the dye + eyebrow the renderer needs for the pack look.
 export function packForSlot(date = new Date(), slotHour = resolveSlotHour(date)): ResolvedPack {
   const n = postIndex(date, slotHour);
-  const pack = PACK_LIBRARY[ROTATION[n % ROTATION.length]];
-  const saying = pack.sayings[Math.floor(n / ROTATION.length) % pack.sayings.length];
+  const season = slotHour === 17 ? seasonForDate(date) : null;
+  const seasonState = season ? SEASON_PACK[season.id] : undefined;
+  const pack = PACK_LIBRARY[seasonState ?? ROTATION[n % ROTATION.length]];
+  let sayingIdx = Math.floor(n / ROTATION.length) % pack.sayings.length;
+  if (seasonState) {
+    // The forced seasonal slot strides its own path through the library, and
+    // dodges whatever the day's rotation slots would pick for this same pack —
+    // no repeated saying within a day or back-to-back days of a peak window.
+    sayingIdx = (dayOfYear(date) * 2 + 1) % pack.sayings.length;
+    const taken = [13, 23].map((h) => {
+      const m = postIndex(date, h);
+      return ROTATION[m % ROTATION.length] === seasonState
+        ? Math.floor(m / ROTATION.length) % pack.sayings.length
+        : -1;
+    });
+    while (taken.includes(sayingIdx)) sayingIdx = (sayingIdx + 1) % pack.sayings.length;
+  }
+  const saying = pack.sayings[sayingIdx];
   const source: SourcePost = {
     hook: saying,
     saying,
@@ -174,7 +208,7 @@ export function packForSlot(date = new Date(), slotHour = resolveSlotHour(date))
     imagePrompt: `Deep still water with a ${pack.dye} tint, the saying centred in cream serif, a small copper infinity mark above. Quiet, timeless, no people.`,
     hashtags: pack.hashtags,
   };
-  return { needState: pack.needState, dye: pack.dye, eyebrow: pack.eyebrow, landing: pack.landing, saying, source };
+  return { needState: pack.needState, dye: pack.dye, eyebrow: pack.eyebrow, landing: pack.landing, share: pack.share, saying, source };
 }
 
 // What the next N days would post (both/all slots per day) — for review.
@@ -187,7 +221,8 @@ export function previewSchedule(startDate = new Date(), days = 90): Array<{
   const out: Array<{ date: string; slot: number; needState: NeedState; saying: string }> = [];
   for (let i = 0; i < days; i++) {
     const d = new Date(startDate.getTime() + i * 86_400_000);
-    for (const slot of [13, 23]) {
+    const slots = seasonForDate(d) ? [13, 17, 23] : [13, 23];
+    for (const slot of slots) {
       const p = packForSlot(d, slot);
       out.push({ date: d.toISOString().slice(0, 10), slot, needState: p.needState, saying: p.saying });
     }

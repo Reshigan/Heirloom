@@ -55,8 +55,15 @@ export function buildPackVariants(
   source: SourcePost,
   platforms: PlatformKey[],
   seasonHashtags: string[] = [],
+  share?: string,
 ): Variant[] {
-  const caption = `${source.body}\n\n${source.cta}`.trim();
+  // The forward-nudge rides Facebook only — that's the multigenerational
+  // forwarding room; on Bluesky anything reading "brand post" dies instantly.
+  const captionFor = (platform: PlatformKey) =>
+    [source.body, platform === "facebook" && share ? share : "", source.cta]
+      .filter(Boolean)
+      .join("\n\n")
+      .trim();
   // Rotate the (larger-than-a-post) pool by slot so successive posts surface
   // different tags — coverage spreads across communities over the quarter while
   // each post stays calm and on-brand.
@@ -64,7 +71,7 @@ export function buildPackVariants(
   const pool = rotateForSlot([...source.hashtags, ...seasonHashtags], now.getUTCDate() * 24 + now.getUTCHours());
   return platforms.map((platform) => ({
     platform,
-    caption,
+    caption: captionFor(platform),
     hashtags: pool.slice(0, PACK_TAG_CAP[platform]),
     imageSpec: IMAGE_SPECS[platform],
   }));

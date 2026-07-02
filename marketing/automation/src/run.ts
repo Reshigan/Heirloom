@@ -201,7 +201,7 @@ async function imageForVariant(
 
 async function postAll(
   source?: SourcePost,
-  packVisual?: { dye: string; eyebrow: string; landing?: string },
+  packVisual?: { dye: string; eyebrow: string; landing?: string; share?: string },
 ): Promise<void> {
   const today = source ?? (await readJson<{ source: SourcePost }>("output/source.json"))?.source;
   if (!today) {
@@ -216,7 +216,7 @@ async function postAll(
   // Packs carry final, hand-written copy — build variants deterministically
   // (no LLM). The live engine path still generates per-platform variants.
   const variants = packVisual
-    ? buildPackVariants(today, platforms, seasonHashtags)
+    ? buildPackVariants(today, platforms, seasonHashtags, packVisual?.share)
     : await (async () => {
         console.log(`[variants] generating ${platforms.length} platform variants…`);
         return generateVariants({ source: today, platforms, seasonHashtags });
@@ -372,7 +372,7 @@ async function daily(): Promise<void> {
     console.log(`[packs] ${pack.needState} · "${pack.saying}"`);
     const dateKey = now.toISOString().slice(0, 10);
     await writeJson(`output/${dateKey}/source.json`, { source: pack.source });
-    await postAll(pack.source, { dye: pack.dye, eyebrow: pack.eyebrow, landing: pack.landing });
+    await postAll(pack.source, { dye: pack.dye, eyebrow: pack.eyebrow, landing: pack.landing, share: pack.share });
     return;
   }
 
@@ -568,11 +568,29 @@ const handlers: Record<string, () => Promise<void>> = {
       const now = new Date();
       const pack = packForSlot(now, resolveSlotHour(now));
       console.log(`[purge] reposting fresh pack: ${pack.needState} · "${pack.saying}"`);
-      await postAll(pack.source, { dye: pack.dye, eyebrow: pack.eyebrow, landing: pack.landing });
+      await postAll(pack.source, { dye: pack.dye, eyebrow: pack.eyebrow, landing: pack.landing, share: pack.share });
     } else {
       const source = await generate();
       await postAll(source);
     }
+  },
+  // calendar: write the next 90 days of the packs schedule to CALENDAR.md —
+  // the reviewable 3-month content plan (regenerate anytime; deterministic).
+  calendar: async () => {
+    const { previewSchedule } = await import("./packs.js");
+    const rows = previewSchedule(new Date(), 90);
+    const lines = [
+      "# Packs calendar — next 90 days",
+      "",
+      "Regenerate: `npx tsx src/run.ts calendar`. Deterministic: same date+slot always posts the same pack.",
+      "Slots are UTC; 17:00 rows appear only inside seasonal windows (3/day peaks).",
+      "",
+      "| date | slot | audience | saying |",
+      "|---|---|---|---|",
+      ...rows.map((r) => `| ${r.date} | ${r.slot}:00 | ${r.needState} | ${r.saying.replace(/\|/g, "\\|")} |`),
+    ];
+    await fs.writeFile(path.resolve(process.cwd(), "CALENDAR.md"), lines.join("\n") + "\n");
+    console.log(`[calendar] wrote CALENDAR.md — ${rows.length} scheduled posts over 90 days`);
   },
   // audit: read-only — count remaining posts on both platforms. Deletes and
   // posts nothing. After a purge, FB videos should equal just the fresh pack (1);
