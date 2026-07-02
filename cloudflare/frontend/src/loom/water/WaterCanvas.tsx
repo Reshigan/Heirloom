@@ -68,6 +68,12 @@ export default function WaterCanvas() {
     const uRes = gl.getUniformLocation(prog, 'u_res');
     const uTime = gl.getUniformLocation(prog, 'u_time');
     const uDepth = gl.getUniformLocation(prog, 'u_depth');
+    const uRippleT = gl.getUniformLocation(prog, 'u_rippleT');
+
+    // The settle ripple: deep:settled stamps a start time; the draw loop feeds
+    // seconds-since into the shader, which renders one expanding, fading ring.
+    // (Skipped under reduced motion — a static frame can't carry a ripple.)
+    let rippleStart = -1;
 
     // Depth = time. Rooms dispatch deep:depth (0 surface … 1 deep past) as the
     // reader scrolls into older entries; the draw loop eases toward it so the
@@ -96,6 +102,7 @@ export default function WaterCanvas() {
       gl.uniform2f(uRes, cv.width, cv.height);
       gl.uniform1f(uTime, tm);
       gl.uniform1f(uDepth, depth);
+      gl.uniform1f(uRippleT, rippleStart < 0 ? 999.0 : (performance.now() - rippleStart) / 1000);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
 
@@ -152,7 +159,10 @@ export default function WaterCanvas() {
     });
     // Something new settled into the Deep (any entry POST — see api.ts, which
     // fires this event) → the water takes up its dye while you watch.
-    const onSettled = () => { if (useAuthStore.getState().isAuthenticated) seedFromDeep(); };
+    const onSettled = () => {
+      if (!reduce) rippleStart = performance.now();
+      if (useAuthStore.getState().isAuthenticated) seedFromDeep();
+    };
     window.addEventListener('deep:settled', onSettled);
 
     // prefers-reduced-motion: paint one still frame, never animate.

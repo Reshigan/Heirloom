@@ -9,6 +9,7 @@ precision highp float;
 uniform vec2 u_res;
 uniform float u_time;
 uniform float u_depth; // 0 = surface (now) … 1 = deep past; scroll-linked
+uniform float u_rippleT; // seconds since an entry settled (large = no ripple)
 // The family's six ramp colours (surface → deep). Defaults to the approved
 // ground; reseeded from the signed-in family's actual dyes by WaterCanvas.
 uniform vec3 u_dye0,u_dye1,u_dye2,u_dye3,u_dye4,u_dye5;
@@ -83,6 +84,15 @@ void main(){
   float l = dot(c, vec3(0.299,0.587,0.114));
   c = mix(vec3(l), c, 1.12);
   c = max(c, vec3(0.0));
+  // The settle ripple: when an entry is lowered in (deep:settled), one ring
+  // expands from mid-water and fades — the water acknowledging what it holds.
+  if (u_rippleT < 6.0) {
+    vec2 rc = vec2(0.5*asp, 0.55);
+    float rr = length(p - rc);
+    float ring = exp(-pow((rr - u_rippleT*0.20)*18.0, 2.0)) * exp(-u_rippleT*0.8);
+    c += vec3(0.93, 0.86, 0.72) * ring * 0.26;
+  }
+
   // Depth = time: as the reader scrolls into the past the water deepens —
   // darker, cooler, stiller. Driven by the deep:depth event (ClothShell scroll).
   c *= mix(1.0, 0.45, u_depth);
