@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { familyApi, engagementApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Verb } from '../loom/components/Verb';
 import { usePageMeta } from '../lib/usePageMeta';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { copyToClipboard } from '../utils/clipboard';
@@ -282,20 +283,11 @@ export function Family() {
           title="Who holds the thread"
         />
 
-        {/* primary CTA row */}
+        {/* primary acts — Open Water: verbs in the hand voice, no boxes */}
         {!showForm && (
-          <div style={{ display: 'flex', gap: 16, marginBottom: 36, flexWrap: 'wrap' }}>
-            <button type="button" className="hl-btn" onClick={() => openForm('add')}>
-              add a name →
-            </button>
-            <button
-              type="button"
-              className="hl-btn ghost"
-              onClick={() => openForm('invite')}
-              style={{ color: 'var(--warm)', borderColor: 'color-mix(in srgb, var(--warm) 40%, transparent)' }}
-            >
-              invite by email →
-            </button>
+          <div style={{ display: 'flex', gap: 28, marginBottom: 36, flexWrap: 'wrap', alignItems: 'baseline' }}>
+            <Verb drop onClick={() => openForm('add')}>add a name</Verb>
+            <Verb quiet onClick={() => openForm('invite')}>— or invite by email</Verb>
           </div>
         )}
 
