@@ -138,6 +138,48 @@ function drawWater(
   ctx.fillStyle = tint;
   ctx.fillRect(0, 0, w, h);
 
+  // The living water: layered, rotated, elongated washes of several dyes —
+  // the same marbled deep-water ground as the site, seeded so every post's
+  // currents differ. Dark ink currents in between keep the depth.
+  // Each post draws its own chord of dyes — the signature dye plus two
+  // seeded companions — so the palette plays across the feed: one post warm
+  // madder-and-saffron, the next cool woad-and-seafoam.
+  const others = DYES.filter((d) => d !== dye);
+  const chord = [dye, others[Math.floor(rnd() * others.length)], others[Math.floor(rnd() * others.length)]];
+  const swirl = 12 + Math.floor(rnd() * 5);
+  for (let i = 0; i < swirl; i++) {
+    const c = chord[i % chord.length];
+    const x = w * rnd();
+    const y = h * rnd();
+    const r = Math.max(w, h) * (0.2 + rnd() * 0.32);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rnd() * Math.PI);
+    ctx.scale(1, 0.35 + rnd() * 0.5); // elongated — a current, not a spot
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+    g.addColorStop(0, withAlpha(c.hex, 0.11 + rnd() * 0.12));
+    g.addColorStop(0.6, withAlpha(c.hex, 0.04 + rnd() * 0.05));
+    g.addColorStop(1, withAlpha(c.hex, 0));
+    ctx.fillStyle = g;
+    ctx.fillRect(-r, -r, r * 2, r * 2);
+    ctx.restore();
+  }
+  for (let i = 0; i < 6; i++) {
+    const x = w * rnd();
+    const y = h * rnd();
+    const r = Math.max(w, h) * (0.2 + rnd() * 0.25);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rnd() * Math.PI);
+    ctx.scale(1, 0.3 + rnd() * 0.45);
+    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
+    g.addColorStop(0, withAlpha(INK, 0.16 + rnd() * 0.12));
+    g.addColorStop(1, withAlpha(INK, 0));
+    ctx.fillStyle = g;
+    ctx.fillRect(-r, -r, r * 2, r * 2);
+    ctx.restore();
+  }
+
   // Pack mode: a second deep wash anchored to a bottom corner so the colour
   // wraps the frame and survives the centre vignette behind the type.
   if (bold) {
