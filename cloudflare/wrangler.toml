@@ -57,6 +57,7 @@ binding = "AI"
 [triggers]
 crons = [
   "45 2 * * *",  # Daily growth scoreboard email (crons/daily-scoreboard.ts)
+  "20 3 * * *",  # TEMP one-shot verify of the scoreboard — remove after first send
   "0 9 * * *",   # Daily at 9 AM UTC - check for missed check-ins
   "0 20 * * *",  # Daily at 8 PM UTC - enqueue the Listener's daily prompt push
   "0 0 * * SUN", # Weekly on Sunday - send reminder emails
