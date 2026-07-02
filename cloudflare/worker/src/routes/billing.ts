@@ -1080,7 +1080,7 @@ billingRoutes.post('/webhook', async (c) => {
                           from: 'Heirloom <noreply@heirloom.blue>',
                           to: voucher.purchaser_email as string,
                           subject: 'Your Heirloom Gift Voucher is Ready',
-                          html: `<p>Thank you for purchasing a Heirloom gift voucher!</p>
+                          html: `<p>Thank you for giving someone a place in Heirloom.</p>
                                  <p>Your voucher code is: <strong>${voucher.code}</strong></p>
                                  <p>This voucher is for a ${voucher.tier} subscription (${voucher.duration_months} month${(voucher.duration_months as number) > 1 ? 's' : ''}).</p>
                                  <p>Share this code with your recipient or send them this link: ${c.env.APP_URL}/gift/redeem?code=${voucher.code}</p>`,
@@ -1096,8 +1096,8 @@ billingRoutes.post('/webhook', async (c) => {
                         await sendEmail(c.env, {
                           from: 'Heirloom <noreply@heirloom.blue>',
                           to: voucher.recipient_email as string,
-                          subject: `${voucher.purchaser_name || 'Someone'} sent you a Heirloom gift!`,
-                          html: `<p>You've received a gift from ${voucher.purchaser_name || 'a friend'}!</p>
+                          subject: `${voucher.purchaser_name || 'Someone'} sent you a Heirloom gift`,
+                          html: `<p>A gift has arrived for you, from ${voucher.purchaser_name || 'a friend'}.</p>
                                  ${voucher.recipient_message ? `<p><em>"${voucher.recipient_message}"</em></p>` : ''}
                                  <p>Your gift voucher code is: <strong>${voucher.code}</strong></p>
                                  <p>Redeem it here: <a href="${c.env.APP_URL}/gift/redeem?code=${voucher.code}">${c.env.APP_URL}/gift/redeem</a></p>`,

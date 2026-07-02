@@ -936,9 +936,9 @@ export async function processInfluencerFollowUps(env: Env) {
 // Helper function for follow-up emails
 function getInfluencerFollowUpEmail(name: string, segment: string | null, emailType: string): { subject: string; html: string } {
   return {
-    subject: emailType === 'FOLLOWUP_FINAL' 
-      ? `Last chance: Partner with Heirloom, ${name}?`
-      : `Quick follow-up: Heirloom partnership opportunity`,
+    subject: emailType === 'FOLLOWUP_FINAL'
+      ? `A last note on partnering with Heirloom, ${name}`
+      : `Quick follow-up: Heirloom partnership`,
     html: influencerFollowUpTemplate(name, segment, emailType),
   };
 }
@@ -1554,7 +1554,7 @@ export async function processAutomatedPayouts(env: Env) {
       await sendEmail(env, {
         from: 'Heirloom <noreply@heirloom.blue>',
         to: influencer.email as string,
-        subject: `Your Heirloom commission payout of $${(pendingBalance / 100).toFixed(2)} is on its way!`,
+        subject: `Your Heirloom commission payout of $${(pendingBalance / 100).toFixed(2)} is on its way`,
         html: payoutNotificationEmail(influencer.name as string, pendingBalance, transfer.id),
       }, 'influencer_payout_notification');
       
@@ -1587,7 +1587,7 @@ function payoutNotificationEmail(name: string, amountCents: number, transferId: 
   const amount = (amountCents / 100).toFixed(2);
   return emailWrapper(`
     <h2 style="color: #f5f5dc; font-size: 24px; font-weight: normal; margin: 0 0 20px 0;">
-      Great news, ${name}!
+      Your payout is on its way, ${name}
     </h2>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
@@ -1605,7 +1605,7 @@ function payoutNotificationEmail(name: string, amountCents: number, transferId: 
     </p>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 20px 0;">
-      Keep up the great work! Your audience is discovering the joy of preserving their family legacy with Heirloom.
+      Thank you for introducing families to Heirloom. What they lower in now will still be there for the people who come after them.
     </p>
     
     <div style="text-align: center; margin: 30px 0;">
@@ -1727,7 +1727,7 @@ function getDateReminderEmail(firstName: string, dateType: string, personName: s
 
 function getInfluencerOutreachEmail(name: string, niche: string | null): { subject: string; html: string } {
   return {
-    subject: `Partnership opportunity: Help families preserve their legacy`,
+    subject: `Partnering with Heirloom — a family archive built to last`,
     html: influencerOutreachTemplate(name, niche),
   };
 }
@@ -1762,12 +1762,12 @@ function getVoucherFollowUpEmail(name: string, voucherCode: string, daysUntilExp
 function welcomeEmail1(name: string): string {
   return emailWrapper(`
     <h2 style="color: #f5f5dc; font-size: 22px; font-weight: normal; margin: 0 0 20px 0;">
-      Welcome to Heirloom, ${name}!
+      Welcome to Heirloom, ${name}
     </h2>
-    
+
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      You've taken the first step toward preserving what matters most. In just 60 seconds, 
-      you can create your first memory and start building a legacy that will last for generations.
+      The Deep is ready for you — a quiet place where your family's stories settle and stay.
+      Sixty seconds and one memory are enough to begin.
     </p>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
@@ -1777,7 +1777,7 @@ function welcomeEmail1(name: string): string {
     
     <div style="text-align: center; margin: 30px 0;">
       <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
-        Create Your First Memory
+        Begin With One Memory
       </a>
     </div>
   `);
@@ -1800,7 +1800,7 @@ function welcomeEmail2(name: string): string {
     <ul style="color: #c0c0c0; font-size: 16px; line-height: 1.8; margin: 0 0 25px 20px;">
       <li>View and contribute to shared memories</li>
       <li>Receive your letters and voice messages</li>
-      <li>Help preserve your family's legacy</li>
+      <li>Add their own voice to what the family keeps</li>
     </ul>
     
     <div style="text-align: center; margin: 30px 0;">
@@ -1818,8 +1818,8 @@ function welcomeEmail3(name: string): string {
     </h2>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      There's something magical about hearing a loved one's voice. Record a short voice message 
-      - just 30 seconds - and give your family a gift they'll treasure forever.
+      There's nothing quite like hearing a loved one's voice. Record a short voice message
+      - just 30 seconds - and lower it in for the people who'll want to hear it someday.
     </p>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
@@ -1842,8 +1842,8 @@ function welcomeEmail4(name: string): string {
     </h2>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      Life is unpredictable. Heirloom's Legacy Playbook ensures your memories, letters, and 
-      voice messages reach your loved ones when the time is right.
+      Heirloom's Legacy Playbook is a quiet safeguard: it makes sure your memories, letters, and
+      voice messages reach the people you meant them for, at the right moment.
     </p>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
@@ -1863,22 +1863,22 @@ function welcomeEmail4(name: string): string {
 function inactiveEmail(name: string, days: number): string {
   return emailWrapper(`
     <h2 style="color: #f5f5dc; font-size: 22px; font-weight: normal; margin: 0 0 20px 0;">
-      We saved your spot, ${name}
+      Everything is where you left it, ${name}
     </h2>
-    
+
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      It's been ${days} days since we last saw you. Your memories are waiting, and there's 
-      no better time than now to add to your legacy.
+      It's been ${days} days, and everything you've lowered in is exactly where you left it.
+      The Deep doesn't go anywhere — add to it whenever a moment finds you.
     </p>
-    
+
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-      <strong style="color: #e0a062;">Quick idea:</strong> What made you smile today? 
-      Capture it in 30 seconds.
+      <strong style="color: #e0a062;">A quiet idea:</strong> What made you smile today?
+      Let it settle in 30 seconds.
     </p>
-    
+
     <div style="text-align: center; margin: 30px 0;">
       <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
-        Continue Your Legacy
+        Return to the Deep
       </a>
     </div>
   `);
@@ -1916,13 +1916,13 @@ function inactiveEmailFinal(name: string): string {
     </h2>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      We don't want to fill your inbox with emails you don't want. This is our last 
-      reminder - but your account and everything you've started will always be here 
-      waiting for you.
+      We don't want to fill your inbox with emails you don't want, so this is the last
+      note from us for a while. Your account, and everything you've started, stays
+      exactly as you left it.
     </p>
-    
+
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-      When you're ready to preserve what matters most, we'll be here.
+      Whenever you're ready, the Deep will be here.
     </p>
     
     <div style="text-align: center; margin: 30px 0;">
@@ -1974,9 +1974,9 @@ function influencerOutreachTemplate(name: string, niche: string | null): string 
     </p>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      <strong style="color: #e0a062;">Heirloom</strong> helps families preserve their most precious 
-      memories, stories, and messages for future generations. We're building a movement around 
-      meaningful legacy-building, and we'd love for you to be part of it.
+      <strong style="color: #e0a062;">Heirloom</strong> is a perpetual family archive — a quiet,
+      deep place where a family's memories, letters, and voices settle and stay for the
+      generations that follow. We'd love for you to be part of it.
     </p>
     
     <!-- Value Proposition Box -->
@@ -1988,8 +1988,7 @@ function influencerOutreachTemplate(name: string, niche: string | null): string 
       <table style="width: 100%; border-collapse: collapse;">
         <tr>
           <td style="padding: 10px 0; border-bottom: 1px solid rgba(224, 160, 98, 0.2);">
-            <span style="color: #e0a062; font-size: 20px;">💰</span>
-            <span style="color: #f5f5dc; font-size: 15px; margin-left: 10px;"><strong>20% Commission</strong></span>
+            <span style="color: #f5f5dc; font-size: 15px;"><strong>20% Commission</strong></span>
           </td>
           <td style="padding: 10px 0; border-bottom: 1px solid rgba(224, 160, 98, 0.2); color: #c0c0c0; font-size: 14px; text-align: right;">
             On every yearly subscription ($20-$40 per sale)
@@ -1997,8 +1996,7 @@ function influencerOutreachTemplate(name: string, niche: string | null): string 
         </tr>
         <tr>
           <td style="padding: 10px 0; border-bottom: 1px solid rgba(224, 160, 98, 0.2);">
-            <span style="color: #e0a062; font-size: 20px;">🎁</span>
-            <span style="color: #f5f5dc; font-size: 15px; margin-left: 10px;"><strong>Free Family Plan</strong></span>
+            <span style="color: #f5f5dc; font-size: 15px;"><strong>Free Family Plan</strong></span>
           </td>
           <td style="padding: 10px 0; border-bottom: 1px solid rgba(224, 160, 98, 0.2); color: #c0c0c0; font-size: 14px; text-align: right;">
             $120/year value - yours free forever
@@ -2006,8 +2004,7 @@ function influencerOutreachTemplate(name: string, niche: string | null): string 
         </tr>
         <tr>
           <td style="padding: 10px 0; border-bottom: 1px solid rgba(224, 160, 98, 0.2);">
-            <span style="color: #e0a062; font-size: 20px;">🏷️</span>
-            <span style="color: #f5f5dc; font-size: 15px; margin-left: 10px;"><strong>Personalized Discount Code</strong></span>
+            <span style="color: #f5f5dc; font-size: 15px;"><strong>Personalized Discount Code</strong></span>
           </td>
           <td style="padding: 10px 0; border-bottom: 1px solid rgba(224, 160, 98, 0.2); color: #c0c0c0; font-size: 14px; text-align: right;">
             15-25% off for your audience
@@ -2015,8 +2012,7 @@ function influencerOutreachTemplate(name: string, niche: string | null): string 
         </tr>
         <tr>
           <td style="padding: 10px 0; border-bottom: 1px solid rgba(224, 160, 98, 0.2);">
-            <span style="color: #e0a062; font-size: 20px;">🌐</span>
-            <span style="color: #f5f5dc; font-size: 15px; margin-left: 10px;"><strong>Custom Landing Page</strong></span>
+            <span style="color: #f5f5dc; font-size: 15px;"><strong>Custom Landing Page</strong></span>
           </td>
           <td style="padding: 10px 0; border-bottom: 1px solid rgba(224, 160, 98, 0.2); color: #c0c0c0; font-size: 14px; text-align: right;">
             heirloom.blue/yourname with your branding
@@ -2024,8 +2020,7 @@ function influencerOutreachTemplate(name: string, niche: string | null): string 
         </tr>
         <tr>
           <td style="padding: 10px 0;">
-            <span style="color: #e0a062; font-size: 20px;">📊</span>
-            <span style="color: #f5f5dc; font-size: 15px; margin-left: 10px;"><strong>Real-Time Dashboard</strong></span>
+            <span style="color: #f5f5dc; font-size: 15px;"><strong>Real-Time Dashboard</strong></span>
           </td>
           <td style="padding: 10px 0; color: #c0c0c0; font-size: 14px; text-align: right;">
             Track clicks, conversions & earnings
@@ -2043,14 +2038,13 @@ function influencerOutreachTemplate(name: string, niche: string | null): string 
         $2,000 - $4,000/month
       </p>
       <p style="color: #888; font-size: 12px; margin: 5px 0 0 0;">
-        in passive recurring income
+        in recurring commission
       </p>
     </div>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 20px 0;">
-      The best part? <strong style="color: #f5f5dc;">Heirloom sells itself.</strong> It's an emotional product 
-      that resonates deeply with families. Your audience will thank you for introducing them to a 
-      meaningful way to preserve their legacy.
+      Heirloom is an easy thing to share honestly: a family archive where memories, letters, and
+      voices settle and stay. If it fits your audience, it tends to speak for itself.
     </p>
     
     <div style="text-align: center; margin: 30px 0;">
@@ -2101,7 +2095,7 @@ function influencerFollowUpTemplate(name: string, niche: string | null, emailTyp
       </div>
       
       <p style="color: #808080; font-size: 14px; margin: 20px 0 0 0;">
-        Just reply to this email if you have any questions!
+        Just reply to this email if you have any questions.
       </p>
     `);
   } else if (emailType === 'FOLLOWUP_2') {
@@ -2132,7 +2126,7 @@ function influencerFollowUpTemplate(name: string, niche: string | null, emailTyp
       </div>
       
       <p style="color: #808080; font-size: 14px; margin: 20px 0 0 0;">
-        Either way, I appreciate your time!
+        Either way, I appreciate your time.
       </p>
     `);
   } else {
@@ -2210,17 +2204,18 @@ function prospectOutreachTemplate(name: string, niche: string | null, voucherCod
     </h2>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      We'd love to invite you to try <strong style="color: #e0a062;">Heirloom</strong> - a beautiful 
-      platform for preserving family memories, stories, and messages for future generations.${nicheText}
+      We'd love to invite you to try <strong style="color: #e0a062;">Heirloom</strong> - a perpetual
+      family archive where memories, letters, and voices settle and stay for the people who come
+      after.${nicheText}
     </p>
-    
+
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      As a special gift, we're offering you <strong style="color: #e0a062;">2 months free</strong> 
-      to experience everything Heirloom has to offer - no strings attached.
+      We've set aside <strong style="color: #e0a062;">2 months free</strong> for you -
+      time enough to see how it feels to keep something there.
     </p>
-    
+
     <div style="background: rgba(224, 160, 98, 0.1); border: 1px solid rgba(224, 160, 98, 0.3); border-radius: 8px; padding: 20px; margin: 25px 0; text-align: center;">
-      <p style="color: #a0a0a0; font-size: 14px; margin: 0 0 10px 0;">Your exclusive trial code:</p>
+      <p style="color: #a0a0a0; font-size: 14px; margin: 0 0 10px 0;">Your trial code:</p>
       <p style="color: #e0a062; font-size: 24px; font-weight: bold; margin: 0; letter-spacing: 2px;">${voucherCode}</p>
     </div>
     
@@ -2231,19 +2226,19 @@ function prospectOutreachTemplate(name: string, niche: string | null, voucherCod
     </div>
     
     <p style="color: #808080; font-size: 14px; margin: 20px 0 0 0;">
-      This code expires in 30 days. If you have any questions, just reply to this email.
+      The code expires in 30 days - just so you know the shape of it. Questions? Reply to this email.
     </p>
   `);
 }
 
 function voucherFollowUpTemplate(name: string, voucherCode: string, daysUntilExpiry: number, followupNumber: number): string {
-  const urgencyText = daysUntilExpiry <= 7 
-    ? `<strong style="color: #e0a062;">Only ${daysUntilExpiry} days left</strong> to claim your free trial!`
-    : `Your free trial code is still waiting for you.`;
-  
+  const expiryText = daysUntilExpiry <= 7
+    ? `Your trial code stays open for another ${daysUntilExpiry} days.`
+    : `Your trial code is still open whenever you'd like to look around.`;
+
   const messageText = followupNumber === 1
-    ? `We noticed you haven't had a chance to try Heirloom yet. ${urgencyText}`
-    : `This is a gentle reminder that your exclusive trial offer expires soon. Don't miss out on preserving your family's precious memories.`;
+    ? `A quiet note, in case the first email drifted past: we set aside a trial of Heirloom for you. ${expiryText}`
+    : `A small piece of housekeeping: your trial code has an end date, ${daysUntilExpiry} days from now. If the timing isn't right, that's fine - Heirloom will still be here.`;
   
   return emailWrapper(`
     <h2 style="color: #f5f5dc; font-size: 22px; font-weight: normal; margin: 0 0 20px 0;">
@@ -2258,9 +2253,9 @@ function voucherFollowUpTemplate(name: string, voucherCode: string, daysUntilExp
       With Heirloom, you can:
     </p>
     <ul style="color: #c0c0c0; font-size: 16px; line-height: 1.8; margin: 0 0 20px 20px;">
-      <li>Preserve photos, videos, and voice recordings</li>
+      <li>Keep photos, videos, and voice recordings</li>
       <li>Write letters to loved ones for the future</li>
-      <li>Create a lasting legacy for generations</li>
+      <li>Pass stories on to the people who come after</li>
     </ul>
     
     <div style="background: rgba(224, 160, 98, 0.1); border: 1px solid rgba(224, 160, 98, 0.3); border-radius: 8px; padding: 20px; margin: 25px 0; text-align: center;">
@@ -2270,7 +2265,7 @@ function voucherFollowUpTemplate(name: string, voucherCode: string, daysUntilExp
     
     <div style="text-align: center; margin: 30px 0;">
       <a href="https://heirloom.blue/redeem?code=${voucherCode}" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
-        Claim Your Free Trial
+        Begin Your Trial
       </a>
     </div>
     
@@ -2292,7 +2287,7 @@ function emailWrapper(content: string): string {
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
     <div style="text-align: center; margin-bottom: 30px;">
       <h1 style="color: #e0a062; font-size: 28px; font-weight: normal; margin: 0;">Heirloom</h1>
-      <p style="color: #a0a0a0; font-size: 14px; margin-top: 5px;">Preserve what matters most</p>
+      <p style="color: #a0a0a0; font-size: 14px; margin-top: 5px;">Some things only get deeper.</p>
     </div>
     
     <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 1px solid rgba(224, 160, 98, 0.2); border-radius: 12px; padding: 30px;">
@@ -2300,7 +2295,7 @@ function emailWrapper(content: string): string {
     </div>
     
     <p style="color: #606060; font-size: 12px; text-align: center; margin-top: 30px;">
-      Heirloom - Preserving family legacies for generations<br>
+      Heirloom - a perpetual family archive, owned by a bloodline, not a login<br>
       <a href="https://heirloom.blue/settings" style="color: #606060;">Manage email preferences</a>
     </p>
   </div>
