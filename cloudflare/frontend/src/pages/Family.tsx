@@ -774,14 +774,14 @@ export function Family() {
                         }}
                         style={{
                           background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                          fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bone-faint)',
-                          letterSpacing: '0.18em', textTransform: 'uppercase',
+                          fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+                          fontSize: 15.5, color: 'var(--bone-faint)',
                           transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                         }}
                         onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
                         onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
                       >
-                        {isEditing ? 'cancel' : 'edit →'}
+                        {isEditing ? 'cancel' : 'edit'}
                       </button>
                       {!isEditing && (
                         <>
@@ -790,42 +790,42 @@ export function Family() {
                             onClick={() => setAddRelFor(addRelFor === m.id ? null : m.id)}
                             style={{
                               background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                              fontFamily: 'var(--mono)', fontSize: 12, color: addRelFor === m.id ? 'var(--warm)' : 'var(--bone-faint)',
-                              letterSpacing: '0.18em', textTransform: 'uppercase',
+                              fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+                              fontSize: 15.5, color: addRelFor === m.id ? 'var(--warm)' : 'var(--bone-faint)',
                               transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                             }}
                             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
                             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = addRelFor === m.id ? 'var(--warm)' : 'var(--bone-faint)'; }}
                           >
-                            {addRelFor === m.id ? 'close kin' : 'add relation →'}
+                            {addRelFor === m.id ? 'close kin' : 'add relation'}
                           </button>
                           <button
                             type="button"
                             onClick={() => navigate(`/compose?recipientId=${m.id}`)}
                             style={{
                               background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                              fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bone-faint)',
-                              letterSpacing: '0.18em', textTransform: 'uppercase',
+                              fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+                              fontSize: 15.5, color: 'var(--bone-faint)',
                               transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                             }}
                             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
                             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
                           >
-                            write a letter →
+                            write a letter
                           </button>
                           <button
                             type="button"
                             onClick={() => navigate(`/record?recipientId=${m.id}`)}
                             style={{
                               background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                              fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bone-faint)',
-                              letterSpacing: '0.18em', textTransform: 'uppercase',
+                              fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+                              fontSize: 15.5, color: 'var(--bone-faint)',
                               transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                             }}
                             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
                             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
                           >
-                            record voice →
+                            record voice
                           </button>
                         </>
                       )}
@@ -839,8 +839,8 @@ export function Family() {
                             className="family-member-delete"
                             style={{
                               background: 'transparent', border: 0, padding: 0, cursor: 'pointer',
-                              fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bone-faint)',
-                              letterSpacing: '0.18em', textTransform: 'uppercase',
+                              fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+                              fontSize: 15.5, color: 'var(--bone-faint)',
                               transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
                             }}
                             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
