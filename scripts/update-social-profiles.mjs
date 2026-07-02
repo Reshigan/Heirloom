@@ -69,7 +69,7 @@ async function updateBluesky() {
         ...current,
         $type: 'app.bsky.actor.profile',
         displayName: 'Heirloom',
-        description: "Start your family's thousand-year thread. Perpetual, append-only, multi-generational. heirloom.blue",
+        description: "Some things only get deeper. A perpetual family archive — owned by a bloodline, not a login. heirloom.blue",
         avatar: avatarBlob,
         banner: bannerBlob,
       },

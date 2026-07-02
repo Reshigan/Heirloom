@@ -72,7 +72,7 @@ export function Threshold() {
               margin: 0,
             }}
           >
-            Start your family&rsquo;s<br />thousand-year thread,
+            Some things<br />only get deeper.
           </h1>
 
           {/* Quiet bloodline sub */}

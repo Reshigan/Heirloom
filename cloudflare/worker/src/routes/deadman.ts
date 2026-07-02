@@ -17,7 +17,7 @@ const esc = (s: string): string =>
 export const deadmanRoutes = new Hono<AppEnv>();
 
 // ── Minimal on-brand HTML for the public verify-contact pages ────────────────
-// Cream (#f2e6d0) on ground (#0b0907), serif, no external assets, NO inline
+// Cream (#f2e6d0) on ground (#070d14), serif, no external assets, NO inline
 // <script> (production CSP forbids inline JS — the confirm flow is a plain
 // <form> POST that needs none). Used by the unauthenticated contact-verification
 // handlers below.
@@ -28,7 +28,7 @@ const verifyContactPage = (heading: string, body: string): string => `<!DOCTYPE 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Heirloom</title>
 <style>
-  html, body { margin: 0; padding: 0; background: #0b0907; color: #f2e6d0; }
+  html, body { margin: 0; padding: 0; background: #070d14; color: #f2e6d0; }
   body {
     font-family: Georgia, 'Times New Roman', serif;
     min-height: 100vh; display: flex; align-items: center; justify-content: center;
@@ -42,7 +42,7 @@ const verifyContactPage = (heading: string, body: string): string => `<!DOCTYPE 
   button {
     font-family: 'Courier New', Courier, monospace;
     font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
-    color: #0b0907; background: #e0a062; border: 1px solid #e0a062;
+    color: #070d14; background: #e0a062; border: 1px solid #e0a062;
     padding: 14px 28px; cursor: pointer;
   }
   .foot {

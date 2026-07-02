@@ -64,7 +64,7 @@ describe('buildShareMeta — defaults & structure', () => {
     // @ts-expect-error deliberately passing an invalid kind
     const m = buildShareMeta('garbage');
     expect(m.kind).toBe('thread');
-    expect(m.title).toContain('thousand-year thread');
+    expect(m.title).toContain('only get deeper');
   });
 
   it('normalises a trailing-slash origin and joins the path cleanly', () => {
@@ -182,7 +182,7 @@ describe('renderShareCardSvg', () => {
     expect(svg).toContain('width="1200"');
     expect(svg).toContain('height="630"');
     // Brand constitution: ink bg, bone text, single warm accent, infinity mark.
-    expect(svg).toContain('#0b0907');
+    expect(svg).toContain('#070d14');
     expect(svg).toContain('#f2e6d0');
     expect(svg).toContain('#e0a062');
     expect(svg).toContain('∞');

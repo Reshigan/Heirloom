@@ -283,12 +283,12 @@ lifeEventsRoutes.post('/:triggerId/trigger', async (c) => {
             subject: `${senderName} has a special message for your ${trigger.event_name}`,
             html: `
               <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: linear-gradient(135deg, #0a0c10 0%, #12151c 100%); color: #f5f0e8;">
-                <h1 style="color: #c9a959; text-align: center; font-weight: normal;">A Message for Your ${trigger.event_name}</h1>
+                <h1 style="color: #e0a062; text-align: center; font-weight: normal;">A Message for Your ${trigger.event_name}</h1>
                 <p style="text-align: center; color: #f5f0e8cc;">Dear ${recipientName},</p>
                 <p style="text-align: center; color: #f5f0e8cc;">${senderName} prepared something special for this moment in your life.</p>
                 ${trigger.event_description ? `<p style="text-align: center; color: #f5f0e8cc; font-style: italic;">"${trigger.event_description}"</p>` : ''}
                 <div style="text-align: center; margin: 30px 0;">
-                  <a href="${c.env.APP_URL || 'https://heirloom.blue'}/inherit" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #c9a959 0%, #a08335 100%); color: #0a0c10; text-decoration: none; border-radius: 8px; font-weight: bold;">View Your Message</a>
+                  <a href="${c.env.APP_URL || 'https://heirloom.blue'}/inherit" style="display: inline-block; padding: 15px 30px; background: linear-gradient(135deg, #e0a062 0%, #a08335 100%); color: #0a0c10; text-decoration: none; border-radius: 8px; font-weight: bold;">View Your Message</a>
                 </div>
                 <p style="text-align: center; color: #f5f0e899; font-size: 14px;">This message was prepared with love through Heirloom.</p>
               </div>

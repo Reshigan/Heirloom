@@ -22,7 +22,7 @@ export function usePageMeta(title: string, description?: string): void {
     }
 
     return () => {
-      document.title = `${BASE} — your family's thousand-year thread`;
+      document.title = `${BASE} — some things only get deeper`;
     };
   }, [title, description]);
 }

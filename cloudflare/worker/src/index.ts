@@ -468,7 +468,7 @@ app.post('/api/contact', async (c) => {
         subject: `[${ticketNumber}] Contact Form: ${body.subject}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #D4AF37;">New Contact Form Submission</h2>
+            <h2 style="color: #e0a062;">New Contact Form Submission</h2>
             <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
             <p><strong>From:</strong> ${escHtml(body.name)} (${escHtml(body.email)})</p>
             <p><strong>Subject:</strong> ${escHtml(body.subject)}</p>
@@ -500,10 +500,10 @@ app.post('/api/contact', async (c) => {
       to: body.email,
       subject: `[${ticketNumber}] We received your message`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f; color: #f5f5f0; padding: 32px;">
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #070d14; color: #f5f5f0; padding: 32px;">
           <div style="text-align: center; margin-bottom: 24px;">
-            <span style="font-size: 48px; color: #D4AF37;">&infin;</span>
-            <h1 style="color: #D4AF37; margin: 8px 0;">Heirloom</h1>
+            <span style="font-size: 48px; color: #e0a062;">&infin;</span>
+            <h1 style="color: #e0a062; margin: 8px 0;">Heirloom</h1>
           </div>
           <h2>Thank you for reaching out</h2>
           <p>Hi ${body.name},</p>

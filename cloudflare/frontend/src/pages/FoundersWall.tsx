@@ -177,7 +177,7 @@ export function FoundersWall() {
             }}
           >
             The full roster is published only once the successor non-profit is incorporated, and
-            only with each family's consent — a name in a thousand-year record is not given
+            only with each family's consent — a name in a permanent family record is not given
             lightly. Until then, the count above is live and exact. There are{' '}
             {remaining === null ? 'a limited number of' : remaining}{' '}
             {remaining === 1 ? 'seat' : 'seats'} left.

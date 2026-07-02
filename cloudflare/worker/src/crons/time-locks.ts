@@ -222,16 +222,16 @@ async function sendUnlockNotification(env: AppEnv['Bindings'], input: Notificati
 <body style="font-family: Georgia, serif; background:#0a0c10; color:#f5f3ee; margin:0; padding:40px;">
   <div style="max-width:600px; margin:0 auto;">
     <div style="text-align:center; padding:24px 0; border-bottom:1px solid rgba(201,169,89,0.25);">
-      <span style="font-size:32px; color:#c9a959;">∞</span>
-      <h1 style="color:#c9a959; font-weight:300; letter-spacing:3px; margin:6px 0 0;">HEIRLOOM</h1>
+      <span style="font-size:32px; color:#e0a062;">∞</span>
+      <h1 style="color:#e0a062; font-weight:300; letter-spacing:3px; margin:6px 0 0;">HEIRLOOM</h1>
     </div>
     <div style="padding:36px 0; line-height:1.7;">
       <p>${greeting}</p>
       <p>An entry in <strong>${escapeHtml(input.threadName)}</strong> just unlocked for you.</p>
-      <p style="font-style:italic; color:#c9a959;">${escapeHtml(titleLine)}</p>
+      <p style="font-style:italic; color:#e0a062;">${escapeHtml(titleLine)}</p>
       <p style="color:rgba(245,243,238,0.55); font-size:14px;">${escapeHtml(input.context)}</p>
       <div style="text-align:center; margin:32px 0;">
-        <a href="${url}" style="display:inline-block; padding:14px 32px; background:linear-gradient(135deg,#c9a959,#b8963e); color:#0a0c10; text-decoration:none; border-radius:8px; font-weight:600;">Open the thread</a>
+        <a href="${url}" style="display:inline-block; padding:14px 32px; background:linear-gradient(135deg,#e0a062,#b07a3e); color:#0a0c10; text-decoration:none; border-radius:8px; font-weight:600;">Open the thread</a>
       </div>
       <p style="color:rgba(245,243,238,0.5); font-size:13px;">Some entries in your family's thread are written today and locked for years. This is one of those.</p>
     </div>

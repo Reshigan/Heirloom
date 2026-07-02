@@ -182,7 +182,7 @@ export function GiftSubscriptions() {
         {/* Page header */}
         <CosmicHeader
           eyebrow={`step ${String(step).padStart(2, '0')} · gift a thread`}
-          title={<span style={{ whiteSpace: 'pre-line' }}>{'Give the gift of\na thousand years.'}</span>}
+          title={<span style={{ whiteSpace: 'pre-line' }}>{'Give the gift of\nthe Deep.'}</span>}
         />
         <div style={{ height: 8 }} />
 

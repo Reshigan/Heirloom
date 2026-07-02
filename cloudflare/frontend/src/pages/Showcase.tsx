@@ -98,7 +98,7 @@ export function Showcase() {
                 color: 'var(--bone-faint)',
               }}
             >
-              one thread, a thousand years
+              some things only get deeper
             </span>
           </div>
         </div>

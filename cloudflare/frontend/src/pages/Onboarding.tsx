@@ -484,7 +484,7 @@ export function Onboarding() {
             onChange={(e) => setFirstEntry(e.target.value)}
             onFocus={onFocus}
             onBlur={onBlur}
-            placeholder="The first line of a thousand-year thread"
+            placeholder="The first line of your family's Deep"
             aria-label="Your first entry"
           />
         </div>
@@ -603,9 +603,9 @@ export function Onboarding() {
           <div style={welcomeRule} aria-hidden />
           <div style={{ position: 'relative', zIndex: 1, paddingTop: 30, paddingBottom: 30 }}>
             <h1 ref={headingRef} tabIndex={-1} style={{ ...welcomeTitle, outline: 'none' }}>
-              Start your family’s
+              Some things
               <br />
-              thousand-year thread.
+              only get deeper.
             </h1>
             <p style={welcomeSubhead}>
               A journal of shared history, preserved for generations.

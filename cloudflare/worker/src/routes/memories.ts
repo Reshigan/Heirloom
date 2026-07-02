@@ -730,7 +730,7 @@ memoriesRoutes.post('/', async (c) => {
           await createNotification(
             c.env, inviterId, 'referral_reward',
             `${myName} wrote their first memory`,
-            `${myName} just added their first thread to the cloth.`,
+            `${myName} just let their first memory settle into the family's Deep.`,
             '/loom/pwa',
           );
           const inviter = await c.env.DB.prepare(
@@ -811,7 +811,7 @@ memoriesRoutes.post('/', async (c) => {
         from: 'Heirloom <memories@heirloom.blue>',
         to: recipientEmail,
         subject: `${fromName} wove a memory for you`,
-        html: `<p style="font-family:Georgia,serif;font-size:16px;color:#0e0e0c;">
+        html: `<p style="font-family:Georgia,serif;font-size:16px;color:#070d14;">
           ${esc(fromName)} addressed a memory to you on Heirloom.<br><br>
           <strong>${esc(title)}</strong><br><br>
           <a href="https://heirloom.blue/inbox" style="color:#b07a4a;">View in your inbox →</a>
@@ -1039,7 +1039,7 @@ memoriesRoutes.get('/:id/card', async (c) => {
   
   // Style configurations
   const styles: Record<string, { bg: string; text: string; accent: string; border: string }> = {
-    classic: { bg: '#1a1a2e', text: '#f5f3ee', accent: '#c9a959', border: '#c9a959' },
+    classic: { bg: '#1a1a2e', text: '#f5f3ee', accent: '#e0a062', border: '#e0a062' },
     modern: { bg: '#0f172a', text: '#f8fafc', accent: '#ec4899', border: '#3b82f6' },
     vintage: { bg: '#fef3c7', text: '#451a03', accent: '#92400e', border: '#d97706' },
   };

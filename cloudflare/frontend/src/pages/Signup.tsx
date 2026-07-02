@@ -246,7 +246,7 @@ export function Signup() {
               color: 'var(--bone)',
             }}
           >
-            Start your family's thousand-year thread.
+            Some things only get deeper.
           </h1>
         </div>
 

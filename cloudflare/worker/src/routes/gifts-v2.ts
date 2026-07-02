@@ -86,15 +86,15 @@ giftsV2ProtectedRoutes.post('/send', async (c) => {
       html: `
         <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; background: #0a0c10; color: #f5f3ee; padding: 40px;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <span style="font-size: 48px; color: #c9a959;">&infin;</span>
-            <h1 style="color: #c9a959; font-family: Georgia, serif; margin: 8px 0;">You've received a gift</h1>
+            <span style="font-size: 48px; color: #e0a062;">&infin;</span>
+            <h1 style="color: #e0a062; font-family: Georgia, serif; margin: 8px 0;">You've received a gift</h1>
           </div>
           <p style="font-size: 18px; line-height: 1.6;">
             <strong>${senderName}</strong> has shared something special with you: <em>&ldquo;${escapeHtml(memoryTitle)}&rdquo;</em>
           </p>
-          ${body.personal_message ? `<div style="background: #1a1a2e; padding: 20px; border-radius: 12px; margin: 24px 0; border-left: 3px solid #c9a959;"><p style="font-style: italic; color: #f5f3ee;">&ldquo;${escapeHtml(String(body.personal_message))}&rdquo;</p></div>` : ''}
+          ${body.personal_message ? `<div style="background: #1a1a2e; padding: 20px; border-radius: 12px; margin: 24px 0; border-left: 3px solid #e0a062;"><p style="font-style: italic; color: #f5f3ee;">&ldquo;${escapeHtml(String(body.personal_message))}&rdquo;</p></div>` : ''}
           <div style="text-align: center; margin: 32px 0;">
-            <a href="${giftUrl}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #c9a959, #b8963e); color: #0a0c10; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 16px;">
+            <a href="${giftUrl}" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #e0a062, #b8963e); color: #0a0c10; text-decoration: none; border-radius: 12px; font-weight: bold; font-size: 16px;">
               Unwrap Your Gift
             </a>
           </div>

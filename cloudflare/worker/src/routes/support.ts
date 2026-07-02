@@ -43,7 +43,7 @@ supportRoutes.post('/ticket', async (c) => {
       subject: `[${ticketNumber}] New Support Ticket: ${body.subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #D4AF37;">New Support Ticket</h2>
+          <h2 style="color: #e0a062;">New Support Ticket</h2>
           <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
           <p><strong>Category:</strong> ${body.category}</p>
           <p><strong>From:</strong> ${body.userName || 'Unknown'} (${body.userEmail || 'No email'})</p>
@@ -70,10 +70,10 @@ supportRoutes.post('/ticket', async (c) => {
       to: body.userEmail,
       subject: `[${ticketNumber}] We received your support request`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0a0f; color: #f5f5f0; padding: 32px;">
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #070d14; color: #f5f5f0; padding: 32px;">
           <div style="text-align: center; margin-bottom: 24px;">
-            <span style="font-size: 48px; color: #D4AF37;">&infin;</span>
-            <h1 style="color: #D4AF37; margin: 8px 0;">Heirloom</h1>
+            <span style="font-size: 48px; color: #e0a062;">&infin;</span>
+            <h1 style="color: #e0a062; margin: 8px 0;">Heirloom</h1>
           </div>
           <h2>We've received your support request</h2>
           <p>Hi ${body.userName || 'there'},</p>
@@ -327,7 +327,7 @@ supportRoutes.post('/escalate', async (c) => {
       to: userEmail,
       subject: `[${ticketNumber}] We've passed your question to a person`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0e0e0c; color: #f4ecd8; padding: 32px;">
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #070d14; color: #f4ecd8; padding: 32px;">
           <div style="text-align: center; margin-bottom: 24px;"><span style="font-size: 40px; color: #b07a4a;">&infin;</span></div>
           <h2 style="font-weight: 300;">A person is now reading your question</h2>
           <p>Hi ${userName || 'there'},</p>

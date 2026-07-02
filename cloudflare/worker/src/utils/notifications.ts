@@ -41,7 +41,7 @@ export function kinJoinedEmail(inviterName: string, joinerName: string, action: 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${joinerName} ${action}</title>
 </head>
-<body style="margin:0;padding:0;background:#0e0e0c;font-family:Georgia,'Times New Roman',serif;">
+<body style="margin:0;padding:0;background:#070d14;font-family:Georgia,'Times New Roman',serif;">
   <div style="max-width:600px;margin:0 auto;padding:48px 32px 64px;">
     <div style="margin-bottom:48px;">
       <span style="font-family:Georgia,serif;font-size:13px;font-weight:normal;letter-spacing:0.28em;text-transform:uppercase;color:#b07a4a;">heirloom</span>
@@ -54,11 +54,11 @@ export function kinJoinedEmail(inviterName: string, joinerName: string, action: 
       ${joinerName} ${action}.
     </h1>
     <p style="margin:0 0 40px;font-size:16px;line-height:1.7;color:#b8b0a0;font-weight:normal;">
-      ${inviterName}, a thread is never woven by one hand alone. There is more here now than there was.
+      ${inviterName}, the Deep is never filled by one voice alone. There is more here now than there was.
     </p>
     <div style="margin-bottom:48px;">
       <a href="${url}"
-         style="display:inline-block;background:#b07a4a;color:#0e0e0c;text-decoration:none;padding:14px 32px;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;font-weight:normal;">
+         style="display:inline-block;background:#b07a4a;color:#070d14;text-decoration:none;padding:14px 32px;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;font-weight:normal;">
         open the thread →
       </a>
     </div>

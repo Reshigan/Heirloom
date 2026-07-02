@@ -1,6 +1,6 @@
 /**
  * Email Templates for Heirloom — Tapestry design system.
- * Bone #f4ecd8 / ink #0e0e0c / warm #b07a4a. Source Serif 4. 0px radius. 1px hairlines.
+ * Bone #f2e6d0 / ink #070d14 / warm #a86220. Source Serif 4. 0px radius. 1px hairlines.
  */
 
 // Escape user-controlled strings before interpolation into HTML to prevent HTML injection / phishing.
@@ -31,11 +31,11 @@ export const baseTemplate = (content: string) => `
       font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
       margin: 0; padding: 0;
       line-height: 1.72;
-      background-color: #f4ecd8;
-      color: #0e0e0c;
+      background-color: #f2e6d0;
+      color: #070d14;
     }
     .outer {
-      background-color: #f4ecd8;
+      background-color: #f2e6d0;
       padding: 52px 20px 40px;
     }
     .wrapper { max-width: 600px; margin: 0 auto; }
@@ -43,7 +43,7 @@ export const baseTemplate = (content: string) => `
     /* ── Header ── */
     .header {
       padding-bottom: 20px;
-      border-bottom: 1px solid #0e0e0c;
+      border-bottom: 1px solid #070d14;
       display: table; width: 100%;
     }
     .header-left  { display: table-cell; vertical-align: bottom; }
@@ -53,74 +53,74 @@ export const baseTemplate = (content: string) => `
       border: none; display: inline-block; vertical-align: bottom;
     }
     .logo-mark {
-      font-size: 32px; font-weight: 300; color: #b07a4a;
+      font-size: 32px; font-weight: 300; color: #a86220;
       line-height: 1; display: inline-block; vertical-align: bottom;
       margin-right: 10px;
     }
     .wordmark {
       font-family: 'Courier New', Courier, monospace;
       font-size: 10px; letter-spacing: 0.28em;
-      text-transform: uppercase; color: rgba(14,14,12,0.7);
+      text-transform: uppercase; color: rgba(7,13,20,0.7);
       display: inline-block; vertical-align: bottom; padding-bottom: 3px;
     }
     .url-line {
       font-family: 'Courier New', Courier, monospace;
       font-size: 10px; letter-spacing: 0.1em;
-      color: rgba(14,14,12,0.38);
+      color: rgba(7,13,20,0.38);
     }
 
     /* ── Card ── */
     .card {
-      border: 1px solid rgba(14,14,12,0.18);
+      border: 1px solid rgba(7,13,20,0.18);
       padding: 36px 40px;
       margin: 0;
-      background: #f4ecd8;
+      background: #f2e6d0;
     }
-    .content { color: #0e0e0c; }
+    .content { color: #070d14; }
     .content h2 {
       font-size: 28px; font-weight: 300;
       margin: 0 0 22px 0; line-height: 1.18;
-      letter-spacing: -0.018em; color: #0e0e0c;
+      letter-spacing: -0.018em; color: #070d14;
     }
     .content p {
       margin: 14px 0; font-size: 16px;
-      color: rgba(14,14,12,0.82);
+      color: rgba(7,13,20,0.82);
     }
 
     /* ── Button ── */
     .button {
       display: inline-block;
       padding: 13px 28px;
-      background: #0e0e0c;
-      color: #f4ecd8 !important;
+      background: #070d14;
+      color: #f2e6d0 !important;
       text-decoration: none;
       font-family: 'Courier New', Courier, monospace;
       font-size: 11px;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       margin: 24px 0 8px 0;
-      border: 1px solid #0e0e0c;
+      border: 1px solid #070d14;
     }
     .button-warm {
       display: inline-block;
       padding: 13px 28px;
-      background: #b07a4a;
-      color: #f4ecd8 !important;
+      background: #a86220;
+      color: #f2e6d0 !important;
       text-decoration: none;
       font-family: 'Courier New', Courier, monospace;
       font-size: 11px;
       letter-spacing: 0.22em;
       text-transform: uppercase;
       margin: 24px 0 8px 0;
-      border: 1px solid #b07a4a;
+      border: 1px solid #a86220;
     }
 
     /* ── Utility ── */
-    .warm   { color: #b07a4a; }
-    .gold   { color: #b07a4a; }
-    .muted  { color: rgba(14,14,12,0.46); }
+    .warm   { color: #a86220; }
+    .gold   { color: #a86220; }
+    .muted  { color: rgba(7,13,20,0.46); }
     .divider {
-      height: 1px; background: rgba(14,14,12,0.14);
+      height: 1px; background: rgba(7,13,20,0.14);
       margin: 28px 0; border: none;
     }
     .urgent {
@@ -129,49 +129,49 @@ export const baseTemplate = (content: string) => `
     }
     .urgent strong { color: #9f3a2a; }
     .info-box {
-      border-left: 2px solid #b07a4a;
+      border-left: 2px solid #a86220;
       padding: 14px 20px; margin: 20px 0;
-      background: rgba(176,122,74,0.06);
+      background: rgba(168,98,32,0.06);
     }
     .info-box p { margin: 5px 0; font-size: 15px; }
     .letter-box {
-      border-left: 2px solid #b07a4a;
+      border-left: 2px solid #a86220;
       padding: 24px 28px; margin: 24px 0;
       font-style: italic;
     }
     .letter-box .salutation {
-      color: #0e0e0c; margin-bottom: 16px; font-style: normal;
+      color: #070d14; margin-bottom: 16px; font-style: normal;
       font-weight: 400;
     }
     .letter-box .signature {
-      text-align: right; margin-top: 24px; color: #b07a4a; font-style: normal;
+      text-align: right; margin-top: 24px; color: #a86220; font-style: normal;
     }
     .seal {
       text-align: center; margin: 32px 0 8px 0;
     }
     .seal-icon {
-      font-size: 36px; color: #b07a4a; display: block;
+      font-size: 36px; color: #a86220; display: block;
       margin-bottom: 8px; line-height: 1;
     }
     .seal-text {
       font-family: 'Courier New', Courier, monospace;
       font-size: 10px; letter-spacing: 0.22em;
-      text-transform: uppercase; color: rgba(14,14,12,0.4);
+      text-transform: uppercase; color: rgba(7,13,20,0.4);
     }
     ul { padding-left: 20px; margin: 18px 0; }
-    li  { margin: 8px 0; color: rgba(14,14,12,0.82); }
+    li  { margin: 8px 0; color: rgba(7,13,20,0.82); }
     .code-box {
-      background: rgba(14,14,12,0.05);
-      border: 1px solid rgba(14,14,12,0.14);
+      background: rgba(7,13,20,0.05);
+      border: 1px solid rgba(7,13,20,0.14);
       padding: 14px 18px;
       font-family: 'Courier New', Courier, monospace;
       word-break: break-all; margin: 18px 0;
-      font-size: 13px; color: #0e0e0c;
+      font-size: 13px; color: #070d14;
     }
 
     /* ── Footer ── */
     .footer {
-      border-top: 1px solid rgba(14,14,12,0.14);
+      border-top: 1px solid rgba(7,13,20,0.14);
       padding: 20px 0 0 0;
       text-align: left;
     }
@@ -182,14 +182,14 @@ export const baseTemplate = (content: string) => `
     .footer-right { display: table-cell; text-align: right; }
     .footer p { margin: 4px 0; }
     .footer a {
-      color: rgba(14,14,12,0.55); text-decoration: none;
+      color: rgba(7,13,20,0.55); text-decoration: none;
       font-family: 'Courier New', Courier, monospace;
       font-size: 10px; letter-spacing: 0.12em;
     }
     .footer-copy {
       font-family: 'Courier New', Courier, monospace;
       font-size: 10px; letter-spacing: 0.12em;
-      color: rgba(14,14,12,0.38);
+      color: rgba(7,13,20,0.38);
     }
   </style>
 </head>
@@ -216,7 +216,7 @@ export const baseTemplate = (content: string) => `
             <p><a href="${APP_URL}/privacy">Privacy</a> &nbsp; <a href="${APP_URL}/unsubscribe">Unsubscribe</a></p>
           </div>
           <div class="footer-right">
-            <p class="footer-copy">Start your family's<br>thousand-year thread.</p>
+            <p class="footer-copy">Some things<br>only get deeper.</p>
           </div>
         </div>
       </div>
@@ -488,7 +488,7 @@ export const letterMilestoneTeaserEmail = (
     </div>
     <p>It stays sealed until then. When the day arrives, your family will release it —
        or, if you keep your own thread on Heirloom, you'll be able to open it yourself
-       and weave it into your cloth.</p>
+       and let it settle into your family's Deep.</p>
     <div style="text-align:center; margin: 28px 0;">
       <a href="${APP_URL}" class="button-warm">Start your own thread</a>
     </div>
@@ -511,7 +511,7 @@ export const letterOpenedNotificationEmail = (
     <h2>Your letter was opened</h2>
     <p>Dear ${esc(authorName)},</p>
     <p>${esc(recipientName)} has just opened the letter you left them${milestoneLabel ? ` for ${esc(milestoneLabel)}` : ''}.
-       Your words have been read, and the letter now lives in their cloth too.</p>
+       Your words have been read, and the letter has now settled into their family's Deep too.</p>
     <div class="seal">
       <div class="seal-icon">&#8734;</div>
       <p class="seal-text">The thread continues</p>
@@ -629,7 +629,7 @@ export const giftVoucherPurchaseEmail = (
     <p>Your Heirloom gift voucher has been created successfully.</p>
     <div class="info-box">
       <p><strong>Voucher Code:</strong></p>
-      <p style="font-size: 24px; font-family: monospace; color: #c9a959; letter-spacing: 2px;">${voucherCode}</p>
+      <p style="font-size: 24px; font-family: monospace; color: #e0a062; letter-spacing: 2px;">${voucherCode}</p>
       <p><strong>Plan:</strong> ${esc(tier)}</p>
       <p><strong>Duration:</strong> ${durationMonths} month${durationMonths > 1 ? 's' : ''}</p>
     </div>
@@ -662,7 +662,7 @@ export const giftVoucherReceivedEmail = (
       <p><strong>Your Gift:</strong> ${esc(tier)} Plan</p>
       <p><strong>Duration:</strong> ${durationMonths} month${durationMonths > 1 ? 's' : ''}</p>
       <p><strong>Voucher Code:</strong></p>
-      <p style="font-size: 20px; font-family: monospace; color: #c9a959; letter-spacing: 2px;">${voucherCode}</p>
+      <p style="font-size: 20px; font-family: monospace; color: #e0a062; letter-spacing: 2px;">${voucherCode}</p>
     </div>
     <p>Heirloom is a sanctuary for preserving your most precious memories—photos, voice recordings, and letters—for generations to come.</p>
     <a href="${APP_URL}/gift/redeem?code=${voucherCode}" class="button">REDEEM YOUR GIFT</a>
@@ -740,7 +740,7 @@ export const postReminderMemoryEmail = (
         : `<p>Your vault is ready and waiting. Every photo, every moment you capture becomes a gift to those who come after you.</p>`
       }
       <div class="letter-box">
-        <p style="font-style: italic; color: #c9a959;">"${prompt}"</p>
+        <p style="font-style: italic; color: #e0a062;">"${prompt}"</p>
       </div>
       <p>Take a moment today to preserve something meaningful. It only takes a few seconds to upload a photo or share a story.</p>
       <a href="${APP_URL}/memories" class="button">ADD A MEMORY</a>
@@ -769,7 +769,7 @@ export const postReminderVoiceEmail = (
         : `<p>There's something irreplaceable about hearing a loved one's voice. Your voice carries warmth, emotion, and personality that words on a page simply can't capture.</p>`
       }
       <div class="letter-box">
-        <p style="font-style: italic; color: #c9a959;">"${prompt}"</p>
+        <p style="font-style: italic; color: #e0a062;">"${prompt}"</p>
       </div>
       <p>Recording takes just a few minutes, but the impact lasts generations. Share a story, offer advice, or simply say "I love you."</p>
       <a href="${APP_URL}/record" class="button">RECORD A MESSAGE</a>
@@ -798,7 +798,7 @@ export const postReminderLetterEmail = (
         : `<p>Imagine the joy of receiving a letter from someone you love—on a birthday, a wedding day, or a moment when they need it most. You can give that gift.</p>`
       }
       <div class="letter-box">
-        <p style="font-style: italic; color: #c9a959;">"${prompt}"</p>
+        <p style="font-style: italic; color: #e0a062;">"${prompt}"</p>
       </div>
       <p>Write from the heart. Your words will be treasured long after they're read.</p>
       <a href="${APP_URL}/compose" class="button">WRITE A LETTER</a>
@@ -840,7 +840,7 @@ export const postReminderWeeklyDigestEmail = (
       </div>
       <p>This week's inspiration:</p>
       <div class="letter-box">
-        <p style="font-style: italic; color: #c9a959;">"${action.prompt}"</p>
+        <p style="font-style: italic; color: #e0a062;">"${action.prompt}"</p>
       </div>
       <a href="${action.url}" class="button">${action.text.toUpperCase()}</a>
       <p style="margin-top: 24px; font-size: 14px; color: rgba(245,243,238,0.6);">Every moment you preserve is a gift to future generations.</p>
@@ -1020,7 +1020,7 @@ export const influencerRejectedEmail = (name: string, reason?: string) => ({
     <p>Thank you for your interest in the Heirloom Influencer Program.</p>
     <p>After careful review, we're unable to approve your application at this time.${reason ? ` ${esc(reason)}` : ''}</p>
     <p>This doesn't mean the door is closed! You're welcome to reapply in the future as your platform grows.</p>
-    <p>In the meantime, you can still earn rewards through our <a href="${APP_URL}/referral" style="color: #c9a959;">referral program</a>.</p>
+    <p>In the meantime, you can still earn rewards through our <a href="${APP_URL}/referral" style="color: #e0a062;">referral program</a>.</p>
   `),
 });
 
@@ -1146,8 +1146,8 @@ export const threadInvitationEmail = (
     <div class="info-box">
       <p><strong>Your role:</strong> <span class="warm">${esc(role)}</span></p>
     </div>
-    <p>Heirloom is a family story archive — a thousand-year thread. Every photo, voice
-    recording, and written memory woven into your thread becomes an heirloom passed down
+    <p>Heirloom is a family story archive — the Deep your family keeps. Every photo, voice
+    recording, and written memory added to your family's thread becomes an heirloom passed down
     through generations, owned by your bloodline, not a platform.</p>
     <p>Accept your invitation to begin reading and contributing to the
     <span class="warm">${esc(threadName)}</span> thread.</p>
@@ -1167,16 +1167,16 @@ export const newFeaturesAnnouncementEmail = (userName: string) => ({
     
     <div class="divider"></div>
     
-    <h3 style="color: #c9a959; margin-top: 24px;">Legacy Playbook</h3>
+    <h3 style="color: #e0a062; margin-top: 24px;">Legacy Playbook</h3>
     <p>A guided checklist organized into five categories—People, Stories, Gratitude, Practical, and Wisdom—to help you build a complete legacy. Track your progress and share it with family.</p>
     
-    <h3 style="color: #c9a959; margin-top: 24px;">Recipient Experience</h3>
+    <h3 style="color: #e0a062; margin-top: 24px;">Recipient Experience</h3>
     <p>Control how and when your loved ones receive your legacy with staged releases. Plus, create a Family Memory Room where recipients can contribute their own memories.</p>
     
-    <h3 style="color: #c9a959; margin-top: 24px;">Story Artifacts</h3>
+    <h3 style="color: #e0a062; margin-top: 24px;">Story Artifacts</h3>
     <p>Transform your memories into beautiful 60-120 second micro-documentaries. Combine photos, voice recordings, and music into shareable video stories.</p>
     
-    <h3 style="color: #c9a959; margin-top: 24px;">Life Event Triggers</h3>
+    <h3 style="color: #e0a062; margin-top: 24px;">Life Event Triggers</h3>
     <p>Schedule content delivery for life's milestones—graduations, weddings, first child, and more. Your words arrive exactly when they're needed most.</p>
     
     <div class="divider"></div>
@@ -1186,7 +1186,7 @@ export const newFeaturesAnnouncementEmail = (userName: string) => ({
     <a href="${APP_URL}/dashboard" class="button">EXPLORE NEW FEATURES</a>
     
     <p style="margin-top: 24px; font-size: 14px; color: rgba(245,243,238,0.6);">
-      <a href="${APP_URL}/settings?tab=notifications" style="color: #c9a959;">Manage your email preferences</a>
+      <a href="${APP_URL}/settings?tab=notifications" style="color: #e0a062;">Manage your email preferences</a>
     </p>
   `),
 });
@@ -1261,9 +1261,9 @@ export const giftSubscriptionReceivedEmail = (
       <p><strong>Gift code:</strong></p>
       <div class="code-box">${giftCode}</div>
     </div>
-    <p>Heirloom is a family thread &mdash; an append-only, multi-generational archive owned by your bloodline, not a platform. Your voice, your letters, your memories: woven in, never erased.</p>
+    <p>Heirloom is a family thread &mdash; an append-only, multi-generational archive owned by your bloodline, not a platform. Your voice, your letters, your memories: settled in, never erased.</p>
     <a href="${safeUrl(redeemUrl)}" class="button-warm">REDEEM YOUR GIFT</a>
-    <p style="margin-top: 24px; font-size: 14px; color: rgba(14,14,12,0.46);">
+    <p style="margin-top: 24px; font-size: 14px; color: rgba(7,13,20,0.46);">
       Or visit <span style="font-family: 'Courier New', monospace; font-size: 12px;">${esc(redeemUrl)}</span>
     </p>
   `),
@@ -1281,7 +1281,7 @@ export const familyReferralInviteEmail = (
   subject: `${referrerName} included you in their family thread`,
   html: baseTemplate(`
     <h2>You've been included in ${esc(referrerName)}'s thread.</h2>
-    <p><strong>${esc(referrerName)}</strong> has woven a permanent family record on Heirloom and included you as <em>${esc(relationship) || 'a family member'}</em>.</p>
+    <p><strong>${esc(referrerName)}</strong> has begun a permanent family record on Heirloom and included you as <em>${esc(relationship) || 'a family member'}</em>.</p>
     <p>Add your voice, or simply read what has been written. Every entry is append-only — nothing is deleted, nothing rewrites the past.</p>
     <a href="${safeUrl(inviteUrl)}" class="button-warm">Join the thread →</a>
     <p class="muted" style="font-size: 14px; margin-top: 28px;">If you weren't expecting this, you can safely ignore this email.</p>

@@ -12,7 +12,7 @@
  *   - Type is the hero. Cormorant Garamond serif headline, no icon library, the
  *     only mark allowed is the infinity glyph (the U+221E character).
  *   - ONE emotional colour: warm #e0a062, used sparingly (a single hairline).
- *   - Bone #f2e6d0 on ink #0b0907. 0px radius. 1px hairlines.
+ *   - Bone #f2e6d0 on ink #070d14. 0px radius. 1px hairlines.
  *   - Voice (marketing/automation voice.ts): never the word "legacy", never
  *     gift-product framing. Evocative restraint.
  *
@@ -160,7 +160,7 @@ export function buildShareMeta(kind: ShareKind, params: ShareParams = {}): Share
     }
     case 'thread':
     default:
-      title = "Start your family's thousand-year thread.";
+      title = "Some things only get deeper.";
       description =
         'Write today. Lock entries for descendants who do not exist yet. Read what came before. The thread continues after you, after us, after the company.';
       image = `${origin}/og-image.png`;
@@ -227,7 +227,7 @@ export function renderMetaTags(meta: ShareMeta): string {
  * follow-up — see VIRAL_MECHANICS.md.)
  */
 export function renderShareCardSvg(meta: ShareMeta): string {
-  const ink = '#0b0907';
+  const ink = '#070d14';
   const bone = '#f2e6d0';
   const warm = '#e0a062';
   const muted = '#9b9486';

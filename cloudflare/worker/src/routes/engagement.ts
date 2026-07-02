@@ -867,7 +867,7 @@ function familyInviteEmail(inviterName: string, inviteeName: string, inviteUrl: 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>You've been invited to Heirloom</title>
 </head>
-<body style="margin:0;padding:0;background:#0e0e0c;font-family:Georgia,'Times New Roman',serif;">
+<body style="margin:0;padding:0;background:#070d14;font-family:Georgia,'Times New Roman',serif;">
   <div style="max-width:600px;margin:0 auto;padding:48px 32px 64px;">
 
     <!-- wordmark -->
@@ -885,15 +885,15 @@ function familyInviteEmail(inviterName: string, inviteeName: string, inviteUrl: 
 
     <!-- headline -->
     <h1 style="margin:0 0 24px;font-family:Georgia,serif;font-size:28px;font-weight:normal;line-height:1.25;letter-spacing:-0.01em;color:#f4ecd8;">
-      ${inviterName} has woven a thread for you.
+      ${inviterName} has made a place for you in the family's Deep.
     </h1>
 
     <!-- body -->
     <p style="margin:0 0 16px;font-size:16px;line-height:1.7;color:#b8b0a0;font-weight:normal;">
-      Heirloom is a perpetual, append-only family archive — owned by your bloodline, not a platform. Every word woven in becomes a permanent record.
+      Heirloom is a perpetual, append-only family archive — owned by your bloodline, not a platform. Every word that settles here becomes a permanent record.
     </p>
     <p style="margin:0 0 40px;font-size:16px;line-height:1.7;color:#b8b0a0;font-weight:normal;">
-      ${inviteeName}, you're already part of this cloth. Add your voice, or simply read what has been written.
+      ${inviteeName}, you're already part of the family's Deep. Add your voice, or simply read what has been written.
     </p>
 
     <!-- invite code box -->
@@ -905,7 +905,7 @@ function familyInviteEmail(inviterName: string, inviteeName: string, inviteUrl: 
     <!-- CTA -->
     <div style="margin-bottom:48px;">
       <a href="${inviteUrl}"
-         style="display:inline-block;background:#b07a4a;color:#0e0e0c;text-decoration:none;padding:14px 32px;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;font-weight:normal;">
+         style="display:inline-block;background:#b07a4a;color:#070d14;text-decoration:none;padding:14px 32px;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.22em;text-transform:uppercase;font-weight:normal;">
         accept invitation →
       </a>
     </div>

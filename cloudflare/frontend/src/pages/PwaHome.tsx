@@ -302,7 +302,7 @@ function AuthHome({
 
   const greeting = isAuthenticated && user
     ? `${user.firstName}'s thread.`
-    : "Start your family’s thousand-year thread.";
+    : "Some things only get deeper.";
 
   // Visitor — no cloth, just invite
   if (role === 'visitor') {

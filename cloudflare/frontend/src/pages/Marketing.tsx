@@ -454,7 +454,7 @@ export function Marketing() {
               textDecoration: 'none',
             }}
           >
-            begin the thousand-year thread →
+            begin your family's Deep →
           </Link>
           <p style={{
             marginTop: 24,

@@ -231,7 +231,7 @@ export function GiftReceive() {
               }}
             >
               Create a free account to keep it safe and start your own
-              thousand-year thread.
+              family's Deep.
             </p>
             <button
               onClick={() => navigate('/signup')}

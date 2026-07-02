@@ -221,21 +221,21 @@ recipientExperienceRoutes.post('/memory-room/invite', async (c) => {
       subject: `${senderName} invites you to share memories`,
       html: `
         <div style="font-family: Georgia, serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: linear-gradient(135deg, #0a0c10 0%, #12151c 100%); color: #f5f0e8;">
-          <h1 style="color: #c9a959; text-align: center; font-weight: normal; margin-bottom: 30px;">You're Invited to Share Memories</h1>
+          <h1 style="color: #e0a062; text-align: center; font-weight: normal; margin-bottom: 30px;">You're Invited to Share Memories</h1>
           <p style="text-align: center; color: #f5f0e8cc; font-size: 18px;">Dear ${recipientName},</p>
           <p style="text-align: center; color: #f5f0e8cc; line-height: 1.8;">
             ${senderName} has created a special space to collect memories and stories from the people who matter most. 
             Your memories, photos, and stories would mean the world.
           </p>
           <div style="text-align: center; margin: 40px 0;">
-            <a href="${roomUrl}" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #c9a959 0%, #a08335 100%); color: #0a0c10; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Share Your Memories</a>
+            <a href="${roomUrl}" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #e0a062 0%, #a08335 100%); color: #0a0c10; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Share Your Memories</a>
           </div>
           <p style="text-align: center; color: #f5f0e899; font-size: 14px;">
             Every story you share becomes part of a lasting legacy.
           </p>
           <hr style="border: none; border-top: 1px solid #f5f0e820; margin: 30px 0;" />
           <p style="text-align: center; color: #f5f0e860; font-size: 12px;">
-            Sent with love through <a href="https://heirloom.blue" style="color: #c9a959;">Heirloom</a>
+            Sent with love through <a href="https://heirloom.blue" style="color: #e0a062;">Heirloom</a>
           </p>
         </div>
       `,
