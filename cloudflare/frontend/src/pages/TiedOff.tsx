@@ -139,8 +139,8 @@ export function TiedOff() {
           />
         </div>
 
-        {/* horizon ribbon */}
-        {(() => {
+        {/* horizon ribbon — only once something is actually lowered in */}
+        {locked.length > 0 && (() => {
           const years = locked.map((l) => l.deliverYear);
           const minYear = Math.min(...(years.length ? years : [new Date().getFullYear()]), new Date().getFullYear());
           const maxYear = Math.max(...(years.length ? years : [new Date().getFullYear() + 1]), new Date().getFullYear() + 1);

@@ -170,9 +170,7 @@ export function GoldLegacyRedeem() {
             width: '100%',
             maxWidth: 'var(--page-max-focus)',
             textAlign: 'center',
-            border: '1px solid var(--rule)',
-            borderRadius: 0,
-            padding: 'clamp(32px, 7vw, 56px) clamp(24px, 6vw, 48px)',
+            padding: 'clamp(32px, 7vw, 56px) 0',
             boxSizing: 'border-box',
           }}
         >
