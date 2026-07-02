@@ -21,6 +21,8 @@ interface ConsentData {
   acceptedTermsAt: string;
   marketingConsent: boolean;
   marketingConsentAt: string | null;
+  // Marketing attribution (?ref= captured at landing) — see lib/attribution.ts.
+  source?: string;
 }
 
 interface AuthState {

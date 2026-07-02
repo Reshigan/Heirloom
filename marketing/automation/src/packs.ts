@@ -24,6 +24,9 @@ export interface Pack {
   // post caption (the image already carries the saying itself).
   prompt: string;
   cta: string;
+  // Message-matched landing page — the link the post carries. The page's eyebrow
+  // mirrors the pack's addressing line so post → page reads as one thought.
+  landing: string;
 }
 
 export const PACK_LIBRARY: Record<NeedState, Pack> = {
@@ -37,6 +40,7 @@ export const PACK_LIBRARY: Record<NeedState, Pack> = {
     hashtags: ["newmom", "motherhood", "momlife", "newbaby", "babymemories", "firstyear", "familystories", "memorykeeping"],
     prompt: "What's the one thing about her right now you never want to forget?",
     cta: "Start her thread at heirloom.blue",
+    landing: "https://heirloom.blue/for/their-first-year",
     sayings: [
       "One day she won't remember being this small. You will.",
       "She'll ask what she was like as a baby. Have the answer ready.",
@@ -61,6 +65,7 @@ export const PACK_LIBRARY: Record<NeedState, Pack> = {
     hashtags: ["grief", "grieving", "griefjourney", "inmemory", "remembrance", "familystories", "memorykeeping", "familyhistory"],
     prompt: "What's the small thing about them you'd keep if you could keep only one?",
     cta: "Keep their voice at heirloom.blue",
+    landing: "https://heirloom.blue/for/when-someone-is-gone",
     sayings: [
       "His voice is the first thing you'll forget. Keep it before you do.",
       "Grief is love with nowhere to go. Give it somewhere.",
@@ -85,6 +90,7 @@ export const PACK_LIBRARY: Record<NeedState, Pack> = {
     hashtags: ["parenting", "raisingkids", "momlife", "dadlife", "familystories", "familytime", "memorykeeping", "familyhistory"],
     prompt: "What's a story your kids haven't heard yet?",
     cta: "Begin yours at heirloom.blue",
+    landing: "https://heirloom.blue/for/eighteenth-birthday",
     sayings: [
       "Your kids will want the stories you're too busy to tell.",
       "They'll spend their whole lives quoting you. Choose the words.",
@@ -109,6 +115,7 @@ export const PACK_LIBRARY: Record<NeedState, Pack> = {
     hashtags: ["grandparents", "grandchildren", "familyhistory", "genealogy", "ancestry", "familystories", "memorykeeping", "legacy"],
     prompt: "Whose voice in your family should outlast all of us?",
     cta: "Leave the stories at heirloom.blue",
+    landing: "https://heirloom.blue/for/grandchildren",
     sayings: [
       "Your grandchildren will know you through what you leave behind.",
       "You are the last one who remembers them. Don't let it end with you.",
@@ -148,6 +155,7 @@ export interface ResolvedPack {
   needState: NeedState;
   dye: string;
   eyebrow: string;
+  landing: string;
   saying: string;
   source: SourcePost;
 }
@@ -166,7 +174,7 @@ export function packForSlot(date = new Date(), slotHour = resolveSlotHour(date))
     imagePrompt: `Deep still water with a ${pack.dye} tint, the saying centred in cream serif, a small copper infinity mark above. Quiet, timeless, no people.`,
     hashtags: pack.hashtags,
   };
-  return { needState: pack.needState, dye: pack.dye, eyebrow: pack.eyebrow, saying, source };
+  return { needState: pack.needState, dye: pack.dye, eyebrow: pack.eyebrow, landing: pack.landing, saying, source };
 }
 
 // What the next N days would post (both/all slots per day) — for review.

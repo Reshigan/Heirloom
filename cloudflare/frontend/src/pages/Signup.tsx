@@ -8,6 +8,7 @@ import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { PLAN_PRICE } from '../lib/plans';
 import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
+import { signupSource } from '../lib/attribution';
 
 // Signup — FORM archetype. Underlined fields, mono micro-labels, giant serif
 // headline, one warm primary CTA, WaxSeal foot. All data/auth/validation preserved.
@@ -142,6 +143,7 @@ export function Signup() {
         acceptedTermsAt: new Date().toISOString(),
         marketingConsent: form.marketingConsent,
         marketingConsentAt: form.marketingConsent ? new Date().toISOString() : null,
+        source: signupSource(),
       });
       if (intent.threadName) {
         try {

@@ -4,6 +4,7 @@ import App from './App';
 import { installChunkReloadHandlers } from './lib/chunkReload';
 import { registerServiceWorker } from './lib/registerSW';
 import { initSentry } from './lib/sentry';
+import { captureRef } from './lib/attribution';
 
 // Self-hosted typefaces (no render-blocking third-party font requests).
 // BRAND §6.2 type system: Fraunces = display/voice (variable, opsz-aware),
@@ -26,6 +27,10 @@ import './styles/cosmic.css';
 
 // Error tracking — no-op when VITE_SENTRY_DSN is absent.
 initSentry();
+
+// First-party attribution: lift ?ref= into localStorage + one visit beacon per
+// session (no cookies, no IP — see lib/attribution.ts).
+captureRef();
 
 // Catch stale-chunk errors after a redeploy and reload once.
 installChunkReloadHandlers();

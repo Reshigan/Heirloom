@@ -17,6 +17,10 @@ export const authRoutes = new Hono<AppEnv>();
 authRoutes.post('/register', async (c) => {
   const body = await c.req.json();
   const { email, password, firstName, lastName, acceptedTerms, marketingConsent } = body;
+  // Optional marketing attribution (?ref= carried from the landing URL). Free
+  // text from the client, so clamp hard: short token or null.
+  const signupSource =
+    typeof body.source === 'string' && /^[a-z0-9_-]{1,32}$/i.test(body.source) ? body.source : null;
 
   // Validate input
   if (!email || !password || !firstName || !lastName) {
@@ -49,9 +53,9 @@ authRoutes.post('/register', async (c) => {
   const now = new Date().toISOString();
 
   await c.env.DB.prepare(`
-    INSERT INTO users (id, email, password_hash, first_name, last_name, terms_accepted_at, marketing_consent, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `).bind(userId, email.toLowerCase(), passwordHash, firstName, lastName, now, marketingConsent ? 1 : 0, now, now).run();
+    INSERT INTO users (id, email, password_hash, first_name, last_name, terms_accepted_at, marketing_consent, signup_source, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(userId, email.toLowerCase(), passwordHash, firstName, lastName, now, marketingConsent ? 1 : 0, signupSource, now, now).run();
   
   // Check for a paid Founder pledge made before this account existed. The
   // pledge webhook grants FOREVER when the email already has an account; this

@@ -201,7 +201,7 @@ async function imageForVariant(
 
 async function postAll(
   source?: SourcePost,
-  packVisual?: { dye: string; eyebrow: string },
+  packVisual?: { dye: string; eyebrow: string; landing?: string },
 ): Promise<void> {
   const today = source ?? (await readJson<{ source: SourcePost }>("output/source.json"))?.source;
   if (!today) {
@@ -250,23 +250,34 @@ async function postAll(
     variants.map((v) => imageForVariant(v, today.saying, dateKey, slot, packVisual)),
   );
 
-  // Pack mode: render the animated MP4 once (square, reused per video platform).
-  // ffmpeg-gated and wrapped — any failure leaves video=null and every platform
-  // falls back to its gorgeous static image, so a render hiccup never drops a post.
+  // Pack mode: render the animated MP4s — square for Bluesky's feed, vertical
+  // 9:16 for the Facebook Reel (the one surface Meta still pushes to
+  // non-followers organically). ffmpeg-gated and wrapped — any failure leaves
+  // that video null and the platform falls back to its static image, so a
+  // render hiccup never drops a post.
   let video: Buffer | null = null;
+  let videoVertical: Buffer | null = null;
   if (packVisual) {
+    const base = {
+      saying: today.saying, dye: packVisual.dye, eyebrow: packVisual.eyebrow,
+      seed: `${dateKey}-${slot}-pack`,
+    };
+    const outDir = path.resolve(process.cwd(), `output/${dateKey}/images`);
+    await fs.mkdir(outDir, { recursive: true });
     try {
       console.log(`[video] rendering animated pack for: "${today.saying}"`);
-      video = await renderDeepVideo({
-        saying: today.saying, width: 1080, height: 1080,
-        seed: `${dateKey}-${slot}-pack`, dye: packVisual.dye, eyebrow: packVisual.eyebrow,
-      });
-      const vpath = path.resolve(process.cwd(), `output/${dateKey}/images/pack-${dateKey}-${slot}.mp4`);
-      await fs.mkdir(path.dirname(vpath), { recursive: true });
-      await fs.writeFile(vpath, video);
-      console.log(`[video] rendered ${video.length} bytes → ${vpath}`);
+      video = await renderDeepVideo({ ...base, width: 1080, height: 1080 });
+      await fs.writeFile(path.join(outDir, `pack-${dateKey}-${slot}.mp4`), video);
+      console.log(`[video] square ${video.length}B`);
     } catch (err) {
-      console.error(`[video] render failed — falling back to static image`, err);
+      console.error(`[video] square render failed — static image fallback`, err);
+    }
+    try {
+      videoVertical = await renderDeepVideo({ ...base, width: 1080, height: 1920 });
+      await fs.writeFile(path.join(outDir, `pack-${dateKey}-${slot}-reel.mp4`), videoVertical);
+      console.log(`[video] vertical ${videoVertical.length}B (reel)`);
+    } catch (err) {
+      console.error(`[video] vertical render failed — square/static fallback`, err);
     }
   }
 
@@ -277,9 +288,15 @@ async function postAll(
         variant: v,
         imageUrl: images[i].url,
         ...(images[i].bytes ? { imageBytes: images[i].bytes! } : {}),
-        // Both platforms get the animated video; each falls back to its static
-        // image automatically if the video upload/encode fails.
-        ...(video ? { videoBytes: video } : {}),
+        // Facebook gets the vertical reel (falling back to the square feed
+        // video, then the static image); Bluesky gets the square. Each platform
+        // degrades to its static image automatically on any video failure.
+        ...(v.platform === "facebook" && (videoVertical ?? video)
+          ? { videoBytes: (videoVertical ?? video)! }
+          : v.platform !== "facebook" && video
+            ? { videoBytes: video }
+            : {}),
+        ...(packVisual?.landing ? { linkUrl: packVisual.landing } : {}),
         ...(v.platform === "bluesky" && blueskyThread ? { blueskyThread } : {}),
         imageAlt: today.saying,
       }),
@@ -355,7 +372,7 @@ async function daily(): Promise<void> {
     console.log(`[packs] ${pack.needState} · "${pack.saying}"`);
     const dateKey = now.toISOString().slice(0, 10);
     await writeJson(`output/${dateKey}/source.json`, { source: pack.source });
-    await postAll(pack.source, { dye: pack.dye, eyebrow: pack.eyebrow });
+    await postAll(pack.source, { dye: pack.dye, eyebrow: pack.eyebrow, landing: pack.landing });
     return;
   }
 
@@ -551,7 +568,7 @@ const handlers: Record<string, () => Promise<void>> = {
       const now = new Date();
       const pack = packForSlot(now, resolveSlotHour(now));
       console.log(`[purge] reposting fresh pack: ${pack.needState} · "${pack.saying}"`);
-      await postAll(pack.source, { dye: pack.dye, eyebrow: pack.eyebrow });
+      await postAll(pack.source, { dye: pack.dye, eyebrow: pack.eyebrow, landing: pack.landing });
     } else {
       const source = await generate();
       await postAll(source);

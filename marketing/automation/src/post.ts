@@ -38,6 +38,9 @@ export interface PostInput {
   // video hiccup never drops the post.
   videoBytes?: Uint8Array;
   videoUrl?: string;
+  // Message-matched landing page for this post (defaults to the homepage).
+  // Platform ?ref= is appended at send time for signup attribution.
+  linkUrl?: string;
   scheduleAt?: string;
   // Bluesky thread: additional post texts posted as replies to variant.caption.
   // Last part gets a heirloom.blue link card embed.
@@ -59,6 +62,13 @@ export interface PostResult {
 const QUEUE_WEBHOOK = process.env.QUEUE_WEBHOOK_URL;
 const HEIRLOOM_API_URL = process.env.HEIRLOOM_API_URL;
 const HEIRLOOM_ADMIN_TOKEN = process.env.HEIRLOOM_ADMIN_TOKEN;
+
+// The landing URL a post links to, tagged with the platform ref for signup
+// attribution (worker stores it via ?ref= → localStorage → /auth/register).
+function landingUrl(input: PostInput, ref: string): string {
+  const base = input.linkUrl ?? "https://heirloom.blue";
+  return `${base}${base.includes("?") ? "&" : "?"}ref=${ref}`;
+}
 
 function caption(variant: Variant): string {
   return variant.hashtags.length
@@ -181,12 +191,78 @@ function isoWeekOf(date: Date): number {
 
 // --- Direct platform integrations (free) -----------------------------------
 
+// Publish the pack MP4 as a Facebook REEL — the one surface Meta still pushes
+// to non-followers organically. Three phases per the Reels API: start (returns
+// an upload session), binary upload to rupload, finish (PUBLISHED). Returns
+// null on any failure so the caller falls back to the feed-video/image path.
+async function postFacebookReel(
+  bytes: Uint8Array,
+  cap: string,
+  token: string,
+  pageId: string,
+): Promise<string | null> {
+  try {
+    const startRes = await fetch(`https://graph.facebook.com/v21.0/${pageId}/video_reels`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ upload_phase: "start", access_token: token }),
+    });
+    const start = (await startRes.json().catch(() => ({}))) as {
+      video_id?: string; upload_url?: string; error?: { message: string };
+    };
+    if (!start.video_id || !start.upload_url) {
+      console.warn(`[fb] reel start failed (${start.error?.message ?? startRes.status}) — falling back`);
+      return null;
+    }
+    const upRes = await fetch(start.upload_url, {
+      method: "POST",
+      headers: { Authorization: `OAuth ${token}`, offset: "0", file_size: String(bytes.byteLength) },
+      body: bytes as unknown as BodyInit,
+    });
+    const up = (await upRes.json().catch(() => ({}))) as { success?: boolean; debug_info?: { message?: string } };
+    if (!upRes.ok || up.success === false) {
+      console.warn(`[fb] reel upload failed (${up.debug_info?.message ?? upRes.status}) — falling back`);
+      return null;
+    }
+    const finRes = await fetch(
+      `https://graph.facebook.com/v21.0/${pageId}/video_reels?upload_phase=finish&video_id=${start.video_id}` +
+        `&video_state=PUBLISHED&description=${encodeURIComponent(cap)}&access_token=${token}`,
+      { method: "POST" },
+    );
+    const fin = (await finRes.json().catch(() => ({}))) as { success?: boolean; error?: { message: string } };
+    if (!finRes.ok || fin.error || fin.success === false) {
+      console.warn(`[fb] reel finish failed (${fin.error?.message ?? finRes.status}) — falling back`);
+      return null;
+    }
+    console.log(`[fb] reel(${bytes.byteLength}B) → published id=${start.video_id}`);
+    return start.video_id;
+  } catch (err: any) {
+    console.warn(`[fb] reel threw — falling back: ${err?.message ?? err}`);
+    return null;
+  }
+}
+
 async function postFacebook(input: PostInput): Promise<PostResult> {
   const token = process.env.META_PAGE_ACCESS_TOKEN;
   const pageId = process.env.META_PAGE_ID;
   if (!token || !pageId) return queue(input);
 
   const cap = caption(input.variant);
+
+  // Animated pack: try the REEL first (organic non-follower reach), then the
+  // feed /videos post, then the static image — the post always goes out.
+  if (input.videoBytes) {
+    const reelId = await postFacebookReel(input.videoBytes, cap, token, pageId);
+    if (reelId) {
+      // Reel processing is async server-side; the link comment may race it.
+      // Best-effort — the description already names the landing page.
+      await fetch(`https://graph.facebook.com/v21.0/${reelId}/comments`, {
+        method: "POST",
+        body: new URLSearchParams({ message: `Some things are meant to be kept → ${landingUrl(input, "fb")}`, access_token: token }),
+      }).catch(() => undefined);
+      return { platform: input.variant.platform, ok: true, id: reelId, mode: "direct" };
+    }
+  }
 
   // Animated pack: post the MP4 to /videos. On any failure, fall through to the
   // static-image path below so the post still goes out.
@@ -202,7 +278,7 @@ async function postFacebook(input: PostInput): Promise<PostResult> {
       if (vres.ok && vjson.id && !vjson.error) {
         await fetch(`https://graph.facebook.com/v21.0/${vjson.id}/comments`, {
           method: "POST",
-          body: new URLSearchParams({ message: "Some things are meant to be kept → heirloom.blue", access_token: token }),
+          body: new URLSearchParams({ message: `Some things are meant to be kept → ${landingUrl(input, "fb")}`, access_token: token }),
         }).catch(() => undefined);
         return { platform: input.variant.platform, ok: true, id: vjson.id, mode: "direct" };
       }
@@ -249,7 +325,7 @@ async function postFacebook(input: PostInput): Promise<PostResult> {
     await fetch(`https://graph.facebook.com/v21.0/${json.id}/comments`, {
       method: "POST",
       body: new URLSearchParams({
-        message: "Some things are meant to be kept → heirloom.blue",
+        message: `Some things are meant to be kept → ${landingUrl(input, "fb")}`,
         access_token: token,
       }),
     }).catch(() => undefined);
@@ -475,7 +551,7 @@ async function postBluesky(input: PostInput): Promise<PostResult> {
       record.embed = {
         $type: "app.bsky.embed.external",
         external: {
-          uri: "https://heirloom.blue",
+          uri: landingUrl(input, "bsky"),
           title: "Heirloom",
           description: "Some things are meant to be kept.",
           ...(imageBlob ? { thumb: imageBlob } : {}),

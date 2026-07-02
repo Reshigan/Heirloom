@@ -252,6 +252,37 @@ export function ScenarioFutureGrandchildren() {
   );
 }
 
+// Need-state landings for the social packs — the eyebrow matches the pack's
+// copper addressing line, so the post → page journey reads as one thought.
+
+export function ScenarioWhenSomeoneIsGone() {
+  return (
+    <ScenarioPage
+      eyebrow="when someone is gone"
+      headline="Write down who they were, before the details soften."
+      subhead="The sound of their voice. The story they told at every dinner. The thing they always said. Grief blurs the small details first — set them down while they're still sharp, and they stay in the family for good."
+      sealedLabel="kept · the stories of someone loved · held for the family"
+      sealedTo="about the one who is gone — written by the ones who remember"
+      sealedTrigger="held · read whenever someone needs them"
+      ctaLabel="Keep what you remember →"
+    />
+  );
+}
+
+export function ScenarioTheirFirstYear() {
+  return (
+    <ScenarioPage
+      eyebrow="for a new mother"
+      headline="She won't remember this year. You're the one who will."
+      subhead="The weight of her asleep on your chest. What 3am felt like. The first time she laughed. Write it down now, in the middle of it — one day she'll ask what she was like, and you'll hand her the answer."
+      sealedLabel="sealed · her first year · opens: when she's old enough to ask"
+      sealedTo="for my child — written in the middle of the night"
+      sealedTrigger="awaiting · trigger: when they ask what they were like"
+      ctaLabel="Write it while it's true →"
+    />
+  );
+}
+
 export function ScenarioVoiceForTheUnborn() {
   return (
     <ScenarioPage

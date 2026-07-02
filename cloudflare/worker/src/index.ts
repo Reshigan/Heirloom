@@ -761,6 +761,24 @@ app.route('/api/announcements', announcementsRoutes);
 // Engagement routes (mix of public and protected endpoints)
 app.route('/api/engagement', engagementRoutes);
 
+// First-party page-view beacon — no cookies, no IP, no UA. Day × ref × path
+// counters only (migration 0074), enough to see whether social posts drive
+// clicks. Fire-and-forget from the frontend; always 204.
+app.post('/api/metrics/visit', async (c) => {
+  try {
+    const b = (await c.req.json().catch(() => ({}))) as { ref?: string; path?: string };
+    const ref = typeof b.ref === 'string' && /^[a-z0-9_-]{1,32}$/i.test(b.ref) ? b.ref : '';
+    const rawPath = typeof b.path === 'string' ? b.path : '/';
+    const path = (rawPath.startsWith('/') ? rawPath : '/').slice(0, 64);
+    const day = new Date().toISOString().slice(0, 10);
+    await c.env.DB.prepare(
+      `INSERT INTO site_visits (day, ref, path, hits) VALUES (?, ?, ?, 1)
+       ON CONFLICT(day, ref, path) DO UPDATE SET hits = hits + 1`
+    ).bind(day, ref, path).run();
+  } catch { /* metrics must never break anything */ }
+  return c.body(null, 204);
+});
+
 // Heirloom v2 public routes
 app.route('/api/gifts', giftsV2Routes);
 app.get('/api/public/stats', async (c) => {
