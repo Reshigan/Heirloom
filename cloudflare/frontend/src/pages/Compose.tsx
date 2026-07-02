@@ -1509,7 +1509,7 @@ export function Compose() {
                   margin: 0,
                 }}
               >
-                {isLetter ? 'Weave a new letter' : 'Let it settle'}
+                {isLetter ? 'Seal a new letter' : 'Let it settle'}
               </p>
             </div>
             <span

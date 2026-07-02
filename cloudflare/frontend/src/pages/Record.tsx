@@ -495,18 +495,12 @@ export function Record() {
               onClick={start}
               aria-label="Begin recording"
               style={{
-                background: 'transparent',
-                border: '1px solid var(--warm)',
-                borderRadius: 0,
-                padding: '16px 40px',
-                cursor: 'pointer',
-                color: 'var(--warm)',
-                fontFamily: 'var(--mono)',
-                fontSize: 13,
-                fontWeight: 600,
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                transition: 'background 180ms var(--ease)',
+                width: 132, height: 132, borderRadius: '50%',
+                border: '1px solid var(--warm)', background: 'transparent',
+                color: 'var(--warm)', cursor: 'pointer',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: 'var(--serif)', fontSize: 15, fontStyle: 'italic',
+                transition: 'border-color 360ms var(--ease), color 360ms var(--ease)',
               }}
             >
               record
@@ -517,18 +511,12 @@ export function Record() {
               onClick={stop}
               aria-label="Stop recording"
               style={{
-                background: 'transparent',
-                border: '1px solid var(--warm)',
-                borderRadius: 0,
-                padding: '16px 48px',
-                cursor: 'pointer',
-                color: 'var(--warm)',
-                fontFamily: 'var(--mono)',
-                fontSize: 13,
-                fontWeight: 600,
-                letterSpacing: '0.2em',
-                textTransform: 'uppercase',
-                animation: 'none', // ponytail: live state carried by timer/level/progress hairline; infinite pulse was redundant
+                width: 132, height: 132, borderRadius: '50%',
+                border: '1px solid var(--warm)', background: 'transparent',
+                color: 'var(--warm)', cursor: 'pointer',
+                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                fontFamily: 'var(--serif)', fontSize: 15, fontStyle: 'italic',
+                // ponytail: live state carried by timer/level/progress hairline; infinite pulse was redundant
               }}
             >
               stop
