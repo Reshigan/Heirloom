@@ -282,12 +282,12 @@ export function Marketing() {
           borderTop: '1px solid var(--rule)',
         }}
       >
-        <SectionLabel>the arc</SectionLabel>
+        <SectionLabel>the way of the water</SectionLabel>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(28px, 5vh, 56px)', marginTop: 'clamp(24px, 4vh, 44px)' }}>
           {([
-            ['/marketing/write.png',  'Write today — the story begins when you decide to.'],
-            ['/marketing/sealed.png', 'Sealed for descendants — locked until they are ready to read it.'],
-            ['/marketing/read.png',   'Read what came before — the voices that wrote before you.'],
+            ['/marketing/write.png',  'Let it settle today — the Deep begins when you decide it does.'],
+            ['/marketing/sealed.png', 'Sealed beneath — held until the day they are ready to draw it up.'],
+            ['/marketing/read.png',   'Draw up what came before — the voices settled below you.'],
           ] as const).map(([src, alt], i) => (
             <figure key={i} style={{
               margin: 0,
