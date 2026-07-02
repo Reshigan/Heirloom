@@ -119,6 +119,42 @@ export function Profile() {
           meta="MANAGE →"
           onClick={() => navigate('/billing')}
         />
+        <EntryRow
+          title="Search the Deep"
+          sub="Every entry, letter, and voice"
+          meta="OPEN →"
+          onClick={() => navigate('/search')}
+        />
+        <EntryRow
+          title="Inbox"
+          sub="What has surfaced for you"
+          meta="OPEN →"
+          onClick={() => navigate('/inbox')}
+        />
+        <EntryRow
+          title="On this day"
+          sub="What the family set down on today's date"
+          meta="OPEN →"
+          onClick={() => navigate('/on-this-day')}
+        />
+        <EntryRow
+          title="The book"
+          sub="The Deep, bound and printed"
+          meta="OPEN →"
+          onClick={() => navigate('/book')}
+        />
+        <EntryRow
+          title="Wrapped"
+          sub="The year, kept"
+          meta="OPEN →"
+          onClick={() => navigate('/wrapped')}
+        />
+        <EntryRow
+          title="Gift a thread"
+          sub="Give another family a Deep of their own"
+          meta="GIVE →"
+          onClick={() => navigate('/gift-subscriptions')}
+        />
 
         {/* ════════ THE BLOODLINE ════════ */}
         <SectionLabel>The Bloodline</SectionLabel>

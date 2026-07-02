@@ -6,7 +6,6 @@ import { useListener } from '../hooks/useListener';
 import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { HLogo } from '../loom/components/HLogo';
-import { PwaMenu } from './PwaHome';
 import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
 import { dyeVar, type Dye } from '../loom/dye';
 
@@ -144,7 +143,6 @@ export function Descent() {
   return (
     <ClothShell
       topbarLeft={<HLogo size="sm" wordmark href="/loom/pwa" />}
-      topbarRight={<PwaMenu />}
     >
       {!wizardDone && <PwaWizard onDone={() => setWizardDone(true)} />}
 
