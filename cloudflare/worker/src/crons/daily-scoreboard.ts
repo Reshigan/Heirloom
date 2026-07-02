@@ -56,8 +56,10 @@ export async function runDailyScoreboard(env: Env): Promise<void> {
 
   // Commercial + support signal (replaces the retired daily admin summary)
   const subs = await one<{ active: number; trialing: number }>(env,
-    `SELECT COUNT(CASE WHEN status='ACTIVE' THEN 1 END) active,
-            COUNT(CASE WHEN status='TRIALING' THEN 1 END) trialing FROM subscriptions`);
+    `SELECT COUNT(CASE WHEN s.status='ACTIVE' THEN 1 END) active,
+            COUNT(CASE WHEN s.status='TRIALING' THEN 1 END) trialing
+     FROM subscriptions s JOIN users u ON u.id = s.user_id
+     WHERE ${EXCLUDE.replace(/email/g, 'u.email')}`);
   const tickets = (await one<{ n: number }>(env,
     `SELECT COUNT(*) n FROM support_tickets WHERE status NOT IN ('RESOLVED','CLOSED')`))?.n ?? null;
 
