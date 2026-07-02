@@ -760,8 +760,9 @@ em {
 
 /* ===== SELECTION ===== */
 ::selection {
-  background: var(--rule-strong);
-  color: var(--bone);
+  /* the one warmth: copper ground, ink text */
+  background: var(--warm-dim);
+  color: var(--ink);
 }
 
 /* ===== UTILITY CLASSES ===== */
@@ -2286,3 +2287,15 @@ input:-webkit-autofill:active {
 .loom h1, .loom h2, .hl-screen h1, .hl-screen h2 {
   text-shadow: 0 1px 2px rgba(7, 13, 20, 0.45), 0 2px 26px rgba(7, 13, 20, 0.55);
 }
+
+/* ── Fraunces, properly displayed ────────────────────────────────────────
+   The full variable font (main.tsx imports fraunces/full.css) carries the
+   opsz axis — true high-contrast display letterforms at scale, applied
+   automatically by the browser (font-optical-sizing: auto is the default) —
+   and WONK, the hand-set old-style quirk that is Fraunces' signature. The
+   wonk is enabled at h1 scale only: the hero speaks in the letterforms the
+   face was drawn for; everything smaller stays sober. */
+.loom h1, .hl-screen h1, main h1 {
+  font-variation-settings: 'WONK' 1;
+}
+

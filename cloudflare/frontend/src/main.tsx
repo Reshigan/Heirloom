@@ -11,7 +11,7 @@ import { initSettleSound } from './lib/settleSound';
 // BRAND §6.2 type system: Fraunces = display/voice (variable, opsz-aware),
 // Source Serif 4 = reading/prose/inputs (variable), JetBrains Mono = archival
 // labels/metadata, Inter = residual UI chrome.
-import '@fontsource-variable/fraunces';
+import '@fontsource-variable/fraunces/full.css';
 import '@fontsource-variable/fraunces/wght-italic.css';
 import '@fontsource-variable/source-serif-4';
 import '@fontsource-variable/source-serif-4/wght-italic.css';
