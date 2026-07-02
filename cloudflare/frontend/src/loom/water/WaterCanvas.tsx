@@ -125,12 +125,58 @@ export default function WaterCanvas() {
     // family → waterRamp returns the verbatim original palette), then reseed
     // from the signed-in family's actual dyes once the roster loads.
     const uDye = Array.from({ length: 6 }, (_, i) => gl.getUniformLocation(prog, `u_dye${i}`));
-    const setRamp = (ramp: [number, number, number][]) =>
-      ramp.forEach(([r, g, b], i) => gl.uniform3f(uDye[i], r, g, b));
+    const rampCur = new Float32Array(18);
+    const rampTarget = new Float32Array(18);
+    let blooming = false;
+    const writeRamp = (ramp: [number, number, number][], into: Float32Array) =>
+      ramp.forEach(([r, g, b], i) => { into[i * 3] = r; into[i * 3 + 1] = g; into[i * 3 + 2] = b; });
+    const uploadRamp = () => {
+      for (let i = 0; i < 6; i++) gl.uniform3f(uDye[i], rampCur[i * 3], rampCur[i * 3 + 1], rampCur[i * 3 + 2]);
+    };
+    const setRamp = (ramp: [number, number, number][]) => {
+      writeRamp(ramp, rampTarget);
+      rampCur.set(rampTarget);
+      blooming = false;
+      uploadRamp();
+    };
     setRamp(waterRamp([]));
+
+    // deep:bloom — the open-water arrival: the ramp starts near-dark and slowly
+    // saturates toward a (randomized) dye palette, the water filling with
+    // memories while the visitor reads. ~25s to full at 60fps.
+    const onBloom = (e: Event) => {
+      const d = (e as CustomEvent<{ dyes?: string[]; from?: number } | null>).detail;
+      writeRamp(waterRamp(((d?.dyes ?? []) as Dye[])), rampTarget);
+      const from = typeof d?.from === 'number' ? d.from : 0.14;
+      for (let i = 0; i < 18; i++) rampCur[i] = rampTarget[i] * from;
+      uploadRamp();
+      if (reduce) { rampCur.set(rampTarget); uploadRamp(); draw(8.0); return; }
+      blooming = true;
+    };
+    window.addEventListener('deep:bloom', onBloom);
+
+    // deep:energy — how alive the surface is. Public pages ask for visible
+    // drift (≈2×); rooms return it to the resting pace on unmount.
+    let speed = 1;
+    let speedTarget = 1;
+    const onEnergy = (e: Event) => {
+      const v = (e as CustomEvent<{ speed?: number } | null>).detail?.speed;
+      if (typeof v === 'number' && isFinite(v)) speedTarget = Math.max(0.4, Math.min(3, v));
+    };
+    window.addEventListener('deep:energy', onEnergy);
 
     const draw = (tm: number) => {
       depth += (depthTarget - depth) * 0.035;
+      if (blooming) {
+        let maxDiff = 0;
+        for (let i = 0; i < 18; i++) {
+          rampCur[i] += (rampTarget[i] - rampCur[i]) * 0.0045;
+          const diff = Math.abs(rampTarget[i] - rampCur[i]);
+          if (diff > maxDiff) maxDiff = diff;
+        }
+        uploadRamp();
+        if (maxDiff < 0.001) blooming = false;
+      }
       gl.uniform2f(uRes, cv.width, cv.height);
       gl.uniform1f(uTime, tm);
       gl.uniform1f(uDepth, depth);
@@ -215,17 +261,24 @@ export default function WaterCanvas() {
         window.removeEventListener('deep:settled', onSettled);
         window.removeEventListener('deep:depth', onDepth);
         window.removeEventListener('deep:tint', onTint);
+        window.removeEventListener('deep:bloom', onBloom);
+        window.removeEventListener('deep:energy', onEnergy);
         ro.disconnect();
         waterRef.canvas = null;
       };
     }
 
-    const start = performance.now();
+    let tSec = 0;
+    let last = performance.now();
     let raf = 0;
     let running = true;
     const frame = () => {
       if (!running) return;
-      draw((performance.now() - start) / 1000);
+      const now = performance.now();
+      speed += (speedTarget - speed) * 0.02;
+      tSec += ((now - last) / 1000) * speed;
+      last = now;
+      draw(tSec);
       raf = requestAnimationFrame(frame);
     };
     frame();
@@ -236,6 +289,7 @@ export default function WaterCanvas() {
         cancelAnimationFrame(raf);
       } else if (!running) {
         running = true;
+        last = performance.now();
         frame();
       }
     };
@@ -247,6 +301,8 @@ export default function WaterCanvas() {
       window.removeEventListener('deep:settled', onSettled);
       window.removeEventListener('deep:depth', onDepth);
       window.removeEventListener('deep:tint', onTint);
+      window.removeEventListener('deep:bloom', onBloom);
+      window.removeEventListener('deep:energy', onEnergy);
       if (finePointer) window.removeEventListener('pointermove', onPointer);
       running = false;
       cancelAnimationFrame(raf);

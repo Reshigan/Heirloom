@@ -9,6 +9,7 @@ import {
 } from '../lib/pwa';
 import { EASE as ease } from '../loom/motion';
 import { DeepIntro, shouldPlayIntro } from '../loom/components/DeepIntro';
+import { useOpenWaterBloom } from '../loom/water/useOpenWater';
 
 // ── Permanence answers ────────────────────────────────────────────────
 const PERMANENCE = [
@@ -47,6 +48,8 @@ function useReveal(threshold = 0.12) {
 }
 
 export function Marketing() {
+  // open water: visible drift + the memories-bloom, randomized per arrival
+  useOpenWaterBloom();
   const install = useInstallState();
   const [vpH, setVpH] = useState(typeof window !== 'undefined' ? window.innerHeight : 900);
   const [vpW, setVpW] = useState(typeof window !== 'undefined' ? window.innerWidth : 1440);

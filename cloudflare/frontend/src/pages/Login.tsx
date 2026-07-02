@@ -8,9 +8,12 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { safeRedirect } from '../lib/safeRedirect';
+import { useOpenWaterBloom } from '../loom/water/useOpenWater';
 
 // Login — a single calm centered column over the global filament backdrop.
 export function Login() {
+  // open water: visible drift + the memories-bloom, randomized per arrival
+  useOpenWaterBloom();
   usePageMeta('Sign in', 'Sign in to your Heirloom family thread.');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();

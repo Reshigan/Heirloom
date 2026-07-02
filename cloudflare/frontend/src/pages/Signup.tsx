@@ -49,8 +49,11 @@ const TIERS: {
 ];
 
 import { EASE } from '../loom/motion';
+import { useOpenWaterBloom } from '../loom/water/useOpenWater';
 
 export function Signup() {
+  // open water: visible drift + the memories-bloom, randomized per arrival
+  useOpenWaterBloom();
   usePageMeta('Begin your family\'s Deep', "Let the first entry settle into the Deep. Free to start.");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
