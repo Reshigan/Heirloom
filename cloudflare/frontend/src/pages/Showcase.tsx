@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { RoomHeader } from '../loom/components/room';
-import { UserMenu } from '../loom/components/Frame';
 import { SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 
 /** Illustrative thread entries — not real data. */
@@ -18,7 +17,7 @@ export function Showcase() {
     <ClothShell
       topbarLeft={<HLogo size="sm" wordmark href="/" />}
       topbarCenter="showcase"
-      topbarRight={<UserMenu />}
+     
       backdropOpacity={0.2}
     >
       <div style={{ overflowY: 'auto', minHeight: '100%' }}>

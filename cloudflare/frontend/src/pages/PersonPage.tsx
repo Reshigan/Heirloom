@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api, { familyApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { UserMenu } from '../loom/components/Frame';
 import { AddRelationshipPicker, relationshipLine } from '../loom/components/AddRelationshipPicker';
 import { type FamilyMember, type FamilyRelationship } from '../types';
 import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
@@ -164,7 +163,7 @@ export function PersonPage() {
   // ── LOADING ──────────────────────────────────────────────
   if (isLoading) {
     return (
-      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: 'person' }]} />} topbarRight={<UserMenu />}>
+      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: 'person' }]} />}>
         <div style={PAGE_WRAP}>
           <p
             style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--bone-faint)', letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}
@@ -179,7 +178,7 @@ export function PersonPage() {
   // ── NOT FOUND ────────────────────────────────────────────
   if (!member) {
     return (
-      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: 'person' }]} />} topbarRight={<UserMenu />}>
+      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: 'person' }]} />}>
         <div style={PAGE_WRAP}>
           <Link to="/family" style={BACK_LINK}>
             ← back to family
@@ -206,7 +205,7 @@ export function PersonPage() {
   const headerSub = subParts.length ? subParts.join('  ·  ') : undefined;
 
   return (
-    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: member.name }]} />} topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'family', to: '/family' }, { label: member.name }]} />}>
       <div style={PAGE_WRAP}>
         <Link to="/family" style={BACK_LINK}>
           ← back to family

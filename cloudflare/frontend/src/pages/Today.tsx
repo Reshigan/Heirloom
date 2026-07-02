@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { CSSProperties, ReactNode } from 'react';
-import { Link } from 'react-router-dom';
+import type { ReactNode } from 'react';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { useListener } from '../hooks/useListener';
@@ -10,6 +9,7 @@ import { aiApi, engagementApi } from '../services/api';
 import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { EASE as ease } from '../loom/motion';
+import { Verb } from '../loom/components/Verb';
 
 interface OnThisDayEntry {
   id: string;
@@ -79,25 +79,6 @@ export function Today() {
   const todayTopbar = (
     <Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/pwa' }, { label: 'today' }]} />
   );
-
-  // The outlined amber mono pill — the cosmic-home capture affordance,
-  // mirroring Login's "enter" pill. Voice is the one primary door (/capture).
-  const pillStyle = (_lead: boolean): CSSProperties => ({
-    padding: '12px 30px',
-    background: 'transparent',
-    border: '1px solid var(--copper-border)',
-    borderRadius: 0,
-    color: 'var(--warm)',
-    fontFamily: 'var(--mono)',
-    fontSize: 11,
-    letterSpacing: '0.2em',
-    textTransform: 'uppercase',
-    textDecoration: 'none',
-    minHeight: 44,
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  });
 
   // A centred recent line — small serif, a faint warm diamond mark before it.
   const RecentLine = ({ children, italic }: { children: ReactNode; italic?: boolean }) => (
@@ -169,7 +150,7 @@ export function Today() {
 
           {/* One primary capture door — the voice-first cockpit. */}
           <div style={{ display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginBottom: 56 }}>
-            <Link to="/capture" style={pillStyle(true)}>speak something →</Link>
+            <Verb to="/capture" drop>speak something</Verb>
           </div>
 
           {/* The Listener prompt */}
@@ -233,7 +214,7 @@ export function Today() {
 
         {/* One primary capture door — the voice-first cockpit. */}
         <div style={{ display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', marginBottom: 56 }}>
-          <Link to="/capture" style={pillStyle(true)}>speak something →</Link>
+          <Verb to="/capture" drop>speak something</Verb>
         </div>
 
         {/* Recent voices — centred ledger lines */}

@@ -5,7 +5,6 @@ import { aiApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { UserMenu } from '../loom/components/Frame';
 import { SectionLabel } from '../loom/cosmic/CosmicUI';
 import { copyToClipboard } from '../utils/clipboard';
 
@@ -124,7 +123,7 @@ export function FutureLetter() {
   const set = (patch: Partial<typeof formData>) => setFormData({ ...formData, ...patch });
 
   return (
-    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'future letter' }]} />} topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'future letter' }]} />}>
       <div
         style={{
           maxWidth: 560,

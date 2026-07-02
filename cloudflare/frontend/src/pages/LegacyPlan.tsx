@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { ClothShell } from '../loom/components/ClothShell';
-import { UserMenu } from '../loom/components/Frame';
 import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { FeatureOnboarding, useFeatureOnboarding, OnboardingHelpButton } from '../components/FeatureOnboarding';
 import api, { deadmanApi } from '../services/api';
@@ -118,7 +117,7 @@ export function LegacyPlan() {
     return (
       <ClothShell
         topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'legacy plan' }]} />}
-        topbarRight={<UserMenu />}
+       
       >
         <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
           <ProgressHair />
@@ -147,7 +146,7 @@ export function LegacyPlan() {
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'legacy plan' }]} />}
       topbarCenter="legacy plan"
-      topbarRight={<UserMenu />}
+     
     >
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
 

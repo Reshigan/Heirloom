@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { UserMenu } from '../loom/components/Frame';
 import { CosmicHeader, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { captureWater } from '../loom/water/capture';
 
@@ -34,7 +33,7 @@ export function BookPage() {
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'the book' }]} />}
-      topbarRight={<UserMenu />}
+     
     >
       <div
         style={{

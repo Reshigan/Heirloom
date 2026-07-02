@@ -4,7 +4,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
-import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { engagementApi } from '../services/api';
 import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
@@ -63,7 +62,7 @@ export function FamilyFeed() {
           trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'family feed' }]}
         />
       }
-      topbarRight={<UserMenu />}
+     
     >
       <div
         style={{

@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Verb } from '../loom/components/Verb';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { UserMenu } from '../loom/components/Frame';
 import { SectionLabel, WarmDot } from '../loom/cosmic/CosmicUI';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
@@ -228,7 +227,7 @@ export function LetterRoom() {
   );
 
   return (
-    <ClothShell topbarLeft={topbarLeft} topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={topbarLeft}>
       {/* Hairline loading bar */}
       <div
         aria-hidden

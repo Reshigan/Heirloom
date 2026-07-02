@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { type FamilyMember } from '../types';
 import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
-import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import api, { familyApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
@@ -321,7 +320,7 @@ export function LifeEvents() {
 
   if (isLoading) {
     return (
-      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />} topbarRight={<UserMenu />}>
+      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />}>
         <div style={{ padding: 'clamp(16px, 4vw, 48px)' }}>
           <ProgressHair />
         </div>
@@ -333,7 +332,7 @@ export function LifeEvents() {
   // are kept; this is only a reach failure. Surface the in-voice retry instead.
   if (isError) {
     return (
-      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />} topbarRight={<UserMenu />}>
+      <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />}>
         <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
           <RoomError onRetry={() => refetch()} />
         </div>
@@ -345,7 +344,7 @@ export function LifeEvents() {
   const eventCount = events.length;
 
   return (
-    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />} topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'life events' }]} />}>
       <div style={{ padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)', maxWidth: 'var(--page-max-wide)', margin: '0 auto' }}>
 
         {/* Page header — ledger eyebrow stating the count */}

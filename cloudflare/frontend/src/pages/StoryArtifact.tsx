@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
-import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import api, { memoriesApi, voiceApi } from '../services/api';
@@ -266,7 +265,7 @@ export function StoryArtifact() {
   const artifactList = artifacts?.artifacts ?? [];
 
   return (
-    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'story artifacts' }]} />} topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'story artifacts' }]} />}>
       {/* ProgressHair — 1px hairline while loading, no spinner */}
       {isLoading && (
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, width: '100%' }}>

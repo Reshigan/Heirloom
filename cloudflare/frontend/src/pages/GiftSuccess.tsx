@@ -1,7 +1,6 @@
 import { useSearchParams, Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { UserMenu } from '../loom/components/Frame';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 export function GiftSuccess() {
@@ -11,7 +10,7 @@ export function GiftSuccess() {
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'gift sent' }]} />}
-      topbarRight={<UserMenu />}
+     
     >
       <div
         data-gift-code={code}

@@ -2,7 +2,6 @@ import { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
-import { UserMenu } from '../loom/components/Frame';
 import { InfinityMenu } from '../loom/components/InfinityMenu';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { LettersAwaitingMe } from '../loom/components/LettersAwaitingMe';
@@ -214,7 +213,7 @@ export function LoomIndex() {
   // so the menu's ∞ is the only one on the page. The menu keeps its label,
   // roving focus, and Escape contract.
   return (
-    <ClothShell topbarLeft={topbarLeft} topbarCenter={<InfinityMenu />} topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={topbarLeft} topbarCenter={<InfinityMenu />}>
       {/* Hairline loading bar — sanctioned ProgressHair (bone hairline, single warm sweep) */}
       {isLoading && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 30, pointerEvents: 'none' }}>

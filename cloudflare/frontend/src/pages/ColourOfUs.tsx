@@ -2,7 +2,6 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { UserMenu } from '../loom/components/Frame';
 import { CosmicHeader, WaxSeal, SectionLabel } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { useAuthStore } from '../stores/authStore';
@@ -249,7 +248,7 @@ export function ColourOfUs() {
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'the colour of us' }]} />}
-      topbarRight={<UserMenu />}
+     
     >
       {loading && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 30, pointerEvents: 'none' }}>

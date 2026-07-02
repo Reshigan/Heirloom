@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { type FamilyMember } from '../types';
-import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
 import { familyApi } from '../services/api';
 import api from '../services/api';
@@ -482,7 +481,7 @@ export function QuickWizard() {
     <ClothShell
       topbarLeft={<HLogo size="sm" wordmark />}
       topbarCenter="quick start"
-      topbarRight={<UserMenu />}
+     
     >
       {/* ── Centered content area ───────────────────────────────────────── */}
       <div

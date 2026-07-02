@@ -1,7 +1,6 @@
 import { Link, useSearchParams } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { UserMenu } from '../loom/components/Frame';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 import { EASE } from '../loom/motion';
@@ -20,7 +19,7 @@ export function BookSuccess() {
   const range = params.get('range')?.trim() || String(new Date().getFullYear());
 
   return (
-    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'the book', to: '/book-builder' }, { label: 'ordered' }]} />} topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'the book', to: '/book-builder' }, { label: 'ordered' }]} />}>
       <div
         style={{
           maxWidth: 'var(--page-max-focus)',

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
-import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { PLAN_PRICE } from '../lib/plans';
@@ -37,7 +36,7 @@ export function FounderWelcome() {
     <ClothShell
       topbarLeft={<HLogo size="sm" wordmark />}
       topbarCenter="welcome"
-      topbarRight={<UserMenu />}
+     
     >
       {/* ── Ceremony: centered, vast air ──────────────────────────── */}
       <div

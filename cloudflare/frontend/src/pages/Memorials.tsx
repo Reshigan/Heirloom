@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { RoomError } from '../loom/components/RoomError';
@@ -131,13 +130,13 @@ export function Memorials() {
     }
   };
 
-  const memorialList: any[] = memorials || [];
+  const memorialList: any[] = Array.isArray(memorials) ? memorials : [];
   const countLabel = isLoading
     ? 'memorials'
     : `${memorialList.length} ${memorialList.length === 1 ? 'memorial' : 'memorials'}`;
 
   return (
-    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'memorials' }]} />} topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom/index' }, { label: 'memorials' }]} />}>
       <div style={{ position: 'relative', maxWidth: 'var(--page-max-reading)', margin: '0 auto', padding: 'var(--page-pad-top) var(--page-pad-x) var(--page-clear)' }}>
 
 

@@ -37,7 +37,7 @@ function pickDye(type: string): string {
  * one cache — invalidating after a write updates both instantly.
  */
 export function useTapestryEntries(): { entries: CanvasEntry[]; isError: boolean; isLoading: boolean } {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
 
   const { data: memoriesData, isError: me, isLoading: ml } = useQuery({
     queryKey: ['weft-memories'],
@@ -77,7 +77,9 @@ export function useTapestryEntries(): { entries: CanvasEntry[]; isError: boolean
       if (isNaN(date.getTime())) continue;
       all.push({
         date, n: n++, dye: pickDye(m.type ?? 'memory'), tier: 'family',
-        author: m.userId ?? m.user_id,
+        // The list endpoint returns only the signed-in user's memories and no
+        // name join, so a raw user id here would render as the "voice" label.
+        author: (m.userId ?? m.user_id) === user?.id ? (user?.firstName || undefined) : undefined,
         title: typeof m.title === 'string' && m.title ? m.title : undefined,
         id: m.id, kind: 'memory',
       });

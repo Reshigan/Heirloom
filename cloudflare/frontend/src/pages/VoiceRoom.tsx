@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { UserMenu } from '../loom/components/Frame';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
@@ -228,7 +227,7 @@ export function VoiceRoom() {
     : `${count} ${count === 1 ? 'voice' : 'voices'}`;
 
   return (
-    <ClothShell topbarLeft={topbarLeft} topbarRight={<UserMenu />}>
+    <ClothShell topbarLeft={topbarLeft}>
       {/* Hairline loading bar */}
       {isLoading && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 30, pointerEvents: 'none' }}>

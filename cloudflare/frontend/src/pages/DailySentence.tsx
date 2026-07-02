@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { aiApi, engagementApi, memoriesApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
-import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { useAuthStore } from '../stores/authStore';
@@ -328,7 +327,7 @@ export function DailySentence() {
   return (
     <ClothShell
       topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/' }, { label: 'daily' }]} />}
-      topbarRight={isAuthenticated ? <UserMenu /> : undefined}
+     
     >
       {/* ── scrollable body ──────────────────────────────────────────── */}
       <div

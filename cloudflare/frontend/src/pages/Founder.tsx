@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { foundersApi, billingApi, type FounderCount } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
-import { UserMenu } from '../loom/components/Frame';
 import { HLogo } from '../loom/components/HLogo';
 import { PLAN_PRICE } from '../lib/plans';
 
@@ -138,7 +137,7 @@ export function Founder() {
     <ClothShell
       topbarLeft={<HLogo size="sm" wordmark href="/" />}
       topbarCenter="founders"
-      topbarRight={<UserMenu />}
+     
     >
       <Helmet>
         <title>{`${META_TITLE} · Heirloom`}</title>
