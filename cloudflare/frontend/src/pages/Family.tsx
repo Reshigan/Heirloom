@@ -835,6 +835,11 @@ export function Family() {
                           >
                             record voice →
                           </button>
+                        </>
+                      )}
+                      {/* remove lives inside the editing state — the resting card
+                          shows only the giving acts (§3 negative space). */}
+                      {isEditing && (
                           <button
                             type="button"
                             onClick={() => deleteMember.mutate(m.id)}
@@ -852,7 +857,6 @@ export function Family() {
                           >
                             remove
                           </button>
-                        </>
                       )}
                     </div>
                   </div>
