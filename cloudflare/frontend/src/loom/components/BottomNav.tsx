@@ -18,8 +18,12 @@ import { useAuthStore } from '../../stores/authStore';
  * bar over the logged-out landing/login pages).
  */
 
+// Five slots, the ∞ dead-center: two rooms either side of the one way you add.
+// (An off-center anchor reads as a mistake; the raised tile must be the bar's
+// true middle for the composition to hold.)
 const NAV = [
   { label: 'the deep', href: '/loom/pwa' },
+  { label: 'letters',  href: '/letters' },
   { label: '∞',        href: '/capture', center: true },
   { label: 'family',   href: '/family' },
   { label: 'you',      href: '/loom/profile' },
@@ -68,6 +72,8 @@ export function BottomNav() {
         width: '100%',
         height: '100%',
         margin: '0 auto',
+        padding: '0 10px',
+        boxSizing: 'border-box',
         display: 'flex',
         alignItems: 'stretch',
       }}>

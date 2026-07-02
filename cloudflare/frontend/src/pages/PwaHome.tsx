@@ -368,12 +368,12 @@ function AuthHome({
             : `/loom/read?entry=${e.id}`,
     }));
 
-  // Presence — real entry count + real hands weaving (endowment). member_count
-  // resolves async; until then the hands clause is held back rather than guessed.
+  // Presence — real entry count + real voices (endowment). member_count
+  // resolves async; until then the voices clause is held back rather than guessed.
   const status =
     `since ${firstYear} · ${count} ${count === 1 ? 'memory' : 'memories'}` +
     (memberCount != null
-      ? ` · ${memberCount} ${memberCount === 1 ? 'hand' : 'hands'} weaving`
+      ? ` · ${memberCount} ${memberCount === 1 ? 'voice' : 'voices'} in the water`
       : '') +
     ` · year ${threadYear} of a thousand`;
 
