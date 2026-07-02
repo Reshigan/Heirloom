@@ -8,6 +8,7 @@ export const FRAGMENT_SHADER = `
 precision highp float;
 uniform vec2 u_res;
 uniform float u_time;
+uniform float u_depth; // 0 = surface (now) … 1 = deep past; scroll-linked
 // The family's six ramp colours (surface → deep). Defaults to the approved
 // ground; reseeded from the signed-in family's actual dyes by WaterCanvas.
 uniform vec3 u_dye0,u_dye1,u_dye2,u_dye3,u_dye4,u_dye5;
@@ -82,6 +83,10 @@ void main(){
   float l = dot(c, vec3(0.299,0.587,0.114));
   c = mix(vec3(l), c, 1.12);
   c = max(c, vec3(0.0));
+  // Depth = time: as the reader scrolls into the past the water deepens —
+  // darker, cooler, stiller. Driven by the deep:depth event (ClothShell scroll).
+  c *= mix(1.0, 0.45, u_depth);
+  c = mix(c, c * vec3(0.82, 0.94, 1.10), u_depth * 0.6);
   gl_FragColor = vec4(c, 1.0);
 }
 `

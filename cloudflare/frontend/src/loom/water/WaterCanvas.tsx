@@ -67,6 +67,21 @@ export default function WaterCanvas() {
 
     const uRes = gl.getUniformLocation(prog, 'u_res');
     const uTime = gl.getUniformLocation(prog, 'u_time');
+    const uDepth = gl.getUniformLocation(prog, 'u_depth');
+
+    // Depth = time. Rooms dispatch deep:depth (0 surface … 1 deep past) as the
+    // reader scrolls into older entries; the draw loop eases toward it so the
+    // water deepens like a dive, not a switch.
+    let depth = 0;
+    let depthTarget = 0;
+    const onDepth = (e: Event) => {
+      const v = (e as CustomEvent<number>).detail;
+      if (typeof v === 'number' && isFinite(v)) {
+        depthTarget = Math.max(0, Math.min(1, v));
+        if (reduce) { depth = depthTarget; draw(8.0); }
+      }
+    };
+    window.addEventListener('deep:depth', onDepth);
 
     // The six ramp colours. Seed with the approved default ground (empty
     // family → waterRamp returns the verbatim original palette), then reseed
@@ -77,8 +92,10 @@ export default function WaterCanvas() {
     setRamp(waterRamp([]));
 
     const draw = (tm: number) => {
+      depth += (depthTarget - depth) * 0.035;
       gl.uniform2f(uRes, cv.width, cv.height);
       gl.uniform1f(uTime, tm);
+      gl.uniform1f(uDepth, depth);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
 
@@ -145,6 +162,7 @@ export default function WaterCanvas() {
         cancelled = true;
         unsubAuth();
         window.removeEventListener('deep:settled', onSettled);
+        window.removeEventListener('deep:depth', onDepth);
         ro.disconnect();
         waterRef.canvas = null;
       };
@@ -175,6 +193,7 @@ export default function WaterCanvas() {
       cancelled = true;
       unsubAuth();
       window.removeEventListener('deep:settled', onSettled);
+      window.removeEventListener('deep:depth', onDepth);
       running = false;
       cancelAnimationFrame(raf);
       ro.disconnect();

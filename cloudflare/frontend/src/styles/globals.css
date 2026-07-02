@@ -2278,3 +2278,11 @@ input:-webkit-autofill:active {
     color-mix(in srgb, var(--ink) 24%, transparent) 100%
   );
 }
+
+/* ── Type on living water — legibility lift ──────────────────────────────
+   Serif display floats directly on the moving water; a soft ink settle under
+   the letterforms keeps contrast steady as the water breathes. Shadow into
+   ink (never a glow — §2.6). */
+.loom h1, .loom h2, .hl-screen h1, .hl-screen h2 {
+  text-shadow: 0 1px 2px rgba(7, 13, 20, 0.45), 0 2px 26px rgba(7, 13, 20, 0.55);
+}

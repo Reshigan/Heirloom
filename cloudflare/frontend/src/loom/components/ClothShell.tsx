@@ -1,4 +1,4 @@
-import { type ReactNode } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import { CLOTH_BG_ENTRIES } from './ClothBackdrop';
 import { BOTTOM_NAV_CLEARANCE } from './BottomNav';
 
@@ -24,6 +24,11 @@ export function ClothShell({
   topbarRight,
   noTopbar = false,
 }: ClothShellProps) {
+  // Each room mounts its own shell; a new room starts at the surface.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('deep:depth', { detail: 0 }));
+  }, []);
+
   return (
     <div
       className="loom"
@@ -87,6 +92,16 @@ export function ClothShell({
           // ends underneath it. (Full-bleed absolute layouts like the Weft set
           // their own bottom inset — see Weft.tsx.)
           paddingBottom: BOTTOM_NAV_CLEARANCE,
+        }}
+        // Depth = time: scrolling into older entries lowers the room into the
+        // water — the shader eases toward this (WaterCanvas u_depth). No React
+        // state; a raw event straight to the GL loop. Capped at 0.7 so the
+        // ground darkens like a dive, never to black.
+        onScroll={(e) => {
+          const el = e.currentTarget;
+          const range = el.scrollHeight - el.clientHeight;
+          const p = range > 120 ? Math.min(0.7, (el.scrollTop / range) * 0.7) : 0;
+          window.dispatchEvent(new CustomEvent('deep:depth', { detail: p }));
         }}
       >
         {children}
