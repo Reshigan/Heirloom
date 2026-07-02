@@ -10,6 +10,10 @@ uniform vec2 u_res;
 uniform float u_time;
 uniform float u_depth; // 0 = surface (now) … 1 = deep past; scroll-linked
 uniform float u_rippleT; // seconds since an entry settled (large = no ripple)
+uniform vec3 u_tint;     // dye of the entry being read (deep:tint)
+uniform float u_tintAmt; // 0 = no reading tint … 1 = fully suffused
+uniform vec2 u_ptr;      // slow-following pointer, p-space (desktop only)
+uniform float u_ptrAmt;  // 0 until the hand first moves
 // The family's six ramp colours (surface → deep). Defaults to the approved
 // ground; reseeded from the signed-in family's actual dyes by WaterCanvas.
 uniform vec3 u_dye0,u_dye1,u_dye2,u_dye3,u_dye4,u_dye5;
@@ -75,6 +79,11 @@ void main(){
   float tail = exp(-pow((p.x-dp.x)*70.0,2.0)) * smoothstep(0.70,0.42,uv.y) * 0.11;
   c += vec3(0.40,0.62,0.80)*tail;
 
+  // The water notices the hand: a faint luminance drifting after the pointer
+  // (heavily smoothed on the JS side — presence, not a cursor effect).
+  float pd = length(p - u_ptr);
+  c += vec3(0.45, 0.68, 0.80) * exp(-pd*pd*70.0) * 0.10 * u_ptrAmt;
+
   c *= mix(0.88, 0.40, d);
   float vig = smoothstep(1.25, 0.35, length(uv-0.5));
   c *= vig;
@@ -92,6 +101,10 @@ void main(){
     float ring = exp(-pow((rr - u_rippleT*0.20)*18.0, 2.0)) * exp(-u_rippleT*0.8);
     c += vec3(0.93, 0.86, 0.72) * ring * 0.26;
   }
+
+  // The reading tint: the water suffuses toward the dye of the entry being
+  // read — the room takes the author's colour while their words are open.
+  c = mix(c, c * (vec3(0.45) + u_tint * 1.4), u_tintAmt * 0.38);
 
   // Depth = time: as the reader scrolls into the past the water deepens —
   // darker, cooler, stiller. Driven by the deep:depth event (ClothShell scroll).

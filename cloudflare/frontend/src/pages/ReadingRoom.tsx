@@ -424,6 +424,16 @@ export function ReadingRoom() {
   const [entries, setEntries]       = useState<Thread[]>([]);
   const [loading, setLoading]     = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+
+  // The water takes the colour of the entry being read (deep:tint) — and lets
+  // it go when the reader leaves.
+  useEffect(() => {
+    const dye = entries[active]?.dye;
+    window.dispatchEvent(new CustomEvent('deep:tint', { detail: dye ? { dye } : null }));
+  }, [active, entries]);
+  useEffect(() => () => {
+    window.dispatchEvent(new CustomEvent('deep:tint', { detail: null }));
+  }, []);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const { user, isAuthenticated } = useAuthStore();
   const [searchParams]            = useSearchParams();

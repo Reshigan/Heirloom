@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { FRAGMENT_SHADER } from './fragmentShader';
 import { waterRef } from './capture';
-import { waterRamp, memberWaterDye } from './waterDyes';
+import { waterRamp, memberWaterDye, DYE_WATER_RGB } from './waterDyes';
 import { familyApi, memoriesApi, lettersApi } from '../../services/api';
 import { dyeFromMetadata, dyeForId, type Dye } from '../dye';
 import { useAuthStore } from '../../stores/authStore';
@@ -69,6 +69,38 @@ export default function WaterCanvas() {
     const uTime = gl.getUniformLocation(prog, 'u_time');
     const uDepth = gl.getUniformLocation(prog, 'u_depth');
     const uRippleT = gl.getUniformLocation(prog, 'u_rippleT');
+    const uTint = gl.getUniformLocation(prog, 'u_tint');
+    const uTintAmt = gl.getUniformLocation(prog, 'u_tintAmt');
+    const uPtr = gl.getUniformLocation(prog, 'u_ptr');
+    const uPtrAmt = gl.getUniformLocation(prog, 'u_ptrAmt');
+
+    // The reading tint (deep:tint): the water suffuses toward the open entry's
+    // dye; eased in the loop so rooms bleed into each other like water, not UI.
+    const tintCur: [number, number, number] = [0, 0, 0];
+    let tintTarget: [number, number, number] = [0, 0, 0];
+    let tintAmt = 0;
+    let tintAmtTarget = 0;
+    const onTint = (e: Event) => {
+      const d = (e as CustomEvent<{ dye?: string } | null>).detail;
+      const rgb = d?.dye ? (DYE_WATER_RGB as Record<string, [number, number, number]>)[d.dye] : undefined;
+      if (rgb) { tintTarget = rgb; tintAmtTarget = 1; }
+      else tintAmtTarget = 0;
+      if (reduce) { tintAmt = tintAmtTarget; tintCur[0] = tintTarget[0]; tintCur[1] = tintTarget[1]; tintCur[2] = tintTarget[2]; draw(8.0); }
+    };
+    window.addEventListener('deep:tint', onTint);
+
+    // The hand on the water (desktop, fine pointers, motion allowed): a slow-
+    // following point of luminance. Raw listener → eased uniform; no React.
+    const ptrCur: [number, number] = [0.5, 0.5];
+    const ptrTarget: [number, number] = [0.5, 0.5];
+    let ptrAmt = 0;
+    const finePointer = window.matchMedia?.('(pointer: fine)').matches && !reduce;
+    const onPointer = (e: PointerEvent) => {
+      ptrTarget[0] = e.clientX / window.innerWidth;
+      ptrTarget[1] = 1 - e.clientY / window.innerHeight;
+      ptrAmt = 1;
+    };
+    if (finePointer) window.addEventListener('pointermove', onPointer, { passive: true });
 
     // The settle ripple: deep:settled stamps a start time; the draw loop feeds
     // seconds-since into the shader, which renders one expanding, fading ring.
@@ -103,6 +135,15 @@ export default function WaterCanvas() {
       gl.uniform1f(uTime, tm);
       gl.uniform1f(uDepth, depth);
       gl.uniform1f(uRippleT, rippleStart < 0 ? 999.0 : (performance.now() - rippleStart) / 1000);
+      tintAmt += (tintAmtTarget - tintAmt) * 0.02;
+      for (let i = 0; i < 3; i++) tintCur[i] += (tintTarget[i] - tintCur[i]) * 0.02;
+      gl.uniform3f(uTint, tintCur[0], tintCur[1], tintCur[2]);
+      gl.uniform1f(uTintAmt, tintAmt);
+      const aspNow = cv.height > 0 ? cv.width / cv.height : 1;
+      ptrCur[0] += (ptrTarget[0] - ptrCur[0]) * 0.025;
+      ptrCur[1] += (ptrTarget[1] - ptrCur[1]) * 0.025;
+      gl.uniform2f(uPtr, ptrCur[0] * aspNow, ptrCur[1]);
+      gl.uniform1f(uPtrAmt, ptrAmt);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
     };
 
@@ -173,6 +214,7 @@ export default function WaterCanvas() {
         unsubAuth();
         window.removeEventListener('deep:settled', onSettled);
         window.removeEventListener('deep:depth', onDepth);
+        window.removeEventListener('deep:tint', onTint);
         ro.disconnect();
         waterRef.canvas = null;
       };
@@ -204,6 +246,8 @@ export default function WaterCanvas() {
       unsubAuth();
       window.removeEventListener('deep:settled', onSettled);
       window.removeEventListener('deep:depth', onDepth);
+      window.removeEventListener('deep:tint', onTint);
+      if (finePointer) window.removeEventListener('pointermove', onPointer);
       running = false;
       cancelAnimationFrame(raf);
       ro.disconnect();
