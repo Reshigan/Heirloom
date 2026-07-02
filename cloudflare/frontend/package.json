@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "check:routes": "node scripts/check-routes.mjs",
-    "build": "node scripts/check-routes.mjs && tsc && tsc -p functions/tsconfig.json && vite build",
+    "build": "node scripts/check-routes.mjs && tsc && tsc -p functions/tsconfig.json && vite build && node scripts/stamp-sw.mjs",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts,.tsx",
     "deploy": "npm run build && wrangler pages deploy dist --project-name=heirloom",
