@@ -123,7 +123,7 @@ export function ThreadsIndex() {
           })}
         </div>
 
-        <div style={{ marginTop: 40, borderTop: '1px solid var(--rule)', paddingTop: 28 }}>
+        <div style={{ marginTop: 40 }}>
           {!creating ? (
             <button
               type="button"
