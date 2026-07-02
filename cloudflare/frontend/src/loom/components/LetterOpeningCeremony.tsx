@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { weaveIntoCloth } from './ClothWeave';
 import { DYES, type Dye } from '../dye';
 import { useFocusTrap } from '../../lib/useFocusTrap';
+import { WaxSeal, SurfaceRing } from '../cosmic/CosmicUI';
 
 /**
  * LetterOpeningCeremony — the Unlock, for a letter received from another hand.
@@ -118,7 +119,7 @@ export function LetterOpeningCeremony({
               animation: 'hl-breathe 1400ms var(--ease) both',
             }}
           >
-            ∞
+            <WaxSeal size={28} />
           </div>
           <div
             aria-hidden
@@ -173,7 +174,7 @@ export function LetterOpeningCeremony({
               animation: 'hl-rise 720ms var(--ease) 200ms both',
             }}
           >
-            ∞ a letter from {from}
+            a letter from {from}
           </p>
 
           {letter.salutation && (
@@ -220,7 +221,7 @@ export function LetterOpeningCeremony({
             }}
           >
             <span className="hl-mono" style={{ fontSize: 9.5, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-              <span style={{ color: 'var(--warm)' }}>∞</span>&nbsp; now settled into your Deep &nbsp;·&nbsp; {dateStr}
+              <SurfaceRing size={11} />&nbsp; now settled into your Deep &nbsp;·&nbsp; {dateStr}
             </span>
             <button
               type="button"

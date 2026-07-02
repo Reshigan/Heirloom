@@ -4,7 +4,7 @@ import { threadsApi, memoriesApi, userNotificationsApi, type UpcomingUnlock, typ
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { CosmicHeader, EntryRow, SectionLabel, WaxSeal, WarmDot } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal, WarmDot, SurfaceRing } from '../loom/cosmic/CosmicUI';
 
 /**
  * Inbox — Loom 3 native "What is waiting." LEDGER archetype.
@@ -209,7 +209,7 @@ export function Inbox() {
                     title={u.entry_title ?? 'A sealed note for the future'}
                     sub={
                       <span style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11 }}>
-                        <span aria-hidden style={{ color: 'var(--warm)', fontWeight: 300, fontSize: 12, lineHeight: 1 }}>∞</span>
+                        <SurfaceRing size={11} />
                         {subText && <span>{subText}</span>}
                       </span>
                     }

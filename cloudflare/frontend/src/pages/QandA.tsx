@@ -363,7 +363,7 @@ export function QandA() {
                 onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--warm)')}
                 onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--bone-faint)')}
               >
-                shuffle ∞
+                shuffle
               </button>
             </div>
           </form>

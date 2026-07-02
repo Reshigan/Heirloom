@@ -13,6 +13,7 @@ import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { uploadMemoryImage, validateImage } from '../utils/uploadImage';
 import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 import LegacyRecipientPicker from '../components/LegacyRecipientPicker';
+import { SurfaceRing } from '../loom/cosmic/CosmicUI';
 import {
   ComposerRail,
   DyeControl,
@@ -2090,10 +2091,10 @@ export function Compose() {
                 />
                 <span style={{ position: 'relative' }}>
                   {sealed ? (
-                    // Brief confirmation — ∞ as text, copper colour, no glow.
+                    // Brief confirmation — the surface closed over it.
                     <>
-                      woven{' '}
-                      <span aria-hidden style={{ color: 'var(--warm)' }}>∞</span>
+                      settled{' '}
+                      <SurfaceRing size={11} />
                     </>
                   ) : save.isPending ? (
                     isLetter ? 'sealing…' : 'settling…'

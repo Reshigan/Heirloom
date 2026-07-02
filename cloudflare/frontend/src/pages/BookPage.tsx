@@ -4,6 +4,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { captureWater } from '../loom/water/capture';
+import { Verb } from '../loom/components/Verb';
 
 // The binding configuration the volume carries into the builder. Display-only
 // here — the live selection, pricing and checkout live in /book-builder. These
@@ -144,24 +145,7 @@ export function BookPage() {
         </div>
 
         {/* outlined PREVIEW pill — steps into the live builder */}
-        <button
-          type="button"
-          onClick={preview}
-          className="hl-mono hl-cta-warm"
-          style={{
-            background: 'transparent',
-            border: '1px solid var(--warm)',
-            borderRadius: 0,
-            padding: '15px 56px',
-            cursor: 'pointer',
-            fontSize: 11,
-            letterSpacing: '0.26em',
-            textTransform: 'uppercase',
-            color: 'var(--warm)',
-          }}
-        >
-          Preview
-        </button>
+        <Verb onClick={preview} drop>preview the volume</Verb>
 
         {/* quiet foot link — the full binding flow */}
         <Link

@@ -239,6 +239,18 @@ export function SectionLabel({ children, tone = 'muted' }: { children: ReactNode
   return <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase', color: tone === 'copper' ? 'var(--copper-label)' : 'var(--muted-4)', margin: '34px 0 8px' }}>{children}</div>;
 }
 
+/** A closed ring on the surface — the small water-native "sealed" signal.
+ *  Replaces every inline ∞ glyph: the ring is the spot on the water where
+ *  something was lowered and the surface closed over it. */
+export function SurfaceRing({ size = 13 }: { size?: number }) {
+  return (
+    <svg aria-hidden viewBox="0 0 14 14" width={size} height={size} fill="none" style={{ flex: 'none', verticalAlign: 'baseline' }}>
+      <circle cx="7" cy="7" r="5.4" stroke="var(--warm)" strokeWidth="1.3" strokeOpacity="0.75" />
+      <circle cx="7" cy="7" r="1.5" fill="var(--warm)" />
+    </svg>
+  );
+}
+
 /** The page-foot mark, water-native: the ripple where something was lowered
  * into the Deep — Sounding rings fading outward, one warm point at the centre.
  * (Replaces the ∞ wax seal; the ∞ survives only as the capture anchor.) */

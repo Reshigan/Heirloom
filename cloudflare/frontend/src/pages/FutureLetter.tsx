@@ -5,7 +5,7 @@ import { aiApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { SectionLabel } from '../loom/cosmic/CosmicUI';
+import { SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { copyToClipboard } from '../utils/clipboard';
 
 /**
@@ -156,16 +156,8 @@ export function FutureLetter() {
 
         {/* the ceremony: glowing ∞, serif title, mono warm meta */}
         <header style={{ marginBottom: 40 }}>
-          <div
-            aria-hidden
-            style={{
-              color: 'var(--bone)',
-              fontSize: 'clamp(40px, 10vw, 64px)',
-              lineHeight: 1,
-              marginBottom: 24,
-            }}
-          >
-            ∞
+          <div aria-hidden style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+            <WaxSeal size={30} />
           </div>
           <h1
             style={{ fontFamily: 'var(--serif-display)', fontSize: 'clamp(24px, 5vw, 34px)', lineHeight: 1.15, color: 'var(--bone)', margin: 0, fontWeight: 400 }}

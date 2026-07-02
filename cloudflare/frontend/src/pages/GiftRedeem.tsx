@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useAuthStore } from '../stores/authStore';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
-import { SectionLabel } from '../loom/cosmic/CosmicUI';
+import { SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import api from '../services/api';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -24,18 +24,8 @@ import { EASE } from '../loom/motion';
 // The glowing warm ∞ — the ceremony mark at the top of the rite.
 function CeremonyMark() {
   return (
-    <div
-      aria-hidden
-      className="hl-serif"
-      style={{
-        fontSize: 'clamp(40px, 10vw, 64px)',
-        fontWeight: 200,
-        lineHeight: 1,
-        color: 'var(--warm)',
-        marginBottom: 30,
-      }}
-    >
-      ∞
+    <div aria-hidden style={{ display: 'flex', justifyContent: 'center', marginBottom: 30 }}>
+      <WaxSeal size={30} />
     </div>
   );
 }

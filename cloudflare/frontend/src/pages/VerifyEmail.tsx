@@ -184,7 +184,7 @@ export function VerifyEmail() {
                     margin: 0,
                   }}
                 >
-                  ∞ &nbsp; verification email sent.
+                  verification email sent.
                 </p>
               )}
               {resendStatus === 'error' && (
@@ -274,7 +274,7 @@ export function VerifyEmail() {
                     margin: 0,
                   }}
                 >
-                  ∞ &nbsp; verification email sent.
+                  verification email sent.
                 </p>
               )}
               {resendStatus === 'error' && (

@@ -72,17 +72,8 @@ export function FounderWelcome() {
           }}
         >
           {/* Glowing ∞ at top — the ceremony mark */}
-          <div
-            aria-hidden
-            style={{
-              fontFamily: 'var(--serif)',
-              fontSize: 'clamp(40px, 10vw, 64px)',
-              color: 'var(--warm)',
-              lineHeight: 1,
-              marginBottom: 36,
-            }}
-          >
-            ∞
+          <div aria-hidden style={{ display: 'flex', justifyContent: 'center', marginBottom: 36 }}>
+            <WaxSeal size={30} />
           </div>
 
           {/* Serif title */}

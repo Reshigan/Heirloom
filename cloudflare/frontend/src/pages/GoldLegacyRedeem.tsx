@@ -46,7 +46,7 @@ function GlowMark() {
         marginBottom: 28,
       }}
     >
-      ∞
+      <WaxSeal size={30} />
     </div>
   );
 }

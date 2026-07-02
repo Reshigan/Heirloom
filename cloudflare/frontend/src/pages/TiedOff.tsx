@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { CosmicHeader } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 
@@ -210,7 +210,7 @@ export function TiedOff() {
                   lineHeight: 1,
                 }}
               >
-                ∞
+                <WaxSeal size={30} />
               </div>
               <div className="loom-mono" style={{ fontSize: 9, color: 'var(--bone-faint)' }}>
                 {it.date.slice(0, 4)}
@@ -317,7 +317,7 @@ function SealedCeremony({ deliverYear, title, author, writtenYear }: TiedEntry) 
           lineHeight: 1,
         }}
       >
-        ∞
+        <WaxSeal size={30} />
       </div>
 
       {/* the letter's title */}

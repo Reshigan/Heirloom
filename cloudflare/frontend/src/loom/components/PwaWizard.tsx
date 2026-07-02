@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useFocusTrap } from '../../lib/useFocusTrap';
+import { SurfaceRing } from '../cosmic/CosmicUI';
 const WIZARD_KEY = 'hl-pwa-onboarded-v1';
 
 interface Step {
@@ -47,7 +48,7 @@ function WizardVisual({ kind }: { kind: 'cloth' | 'write' | 'seal' | 'trigger' |
           sealed · for Clara · opens: her wedding day
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span className="hl-serif" style={{ fontSize: 22, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>∞</span>
+          <SurfaceRing size={16} />
           <span className="hl-serif" style={{ fontSize: 13, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
             a letter from Margaret — written today
           </span>

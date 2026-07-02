@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { lettersApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { copyToClipboard } from '../utils/clipboard';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { Verb } from '../loom/components/Verb';
 
 /**
  * Screen 05 — The Unlock
@@ -514,27 +515,6 @@ export function Unlock() {
   );
 }
 
-/* ─── The wax seal — the ∞ mark resting warm, the product's ONE emotional
-   accent, as plain warm type. No glow, no disc, no circle, no border-radius
-   identity chip — the sanctioned bare ∞ glyph alone. ──────────────────────── */
-function WaxSeal({ size = 30 }: { size?: number }) {
-  return (
-    <span
-      aria-hidden
-      style={{
-        display: 'inline-grid',
-        placeItems: 'center',
-        fontFamily: 'var(--serif-display)',
-        fontSize: size,
-        fontWeight: 400,
-        lineHeight: 1,
-        color: 'var(--warm)',
-      }}
-    >
-      ∞
-    </span>
-  );
-}
 
 /* ─── No thread has untied yet ─────────────────────────────────────────── */
 function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean }) {
@@ -550,18 +530,8 @@ function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean })
       }}
     >
       <div style={{ maxWidth: 480 }}>
-        <div
-          aria-hidden
-          style={{
-            fontFamily: 'var(--serif-display)',
-            fontSize: 88,
-            fontWeight: 300,
-            lineHeight: 1,
-            color: 'var(--warm)',
-            marginBottom: 28,
-          }}
-        >
-          ∞
+        <div aria-hidden style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
+          <WaxSeal size={34} />
         </div>
         {loading ? (
           <div className="loom-mono" style={{ fontSize: 11, color: 'var(--bone-faint)', letterSpacing: '0.16em', textTransform: 'uppercase' }}>
@@ -588,14 +558,10 @@ function EmptyUnlock({ loading, authed }: { loading: boolean; authed: boolean })
               When a sealed letter reaches its date, the loom unties it here — its
               prose fading up exactly when you meant it to arrive.
             </div>
-            <div className="loom-eyebrow" style={{ marginTop: 32, display: 'flex', justifyContent: 'center', gap: 22 }}>
-              <Link to="/capture" className="loom-btn" style={{ textDecoration: 'none' }}>
-                seal a letter
-              </Link>
+            <div style={{ marginTop: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 28 }}>
+              <Verb to="/capture" drop>seal a letter</Verb>
               {authed && (
-                <Link to="/loom/tied" className="loom-btn-ghost" style={{ textDecoration: 'none' }}>
-                  see what's waiting
-                </Link>
+                <Verb to="/loom/tied" quiet>see what's waiting</Verb>
               )}
             </div>
           </>
@@ -629,7 +595,7 @@ function ShareCard({ letter }: { letter: UnlockLetter }) {
           textTransform: 'uppercase',
         }}
       >
-        ∞ &nbsp; heirloom · the loom
+        heirloom · the loom
       </div>
 
       <div style={{ display: 'grid', placeItems: 'center', textAlign: 'center' }}>
@@ -725,7 +691,7 @@ function ShareCard({ letter }: { letter: UnlockLetter }) {
             className="loom-mono"
             style={{ fontSize: 8, color: 'var(--warm)', letterSpacing: '0.12em' }}
           >
-            ∞
+            the deep
           </span>
         </div>
         <button

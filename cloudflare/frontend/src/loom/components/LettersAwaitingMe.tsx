@@ -4,6 +4,7 @@ import { lettersApi } from '../../services/api';
 import { useAuthStore } from '../../stores/authStore';
 import { LetterOpeningCeremony } from './LetterOpeningCeremony';
 import { dyeForId, dyeVar } from '../dye';
+import { SurfaceRing } from '../cosmic/CosmicUI';
 
 /**
  * LettersAwaitingMe — the recipient-side milestone surface.
@@ -116,7 +117,7 @@ function AwaitingRow({
     return (
       <div style={{ paddingTop: 6, paddingBottom: 6, borderLeft: `3px solid ${dyeVar(dye)}`, paddingLeft: 14 }}>
         <span className="hl-mono" style={{ fontSize: 9.5, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)' }}>
-          <span style={{ color: 'var(--warm)' }}>∞</span>&nbsp; {letter.from}'s letter has settled into your Deep
+          <SurfaceRing size={11} />&nbsp; {letter.from}'s letter has settled into your Deep
         </span>
       </div>
     );

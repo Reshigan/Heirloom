@@ -103,7 +103,7 @@ export function ResetPassword() {
               marginBottom: 40,
             }}
           >
-            ∞
+            <WaxSeal size={30} />
           </div>
 
           {!token ? (

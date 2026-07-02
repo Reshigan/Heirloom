@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../stores/authStore';
 import { useIsNewUser } from '../hooks/useIsNewUser';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 /**
  * The First Thread — the first-run ceremony.
@@ -224,7 +225,7 @@ export function FirstThread() {
             }}
           >
             <div style={{ position: 'relative', width: 150, height: 150, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ fontFamily: "var(--serif-display)", fontSize: 74, color: 'var(--bone)' }}>∞</div>
+              <div style={{ display: 'flex', justifyContent: 'center' }}><WaxSeal size={34} /></div>
             </div>
             <div role="heading" aria-level={1} style={{ fontFamily: 'var(--serif-display)', fontSize: 30, color: 'var(--bone)', marginTop: 30 }}>The Threshold</div>
             <div style={{ fontFamily: 'var(--serif)', fontSize: 14, color: 'var(--bone-dim)', marginTop: 8 }}>Every thread begins with a touch.</div>
@@ -295,7 +296,7 @@ export function FirstThread() {
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '0 34px', background: 'var(--ink)', animation: `hl-fadein 720ms ${EASE} both` }}>
             <div style={{ position: 'relative', width: '100%', height: 60, display: 'flex', alignItems: 'center' }}>
               <div style={{ height: 1, width: '100%', background: 'linear-gradient(90deg,transparent,var(--bone),transparent)', transformOrigin: 'left', animation: `hl-grow 1400ms ${EASE} both` }} />
-              <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', fontFamily: 'var(--mono)', fontSize: 18, lineHeight: 1, color: 'var(--warm)', animation: `hl-node 720ms ${EASE} 720ms both` }}>∞</div>
+              <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%,-50%)', fontFamily: 'var(--mono)', fontSize: 18, lineHeight: 1, color: 'var(--warm)', animation: `hl-node 720ms ${EASE} 720ms both` }}><span aria-hidden style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: 'var(--warm)' }} /></div>
             </div>
             <div style={{ fontFamily: 'var(--serif-display)', fontSize: 34, color: 'var(--bone)', marginTop: 30, textAlign: 'center', animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>Settled into the Deep.</div>
             <div style={{ fontFamily: 'var(--serif)', fontSize: 15, color: 'var(--bone-faint)', marginTop: 10, textAlign: 'center', animation: `hl-fadeup 720ms ${EASE} 1400ms both` }}>Now part of your family's story.</div>

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback, useLayoutEffect } from 'react
 import { Link } from 'react-router-dom';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
-import { WaxSeal } from '../loom/cosmic/CosmicUI';
+import { WaxSeal, SurfaceRing } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { useAuthStore } from '../stores/authStore';
 import { familyApi, threadsApi, memoriesApi } from '../services/api';
@@ -417,7 +417,7 @@ export function Constellation() {
                             {k.name}
                             {k.picks.length > 0 && (
                               <span style={{ color: 'var(--warm-dim)', marginLeft: 8, letterSpacing: '0.12em' }}>
-                                ∞ {k.picks.length}
+                                {k.picks.length}
                               </span>
                             )}
                           </span>
@@ -458,7 +458,7 @@ export function Constellation() {
               marginTop: 'clamp(40px, 8vh, 80px)',
             }}
           >
-            <span style={{ color: 'var(--warm)' }}>∞</span>
+            <SurfaceRing size={11} />
             <span style={{ marginLeft: 8 }}>
               {resonances.length > 0
                 ? `${resonances.length} resonance${resonances.length !== 1 ? 's' : ''} found`

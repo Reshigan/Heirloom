@@ -6,7 +6,7 @@ import { useListener } from '../hooks/useListener';
 import { useTapestryEntries } from '../hooks/useTapestryEntries';
 import { useAuthStore } from '../stores/authStore';
 import { aiApi, engagementApi } from '../services/api';
-import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, SectionLabel, WaxSeal, SurfaceRing } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { EASE as ease } from '../loom/motion';
 import { Verb } from '../loom/components/Verb';
@@ -141,7 +141,7 @@ export function Today() {
               sealed · delivery: your choice
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontFamily: 'var(--serif)', fontSize: 20, fontWeight: 300, color: 'var(--warm)', lineHeight: 1 }}>∞</span>
+              <SurfaceRing />
               <span style={{ fontFamily: 'var(--serif)', fontSize: 13, fontWeight: 300, fontStyle: 'italic', color: 'var(--bone-dim)' }}>
                 your first letter — written today
               </span>

@@ -487,7 +487,7 @@ export function Marketing() {
             <Link key={l} to={to} style={{ color: 'inherit', textDecoration: 'none' }}>{l}</Link>
           ))}
         </span>
-        <span>heirloom.blue · est. 2025 · running until ∞</span>
+        <span>heirloom.blue · est. 2025 · only gets deeper</span>
       </footer>
 
       </div>

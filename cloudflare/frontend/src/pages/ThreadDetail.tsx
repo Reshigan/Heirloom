@@ -5,7 +5,7 @@ import { TapestryEdge } from '../loom/components/Frame';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { threadsApi, type ThreadRole, type ThreadEntry } from '../services/api';
-import { CosmicHeader, EntryRow, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, EntryRow, SectionLabel, WaxSeal, SurfaceRing } from '../loom/cosmic/CosmicUI';
 import { RoomError } from '../loom/components/RoomError';
 import { DYES as DYE_PALETTE, dyeVar, type Dye } from '../loom/dye';
 
@@ -274,7 +274,7 @@ export function ThreadDetail() {
 
                     const title = sealed ? (
                       <>
-                        <span style={{ color: 'var(--warm)', marginRight: 8 }} aria-hidden>∞</span>
+                        <span aria-hidden style={{ display: 'inline-block', marginRight: 8 }}><SurfaceRing /></span>
                         {e.title ?? 'Sealed entry'}
                       </>
                     ) : (

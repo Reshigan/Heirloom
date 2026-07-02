@@ -5,6 +5,7 @@ import { foundersApi, billingApi, type FounderCount } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { HLogo } from '../loom/components/HLogo';
 import { PLAN_PRICE } from '../lib/plans';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 const META_TITLE = 'Founder Access';
 const META_DESCRIPTION = 'Permanent access to Heirloom — one lifetime fee for the whole family thread.';
@@ -581,17 +582,7 @@ export function Founder() {
 
         {/* ── WaxSeal foot ─────────────────────────────────────────────── */}
         <div style={{ marginTop: 80, textAlign: 'center' }}>
-          <span
-            aria-hidden
-            style={{
-              fontFamily:  'var(--serif)',
-              fontSize:    'clamp(32px,6vw,48px)',
-              color:       'var(--warm)',
-              lineHeight:   1,
-            }}
-          >
-            ∞
-          </span>
+          <WaxSeal size={28} />
         </div>
       </div>
     </ClothShell>

@@ -5,7 +5,7 @@ import { lettersApi } from '../services/api';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { CosmicHeader, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, WarmDot, WaxSeal, SurfaceRing } from '../loom/cosmic/CosmicUI';
 import { type Letter } from '../types';
 import { formatDate } from '../utils/date';
 
@@ -266,7 +266,8 @@ function LetterRow({ letter }: { letter: Letter }) {
         {/* title + recipient */}
         <span style={{ flex: '1 1 240px', minWidth: 0 }}>
           <span className="hl-serif" style={{ fontWeight: 400, fontSize: 19, lineHeight: 1.3, color: 'var(--bone)', display: 'block' }}>
-            {sealed ? <span style={{ color: 'var(--warm)', marginRight: 6 }} aria-hidden>∞</span> : null}
+            {/* sealed = a closed ring on the surface — the spot where it was lowered */}
+            {sealed ? <span style={{ display: 'inline-block', marginRight: 8 }}><SurfaceRing /></span> : null}
             {title}
           </span>
           {recipient ? (

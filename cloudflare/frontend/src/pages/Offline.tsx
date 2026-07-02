@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { memoriesApi, voiceApi, getAuthHeaders } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { listVoice, removeVoice, countVoice, countForeignVoice, type HeldVoice } from '../lib/voiceOfflineQueue';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 /**
  * Offline — the in-app offline experience, matching the PwaOffline
@@ -239,7 +240,7 @@ export function Offline() {
             display: 'block',
           }}
         >
-          ∞
+          <WaxSeal size={30} />
         </span>
 
         {/* Display headline — Fraunces, hero role (>=24px) */}

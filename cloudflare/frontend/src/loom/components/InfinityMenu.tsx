@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
  */
 
 import { EASE } from '../motion';
+import { SurfaceRing } from '../cosmic/CosmicUI';
 
 const ITEMS: Array<{ label: string; to: string; hint: string }> = [
   { label: 'search',      to: '/search',      hint: 'find any thread' },
@@ -17,7 +18,7 @@ const ITEMS: Array<{ label: string; to: string; hint: string }> = [
   { label: 'export',      to: '/export',      hint: 'the Deep, to keep' },
 ];
 
-export function InfinityMenu({ glyph = '∞' }: { glyph?: string } = {}) {
+export function InfinityMenu({ glyph }: { glyph?: string } = {}) {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
@@ -76,7 +77,7 @@ export function InfinityMenu({ glyph = '∞' }: { glyph?: string } = {}) {
           transition: `color 180ms ${EASE}`,
         }}
       >
-        {glyph}
+        {glyph ?? <SurfaceRing size={14} />}
       </button>
 
       {open && (

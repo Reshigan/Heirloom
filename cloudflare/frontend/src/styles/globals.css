@@ -2221,8 +2221,10 @@ input:-webkit-autofill:active {
   .hl-section { padding-left: 20px !important; padding-right: 20px !important; }
   .hl-card { padding: 20px !important; }
 
-  /* Topbar — reduce horizontal padding */
-  .loom header { padding-left: 16px !important; padding-right: 16px !important; }
+  /* Topbar — reduce horizontal padding. Scoped to the shell topbar only:
+     a bare `.loom header` also hits every CosmicHeader page headline
+     (phantom 16px indent, doubled when a page nests its own <header>). */
+  .loom header.hl-topbar { padding-left: 16px !important; padding-right: 16px !important; }
 
   /* BottomNav label font */
   .loom nav[aria-label="Loom navigation"] a {

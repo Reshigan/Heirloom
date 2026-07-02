@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Verb } from '../loom/components/Verb';
-import { CosmicHeader, SectionLabel } from '../loom/cosmic/CosmicUI';
+import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { capsulesApi, threadsApi } from '../services/api';
 import { useFocusTrap } from '../lib/useFocusTrap';
 import { ProgressHair } from '../loom/components/ProgressHair';
@@ -328,21 +328,14 @@ export function TimeCapsule() {
       >
         <ThreadComposeBanner />
 
-        {/* Ceremony header — glowing ∞ + eyebrow + big serif title */}
-        <header style={{ marginBottom: 64 }}>
-          <div
-            aria-hidden
-            style={{
-              color: 'var(--warm)',
-              fontSize: 'clamp(40px, 10vw, 64px)',
-              lineHeight: 1,
-              marginBottom: 28,
-            }}
-          >
-            ∞
+        {/* Ceremony header — sounding rings + eyebrow + big serif title.
+            A <div>, not <header>: CosmicHeader already renders a <header>. */}
+        <div style={{ marginBottom: 64 }}>
+          <div aria-hidden style={{ marginBottom: 28 }}>
+            <WaxSeal size={30} />
           </div>
           <CosmicHeader eyebrow="sealed until" title="Time Capsules" />
-        </header>
+        </div>
 
         {/* Capsule list */}
         {isLoading ? (

@@ -20,6 +20,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { encryptionService } from '../services/encryptionService';
+import { WaxSeal } from '../loom/cosmic/CosmicUI';
 
 interface VaultModalProps {
   isOpen: boolean;
@@ -155,7 +156,7 @@ export function VaultModal({ isOpen, onComplete }: VaultModalProps) {
               marginBottom: 18,
             }}
           >
-            ∞
+            <WaxSeal size={28} />
           </span>
           <h2
             id="vault-modal-title"

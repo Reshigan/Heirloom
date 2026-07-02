@@ -279,7 +279,7 @@ export function Join() {
                   marginBottom: 40,
                 }}
               >
-                ∞
+                <WaxSeal size={30} />
               </div>
 
               {/* Mono eyebrow */}
