@@ -144,7 +144,9 @@ export function Descent() {
     <ClothShell
       topbarLeft={<HLogo size="sm" wordmark href="/loom/pwa" />}
     >
-      {!wizardDone && <PwaWizard onDone={() => setWizardDone(true)} />}
+      {/* first-run wizard: only for a Deep with nothing settled yet — a family
+          already living in the water never gets an overlay over their home */}
+      {!wizardDone && !isLoading && entries.length === 0 && <PwaWizard onDone={() => setWizardDone(true)} />}
 
       {/* ── Bathymeter — the years are the navigation ── */}
       <div aria-hidden style={{ position: 'fixed', top: 'var(--topbar-h)', right: 22, bottom: 96, width: 1, background: 'rgba(242,230,208,0.13)', zIndex: 24 }} />

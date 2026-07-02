@@ -28,8 +28,8 @@ const STEPS: Step[] = [
   },
   {
     eyebrow: 'the Deep',
-    heading: 'Every word you write becomes a permanent thread.',
-    body: 'As your family writes, the Deep grows — a living record that belongs to your bloodline, not a platform. Your descendants will read this long after you. The thread never ends.',
+    heading: 'Everything you lower in is still here.',
+    body: 'As your family writes, the Deep grows — a living water that belongs to your bloodline, not a platform. Your descendants will draw these words back up long after you. Some things only get deeper.',
     visual: 'cloth',
     cta: 'Write your first sealed letter →',
     ctaTo: '/compose',
