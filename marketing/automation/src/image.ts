@@ -24,7 +24,7 @@
 // only mark. The `renderWeave` export name is kept for back-compat with run.ts
 // (code names keep the loom lineage); `renderDeep` is the honest alias.
 
-import { createCanvas, GlobalFonts, type Canvas, type SKRSContext2D } from "@napi-rs/canvas";
+import { createCanvas, GlobalFonts, Path2D, type Canvas, type SKRSContext2D } from "@napi-rs/canvas";
 import path from "node:path";
 import os from "node:os";
 import { spawn } from "node:child_process";
@@ -284,10 +284,22 @@ export function renderDeep({ saying, width, height, seed, dye, eyebrow }: Render
     ctx.fillText(ln, width / 2, firstBaseline + i * lineHeight);
   });
 
-  // Eyebrow ∞ mark in warm copper, above the saying.
-  ctx.font = `400 ${Math.round(fontSize * 0.66)}px "${serif}"`;
-  ctx.fillStyle = WARM;
-  ctx.fillText("∞", width / 2, firstBaseline - lineHeight * 1.1);
+  // Eyebrow: the Drop mark in warm copper, above the saying — the same brushed
+  // geometry as brand/mark/heirloom-drop-*.svg, scaled to the type.
+  {
+    const mh = fontSize * 0.9; // mark box height
+    const sc = mh / 48;
+    const mx = width / 2 - 24 * sc;
+    const my = firstBaseline - lineHeight * 1.35 - 24 * sc;
+    ctx.save();
+    ctx.translate(mx, my);
+    ctx.scale(sc, sc);
+    const P = (d: string, fill: string) => { ctx.fillStyle = fill; ctx.fill(new Path2D(d)); };
+    P("M4 13.9 C 15 11.9, 29 15.3, 44 13 C 30 16.3, 15 14, 4 15 Z", WARM);
+    P("M23.6 24.9 C 26.8 24.8, 28.7 27.2, 28.2 30 C 27.8 32.6, 25.2 34.1, 22.8 33.4 C 20.5 32.7, 19.5 30.3, 20.3 27.9 C 21 26, 22.2 25.1, 23.6 24.9 Z", WARM);
+    P("M10 31.4 C 14.5 41.2, 33.5 41.9, 38.4 30.7 C 33.5 40.2, 14.5 40.2, 10 31.4 Z", withAlpha(BONE, 0.55));
+    ctx.restore();
+  }
 
   // Need-state addressing line — a quiet copper mono label above the ∞ ("FOR A
   // NEW MOTHER"). Lets the reader feel seen the instant the post loads; copper

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 48 48" role="img" aria-label="Heirloom">
+  <title>Heirloom</title>
+  <rect width="48" height="48" fill="#070d14"/>
+  <!-- Maskable: mark held inside the safe zone -->
+  <g transform="translate(24 24) scale(0.66) translate(-24 -24)">
+    <path d="M4 14.6 C 15 12.9, 29 15.8, 44 13.9 C 30 16.6, 15 14.6, 4 15.4 Z" fill="#e0a062"/>
+    <path d="M23.6 25.4 C 26.4 25.3, 28.1 27.4, 27.7 29.9 C 27.3 32.2, 25 33.5, 22.9 32.9 C 20.9 32.3, 20 30.2, 20.7 28.1 C 21.3 26.4, 22.3 25.6, 23.6 25.4 Z" fill="#e0a062"/>
+    <path d="M11 30.8 C 15 39.6, 33 40.3, 37.4 30.2 C 33 38.7, 15 38.7, 11 30.8 Z" fill="#f2e6d0" fill-opacity="0.55"/>
+    <path d="M6.5 31.8 C 11 43.4, 37 44.1, 41.8 31.1 C 37 41.9, 12 42.3, 6.5 31.8 Z" fill="#f2e6d0" fill-opacity="0.2"/>
+  </g>
+</svg>

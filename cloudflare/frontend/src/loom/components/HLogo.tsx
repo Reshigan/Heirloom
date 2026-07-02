@@ -1,8 +1,7 @@
-// HLogo — the Sounding mark.
-// Concentric depth-rings crossed by one warm surface-line: sounding the depth
-// of the family's water. This is the brand's one mark (BRAND.md / favicon.svg);
-// it replaces the retired filament-web ("cosmic loom") glyph. The ∞ stays the
-// seal glyph on sealed notes; this mark is the identity.
+// HLogo — the Drop.
+// A swelling waterline, the heirloom just beneath it, ripples opening below:
+// something precious just went in. The brand's one mark (brand/mark/
+// heirloom-drop-*.svg); the ripple on every page foot is this mark come alive.
 //
 // Size API: size='sm'|'md'|'lg' (sm=topbar, md=page, lg=splash).
 // `href` renders the whole mark as a STANDOUT BUTTON — a hairline-bordered
@@ -48,15 +47,12 @@ export function HLogo({ size = 'sm', wordmark = true, href }: HLogoProps) {
 
   const mark = (
     <>
-      {/* The Sounding mark — geometry matches favicon.svg (rings 6/12/18 in a
-          48-box, fading outward; one warm surface-line through the middle). */}
       <svg viewBox="0 0 48 48" width={d} height={d} fill="none" aria-hidden>
-        <g stroke="var(--bone)" strokeWidth="3" strokeLinecap="round">
-          <circle cx="24" cy="24" r="6" strokeOpacity="0.92" />
-          <circle cx="24" cy="24" r="12" strokeOpacity="0.55" />
-          <circle cx="24" cy="24" r="18" strokeOpacity="0.28" />
-        </g>
-        <line x1="4" y1="24" x2="44" y2="24" stroke="var(--warm)" strokeWidth="3.4" strokeLinecap="round" />
+        {/* The Drop: swelling waterline, the heirloom beneath, ripples opening */}
+        <path d="M4 13.9 C 15 11.9, 29 15.3, 44 13 C 30 16.3, 15 14, 4 15 Z" fill="var(--warm)" />
+        <path d="M23.6 24.9 C 26.8 24.8, 28.7 27.2, 28.2 30 C 27.8 32.6, 25.2 34.1, 22.8 33.4 C 20.5 32.7, 19.5 30.3, 20.3 27.9 C 21 26, 22.2 25.1, 23.6 24.9 Z" fill="var(--warm)" />
+        <path d="M10 31.4 C 14.5 41.2, 33.5 41.9, 38.4 30.7 C 33.5 40.2, 14.5 40.2, 10 31.4 Z" fill="var(--bone)" fillOpacity="0.55" />
+        <path d="M5 32.4 C 10 45.4, 38 46.2, 43.3 31.6 C 38 43.7, 11 44.2, 5 32.4 Z" fill="var(--bone)" fillOpacity="0.2" />
       </svg>
       {wordmark && (
         <span style={{

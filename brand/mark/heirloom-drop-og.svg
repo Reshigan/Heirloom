@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Heirloom — Some things only get deeper.">
+  <title>Heirloom</title>
+  <rect width="1200" height="630" fill="#070d14"/>
+  <!-- The Drop, left-composed at display scale -->
+  <g transform="translate(96 88) scale(5.2)">
+    <path d="M0 6.9 C 8 5.6, 19 7.8, 30 6.4 C 19 8.4, 8 6.9, 0 7.5 Z" fill="#e0a062"/>
+    <path d="M14.7 14.9 C 16.8 14.8, 18.1 16.4, 17.8 18.3 C 17.5 20 15.8 21, 14.2 20.5 C 12.7 20.1, 12 18.5, 12.5 16.9 C 12.9 15.6, 13.7 15, 14.7 14.9 Z" fill="#e0a062"/>
+    <path d="M5.5 18.9 C 8.5 25.5, 22 26, 25.3 18.4 C 22 24.8, 8.5 24.8, 5.5 18.9 Z" fill="#f2e6d0" fill-opacity="0.55"/>
+    <path d="M2.2 19.7 C 5.5 28.4, 25 28.9, 28.6 19.1 C 25 27.2, 6.2 27.5, 2.2 19.7 Z" fill="#f2e6d0" fill-opacity="0.2"/>
+  </g>
+  <text x="96" y="378" font-family="Fraunces, Georgia, serif" font-size="86" font-weight="360" letter-spacing="-1" fill="#f2e6d0">Some things</text>
+  <text x="96" y="472" font-family="Fraunces, Georgia, serif" font-size="86" font-weight="360" letter-spacing="-1" fill="#f2e6d0">only get deeper.</text>
+  <text x="96" y="556" font-family="'JetBrains Mono', ui-monospace, monospace" font-size="17" letter-spacing="6" fill="rgba(242,230,208,0.55)">H E I R L O O M . B L U E</text>
+</svg>
