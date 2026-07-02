@@ -980,7 +980,7 @@ export default {
 
     const cronType = event.cron;
 
-    if (cronType === '45 2 * * *' || cronType === '22 3 * * *') {
+    if (cronType === '45 2 * * *') {
       // ========== DAILY GROWTH SCOREBOARD ==========
       logger.info('Sending daily scoreboard…');
       try {
