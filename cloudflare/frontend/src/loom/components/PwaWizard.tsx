@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 import { useFocusTrap } from '../../lib/useFocusTrap';
 import { SurfaceRing } from '../cosmic/CosmicUI';
+import { Verb } from './Verb';
 const WIZARD_KEY = 'hl-pwa-onboarded-v1';
 
 interface Step {
@@ -31,7 +32,7 @@ const STEPS: Step[] = [
     heading: 'Everything you lower in is still here.',
     body: 'As your family writes, the Deep grows — a living water that belongs to your bloodline, not a platform. Your descendants will draw these words back up long after you. Some things only get deeper.',
     visual: 'cloth',
-    cta: 'Write your first sealed letter →',
+    cta: 'seal your first letter',
     ctaTo: '/compose',
   },
 ];
@@ -125,6 +126,10 @@ export function PwaWizard({ onDone }: { onDone: () => void }) {
   // focus trap + Escape-to-skip (keyboard)
   useFocusTrap(dialogRef, skip, true);
 
+  // Land initial focus on the dialog itself, not the skip button — the trap's
+  // default first-focusable focus paints a focus ring on "skip" at open.
+  useEffect(() => { dialogRef.current?.focus(); }, []);
+
   // swipe-to-advance (touch)
   useEffect(() => {
     let startX = 0;
@@ -142,13 +147,14 @@ export function PwaWizard({ onDone }: { onDone: () => void }) {
     };
   }, [advance, step]);
 
-  return (
+  return createPortal(
     <div
       ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="pwa-wizard-heading"
-      style={{
+      tabIndex={-1}
+      style={{ outline: 'none',
         position: 'fixed', inset: 0, zIndex: 200,
         background: 'var(--ink)',
         display: 'flex', flexDirection: 'column',
@@ -193,10 +199,11 @@ export function PwaWizard({ onDone }: { onDone: () => void }) {
 
         <h2
           id="pwa-wizard-heading"
-          className="hl-serif hl-tight"
+          className="hl-tight"
           style={{
-            fontSize: 'clamp(22px, 6vw, 30px)',
-            fontWeight: 300,
+            fontFamily: 'var(--serif-display)',
+            fontSize: 'clamp(26px, 7vw, 36px)',
+            fontWeight: 340,
             color: 'var(--bone)',
             margin: '0 0 16px',
             letterSpacing: '-0.016em',
@@ -243,14 +250,13 @@ export function PwaWizard({ onDone }: { onDone: () => void }) {
         </span>
 
         {isLast && current.ctaTo ? (
-          <Link
-            to={current.ctaTo}
-            onClick={() => { localStorage.setItem(WIZARD_KEY, '1'); onDone(); }}
-            className="hl-btn"
-            style={{ fontSize: 12, padding: '12px 20px' }}
+          <Verb
+            drop
+            size={19}
+            onClick={() => { localStorage.setItem(WIZARD_KEY, '1'); onDone(); window.location.assign(current.ctaTo!); }}
           >
-            {current.cta ?? 'begin →'}
-          </Link>
+            {current.cta ?? 'begin'}
+          </Verb>
         ) : (
           <button
             type="button"
@@ -265,7 +271,8 @@ export function PwaWizard({ onDone }: { onDone: () => void }) {
           </button>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
