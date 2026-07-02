@@ -101,7 +101,7 @@ export async function runDailyScoreboard(env: Env): Promise<void> {
 
   await sendEmail(env, {
     from: 'Heirloom <noreply@heirloom.blue>',
-    to: env.SCOREBOARD_EMAIL || 'admin@vantax.co.za',
+    to: env.SCOREBOARD_EMAIL || 'reshigan@vantax.co.za',
     subject: `Heirloom scoreboard ${day} — ${sDay} signup${sDay === 1 ? '' : 's'}, ${vDay} visit${vDay === 1 ? '' : 's'}`,
     html,
   }, 'daily-scoreboard');
