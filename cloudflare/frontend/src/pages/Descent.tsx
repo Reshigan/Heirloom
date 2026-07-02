@@ -170,61 +170,95 @@ export function Descent() {
         }} />
       </nav>
 
-      {/* ── The surface: now ── */}
+      {/* ── The surface: First Light — one breath; the archive glows beneath ── */}
       <section style={{
+        position: 'relative',
         minHeight: 'calc(100svh - var(--topbar-h) - 96px)', display: 'flex', flexDirection: 'column',
-        justifyContent: 'center', padding: '4vh 9vw 6vh', boxSizing: 'border-box',
+        alignItems: 'center', justifyContent: 'center', textAlign: 'center',
+        padding: '4vh calc(9vw + 44px) 18vh 9vw', boxSizing: 'border-box', overflow: 'hidden',
       }}>
-        <div style={{ ...mono, fontSize: 10, letterSpacing: '0.32em', color: 'var(--warm)' }}>the listener asks</div>
+        <div style={{ ...mono, fontSize: 10, letterSpacing: '0.34em', color: 'var(--warm)' }}>the listener asks</div>
         <h1 style={{
-          fontFamily: 'var(--serif-display)', fontWeight: 350,
-          fontSize: 'clamp(34px, 7.4vw, 60px)', lineHeight: 1.08, letterSpacing: '-0.012em',
-          margin: '20px 0 0', maxWidth: '15ch', color: 'var(--bone)',
+          fontFamily: 'var(--serif-display)', fontWeight: 340,
+          fontSize: 'clamp(32px, 8.6vw, 44px)', lineHeight: 1.1, letterSpacing: '-0.014em',
+          margin: '24px 0 0', maxWidth: '14ch', color: 'var(--bone)',
         }}>
           {head} <span style={{ color: 'var(--bone-dim)' }}>{rest}</span>
         </h1>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 18, marginTop: '5vh', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginTop: 48, flexWrap: 'wrap', justifyContent: 'center' }}>
           <button type="button" onClick={() => navigate('/record')} style={{
             display: 'inline-flex', alignItems: 'center', gap: 16, background: 'transparent',
             border: 0, padding: '6px 0', cursor: 'pointer', minHeight: 44,
           }}>
-            {/* the drop — breathing */}
             <span aria-hidden className="hl-drop-breathe" style={{
               width: 12, height: 12, borderRadius: '50%', background: 'var(--warm)',
             }} />
-            <span style={{ fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 360, fontSize: 27, color: 'var(--warm)' }}>speak</span>
+            <span style={{ fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 340, fontSize: 30, color: 'var(--warm)' }}>speak</span>
           </button>
           <button type="button" onClick={() => navigate('/compose')} style={{
             background: 'transparent', border: 0, cursor: 'pointer', padding: '6px 0', minHeight: 44,
-            fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--bone-faint)',
+            fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15, color: 'var(--bone-faint)',
           }}>
-            — or write it down
+            — or write
           </button>
         </div>
-        {isLoading && <div style={{ marginTop: '6vh' }}><ProgressHair label="sounding the deep…" width={180} /></div>}
-        {!isLoading && entries.length === 0 && (
-          <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 16, color: 'var(--bone-dim)', marginTop: '7vh', maxWidth: '34ch' }}>
-            The water is clear. Lower the first thing in — it will still be here in a hundred years.
-          </p>
-        )}
-        {!isLoading && entries.length > 0 && (
-          <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15, color: 'var(--bone-faint)', marginTop: '7vh' }}>
-            the family's water · descend for what came before
-          </p>
-        )}
+
+        {/* The archive, glowing beneath the surface — the newest entries as
+            soft dye-lights rising toward the reader. */}
+        <div aria-hidden style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '32%', pointerEvents: 'none' }}>
+          {entries.slice(0, 6).map((e, i) => {
+            const seed = (e.id ?? String(i)).split('').reduce((a, c) => a + c.charCodeAt(0), 0);
+            const left = 12 + ((seed * 37 + i * 53) % 72);
+            const bottom = 8 + ((seed * 17 + i * 29) % 52);
+            const sz = 8 + ((seed + i) % 3) * 2.5;
+            return (
+              <span key={e.id ?? i} style={{
+                position: 'absolute', left: `${left}%`, bottom: `${bottom}%`,
+                width: sz, height: sz, borderRadius: '50%',
+                background: e.sealed ? 'transparent' : dyeVar(e.dye as Dye),
+                border: e.sealed ? '1px solid var(--warm)' : 'none',
+                filter: 'blur(0.6px)',
+                boxShadow: `0 0 ${sz * 2.2}px ${sz * 0.6}px ${e.sealed ? 'rgba(224,160,98,0.35)' : 'color-mix(in srgb, ' + dyeVar(e.dye as Dye) + ' 42%, transparent)'}`,
+              }} />
+            );
+          })}
+        </div>
+        <div style={{ position: 'absolute', bottom: 54, left: 0, right: 0 }}>
+          {isLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center' }}><ProgressHair label="sounding the deep…" width={160} /></div>
+          ) : entries.length === 0 ? (
+            <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15.5, color: 'var(--bone-dim)', margin: '0 auto', maxWidth: '30ch' }}>
+              The water is clear. Lower the first thing in.
+            </p>
+          ) : (
+            <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15.5, color: 'var(--bone-dim)', margin: 0 }}>
+              {entries.length} {entries.length === 1 ? 'voice is' : 'voices are'} settled below · descend
+            </p>
+          )}
+          <div style={{ ...mono, fontSize: 9, letterSpacing: '0.28em', color: 'var(--bone-faint)', marginTop: 12 }}>
+            since {firstYear}
+          </div>
+        </div>
       </section>
 
-      {/* ── The dive: entries at their date-depths ── */}
+      {/* ── The dive: The Current — the archive drifts; years are geography ── */}
       {years.map((g, gi) => (
-        <section key={g.year} ref={(el) => { yearRefs.current[g.year] = el; }} style={{ position: 'relative', padding: '9vh 9vw 11vh', boxSizing: 'border-box' }}>
+        <section key={g.year} ref={(el) => { yearRefs.current[g.year] = el; }} style={{ position: 'relative', padding: '10vh 9vw 12vh', boxSizing: 'border-box', overflow: 'hidden' }}>
+          {/* colossal two-digit year, alternating shores */}
           <div aria-hidden style={{
-            position: 'absolute', top: 0, left: '6vw', zIndex: 0, pointerEvents: 'none',
-            fontFamily: 'var(--serif-display)', fontWeight: 300, fontSize: 'clamp(90px, 24vw, 220px)',
-            lineHeight: 1, color: 'rgba(242,230,208,0.05)',
-          }}>{g.year}</div>
-          <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '5vh', paddingTop: 60 }}>
+            position: 'absolute', top: '4vh', zIndex: 0, pointerEvents: 'none',
+            ...(gi % 2 === 0 ? { right: '-4vw' } : { left: '-4vw' }),
+            fontFamily: 'var(--serif-display)', fontWeight: 280, fontSize: 'clamp(150px, 44vw, 300px)',
+            lineHeight: 1, color: 'rgba(242,230,208,0.055)',
+          }}>{String(g.year).slice(-2)}</div>
+          {/* the current — a faint dotted drift the entries ride */}
+          <svg aria-hidden preserveAspectRatio="none" viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+            <path d={gi % 2 === 0 ? 'M22 0 C 70 28, 20 55, 55 78 C 70 88, 50 96, 45 100' : 'M70 0 C 25 30, 75 55, 40 80 C 28 90, 52 96, 55 100'}
+              stroke="rgba(242,230,208,0.12)" strokeWidth="0.5" strokeDasharray="0.4 2.6" fill="none" />
+          </svg>
+          <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '6vh', paddingTop: 30 }}>
             {g.entries.map((e, i) => (
-              <Mote key={e.id ?? `${g.year}-${i}`} e={e} offset={[2, 22, 10, 28, 6, 16][(gi + i) % 6]} />
+              <Mote key={e.id ?? `${g.year}-${i}`} e={e} offset={[4, 30, 14, 38, 8, 22][(gi + i) % 6]} />
             ))}
           </div>
         </section>

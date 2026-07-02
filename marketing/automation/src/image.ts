@@ -278,11 +278,44 @@ export function renderDeep({ saying, width, height, seed, dye, eyebrow }: Render
   const blockHeight = lines.length * lineHeight;
   const firstBaseline = height * 0.52 - blockHeight / 2 + lineHeight * 0.72;
 
+  // First Light: the opening words carry full cream; the rest recede — the
+  // same two-tone breath as the product's surface.
   ctx.font = `400 ${fontSize}px "${serif}"`;
-  ctx.fillStyle = BONE;
+  const allWords = saying.split(/\s+/);
+  const headCount = Math.min(3, Math.max(1, Math.floor(allWords.length / 3)));
+  let drawn = 0;
   lines.forEach((ln, i) => {
-    ctx.fillText(ln, width / 2, firstBaseline + i * lineHeight);
+    const lineWords = ln.split(/\s+/);
+    let x = width / 2 - ctx.measureText(ln).width / 2;
+    const y = firstBaseline + i * lineHeight;
+    ctx.textAlign = "left";
+    for (const w of lineWords) {
+      ctx.fillStyle = drawn < headCount ? BONE : withAlpha(BONE, 0.62);
+      ctx.fillText(w, x, y);
+      x += ctx.measureText(w + " ").width;
+      drawn++;
+    }
+    ctx.textAlign = "center";
   });
+
+  // The archive glowing beneath — dye-lights rising from the base (First Light).
+  {
+    const glows = 5;
+    for (let i = 0; i < glows; i++) {
+      const dyeHexG = DYES[(hashSeed(saying) + i * 7) % DYES.length].hex;
+      const gx = width * (0.12 + ((hashSeed(saying + i) % 68) / 100));
+      const gy = height - height * (0.04 + ((hashSeed(String(i) + saying) % 14) / 100));
+      const r = Math.min(width, height) * (0.006 + (i % 3) * 0.002);
+      const glow = ctx.createRadialGradient(gx, gy, 0, gx, gy, r * 5);
+      glow.addColorStop(0, withAlpha(dyeHexG, 0.85));
+      glow.addColorStop(0.35, withAlpha(dyeHexG, 0.28));
+      glow.addColorStop(1, withAlpha(dyeHexG, 0));
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(gx, gy, r * 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
 
   // Eyebrow: the Drop mark in warm copper, above the saying — the same brushed
   // geometry as brand/mark/heirloom-drop-*.svg, scaled to the type.

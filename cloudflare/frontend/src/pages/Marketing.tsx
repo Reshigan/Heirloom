@@ -158,17 +158,14 @@ export function Marketing() {
               to="/signup"
               className="mkt-begin-cta"
               style={{
-                display: 'inline-block', padding: '13px 38px', minHeight: 44, boxSizing: 'border-box',
-                border: '1px solid var(--warm)',
-                borderRadius: 0,
-                color: 'var(--warm-bright, var(--warm))',
-                background: 'transparent',
-                fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.2em',
-                textTransform: 'uppercase', textDecoration: 'none',
+                display: 'inline-flex', alignItems: 'center', gap: 16,
+                padding: '8px 0', minHeight: 44, boxSizing: 'border-box',
+                textDecoration: 'none',
                 transition: `background 360ms ${ease}, color 360ms ${ease}`,
               }}
             >
-              begin
+              <span aria-hidden className="hl-drop-breathe" style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--warm)', flex: 'none' }} />
+              <span style={{ fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 340, fontSize: 27, color: 'var(--warm)' }}>begin</span>
             </Link>
 
             {install.mode === 'prompt' && (
@@ -196,6 +193,17 @@ export function Marketing() {
               </span>
             )}
           </div>
+        </div>
+
+        {/* The archive, glowing beneath the surface — First Light. */}
+        <div aria-hidden style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '30%', zIndex: 1, pointerEvents: 'none' }}>
+          {[['#d4a32f', 16, 55, 13], ['#46679c', 42, 26, 10], ['#d94f38', 66, 46, 12], ['#8a5578', 29, 12, 8], ['#4f8a8a', 80, 18, 9]].map(([c, l, b, sz], i) => (
+            <span key={i} style={{
+              position: 'absolute', left: `${l}%`, bottom: `${b}%`, width: Number(sz), height: Number(sz),
+              borderRadius: '50%', background: String(c), filter: 'blur(0.6px)',
+              boxShadow: `0 0 ${Number(sz) * 2.4}px ${Number(sz) * 0.7}px ${c}55`,
+            }} />
+          ))}
         </div>
 
         {/* Negative space — the filament resolves below, via the global
