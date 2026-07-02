@@ -56,6 +56,7 @@ binding = "AI"
 # NOTE: Set CRON_ENABLED=true via `wrangler secret put CRON_ENABLED` to activate
 [triggers]
 crons = [
+  "45 2 * * *",  # Daily growth scoreboard email (crons/daily-scoreboard.ts)
   "0 9 * * *",   # Daily at 9 AM UTC - check for missed check-ins
   "0 20 * * *",  # Daily at 8 PM UTC - enqueue the Listener's daily prompt push
   "0 0 * * SUN", # Weekly on Sunday - send reminder emails

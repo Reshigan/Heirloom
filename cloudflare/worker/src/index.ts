@@ -105,6 +105,8 @@ export interface Env {
 
   // Admin notifications
   ADMIN_NOTIFICATION_EMAIL?: string;
+  // Daily growth scoreboard recipient (crons/daily-scoreboard.ts).
+  SCOREBOARD_EMAIL?: string;
   // Where the in-app support assistant escalates to a human (defaults to admin@heirloom.blue)
   SUPPORT_ESCALATION_EMAIL?: string;
 
@@ -977,6 +979,19 @@ export default {
     }
 
     const cronType = event.cron;
+
+    if (cronType === '45 2 * * *') {
+      // ========== DAILY GROWTH SCOREBOARD ==========
+      logger.info('Sending daily scoreboard…');
+      try {
+        const { runDailyScoreboard } = await import('./crons/daily-scoreboard');
+        await runDailyScoreboard(env);
+        logger.info('Daily scoreboard sent');
+      } catch (err) {
+        logger.error(`Daily scoreboard failed: ${err instanceof Error ? err.message : String(err)}`);
+      }
+      return;
+    }
 
     if (cronType === '0 9 * * *') {
       // ========== DAILY JOBS (9 AM UTC) ==========
