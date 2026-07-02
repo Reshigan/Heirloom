@@ -183,7 +183,7 @@ export function LoomIndex() {
   }, [entries, groupBy]);
 
   const topbarLeft = (
-    <Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/weft' }, { label: 'index' }]} />
+    <Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/pwa' }, { label: 'index' }]} />
   );
 
   // Mono header naming the thread and its span — "THE VANCE THREAD · 1947–2026".
@@ -229,7 +229,7 @@ export function LoomIndex() {
 
         {/* ARCHIVE header — the mono eyebrow names the bloodline + its year-span;
             the title reads "The Archive" so this surface is the whole-cloth
-            ledger, distinct from the cloth home (/loom/weft, "The Inheritance
+            ledger, distinct from the cloth home (/loom/pwa, "The Inheritance
             Horizon"). The home is where you weave today; the archive is where
             the whole woven cloth is grouped and searched. */}
         <CosmicHeader

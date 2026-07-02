@@ -606,7 +606,7 @@ export function ReadingRoom() {
         background: 'var(--ink-translucent)',
         borderBottom: '1px solid var(--rule)',
       }}>
-        <Breadcrumbs trail={[{ label: 'the deep', to: '/loom/weft' }, { label: 'reading' }]} />
+        <Breadcrumbs trail={[{ label: 'the deep', to: '/loom/pwa' }, { label: 'reading' }]} />
 
         <span className="reading-topmeta" style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0 }}>
           {t ? (

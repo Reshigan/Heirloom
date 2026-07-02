@@ -67,8 +67,23 @@ api.interceptors.request.use((config) => {
 // then retry with the new access token.
 let refreshPromise: Promise<string> | null = null;
 
+// Entry-creating endpoints. A successful POST to any of them means something
+// new settled into the Deep — announce it so the living water (WaterCanvas)
+// re-seeds its dye ramp while you watch. One dispatch point covers every
+// composer/capture/voice/photo path, present and future.
+const SETTLE_PATHS = /^\/(memories|letters|voice)(\/|$)?/;
+
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (
+      response.config.method === 'post' &&
+      SETTLE_PATHS.test(response.config.url ?? '') &&
+      typeof window !== 'undefined'
+    ) {
+      window.dispatchEvent(new Event('deep:settled'));
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
 

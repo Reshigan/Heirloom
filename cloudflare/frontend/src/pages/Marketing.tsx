@@ -85,15 +85,9 @@ export function Marketing() {
         display: 'flex', flexDirection: 'column',
       }}>
 
-        {/* Woven hero backdrop — thread-swoosh behind everything, vignette to ink */}
-        <div aria-hidden="true" style={{
-          position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
-          backgroundImage: 'image-set(url("/woven/thread-swoosh.avif") type("image/avif"), url("/woven/thread-swoosh.webp") type("image/webp"), url("/woven/thread-swoosh.png") type("image/png"))',
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'center',
-          backgroundSize: 'cover',
-          opacity: 0.35,
-        }} />
+        {/* The living water (global ClothBackdrop) IS the hero backdrop — the
+            retired woven thread-swoosh overlay is gone; only the vignette below
+            holds the edges into ink so the type stays lit. */}
         <div aria-hidden="true" style={{
           position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
           background: 'radial-gradient(ellipse at 50% 42%, transparent 0%, transparent 38%, var(--dye-hero-edge) 92%)',
@@ -105,7 +99,7 @@ export function Marketing() {
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: 'calc(clamp(14px, 2.5vh, 20px) + env(safe-area-inset-top, 0px)) clamp(20px, 5vw, 56px) clamp(14px, 2.5vh, 20px)',
         }}>
-          <HLogo size="md" wordmark />
+          <HLogo size="md" wordmark href="/" />
           <span style={{
             display: 'flex', gap: 'clamp(18px, 3vw, 32px)', alignItems: 'center',
             fontFamily: 'var(--mono)', fontSize: 11.5, letterSpacing: '0.2em',

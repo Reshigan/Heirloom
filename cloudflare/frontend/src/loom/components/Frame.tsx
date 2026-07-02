@@ -261,7 +261,7 @@ export function TapestryEdge({ nowFrac }: { nowFrac?: number }) {
 
 // ── Route → label map ─────────────────────────────────────────────────────
 function routeLabel(pathname: string): string {
-  if (pathname.startsWith('/loom/weft'))    return 'the Deep';
+  if (pathname.startsWith('/loom/pwa'))    return 'the Deep';
   if (pathname.startsWith('/loom/compose')) return 'compose';
   if (pathname.startsWith('/loom/tied'))    return 'tied off';
   if (pathname.startsWith('/loom/kin'))     return 'kin';
@@ -343,9 +343,7 @@ export function Frame({ left, right, trial, showEdge = true, children }: FramePr
       {/* Loom 3 absolute topbar — no nav links */}
       <div className="hl-topbar">
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 18 }}>
-          <Link to="/loom" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}>
-            <HLogo size={18} wordmark />
-          </Link>
+          <HLogo size={18} wordmark href="/loom/pwa" />
           {label !== 'heirloom' && (
             <>
               <span className="hl-topbar-label" style={{ color: 'var(--bone-low)' }}>·</span>

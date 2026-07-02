@@ -220,7 +220,7 @@ export function GiftAMemory() {
             <span aria-hidden style={{ color: 'var(--rule-strong)', fontSize: 10 }}>·</span>
             <button
               type="button"
-              onClick={() => navigate('/loom/weft')}
+              onClick={() => navigate('/loom/pwa')}
               style={{
                 background: 'transparent',
                 border: 0,

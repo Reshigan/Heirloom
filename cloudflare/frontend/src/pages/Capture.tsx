@@ -313,7 +313,7 @@ export function Capture() {
     onSuccess: (result) => {
       if (result.held) {
         setHeld(true);
-        navTimer.current = setTimeout(() => navigate('/loom/weft'), 2600);
+        navTimer.current = setTimeout(() => navigate('/loom/pwa'), 2600);
         return;
       }
       queryClient.invalidateQueries({ queryKey: ['memories-mosaic'] });

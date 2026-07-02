@@ -360,7 +360,7 @@ function AuthHome({
       sealed: !!e.sealed,
       // Each row opens its own room — mirrors Weft.tsx handleSelectEntry by kind+id.
       route: !e.id
-        ? '/loom/weft'
+        ? '/loom/pwa'
         : e.kind === 'voice'
           ? `/loom/voice?id=${e.id}`
           : e.kind === 'letter'
@@ -542,7 +542,7 @@ export function PwaHome() {
 
   return (
     <ClothShell
-      topbarLeft={<HLogo size="sm" wordmark />}
+      topbarLeft={<HLogo size="sm" wordmark href="/loom/pwa" />}
       topbarRight={<PwaMenu />}
     >
       {!wizardDone && <PwaWizard onDone={() => setWizardDone(true)} />}

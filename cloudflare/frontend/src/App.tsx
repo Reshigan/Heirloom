@@ -119,7 +119,6 @@ const ScenarioFirstYear     = lazy(() => import('./pages/ScenarioPages').then(m 
 // See cloudflare/frontend/src/loom/DESIGN.md.
 const LoomThreshold = lazy(() => import('./pages/Threshold').then(m => ({ default: m.Threshold })));
 const FirstThread = lazy(() => import('./pages/FirstThread').then(m => ({ default: m.FirstThread })));
-const LoomWeft = lazy(() => import('./pages/Weft').then(m => ({ default: m.Weft })));
 const LoomTiedOff = lazy(() => import('./pages/TiedOff').then(m => ({ default: m.TiedOff })));
 const LoomUnlock = lazy(() => import('./pages/Unlock').then(m => ({ default: m.Unlock })));
 const LoomReadingRoom = lazy(() => import('./pages/ReadingRoom').then(m => ({ default: m.ReadingRoom })));
@@ -160,7 +159,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
     // Honor a ?redirect= param so gift/redeem flows land on the right page after login.
     // Sanitized via safeRedirect to prevent open redirect (same-origin paths only).
     const params = new URLSearchParams(window.location.search);
-    const to = safeRedirect(params.get('redirect'), '/loom/weft');
+    const to = safeRedirect(params.get('redirect'), '/loom/pwa');
     return <Navigate to={to} replace />;
   }
   return <>{children}</>;
@@ -395,7 +394,7 @@ export default function App() {
                     {/* Protected routes */}
           <Route
             path="/dashboard"
-            element={<Navigate to="/loom/weft" replace />}
+            element={<Navigate to="/loom/pwa" replace />}
           />
           <Route path="/memories" element={<ProtectedRoute><Memories /></ProtectedRoute>} />
           <Route
@@ -618,7 +617,7 @@ export default function App() {
           <Route path="/loom/today" element={<ProtectedRoute><Today /></ProtectedRoute>} />
           <Route path="/loom/pwa"   element={<PwaHome />} />
           <Route path="/loom/index" element={<ProtectedRoute><LoomIndex /></ProtectedRoute>} />
-          <Route path="/loom/weft" element={<ProtectedRoute><LoomWeft /></ProtectedRoute>} />
+          <Route path="/loom/weft" element={<Navigate to="/loom/pwa" replace />} />
           <Route path="/loom/compose" element={<Navigate to="/compose" replace />} />
           <Route path="/loom/tied" element={<ProtectedRoute><LoomTiedOff /></ProtectedRoute>} />
           <Route path="/loom/unlock" element={<ProtectedRoute><LoomUnlock /></ProtectedRoute>} />

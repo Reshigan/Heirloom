@@ -115,7 +115,7 @@ export function TiedOff() {
 
   return (
     <ClothShell
-      topbarLeft={<Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/weft' }, { label: 'tied off' }]} />}
+      topbarLeft={<Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/pwa' }, { label: 'tied off' }]} />}
       backdropOpacity={0.35}
     >
       {/* completion flourish — woven thread, behind everything */}

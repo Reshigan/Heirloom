@@ -92,7 +92,7 @@ export function BookSuccess() {
           }}
         >
           <Link
-            to="/loom/weft"
+            to="/loom/pwa"
             className="hl-mono"
             style={{
               display: 'inline-flex',

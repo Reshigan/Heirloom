@@ -15,7 +15,7 @@ export function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { login } = useAuthStore();
-  const redirectUrl = safeRedirect(searchParams.get('redirect'), '/loom/weft');
+  const redirectUrl = safeRedirect(searchParams.get('redirect'), '/loom/pwa');
   const sessionExpired = searchParams.get('session_expired') === 'true';
 
   const [email, setEmail] = useState('');

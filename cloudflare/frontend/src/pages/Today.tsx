@@ -77,7 +77,7 @@ export function Today() {
   ).values()].slice(0, 3);
 
   const todayTopbar = (
-    <Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/weft' }, { label: 'today' }]} />
+    <Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/pwa' }, { label: 'today' }]} />
   );
 
   // The outlined amber mono pill — the cosmic-home capture affordance,

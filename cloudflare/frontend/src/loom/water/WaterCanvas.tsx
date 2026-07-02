@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import { FRAGMENT_SHADER } from './fragmentShader';
 import { waterRef } from './capture';
 import { waterRamp, memberWaterDye } from './waterDyes';
-import { familyApi } from '../../services/api';
+import { familyApi, memoriesApi, lettersApi } from '../../services/api';
+import { dyeFromMetadata, dyeForId, type Dye } from '../dye';
 import { useAuthStore } from '../../stores/authStore';
 
 const VERTEX = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
@@ -92,28 +93,50 @@ export default function WaterCanvas() {
     ro.observe(cv);
     resize();
 
-    // Reseed the ramp from the signed-in family's dyes — the water becomes the
-    // family's collective colour. Fire-and-forget: stays on the default ground
-    // until (and unless) the roster resolves; any failure leaves it untouched.
+    // Reseed the ramp from what the family has actually lowered in — the most
+    // recent entries' dyes LEAD the ramp (a fresh letter visibly re-tints the
+    // water), member dyes fill behind them. Fire-and-forget: stays on the
+    // default ground until data resolves; any failure leaves it untouched.
     let cancelled = false;
-    const seedFromFamily = () => {
-      familyApi.getAll().then((res) => {
+    const seedFromDeep = () => {
+      Promise.allSettled([
+        memoriesApi.getAll().catch(() => null),
+        lettersApi.getAll().catch(() => null),
+        familyApi.getAll().catch(() => null),
+      ]).then(([memRes, letRes, famRes]) => {
         if (cancelled) return;
+        const list = (r: PromiseSettledResult<any>): any[] => {
+          if (r.status !== 'fulfilled' || !r.value) return [];
+          const d = r.value.data;
+          return Array.isArray(d) ? d : d?.data ?? d?.letters ?? d?.memories ?? [];
+        };
+        const entries = [...list(memRes), ...list(letRes)]
+          .filter((e) => e && (e.createdAt || e.created_at))
+          .sort((a, b) =>
+            String(b.createdAt ?? b.created_at).localeCompare(String(a.createdAt ?? a.created_at)));
+        const entryDyes: Dye[] = entries
+          .slice(0, 9)
+          .map((e) => dyeFromMetadata(e.metadata) ?? dyeForId(String(e.userId ?? e.user_id ?? e.id)));
         const roster: Array<{ id: string; dye?: string | null; pendingDeletion?: boolean }> =
-          (res.data as any) ?? [];
-        const dyes = roster.filter((m) => !m.pendingDeletion).map(memberWaterDye);
+          (list(famRes) as any) ?? [];
+        const memberDyes = roster.filter((m) => !m.pendingDeletion).map(memberWaterDye);
+        const dyes = [...entryDyes, ...memberDyes];
         if (!dyes.length) return;
         setRamp(waterRamp(dyes));
         if (reduce) draw(8.0); // static frame won't repaint itself — do it once
-      }).catch(() => { /* keep the default ground */ });
+      });
     };
-    if (useAuthStore.getState().isAuthenticated) seedFromFamily();
+    if (useAuthStore.getState().isAuthenticated) seedFromDeep();
     // The first authed session signs in AFTER this canvas has mounted
     // (logged-out landing → sign-in), so re-seed when auth flips true — else the
     // family hue never lands until a full reload.
     const unsubAuth = useAuthStore.subscribe((s, prev) => {
-      if (s.isAuthenticated && !prev.isAuthenticated) seedFromFamily();
+      if (s.isAuthenticated && !prev.isAuthenticated) seedFromDeep();
     });
+    // Something new settled into the Deep (any entry POST — see api.ts, which
+    // fires this event) → the water takes up its dye while you watch.
+    const onSettled = () => { if (useAuthStore.getState().isAuthenticated) seedFromDeep(); };
+    window.addEventListener('deep:settled', onSettled);
 
     // prefers-reduced-motion: paint one still frame, never animate.
     if (reduce) {
@@ -121,6 +144,7 @@ export default function WaterCanvas() {
       return () => {
         cancelled = true;
         unsubAuth();
+        window.removeEventListener('deep:settled', onSettled);
         ro.disconnect();
         waterRef.canvas = null;
       };
@@ -150,6 +174,7 @@ export default function WaterCanvas() {
     return () => {
       cancelled = true;
       unsubAuth();
+      window.removeEventListener('deep:settled', onSettled);
       running = false;
       cancelAnimationFrame(raf);
       ro.disconnect();

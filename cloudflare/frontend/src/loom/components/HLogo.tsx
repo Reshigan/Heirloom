@@ -1,13 +1,14 @@
-// HLogo — the Cosmic Loom mark.
-// A web of bone filaments converging on one warm node: the smallest honest
-// picture of the product — a family's many threads, held by one warm point.
-// Beside it the wordmark sits in archival mono, letterspaced like a spine
-// label. The ∞ stays the only glyph elsewhere; this mark is thread, not type.
+// HLogo — the Sounding mark.
+// Concentric depth-rings crossed by one warm surface-line: sounding the depth
+// of the family's water. This is the brand's one mark (BRAND.md / favicon.svg);
+// it replaces the retired filament-web ("cosmic loom") glyph. The ∞ stays the
+// seal glyph on sealed notes; this mark is the identity.
 //
 // Size API: size='sm'|'md'|'lg' (sm=topbar, md=page, lg=splash).
+// `href` renders the whole mark as a STANDOUT BUTTON — a hairline-bordered
+// tile that warms on hover/focus — the one always-present way home.
 // Legacy numeric sizes and deprecated props (glow, mono, color, wordColor,
-// tagline, style) are accepted but silently ignored; the mark is
-// self-contained and theme-aware through the --bone/--warm tokens.
+// tagline, style) are accepted but silently ignored.
 
 import type React from 'react';
 import { Link } from 'react-router-dom';
@@ -17,11 +18,9 @@ type SizeToken = 'sm' | 'md' | 'lg';
 interface HLogoProps {
   size?: SizeToken | number;
   wordmark?: boolean;
-  // When set, the whole mark becomes a router link to this path (e.g. "/").
-  // The Link is styled to be visually identical to the bare mark (inline-flex,
-  // no underline, inherited color) so the only change is that it's clickable.
-  // When absent, the mark renders exactly as before — so callers that wrap
-  // HLogo in their own <Link> (Join, Frame) stay unaffected and never double-wrap.
+  // When set, the mark becomes the standout home button (hairline tile,
+  // warm on hover). When absent, the bare mark renders inline — callers that
+  // wrap HLogo in their own <Link> (Join, Frame) stay unaffected.
   href?: string;
   // legacy props — accepted but no longer applied
   tagline?: boolean;
@@ -42,23 +41,22 @@ function resolveToken(size: SizeToken | number): SizeToken {
 
 export function HLogo({ size = 'sm', wordmark = true, href }: HLogoProps) {
   const token = resolveToken(size);
-  const dims: Record<SizeToken, [number, number]> = { sm: [17, 20], md: [22, 26], lg: [34, 40] };
-  const [w, h] = dims[token];
+  const dim: Record<SizeToken, number> = { sm: 18, md: 24, lg: 36 };
+  const d = dim[token];
   const fs: Record<SizeToken, number> = { sm: 10, md: 11, lg: 13 };
   const gap: Record<SizeToken, number> = { sm: 10, md: 12, lg: 16 };
 
   const mark = (
     <>
-      <svg viewBox="0 0 24 28" width={w} height={h} fill="none" aria-hidden>
-        {/* Eight bone filaments — the family's threads, converging on the node */}
-        <g stroke="var(--bone)" strokeOpacity="0.5" strokeWidth="1.3" strokeLinecap="round">
-          <line x1="12" y1="3"   x2="12" y2="25" />
-          <line x1="2.5" y1="14" x2="21.5" y2="14" />
-          <line x1="5" y1="7"    x2="19" y2="21" />
-          <line x1="19" y1="7"   x2="5" y2="21" />
+      {/* The Sounding mark — geometry matches favicon.svg (rings 6/12/18 in a
+          48-box, fading outward; one warm surface-line through the middle). */}
+      <svg viewBox="0 0 48 48" width={d} height={d} fill="none" aria-hidden>
+        <g stroke="var(--bone)" strokeWidth="3" strokeLinecap="round">
+          <circle cx="24" cy="24" r="6" strokeOpacity="0.92" />
+          <circle cx="24" cy="24" r="12" strokeOpacity="0.55" />
+          <circle cx="24" cy="24" r="18" strokeOpacity="0.28" />
         </g>
-        {/* The convergence node — the one warm point: a 1px copper stroke, no fill */}
-        <circle cx="12" cy="14" r="2.1" stroke="var(--warm)" strokeWidth="1" fill="none" />
+        <line x1="4" y1="24" x2="44" y2="24" stroke="var(--warm)" strokeWidth="3.4" strokeLinecap="round" />
       </svg>
       {wordmark && (
         <span style={{
@@ -66,7 +64,7 @@ export function HLogo({ size = 'sm', wordmark = true, href }: HLogoProps) {
           fontSize: fs[token],
           letterSpacing: '0.42em',
           textTransform: 'uppercase',
-          color: 'var(--bone-faint)',
+          color: 'var(--bone-dim)',
           lineHeight: 1,
         }}>
           Heirloom
@@ -77,12 +75,29 @@ export function HLogo({ size = 'sm', wordmark = true, href }: HLogoProps) {
 
   const rowBase = { alignItems: 'center', gap: gap[token], userSelect: 'none' } as const;
 
-  // With href: the whole mark is a router link home. inline-flex + inherited
-  // color + no underline keeps it visually identical to the bare mark — this
-  // matches how Frame already styles its external <Link> wrapper.
+  // With href: the standout home button — a hairline tile that warms on
+  // hover/focus (border + wordmark lift). One curve, 180ms, per the motion spec.
   if (href) {
     return (
-      <Link to={href} style={{ display: 'inline-flex', textDecoration: 'none', color: 'inherit', ...rowBase }}>
+      <Link
+        to={href}
+        aria-label="Heirloom — home"
+        className="hl-sounding-btn"
+        style={{
+          display: 'inline-flex',
+          textDecoration: 'none',
+          color: 'inherit',
+          padding: token === 'sm' ? '7px 12px' : '9px 16px',
+          border: '1px solid var(--rule)',
+          borderRadius: 0,
+          minHeight: 44,
+          boxSizing: 'border-box',
+          transition: 'border-color 180ms var(--ease), background 180ms var(--ease)',
+          ...rowBase,
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--copper-border, var(--warm))'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--rule)'; }}
+      >
         {mark}
       </Link>
     );

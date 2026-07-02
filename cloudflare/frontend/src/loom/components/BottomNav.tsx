@@ -19,7 +19,7 @@ import { useAuthStore } from '../../stores/authStore';
  */
 
 const NAV = [
-  { label: 'the deep', href: '/loom/weft' },
+  { label: 'the deep', href: '/loom/pwa' },
   { label: '∞',        href: '/capture', center: true },
   { label: 'family',   href: '/family' },
   { label: 'you',      href: '/loom/profile' },
@@ -57,20 +57,69 @@ export function BottomNav() {
         background: 'var(--ink)',
         backdropFilter: 'none',
         borderTop: '1px solid var(--rule)',
-        display: 'flex',
-        alignItems: 'stretch',
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
       }}
     >
+      {/* Centered group: on a phone this fills the bar; on web the four
+          destinations hold together as one centered composition instead of
+          stretching edge-to-edge. */}
+      <div style={{
+        maxWidth: 560,
+        width: '100%',
+        height: '100%',
+        margin: '0 auto',
+        display: 'flex',
+        alignItems: 'stretch',
+      }}>
       {NAV.map((item) => {
         const isCenter = 'center' in item && item.center;
         // Plain pathname match for every item; the center anchor matches /capture.
         const isActive = pathname === item.href;
+
+        // The center is the singular ∞ — the "how you add" anchor. It rises
+        // out of the bar as a hairline-bordered ink tile crossing the rule
+        // line: the one raised element, so the eye lands on it first.
+        if (isCenter) {
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              aria-label="Capture"
+              aria-current={isActive ? 'page' : undefined}
+              style={{
+                flex: 1,
+                display: 'flex',
+                alignItems: 'flex-start',
+                justifyContent: 'center',
+                textDecoration: 'none',
+              }}
+            >
+              <span style={{
+                width: 54,
+                height: 54,
+                marginTop: -16,
+                background: 'var(--ink)',
+                border: `1px solid ${isActive ? 'var(--warm)' : 'var(--copper-border, var(--warm-dim))'}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: 'var(--mono)',
+                fontSize: 26,
+                lineHeight: 1,
+                color: 'var(--warm)',
+                transition: 'border-color 180ms var(--ease)',
+              }}>
+                ∞
+              </span>
+            </Link>
+          );
+        }
+
         return (
           <Link
             key={item.href}
             to={item.href}
-            aria-label={isCenter ? 'Capture' : item.label}
+            aria-label={item.label}
             aria-current={isActive ? 'page' : undefined}
             style={{
               flex: 1,
@@ -78,35 +127,30 @@ export function BottomNav() {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 4,
+              gap: 6,
               textDecoration: 'none',
-              // Active indicator is a 1px copper hairline (>1px copper = defect);
-              // the inactive fallback is a 1px transparent border so the box model
-              // is identical and the bar never shifts on selection.
-              borderTop: isActive ? '1px solid var(--warm)' : '1px solid transparent',
-              paddingTop: 1,
-              // Capture is the warm anchor (warm when active); every tab is a plain
-              // legible mono label — no bare unlabelled mark, so the bar reads as
-              // four named destinations.
-              color: isCenter
-                ? isActive ? 'var(--warm)' : 'var(--bone-dim)'
-                : isActive ? 'var(--bone)' : 'var(--bone-dim)',
-              // The center is the singular ∞ mark — the one bare glyph the
-              // product allows (the "how you add" anchor). It reads larger and
-              // un-letterspaced so it sits as a mark, not a mono word; the other
-              // three stay typographic labels.
+              color: isActive ? 'var(--bone)' : 'var(--bone-faint)',
               fontFamily: 'var(--mono)',
-              fontSize: isCenter ? 26 : 12,
+              fontSize: 11,
               lineHeight: 1,
-              letterSpacing: isCenter ? '0' : '0.16em',
-              textTransform: isCenter ? 'none' : 'uppercase',
-              transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
+              letterSpacing: '0.22em',
+              textTransform: 'uppercase',
+              transition: 'color 180ms var(--ease)',
             }}
           >
             {item.label}
+            {/* Active = a single copper underdot (the brand's activity signal),
+                reserved space when idle so the bar never shifts. */}
+            <span aria-hidden style={{
+              width: 3,
+              height: 3,
+              background: isActive ? 'var(--warm)' : 'transparent',
+              transition: 'background 180ms var(--ease)',
+            }} />
           </Link>
         );
       })}
+      </div>
     </nav>
   );
 }

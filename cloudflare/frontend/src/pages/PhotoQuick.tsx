@@ -145,7 +145,7 @@ export function PhotoQuick() {
   const tint = dyeVar('walnut');
 
   const topbarLeft = (
-    <Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/weft' }, { label: 'index', to: '/loom/index' }, { label: 'photograph' }]} />
+    <Breadcrumbs trail={[{ label: 'the Deep', to: '/loom/pwa' }, { label: 'index', to: '/loom/index' }, { label: 'photograph' }]} />
   );
 
   const today = new Date().toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
