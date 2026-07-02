@@ -104,7 +104,7 @@ export function Signup() {
 
   const validate = () => {
     const e: SignupErrors = {};
-    if (!form.threadName.trim()) e.threadName = 'Give your thread a name';
+    if (!form.threadName.trim()) e.threadName = 'Give your Deep a name';
     if (!form.firstName.trim()) e.firstName = 'First name is required';
     if (!form.lastName.trim()) e.lastName = 'Last name is required';
     if (form.birthYear.trim()) {
@@ -156,7 +156,7 @@ export function Signup() {
             : threads[0].id;
           if (threadId) updateUser({ defaultThreadId: threadId });
         } catch {
-          setThreadError('Account created — thread setup will complete on first login.');
+          setThreadError('Account created — your Deep will finish setting up on first login.');
         }
       }
       // Server-held AES-GCM: entries are encrypted at rest with a platform-held
@@ -218,7 +218,7 @@ export function Signup() {
               marginBottom: 28,
             }}
           >
-            begin a thread
+            begin your family's deep
           </div>
           <h1
             className="hl-tight"
@@ -232,22 +232,22 @@ export function Signup() {
               color: 'var(--bone)',
             }}
           >
-            Some things only get deeper.
+            Some things <span style={{ color: 'var(--bone-dim)' }}>only get deeper.</span>
           </h1>
         </div>
 
         <form onSubmit={handleSubmit}>
           {/* step one · the thread's name */}
-          <StepEyebrow>step one · the thread's name</StepEyebrow>
+          <StepEyebrow>step one · name your deep</StepEyebrow>
           <Field
             label="what does your family call itself?"
             id="s-thread"
             value={form.threadName}
             onChange={(v) => set({ threadName: v })}
-            placeholder="The Vance-Okonkwo Thread"
+            placeholder="The Vance-Okonkwo Deep"
             error={errors.threadName}
           />
-          <Helper>It can be changed later. The thread takes your name unless you give it its own.</Helper>
+          <Helper>It can be changed later. The Deep takes your name unless you give it its own.</Helper>
 
           {/* step two · you */}
           <div style={{ marginTop: 44 }}>
@@ -487,31 +487,24 @@ export function Signup() {
             </p>
           )}
 
-          {/* outlined amber mono pill — the single accent (mirrors the Login pill) */}
+          {/* the first drop — the drop-verb submit (mirrors Login's enter) */}
           <button
             type="submit"
             disabled={isLoading}
             style={{
               marginTop: 36,
-              width: '100%',
+              display: 'inline-flex', alignItems: 'center', gap: 16,
               minHeight: 44,
               cursor: isLoading ? 'default' : 'pointer',
-              background: 'transparent',
-              border: '1px solid var(--warm)',
-              borderRadius: 0,
-              color: 'var(--warm)',
-              padding: '14px 24px',
-              fontFamily: 'var(--mono)',
-              fontSize: 11,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
+              background: 'transparent', border: 0, padding: '8px 0',
               opacity: isLoading ? 0.5 : 1,
-              transition: `opacity 360ms ${EASE}, border-color 360ms ${EASE}`,
+              transition: `opacity 360ms ${EASE}`,
             }}
-            onMouseEnter={(e) => { if (!isLoading) e.currentTarget.style.borderColor = 'var(--warm-bright)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--warm)'; }}
           >
-            {isLoading ? 'beginning…' : 'begin the thread'}
+            <span aria-hidden className="hl-drop-breathe" style={{ width: 11, height: 11, borderRadius: '50%', background: 'var(--warm)', flex: 'none' }} />
+            <span style={{ fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 360, fontSize: 24, lineHeight: 1.2, color: 'var(--warm)' }}>
+              {isLoading ? 'beginning…' : 'begin'}
+            </span>
           </button>
 
           {/* isLoading: the sanctioned animated hairline (no spinner). Register
@@ -535,7 +528,7 @@ export function Signup() {
           </p>
         </form>
 
-        {/* quiet secondary link — already weaving? · sign in */}
+        {/* quiet secondary link — already in the water? · sign in */}
         <div
           className="hl-mono"
           style={{
@@ -547,7 +540,7 @@ export function Signup() {
             color: 'var(--bone-faint)',
           }}
         >
-          already weaving?&nbsp;·&nbsp;
+          already in the water?&nbsp;·&nbsp;
           <Link
             to="/login"
             style={{
