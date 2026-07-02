@@ -96,7 +96,7 @@ function stepConfig(
         question: 'Your thread is ready.',
         description: selectedPerson
           ? `Here is what ${selectedPerson.name} will receive.`
-          : 'Review your thread before weaving.',
+          : 'Review it before it settles.',
       };
   }
 }

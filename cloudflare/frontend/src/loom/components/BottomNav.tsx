@@ -34,7 +34,8 @@ const HIDE_EXACT = new Set(['/']);
 const HIDE_PREFIXES = ['/login', '/signup', '/pricing', '/privacy', '/terms', '/admin', '/onboarding', '/loom/marketing'];
 
 /** The shell reserves this much bottom space so content clears the nav. */
-export const BOTTOM_NAV_CLEARANCE = 'calc(76px + env(safe-area-inset-bottom, 0px))';
+// 76px bar + 20px so content clears the capture tile that rises 16px above it.
+export const BOTTOM_NAV_CLEARANCE = 'calc(96px + env(safe-area-inset-bottom, 0px))';
 
 export function BottomNav() {
   const { pathname } = useLocation();

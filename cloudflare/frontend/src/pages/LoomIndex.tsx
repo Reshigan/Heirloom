@@ -237,7 +237,7 @@ export function LoomIndex() {
           title="The Archive"
           sub={
             entries.length === 0
-              ? 'The whole Deep, once you begin to weave.'
+              ? 'The whole Deep, once you begin.'
               : 'Every thread ever woven — grouped, and searchable.'
           }
         />
@@ -340,7 +340,7 @@ export function LoomIndex() {
             fontSize: 17, color: 'var(--bone-dim)', textAlign: 'center',
             marginTop: 80, lineHeight: 1.7,
           }}>
-            Begin weaving. Each memory, letter, and voice<br />thread will appear here.
+            Begin. Each memory, letter, and voice<br />thread will appear here.
           </p>
         )}
 

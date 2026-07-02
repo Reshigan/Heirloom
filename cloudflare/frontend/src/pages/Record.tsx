@@ -1090,7 +1090,7 @@ export function Record() {
               textAlign: 'center',
             }}
           >
-            held — it will weave itself in when you're back online
+            held — it will settle in when you're back online
           </p>
         ) : null}
 

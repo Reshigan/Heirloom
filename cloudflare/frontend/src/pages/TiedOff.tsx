@@ -135,7 +135,7 @@ export function TiedOff() {
           <CosmicHeader
             eyebrow={`tied off · ${loading ? '…' : `${locked.length} ${locked.length === 1 ? 'thread' : 'threads'} waiting`}`}
             title="sealed against time"
-            sub="each is a thread tied off at the loom's edge. when its date arrives, the loom unties it and weaves it back into the Deep — for whoever is reading then."
+            sub="each is sealed and lowered in. when its date arrives, the Deep releases it back to the surface — for whoever is reading then."
           />
         </div>
 

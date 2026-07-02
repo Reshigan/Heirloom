@@ -100,7 +100,7 @@ export default function Wrapped() {
   // An explicit /wrapped/:year is honoured verbatim; otherwise we pick the year
   // to review below, once entries have loaded (see YEAR).
   const explicitYear = yearParam ? parseInt(yearParam, 10) : null;
-  const { isAuthenticated, user } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [copied, setCopied] = useState(false);
   const [visible, setVisible] = useState(false);
 
@@ -182,17 +182,14 @@ export default function Wrapped() {
     }
   };
 
-  // The family's most-woven thread — caption echoes the reference's "WORDS ON <top thread>".
-  const topThread = user?.lastName || user?.firstName || 'the thread';
-
   // Real, derived figures — illustrative mockup numbers replaced by live data.
   // Numerals alternate warm / bone down the stack (constitution: one colour has emotion).
   const bands: { value: string; caption: string }[] = [
     // ponytail: numeral stays var(--bone); copper reserved for the single WaxSeal ∞
-    { value: stats.kindCounts.memory.toLocaleString(), caption: 'memories woven' },
+    { value: stats.kindCounts.memory.toLocaleString(), caption: 'memories kept' },
     { value: stats.kindCounts.voice.toLocaleString(),  caption: 'voices kept' },
     { value: stats.kindCounts.letter.toLocaleString(), caption: 'notes sealed' },
-    { value: stats.totalWords.toLocaleString(),        caption: `words on ${topThread}` },
+    { value: stats.totalWords.toLocaleString(),        caption: `words set down` },
   ];
 
   return (
@@ -238,7 +235,7 @@ export default function Wrapped() {
             zIndex: 1,
           }}
         >
-          The Year Woven · {YEAR}
+          The Year, Kept · {YEAR}
         </div>
 
         {loading ? (
@@ -249,7 +246,7 @@ export default function Wrapped() {
               position: 'relative', zIndex: 1,
             }}
           >
-            <ProgressHair label="gathering the year woven…" width={200} />
+            <ProgressHair label="drawing the year up…" width={200} />
           </div>
         ) : isEmpty ? (
           // First-thread state — a single quiet serif line, no zeros.
@@ -272,7 +269,7 @@ export default function Wrapped() {
                 letterSpacing: '-0.01em', color: 'var(--bone)',
               }}
             >
-              This year is still being woven.
+              This year is still filling.
             </div>
             <div
               style={{

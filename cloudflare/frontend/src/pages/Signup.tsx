@@ -519,7 +519,7 @@ export function Signup() {
               sweeping ProgressHair reassures the wait instead of a frozen 1px bar. */}
           {isLoading && (
             <div style={{ marginTop: 12 }}>
-              <ProgressHair label="weaving your first thread…" />
+              <ProgressHair label="lowering your first entry in…" />
             </div>
           )}
 

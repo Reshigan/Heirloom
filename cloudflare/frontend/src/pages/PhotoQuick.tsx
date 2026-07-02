@@ -12,7 +12,7 @@ import { dyeVar } from '../loom/dye';
 /**
  * PhotoQuick — the fast lane (§ photo entry).
  *
- * Pick a photo, add one line, weave. No recipient, no delivery trigger, no dye
+ * Pick a photo, add one line, let it settle. No recipient, no delivery trigger, no dye
  * picker — the quickest path from a phone photo to a thread in the cloth. The full
  * Compose surface remains for writing; this is for the moment you just want the picture in.
  */
@@ -156,7 +156,7 @@ export function PhotoQuick() {
         <CosmicHeader
           eyebrow="the fast lane"
           title="A photograph, straight into the Deep."
-          sub="Pick a photo, add one line, weave. The full Composer is there when you want to write."
+          sub="Pick a photo, add one line, let it settle. The full Composer is there when you want to write."
         />
 
         <input

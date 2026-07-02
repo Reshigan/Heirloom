@@ -112,7 +112,7 @@ export function Challenges() {
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'challenges' }]} />}>
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '40px clamp(16px, 4vw, 40px) 80px' }}>
 
-        <CosmicHeader eyebrow={eyebrow} title="The weaving challenges." />
+        <CosmicHeader eyebrow={eyebrow} title="The keeping challenges." />
 
         {isLoading ? (
           <ProgressHair label="loading…" />
@@ -229,7 +229,7 @@ export function Challenges() {
               {[
                 { n: '01', h: 'A theme arrives.', b: 'Each week a new prompt surfaces — something to bring from memory into the thread.' },
                 { n: '02', h: 'You write into it.', b: 'Add an entry, a voice note, or a letter. The prompt is the door; what you bring is the thread.' },
-                { n: '03', h: 'It joins the bloodline.', b: 'What you weave stays in your family’s thread — kept for the generations who come after.' },
+                { n: '03', h: 'It joins the bloodline.', b: 'What you set down stays in your family’s thread — kept for the generations who come after.' },
               ].map(({ n, h, b }) => (
                 <div
                   key={n}
@@ -342,7 +342,7 @@ export function Challenges() {
                   cursor: (!submissionContent.trim() || submitMutation.isPending) ? 'default' : 'pointer',
                 }}
               >
-                {submitMutation.isPending ? 'weaving…' : 'add to thread →'}
+                {submitMutation.isPending ? 'settling…' : 'add to the thread →'}
               </button>
             </div>
           </div>

@@ -400,7 +400,7 @@ export function LegacyPlan() {
                               textTransform: 'uppercase',
                             }}
                           >
-                            {item.completed === 1 ? 'woven' : 'weave'}
+                            {item.completed === 1 ? 'settled' : 'begin'}
                           </span>
                           <span
                             onClick={(e) => { e.stopPropagation(); deleteItemMutation.mutate(item.id); }}
@@ -652,7 +652,7 @@ export function LegacyPlan() {
         </div>
 
         {/* Weave-now quick links */}
-        <SectionLabel>weave now</SectionLabel>
+        <SectionLabel>begin now</SectionLabel>
         <div
           style={{
             display: 'grid',
