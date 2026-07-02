@@ -8,6 +8,7 @@ import {
   onInstallStateChange, promptInstall, wasInstalled,
 } from '../lib/pwa';
 import { EASE as ease } from '../loom/motion';
+import { DeepIntro, shouldPlayIntro } from '../loom/components/DeepIntro';
 
 // ── Permanence answers ────────────────────────────────────────────────
 const PERMANENCE = [
@@ -50,6 +51,8 @@ export function Marketing() {
   const [vpH, setVpH] = useState(typeof window !== 'undefined' ? window.innerHeight : 900);
   const [vpW, setVpW] = useState(typeof window !== 'undefined' ? window.innerWidth : 1440);
   const [taglineIn, setTaglineIn] = useState(false);
+  // the drop-into-the-water entrance — once per session, randomized per visitor
+  const [intro, setIntro] = useState(() => shouldPlayIntro());
   const pillars  = useReveal(0.08);
   const arc      = useReveal(0.06);
   const permSect = useReveal(0.06);
@@ -73,6 +76,7 @@ export function Marketing() {
 
   return (
     <main style={{ color: 'var(--bone)', overflowX: 'hidden' }}>
+      {intro && <DeepIntro onDone={() => setIntro(false)} />}
 
       {/* ════════════════════════════════════════════════════════════
           HERO — serif hero set high, mono eyebrow + serif-italic sub +
@@ -83,6 +87,11 @@ export function Marketing() {
         position: 'relative', height: vpH, minHeight: 560, overflow: 'hidden',
         background: 'transparent',
         display: 'flex', flexDirection: 'column',
+        // the page opens through the ripple — a slight 3D tilt settling flat
+        transform: intro ? 'perspective(1200px) rotateX(5deg) translateY(24px) scale(0.985)' : 'perspective(1200px) rotateX(0) translateY(0) scale(1)',
+        opacity: intro ? 0 : 1,
+        transformOrigin: '50% 30%',
+        transition: `transform 1400ms ${ease}, opacity 1400ms ${ease}`,
       }}>
 
         {/* The living water (global ClothBackdrop) IS the hero backdrop — the
@@ -374,7 +383,7 @@ export function Marketing() {
             letterSpacing: '-0.016em',
             color: 'var(--bone)',
           }}>
-            The thread becomes a book.
+            The Deep becomes a book.
           </h2>
           <p style={{
             fontFamily: 'var(--serif)',
@@ -412,7 +421,7 @@ export function Marketing() {
           {[
             ['letterpress quality', 'Archival paper. Sewn binding. The same craft used for family bibles.'],
             ['every entry included', 'Memories, letters, voice transcripts, milestones. The complete record.'],
-            ['ordered by thread', 'Not chronological. Ordered by the Deep — the way your family settled it.'],
+            ['ordered by depth', 'Not chronological. Ordered by the Deep — the way your family settled it.'],
             ['ships anywhere', 'Printed and bound. Arrives in four to six weeks.'],
           ].map(([label, detail]) => (
             <EntryRow
@@ -442,7 +451,7 @@ export function Marketing() {
         </div>
         <CosmicHeader
           align="center"
-          title={<>The Deep waits.<br />Start your thread.</>}
+          title={<>The Deep waits.<br />Let the first drop fall.</>}
           sub="For the ones who come after."
         />
         <div style={{ textAlign: 'center', marginTop: 'clamp(28px, 4.5vh, 44px)' }}>
