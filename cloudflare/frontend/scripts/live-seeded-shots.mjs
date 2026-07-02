@@ -5,7 +5,7 @@ const OUT = '/private/tmp/heirloom-shots/live-authed';
 fs.mkdirSync(OUT, { recursive: true });
 const BASE = 'https://heirloom.blue';
 
-const USER = {
+export const USER = {
   id: 'u_demo', email: 'ada@heirloom.test', firstName: 'Ada', lastName: 'Vance',
   avatarUrl: null, emailVerified: true, twoFactorEnabled: false,
   preferredCurrency: 'USD', defaultThreadId: 't_demo',
@@ -130,7 +130,7 @@ const NOTIFS = { preferences: { weeklyDigest: true, reminderEmails: true, pushNo
 const STATS = { total: MEMORIES.length, memories: MEMORIES.length, letters: LETTERS.length, voice: VOICE.length };
 
 /* ── Route resolver ───────────────────────────────────────────────────────── */
-function resolve(path, search) {
+export function resolve(path, search) {
   // order matters — most specific first
   if (/\/auth\/me/.test(path)) return USER;
   if (/\/auth\/refresh/.test(path)) return { token: 'faketoken', refreshToken: 'fakeref' };
@@ -180,6 +180,8 @@ function resolve(path, search) {
 }
 
 /* ── Run ──────────────────────────────────────────────────────────────────── */
+const isMain = import.meta.url === `file://${process.argv[1]}`;
+if (isMain) {
 const b = await chromium.launch();
 const ctx = await b.newContext({
   viewport: { width: 430, height: 932 }, deviceScaleFactor: 2, serviceWorkers: 'block',
@@ -247,3 +249,4 @@ for (const [name, r] of routes) {
 }
 await b.close();
 console.log('\n→ shots in', OUT);
+}
