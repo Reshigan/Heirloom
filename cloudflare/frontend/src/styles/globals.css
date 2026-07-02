@@ -2041,13 +2041,15 @@ html {
 .loom select:focus {
   border-bottom-color: var(--loom-warm) !important;
 }
-/* Keyboard focus shows a real ring (WCAG 2.4.7); !important on outline only,
-   so it beats inline outline:none on Signup/Contact inputs. Mouse focus stays clean. */
+/* Keyboard focus stays visible (WCAG 2.4.7) but water-native: text fields
+   always match :focus-visible, so a ring boxes every tap into a writing
+   surface. A 2px warm underline is the focus indicator instead — !important
+   beats both the global ring and inline outline:none on Signup/Contact. */
 .loom input:focus-visible,
 .loom textarea:focus-visible,
 .loom select:focus-visible {
-  outline: 2px solid var(--warm) !important;
-  outline-offset: 2px;
+  outline: none !important;
+  box-shadow: 0 2px 0 0 var(--warm) !important;
 }
 .loom input::placeholder,
 .loom textarea::placeholder {
