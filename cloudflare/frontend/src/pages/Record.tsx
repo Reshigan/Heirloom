@@ -6,6 +6,7 @@ import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Verb } from '../loom/components/Verb';
 import { RecipientPicker } from '../loom/components/RecipientPicker';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { VoiceRefine } from '../loom/components/VoiceRefine';
@@ -1026,15 +1027,13 @@ export function Record() {
               justifyContent: 'center',
             }}
           >
-            <button
-              type="button"
+            <Verb
+              drop
               onClick={() => save.mutate()}
               disabled={save.isPending || held || !audioBlob}
-              className="hl-btn"
-              style={{ opacity: save.isPending || held || !audioBlob ? 0.5 : 1 }}
             >
-              {save.isPending ? 'sealing…' : held ? 'held' : 'save →'}
-            </button>
+              {save.isPending ? 'settling…' : held ? 'held' : 'let it settle'}
+            </Verb>
 
             {/* date pill — the chosen entry date, set pre-recording */}
             <span

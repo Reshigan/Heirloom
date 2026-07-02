@@ -10,6 +10,7 @@ interface VerbProps {
   children: ReactNode;
   onClick?: () => void;
   to?: string;
+  disabled?: boolean;
   /** Lead with the breathing drop-point (the capture/primary act). */
   drop?: boolean;
   /** The quiet alternative: faint bone, body-serif size. */
@@ -18,7 +19,7 @@ interface VerbProps {
   style?: CSSProperties;
 }
 
-export function Verb({ children, onClick, to, drop, quiet, size, style }: VerbProps) {
+export function Verb({ children, onClick, to, drop, quiet, size, style, disabled }: VerbProps) {
   const fs = size ?? (quiet ? 16 : 21);
   const inner = (
     <>
@@ -43,7 +44,8 @@ export function Verb({ children, onClick, to, drop, quiet, size, style }: VerbPr
   const base: CSSProperties = {
     display: 'inline-flex', alignItems: 'center', gap: 14,
     background: 'transparent', border: 0, padding: '8px 0', minHeight: 44,
-    cursor: 'pointer', textDecoration: 'none', ...style,
+    cursor: disabled ? 'default' : 'pointer', textDecoration: 'none',
+    opacity: disabled ? 0.45 : 1, transition: 'opacity 180ms var(--ease)', ...style,
   };
   const warmUp = (e: React.MouseEvent<HTMLElement>) => {
     const t = e.currentTarget.querySelector('span:last-child') as HTMLElement | null;
@@ -57,7 +59,7 @@ export function Verb({ children, onClick, to, drop, quiet, size, style }: VerbPr
     return <Link to={to} style={base} onMouseEnter={warmUp} onMouseLeave={warmDown}>{inner}</Link>;
   }
   return (
-    <button type="button" onClick={onClick} style={base} onMouseEnter={warmUp} onMouseLeave={warmDown}>
+    <button type="button" onClick={onClick} disabled={disabled} style={base} onMouseEnter={warmUp} onMouseLeave={warmDown}>
       {inner}
     </button>
   );

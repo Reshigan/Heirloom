@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
+import { Verb } from '../loom/components/Verb';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { UserMenu } from '../loom/components/Frame';
 import { SectionLabel, WarmDot } from '../loom/cosmic/CosmicUI';
@@ -265,12 +266,7 @@ export function LetterRoom() {
               Write the first.
             </p>
             <div style={{ marginTop: 40, display: 'flex', justifyContent: 'center' }}>
-              <Link
-                to="/compose"
-                className="hl-btn"
-              >
-                write a letter
-              </Link>
+              <Verb drop to="/compose">write the first letter</Verb>
             </div>
           </div>
         )}
