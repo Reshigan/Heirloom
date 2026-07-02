@@ -32,25 +32,39 @@ export function CosmicHeader({
   sub?: ReactNode;
   align?: 'center' | 'left';
 }) {
+  // First Light grammar: a plain-string title breathes in two tones — the
+  // opening words carry full cream, the rest recede. ReactNode titles pass
+  // through untouched so bespoke headers keep their own composition.
+  let shown: ReactNode = title;
+  if (typeof title === 'string') {
+    const w = title.split(' ');
+    const cut = Math.min(3, Math.max(1, Math.floor(w.length / 3)));
+    shown = (
+      <>
+        {w.slice(0, cut).join(' ')}{' '}
+        <span style={{ color: 'var(--bone-dim)' }}>{w.slice(cut).join(' ')}</span>
+      </>
+    );
+  }
   return (
-    <header style={{ textAlign: align, marginBottom: 40, maxWidth: align === 'center' ? undefined : '14em' }}>
+    <header style={{ textAlign: align, marginBottom: 48, maxWidth: align === 'center' ? undefined : '15em' }}>
       {eyebrow && (
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--copper-label)', marginBottom: 18 }}>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase', color: 'var(--warm)', marginBottom: 20 }}>
           {eyebrow}
         </div>
       )}
       <h1
         style={{
           fontFamily: 'var(--serif-display)',
-          fontSize: 'clamp(34px, 7vw, 56px)',
-          lineHeight: 1.06,
-          letterSpacing: '-0.012em',
+          fontSize: 'clamp(36px, 8vw, 58px)',
+          lineHeight: 1.08,
+          letterSpacing: '-0.014em',
           color: 'var(--bone)',
           margin: 0,
-          fontWeight: 400,
+          fontWeight: 340,
         }}
       >
-        {title}
+        {shown}
       </h1>
       {sub && (
         <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 17, lineHeight: 1.55, color: 'var(--bone-dim)', margin: '20px 0 0', maxWidth: '30em' }}>
@@ -161,10 +175,10 @@ export function EntryRow({
   const containerStyle = {
     display: 'flex',
     alignItems: 'baseline',
-    gap: 20,
+    gap: 16,
     width: '100%',
     textAlign: 'left' as const,
-    padding: '15px 0',
+    padding: '17px 0',
     background: 'none',
     borderWidth: 0,
     borderBottom: noBorder ? 'none' : '1px solid var(--rule)',
@@ -173,19 +187,32 @@ export function EntryRow({
 
   const inner = (
     <>
+      {/* The mote: an entry is a point of dye-light on the water, not a ruled
+          ledger line. The glow leads; the author hangs beneath the title. */}
+      {dye && (
+        <span aria-hidden style={{
+          width: 9, height: 9, borderRadius: '50%', flex: 'none',
+          alignSelf: 'flex-start', marginTop: 8,
+          background: tint,
+          boxShadow: `0 0 14px color-mix(in srgb, ${tint} 55%, transparent)`,
+        }} />
+      )}
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ fontFamily: fontFor(titleFont), fontStyle: italic ? 'italic' : 'normal', fontWeight: 400, fontSize: titleFont === 'display' ? Math.max(titleSize, 24) : titleSize, lineHeight: 1.3, color: titleColor, display: 'block' }}>
+        <span style={{ fontFamily: fontFor(titleFont), fontStyle: italic ? 'italic' : 'normal', fontWeight: 400, fontSize: titleFont === 'display' ? Math.max(titleSize, 24) : titleSize + 1, lineHeight: 1.3, color: titleColor, display: 'block' }}>
           {title}
         </span>
-        {sub && <span style={{ fontFamily: fontFor(subFont), fontStyle: subItalic ? 'italic' : 'normal', fontSize: 13, color: subColor, display: 'block', marginTop: 4, lineHeight: 1.5 }}>{sub}</span>}
+        {sub && <span style={{ fontFamily: fontFor(subFont), fontStyle: subItalic ? 'italic' : 'normal', fontSize: 13.5, color: subColor, display: 'block', marginTop: 5, lineHeight: 1.5 }}>{sub}</span>}
+        {author != null && (
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 9.5, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'var(--bone-faint)', display: 'block', marginTop: 6 }}>
+            {author}
+          </span>
+        )}
       </span>
 
       {hasLedgerMeta ? (
-        <span style={{ display: 'flex', alignItems: 'center', gap: 9, whiteSpace: 'nowrap', fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.14em', flex: '0 0 auto' }}>
-          {year != null && <span style={{ color: dateColor }}>{year}</span>}
-          {dye && <WarmDot color={tint} size={5} />}
-          {author != null && <span style={{ color: tint, textTransform: 'uppercase', letterSpacing: '0.16em' }}>{author}</span>}
-        </span>
+        year != null && (
+          <span style={{ whiteSpace: 'nowrap', fontFamily: 'var(--mono)', fontSize: 10.5, letterSpacing: '0.14em', color: dateColor, flex: '0 0 auto' }}>{year}</span>
+        )
       ) : (
         meta != null && (
           <span style={{ fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.12em', color: dateColor, whiteSpace: 'nowrap', flex: '0 0 auto' }}>{meta}</span>
