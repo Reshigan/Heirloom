@@ -36,7 +36,7 @@ async function bluesky() {
   const value = { ...(cur.value ?? { $type: "app.bsky.actor.profile" }), avatar: blob.blob };
   const put = await fetch(`${pds}/xrpc/com.atproto.repo.putRecord`, {
     method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${sess.accessJwt}` },
-    body: JSON.stringify({ repo: sess.did, collection: "app.bsky.actor.profile", rkey: "self", value, swapRecord: cur.cid ?? undefined }),
+    body: JSON.stringify({ repo: sess.did, collection: "app.bsky.actor.profile", rkey: "self", record: value, swapRecord: cur.cid ?? undefined }),
   });
   console.log("[bsky] avatar:", put.status, (await put.text()).slice(0, 120));
 }
