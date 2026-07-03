@@ -398,8 +398,8 @@ export function Family() {
                   </p>
                 )}
                 <div style={{ gridColumn: '1 / -1', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 16 }}>
-                  <button type="submit" className="hl-btn" disabled={invite.isPending} style={{ opacity: invite.isPending ? 0.5 : 1 }}>
-                    {invite.isPending ? 'calling…' : 'call to the water →'}
+                  <button type="submit" disabled={invite.isPending} style={{ background: 'transparent', border: 0, padding: '8px 0', minHeight: 44, cursor: 'pointer', fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 360, fontSize: 19, color: 'var(--warm)', opacity: invite.isPending ? 0.5 : 1 }}>
+                    {invite.isPending ? 'calling…' : 'call to the water'}
                   </button>
                   <button
                     type="button"
@@ -947,12 +947,11 @@ export function Family() {
                       <div style={{ display: 'flex', gap: 14, alignItems: 'center', marginTop: 4 }}>
                         <button
                           type="button"
-                          className="hl-btn"
                           onClick={() => updateMember.mutate()}
                           disabled={!editName.trim() || !editRelationship.trim() || updateMember.isPending}
-                          style={{ fontSize: 13, padding: '9px 18px', opacity: (!editName.trim() || !editRelationship.trim() || updateMember.isPending) ? 0.5 : 1 }}
+                          style={{ background: 'transparent', border: 0, padding: '8px 0', minHeight: 44, cursor: 'pointer', fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 360, fontSize: 17, color: 'var(--warm)', opacity: (!editName.trim() || !editRelationship.trim() || updateMember.isPending) ? 0.5 : 1 }}
                         >
-                          {updateMember.isPending ? 'holding…' : 'hold changes →'}
+                          {updateMember.isPending ? 'holding…' : 'hold changes'}
                         </button>
                         <button
                           type="button"

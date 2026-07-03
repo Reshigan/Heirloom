@@ -335,23 +335,22 @@ export function FutureLetter() {
                 <button
                   type="submit"
                   disabled={generateMutation.isPending}
-                  className="hl-mono"
                   style={{
                     background: 'transparent',
-                    border: '1px solid var(--warm)',
-                    borderRadius: 0,
+                    border: 0,
                     color: 'var(--warm)',
                     cursor: generateMutation.isPending ? 'default' : 'pointer',
-                    fontSize: 11,
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase',
-                    padding: '13px 28px',
+                    fontFamily: 'var(--serif-display)',
+                    fontStyle: 'italic',
+                    fontWeight: 360,
+                    fontSize: 19,
+                    padding: '8px 0',
                     minHeight: 44,
                     opacity: generateMutation.isPending ? 0.5 : 1,
                     transition: `opacity 180ms ${EASE}`,
                   }}
                 >
-                  {generateMutation.isPending ? 'sealing across time…' : genError ? 'try sealing again →' : 'seal this letter →'}
+                  {generateMutation.isPending ? 'sealing across time…' : genError ? 'try sealing again' : 'seal this letter'}
                 </button>
               </div>
             </form>

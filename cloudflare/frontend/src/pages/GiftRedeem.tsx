@@ -128,15 +128,15 @@ export function GiftRedeem() {
   const formatTier = (tier: string) =>
     tier.charAt(0).toUpperCase() + tier.slice(1).toLowerCase();
 
-  // mono warm uppercase CTA — the ceremony's primary verb
+  // the ceremony's primary verb — italic display serif, copper
   const ctaStyle = (enabled: boolean): React.CSSProperties => ({
     background: 'transparent',
     border: 0,
     padding: 0,
-    fontFamily: 'var(--mono)',
-    fontSize: 12,
-    letterSpacing: '0.2em',
-    textTransform: 'uppercase',
+    fontFamily: 'var(--serif-display)',
+    fontStyle: 'italic',
+    fontWeight: 360,
+    fontSize: 19,
     color: 'var(--warm)',
     opacity: enabled ? 1 : 0.45,
     cursor: enabled ? 'pointer' : 'default',
@@ -379,7 +379,7 @@ export function GiftRedeem() {
                       disabled={isRedeeming}
                       style={ctaStyle(!isRedeeming)}
                     >
-                      {isRedeeming ? 'activating…' : 'open the gift →'}
+                      {isRedeeming ? 'activating…' : 'open the gift'}
                     </button>
                   ) : (
                     <div>

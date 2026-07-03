@@ -126,6 +126,16 @@ export function Descent() {
 
   if (!getAuthToken()) return <Navigate to="/login" replace />;
 
+  // The Deep returns one titled memory each day — the same one all day, a
+  // different one tomorrow. The promise made visible: what settles comes back.
+  const returned = useMemo(() => {
+    const titled = entries.filter((e) => e.title && !e.sealed);
+    if (!titled.length) return null;
+    const now = new Date();
+    const dayKey = now.getFullYear() * 366 + Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
+    return titled[dayKey % titled.length];
+  }, [entries]);
+
   const sinkTo = (year: number | 'surface' | 'bed') => {
     const main = document.getElementById('main-content');
     if (!main) return;
@@ -237,9 +247,28 @@ export function Descent() {
               The water is clear. Lower the first thing in.
             </p>
           ) : (
-            <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15.5, color: 'var(--bone-dim)', margin: 0 }}>
-              {entries.length} {entries.length === 1 ? 'voice is' : 'voices are'} settled below · descend
-            </p>
+            <>
+              {returned && (
+                <button
+                  type="button"
+                  onClick={() => sinkTo(returned.date.getFullYear())}
+                  style={{ background: 'transparent', border: 0, cursor: 'pointer', padding: '4px 12px', marginBottom: 18, maxWidth: '92vw' }}
+                >
+                  <span style={{ ...mono, display: 'block', fontSize: 9, letterSpacing: '0.28em', color: 'var(--warm)', marginBottom: 8 }}>
+                    the deep returns
+                  </span>
+                  <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 17, color: 'var(--bone)', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    “{returned.title}”
+                  </span>
+                  <span style={{ ...mono, display: 'block', fontSize: 9, letterSpacing: '0.22em', color: 'var(--bone-faint)', marginTop: 7 }}>
+                    {returned.author ? `${returned.author} · ` : ''}{returned.date.getFullYear()} · draw it up
+                  </span>
+                </button>
+              )}
+              <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontSize: 15.5, color: 'var(--bone-dim)', margin: 0 }}>
+                {entries.length} {entries.length === 1 ? 'voice is' : 'voices are'} settled below · descend
+              </p>
+            </>
           )}
           <div style={{ ...mono, fontSize: 9, letterSpacing: '0.28em', color: 'var(--bone-faint)', marginTop: 12 }}>
             since {firstYear}

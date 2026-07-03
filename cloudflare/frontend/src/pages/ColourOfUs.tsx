@@ -336,15 +336,15 @@ export function ColourOfUs() {
               onClick={shareSpectrum}
               style={{
                 background: 'transparent',
-                border: '1px solid var(--copper-border)',
+                border: 0,
                 color: 'var(--gold-text)',
-                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
-                textTransform: 'uppercase', padding: '15px 26px', minHeight: 44, cursor: 'pointer',
+                fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 360, fontSize: 19,
+                padding: '8px 0', minHeight: 44, cursor: 'pointer',
                 opacity: sharing ? 0.5 : 1, marginBottom: 32,
                 transition: `opacity 180ms var(--ease)`,
               }}
             >
-              {sharing ? 'rendering…' : 'share our colour →'}
+              {sharing ? 'rendering…' : 'share our colour'}
             </button>
 
             {/* The weave bar — each author's share of the cloth, in their dye.

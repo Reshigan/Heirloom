@@ -70,10 +70,10 @@ export function Challenges() {
 
   // A quiet mono text affordance — the only kind of action this ledger carries.
   const affordance: React.CSSProperties = {
-    fontFamily: 'var(--mono)',
-    fontSize: 11,
-    letterSpacing: '0.18em',
-    textTransform: 'uppercase',
+    fontFamily: 'var(--serif-display)',
+    fontStyle: 'italic',
+    fontWeight: 360,
+    fontSize: 17,
     color: 'var(--copper-label)',
     background: 'none',
     border: 0,
@@ -342,7 +342,7 @@ export function Challenges() {
                   cursor: (!submissionContent.trim() || submitMutation.isPending) ? 'default' : 'pointer',
                 }}
               >
-                {submitMutation.isPending ? 'settling…' : 'let it settle →'}
+                {submitMutation.isPending ? 'settling…' : 'let it settle'}
               </button>
             </div>
           </div>

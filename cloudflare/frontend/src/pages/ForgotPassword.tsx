@@ -241,17 +241,17 @@ export function ForgotPassword() {
                     padding: '14px 0',
                     minHeight: 44,
                     cursor: isLoading || !email.trim() ? 'not-allowed' : 'pointer',
-                    fontFamily: 'var(--mono)',
-                    fontSize: 12,
-                    letterSpacing: '0.2em',
-                    textTransform: 'uppercase',
+                    fontFamily: 'var(--serif-display)',
+                    fontStyle: 'italic',
+                    fontWeight: 360,
+                    fontSize: 19,
                     color: 'var(--warm)',
                     opacity: isLoading || !email.trim() ? 0.4 : 1,
                     transition: 'opacity 180ms var(--ease)',
                     textAlign: 'center',
                   }}
                 >
-                  {isLoading ? 'sending…' : 'send reset →'}
+                  {isLoading ? 'sending…' : 'send reset'}
                 </button>
               </form>
 

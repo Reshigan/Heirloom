@@ -34,10 +34,10 @@ const VALUE_STATIC: React.CSSProperties = {
 };
 
 const ACTION: React.CSSProperties = {
-  fontFamily: 'var(--mono)',
-  fontSize: 11,
-  letterSpacing: '0.18em',
-  textTransform: 'uppercase',
+  fontFamily: 'var(--serif-display)',
+  fontStyle: 'italic',
+  fontWeight: 360,
+  fontSize: 17,
   color: 'var(--gold-text)',
   background: 'transparent',
   border: 0,
@@ -183,7 +183,7 @@ export function Billing() {
             <div style={ROW}>
               <span style={LABEL}>annual billing</span>
               <button type="button" className="billing-action" onClick={() => { setBusy('FAMILY_ANNUAL'); checkout.mutate({ tier: 'FAMILY', cycle: 'yearly' }); }} disabled={!!busy} style={{ ...ACTION, ...(busy ? { opacity: 0.5, cursor: 'default' } : null) }}>
-                {busy === 'FAMILY_ANNUAL' ? 'opening…' : 'switch to annual →'}
+                {busy === 'FAMILY_ANNUAL' ? 'opening…' : 'switch to annual'}
               </button>
             </div>
           )}
@@ -207,7 +207,7 @@ export function Billing() {
             <div style={ROW}>
               <span style={LABEL}>change plan</span>
               <button type="button" className="billing-action" onClick={() => portal.mutate()} disabled={portal.isPending} style={{ ...ACTION_QUIET, ...(portal.isPending ? { opacity: 0.5, cursor: 'default' } : null) }}>
-                {portal.isPending ? 'opening…' : 'downgrade →'}
+                {portal.isPending ? 'opening…' : 'downgrade'}
               </button>
             </div>
           )}
@@ -236,7 +236,7 @@ export function Billing() {
           <div style={ROW}>
             <span style={LABEL}>card on file</span>
             <button type="button" className="billing-action" onClick={() => portal.mutate()} disabled={portal.isPending} style={{ ...ACTION, ...(portal.isPending ? { opacity: 0.5, cursor: 'default' } : null) }}>
-              {portal.isPending ? 'opening…' : 'replace card →'}
+              {portal.isPending ? 'opening…' : 'replace card'}
             </button>
           </div>
         </div>
@@ -247,7 +247,7 @@ export function Billing() {
           <div style={ROW}>
             <span style={LABEL}>Receipts and full invoice history live in the Stripe portal.</span>
             <button type="button" className="billing-action" onClick={() => portal.mutate()} disabled={portal.isPending} style={{ ...ACTION, ...(portal.isPending ? { opacity: 0.5, cursor: 'default' } : null) }}>
-              {portal.isPending ? 'opening…' : 'open portal →'}
+              {portal.isPending ? 'opening…' : 'open portal'}
             </button>
           </div>
         </div>

@@ -520,12 +520,12 @@ export function Capture() {
           >
             <span aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'var(--rule)', transformOrigin: 'left', transform: `scaleX(${holding ? 1 : 0})`, transition: holding ? 'transform 720ms var(--ease)' : 'none' }} />
             <span style={{ position: 'relative' }}>
-              {save.isPending ? 'settling…' : holdHint ? 'keep holding…' : 'let it settle →'}
+              {save.isPending ? 'settling…' : holdHint ? 'keep holding…' : 'let it settle'}
             </span>
           </button>
         )}
 
-        <Link to="/compose" style={{ ...mono, color: 'var(--bone-faint)', textDecoration: 'none', marginTop: 4 }}>more options →</Link>
+        <Link to="/compose" style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 15, color: 'var(--bone-faint)', textDecoration: 'none', marginTop: 4 }}>more options</Link>
       </div>
     </ClothShell>
   );
@@ -535,7 +535,7 @@ export default Capture;
 
 /* ─── styles ──────────────────────────────────────────────────────────── */
 const mono: React.CSSProperties = { fontFamily: 'var(--mono)', fontSize: 12.5, letterSpacing: '0.12em', textTransform: 'uppercase' };
-const ghost: React.CSSProperties = { ...mono, background: 'none', border: 0, color: 'var(--bone-dim)', cursor: 'pointer', minHeight: 44, display: 'inline-flex', alignItems: 'center', padding: 0 };
+const ghost: React.CSSProperties = { fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 15.5, background: 'none', border: 0, color: 'var(--bone-dim)', cursor: 'pointer', minHeight: 44, display: 'inline-flex', alignItems: 'center', padding: 0 };
 // The fork chips — warm copper hairline + copper text when chosen, faint
 // otherwise. No fill (dyes/copper are signal only, never backgrounds).
 const forkBtn = (active: boolean): React.CSSProperties => ({
