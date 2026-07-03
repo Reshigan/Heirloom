@@ -6,7 +6,7 @@ import { useListener } from '../hooks/useListener';
 import { ClothShell } from '../loom/components/ClothShell';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { HLogo } from '../loom/components/HLogo';
-import { PwaWizard, shouldShowWizard } from '../loom/components/PwaWizard';
+import { FirstDescent, shouldShowFirstDescent } from '../loom/components/FirstDescent';
 import { dyeVar, type Dye } from '../loom/dye';
 
 /**
@@ -94,7 +94,7 @@ export function Descent() {
   const [depthLabel, setDepthLabel] = useState('now');
   // First-install ceremony — the wizard rides the home (as it did before the
   // Descent) until it has been seen once.
-  const [wizardDone, setWizardDone] = useState(() => !shouldShowWizard());
+  const [wizardDone, setWizardDone] = useState(() => !shouldShowFirstDescent());
   const [progress, setProgress] = useState(0);
   const yearRefs = useRef<Record<number, HTMLElement | null>>({});
 
@@ -140,13 +140,19 @@ export function Descent() {
   const head = words.slice(0, cut).join(' ');
   const rest = words.slice(cut).join(' ');
 
+  const ceremony = !wizardDone && !isLoading && entries.length === 0;
   return (
     <ClothShell
-      topbarLeft={<HLogo size="sm" wordmark href="/loom/pwa" />}
+      topbarLeft={ceremony ? undefined : <HLogo size="sm" wordmark href="/loom/pwa" />}
     >
-      {/* first-run wizard: only for a Deep with nothing settled yet — a family
-          already living in the water never gets an overlay over their home */}
-      {!wizardDone && !isLoading && entries.length === 0 && <PwaWizard onDone={() => setWizardDone(true)} />}
+      {/* the First Descent: onboarding as the founding ceremony — only for a
+          Deep with nothing settled yet; a family already in the water never
+          sees an overlay over their home */}
+      {ceremony && <FirstDescent onDone={() => setWizardDone(true)} />}
+
+      {/* while the ceremony runs, the home holds its breath — only the living
+          water shows through the veil */}
+      <div style={{ visibility: ceremony ? 'hidden' : 'visible' }}>
 
       {/* ── Bathymeter — the years are the navigation ── */}
       <div aria-hidden style={{ position: 'fixed', top: 'var(--topbar-h)', right: 22, bottom: 96, width: 1, background: 'rgba(242,230,208,0.13)', zIndex: 24 }} />
@@ -292,6 +298,7 @@ export function Descent() {
           </button>
         </section>
       )}
+      </div>
     </ClothShell>
   );
 }
