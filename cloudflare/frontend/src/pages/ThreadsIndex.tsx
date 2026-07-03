@@ -136,15 +136,13 @@ export function ThreadsIndex() {
                 border: 0,
                 padding: 0,
                 cursor: 'pointer',
-                fontFamily: 'var(--mono)',
-                fontSize: 12,
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
+                fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 360,
+                fontSize: 19,
                 color: 'var(--warm)',
                 transition: 'color 360ms var(--ease)',
               }}
             >
-              Begin a new thread
+              begin a new line
             </button>
           ) : (
             <div>

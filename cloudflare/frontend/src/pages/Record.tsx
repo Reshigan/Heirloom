@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { voiceApi, familyApi, getAuthHeaders, aiApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
 import { usePageMeta } from '../lib/usePageMeta';
+import { DropRing } from '../loom/components/DropRing';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Verb } from '../loom/components/Verb';
@@ -490,21 +491,7 @@ export function Record() {
           }}
         >
           {recordingState === 'idle' ? (
-            <button
-              type="button"
-              onClick={start}
-              aria-label="Begin recording"
-              style={{
-                width: 132, height: 132, borderRadius: '50%',
-                border: '1px solid var(--warm)', background: 'transparent',
-                color: 'var(--warm)', cursor: 'pointer',
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'var(--serif)', fontSize: 15, fontStyle: 'italic',
-                transition: 'border-color 360ms var(--ease), color 360ms var(--ease)',
-              }}
-            >
-              record
-            </button>
+            <DropRing label="record" onClick={start} ariaLabel="Begin recording" />
           ) : live ? (
             <button
               type="button"

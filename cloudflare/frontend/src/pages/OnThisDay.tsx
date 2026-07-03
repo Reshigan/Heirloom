@@ -108,18 +108,15 @@ export function OnThisDay() {
             <Link
               to="/capture"
               style={{
-                fontFamily: 'var(--mono)',
-                fontSize: 11,
-                letterSpacing: '0.14em',
-                textTransform: 'uppercase',
-                color: 'var(--bone-dim)',
+                fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+                fontSize: 17, color: 'var(--bone-dim)',
                 textDecoration: 'none',
                 transition: 'color 180ms var(--ease)',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--warm)')}
               onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--bone-dim)')}
             >
-              write one →
+              write one
             </Link>
           </div>
         )}

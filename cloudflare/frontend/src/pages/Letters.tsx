@@ -8,6 +8,7 @@ import { ProgressHair } from '../loom/components/ProgressHair';
 import { CosmicHeader, WarmDot, WaxSeal, SurfaceRing } from '../loom/cosmic/CosmicUI';
 import { type Letter } from '../types';
 import { formatDate } from '../utils/date';
+import { Verb } from '../loom/components/Verb';
 
 // Natural-dye swatch — deterministic per letter id
 const DYE_VARS = [
@@ -144,13 +145,9 @@ export function Letters() {
             >
               No letters sealed yet. The future waits for your words.
             </p>
-            <Link
-              to="/capture"
-              className="hl-mono"
-              style={{ fontSize: 11, letterSpacing: '0.26em', textTransform: 'uppercase', color: 'var(--warm)', textDecoration: 'none' }}
-            >
-              Seal a letter →
-            </Link>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <Verb to="/capture" drop>seal a letter</Verb>
+            </div>
           </div>
         ) : visible.length === 0 ? (
           <p

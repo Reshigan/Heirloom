@@ -979,12 +979,12 @@ export function Family() {
               onClick={() => openForm('invite')}
               style={{
                 background: 'transparent', border: 0, padding: '8px 0', cursor: 'pointer',
-                fontFamily: 'var(--mono)', fontSize: 11, letterSpacing: '0.2em',
-                textTransform: 'uppercase', color: 'var(--muted-4)',
+                fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+                fontSize: 16, color: 'var(--bone-faint)',
                 transition: 'color 180ms var(--ease)', touchAction: 'manipulation',
               }}
-              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--copper-label)'; }}
-              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--muted-4)'; }}
+              onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
+              onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--bone-faint)'; }}
             >
               invite a family member
             </button>

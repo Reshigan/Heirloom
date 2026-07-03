@@ -9,6 +9,7 @@ import { dyeColor, dyeFromMetadata, dyeForId } from '../loom/dye';
 import { memorialsApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 import { useFocusTrap } from '../lib/useFocusTrap';
+import { Verb } from '../loom/components/Verb';
 
 // Design styles kept for API compatibility; not displayed as a visual style chooser
 const designStyles = [
@@ -241,13 +242,9 @@ export function Memorials() {
             >
               No names rest here yet.
             </p>
-            <button
-              type="button"
-              onClick={() => setShowCreateModal(true)}
-              style={{ ...affordanceStyle('var(--warm)'), fontSize: 11, letterSpacing: '0.16em', minHeight: 44 }}
-            >
-              create the first memorial →
-            </button>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <Verb onClick={() => setShowCreateModal(true)} drop>create the first memorial</Verb>
+            </div>
           </div>
         )}
 

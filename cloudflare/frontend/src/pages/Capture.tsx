@@ -11,6 +11,7 @@ import {
   getAuthHeaders,
 } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+import { DropRing } from '../loom/components/DropRing';
 import { usePageMeta } from '../lib/usePageMeta';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
@@ -408,21 +409,7 @@ export function Capture() {
         {showRecordRing && (
           <>
             <p style={{ ...mono, color: 'var(--bone-faint)', textAlign: 'center' }}>speak, and let it settle</p>
-            <button
-              type="button"
-              onClick={startRecording}
-              aria-label="Record a voice memory"
-              style={{
-                width: 132, height: 132, borderRadius: '50%',
-                border: '1px solid var(--warm)', background: 'transparent',
-                color: 'var(--warm)', cursor: 'pointer',
-                display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                fontFamily: 'var(--serif)', fontSize: 15, fontStyle: 'italic',
-                transition: 'border-color 360ms var(--ease), color 360ms var(--ease)',
-              }}
-            >
-              speak
-            </button>
+            <DropRing label="speak" onClick={startRecording} ariaLabel="Record a voice memory" />
             <div style={{ display: 'flex', gap: 28, marginTop: 4 }}>
               <button type="button" onClick={() => { setWriting(true); setTimeout(() => bodyRef.current?.focus(), 40); }} style={ghost}>write instead</button>
               <button type="button" onClick={() => fileRef.current?.click()} style={ghost}>add a picture</button>

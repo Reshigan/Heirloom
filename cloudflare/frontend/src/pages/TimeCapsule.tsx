@@ -55,21 +55,7 @@ function ThreadComposeBanner() {
           there alongside everything else; existing capsules keep working below.
         </p>
       </div>
-      <Link
-        to={`/threads/${featured.id}/compose`}
-        className="hl-mono"
-        style={{
-          fontSize: 10,
-          letterSpacing: '0.18em',
-          textTransform: 'uppercase',
-          color: 'var(--warm)',
-          textDecoration: 'none',
-          flexShrink: 0,
-          alignSelf: 'center',
-        }}
-      >
-        Write a locked entry →
-      </Link>
+      <Verb to={`/threads/${featured.id}/compose`} size={17} style={{ flexShrink: 0, alignSelf: 'center' }}>write a locked entry</Verb>
     </div>
   );
 }
@@ -386,21 +372,13 @@ export function TimeCapsule() {
                 type="button"
                 onClick={() => setShowCreateModal(true)}
                 style={{
-                  fontFamily: 'var(--mono)',
-                  fontSize: 10,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  color: 'var(--warm)',
-                  background: 'none',
-                  border: 'none',
-                  borderBottom: '1px solid var(--rule-strong, var(--rule))',
-                  cursor: 'pointer',
-                  padding: '12px 0 3px',
-                  minHeight: 44,
-                  flexShrink: 0,
+                  fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 360,
+                  fontSize: 19, color: 'var(--warm)',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  padding: '8px 0', minHeight: 44, flexShrink: 0,
                 }}
               >
-                seal a new capsule →
+                seal a new capsule
               </button>
             </div>
           </div>
@@ -483,21 +461,13 @@ export function TimeCapsule() {
                 type="button"
                 onClick={() => setShowCreateModal(true)}
                 style={{
-                  fontFamily: 'var(--mono)',
-                  fontSize: 10,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
-                  color: 'var(--warm)',
-                  background: 'none',
-                  border: 'none',
-                  borderBottom: '1px solid var(--rule-strong, var(--rule))',
-                  cursor: 'pointer',
-                  padding: '12px 0 3px',
-                  minHeight: 44,
-                  flexShrink: 0,
+                  fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 360,
+                  fontSize: 19, color: 'var(--warm)',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  padding: '8px 0', minHeight: 44, flexShrink: 0,
                 }}
               >
-                seal a new capsule →
+                seal a new capsule
               </button>
             </div>
           </>
