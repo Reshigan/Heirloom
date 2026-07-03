@@ -226,9 +226,10 @@ function resolveUnlockDate(lock: LockType, dateValue: string, ageValue: string):
 const inputStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
-  border: '1px solid var(--rule)',
+  border: 0,
+  borderBottom: '1px solid var(--rule)',
   borderRadius: 0,
-  padding: '10px 14px',
+  padding: '10px 2px',
   color: 'var(--bone)',
   fontFamily: 'var(--serif)',
   fontSize: 15,

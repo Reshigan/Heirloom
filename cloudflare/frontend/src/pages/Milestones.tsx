@@ -147,7 +147,8 @@ export function Milestones() {
     <Link to="/loom" style={{ fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.16em', color: 'var(--muted-2)', textDecoration: 'none', textTransform: 'uppercase' }}>← heirloom</Link>
   );
 
-  const countEyebrow = `${milestoneList.length} ${milestoneList.length === 1 ? 'date held' : 'dates held'} in the thread`;
+  const count = Array.isArray(milestoneList) ? milestoneList.length : 0;
+  const countEyebrow = `${count} ${count === 1 ? 'date held' : 'dates held'} in the Deep`;
 
   return (
     <ClothShell topbarLeft={backLink} topbarCenter="milestones">
@@ -155,7 +156,7 @@ export function Milestones() {
 
         {/* Ledger header — mono eyebrow states the count, giant serif title */}
         <header style={{ marginBottom: 44, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
-          <CosmicHeader eyebrow={countEyebrow} title="Milestones." sub="Dates the thread keeps." />
+          <CosmicHeader eyebrow={countEyebrow} title="Milestones." sub="Dates the Deep keeps." />
           <div style={{ display: 'flex', gap: 22, flexShrink: 0, paddingTop: 8, fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.22em', textTransform: 'uppercase' }}>
             <button
               onClick={() => autoDetectMutation.mutate()}

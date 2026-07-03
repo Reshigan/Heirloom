@@ -460,28 +460,29 @@ export function DailySentence() {
                 onClick={() => void handleSave()}
                 disabled={saveState === 'saving'}
                 style={{
-                  fontFamily: 'var(--mono)',
-                  fontSize: 11,
-                  letterSpacing: '0.2em',
-                  textTransform: 'uppercase',
+                  fontFamily: 'var(--serif-display)',
+                  fontStyle: 'italic',
+                  fontWeight: 360,
+                  fontSize: 19,
                   color: saveState === 'saved' ? 'var(--bone-dim)' : 'var(--gold-text)',
                   background: 'transparent',
-                  border: saveState === 'saved' ? '1px solid var(--rule)' : '1px solid var(--copper-border)',
-                  borderRadius: 0,
-                  padding: '10px 22px',
+                  border: 0,
+                  padding: '8px 0',
                   cursor: saveState === 'saving' ? 'default' : 'pointer',
                   opacity: saveState === 'saving' ? 0.5 : 1,
                   transition: 'opacity 180ms var(--ease)',
                   minHeight: 44,
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
+                  gap: 12,
                 }}
               >
+                <span aria-hidden style={{ width: 9, height: 9, borderRadius: '50%', background: saveState === 'saved' ? 'var(--bone-dim)' : 'var(--warm)', flex: 'none' }} />
                 {saveState === 'saving'
-                  ? 'SAVING'
+                  ? 'settling…'
                   : saveState === 'saved'
-                    ? 'SETTLED'
-                    : 'SAVE'}
+                    ? 'settled'
+                    : 'let it settle'}
               </button>
 
               {/* date pill */}
@@ -492,9 +493,8 @@ export function DailySentence() {
                   letterSpacing: '0.2em',
                   textTransform: 'uppercase',
                   color: 'var(--bone-faint)',
-                  border: '1px solid var(--rule)',
-                  borderRadius: 0,
-                  padding: '10px 18px',
+                  border: 0,
+                  padding: '10px 0',
                   minHeight: 44,
                   display: 'flex',
                   alignItems: 'center',

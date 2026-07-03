@@ -55,14 +55,15 @@ export function Challenges() {
   const inputStyle: React.CSSProperties = {
     width: '100%',
     background: 'transparent',
-    border: '1px solid var(--rule)',
+    border: 0,
+    borderBottom: '1px solid var(--rule)',
     borderRadius: 0,
     color: 'var(--bone)',
     caretColor: 'var(--warm)',
     fontFamily: 'var(--serif)',
     fontSize: 16,
     lineHeight: 1.7,
-    padding: '12px 14px',
+    padding: '10px 2px',
     outline: 'none',
     boxSizing: 'border-box',
     resize: 'none',
@@ -93,20 +94,24 @@ export function Challenges() {
     textTransform: 'uppercase',
   };
 
-  const upcoming = challenges
+  // The API may hand back an array, {challenges}, or {data} — and a shape
+  // drift here must never sink the room (it was crashing the error boundary).
+  const challengeList: any[] = Array.isArray(challenges)
     ? (challenges as any[])
-        .filter((c: any) => new Date(c.start_date) > new Date())
-        .sort((a: any, b: any) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime())
-    : [];
+    : (challenges as any)?.challenges ?? (challenges as any)?.data ?? [];
+  const active: any = currentChallenge && (currentChallenge as any).id ? currentChallenge : null;
+  const upcoming = challengeList
+    .filter((c: any) => new Date(c.start_date) > new Date())
+    .sort((a: any, b: any) => new Date(a.start_date).getTime() - new Date(b.start_date).getTime());
 
   // Ledger eyebrow states the count + kind, like "47 WOVEN".
   const eyebrow = isLoading
     ? 'CHALLENGES'
-    : currentChallenge
+    : active
     ? `1 ACTIVE · ${upcoming.length} COMING`
     : upcoming.length > 0
     ? `${upcoming.length} COMING`
-    : 'NO ACTIVE THREAD';
+    : 'no active prompt';
 
   return (
     <ClothShell topbarLeft={<Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'challenges' }]} />}>
@@ -119,7 +124,7 @@ export function Challenges() {
         ) : (
           <>
             {/* Active challenge — the prompt as a ledger entry, its meta on the right */}
-            {currentChallenge ? (
+            {active ? (
               <section>
                 <SectionLabel>This week's prompt</SectionLabel>
 
@@ -128,11 +133,11 @@ export function Challenges() {
                     <h2
                       style={{ flex: 1, minWidth: 0, fontFamily: 'var(--serif-display)', fontSize: 25, fontWeight: 500, margin: 0, lineHeight: 1.2, color: 'var(--bone)' }}
                     >
-                      {currentChallenge.title}
+                      {active.title}
                     </h2>
-                    {(currentChallenge.submissionCount || 0) > 0 && (
+                    {(active.submissionCount || 0) > 0 && (
                       <span style={{ ...metaText, color: 'var(--bone-faint)', whiteSpace: 'nowrap', flex: '0 0 auto' }}>
-                        {currentChallenge.submissionCount} woven
+                        {active.submissionCount} woven
                       </span>
                     )}
                   </div>
@@ -141,19 +146,19 @@ export function Challenges() {
                     className="hl-prose"
                     style={{ fontSize: 15, color: 'var(--bone-dim)', margin: '10px 0 0', lineHeight: 1.7 }}
                   >
-                    {currentChallenge.description}
+                    {active.description}
                   </p>
 
                   <p
                     className="hl-serif hl-italic"
                     style={{ fontSize: 16, color: 'var(--bone)', margin: '16px 0 0', lineHeight: 1.5 }}
                   >
-                    "{currentChallenge.prompt}"
+                    "{active.prompt}"
                   </p>
 
                   <div style={{ display: 'flex', gap: 28, flexWrap: 'wrap', marginTop: 20, alignItems: 'baseline' }}>
                     <button type="button" aria-haspopup="dialog" onClick={() => setShowSubmitModal(true)} style={affordance}>
-                      add to thread →
+                      let it settle
                     </button>
                   </div>
                 </div>
@@ -256,7 +261,7 @@ export function Challenges() {
       </div>
 
       {/* Submit overlay */}
-      {showSubmitModal && currentChallenge && (
+      {showSubmitModal && active && (
         <div
           style={{
             position: 'fixed', inset: 0,
@@ -280,7 +285,7 @@ export function Challenges() {
             onClick={e => e.stopPropagation()}
           >
             <p style={{ ...metaText, color: 'var(--bone-faint)', margin: '0 0 12px' }}>
-              {currentChallenge.title}
+              {active.title}
             </p>
             <h3
               id="challenge-submit-title"
@@ -293,7 +298,7 @@ export function Challenges() {
               className="hl-prose"
               style={{ fontSize: 14, color: 'var(--bone-dim)', margin: '0 0 24px', lineHeight: 1.6 }}
             >
-              {currentChallenge.prompt}
+              {active.prompt}
             </p>
 
             <div style={{ marginBottom: 20 }}>
@@ -333,7 +338,7 @@ export function Challenges() {
               </button>
               <button
                 type="button"
-                onClick={() => submitMutation.mutate({ challengeId: currentChallenge.id, content: submissionContent })}
+                onClick={() => submitMutation.mutate({ challengeId: active.id, content: submissionContent })}
                 disabled={!submissionContent.trim() || submitMutation.isPending}
                 style={{
                   ...affordance,

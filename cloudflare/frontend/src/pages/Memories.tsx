@@ -327,7 +327,7 @@ export function Memories() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // The thread's name + lived year span — the mono eyebrow over the ledger.
-  const threadName = `The ${user?.lastName ?? ''} Thread`.replace(/\s+/g, ' ').trim();
+  const threadName = `The ${user?.lastName ?? ''} Deep`.replace(/\s+/g, ' ').trim();
   const years = allMemories
     .map(m => new Date(entryDateOf(m)).getFullYear())
     .filter(y => !isNaN(y));
@@ -375,7 +375,7 @@ export function Memories() {
     >
       {isLoading && (
         <div style={{ padding: 'clamp(40px, 8vw, 72px) var(--page-pad-x) 0' }}>
-          <ProgressHair label="drawing the thread…" />
+          <ProgressHair label="drawing it up…" />
         </div>
       )}
 

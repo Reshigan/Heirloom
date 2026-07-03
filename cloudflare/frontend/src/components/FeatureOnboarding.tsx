@@ -198,7 +198,7 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
               <div>
                 <p className="loom-mono text-[0.7rem] tracking-[0.32em] uppercase mb-2" style={{ color: 'var(--copper-label)' }}>Walkthrough</p>
                 <p id="feature-onboarding-title" role="heading" aria-level={2} className="hl-serif font-body font-light text-xl md:text-2xl tracking-[-0.014em]">{config.title}</p>
-                <p className="text-sm mt-1" style={{ color: 'var(--bone-dim)' }}>{config.subtitle}</p>
+                <p className="hl-serif text-sm mt-1" style={{ color: 'var(--bone-dim)', fontStyle: 'italic' }}>{config.subtitle}</p>
               </div>
               <button
                 onClick={onDismiss}
@@ -246,17 +246,17 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                       .loom h1–h6 Fraunces !important rule renders the display
                       face below its 24px legibility floor (the heading trap). */}
                   <h3 className="hl-serif font-body text-lg mb-2" style={{ color: 'var(--bone)' }}>{step.title}</h3>
-                  <p className="leading-relaxed" style={{ color: 'var(--bone-dim)' }}>{step.description}</p>
+                  <p className="hl-serif leading-relaxed" style={{ color: 'var(--bone-dim)' }}>{step.description}</p>
                 </div>
 
-                <div className="p-4 rounded-none" style={{ background: 'var(--ink-card)', border: '1px solid var(--rule)' }}>
+                <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 16 }}>
                   <p className="loom-mono text-[0.65rem] uppercase tracking-[0.22em] mb-1.5" style={{ color: 'var(--copper-label)' }}>Why this matters</p>
-                  <p className="leading-relaxed" style={{ color: 'var(--bone-dim)' }}>{step.whyItMatters}</p>
+                  <p className="hl-serif leading-relaxed" style={{ color: 'var(--bone-dim)' }}>{step.whyItMatters}</p>
                 </div>
 
-                <div className="p-4 rounded-none" style={{ background: 'var(--ink-card)', border: '1px solid var(--rule)' }}>
+                <div style={{ borderTop: '1px solid var(--rule)', paddingTop: 16 }}>
                   <p className="loom-mono text-[0.65rem] uppercase tracking-[0.22em] mb-1.5" style={{ color: 'var(--bone-faint)' }}>How to start</p>
-                  <p className="leading-relaxed" style={{ color: 'var(--bone-dim)' }}>{step.howToStart}</p>
+                  <p className="hl-serif leading-relaxed" style={{ color: 'var(--bone-dim)' }}>{step.howToStart}</p>
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -266,18 +266,19 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
               <button
                 onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
                 disabled={currentStep === 0}
-                className={`hl-btn ${currentStep === 0 ? 'opacity-30 cursor-not-allowed' : ''}`}
+                style={{ background: 'transparent', border: 0, padding: '8px 0', minHeight: 44, cursor: currentStep === 0 ? 'not-allowed' : 'pointer', fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 15.5, color: 'var(--bone-faint)', opacity: currentStep === 0 ? 0.35 : 1 }}
               >
-                Previous
+                back
               </button>
 
               {isLastStep ? (
-                <button onClick={onComplete} className="hl-btn">
-                  Got it, let's start
+                <button onClick={onComplete} style={{ background: 'transparent', border: 0, padding: '8px 0', minHeight: 44, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 12, fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 360, fontSize: 19, color: 'var(--warm)' }}>
+                  <span aria-hidden style={{ width: 9, height: 9, borderRadius: '50%', background: 'var(--warm)' }} />
+                  begin
                 </button>
               ) : (
-                <button onClick={() => setCurrentStep(currentStep + 1)} className="hl-btn">
-                  Next
+                <button onClick={() => setCurrentStep(currentStep + 1)} style={{ background: 'transparent', border: 0, padding: '8px 0', minHeight: 44, cursor: 'pointer', fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 360, fontSize: 19, color: 'var(--warm)' }}>
+                  next
                 </button>
               )}
             </div>

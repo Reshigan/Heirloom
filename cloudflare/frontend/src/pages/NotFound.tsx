@@ -38,7 +38,7 @@ export function NotFound() {
             lineHeight: 1.1,
           }}
         >
-          This thread does not exist.
+          Nothing rests here.
         </h1>
 
         <p
@@ -50,22 +50,26 @@ export function NotFound() {
             lineHeight: 1.6,
           }}
         >
-          The page you followed has come unwoven.
+          The page you followed has drifted away.
         </p>
 
         <Link
           to={home}
-          className="hl-link warm hl-mono"
           style={{
-            fontSize: 11,
-            textTransform: 'uppercase',
-            letterSpacing: '0.2em',
+            textDecoration: 'none',
             minHeight: 44,
             display: 'inline-flex',
             alignItems: 'center',
+            gap: 13,
+            fontFamily: 'var(--serif-display)',
+            fontStyle: 'italic',
+            fontWeight: 360,
+            fontSize: 20,
+            color: 'var(--warm)',
           }}
         >
-          return to the Deep →
+          <span aria-hidden className="hl-drop-breathe" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--warm)', flex: 'none' }} />
+          return to the water
         </Link>
       </div>
 

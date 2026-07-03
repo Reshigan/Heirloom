@@ -199,7 +199,7 @@ export function MemoryCards() {
               color: 'var(--warm)',
             }}
           >
-            view the thread →
+            view the deep →
           </button>
         </div>
 

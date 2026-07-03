@@ -105,14 +105,15 @@ const STATUS_CONFIG: { [K in TriggerStatus]: StatusConfigEntry } = {
 const fieldStyle: React.CSSProperties = {
   width: '100%',
   background: 'transparent',
-  border: '1px solid var(--rule)',
+  border: 0,
+  borderBottom: '1px solid var(--rule)',
   borderRadius: 0,
   color: 'var(--bone)',
   caretColor: 'var(--warm)',
   fontFamily: 'var(--serif)',
-  fontSize: 15,
+  fontSize: 16,
   lineHeight: 1.7,
-  padding: '12px 14px',
+  padding: '10px 2px',
   outline: 'none',
   boxSizing: 'border-box',
   resize: 'none',
@@ -940,7 +941,7 @@ export function LifeEvents() {
                       to={href}
                       style={{
                         display: 'block',
-                        padding: '12px 14px',
+                        padding: '10px 2px',
                         border: '1px solid var(--rule)',
                         textDecoration: 'none',
                         fontFamily: 'var(--mono)',

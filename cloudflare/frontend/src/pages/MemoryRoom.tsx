@@ -90,9 +90,10 @@ export function MemoryRoom() {
   const inputStyle: React.CSSProperties = {
     width: '100%',
     background: 'transparent',
-    border: '1px solid var(--parchment-rule)',
+    border: 0,
+    borderBottom: '1px solid var(--rule)',
     borderRadius: 0,
-    padding: '10px 14px',
+    padding: '10px 2px',
     color: 'var(--parchment-ink)',
     fontFamily: 'var(--serif)',
     fontSize: 15,

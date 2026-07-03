@@ -49,11 +49,12 @@ export class ErrorBoundary extends Component<Props, State> {
               The error has been logged. Try reloading — if it persists, your data is safe.
             </p>
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              <button onClick={() => window.location.reload()} className="hl-btn" style={{ cursor: 'pointer' }}>
-                reload →
+              <button onClick={() => window.location.reload()} style={{ background: 'transparent', border: 0, padding: '8px 0', minHeight: 44, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 12, fontFamily: 'var(--serif-display, Georgia)', fontStyle: 'italic', fontWeight: 360, fontSize: 19, color: 'var(--warm, #e0a062)' }}>
+                <span aria-hidden style={{ width: 9, height: 9, borderRadius: '50%', background: 'var(--warm, #e0a062)' }} />
+                reload
               </button>
-              <a href="/" className="hl-btn text" style={{ textDecoration: 'none' }}>
-                go home
+              <a href="/" style={{ textDecoration: 'none', minHeight: 44, display: 'inline-flex', alignItems: 'center', fontFamily: 'var(--serif, Georgia)', fontStyle: 'italic', fontWeight: 300, fontSize: 16, color: 'var(--bone-faint, rgba(242,230,208,0.62))' }}>
+                rise to the surface
               </a>
             </div>
             {this.state.error && (
