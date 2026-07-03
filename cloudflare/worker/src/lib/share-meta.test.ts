@@ -185,7 +185,7 @@ describe('renderShareCardSvg', () => {
     expect(svg).toContain('#070d14');
     expect(svg).toContain('#f2e6d0');
     expect(svg).toContain('#e0a062');
-    expect(svg).toContain('∞');
+    expect(svg).toContain('M4 13.9');
     expect(svg).toContain('No. 1,000');
     // Balanced tags (no obviously broken markup from interpolation).
     expect((svg.match(/<text/g) || []).length).toBe((svg.match(/<\/text>/g) || []).length);

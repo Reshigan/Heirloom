@@ -198,7 +198,7 @@ export const baseTemplate = (content: string) => `
     <div class="wrapper">
       <div class="header">
         <div class="header-left">
-          <img src="${TAPESTRY_ICON_URL}" alt="∞" class="logo-icon" width="36" height="36">
+          <img src="${TAPESTRY_ICON_URL}" alt="Heirloom" class="logo-icon" width="36" height="36">
           <span class="logo-mark">&#8734;</span>
           <span class="wordmark">Heirloom</span>
         </div>
@@ -384,8 +384,8 @@ export const verifyContactEmail = (contactName: string, ownerName: string, verif
     <h2>You've been entrusted.</h2>
     <p>Dear ${esc(contactName)},</p>
     <p><span class="warm">${esc(ownerName)}</span> has named you a legacy contact on Heirloom &mdash;
-    a family thread meant to outlast all of us.</p>
-    <p>Should the day ever come that ${esc(ownerName)} can no longer tend their thread, you may be
+    a family Deep meant to outlast all of us.</p>
+    <p>Should the day ever come that ${esc(ownerName)} can no longer tend their Deep, you may be
     asked to confirm it. Until then, nothing is required of you but this: to accept that you will
     safeguard what has been left in your care.</p>
     <a href="${safeUrl(verifyUrl)}" class="button-warm">Confirm &mdash; I will safeguard this</a>
@@ -487,10 +487,10 @@ export const letterMilestoneTeaserEmail = (
       <p class="salutation" style="text-align:center; font-style:italic;">to be opened on ${esc(milestoneLabel)}</p>
     </div>
     <p>It stays sealed until then. When the day arrives, your family will release it —
-       or, if you keep your own thread on Heirloom, you'll be able to open it yourself
+       or, if you keep your own Deep on Heirloom, you'll be able to open it yourself
        and let it settle into your family's Deep.</p>
     <div style="text-align:center; margin: 28px 0;">
-      <a href="${APP_URL}" class="button-warm">Start your own thread</a>
+      <a href="${APP_URL}" class="button-warm">Begin your own Deep</a>
     </div>
     <div class="seal">
       <div class="seal-icon">&#8734;</div>
@@ -514,7 +514,7 @@ export const letterOpenedNotificationEmail = (
        Your words have been read, and the letter has now settled into their family's Deep too.</p>
     <div class="seal">
       <div class="seal-icon">&#8734;</div>
-      <p class="seal-text">The thread continues</p>
+      <p class="seal-text">Some things only get deeper</p>
     </div>
   `),
 });
@@ -1142,15 +1142,15 @@ export const threadInvitationEmail = (
     <h2>You've Been Included</h2>
     <p>Dear ${esc(inviteeName)},</p>
     <p><span class="warm">${esc(inviterName)}</span> has included you in the
-    <span class="warm">${esc(threadName)}</span> family thread on Heirloom.</p>
+    <span class="warm">${esc(threadName)}</span> family Deep on Heirloom.</p>
     <div class="info-box">
       <p><strong>Your role:</strong> <span class="warm">${esc(role)}</span></p>
     </div>
     <p>Heirloom is a family story archive — the Deep your family keeps. Every photo, voice
-    recording, and written memory added to your family's thread becomes an heirloom passed down
+    recording, and written memory lowered into your family's Deep becomes an heirloom passed down
     through generations, owned by your bloodline, not a platform.</p>
     <p>Accept your invitation to begin reading and contributing to the
-    <span class="warm">${esc(threadName)}</span> thread.</p>
+    <span class="warm">${esc(threadName)}</span> Deep.</p>
     <a href="${safeUrl(acceptUrl)}" class="button-warm">ACCEPT INVITATION</a>
     <p class="muted" style="font-size: 14px; margin-top: 28px;">If you weren't expecting
     this invitation, you can safely ignore this email. No account will be created without
@@ -1261,7 +1261,7 @@ export const giftSubscriptionReceivedEmail = (
       <p><strong>Gift code:</strong></p>
       <div class="code-box">${giftCode}</div>
     </div>
-    <p>Heirloom is a family thread &mdash; an append-only, multi-generational archive owned by your bloodline, not a platform. Your voice, your letters, your memories: settled in, never erased.</p>
+    <p>Heirloom is a family Deep &mdash; an append-only, multi-generational archive owned by your bloodline, not a platform. Your voice, your letters, your memories: settled in, never erased.</p>
     <a href="${safeUrl(redeemUrl)}" class="button-warm">REDEEM YOUR GIFT</a>
     <p style="margin-top: 24px; font-size: 14px; color: rgba(7,13,20,0.46);">
       Or visit <span style="font-family: 'Courier New', monospace; font-size: 12px;">${esc(redeemUrl)}</span>
@@ -1278,12 +1278,12 @@ export const familyReferralInviteEmail = (
   relationship: string,
   inviteUrl: string,
 ) => ({
-  subject: `${referrerName} included you in their family thread`,
+  subject: `${referrerName} included you in their family Deep`,
   html: baseTemplate(`
-    <h2>You've been included in ${esc(referrerName)}'s thread.</h2>
+    <h2>You've been included in ${esc(referrerName)}'s Deep.</h2>
     <p><strong>${esc(referrerName)}</strong> has begun a permanent family record on Heirloom and included you as <em>${esc(relationship) || 'a family member'}</em>.</p>
     <p>Add your voice, or simply read what has been written. Every entry is append-only — nothing is deleted, nothing rewrites the past.</p>
-    <a href="${safeUrl(inviteUrl)}" class="button-warm">Join the thread →</a>
+    <a href="${safeUrl(inviteUrl)}" class="button-warm">Enter the water →</a>
     <p class="muted" style="font-size: 14px; margin-top: 28px;">If you weren't expecting this, you can safely ignore this email.</p>
   `),
 });
@@ -1304,7 +1304,7 @@ export const giftSubscriptionRedeemedEmail = (
       <p class="section-label">gift redeemed</p>
       <h2>Your subscription is now active.</h2>
       <p>Your <strong>${esc(tierName)}</strong> plan is active for ${durationMonths === 1 ? '1 month' : `${durationMonths} months`}, expiring on ${new Date(expiresAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}.</p>
-      <a href="https://heirloom.blue/loom/today" class="button-warm">Open your thread</a>
+      <a href="https://heirloom.blue/loom/today" class="button-warm">Open your Deep</a>
     </div>
   `),
 });

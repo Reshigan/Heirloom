@@ -1102,8 +1102,12 @@ memoriesRoutes.get('/:id/card', async (c) => {
   <!-- Border -->
   <rect x="20" y="20" width="1160" height="590" fill="none" stroke="${s.border}" stroke-width="2" rx="16"/>
   
-  <!-- Infinity symbol (Heirloom logo) -->
-  <text x="60" y="80" font-family="Georgia, serif" font-size="48" fill="${s.accent}">∞</text>
+  <!-- the Drop mark (Heirloom logo) -->
+  <g transform="translate(52, 44)" fill="${s.accent}">
+    <path d="M4 13.9 C 15 11.9, 29 15.3, 44 13 C 30 16.3, 15 14, 4 15 Z"/>
+    <path d="M23.6 24.9 C 26.8 24.8, 28.7 27.2, 28.2 30 C 27.8 32.6, 25.2 34.1, 22.8 33.4 C 20.5 32.7, 19.5 30.3, 20.3 27.9 C 21 26, 22.2 25.1, 23.6 24.9 Z"/>
+    <path d="M10 31.4 C 14.5 41.2, 33.5 41.9, 38.4 30.7 C 33.5 40.2, 14.5 40.2, 10 31.4 Z" fill-opacity="0.55"/>
+  </g>
   <text x="120" y="75" font-family="Georgia, serif" font-size="16" fill="${s.text}" opacity="0.7" letter-spacing="0.15em">HEIRLOOM</text>
   
   <!-- Emotion emoji -->

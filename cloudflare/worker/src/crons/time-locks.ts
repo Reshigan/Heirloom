@@ -136,7 +136,7 @@ export async function resolveTimeLocks(env: AppEnv['Bindings']): Promise<{
         await sendUnlockNotification(env, {
           to: lock.target_email,
           name: lock.target_member_name ?? 'You',
-          threadName: lock.thread_name ?? 'your family thread',
+          threadName: lock.thread_name ?? 'your family Deep',
           entryTitle: lock.entry_title,
           threadId: lock.thread_id,
           entryId: lock.entry_id,
@@ -159,7 +159,7 @@ export async function resolveTimeLocks(env: AppEnv['Bindings']): Promise<{
           await sendUnlockNotification(env, {
             to: r.email,
             name: '',
-            threadName: lock.thread_name ?? 'your family thread',
+            threadName: lock.thread_name ?? 'your family Deep',
             entryTitle: lock.entry_title,
             threadId: lock.thread_id,
             entryId: lock.entry_id,
@@ -192,8 +192,8 @@ async function notifyUnlockPush(
     await sendPushToUser(env, userId, {
       title: 'An entry just unlocked',
       body: entryTitle
-        ? `"${entryTitle}" in ${threadName ?? 'your family thread'} is now readable.`
-        : `A sealed entry in ${threadName ?? 'your family thread'} is now readable.`,
+        ? `"${entryTitle}" in ${threadName ?? 'your family Deep'} is now readable.`
+        : `A sealed entry in ${threadName ?? 'your family Deep'} is now readable.`,
       data: { url: `/threads/${threadId}#entry-${entryId}` },
     });
   } catch {
@@ -222,7 +222,7 @@ async function sendUnlockNotification(env: AppEnv['Bindings'], input: Notificati
 <body style="font-family: Georgia, serif; background:#0a0c10; color:#f5f3ee; margin:0; padding:40px;">
   <div style="max-width:600px; margin:0 auto;">
     <div style="text-align:center; padding:24px 0; border-bottom:1px solid rgba(201,169,89,0.25);">
-      <span style="font-size:32px; color:#e0a062;">∞</span>
+      <img src="https://heirloom.blue/icons/icon-192.png" alt="Heirloom" width="36" height="36" style="display:inline-block;border:0;" />
       <h1 style="color:#e0a062; font-weight:300; letter-spacing:3px; margin:6px 0 0;">HEIRLOOM</h1>
     </div>
     <div style="padding:36px 0; line-height:1.7;">
@@ -231,9 +231,9 @@ async function sendUnlockNotification(env: AppEnv['Bindings'], input: Notificati
       <p style="font-style:italic; color:#e0a062;">${escapeHtml(titleLine)}</p>
       <p style="color:rgba(245,243,238,0.55); font-size:14px;">${escapeHtml(input.context)}</p>
       <div style="text-align:center; margin:32px 0;">
-        <a href="${url}" style="display:inline-block; padding:14px 32px; background:linear-gradient(135deg,#e0a062,#b07a3e); color:#0a0c10; text-decoration:none; border-radius:8px; font-weight:600;">Open the thread</a>
+        <a href="${url}" style="display:inline-block; padding:14px 32px; background:#a86220; color:#f2e6d0; text-decoration:none; border-radius:0; font-weight:600;">Draw it up</a>
       </div>
-      <p style="color:rgba(245,243,238,0.5); font-size:13px;">Some entries in your family's thread are written today and locked for years. This is one of those.</p>
+      <p style="color:rgba(245,243,238,0.5); font-size:13px;">Some entries in your family's Deep are written today and sealed for years. This is one of those.</p>
     </div>
     <div style="text-align:center; color:rgba(245,243,238,0.4); font-size:12px; padding:16px 0;">
       Heirloom — the family thread that outlives all of us.

@@ -52,7 +52,7 @@ export const DEFAULT_ORIGIN = 'https://heirloom.blue';
 const TITLE_MAX = 70;
 const DESC_MAX = 200;
 const ELLIPSIS = '…';
-const INFINITY = '∞';
+// the Drop mark (brand/mark/heirloom-drop-*) — replaces the retired ∞
 
 const KINDS: Record<ShareKind, true> = {
   thread: true,
@@ -249,7 +249,11 @@ export function renderShareCardSvg(meta: ShareMeta): string {
   <text font-family="'Cormorant Garamond', 'Times New Roman', serif" font-size="60" fill="${bone}" font-weight="400">${tspans}</text>
   <line x1="100" y1="500" x2="1100" y2="500" stroke="${bone}" stroke-width="1" opacity="0.18"/>
   <text x="100" y="548" font-family="Inter, system-ui, sans-serif" font-size="24" fill="${muted}">${escapeHtml(SITE_NAME)} — the family thread that outlives all of us</text>
-  <text x="1100" y="552" text-anchor="end" font-family="'Cormorant Garamond', serif" font-size="44" fill="${warm}">${INFINITY}</text>
+  <g transform="translate(1046, 508) scale(1.05)" fill="${warm}">
+    <path d="M4 13.9 C 15 11.9, 29 15.3, 44 13 C 30 16.3, 15 14, 4 15 Z"/>
+    <path d="M23.6 24.9 C 26.8 24.8, 28.7 27.2, 28.2 30 C 27.8 32.6, 25.2 34.1, 22.8 33.4 C 20.5 32.7, 19.5 30.3, 20.3 27.9 C 21 26, 22.2 25.1, 23.6 24.9 Z"/>
+    <path d="M10 31.4 C 14.5 41.2, 33.5 41.9, 38.4 30.7 C 33.5 40.2, 14.5 40.2, 10 31.4 Z" fill-opacity="0.55"/>
+  </g>
 </svg>`;
 }
 

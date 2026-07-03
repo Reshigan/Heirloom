@@ -532,7 +532,7 @@ giftVoucherRoutes.post('/redeem', async (c) => {
 <body style="margin: 0; padding: 0; background-color: #070d14; font-family: 'Georgia', serif;">
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
     <div style="text-align: center; padding: 40px 0; border-bottom: 1px solid rgba(224, 160, 98, 0.3);">
-      <div style="font-size: 48px; color: #e0a062; margin-bottom: 10px;">∞</div>
+      <img src="https://heirloom.blue/icons/icon-192.png" alt="Heirloom" width="44" height="44" style="display:inline-block;border:0;margin-bottom:10px;" />
       <h1 style="color: #e0a062; font-size: 28px; font-weight: 300; letter-spacing: 4px; margin: 0;">
         WELCOME TO GOLD LEGACY
       </h1>
@@ -1003,7 +1003,7 @@ The Heirloom Team`;
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
     <!-- Gold Header -->
     <div style="text-align: center; padding: 40px 0; border-bottom: 1px solid rgba(224, 160, 98, 0.3);">
-      <div style="font-size: 48px; color: #e0a062; margin-bottom: 10px;">∞</div>
+      <img src="https://heirloom.blue/icons/icon-192.png" alt="Heirloom" width="44" height="44" style="display:inline-block;border:0;margin-bottom:10px;" />
       <h1 style="color: #e0a062; font-size: 28px; font-weight: 300; letter-spacing: 4px; margin: 0;">
         HEIRLOOM
       </h1>

@@ -474,11 +474,13 @@ async function buildCoverPdf(
     });
   }
 
-  // ∞ mark + bottom warm rule.
-  const mark = '∞';
-  const markSize = 26;
-  const markW = serifBold.widthOfTextAtSize(mark, markSize);
-  page.drawText(mark, { x: (W - markW) / 2, y: 52, size: markSize, font: serifBold, color: WARM });
+  // the sounding — concentric rings with a warm point, where the ∞ used to rest.
+  const cx = W / 2;
+  const cy = 62;
+  ([[4.5, 1.1], [9, 0.8], [13.5, 0.5]] as const).forEach(([r, w]) => {
+    page.drawEllipse({ x: cx, y: cy, xScale: r, yScale: r, borderColor: WARM, borderWidth: w, opacity: 0, borderOpacity: 0.8 });
+  });
+  page.drawEllipse({ x: cx, y: cy, xScale: 1.6, yScale: 1.6, color: WARM });
   page.drawRectangle({ x: MARGIN_X, y: 44, width: CONTENT_W, height: 1, color: WARM });
 
   return doc.save();
