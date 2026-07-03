@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
@@ -8,6 +8,7 @@ import { CosmicHeader, SectionLabel, EntryRow, WaxSeal } from '../loom/cosmic/Co
 import { dyeFromMetadata, dyeForId, dyeVar, type Dye } from '../loom/dye';
 import { memoriesApi, lettersApi, voiceApi, booksApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
+import { captureWater } from '../loom/water/capture';
 import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 
 type BookStep = 'select' | 'customize' | 'page' | 'preview' | 'order';
@@ -220,66 +221,45 @@ function LayoutGlyph({ layout, active }: { layout: PageLayout; active: boolean }
   }
 }
 
-/** The bound volume itself — a 3-D embossed leather book carrying the woven ∞
- *  seal on its cover. Content-integrated (it IS the volume being made), so it
- *  lives in the page, not in the global backdrop. Cover title + VOL. label are
- *  embossed into the leather. */
+/** The bound volume — its cover IS the family's water, captured live the
+ *  moment the volume is on screen (the same cover language as /book). A warm
+ *  spine, the title in the display serif over the water, the years in mono.
+ *  Falls back to the hairline cover when no water is live. */
 function LeatherBook({ title, yearsLabel }: { title: string; yearsLabel: string }) {
+  const [cover, setCover] = useState('');
+  useEffect(() => { setCover(captureWater()); }, []);
   return (
     <div aria-hidden style={{ display: 'flex', justifyContent: 'center', margin: '8px 0 4px' }}>
-      <div
-        style={{
-          position: 'relative',
-          width: 184,
-          height: 248,
-          // The volume cover — a FLAT card surface (Rule 2: copper never fills a
-          // surface). Warmth is carried by a single 1px copper emboss stroke, not
-          // a copper-tinted gradient; the fill theme-flips via var(--ink-card).
-          background: 'var(--ink-card)',
-          // ponytail: flat 1px hairline border defines the volume — no faux-3D
-          // drop shadow (Rule 5 bans skeuomorphic depth).
-          border: '1px solid var(--rule)',
-          borderRadius: 0,
-        }}
-      >
-        {/* inner frame border */}
+      <div style={{ position: 'relative', width: 196, height: 260 }}>
+        {/* the back board, offset — the volume has a body */}
+        <div style={{ position: 'absolute', inset: '8px -8px -8px 8px', border: '1px solid var(--rule)' }} />
+        {/* spine */}
+        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 14, border: '1px solid var(--warm)', borderRight: 'none' }} />
+        {/* cover face — printed with the colour the water is right now */}
         <div
           style={{
-            position: 'absolute',
-            inset: '14px 12px',
-            border: '1px solid var(--rule)',
-            borderRadius: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 14,
+            position: 'absolute', left: 14, top: 0, right: 0, bottom: 0,
+            border: '1px solid var(--warm)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            gap: 14, padding: '0 14px',
+            backgroundImage: cover ? `url(${cover})` : undefined,
+            backgroundSize: 'cover', backgroundPosition: 'center',
+            backgroundColor: 'var(--ink-card)',
           }}
         >
-          {/* embossed cover title */}
-          <span
-            style={{
-              fontFamily: 'var(--serif)',
-              fontSize: 13,
-              color: 'var(--gold-text)',
-              textAlign: 'center',
-              lineHeight: 1.2,
-              padding: '0 8px',
-            }}
-          >
+          <span style={{
+            fontFamily: 'var(--serif-display)', fontWeight: 340, fontSize: 17,
+            color: 'var(--bone)', textAlign: 'center', lineHeight: 1.25,
+            textShadow: '0 1px 14px rgba(7,13,20,0.8)',
+          }}>
             {title}
           </span>
-          {/* embossed volume label */}
-          <span
-            style={{
-              fontFamily: 'var(--mono)',
-              fontSize: 10,
-              letterSpacing: '0.2em',
-              textTransform: 'uppercase',
-              color: 'var(--gold-text)',
-            }}
-          >
-            VOL. I · {yearsLabel}
+          <span style={{
+            fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.24em',
+            textTransform: 'uppercase', color: 'var(--bone-dim)',
+            textShadow: '0 1px 10px rgba(7,13,20,0.9)',
+          }}>
+            vol. i · {yearsLabel}
           </span>
         </div>
       </div>
@@ -1257,22 +1237,22 @@ export function BookBuilder() {
               type="button"
               onClick={() => setStep(stepOrder[currentStepIndex + 1])}
               disabled={step === 'select' && totalItems === 0}
-              className="hl-mono"
               style={{
                 background: 'transparent',
-                border: '1px solid var(--warm)',
-                borderRadius: 0,
-                padding: '15px 56px',
+                border: 0,
+                padding: '8px 0',
+                minHeight: 44,
                 cursor: step === 'select' && totalItems === 0 ? 'default' : 'pointer',
-                fontSize: 11,
-                letterSpacing: '0.24em',
-                textTransform: 'uppercase',
+                display: 'inline-flex', alignItems: 'center', gap: 14,
+                fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 360,
+                fontSize: 21,
                 color: 'var(--warm)',
                 opacity: step === 'select' && totalItems === 0 ? 0.4 : 1,
                 transition: 'opacity 180ms var(--ease)',
               }}
             >
-              {step === 'select' ? 'Bind the Volume' : step === 'customize' ? 'Choose a page →' : step === 'page' ? 'Apply to Chapter' : 'Continue'}
+              <span aria-hidden className="hl-drop-breathe" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--warm)', flex: 'none' }} />
+              {step === 'select' ? 'bind the volume' : step === 'customize' ? 'choose the page' : step === 'page' ? 'apply to the chapter' : 'continue'}
             </button>
           )}
 
@@ -1289,15 +1269,14 @@ export function BookBuilder() {
               background: 'transparent',
               border: 0,
               padding: 0,
+              minHeight: 44,
               cursor: 'pointer',
-              fontFamily: 'var(--mono)',
-              fontSize: 10,
-              letterSpacing: '0.18em',
-              textTransform: 'uppercase',
+              fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300,
+              fontSize: 15,
               color: 'var(--bone-faint)',
             }}
           >
-            ← {currentStepIndex === 0 ? 'Cancel' : 'Back'}
+            {currentStepIndex === 0 ? 'cancel' : 'back'}
           </button>
         </div>
       </div>
