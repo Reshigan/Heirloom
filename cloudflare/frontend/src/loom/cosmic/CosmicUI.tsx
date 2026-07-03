@@ -244,30 +244,39 @@ export function SectionLabel({ children, tone = 'muted' }: { children: ReactNode
 
 /** A closed ring on the surface — the small water-native "sealed" signal.
  *  Replaces every inline ∞ glyph: the ring is the spot on the water where
- *  something was lowered and the surface closed over it. */
+ *  something was lowered and the surface closed over it. Drawn in the brand's
+ *  brushed hand — an offset-centre band whose stroke swells and tapers. */
 export function SurfaceRing({ size = 13 }: { size?: number }) {
   return (
-    <svg aria-hidden viewBox="0 0 14 14" width={size} height={size} fill="none" style={{ flex: 'none', verticalAlign: 'baseline' }}>
-      <circle cx="7" cy="7" r="5.4" stroke="var(--warm)" strokeWidth="1.3" strokeOpacity="0.75" />
+    <svg aria-hidden viewBox="0 0 14 14" width={size} height={size} style={{ flex: 'none', verticalAlign: 'baseline' }}>
+      <path fill="var(--warm)" fillOpacity="0.8" fillRule="evenodd" d="
+        M7 1.4 a5.6 5.6 0 1 0 0.01 0 Z
+        M7.35 2.5 a4.55 4.55 0 1 1 -0.01 0 Z" />
       <circle cx="7" cy="7" r="1.5" fill="var(--warm)" />
     </svg>
   );
 }
 
 /** The page-foot mark, water-native: the ripple where something was lowered
- * into the Deep — Sounding rings fading outward, one warm point at the centre.
- * (Replaces the ∞ wax seal; the ∞ survives only as the capture anchor.) */
+ * into the Deep — sounding rings fading outward, one warm point at the centre.
+ * Drawn in the brand's brushed hand: each ring is an offset-centre band whose
+ * stroke swells and tapers (the offsets alternate, so the rings breathe
+ * against each other the way real ripples do). */
 export function WaxSeal({ size = 30 }: { size?: number }) {
   const d = size * 1.5;
   return (
     <div aria-hidden style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
       width: size * 2.2, height: size * 2.2 }}>
-      <svg viewBox="0 0 48 48" width={d} height={d} fill="none">
-        <g stroke="var(--bone)" strokeWidth="1.6">
-          <circle cx="24" cy="24" r="7" strokeOpacity="0.55" />
-          <circle cx="24" cy="24" r="14" strokeOpacity="0.3" />
-          <circle cx="24" cy="24" r="21" strokeOpacity="0.13" />
-        </g>
+      <svg viewBox="0 0 48 48" width={d} height={d}>
+        <path fill="var(--bone)" fillOpacity="0.55" fillRule="evenodd" d="
+          M24 16.6 a7.4 7.4 0 1 0 0.02 0 Z
+          M24.45 18.1 a5.95 5.95 0 1 1 -0.02 0 Z" />
+        <path fill="var(--bone)" fillOpacity="0.3" fillRule="evenodd" d="
+          M24 9.4 a14.6 14.6 0 1 0 0.02 0 Z
+          M23.5 10.9 a13.05 13.05 0 1 1 -0.02 0 Z" />
+        <path fill="var(--bone)" fillOpacity="0.13" fillRule="evenodd" d="
+          M24 2.4 a21.6 21.6 0 1 0 0.02 0 Z
+          M24.6 3.7 a20.15 20.15 0 1 1 -0.02 0 Z" />
         <circle cx="24" cy="24" r="1.8" fill="var(--warm-dim)" />
       </svg>
     </div>

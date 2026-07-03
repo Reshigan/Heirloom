@@ -1,7 +1,8 @@
-// DropRing — the voice act wearing the brand mark. A thin accent ring holding
-// the Drop's own geometry (the swelling waterline, the drop, the tapered
-// ripple crescent) with the verb beneath — the capture buttons and the icon
-// become one design. Colors ride the accent; the crescent stays bone.
+// DropRing — the voice act drawn in the brand's hand. Not the logo pasted
+// into a button: the same brushed gesture that made the mark, applied to the
+// ring itself. Two circles with an offset centre (fill-rule evenodd) give one
+// stroke that swells from a hairline at ten o'clock to a full brush at four —
+// an ensō laid on the water, with the verb resting inside it.
 import type { CSSProperties } from 'react';
 
 export function DropRing({
@@ -24,21 +25,22 @@ export function DropRing({
       aria-label={ariaLabel ?? label}
       className="hl-drop-breathe--soft"
       style={{
+        position: 'relative',
         width: size, height: size, borderRadius: '50%',
-        border: '1px solid var(--warm)', background: 'transparent',
-        color: 'var(--warm)', cursor: 'pointer',
-        display: 'inline-flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center', gap: size * 0.04,
-        transition: 'border-color 360ms var(--ease), color 360ms var(--ease)',
+        border: 0, background: 'transparent',
+        color: 'var(--warm)', cursor: 'pointer', padding: 0,
+        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+        transition: 'color 360ms var(--ease)',
         ...style,
       }}
     >
-      <svg viewBox="0 0 48 48" width={size * 0.42} height={size * 0.42} fill="none" aria-hidden>
-        <path d="M4 13.9 C 15 11.9, 29 15.3, 44 13 C 30 16.3, 15 14, 4 15 Z" fill="currentColor" />
-        <path d="M23.6 24.9 C 26.8 24.8, 28.7 27.2, 28.2 30 C 27.8 32.6, 25.2 34.1, 22.8 33.4 C 20.5 32.7, 19.5 30.3, 20.3 27.9 C 21 26, 22.2 25.1, 23.6 24.9 Z" fill="currentColor" />
-        <path d="M10 31.4 C 14.5 41.2, 33.5 41.9, 38.4 30.7 C 33.5 40.2, 14.5 40.2, 10 31.4 Z" fill="rgba(242,230,208,0.55)" />
+      <svg viewBox="0 0 48 48" width={size} height={size} aria-hidden
+        style={{ position: 'absolute', inset: 0 }}>
+        <path fill="currentColor" fillRule="evenodd" d="
+          M24 2.8 a21.2 21.2 0 1 0 0.02 0 Z
+          M24.55 3.9 a20.05 20.05 0 1 1 -0.02 0 Z" />
       </svg>
-      <span style={{ fontFamily: 'var(--serif)', fontSize: Math.round(size * 0.115), fontStyle: 'italic', lineHeight: 1 }}>
+      <span style={{ fontFamily: 'var(--serif)', fontSize: Math.round(size * 0.135), fontStyle: 'italic', fontWeight: 300, lineHeight: 1 }}>
         {label}
       </span>
     </button>
