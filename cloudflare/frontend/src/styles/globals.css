@@ -89,18 +89,18 @@
      through the frame; overridden opaque in the light theme block. */
   --dye-hero-edge: rgba(7, 13, 20, 0.52);
   --bone: #f2e6d0;
-  --bone-dim: rgba(242, 230, 208, 0.72);
+  --bone-dim: rgba(242, 230, 208, 0.84);
   /* WCAG AA: 0.44α = 3.73:1 on --ink (fail). 0.52α = 4.81:1 barely clears 4.5:1.
      Lifted again to 0.72α (≈6.8:1) — the faint tier (10–11px letterspaced mono
      labels) still read too fine; this lifts every faint label app-wide at once. */
-  --bone-faint: rgba(242, 230, 208, 0.72);
+  --bone-faint: rgba(242, 230, 208, 0.70);
   --bone-low: rgba(242, 230, 208, 0.24);
   --bone-ghost: rgba(242, 230, 208, 0.14);
   --weave-color: rgba(242, 230, 208, 0.10);
   /* Opacity for the dark woven raster overlay (Wrapped). Near-zero on paper
      so the dark texture doesn't read as a grey smudge on the light ground. */
   --woven-veil: 0.14;
-  --rule: rgba(242, 230, 208, 0.17);
+  --rule: rgba(242, 230, 208, 0.22);
   --rule-strong: rgba(242, 230, 208, 0.20);
   /* ── The single emotion accent (ART_DIRECTION §2), now user-chosen ──────────
      One hue, <3% surface, signal only. Default seafoam — set per-user as
@@ -110,9 +110,11 @@
      theme ignores accent entirely — it re-hardcodes AA copper-browns. */
   --accent: #7fd4c4;
   --accent-bright: #a0e8d8;
-  --warm: #e0a062;
-  --warm-bright: #f0c074;
-  --warm-dim: #c68e4d;
+  /* Derived from the single accent — the whole emotion layer follows the
+     family's one chosen hue, including portaled overlays outside .loom. */
+  --warm: var(--accent);
+  --warm-bright: var(--accent-bright);
+  --warm-dim: color-mix(in srgb, var(--accent) 80%, var(--ink));
   /* Copper carries no glow in this design (§1: copper is a <=1px stroke or text
      colour only — never a fill/glow/aura). --warm-glow removed. */
   --rule-warm: rgba(224, 160, 98, 0.24);
@@ -125,10 +127,10 @@
      two dark card fills (letter, template) and three hairline steps.
      Dark values are the locked reference; the light block below lifts
      every text-bearing one to clear WCAG AA on parchment. */
-  --copper-label:  #c68e4d;  /* eyebrows, dimmed copper labels */
-  --copper-border: #c4894d;  /* ghost-pill + emphasis-card borders */
-  --gold-text:     #e8c79a;  /* pill labels, emphasised names */
-  --ember:         #f0c074;  /* glow dots, map pins, embers */
+  --copper-label:  color-mix(in srgb, var(--accent) 82%, var(--ink));  /* eyebrows, dimmed copper labels */
+  --copper-border: color-mix(in srgb, var(--accent) 85%, var(--ink));  /* ghost-pill + emphasis-card borders */
+  --gold-text:     color-mix(in srgb, var(--accent-bright) 78%, var(--bone));  /* pill labels, emphasised names */
+  --ember:         var(--accent-bright);  /* glow dots, map pins, embers */
   --bg-letter:     #171109;  /* sealed-letter card fill */
   --bg-template:   #100c08;  /* page-template thumbnail surface */
   --text-soft:     #ecdfc9;  /* primary unread/name text */
@@ -306,7 +308,7 @@
   /* WCAG AA: 0.44α = 3.73:1 on --ink (fail) — fed .hl-helper.dark body text.
      Lifted to 0.56α (>=0.52α AA floor), matching the --bone-faint fix at ~98. */
   --parchment-faint:    rgba(242, 230, 208, 0.56);
-  --parchment-rule:     rgba(242, 230, 208, 0.11);
+  --parchment-rule:     rgba(242, 230, 208, 0.18);
   /* Hero/showcase vignette edge over the living water. Translucent so the dye
      bath breathes through the frame's outer ring while the transparent core
      keeps the headline clear. Light theme (below) keeps this opaque — no water
