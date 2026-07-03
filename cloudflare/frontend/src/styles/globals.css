@@ -100,7 +100,7 @@
   /* Opacity for the dark woven raster overlay (Wrapped). Near-zero on paper
      so the dark texture doesn't read as a grey smudge on the light ground. */
   --woven-veil: 0.14;
-  --rule: rgba(242, 230, 208, 0.11);
+  --rule: rgba(242, 230, 208, 0.17);
   --rule-strong: rgba(242, 230, 208, 0.20);
   /* ── The single emotion accent (ART_DIRECTION §2), now user-chosen ──────────
      One hue, <3% surface, signal only. Default seafoam — set per-user as
@@ -112,7 +112,7 @@
   --accent-bright: #a0e8d8;
   --warm: #e0a062;
   --warm-bright: #f0c074;
-  --warm-dim: #b07a3e;
+  --warm-dim: #c68e4d;
   /* Copper carries no glow in this design (§1: copper is a <=1px stroke or text
      colour only — never a fill/glow/aura). --warm-glow removed. */
   --rule-warm: rgba(224, 160, 98, 0.24);
@@ -125,7 +125,7 @@
      two dark card fills (letter, template) and three hairline steps.
      Dark values are the locked reference; the light block below lifts
      every text-bearing one to clear WCAG AA on parchment. */
-  --copper-label:  #b07a3e;  /* eyebrows, dimmed copper labels */
+  --copper-label:  #c68e4d;  /* eyebrows, dimmed copper labels */
   --copper-border: #c4894d;  /* ghost-pill + emphasis-card borders */
   --gold-text:     #e8c79a;  /* pill labels, emphasised names */
   --ember:         #f0c074;  /* glow dots, map pins, embers */
@@ -320,8 +320,8 @@
      used. Light theme keeps its hardcoded AA browns and never reaches here. */
   --warm:         var(--accent);
   --warm-bright:  var(--accent-bright);
-  --warm-dim:     color-mix(in srgb, var(--accent) 70%, var(--ink));
-  --copper-label: color-mix(in srgb, var(--accent) 70%, var(--ink));
+  --warm-dim:     color-mix(in srgb, var(--accent) 80%, var(--ink));
+  --copper-label: color-mix(in srgb, var(--accent) 82%, var(--ink));
   --copper-border:color-mix(in srgb, var(--accent) 85%, var(--ink));
   --gold-text:    color-mix(in srgb, var(--accent-bright) 78%, var(--bone));
   --ember:        var(--accent-bright);

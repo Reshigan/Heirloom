@@ -60,12 +60,12 @@ function Mote({ e, offset }: { e: CanvasEntry; offset: number }) {
       }}
     >
       <span aria-hidden style={{
-        width: 10, height: 10, borderRadius: '50%', flex: 'none', marginTop: 7,
+        width: 12, height: 12, borderRadius: '50%', flex: 'none', marginTop: 6,
         background: sealed ? 'transparent' : dyeVar(e.dye as Dye),
-        border: sealed ? '1px solid var(--warm)' : 'none',
+        border: sealed ? '1.5px solid var(--warm)' : 'none',
         boxShadow: sealed
-          ? '0 0 14px rgba(224,160,98,0.35)'
-          : `0 0 16px ${'color-mix(in srgb, ' + dyeVar(e.dye as Dye) + ' 55%, transparent)'}`,
+          ? '0 0 18px rgba(224,160,98,0.55)'
+          : `0 0 10px ${'color-mix(in srgb, ' + dyeVar(e.dye as Dye) + ' 90%, transparent)'}, 0 0 22px ${'color-mix(in srgb, ' + dyeVar(e.dye as Dye) + ' 60%, transparent)'}`,
       }} />
       <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <span style={{
@@ -165,7 +165,7 @@ export function Descent() {
       <div style={{ visibility: ceremony ? 'hidden' : 'visible' }}>
 
       {/* ── Bathymeter — the years are the navigation ── */}
-      <div aria-hidden style={{ position: 'fixed', top: 'var(--topbar-h)', right: 22, bottom: 96, width: 1, background: 'rgba(242,230,208,0.13)', zIndex: 24 }} />
+      <div aria-hidden style={{ position: 'fixed', top: 'var(--topbar-h)', right: 22, bottom: 96, width: 1, background: 'rgba(242,230,208,0.22)', zIndex: 24 }} />
       <nav aria-label="Descend to a year" style={{ position: 'fixed', top: 'var(--topbar-h)', right: 0, bottom: 96, width: 64, zIndex: 25 }}>
         <button type="button" onClick={() => sinkTo('surface')} style={{ ...mono, position: 'absolute', top: '2%', right: 32, fontSize: 9, color: 'var(--bone-faint)', background: 'transparent', border: 0, cursor: 'pointer', padding: 6 }}>now</button>
         {years.map((g, i) => (
@@ -284,12 +284,12 @@ export function Descent() {
             position: 'absolute', top: '4vh', zIndex: 0, pointerEvents: 'none',
             ...(gi % 2 === 0 ? { right: '-4vw' } : { left: '-4vw' }),
             fontFamily: 'var(--serif-display)', fontWeight: 280, fontSize: 'clamp(150px, 44vw, 300px)',
-            lineHeight: 1, color: 'rgba(242,230,208,0.055)',
+            lineHeight: 1, color: 'rgba(242,230,208,0.08)',
           }}>{String(g.year).slice(-2)}</div>
           {/* the current — a faint dotted drift the entries ride */}
           <svg aria-hidden preserveAspectRatio="none" viewBox="0 0 100 100" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
             <path d={gi % 2 === 0 ? 'M22 0 C 70 28, 20 55, 55 78 C 70 88, 50 96, 45 100' : 'M70 0 C 25 30, 75 55, 40 80 C 28 90, 52 96, 55 100'}
-              stroke="rgba(242,230,208,0.12)" strokeWidth="0.5" strokeDasharray="0.4 2.6" fill="none" />
+              stroke="rgba(242,230,208,0.28)" strokeWidth="0.9" strokeDasharray="0.7 2.5" fill="none" />
           </svg>
           <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '6vh', paddingTop: 30 }}>
             {g.entries.map((e, i) => (
