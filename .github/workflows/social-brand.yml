@@ -9,7 +9,7 @@ jobs:
         with: { node-version: 20 }
       - run: cd marketing/automation && npm ci && npx tsx src/brand-avatar.ts
         env:
-          META_PAGE_ID: ${{ secrets.META_PAGE_ID }}
-          META_PAGE_ACCESS_TOKEN: ${{ secrets.META_PAGE_ACCESS_TOKEN }}
-          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          META_PAGE_ID: ${{ vars.META_PAGE_ID }}
+          META_PAGE_ACCESS_TOKEN: ${{ secrets.META_ACCESS_TOKEN }}
+          BLUESKY_HANDLE: ${{ vars.BLUESKY_HANDLE }}
           BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}

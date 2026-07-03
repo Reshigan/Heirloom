@@ -43,3 +43,5 @@ async function bluesky() {
 
 await facebook();
 await bluesky();
+
+export {};
