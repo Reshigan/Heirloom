@@ -241,6 +241,30 @@ export const BRAND_THEMES: Theme[] = [
       "your colour, your seal, your thread — identity as gesture, not a profile pic",
     ],
   },
+  {
+    id: "b04-living-backdrop",
+    title: "The backdrop is alive",
+    hook: "Heirloom isn't a feed on a screen — it's one body of living water. It stirs, and it takes on your family's colours as they speak into it.",
+    relation: "self",
+    angles: [
+      "the whole app is one deep water; scrolling down is diving — recent memories near the surface, the oldest at the bed",
+      "the water is dark and still until your family speaks; every entry lowered in tints it, so the backdrop slowly fills with colour",
+      "open it a year in and the water is a living portrait of everything your bloodline has said",
+      "no dashboards, no grid, no feed — you read your family by hand, by depth",
+    ],
+  },
+  {
+    id: "b05-invite-the-bloodline",
+    title: "It only gets deeper when they join",
+    hook: "One voice is a drop. A whole family speaking in is a deep water that outlasts all of you. Call them in.",
+    relation: "self",
+    angles: [
+      "invite a parent, a sibling, a grandparent — each arrives with their own colour and the water grows",
+      "the people who tend it with you are private, encrypted, and inherit it when you're gone",
+      "share your family's Deep with the one relative who remembers everything — before they don't",
+      "a gift that compounds: what your family lowers in today, your great-grandchildren draw back up",
+    ],
+  },
 ];
 
 // Pick a brand theme on a rotating offset so the same selling point doesn't

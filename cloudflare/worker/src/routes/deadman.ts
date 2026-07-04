@@ -35,14 +35,14 @@ const verifyContactPage = (heading: string, body: string): string => `<!DOCTYPE 
     padding: 40px 20px; box-sizing: border-box; line-height: 1.7;
   }
   .panel { max-width: 480px; width: 100%; }
-  .mark { font-size: 40px; color: #e0a062; line-height: 1; margin-bottom: 28px; }
+  .mark { font-size: 40px; color: #cf8248; line-height: 1; margin-bottom: 28px; }
   h1 { font-size: 28px; font-weight: 400; margin: 0 0 18px; letter-spacing: -0.01em; }
   p { font-size: 16px; color: rgba(242,230,208,0.72); margin: 14px 0; }
   form { margin: 32px 0 0; }
   button {
     font-family: 'Courier New', Courier, monospace;
     font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
-    color: #070d14; background: #e0a062; border: 1px solid #e0a062;
+    color: #070d14; background: #cf8248; border: 1px solid #cf8248;
     padding: 14px 28px; cursor: pointer;
   }
   .foot {
@@ -522,7 +522,7 @@ deadmanRoutes.get('/verify-passing/:token', async (c) => {
   if (sv.status === 'ACTIVE' || sv.status === 'CANCELLED') {
     return c.html(verifyContactPage(
       'No action is needed.',
-      `<p><span style="color:#e0a062">${esc(sv.user_name as string)}</span> has since
+      `<p><span style="color:#cf8248">${esc(sv.user_name as string)}</span> has since
        checked in. Nothing is required of you. You may close this window.</p>`,
     ));
   }
@@ -538,7 +538,7 @@ deadmanRoutes.get('/verify-passing/:token', async (c) => {
   return c.html(verifyContactPage(
     'A difficult confirmation.',
     `<p>You were named a legacy contact by
-       <span style="color:#e0a062">${esc(sv.user_name as string)}</span>. We have not
+       <span style="color:#cf8248">${esc(sv.user_name as string)}</span>. We have not
        been able to reach them for their scheduled check-in.</p>
      <p>Only confirm below if you know that ${esc(sv.user_name as string)} has passed
        away. Doing so releases the entries they set to open on their death to the

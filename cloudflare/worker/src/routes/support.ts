@@ -43,7 +43,7 @@ supportRoutes.post('/ticket', async (c) => {
       subject: `[${ticketNumber}] New Support Ticket: ${body.subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #e0a062;">New Support Ticket</h2>
+          <h2 style="color: #cf8248;">New Support Ticket</h2>
           <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
           <p><strong>Category:</strong> ${body.category}</p>
           <p><strong>From:</strong> ${body.userName || 'Unknown'} (${body.userEmail || 'No email'})</p>
@@ -72,13 +72,13 @@ supportRoutes.post('/ticket', async (c) => {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #070d14; color: #f5f5f0; padding: 32px;">
           <div style="text-align: center; margin-bottom: 24px;">
-            <span style="font-size: 48px; color: #e0a062;">&infin;</span>
-            <h1 style="color: #e0a062; margin: 8px 0;">Heirloom</h1>
+            <span style="font-size: 48px; color: #cf8248;">&infin;</span>
+            <h1 style="color: #cf8248; margin: 8px 0;">Heirloom</h1>
           </div>
           <h2>We've received your support request</h2>
           <p>Hi ${body.userName || 'there'},</p>
           <p>Thank you for contacting Heirloom support. We've received your ticket and will get back to you as soon as possible.</p>
-          <div style="background: #1a1a2e; padding: 16px; border-radius: 8px; margin: 24px 0;">
+          <div style="background: rgba(242,230,208,0.05); padding: 16px; border-radius: 8px; margin: 24px 0;">
             <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
             <p><strong>Subject:</strong> ${body.subject}</p>
             <p><strong>Category:</strong> ${body.category}</p>

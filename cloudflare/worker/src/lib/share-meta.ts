@@ -11,7 +11,7 @@
  * Design constitution it must honour (ART_DIRECTION.md):
  *   - Type is the hero. Cormorant Garamond serif headline, no icon library, the
  *     only mark allowed is the infinity glyph (the U+221E character).
- *   - ONE emotional colour: warm #e0a062, used sparingly (a single hairline).
+ *   - ONE emotional colour: warm #cf8248, used sparingly (a single hairline).
  *   - Bone #f2e6d0 on ink #070d14. 0px radius. 1px hairlines.
  *   - Voice (marketing/automation voice.ts): never the word "legacy", never
  *     gift-product framing. Evocative restraint.
@@ -229,7 +229,7 @@ export function renderMetaTags(meta: ShareMeta): string {
 export function renderShareCardSvg(meta: ShareMeta): string {
   const ink = '#070d14';
   const bone = '#f2e6d0';
-  const warm = '#e0a062';
+  const warm = '#cf8248';
   const muted = '#9b9486';
 
   // Wrap the headline onto at most three lines for the serif display setting.

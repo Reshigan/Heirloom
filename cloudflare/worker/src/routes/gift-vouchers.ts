@@ -533,7 +533,7 @@ giftVoucherRoutes.post('/redeem', async (c) => {
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
     <div style="text-align: center; padding: 40px 0; border-bottom: 1px solid rgba(224, 160, 98, 0.3);">
       <img src="https://heirloom.blue/icons/icon-192.png" alt="Heirloom" width="44" height="44" style="display:inline-block;border:0;margin-bottom:10px;" />
-      <h1 style="color: #e0a062; font-size: 28px; font-weight: 300; letter-spacing: 4px; margin: 0;">
+      <h1 style="color: #cf8248; font-size: 28px; font-weight: 300; letter-spacing: 4px; margin: 0;">
         WELCOME TO GOLD LEGACY
       </h1>
     </div>
@@ -548,20 +548,20 @@ giftVoucherRoutes.post('/redeem', async (c) => {
       ${voucher.gold_member_number ? `
       <div style="background: linear-gradient(135deg, rgba(224, 160, 98, 0.2) 0%, rgba(224, 160, 98, 0.05) 100%); border: 1px solid rgba(224, 160, 98, 0.4); border-radius: 12px; padding: 20px; margin: 30px 0; display: inline-block;">
         <p style="color: rgba(245, 245, 240, 0.6); font-size: 12px; margin: 0 0 5px 0;">MEMBER NUMBER</p>
-        <p style="color: #e0a062; font-size: 20px; font-family: monospace; margin: 0;">${voucher.gold_member_number}</p>
+        <p style="color: #cf8248; font-size: 20px; font-family: monospace; margin: 0;">${voucher.gold_member_number}</p>
       </div>
       ` : ''}
     </div>
     
     <div style="text-align: center; padding: 20px 0;">
       <a href="https://heirloom.blue/dashboard" 
-         style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 14px; font-weight: 600; letter-spacing: 1px;">
+         style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 16px 40px; border-radius: 0; font-size: 14px; font-weight: 600; letter-spacing: 1px;">
         START YOUR LEGACY
       </a>
     </div>
     
     <div style="text-align: center; padding-top: 40px; border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 40px;">
-      <p style="color: #e0a062; font-size: 11px; letter-spacing: 2px;">
+      <p style="color: #cf8248; font-size: 11px; letter-spacing: 2px;">
         HEIRLOOM GOLD LEGACY — YOUR MEMORIES, FOREVER
       </p>
     </div>
@@ -1004,7 +1004,7 @@ The Heirloom Team`;
     <!-- Gold Header -->
     <div style="text-align: center; padding: 40px 0; border-bottom: 1px solid rgba(224, 160, 98, 0.3);">
       <img src="https://heirloom.blue/icons/icon-192.png" alt="Heirloom" width="44" height="44" style="display:inline-block;border:0;margin-bottom:10px;" />
-      <h1 style="color: #e0a062; font-size: 28px; font-weight: 300; letter-spacing: 4px; margin: 0;">
+      <h1 style="color: #cf8248; font-size: 28px; font-weight: 300; letter-spacing: 4px; margin: 0;">
         HEIRLOOM
       </h1>
       <p style="color: rgba(224, 160, 98, 0.7); font-size: 12px; letter-spacing: 3px; margin-top: 8px;">
@@ -1021,17 +1021,17 @@ The Heirloom Team`;
         You have been invited to join the exclusive
       </p>
       <div style="background: linear-gradient(135deg, rgba(224, 160, 98, 0.2) 0%, rgba(224, 160, 98, 0.05) 100%); border: 1px solid rgba(224, 160, 98, 0.4); border-radius: 12px; padding: 30px; margin: 30px 0;">
-        <h3 style="color: #e0a062; font-size: 20px; font-weight: 400; letter-spacing: 2px; margin: 0 0 15px 0;">
+        <h3 style="color: #cf8248; font-size: 20px; font-weight: 400; letter-spacing: 2px; margin: 0 0 15px 0;">
           GOLD LEGACY MEMBERSHIP
         </h3>
         <p style="color: rgba(245, 245, 240, 0.6); font-size: 14px; margin: 0;">
-          Member Number: <span style="color: #e0a062; font-family: monospace;">${goldMemberNumber}</span>
+          Member Number: <span style="color: #cf8248; font-family: monospace;">${goldMemberNumber}</span>
         </p>
       </div>
     </div>
     
     <!-- Personal Message -->
-    <div style="background: rgba(255, 255, 255, 0.02); border-left: 2px solid #e0a062; padding: 25px; margin: 30px 0;">
+    <div style="background: rgba(255, 255, 255, 0.02); border-left: 2px solid #cf8248; padding: 25px; margin: 30px 0;">
       <p style="color: rgba(245, 245, 240, 0.9); font-size: 15px; line-height: 1.9; white-space: pre-line; margin: 0; font-style: italic;">
 ${finalMessage}
       </p>
@@ -1044,7 +1044,7 @@ ${finalMessage}
       </p>
       <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto;">
         <tr>
-          <td bgcolor="#e0a062" style="background-color: #e0a062; border-radius: 8px; padding: 20px 30px;">
+          <td bgcolor="#cf8248" style="background-color: #cf8248; border-radius: 8px; padding: 20px 30px;">
             <span style="color: #070d14; font-size: 24px; font-family: 'Courier New', Courier, monospace; letter-spacing: 3px; font-weight: bold; display: block;">
               ${voucherCode}
             </span>
@@ -1056,14 +1056,14 @@ ${finalMessage}
     <!-- CTA Button -->
     <div style="text-align: center; padding: 20px 0;">
       <a href="https://heirloom.blue/gold/redeem?code=${voucherCode}" 
-         style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 14px; font-weight: 600; letter-spacing: 1px;">
+         style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 16px 40px; border-radius: 0; font-size: 14px; font-weight: 600; letter-spacing: 1px;">
         ACCEPT INVITATION
       </a>
     </div>
     
     <!-- Benefits -->
     <div style="border-top: 1px solid rgba(224, 160, 98, 0.2); padding-top: 30px; margin-top: 30px;">
-      <h4 style="color: #e0a062; font-size: 14px; letter-spacing: 2px; text-align: center; margin-bottom: 20px;">
+      <h4 style="color: #cf8248; font-size: 14px; letter-spacing: 2px; text-align: center; margin-bottom: 20px;">
         GOLD LEGACY BENEFITS
       </h4>
       <ul style="color: rgba(245, 245, 240, 0.7); font-size: 14px; line-height: 2; padding-left: 20px;">
@@ -1080,7 +1080,7 @@ ${finalMessage}
       <p style="color: rgba(245, 245, 240, 0.4); font-size: 12px;">
         This invitation is exclusively for you and cannot be transferred.
       </p>
-      <p style="color: #e0a062; font-size: 11px; letter-spacing: 2px; margin-top: 20px;">
+      <p style="color: #cf8248; font-size: 11px; letter-spacing: 2px; margin-top: 20px;">
         HEIRLOOM — YOUR MEMORIES, FOREVER
       </p>
     </div>

@@ -249,13 +249,15 @@ async function postFacebook(input: PostInput): Promise<PostResult> {
 
   const cap = caption(input.variant);
 
-  // Animated pack: try the REEL first (organic non-follower reach), then the
-  // feed /videos post, then the static image — the post always goes out.
-  if (input.videoBytes) {
+  // Animated pack: post the MP4 to /videos — a FEED video post that shows in
+  // the Page timeline where people (and the Page owner) actually see it.
+  // Reels were reaching more non-followers but landed in the hidden Reels tab,
+  // so the Page looked empty; the feed post is the visible, correct default.
+  // On any failure, fall through to the static-image path so the post still
+  // goes out. (postFacebookReel is retained for an opt-in FB_REELS=1 mode.)
+  if (input.videoBytes && process.env.FB_REELS === "1") {
     const reelId = await postFacebookReel(input.videoBytes, cap, token, pageId);
     if (reelId) {
-      // Reel processing is async server-side; the link comment may race it.
-      // Best-effort — the description already names the landing page.
       await fetch(`https://graph.facebook.com/v21.0/${reelId}/comments`, {
         method: "POST",
         body: new URLSearchParams({ message: `Some things are meant to be kept → ${landingUrl(input, "fb")}`, access_token: token }),

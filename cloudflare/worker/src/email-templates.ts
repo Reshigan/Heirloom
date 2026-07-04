@@ -1,6 +1,6 @@
 /**
- * Email Templates for Heirloom — Tapestry design system.
- * Bone #f2e6d0 / ink #070d14 / warm #a86220. Source Serif 4. 0px radius. 1px hairlines.
+ * Email Templates for Heirloom — the Deep design system.
+ * Bone #f2e6d0 / ink #070d14 / warm #a86220 (deep copper, AA on cream). Source Serif 4. 0px radius. 1px hairlines.
  */
 
 // Escape user-controlled strings before interpolation into HTML to prevent HTML injection / phishing.
@@ -629,7 +629,7 @@ export const giftVoucherPurchaseEmail = (
     <p>Your Heirloom gift voucher has been created successfully.</p>
     <div class="info-box">
       <p><strong>Voucher Code:</strong></p>
-      <p style="font-size: 24px; font-family: monospace; color: #e0a062; letter-spacing: 2px;">${voucherCode}</p>
+      <p style="font-size: 24px; font-family: monospace; color: #a86220; letter-spacing: 2px;">${voucherCode}</p>
       <p><strong>Plan:</strong> ${esc(tier)}</p>
       <p><strong>Duration:</strong> ${durationMonths} month${durationMonths > 1 ? 's' : ''}</p>
     </div>
@@ -662,7 +662,7 @@ export const giftVoucherReceivedEmail = (
       <p><strong>Your Gift:</strong> ${esc(tier)} Plan</p>
       <p><strong>Duration:</strong> ${durationMonths} month${durationMonths > 1 ? 's' : ''}</p>
       <p><strong>Voucher Code:</strong></p>
-      <p style="font-size: 20px; font-family: monospace; color: #e0a062; letter-spacing: 2px;">${voucherCode}</p>
+      <p style="font-size: 20px; font-family: monospace; color: #a86220; letter-spacing: 2px;">${voucherCode}</p>
     </div>
     <p>Heirloom is a sanctuary for preserving your most precious memories—photos, voice recordings, and letters—for generations to come.</p>
     <a href="${APP_URL}/gift/redeem?code=${voucherCode}" class="button">REDEEM YOUR GIFT</a>
@@ -740,7 +740,7 @@ export const postReminderMemoryEmail = (
         : `<p>Your vault is ready and waiting. Every photo, every moment you capture becomes a gift to those who come after you.</p>`
       }
       <div class="letter-box">
-        <p style="font-style: italic; color: #e0a062;">"${prompt}"</p>
+        <p style="font-style: italic; color: #a86220;">"${prompt}"</p>
       </div>
       <p>Take a moment today to preserve something meaningful. It only takes a few seconds to upload a photo or share a story.</p>
       <a href="${APP_URL}/memories" class="button">ADD A MEMORY</a>
@@ -769,7 +769,7 @@ export const postReminderVoiceEmail = (
         : `<p>There's something irreplaceable about hearing a loved one's voice. Your voice carries warmth, emotion, and personality that words on a page simply can't capture.</p>`
       }
       <div class="letter-box">
-        <p style="font-style: italic; color: #e0a062;">"${prompt}"</p>
+        <p style="font-style: italic; color: #a86220;">"${prompt}"</p>
       </div>
       <p>Recording takes just a few minutes, but the impact lasts generations. Share a story, offer advice, or simply say "I love you."</p>
       <a href="${APP_URL}/record" class="button">RECORD A MESSAGE</a>
@@ -798,7 +798,7 @@ export const postReminderLetterEmail = (
         : `<p>Imagine the joy of receiving a letter from someone you love—on a birthday, a wedding day, or a moment when they need it most. You can give that gift.</p>`
       }
       <div class="letter-box">
-        <p style="font-style: italic; color: #e0a062;">"${prompt}"</p>
+        <p style="font-style: italic; color: #a86220;">"${prompt}"</p>
       </div>
       <p>Write from the heart. Your words will be treasured long after they're read.</p>
       <a href="${APP_URL}/compose" class="button">WRITE A LETTER</a>
@@ -840,7 +840,7 @@ export const postReminderWeeklyDigestEmail = (
       </div>
       <p>This week's inspiration:</p>
       <div class="letter-box">
-        <p style="font-style: italic; color: #e0a062;">"${action.prompt}"</p>
+        <p style="font-style: italic; color: #a86220;">"${action.prompt}"</p>
       </div>
       <a href="${action.url}" class="button">${action.text.toUpperCase()}</a>
       <p style="margin-top: 24px; font-size: 14px; color: rgba(245,243,238,0.6);">Every moment you preserve is a gift to future generations.</p>
@@ -1020,7 +1020,7 @@ export const influencerRejectedEmail = (name: string, reason?: string) => ({
     <p>Thank you for your interest in the Heirloom Influencer Program.</p>
     <p>After careful review, we're unable to approve your application at this time.${reason ? ` ${esc(reason)}` : ''}</p>
     <p>This doesn't mean the door is closed! You're welcome to reapply in the future as your platform grows.</p>
-    <p>In the meantime, you can still earn rewards through our <a href="${APP_URL}/referral" style="color: #e0a062;">referral program</a>.</p>
+    <p>In the meantime, you can still earn rewards through our <a href="${APP_URL}/referral" style="color: #a86220;">referral program</a>.</p>
   `),
 });
 
@@ -1167,16 +1167,16 @@ export const newFeaturesAnnouncementEmail = (userName: string) => ({
     
     <div class="divider"></div>
     
-    <h3 style="color: #e0a062; margin-top: 24px;">Legacy Playbook</h3>
+    <h3 style="color: #a86220; margin-top: 24px;">Legacy Playbook</h3>
     <p>A guided checklist organized into five categories—People, Stories, Gratitude, Practical, and Wisdom—to help you build a complete legacy. Track your progress and share it with family.</p>
     
-    <h3 style="color: #e0a062; margin-top: 24px;">Recipient Experience</h3>
+    <h3 style="color: #a86220; margin-top: 24px;">Recipient Experience</h3>
     <p>Control how and when your loved ones receive your legacy with staged releases. Plus, create a Family Memory Room where recipients can contribute their own memories.</p>
     
-    <h3 style="color: #e0a062; margin-top: 24px;">Story Artifacts</h3>
+    <h3 style="color: #a86220; margin-top: 24px;">Story Artifacts</h3>
     <p>Transform your memories into beautiful 60-120 second micro-documentaries. Combine photos, voice recordings, and music into shareable video stories.</p>
     
-    <h3 style="color: #e0a062; margin-top: 24px;">Life Event Triggers</h3>
+    <h3 style="color: #a86220; margin-top: 24px;">Life Event Triggers</h3>
     <p>Schedule content delivery for life's milestones—graduations, weddings, first child, and more. Your words arrive exactly when they're needed most.</p>
     
     <div class="divider"></div>
@@ -1186,7 +1186,7 @@ export const newFeaturesAnnouncementEmail = (userName: string) => ({
     <a href="${APP_URL}/dashboard" class="button">EXPLORE NEW FEATURES</a>
     
     <p style="margin-top: 24px; font-size: 14px; color: rgba(245,243,238,0.6);">
-      <a href="${APP_URL}/settings?tab=notifications" style="color: #e0a062;">Manage your email preferences</a>
+      <a href="${APP_URL}/settings?tab=notifications" style="color: #a86220;">Manage your email preferences</a>
     </p>
   `),
 });

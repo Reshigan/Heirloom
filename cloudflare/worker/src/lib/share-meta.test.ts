@@ -184,7 +184,7 @@ describe('renderShareCardSvg', () => {
     // Brand constitution: ink bg, bone text, single warm accent, infinity mark.
     expect(svg).toContain('#070d14');
     expect(svg).toContain('#f2e6d0');
-    expect(svg).toContain('#e0a062');
+    expect(svg).toContain('#cf8248');
     expect(svg).toContain('M4 13.9');
     expect(svg).toContain('No. 1,000');
     // Balanced tags (no obviously broken markup from interpolation).

@@ -1329,8 +1329,8 @@ adminRoutes.post('/emails/product-update', adminAuth, async (c) => {
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #070d14; color: #f5f5f0; padding: 32px;">
             <div style="text-align: center; margin-bottom: 24px;">
-              <span style="font-size: 48px; color: #e0a062;">&infin;</span>
-              <h1 style="color: #e0a062; margin: 8px 0;">Heirloom</h1>
+              <span style="font-size: 48px; color: #cf8248;">&infin;</span>
+              <h1 style="color: #cf8248; margin: 8px 0;">Heirloom</h1>
             </div>
             <p>Hi ${user.first_name || 'there'},</p>
             ${emailBody}
@@ -1338,7 +1338,7 @@ adminRoutes.post('/emails/product-update', adminAuth, async (c) => {
             <p style="color: #888; font-size: 12px;">
               You're receiving this email because you opted in to receive product updates from Heirloom.
               <br /><br />
-              <a href="https://heirloom.blue/settings?tab=notifications" style="color: #e0a062;">Manage your email preferences</a>
+              <a href="https://heirloom.blue/settings?tab=notifications" style="color: #cf8248;">Manage your email preferences</a>
             </p>
           </div>
         `,
@@ -1479,14 +1479,14 @@ adminRoutes.post('/billing/errors/:id/notify', adminAuth, async (c) => {
   try {
     const { baseTemplate } = await import('../email-templates');
     const emailContent = baseTemplate(`
-      <h1 style="color: #e0a062; font-size: 24px; margin-bottom: 16px;">Payment Issue</h1>
+      <h1 style="color: #cf8248; font-size: 24px; margin-bottom: 16px;">Payment Issue</h1>
       <p>Hi ${error.first_name},</p>
       <p>We noticed there was an issue processing your recent payment for your Heirloom subscription.</p>
       <p><strong>Error:</strong> ${error.error_message}</p>
       <p><strong>Amount:</strong> $${(error.amount as number / 100).toFixed(2)} ${error.currency}</p>
       <p>Please update your payment method to continue enjoying Heirloom's features.</p>
       <div style="text-align: center; margin: 32px 0;">
-        <a href="https://heirloom.blue/settings?tab=billing" style="background: linear-gradient(135deg, #e0a062, #e0a062); color: #000; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600;">Update Payment Method</a>
+        <a href="https://heirloom.blue/settings?tab=billing" style="background: #cf8248; color: #000; padding: 14px 32px; text-decoration: none; border-radius: 0; font-weight: 600;">Update Payment Method</a>
       </div>
       <p>If you have any questions, please contact our support team.</p>
     `);
@@ -1595,12 +1595,12 @@ adminRoutes.post('/billing/notify-all-failed', adminAuth, async (c) => {
     try {
       const { baseTemplate } = await import('../email-templates');
       const emailContent = baseTemplate(`
-        <h1 style="color: #e0a062; font-size: 24px; margin-bottom: 16px;">Payment Issue</h1>
+        <h1 style="color: #cf8248; font-size: 24px; margin-bottom: 16px;">Payment Issue</h1>
         <p>Hi ${error.first_name},</p>
         <p>We noticed there was an issue processing your recent payment for your Heirloom subscription.</p>
         <p>Please update your payment method to continue enjoying Heirloom's features.</p>
         <div style="text-align: center; margin: 32px 0;">
-          <a href="https://heirloom.blue/settings?tab=billing" style="background: linear-gradient(135deg, #e0a062, #e0a062); color: #000; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600;">Update Payment Method</a>
+          <a href="https://heirloom.blue/settings?tab=billing" style="background: #cf8248; color: #000; padding: 14px 32px; text-decoration: none; border-radius: 0; font-weight: 600;">Update Payment Method</a>
         </div>
       `);
       

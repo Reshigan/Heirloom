@@ -1594,9 +1594,9 @@ function payoutNotificationEmail(name: string, amountCents: number, transferId: 
       Your Heirloom commission payout has been processed and is on its way to your connected bank account.
     </p>
     
-    <div style="background: linear-gradient(135deg, rgba(224, 160, 98, 0.15) 0%, rgba(184, 150, 46, 0.1) 100%); border: 1px solid rgba(224, 160, 98, 0.3); border-radius: 12px; padding: 25px; margin: 25px 0; text-align: center;">
+    <div style="background: rgba(207,130,72,0.08); border: 1px solid rgba(207,130,72,0.3); border-radius: 0; padding: 25px; margin: 25px 0; text-align: center;">
       <p style="color: #888; font-size: 14px; margin: 0 0 5px 0;">Payout Amount</p>
-      <p style="color: #e0a062; font-size: 36px; font-weight: bold; margin: 0;">$${amount}</p>
+      <p style="color: #cf8248; font-size: 36px; font-weight: bold; margin: 0;">$${amount}</p>
       <p style="color: #888; font-size: 12px; margin: 10px 0 0 0;">Transfer ID: ${transferId}</p>
     </div>
     
@@ -1609,7 +1609,7 @@ function payoutNotificationEmail(name: string, amountCents: number, transferId: 
     </p>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/influencer" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+      <a href="https://heirloom.blue/influencer" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
         View Your Dashboard
       </a>
     </div>
@@ -1771,12 +1771,12 @@ function welcomeEmail1(name: string): string {
     </p>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-      <strong style="color: #e0a062;">Here's a simple prompt to get started:</strong><br>
+      <strong style="color: #cf8248;">Here's a simple prompt to get started:</strong><br>
       "What's one thing you want your family to always remember about you?"
     </p>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+      <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
         Begin With One Memory
       </a>
     </div>
@@ -1804,7 +1804,7 @@ function welcomeEmail2(name: string): string {
     </ul>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/family" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+      <a href="https://heirloom.blue/family" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
         Add Family Member
       </a>
     </div>
@@ -1823,12 +1823,12 @@ function welcomeEmail3(name: string): string {
     </p>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-      <strong style="color: #e0a062;">Try this:</strong> Record yourself saying "I love you" 
+      <strong style="color: #cf8248;">Try this:</strong> Record yourself saying "I love you" 
       and why. It takes less than a minute but means everything.
     </p>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/voice" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+      <a href="https://heirloom.blue/voice" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
         Record Voice Message
       </a>
     </div>
@@ -1853,7 +1853,7 @@ function welcomeEmail4(name: string): string {
     </p>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/legacy-playbook" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+      <a href="https://heirloom.blue/legacy-playbook" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
         Set Up Legacy Playbook
       </a>
     </div>
@@ -1872,12 +1872,12 @@ function inactiveEmail(name: string, days: number): string {
     </p>
 
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-      <strong style="color: #e0a062;">A quiet idea:</strong> What made you smile today?
+      <strong style="color: #cf8248;">A quiet idea:</strong> What made you smile today?
       Let it settle in 30 seconds.
     </p>
 
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+      <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
         Return to the Deep
       </a>
     </div>
@@ -1902,7 +1902,7 @@ function inactiveEmail2(name: string): string {
     </ul>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+      <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
         Pick One & Start
       </a>
     </div>
@@ -1926,7 +1926,7 @@ function inactiveEmailFinal(name: string): string {
     </p>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+      <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
         Return to Heirloom
       </a>
     </div>
@@ -1948,12 +1948,12 @@ function dateReminderEmailTemplate(name: string, person: string, label: string, 
     </p>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 25px 0;">
-      <strong style="color: #e0a062;">Why not create a special memory?</strong><br>
+      <strong style="color: #cf8248;">Why not create a special memory?</strong><br>
       Record a birthday message, write a letter, or share a favorite photo of them.
     </p>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+      <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
         Create a Memory
       </a>
     </div>
@@ -1974,14 +1974,14 @@ function influencerOutreachTemplate(name: string, niche: string | null): string 
     </p>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      <strong style="color: #e0a062;">Heirloom</strong> is a perpetual family archive — a quiet,
+      <strong style="color: #cf8248;">Heirloom</strong> is a perpetual family archive — a quiet,
       deep place where a family's memories, letters, and voices settle and stay for the
       generations that follow. We'd love for you to be part of it.
     </p>
     
     <!-- Value Proposition Box -->
-    <div style="background: linear-gradient(135deg, rgba(224, 160, 98, 0.15) 0%, rgba(184, 150, 46, 0.1) 100%); border: 1px solid rgba(224, 160, 98, 0.3); border-radius: 12px; padding: 25px; margin: 25px 0;">
-      <h3 style="color: #e0a062; font-size: 18px; margin: 0 0 15px 0; text-align: center;">
+    <div style="background: rgba(207,130,72,0.08); border: 1px solid rgba(207,130,72,0.3); border-radius: 0; padding: 25px; margin: 25px 0;">
+      <h3 style="color: #cf8248; font-size: 18px; margin: 0 0 15px 0; text-align: center;">
         What You'll Get as a Heirloom Partner
       </h3>
       
@@ -2034,7 +2034,7 @@ function influencerOutreachTemplate(name: string, niche: string | null): string 
       <p style="color: #c0c0c0; font-size: 14px; margin: 0 0 5px 0;">
         Example: With just 100 conversions/month
       </p>
-      <p style="color: #e0a062; font-size: 28px; font-weight: bold; margin: 0;">
+      <p style="color: #cf8248; font-size: 28px; font-weight: bold; margin: 0;">
         $2,000 - $4,000/month
       </p>
       <p style="color: #888; font-size: 12px; margin: 5px 0 0 0;">
@@ -2048,7 +2048,7 @@ function influencerOutreachTemplate(name: string, niche: string | null): string 
     </p>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/influencer" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 16px 40px; border-radius: 8px; font-size: 17px; font-weight: bold; box-shadow: 0 4px 15px rgba(224, 160, 98, 0.3);">
+      <a href="https://heirloom.blue/influencer" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 16px 40px; border-radius: 0; font-size: 17px; font-weight: bold; box-shadow: 0 4px 15px rgba(224, 160, 98, 0.3);">
         Join the Heirloom Partner Program
       </a>
     </div>
@@ -2082,14 +2082,14 @@ function influencerFollowUpTemplate(name: string, niche: string | null, emailTyp
         Our influencer program offers:
       </p>
       <ul style="color: #c0c0c0; font-size: 16px; line-height: 1.8; margin: 0 0 20px 20px;">
-        <li><strong style="color: #e0a062;">20% commission</strong> on yearly subscriptions</li>
-        <li><strong style="color: #e0a062;">Personalized discount code</strong> for your audience (15-25% off)</li>
-        <li><strong style="color: #e0a062;">Free Family Plan</strong> for you to experience the product</li>
-        <li><strong style="color: #e0a062;">Custom landing page</strong> with your branding</li>
+        <li><strong style="color: #cf8248;">20% commission</strong> on yearly subscriptions</li>
+        <li><strong style="color: #cf8248;">Personalized discount code</strong> for your audience (15-25% off)</li>
+        <li><strong style="color: #cf8248;">Free Family Plan</strong> for you to experience the product</li>
+        <li><strong style="color: #cf8248;">Custom landing page</strong> with your branding</li>
       </ul>
       
       <div style="text-align: center; margin: 30px 0;">
-        <a href="https://heirloom.blue/influencer" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+        <a href="https://heirloom.blue/influencer" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
           Apply in 2 Minutes
         </a>
       </div>
@@ -2120,7 +2120,7 @@ function influencerFollowUpTemplate(name: string, niche: string | null, emailTyp
       </p>
       
       <div style="text-align: center; margin: 30px 0;">
-        <a href="https://heirloom.blue/influencer" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+        <a href="https://heirloom.blue/influencer" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
           Learn More
         </a>
       </div>
@@ -2145,15 +2145,15 @@ function influencerFollowUpTemplate(name: string, niche: string | null, emailTyp
         Just visit our influencer page or reply to this email.
       </p>
       
-      <div style="background: rgba(224, 160, 98, 0.1); border-left: 3px solid #e0a062; padding: 20px; margin: 25px 0;">
-        <p style="color: #e0a062; font-size: 16px; margin: 0;">
+      <div style="background: rgba(224, 160, 98, 0.1); border-left: 3px solid #cf8248; padding: 20px; margin: 25px 0;">
+        <p style="color: #cf8248; font-size: 16px; margin: 0;">
           <strong>Quick reminder of what we offer:</strong><br>
           20% commission | Personalized discount codes | Free Family Plan | Custom landing page
         </p>
       </div>
       
       <div style="text-align: center; margin: 30px 0;">
-        <a href="https://heirloom.blue/influencer" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+        <a href="https://heirloom.blue/influencer" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
           Join When You're Ready
         </a>
       </div>
@@ -2176,8 +2176,8 @@ function contentPromptTemplate(name: string, prompt: string): string {
       Memory Prompt for ${name}
     </h2>
     
-    <div style="background: rgba(224, 160, 98, 0.1); border-left: 3px solid #e0a062; padding: 20px; margin: 20px 0;">
-      <p style="color: #e0a062; font-size: 18px; font-style: italic; margin: 0;">
+    <div style="background: rgba(224, 160, 98, 0.1); border-left: 3px solid #cf8248; padding: 20px; margin: 20px 0;">
+      <p style="color: #cf8248; font-size: 18px; font-style: italic; margin: 0;">
         "${prompt}"
       </p>
     </div>
@@ -2188,7 +2188,7 @@ function contentPromptTemplate(name: string, prompt: string): string {
     </p>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+      <a href="https://heirloom.blue/dashboard" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
         Answer This Prompt
       </a>
     </div>
@@ -2204,23 +2204,23 @@ function prospectOutreachTemplate(name: string, niche: string | null, voucherCod
     </h2>
     
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      We'd love to invite you to try <strong style="color: #e0a062;">Heirloom</strong> - a perpetual
+      We'd love to invite you to try <strong style="color: #cf8248;">Heirloom</strong> - a perpetual
       family archive where memories, letters, and voices settle and stay for the people who come
       after.${nicheText}
     </p>
 
     <p style="color: #c0c0c0; font-size: 16px; line-height: 1.6; margin: 0 0 20px 0;">
-      We've set aside <strong style="color: #e0a062;">2 months free</strong> for you -
+      We've set aside <strong style="color: #cf8248;">2 months free</strong> for you -
       time enough to see how it feels to keep something there.
     </p>
 
     <div style="background: rgba(224, 160, 98, 0.1); border: 1px solid rgba(224, 160, 98, 0.3); border-radius: 8px; padding: 20px; margin: 25px 0; text-align: center;">
       <p style="color: #a0a0a0; font-size: 14px; margin: 0 0 10px 0;">Your trial code:</p>
-      <p style="color: #e0a062; font-size: 24px; font-weight: bold; margin: 0; letter-spacing: 2px;">${voucherCode}</p>
+      <p style="color: #cf8248; font-size: 24px; font-weight: bold; margin: 0; letter-spacing: 2px;">${voucherCode}</p>
     </div>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/redeem?code=${voucherCode}" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+      <a href="https://heirloom.blue/redeem?code=${voucherCode}" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
         Start Your Free Trial
       </a>
     </div>
@@ -2260,11 +2260,11 @@ function voucherFollowUpTemplate(name: string, voucherCode: string, daysUntilExp
     
     <div style="background: rgba(224, 160, 98, 0.1); border: 1px solid rgba(224, 160, 98, 0.3); border-radius: 8px; padding: 20px; margin: 25px 0; text-align: center;">
       <p style="color: #a0a0a0; font-size: 14px; margin: 0 0 10px 0;">Your trial code (expires in ${daysUntilExpiry} days):</p>
-      <p style="color: #e0a062; font-size: 24px; font-weight: bold; margin: 0; letter-spacing: 2px;">${voucherCode}</p>
+      <p style="color: #cf8248; font-size: 24px; font-weight: bold; margin: 0; letter-spacing: 2px;">${voucherCode}</p>
     </div>
     
     <div style="text-align: center; margin: 30px 0;">
-      <a href="https://heirloom.blue/redeem?code=${voucherCode}" style="display: inline-block; background: linear-gradient(135deg, #e0a062 0%, #b07a3e 100%); color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 8px; font-size: 16px; font-weight: bold;">
+      <a href="https://heirloom.blue/redeem?code=${voucherCode}" style="display: inline-block; background: #cf8248; color: #070d14; text-decoration: none; padding: 14px 35px; border-radius: 0; font-size: 16px; font-weight: bold;">
         Begin Your Trial
       </a>
     </div>
@@ -2286,11 +2286,11 @@ function emailWrapper(content: string): string {
 <body style="margin: 0; padding: 0; background-color: #070d14; font-family: Georgia, serif;">
   <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
     <div style="text-align: center; margin-bottom: 30px;">
-      <h1 style="color: #e0a062; font-size: 28px; font-weight: normal; margin: 0;">Heirloom</h1>
+      <h1 style="color: #cf8248; font-size: 28px; font-weight: normal; margin: 0;">Heirloom</h1>
       <p style="color: #a0a0a0; font-size: 14px; margin-top: 5px;">Some things only get deeper.</p>
     </div>
     
-    <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 1px solid rgba(224, 160, 98, 0.2); border-radius: 12px; padding: 30px;">
+    <div style="background: linear-gradient(135deg, rgba(242,230,208,0.05) 0%, #16213e 100%); border: 1px solid rgba(224, 160, 98, 0.2); border-radius: 12px; padding: 30px;">
       ${content}
     </div>
     

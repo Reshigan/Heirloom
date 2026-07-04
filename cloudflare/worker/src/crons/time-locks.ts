@@ -223,15 +223,15 @@ async function sendUnlockNotification(env: AppEnv['Bindings'], input: Notificati
   <div style="max-width:600px; margin:0 auto;">
     <div style="text-align:center; padding:24px 0; border-bottom:1px solid rgba(201,169,89,0.25);">
       <img src="https://heirloom.blue/icons/icon-192.png" alt="Heirloom" width="36" height="36" style="display:inline-block;border:0;" />
-      <h1 style="color:#e0a062; font-weight:300; letter-spacing:3px; margin:6px 0 0;">HEIRLOOM</h1>
+      <h1 style="color:#cf8248; font-weight:300; letter-spacing:3px; margin:6px 0 0;">HEIRLOOM</h1>
     </div>
     <div style="padding:36px 0; line-height:1.7;">
       <p>${greeting}</p>
       <p>An entry in <strong>${escapeHtml(input.threadName)}</strong> just unlocked for you.</p>
-      <p style="font-style:italic; color:#e0a062;">${escapeHtml(titleLine)}</p>
+      <p style="font-style:italic; color:#cf8248;">${escapeHtml(titleLine)}</p>
       <p style="color:rgba(245,243,238,0.55); font-size:14px;">${escapeHtml(input.context)}</p>
       <div style="text-align:center; margin:32px 0;">
-        <a href="${url}" style="display:inline-block; padding:14px 32px; background:#a86220; color:#f2e6d0; text-decoration:none; border-radius:0; font-weight:600;">Draw it up</a>
+        <a href="${url}" style="display:inline-block; padding:14px 32px; background:#cf8248; color:#070d14; text-decoration:none; border-radius:0; font-weight:600;">Draw it up</a>
       </div>
       <p style="color:rgba(245,243,238,0.5); font-size:13px;">Some entries in your family's Deep are written today and sealed for years. This is one of those.</p>
     </div>

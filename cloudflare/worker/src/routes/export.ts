@@ -10,7 +10,7 @@ import { readDescription } from '../lib/legacyArchive';
 
 // Heirloom brand colors
 const COLORS = {
-  gold: rgb(0.79, 0.66, 0.35), // #e0a062
+  gold: rgb(0.79, 0.66, 0.35), // #cf8248
   goldLight: rgb(0.94, 0.84, 0.55), // #F0D78C
   goldDark: rgb(0.63, 0.51, 0.21), // #A08335
   void: rgb(0.04, 0.05, 0.06), // #0A0C10
@@ -27,8 +27,8 @@ const STYLES = {
     secondary: rgb(0.82, 0.41, 0.12), // #D2691E
   },
   modern: {
-    primary: rgb(0.10, 0.10, 0.18), // #1a1a2e
-    secondary: rgb(0.878, 0.627, 0.384), // #e0a062
+    primary: rgb(0.10, 0.10, 0.18), // rgba(242,230,208,0.05)
+    secondary: rgb(0.878, 0.627, 0.384), // #cf8248
   },
   elegant: {
     primary: rgb(0.17, 0.24, 0.31), // #2C3E50

@@ -470,7 +470,7 @@ app.post('/api/contact', async (c) => {
         subject: `[${ticketNumber}] Contact Form: ${body.subject}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h2 style="color: #e0a062;">New Contact Form Submission</h2>
+            <h2 style="color: #cf8248;">New Contact Form Submission</h2>
             <p><strong>Ticket Number:</strong> ${ticketNumber}</p>
             <p><strong>From:</strong> ${escHtml(body.name)} (${escHtml(body.email)})</p>
             <p><strong>Subject:</strong> ${escHtml(body.subject)}</p>
@@ -504,13 +504,13 @@ app.post('/api/contact', async (c) => {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #070d14; color: #f5f5f0; padding: 32px;">
           <div style="text-align: center; margin-bottom: 24px;">
-            <span style="font-size: 48px; color: #e0a062;">&infin;</span>
-            <h1 style="color: #e0a062; margin: 8px 0;">Heirloom</h1>
+            <img src="https://heirloom.blue/icons/icon-192.png" alt="Heirloom" width="44" height="44" style="display:inline-block;border:0;" />
+            <h1 style="color: #cf8248; margin: 8px 0;">Heirloom</h1>
           </div>
           <h2>Thank you for reaching out</h2>
           <p>Hi ${body.name},</p>
           <p>We've received your message and will get back to you within 24-48 hours.</p>
-          <div style="background: #1a1a2e; padding: 16px; border-radius: 8px; margin: 24px 0;">
+          <div style="background: rgba(242,230,208,0.05); padding: 16px; border-radius: 8px; margin: 24px 0;">
             <p><strong>Reference:</strong> ${ticketNumber}</p>
             <p><strong>Subject:</strong> ${body.subject}</p>
           </div>

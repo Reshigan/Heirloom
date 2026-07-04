@@ -1039,7 +1039,7 @@ memoriesRoutes.get('/:id/card', async (c) => {
   
   // Style configurations
   const styles: Record<string, { bg: string; text: string; accent: string; border: string }> = {
-    classic: { bg: '#1a1a2e', text: '#f5f3ee', accent: '#e0a062', border: '#e0a062' },
+    classic: { bg: 'rgba(242,230,208,0.05)', text: '#f5f3ee', accent: '#cf8248', border: '#cf8248' },
     modern: { bg: '#0f172a', text: '#f8fafc', accent: '#ec4899', border: '#3b82f6' },
     vintage: { bg: '#fef3c7', text: '#451a03', accent: '#92400e', border: '#d97706' },
   };

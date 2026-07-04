@@ -317,7 +317,7 @@ function generateAnnouncementEmail(announcement: any, userName: string): string 
           <h1 style="color: #d4a853; font-size: 28px; margin: 8px 0;">Heirloom</h1>
         </div>
         
-        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 32px; border: 1px solid #d4a85333;">
+        <div style="background: linear-gradient(135deg, rgba(242,230,208,0.05) 0%, #16213e 100%); border-radius: 16px; padding: 32px; border: 1px solid #d4a85333;">
           <div style="text-align: center; margin-bottom: 24px;">
             <span style="background: #d4a853; color: #030305; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold;">WHAT'S NEW</span>
           </div>
@@ -372,7 +372,7 @@ function generateInfluencerEmail(name: string, voucherCode: string | null): stri
           <h1 style="color: #d4a853; font-size: 28px; margin: 8px 0;">Heirloom</h1>
         </div>
         
-        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 16px; padding: 32px; border: 1px solid #d4a85333;">
+        <div style="background: linear-gradient(135deg, rgba(242,230,208,0.05) 0%, #16213e 100%); border-radius: 16px; padding: 32px; border: 1px solid #d4a85333;">
           <p style="color: #ebe6dc; font-size: 16px; line-height: 1.6; margin: 0 0 24px 0;">
             Hi ${name || 'there'},
           </p>
