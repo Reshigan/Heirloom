@@ -68,6 +68,15 @@ export async function runDailyScoreboard(env: Env): Promise<void> {
     `SELECT COUNT(*) n FROM letters l JOIN users u ON u.id = l.user_id
      WHERE date(l.created_at)=? AND ${EXCLUDE.replace(/email/g, 'u.email')}`, day))?.n ?? 0;
 
+  // DELIVERY HEALTH — the core promise. A DATE lock whose day has passed but
+  // is still unresolved means resolveTimeLocks (the 9AM cron) is not firing:
+  // sealed letters are NOT reaching their people. Any non-zero here is a
+  // sev-1 — a decade-scale silent failure that would otherwise be invisible.
+  const overdueUnlocks = (await one<{ n: number }>(env,
+    `SELECT COUNT(*) n FROM entry_unlocks
+     WHERE lock_type = 'DATE' AND resolved_at IS NULL
+       AND unlock_date IS NOT NULL AND datetime(unlock_date) <= datetime('now')`))?.n ?? 0;
+
   const row = (label: string, value: string, tr = '') =>
     `<tr><td style="padding:8px 0;border-bottom:1px solid rgba(242,230,208,0.11);color:rgba(242,230,208,0.72);font-family:'Courier New',monospace;font-size:12px;letter-spacing:0.08em;text-transform:uppercase">${label}</td>
      <td style="padding:8px 0;border-bottom:1px solid rgba(242,230,208,0.11);color:#f2e6d0;font-family:Georgia,serif;font-size:18px;text-align:right">${value}</td>
@@ -93,6 +102,9 @@ export async function runDailyScoreboard(env: Env): Promise<void> {
       ${row('Letters written', String(lDay))}
       ${row('Subscriptions', subs ? `${subs.active} active · ${subs.trialing} trial` : '—')}
       ${row('Open support tickets', tickets === null ? '—' : String(tickets))}
+      ${overdueUnlocks > 0
+        ? `<tr><td style="padding:12px 0;border-top:2px solid #9f3a2a;color:#f2e6d0;font-family:'Courier New',monospace;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;font-weight:bold">⚠ OVERDUE UNLOCKS — DELIVERY FAILING</td><td colspan="2" style="padding:12px 0;border-top:2px solid #9f3a2a;color:#b14a4a;font-family:Georgia,serif;font-size:22px;text-align:right;font-weight:bold">${overdueUnlocks}</td></tr>`
+        : row('Sealed-letter delivery', 'healthy · 0 overdue')}
     </table>
     <p style="color:rgba(242,230,208,0.72);font-family:Georgia,serif;font-size:14px;line-height:1.7;margin:20px 0 6px"><span style="color:#cf8248;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase">Visits by source · 7d</span><br>${list(vByRef.map((r) => ({ k: r.ref, n: r.n })))}</p>
     <p style="color:rgba(242,230,208,0.72);font-family:Georgia,serif;font-size:14px;line-height:1.7;margin:14px 0 0"><span style="color:#cf8248;font-family:'Courier New',monospace;font-size:11px;letter-spacing:0.2em;text-transform:uppercase">Signups by source · 7d</span><br>${list(sBySrc.map((r) => ({ k: r.src, n: r.n })))}</p>
