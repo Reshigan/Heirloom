@@ -15,7 +15,8 @@
     "update-profile": "tsx src/run.ts update-profile",
     "plan-month": "tsx src/run.ts plan-month",
     "seo:build": "tsx src/seo.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "engage": "tsx src/run.ts engage"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.0",

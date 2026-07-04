@@ -36,6 +36,11 @@ const BLUESKY_TERMS = [
   "genealogy",
   '"recording my parents"',
   '"my dad\'s voice"',
+  '"before they forget"',
+  '"only one who remembers"',
+  '"family recipe"',
+  '"oral history"',
+  '"legacy letter"',
 ];
 
 // Curated Facebook group THEMES to search and participate in (Graph API offers no
@@ -47,6 +52,10 @@ const FACEBOOK_GROUP_THEMES = [
   "Caring for aging parents",
   "Memory keeping / scrapbooking / journaling",
   "Family recipes & the stories behind them",
+  "Grief & loss support (memory-keeping angle only)",
+  "Estate planning / end-of-life planning",
+  "New parents & expecting (letters to your future child)",
+  "Adoptees & reconnecting with family roots",
 ];
 
 interface BlueskyTarget {

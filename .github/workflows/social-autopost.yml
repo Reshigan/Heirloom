@@ -130,6 +130,32 @@ jobs:
           SLOT_HOUR: ${{ github.event.schedule == '0 13 * * *' && '13' || github.event.schedule == '0 23 * * *' && '23' || github.event.schedule == '0 17 * * *' && '17' || '' }}
         run: npm run ${{ github.event.inputs.mode || 'daily' }}
 
+      # The dynamic-groups growth work-list — WHERE a human should show up today
+      # (live Bluesky conversations + curated FB group targets, with genuine
+      # reply openers). Runs once a day on the 13:00 slot; printed to the log and
+      # uploaded as an artifact. Never auto-engages (bans + brand voice §14).
+      - name: Engagement work-list (dynamic groups)
+        if: github.event.schedule == '0 13 * * *' || github.event.inputs.mode == 'engage'
+        working-directory: marketing/automation
+        continue-on-error: true
+        env:
+          BLUESKY_HANDLE: ${{ vars.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_AI_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: npm run engage || npx tsx src/run.ts engage
+
+      - name: Upload work-list artifact
+        if: github.event.schedule == '0 13 * * *' || github.event.inputs.mode == 'engage'
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: engagement-worklist
+          path: marketing/automation/output/**/engage.md
+          if-no-files-found: ignore
+          retention-days: 7
+
       - name: Commit output
         if: github.event.inputs.mode != 'metrics'
         run: |
