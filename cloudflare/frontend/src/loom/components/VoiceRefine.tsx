@@ -204,7 +204,7 @@ export function VoiceRefine({ onPick, kind = 'letter', className }: VoiceRefineP
         .find((t) => MediaRecorder.isTypeSupported(t)) ?? '';
       const recorder = new MediaRecorder(stream, {
         ...(type ? { mimeType: type } : {}),
-        audioBitsPerSecond: 64_000,
+        audioBitsPerSecond: 48_000,
       });
       recorderRef.current = recorder;
       chunksRef.current = [];

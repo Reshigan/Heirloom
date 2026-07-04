@@ -199,7 +199,7 @@ export function Record() {
       mimeTypeRef.current = supportedType || 'audio/webm';
       const recorder = new MediaRecorder(stream, {
         ...(supportedType ? { mimeType: supportedType } : {}),
-        audioBitsPerSecond: 64_000,
+        audioBitsPerSecond: 48_000,
       });
       mediaRecorderRef.current = recorder;
       chunksRef.current = [];

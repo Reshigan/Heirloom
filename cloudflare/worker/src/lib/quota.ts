@@ -2,9 +2,9 @@
  * Storage-quota enforcement for the freemium model.
  *
  * Free is gated on storage (and threads — see threads.ts), not on features:
- * a Free family can try every entry type, they're just capped at 500 MB and
+ * a Free family can try every entry type, they're just capped at 50 MB and
  * one thread. Paid tiers (and an active 30-day Family trial) get the larger
- * caps below. An expired trial reads as Free, so it tightens to 500 MB rather
+ * caps below. An expired trial reads as Free, so it tightens to 50 MB rather
  * than locking anyone out of reading what they already wrote — writes simply
  * stop once the cap is exceeded.
  *
@@ -20,7 +20,7 @@ const GB = 1024 * MB;
  * The Free (FREE/STARTER) storage cap, in bytes. The single source of truth so
  * enforcement (here) and display (billing.ts TIER_LIMITS.STARTER) never desync.
  */
-export const FREE_STORAGE_BYTES = 500 * MB;
+export const FREE_STORAGE_BYTES = 50 * MB;
 
 /** Bytes a user is allowed, resolved from tier + active-trial state. */
 export function storageCapBytes(tier: string | null | undefined, trialActive: boolean): number {

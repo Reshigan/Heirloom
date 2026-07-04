@@ -161,7 +161,7 @@ export function Capture() {
       const supported = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus']
         .find((t) => MediaRecorder.isTypeSupported(t)) ?? '';
       mimeTypeRef.current = supported || 'audio/webm';
-      const recorder = new MediaRecorder(stream, { ...(supported ? { mimeType: supported } : {}), audioBitsPerSecond: 64_000 });
+      const recorder = new MediaRecorder(stream, { ...(supported ? { mimeType: supported } : {}), audioBitsPerSecond: 48_000 });
       mediaRecorderRef.current = recorder;
       chunksRef.current = [];
       recorder.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };

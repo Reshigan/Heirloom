@@ -184,7 +184,7 @@ giftVoucherRoutes.get('/pricing', async (c) => {
         id: 'STARTER',
         name: 'Free',
         description: 'Anyone can begin a thread — no gift needed',
-        storage: '500 MB',
+        storage: '50 MB',
         free: true,
         monthly: { amount: 0, display: 'Free' },
       },

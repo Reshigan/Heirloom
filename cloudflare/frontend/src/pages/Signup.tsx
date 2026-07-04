@@ -43,7 +43,7 @@ const TIERS: {
   sub: string;
   body: string;
 }[] = [
-  { id: 'free', name: 'Free', price: PLAN_PRICE.FREE.amount, sub: PLAN_PRICE.FREE.cycle, body: '1 bloodline · 500 MB · try every feature' },
+  { id: 'free', name: 'Free', price: PLAN_PRICE.FREE.amount, sub: PLAN_PRICE.FREE.cycle, body: '1 bloodline · 50 MB · try every feature' },
   { id: 'family', name: 'Family', price: PLAN_PRICE.FAMILY.monthly, sub: PLAN_PRICE.FAMILY.perMonth, body: 'unlimited entries · up to 5 members · voice · sealed notes' },
   { id: 'deep', name: 'Deep', price: PLAN_PRICE.DEEP.monthly, sub: PLAN_PRICE.DEEP.perMonth, body: 'everything in Family · unlimited members · 250 GB · priority' },
 ];
@@ -527,7 +527,7 @@ export function Signup() {
               ? 'next: set up Family at checkout · cancel anytime · your archive always exports free'
               : tier === 'deep'
               ? 'next: set up Deep at checkout · unlimited bloodline · cancel anytime'
-              : 'no card on file · you begin free — 1 bloodline, 500 MB, free forever · upgrade whenever you’re ready'}
+              : 'no card on file · you begin free — 1 bloodline, 50 MB, free forever · upgrade whenever you’re ready'}
           </p>
         </form>
 

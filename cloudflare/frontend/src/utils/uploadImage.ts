@@ -17,8 +17,8 @@ export function validateImage(file: File): string | null {
   return null;
 }
 
-const MAX_DIM = 1920;
-const COMPRESS_QUALITY = 0.85;
+const MAX_DIM = 1600;
+const COMPRESS_QUALITY = 0.80;
 
 /**
  * Resize and re-encode an image client-side before upload.

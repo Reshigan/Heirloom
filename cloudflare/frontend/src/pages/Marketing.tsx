@@ -77,6 +77,42 @@ export function Marketing() {
     return () => clearTimeout(t);
   }, []);
 
+  // Depth I — pointer parallax: the hero foreground and the glowing archive
+  // beneath move at opposite rates as the cursor drifts, giving the hero real
+  // Z-depth (desktop only; rAF-throttled via refs so React never re-renders).
+  const heroRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (reduceMotion || !window.matchMedia?.('(pointer: fine)').matches) return;
+    let raf = 0, tx = 0, ty = 0, cx = 0, cy = 0;
+    const tick = () => {
+      cx += (tx - cx) * 0.08; cy += (ty - cy) * 0.08;
+      if (heroRef.current) heroRef.current.style.transform = `translate3d(${cx * -7}px, ${cy * -7}px, 0)`;
+      if (glowRef.current) glowRef.current.style.transform = `translate3d(${cx * 26}px, ${cy * 18}px, 0)`;
+      raf = (Math.abs(tx - cx) > 0.0005 || Math.abs(ty - cy) > 0.0005) ? requestAnimationFrame(tick) : 0;
+    };
+    const onMove = (e: PointerEvent) => {
+      tx = e.clientX / window.innerWidth - 0.5;
+      ty = e.clientY / window.innerHeight - 0.5;
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => { window.removeEventListener('pointermove', onMove); if (raf) cancelAnimationFrame(raf); };
+  }, [reduceMotion]);
+
+  // Depth II — scrolling the marketing page dives the living water: map scroll
+  // progress to deep:depth so the shader deepens (darker, slower) as the reader
+  // descends the page. The descent metaphor, made literal on the way down.
+  useEffect(() => {
+    if (reduceMotion) return;
+    const onScroll = () => {
+      const d = Math.min(0.62, window.scrollY / (window.innerHeight * 2.2));
+      window.dispatchEvent(new CustomEvent('deep:depth', { detail: d }));
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => { window.removeEventListener('scroll', onScroll); window.dispatchEvent(new CustomEvent('deep:depth', { detail: 0 })); };
+  }, [reduceMotion]);
+
   return (
     <main style={{ color: 'var(--bone)', overflowX: 'hidden' }}>
       {intro && <DeepIntro onDone={() => setIntro(false)} />}
@@ -124,8 +160,8 @@ export function Marketing() {
         </nav>
 
         {/* ── The intention — serif hero set high, top-aligned ── */}
-        <div style={{
-          position: 'relative', zIndex: 10,
+        <div ref={heroRef} style={{
+          position: 'relative', zIndex: 10, willChange: 'transform',
           padding: 'clamp(20px, 5vh, 64px) clamp(24px, 6vw, 80px) 0',
         }}>
           <h1 style={{
@@ -208,7 +244,7 @@ export function Marketing() {
         </div>
 
         {/* The archive, glowing beneath the surface — First Light. */}
-        <div aria-hidden style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '30%', zIndex: 1, pointerEvents: 'none' }}>
+        <div ref={glowRef} aria-hidden style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: '30%', zIndex: 1, pointerEvents: 'none', willChange: 'transform' }}>
           {[['#d4a32f', 16, 55, 13], ['#46679c', 42, 26, 10], ['#d94f38', 66, 46, 12], ['#8a5578', 29, 12, 8], ['#4f8a8a', 80, 18, 9]].map(([c, l, b, sz], i) => (
             <span key={i} style={{
               position: 'absolute', left: `${l}%`, bottom: `${b}%`, width: Number(sz), height: Number(sz),

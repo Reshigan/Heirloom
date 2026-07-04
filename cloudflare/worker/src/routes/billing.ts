@@ -90,10 +90,10 @@ function getCountryFromRequest(c: any): string {
 const TIER_LIMITS = {
   // FREE tier (DB tier 'FREE'/'STARTER'). The free tier is gated on STORAGE and
   // THREADS only — every feature is available to try, but capped to one thread
-  // and 500 MB so families upgrade for room and more threads, not features.
+  // and 50 MB so families upgrade for room and more threads, not features.
   STARTER: {
-    maxStorage: FREE_STORAGE_BYTES, // 500 MB — shared with quota.ts enforcement
-    maxStorageLabel: '500 MB',
+    maxStorage: FREE_STORAGE_BYTES, // 50 MB — shared with quota.ts enforcement
+    maxStorageLabel: '50 MB',
     maxThreads: 1,
     maxMemoriesPerMonth: -1, // unlimited within storage
     maxFamilyMembers: -1,
@@ -293,7 +293,7 @@ billingRoutes.get('/pricing', async (c) => {
         id: 'FREE',
         name: 'Free',
         description: 'Let the first entry settle into the Deep — no cost, forever',
-        storage: '500 MB',
+        storage: '50 MB',
         maxThreads: 1,
         maxFamilyMembers: -1,
         price: { amount: 0, display: `${prices.symbol}0` },
@@ -381,7 +381,7 @@ billingRoutes.get('/subscription', async (c) => {
   `).bind(userId).first();
   
   if (!sub) {
-    return c.json({ tier: 'STARTER', status: 'ACTIVE', storage: '500 MB', limits: TIER_LIMITS.STARTER, trialDaysRemaining: 0 });
+    return c.json({ tier: 'STARTER', status: 'ACTIVE', storage: '50 MB', limits: TIER_LIMITS.STARTER, trialDaysRemaining: 0 });
   }
   
   // During an ACTIVE trial, honour TRIAL_TIER so the user gets full Family-level

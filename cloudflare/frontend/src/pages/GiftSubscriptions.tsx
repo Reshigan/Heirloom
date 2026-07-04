@@ -106,7 +106,7 @@ export function GiftSubscriptions() {
   // filtered out even if the API still returns it, so it is never giftable.
   const tiers = (pricing?.tiers || [
     {
-      id: 'STARTER', name: 'Free', description: 'Anyone can begin a Deep — no gift needed', storage: '500 MB', free: true,
+      id: 'STARTER', name: 'Free', description: 'Anyone can begin a Deep — no gift needed', storage: '50 MB', free: true,
       monthly: { amount: 0, display: 'Free' },
     },
     {

@@ -24,7 +24,7 @@ export const PLAN_CTA: Record<string, string> = {
 export const PLAN_FEATURES: Record<string, string[]> = {
   STARTER: [
     'One bloodline in the Deep',
-    '500 MB storage',
+    '50 MB storage',
     'Try every feature — voice, photo & written entries',
     'Invite your whole family',
     'Export anytime — no lock-in',
@@ -58,7 +58,7 @@ export const PLAN_LIMITS: Record<string, Array<[string, string]>> = {
     ['entries', 'unlimited'],
     ['members', 'unlimited'],
     ['voice', 'included'],
-    ['storage', '500 MB'],
+    ['storage', '50 MB'],
   ],
   FAMILY: [
     ['entries', 'unlimited'],

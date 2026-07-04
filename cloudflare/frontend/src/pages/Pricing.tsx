@@ -67,7 +67,7 @@ export function Pricing() {
       // FREE always shows $0 regardless of cycle.
       price: fmt(s, 0),
       cadence: null as string | null,
-      note: 'One bloodline · 500 MB',
+      note: 'One bloodline · 50 MB',
       lines: PLAN_FEATURES.STARTER,
       cta: 'Start',
       to: '/signup',
