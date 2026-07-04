@@ -426,7 +426,7 @@ async function consumeAndRelease(env: Env, token: string): Promise<PassingResult
   if (!sv) {
     return { ok: false, code: 404, message: 'Token not found or already used' };
   }
-  if (new Date(sv.expires_at as string).getTime() < Date.now()) {
+  if (new Date(sv.expires_at as string).getTime() <= Date.now()) {
     return { ok: false, code: 410, message: 'This confirmation link has expired.' };
   }
   // The author checked in again / stood the switch down — refuse to release.
@@ -436,8 +436,11 @@ async function consumeAndRelease(env: Env, token: string): Promise<PassingResult
 
   const now = new Date().toISOString();
 
-  // Consume the one-time token first so the attestation can't be replayed.
-  await env.DB.prepare(`DELETE FROM switch_verifications WHERE id = ?`).bind(sv.sv_id).run();
+  // Mark the token verified (NOT delete) — inherit.ts reads this same row by
+  // verification_token to grant the legacy contact access after death. Replay
+  // is already prevented by the dead_man_switches status guard above, so the
+  // row must survive. Deleting it here locked contacts out of inherited entries.
+  await env.DB.prepare(`UPDATE switch_verifications SET verified = 1, verified_at = COALESCE(verified_at, ?) WHERE id = ?`).bind(now, sv.sv_id).run();
 
   if (sv.status !== 'RELEASED') {
     await env.DB.prepare(`
@@ -512,7 +515,7 @@ deadmanRoutes.get('/verify-passing/:token', async (c) => {
        contact us at heirloom.blue.</p>`,
     ));
   }
-  if (new Date(sv.expires_at as string).getTime() < Date.now()) {
+  if (new Date(sv.expires_at as string).getTime() <= Date.now()) {
     return c.html(verifyContactPage(
       'This link has expired.',
       `<p>For everyone's safety these confirmation links are short-lived. If

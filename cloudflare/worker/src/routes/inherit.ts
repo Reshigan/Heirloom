@@ -47,7 +47,7 @@ inheritRoutes.get('/:token', async (c) => {
   
   // Check if token has expired
   const expiresAt = new Date(verification.expires_at as string);
-  if (expiresAt < new Date()) {
+  if (expiresAt <= new Date()) {
     return c.json({ error: 'This access link has expired' }, 410);
   }
   
@@ -189,7 +189,7 @@ const validateRecipientSession = async (c: any, next: any) => {
   }
   
   const expiresAt = new Date(session.expires_at as string);
-  if (expiresAt < new Date()) {
+  if (expiresAt <= new Date()) {
     return c.json({ error: 'Session expired' }, 401);
   }
   

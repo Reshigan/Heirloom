@@ -53,9 +53,16 @@ export async function encryptText(
 ): Promise<{ ciphertext: string; iv: string } | null> {
   const key = await deriveKey(env);
   if (!key) return null;
-  const iv = crypto.getRandomValues(new Uint8Array(12));
-  const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plaintext));
-  return { ciphertext: bytesToB64(new Uint8Array(ct)), iv: bytesToB64(iv) };
+  try {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ct = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(plaintext));
+    return { ciphertext: bytesToB64(new Uint8Array(ct)), iv: bytesToB64(iv) };
+  } catch (e) {
+    // Never crash the write — null means "store as cleartext", the same path
+    // used when no master key is configured. Ops sees the log; data survives.
+    console.error('[legacyArchive] encrypt failed', e);
+    return null;
+  }
 }
 
 export async function decryptText(env: Env, ciphertextB64: string, ivB64: string): Promise<string | null> {

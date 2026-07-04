@@ -64,8 +64,10 @@ function currentAccountId(): string | null {
  * stamped recordings are strict: their accountId must equal the current user.
  */
 export function ownsVoice(item: HeldVoice, accountId: string | null): boolean {
-  if (item.accountId == null) return true; // legacy/unowned → one-time migration
-  return item.accountId === accountId;
+  // Strict: an unowned recording (stamped null — e.g. captured while the token
+  // had lapsed) never drains into whoever signs in next. On a shared device
+  // that was a cross-account leak. Only an exact account match drains.
+  return item.accountId != null && item.accountId === accountId;
 }
 
 /**

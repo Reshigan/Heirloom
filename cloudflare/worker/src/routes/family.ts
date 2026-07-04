@@ -384,7 +384,7 @@ familyRoutes.post('/', async (c) => {
   
   if (maxRecipients !== -1) {
     const count = await c.env.DB.prepare(`
-      SELECT COUNT(*) as count FROM family_members WHERE user_id = ?
+      SELECT COUNT(*) as count FROM family_members WHERE user_id = ? AND deleted_at IS NULL
     `).bind(userId).first();
     
     if ((count?.count as number) >= maxRecipients) {
