@@ -11,6 +11,7 @@ import { createLogger } from '../utils/logger';
 import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, sendDateReminders, processStreakMaintenance, processInfluencerOutreach, sendContentPrompts, processProspectOutreach, sendVoucherFollowUps, discoverNewProspects, processEmailBounces } from '../jobs/adoption-jobs';
 import { recordRevision } from '../lib/legacyArchive';
 import { mirrorMemoryDelete, mirrorVoiceDelete, mirrorLetterDelete } from '../services/threadMesh';
+import { resolveTimeLocks } from '../crons/time-locks';
 
 export const adminRoutes = new Hono<AppEnv>();
 
@@ -186,6 +187,23 @@ adminRoutes.post('/login', async (c) => {
 });
 
 // Admin logout
+// Ops trigger: run sealed-letter delivery on demand (verify the core promise
+// without waiting for the 9AM cron). Secret-gated by the x-admin-secret header
+// matching ADMIN_SETUP_SECRET — no admin session needed, so it works from a
+// runbook curl. Idempotent: resolveTimeLocks only resolves matured locks.
+adminRoutes.post('/run-timelocks', async (c) => {
+  const secret = c.req.header('x-admin-secret');
+  if (!secret || secret !== c.env.ADMIN_SETUP_SECRET) {
+    return c.json({ error: 'forbidden' }, 403);
+  }
+  try {
+    const result = await resolveTimeLocks(c.env as any);
+    return c.json({ ok: true, ...result });
+  } catch (err: any) {
+    return c.json({ ok: false, error: err?.message ?? String(err) }, 500);
+  }
+});
+
 adminRoutes.post('/logout', adminAuth, async (c) => {
   const authHeader = c.req.header('Authorization');
   const token = authHeader?.substring(7);
