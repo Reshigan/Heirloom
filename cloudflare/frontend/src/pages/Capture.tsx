@@ -103,7 +103,7 @@ export function Capture() {
   const { data: invitesData } = useQuery({
     queryKey: ['invites'],
     queryFn: () => engagementApi.getInvites().then((r) => r.data).catch(() => ({ invites: [] })),
-    enabled: isAuthenticated && isLetter,
+    enabled: isAuthenticated && intent !== 'voice',
   });
   const pendingMembers = useMemo(() => {
     const list: { invitee_email: string; invitee_name: string | null; invite_code: string; status: string }[] =

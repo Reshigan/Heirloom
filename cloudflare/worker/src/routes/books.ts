@@ -15,6 +15,7 @@ import { Hono } from 'hono';
 import type { AppEnv } from '../index';
 import { renderBookPdf } from '../services/bookPdf';
 import { sendBookShippedEmail } from '../services/book';
+import { timingSafeEqual } from '../utils/timingSafe';
 
 export const bookOrderRoutes = new Hono<AppEnv>();
 export const bookOrderProtectedRoutes = new Hono<AppEnv>();
@@ -233,7 +234,7 @@ bookOrderRoutes.post('/webhook', async (c) => {
     );
     const sigBuf = await crypto.subtle.sign('HMAC', key, enc.encode(raw));
     const expected = btoa(String.fromCharCode(...new Uint8Array(sigBuf)));
-    if (expected !== signature) {
+    if (!timingSafeEqual(expected, signature)) {
       return c.json({ error: 'invalid signature' }, 401);
     }
   }

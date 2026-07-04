@@ -1273,7 +1273,7 @@ export async function processScheduledLetters(env: Env): Promise<{ delivered: nu
       const recipientsWithEmail: { email: string; name: string }[] = [];
       const seenEmails = new Set<string>();
       for (const r of [...(recipientRows.results as any[]), ...(legacyRecipientRows.results as any[])]) {
-        if (!r.email) continue;
+        if (!r.email || String(r.email).includes('placeholder.heirloom.blue')) continue;
         const key = String(r.email).toLowerCase();
         if (seenEmails.has(key)) continue;
         seenEmails.add(key);

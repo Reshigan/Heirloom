@@ -1282,8 +1282,14 @@ export function Compose() {
       setError('Choose the date this letter unseals.');
       return false;
     }
+    // Recipient may have been cleared during the seal hold — re-verify so the
+    // entry type at commit still matches (a letter never saves as a memory).
+    if (isLetter && !(recipientId || recipientName.trim())) {
+      setError('A letter needs someone to receive it.');
+      return false;
+    }
     return true;
-  }, [uploadingCount, body, hasContent, isLetter, deliveryTrigger, scheduledDate]);
+  }, [uploadingCount, body, hasContent, isLetter, deliveryTrigger, scheduledDate, recipientId, recipientName]);
 
   const clearSealTimer = useCallback(() => {
     if (sealTimerRef.current) {

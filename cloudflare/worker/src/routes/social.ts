@@ -6,6 +6,7 @@
 
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
+import { timingSafeEqual } from '../utils/timingSafe';
 
 export const socialRoutes = new Hono<AppEnv>();
 
@@ -26,7 +27,7 @@ socialRoutes.use('*', async (c, next) => {
   // admin session.
   if (
     c.env.SOCIAL_UPLOAD_TOKEN &&
-    token === c.env.SOCIAL_UPLOAD_TOKEN &&
+    timingSafeEqual(token ?? '', c.env.SOCIAL_UPLOAD_TOKEN) &&
     (c.req.path.endsWith('/upload-image') || c.req.path.endsWith('/signals'))
   ) {
     c.set('adminId', 'autopost');

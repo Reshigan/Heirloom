@@ -27,6 +27,7 @@ import type { AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
 import { renderBookPdf } from '../services/bookPdf';
 import { FREE_STORAGE_BYTES } from '../lib/quota';
+import { timingSafeEqual } from '../utils/timingSafe';
 
 export const billingRoutes = new Hono<AppEnv>();
 
@@ -875,7 +876,7 @@ async function verifyStripeSignature(
     .map(b => b.toString(16).padStart(2, '0'))
     .join('');
 
-  return computedSignature === expectedSignature;
+  return timingSafeEqual(computedSignature, expectedSignature);
 }
 
 // Stripe webhook handler
@@ -1105,7 +1106,7 @@ billingRoutes.post('/webhook', async (c) => {
                   
                         // Update status to SENT
                         await c.env.DB.prepare(`
-                          UPDATE gift_vouchers SET status = 'SENT', updated_at = ? WHERE code = ?
+                          UPDATE gift_vouchers SET status = 'SENT', updated_at = ? WHERE code = ? AND status = 'PAID'
                         `).bind(now, voucherCode).run();
                       } catch (e) {
                         console.error('Failed to send recipient email:', e);

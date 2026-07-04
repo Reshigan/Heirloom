@@ -103,7 +103,6 @@ const c = (usd: number) => Math.round(usd * 100);
 const GIFT_PRICING: Record<string, Partial<Record<string, Partial<Record<string, number>>>>> = {
   USD: {
     FAMILY: { monthly: c(PRICING.FAMILY.monthly), yearly: c(PRICING.FAMILY.yearly) },
-    DEEP: { monthly: c(PRICING.DEEP.monthly), yearly: c(PRICING.DEEP.yearly) },
     LEGACY: { lifetime: c(PRICING.FOUNDER.lifetime) },
     FOREVER: { lifetime: c(PRICING.FOUNDER.lifetime) }, // legacy alias for LEGACY
   },
@@ -447,6 +446,7 @@ giftVoucherRoutes.post('/redeem', async (c) => {
       UPDATE gift_vouchers
       SET status = 'REDEEMED', redeemed_by_user_id = ?, redeemed_at = datetime('now'), updated_at = datetime('now')
       WHERE id = ? AND status != 'REDEEMED'
+        AND (expires_at IS NULL OR expires_at > datetime('now'))
     `).bind(userId, voucher.id).run();
 
     if (claim.meta.changes !== 1) {
@@ -484,7 +484,7 @@ giftVoucherRoutes.post('/redeem', async (c) => {
         newPeriodEnd.setMonth(newPeriodEnd.getMonth() + (voucher.duration_months as number));
         
         // Upgrade tier if gift is higher
-        const tierOrder = { STARTER: 1, FAMILY: 2, FOREVER: 3, LEGACY: 3, FREE: 0 };
+        const tierOrder = { FREE: 0, STARTER: 1, FAMILY: 2, DEEP: 3, FOREVER: 4, LEGACY: 4 };
         const currentTier = (existingSub.tier as string).toUpperCase();
         const giftTier = (voucher.tier as string).toUpperCase();
         const newTier = tierOrder[giftTier as keyof typeof tierOrder] > tierOrder[currentTier as keyof typeof tierOrder] ? giftTier : currentTier;

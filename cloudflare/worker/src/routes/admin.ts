@@ -13,6 +13,7 @@ import { recordRevision } from '../lib/legacyArchive';
 import { mirrorMemoryDelete, mirrorVoiceDelete, mirrorLetterDelete } from '../services/threadMesh';
 import { resolveTimeLocks } from '../crons/time-locks';
 import { runBackup } from '../crons/backup';
+import { timingSafeEqual } from '../utils/timingSafe';
 
 export const adminRoutes = new Hono<AppEnv>();
 
@@ -150,7 +151,7 @@ adminRoutes.post('/login', async (c) => {
     
     const hash = btoa(String.fromCharCode(...new Uint8Array(derivedBits)));
     
-    if (hash !== storedHash) {
+    if (!timingSafeEqual(hash, storedHash)) {
       return c.json({ error: 'Invalid credentials' }, 401);
     }
   }
