@@ -191,8 +191,9 @@ export function Descent() {
         position: 'relative',
         minHeight: 'calc(100svh - var(--topbar-h) - 96px)', display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center', textAlign: 'center',
-        padding: '4vh calc(9vw + 44px) 18vh 9vw', boxSizing: 'border-box', overflow: 'hidden',
+        padding: '3vh calc(9vw + 44px) 3vh 9vw', boxSizing: 'border-box', overflow: 'hidden',
       }}>
+        <div aria-hidden style={{ flex: '1 1 0' }} />
         <div style={{ ...mono, fontSize: 10, letterSpacing: '0.34em', color: 'var(--warm)' }}>the listener asks</div>
         <h1 style={{
           fontFamily: 'var(--serif-display)', fontWeight: 340,
@@ -239,7 +240,8 @@ export function Descent() {
             );
           })}
         </div>
-        <div style={{ position: 'absolute', bottom: 54, left: 0, right: 0 }}>
+        <div aria-hidden style={{ flex: '1.2 1 0', minHeight: 28 }} />
+        <div style={{ position: 'relative', width: '100%', paddingBottom: 10 }}>
           {isLoading ? (
             <div style={{ display: 'flex', justifyContent: 'center' }}><ProgressHair label="sounding the deep…" width={160} /></div>
           ) : entries.length === 0 ? (

@@ -19,6 +19,7 @@ import { RecipientPicker } from '../loom/components/RecipientPicker';
 import { WeaveCeremony } from '../loom/components/WeaveCeremony';
 import { uploadMemoryImage, validateImage } from '../utils/uploadImage';
 import { enqueueVoice } from '../lib/voiceOfflineQueue';
+import { useListener } from '../hooks/useListener';
 
 /**
  * Capture — the voice-first single-screen cockpit (The Deep · Component A).
@@ -42,6 +43,7 @@ type Intent = 'voice' | 'letter' | 'memory';
 
 export function Capture() {
   usePageMeta('Capture');
+  const { prompt: capturePrompt } = useListener();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
@@ -405,12 +407,22 @@ export function Capture() {
 
       <div style={{ maxWidth: 560, margin: '0 auto', padding: '8vh 24px 96px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 28 }}>
 
-        {/* ── the record ring (idle) ─────────────────────────────── */}
+        {/* ── the record ring (idle): one glance, one tap ────────── */}
         {showRecordRing && (
           <>
-            <p style={{ ...mono, color: 'var(--bone-faint)', textAlign: 'center' }}>speak, and let it settle</p>
-            <DropRing label="speak" onClick={startRecording} ariaLabel="Record a voice memory" />
-            <div style={{ display: 'flex', gap: 28, marginTop: 4 }}>
+            <div style={{ ...mono, fontSize: 10, letterSpacing: '0.32em', color: 'var(--warm)', textAlign: 'center' }}>the listener asks</div>
+            <h1 style={{
+              fontFamily: 'var(--serif-display)', fontWeight: 340,
+              fontSize: 'clamp(24px, 5.6vw, 32px)', lineHeight: 1.22,
+              color: 'var(--bone)', margin: '0 0 4px', maxWidth: '17em', textAlign: 'center',
+            }}>
+              {capturePrompt ?? 'What should not be forgotten?'}
+            </h1>
+            <DropRing label="speak" onClick={startRecording} ariaLabel="Record a voice memory" size={176} />
+            <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 14.5, color: 'var(--bone-faint)', margin: '2px 0 0', textAlign: 'center' }}>
+              one tap to speak · it settles itself
+            </p>
+            <div style={{ display: 'flex', gap: 28, marginTop: 2 }}>
               <button type="button" onClick={() => { setWriting(true); setTimeout(() => bodyRef.current?.focus(), 40); }} style={ghost}>write instead</button>
               <button type="button" onClick={() => fileRef.current?.click()} style={ghost}>add a picture</button>
             </div>
