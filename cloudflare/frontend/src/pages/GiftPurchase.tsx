@@ -5,6 +5,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { usePageMeta } from '../lib/usePageMeta';
 import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
+import { PLAN_STORAGE } from '../lib/plans';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -199,7 +200,7 @@ export function GiftPurchase() {
                   id: 'FAMILY',
                   name: 'Family',
                   description: '1 year of Family plan',
-                  storage: '50 GB',
+                  storage: PLAN_STORAGE.FAMILY,
                   yearly: { amount: 0, display: '—' },
                 },
               ];

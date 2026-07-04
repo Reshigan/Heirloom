@@ -9,7 +9,7 @@ import { Hono } from 'hono';
 import type { Context } from 'hono';
 import type { Env, Variables } from '../index';
 import { giftVoucherReceivedEmail, giftVoucherRedeemedEmail } from '../email-templates';
-import { PRICING } from './billing';
+import { PRICING, TIER_LIMITS } from './billing';
 import { sendEmail } from '../utils/email';
 
 type GiftVoucherContext = Context<{ Bindings: Env; Variables: Variables }>;
@@ -173,7 +173,7 @@ giftVoucherRoutes.get('/pricing', async (c) => {
         id: 'STARTER',
         name: 'Free',
         description: 'Anyone can begin a Deep — no gift needed',
-        storage: '50 MB',
+        storage: TIER_LIMITS.STARTER.maxStorageLabel,
         free: true,
         monthly: { amount: 0, display: 'Free' },
       },
@@ -181,7 +181,7 @@ giftVoucherRoutes.get('/pricing', async (c) => {
         id: 'FAMILY',
         name: 'Family',
         description: 'The full Deep — for the whole bloodline',
-        storage: '50 GB',
+        storage: TIER_LIMITS.FAMILY.maxStorageLabel,
         popular: true,
         monthly: money(prices.FAMILY?.monthly),
         yearly: money(prices.FAMILY?.yearly) && { ...money(prices.FAMILY?.yearly)!, savings: '2 months free' },

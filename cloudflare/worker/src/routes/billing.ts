@@ -87,7 +87,7 @@ function getCountryFromRequest(c: any): string {
 // =============================================================================
 // TIER LIMITS - Feature-based tiers
 // =============================================================================
-const TIER_LIMITS = {
+export const TIER_LIMITS = {
   // FREE tier (DB tier 'FREE'/'STARTER'). The free tier is gated on STORAGE and
   // THREADS only — every feature is available to try, but capped to one thread
   // and 50 MB so families upgrade for room and more threads, not features.
@@ -293,13 +293,13 @@ billingRoutes.get('/pricing', async (c) => {
         id: 'FREE',
         name: 'Free',
         description: 'Let the first entry settle into the Deep — no cost, forever',
-        storage: '50 MB',
+        storage: TIER_LIMITS.STARTER.maxStorageLabel,
         maxThreads: 1,
         maxFamilyMembers: -1,
         price: { amount: 0, display: `${prices.symbol}0` },
         features: [
           'One bloodline in the Deep',
-          '500 MB storage',
+          `${TIER_LIMITS.STARTER.maxStorageLabel} storage`,
           'Try every feature — voice, photo & written entries',
           'Invite your whole family',
           'Export anytime — no lock-in',
@@ -309,7 +309,7 @@ billingRoutes.get('/pricing', async (c) => {
         id: 'FAMILY',
         name: 'Family',
         description: 'The whole bloodline, unlimited entries, with the keepsake features',
-        storage: '50 GB',
+        storage: TIER_LIMITS.FAMILY.maxStorageLabel,
         maxThreads: -1,
         maxFamilyMembers: 5,
         maxMemoriesPerMonth: -1,
@@ -329,15 +329,15 @@ billingRoutes.get('/pricing', async (c) => {
           'Voice entries',
           'Sealed & time-locked notes',
           'Up to 5 family members',
-          '50 GB storage',
+          `${TIER_LIMITS.FAMILY.maxStorageLabel} storage`,
           'Family tree + premium export',
         ],
       },
       {
         id: 'DEEP',
         name: 'Deep',
-        description: 'The multi-generational bloodline — unlimited members, 250 GB, priority',
-        storage: '250 GB',
+        description: `The multi-generational bloodline — unlimited members, ${TIER_LIMITS.DEEP.maxStorageLabel}, priority`,
+        storage: TIER_LIMITS.DEEP.maxStorageLabel,
         maxThreads: -1,
         maxFamilyMembers: -1,
         maxMemoriesPerMonth: -1,
@@ -354,7 +354,7 @@ billingRoutes.get('/pricing', async (c) => {
         features: [
           'Everything in Family',
           'Unlimited family members — the whole bloodline',
-          '250 GB storage',
+          `${TIER_LIMITS.DEEP.maxStorageLabel} storage`,
           'Unlimited voice & video entries',
           'Priority support + dedicated onboarding',
           'Annual physical memory book',

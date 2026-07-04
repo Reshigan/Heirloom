@@ -21,10 +21,20 @@ export const PLAN_CTA: Record<string, string> = {
   LEGACY:   'Become a founder',
 };
 
+/** Per-tier storage labels — the single frontend source. Must match the
+ *  worker TIER_LIMITS.maxStorageLabel. Referenced everywhere a plan's storage
+ *  is shown so the strings can't drift file-to-file. */
+export const PLAN_STORAGE = {
+  STARTER: '50 MB',
+  FAMILY:  '50 GB',
+  DEEP:    '250 GB',
+  FOUNDER: '500 GB',
+} as const;
+
 export const PLAN_FEATURES: Record<string, string[]> = {
   STARTER: [
     'One bloodline in the Deep',
-    '50 MB storage',
+    `${PLAN_STORAGE.STARTER} storage`,
     'Try every feature — voice, photo & written entries',
     'Invite your whole family',
     'Export anytime — no lock-in',
@@ -34,12 +44,12 @@ export const PLAN_FEATURES: Record<string, string[]> = {
     'Voice entries',
     'Sealed & time-locked notes',
     'Up to 5 family members',
-    '50 GB storage',
+    `${PLAN_STORAGE.FAMILY} storage`,
   ],
   DEEP: [
     'Everything in Family',
     'Unlimited family members — the whole bloodline',
-    '250 GB storage',
+    `${PLAN_STORAGE.DEEP} storage`,
     'Unlimited voice & video entries',
     'Priority support + dedicated onboarding',
     'Annual physical memory book',
@@ -58,25 +68,25 @@ export const PLAN_LIMITS: Record<string, Array<[string, string]>> = {
     ['entries', 'unlimited'],
     ['members', 'unlimited'],
     ['voice', 'included'],
-    ['storage', '50 MB'],
+    ['storage', PLAN_STORAGE.STARTER],
   ],
   FAMILY: [
     ['entries', 'unlimited'],
     ['members', '5'],
     ['voice', 'unlimited'],
-    ['storage', '50 GB'],
+    ['storage', PLAN_STORAGE.FAMILY],
   ],
   DEEP: [
     ['entries', 'unlimited'],
     ['members', 'unlimited'],
     ['voice', 'unlimited'],
-    ['storage', '250 GB'],
+    ['storage', PLAN_STORAGE.DEEP],
   ],
   LEGACY: [
     ['entries', 'unlimited'],
     ['members', 'unlimited'],
     ['voice', 'unlimited'],
-    ['storage', '500 GB'],
+    ['storage', PLAN_STORAGE.FOUNDER],
   ],
 };
 
@@ -108,6 +118,7 @@ export const PLAN_PRICE_NUM = {
   DEEP:    { monthly: 7.99, annual: 79 },
   FOUNDER: { lifetime: 249 },
 } as const;
+
 
 /** Convert any API tier string to the display label shown in UI. */
 export function planLabel(apiTier: string): string {

@@ -7,7 +7,7 @@ import { TapestryEdge } from '../loom/components/Frame';
 import { ClothShell } from '../loom/components/ClothShell';
 import { SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 import api from '../services/api';
-import { PLAN_PRICE } from '../lib/plans';
+import { PLAN_PRICE, PLAN_STORAGE } from '../lib/plans';
 
 interface GoldLegacyVoucherInfo {
   code: string;
@@ -24,7 +24,7 @@ interface GoldLegacyVoucherInfo {
 
 const BENEFITS = [
   'lifetime access to every feature',
-  '500 GB storage',
+  `${PLAN_STORAGE.FOUNDER} storage`,
   'priority support',
   'gold legacy member designation',
   'early access to new features',
@@ -393,7 +393,7 @@ export function GoldLegacyRedeem() {
                   <div style={{ padding: '16px 24px', borderBottom: '1px solid var(--rule)' }}>
                     <SectionLabel>lifetime benefits</SectionLabel>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 4 }}>
-                      {['Lifetime Access', '500 GB Storage', 'Priority Support', 'Gold Designation'].map(
+                      {['Lifetime Access', `${PLAN_STORAGE.FOUNDER} Storage`, 'Priority Support', 'Gold Designation'].map(
                         (b, i) => (
                           <div
                             key={i}

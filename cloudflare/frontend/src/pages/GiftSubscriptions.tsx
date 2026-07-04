@@ -4,7 +4,7 @@ import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, SectionLabel, WaxSeal, EntryRow } from '../loom/cosmic/CosmicUI';
 import { giftSubscriptionsApi, settingsApi } from '../services/api';
-import { PLAN_FEATURES, PLAN_PRICE_NUM } from '../lib/plans';
+import { PLAN_FEATURES, PLAN_PRICE_NUM, PLAN_STORAGE } from '../lib/plans';
 import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 import { useFocusTrap } from '../lib/useFocusTrap';
 
@@ -108,11 +108,11 @@ export function GiftSubscriptions() {
   const giftYr = PLAN_PRICE_NUM.FAMILY.annual * 0.9;
   const tiers = (pricing?.tiers || [
     {
-      id: 'STARTER', name: 'Free', description: 'Anyone can begin a Deep — no gift needed', storage: '50 MB', free: true,
+      id: 'STARTER', name: 'Free', description: 'Anyone can begin a Deep — no gift needed', storage: PLAN_STORAGE.STARTER, free: true,
       monthly: { amount: 0, display: 'Free' },
     },
     {
-      id: 'FAMILY', name: 'Family', description: 'The full Deep — for the whole bloodline', storage: '50 GB', popular: true,
+      id: 'FAMILY', name: 'Family', description: 'The full Deep — for the whole bloodline', storage: PLAN_STORAGE.FAMILY, popular: true,
       monthly: { amount: giftMo, display: `$${giftMo.toFixed(2)}`, listAmount: PLAN_PRICE_NUM.FAMILY.monthly, listDisplay: `$${PLAN_PRICE_NUM.FAMILY.monthly.toFixed(2)}`, giftDiscount: '10% off' },
       yearly:  { amount: giftYr, display: `$${giftYr.toFixed(2)}`, listAmount: PLAN_PRICE_NUM.FAMILY.annual, listDisplay: `$${PLAN_PRICE_NUM.FAMILY.annual.toFixed(2)}`, giftDiscount: '10% off', savings: '2 months free' },
     },

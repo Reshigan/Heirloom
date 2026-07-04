@@ -6,7 +6,7 @@ import { safeRedirect } from '../lib/safeRedirect';
 import { threadsApi, billingApi } from '../services/api';
 import { WaxSeal } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
-import { PLAN_PRICE } from '../lib/plans';
+import { PLAN_PRICE, PLAN_STORAGE } from '../lib/plans';
 import { handleRadioArrowKeys } from '../hooks/useRadioArrowKeys';
 import { signupSource } from '../lib/attribution';
 
@@ -527,7 +527,7 @@ export function Signup() {
               ? 'next: set up Family at checkout · cancel anytime · your archive always exports free'
               : tier === 'deep'
               ? 'next: set up Deep at checkout · unlimited bloodline · cancel anytime'
-              : 'no card on file · you begin free — 1 bloodline, 50 MB, free forever · upgrade whenever you’re ready'}
+              : `no card on file · you begin free — 1 bloodline, ${PLAN_STORAGE.STARTER}, free forever · upgrade whenever you’re ready`}
           </p>
         </form>
 
