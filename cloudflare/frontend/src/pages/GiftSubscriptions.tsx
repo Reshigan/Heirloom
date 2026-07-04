@@ -100,10 +100,12 @@ export function GiftSubscriptions() {
     return new Date(y, m - 1, d).toLocaleDateString();
   };
 
-  // Fallback mirrors the worker /gift pricing (canonical list $6.99 / $69, 10%
-  // gifter discount) so a slow API never flashes a wrong price. STARTER is free
-  // and not giftable. The Founder/LEGACY lifetime SKU is withdrawn from sale —
-  // filtered out even if the API still returns it, so it is never giftable.
+  // Fallback derives from the canonical plan prices (PLAN_PRICE_NUM: Family
+  // $2.99/$29) with the 10% gifter discount, so a slow API never flashes a
+  // wrong price and it can never drift from the main pricing table. STARTER is
+  // free and not giftable. Founder/LEGACY lifetime SKU is withdrawn.
+  const giftMo = PLAN_PRICE_NUM.FAMILY.monthly * 0.9;
+  const giftYr = PLAN_PRICE_NUM.FAMILY.annual * 0.9;
   const tiers = (pricing?.tiers || [
     {
       id: 'STARTER', name: 'Free', description: 'Anyone can begin a Deep — no gift needed', storage: '50 MB', free: true,
@@ -111,8 +113,8 @@ export function GiftSubscriptions() {
     },
     {
       id: 'FAMILY', name: 'Family', description: 'The full Deep — for the whole bloodline', storage: '50 GB', popular: true,
-      monthly: { amount: 6.29, display: '$6.29', listAmount: PLAN_PRICE_NUM.FAMILY.monthly, listDisplay: `$${PLAN_PRICE_NUM.FAMILY.monthly.toFixed(2)}`, giftDiscount: '10% off' },
-      yearly:  { amount: 62.1, display: '$62.10', listAmount: PLAN_PRICE_NUM.FAMILY.annual, listDisplay: `$${PLAN_PRICE_NUM.FAMILY.annual.toFixed(2)}`, giftDiscount: '10% off', savings: '2 months free' },
+      monthly: { amount: giftMo, display: `$${giftMo.toFixed(2)}`, listAmount: PLAN_PRICE_NUM.FAMILY.monthly, listDisplay: `$${PLAN_PRICE_NUM.FAMILY.monthly.toFixed(2)}`, giftDiscount: '10% off' },
+      yearly:  { amount: giftYr, display: `$${giftYr.toFixed(2)}`, listAmount: PLAN_PRICE_NUM.FAMILY.annual, listDisplay: `$${PLAN_PRICE_NUM.FAMILY.annual.toFixed(2)}`, giftDiscount: '10% off', savings: '2 months free' },
     },
   ]).filter((t: any) => t.id !== 'LEGACY');
 

@@ -92,31 +92,16 @@ function generateVoucherCode(): string {
 // Cycle keys: 'monthly' | 'yearly' | 'lifetime'. A tier that lacks a cycle is
 // not purchasable on that cycle (e.g. FAMILY has no 'lifetime', LEGACY has no
 // 'monthly'/'yearly').
+// Flat USD worldwide — identical to the main billing table (billing.ts): the
+// product charges one price globally, so gifts do too. Any currency query
+// falls back to USD. Cents. MUST equal billing.ts: Family $2.99/$29,
+// Deep $7.99/$79, lifetime $249.
 const GIFT_PRICING: Record<string, Partial<Record<string, Partial<Record<string, number>>>>> = {
   USD: {
-    FAMILY: { monthly: 699, yearly: 6900 },
+    FAMILY: { monthly: 299, yearly: 2900 },
+    DEEP: { monthly: 799, yearly: 7900 },
     LEGACY: { lifetime: 24900 },
-    FOREVER: { lifetime: 24900 }, // legacy alias
-  },
-  GBP: {
-    FAMILY: { monthly: 599, yearly: 5900 },
-    LEGACY: { lifetime: 19900 },
-    FOREVER: { lifetime: 19900 },
-  },
-  EUR: {
-    FAMILY: { monthly: 599, yearly: 5900 },
-    LEGACY: { lifetime: 22900 },
-    FOREVER: { lifetime: 22900 },
-  },
-  ZAR: {
-    FAMILY: { monthly: 6900, yearly: 69000 },
-    LEGACY: { lifetime: 399900 },
-    FOREVER: { lifetime: 399900 },
-  },
-  INR: {
-    FAMILY: { yearly: 199900 },
-    LEGACY: { lifetime: 1499900 },
-    FOREVER: { lifetime: 1499900 },
+    FOREVER: { lifetime: 24900 }, // legacy alias for LEGACY
   },
 };
 
@@ -183,7 +168,7 @@ giftVoucherRoutes.get('/pricing', async (c) => {
       {
         id: 'STARTER',
         name: 'Free',
-        description: 'Anyone can begin a thread — no gift needed',
+        description: 'Anyone can begin a Deep — no gift needed',
         storage: '50 MB',
         free: true,
         monthly: { amount: 0, display: 'Free' },
@@ -191,7 +176,7 @@ giftVoucherRoutes.get('/pricing', async (c) => {
       {
         id: 'FAMILY',
         name: 'Family',
-        description: 'The full thread — for the whole bloodline',
+        description: 'The full Deep — for the whole bloodline',
         storage: '50 GB',
         popular: true,
         monthly: money(prices.FAMILY?.monthly),
