@@ -86,10 +86,30 @@ user-critical mail (it is fully authenticated today). One change in
 - Users can self-export (`/export`), but there is **no org-level, off-Cloudflare
   backup** — a single-vendor dependency under a "permanent, thousand-year" promise.
 
-### To do (design + TEST restore before trusting)
-- Nightly D1 export → off-Cloudflare object store (e.g. B2/S3), retained.
-- R2 cross-provider replication or nightly manifest+copy.
-- **Run a real restore drill** — an untested backup is not a backup.
+### Now live — nightly logical backup to R2
+`crons/backup.ts` runs 03:00 UTC, dumping the irreplaceable tables (users,
+subscriptions, memories, letters, voice, entry_unlocks, thread/family) to
+`backups/<YYYY-MM-DD>/<table>.json` in the STORAGE bucket, with a `_manifest.json`.
+Trigger on demand:
+```bash
+curl -sS -X POST https://api.heirloom.blue/api/admin/run-backup \
+  -H "x-admin-secret: $ADMIN_SETUP_SECRET" | jq
+# list what landed
+npx wrangler r2 object get heirloom-uploads backups/$(date -u +%F)/_manifest.json --pipe | jq
+```
+
+### Restore (drill this)
+Read a table dump and re-insert. Example (subscriptions):
+```bash
+npx wrangler r2 object get heirloom-uploads backups/<DAY>/subscriptions.json --pipe \
+  | jq -c '.rows[]'   # each row → build INSERT … ON CONFLICT DO UPDATE
+```
+Write the restore script once and **run a real drill against a scratch DB** —
+an untested backup is not a backup.
+
+### Still TODO — the dump is intra-R2 (same vendor)
+- Copy the nightly dump **off Cloudflare** (B2/S3) so a account-level loss is survivable.
+- R2 media (photos/voice blobs) still need cross-provider replication.
 - Marketing claims an IPFS mirror + "succession commitment codified in bylaws".
   Either make those real or soften the copy (false-advertising / POPIA risk for
   a South African operator).

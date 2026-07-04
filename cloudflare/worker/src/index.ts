@@ -54,6 +54,7 @@ import { processArchivePinning } from './crons/archive-pinning';
 import { backfillMemoryDescriptionEncryption } from './crons/legacy-encryption-backfill';
 import { processScheduledDeletions } from './crons/scheduled-deletion';
 import { processScheduledGifts } from './crons/scheduled-gifts';
+import { runBackup } from './crons/backup';
 import { archiveRoutes } from './routes/archive';
 import { bookOrderRoutes, bookOrderProtectedRoutes } from './routes/books';
 import { syncOpenPrintJobs } from './services/book';
@@ -979,6 +980,18 @@ export default {
     }
 
     const cronType = event.cron;
+
+    if (cronType === '0 3 * * *') {
+      // ========== NIGHTLY BACKUP ==========
+      logger.info('Running nightly R2 backup…');
+      try {
+        const res = await runBackup(env);
+        logger.info(`Backup done — ok:[${res.ok.join(' ')}] failed:[${res.failed.join(' ')}]`);
+      } catch (err) {
+        logger.error(`Backup failed: ${err instanceof Error ? err.message : String(err)}`);
+      }
+      return;
+    }
 
     if (cronType === '45 2 * * *') {
       // ========== DAILY GROWTH SCOREBOARD ==========

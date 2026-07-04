@@ -12,6 +12,7 @@ import { processDripCampaigns, startWelcomeCampaigns, processInactiveUsers, send
 import { recordRevision } from '../lib/legacyArchive';
 import { mirrorMemoryDelete, mirrorVoiceDelete, mirrorLetterDelete } from '../services/threadMesh';
 import { resolveTimeLocks } from '../crons/time-locks';
+import { runBackup } from '../crons/backup';
 
 export const adminRoutes = new Hono<AppEnv>();
 
@@ -199,6 +200,20 @@ adminRoutes.post('/run-timelocks', async (c) => {
   try {
     const result = await resolveTimeLocks(c.env as any);
     return c.json({ ok: true, ...result });
+  } catch (err: any) {
+    return c.json({ ok: false, error: err?.message ?? String(err) }, 500);
+  }
+});
+
+// Ops trigger: run the nightly R2 backup on demand. Same secret gate.
+adminRoutes.post('/run-backup', async (c) => {
+  const secret = c.req.header('x-admin-secret');
+  if (!secret || secret !== c.env.ADMIN_SETUP_SECRET) {
+    return c.json({ error: 'forbidden' }, 403);
+  }
+  try {
+    const result = await runBackup(c.env as any);
+    return c.json({ success: true, ...result });
   } catch (err: any) {
     return c.json({ ok: false, error: err?.message ?? String(err) }, 500);
   }
