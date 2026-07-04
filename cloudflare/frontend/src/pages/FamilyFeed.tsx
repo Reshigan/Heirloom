@@ -53,7 +53,7 @@ export function FamilyFeed() {
   });
 
   const items: FeedItem[] = feedData?.items || [];
-  const eyebrow = items.length ? `${items.length} ENTRIES` : 'THE THREAD';
+  const eyebrow = items.length ? `${items.length} ENTRIES` : 'the deep';
 
   return (
     <ClothShell

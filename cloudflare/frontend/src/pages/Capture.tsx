@@ -489,18 +489,26 @@ export function Capture() {
               <button type="button" onClick={() => setIntent('memory')} style={forkBtn(intent === 'memory')}>a memory</button>
             </div>
 
-            {/* A letter needs a recipient — reveal the picker only here. */}
-            {intent === 'letter' && (
+            {/* Recipient — both a letter (sent) and a memory (about/for someone)
+                can name a person, the same picker as the letter. Voice stays
+                pure voice. */}
+            {intent !== 'voice' && (
               <div style={{ width: '100%', marginTop: 4 }}>
                 <RecipientPicker
                   members={familyMembers}
                   name={recipientName}
                   selectedId={recipientId}
                   onChange={(name, id) => { setRecipientName(name); setRecipientId(id); }}
-                  label="to"
-                  placeholder="someone in your bloodline"
+                  label={intent === 'letter' ? 'to' : 'for'}
+                  placeholder={intent === 'letter' ? 'someone in your bloodline' : 'someone in your bloodline — optional'}
                 />
-                <p style={{ ...mono, color: 'var(--bone-faint)', marginTop: 8 }}>sent to them, sealed the moment it settles</p>
+                <p style={{ ...mono, color: 'var(--bone-faint)', marginTop: 8 }}>
+                  {intent === 'letter'
+                    ? 'sent to them, sealed the moment it settles'
+                    : recipientName.trim()
+                      ? 'kept for them in the Deep'
+                      : 'leave empty to keep it for the whole family'}
+                </p>
               </div>
             )}
           </div>

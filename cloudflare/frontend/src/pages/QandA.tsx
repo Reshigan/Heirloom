@@ -127,7 +127,7 @@ export function QandA() {
               marginBottom: 22,
             }}
           >
-            ask the thread
+            ask the deep
           </div>
 
           {/* ── the asked question, as a giant serif prompt ── */}
@@ -217,7 +217,7 @@ export function QandA() {
                   borderLeft: '1px solid var(--warm)',
                 }}
               >
-                The thread could not be reached. Ask the question again.
+                The Deep could not be reached. Ask the question again.
               </p>
             )}
 
@@ -247,13 +247,13 @@ export function QandA() {
                   >
                     {state.sources.length > 0 ? (
                       <>
-                        The thread holds{' '}
+                        The Deep holds{' '}
                         <span style={{ color: 'var(--warm)' }}>
                           {state.sources.length}{' '}
                           {state.sources.length === 1 ? 'memory' : 'memories'}
                         </span>{' '}
                         that touch <em>"{state.question}"</em> — each set down below,
-                        opening to the entry it was woven from. The thread speaks only
+                        opening to the entry it settled from. The Deep speaks only
                         from what was truly written, never words it has invented.
                       </>
                     ) : (
@@ -304,7 +304,7 @@ export function QandA() {
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="What do you want to know?"
-              aria-label="Ask the thread"
+              aria-label="Ask the Deep"
               autoComplete="off"
               style={{
                 caretColor: 'var(--warm)',
