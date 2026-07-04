@@ -797,7 +797,7 @@ export function Family() {
                             onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--warm)'; }}
                             onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.color = addRelFor === m.id ? 'var(--warm)' : 'var(--bone-faint)'; }}
                           >
-                            {addRelFor === m.id ? 'close kin' : 'add relation'}
+                            {addRelFor === m.id ? 'close' : 'add relation'}
                           </button>
                           <button
                             type="button"

@@ -9,6 +9,7 @@ import { Hono } from 'hono';
 import type { Context } from 'hono';
 import type { Env, Variables } from '../index';
 import { giftVoucherReceivedEmail, giftVoucherRedeemedEmail } from '../email-templates';
+import { PRICING } from './billing';
 import { sendEmail } from '../utils/email';
 
 type GiftVoucherContext = Context<{ Bindings: Env; Variables: Variables }>;
@@ -96,12 +97,15 @@ function generateVoucherCode(): string {
 // product charges one price globally, so gifts do too. Any currency query
 // falls back to USD. Cents. MUST equal billing.ts: Family $2.99/$29,
 // Deep $7.99/$79, lifetime $249.
+// Derived from the single source of truth (billing.ts PRICING, dollars) so gift
+// prices can never drift from the main table. Cents for Stripe. Flat USD.
+const c = (usd: number) => Math.round(usd * 100);
 const GIFT_PRICING: Record<string, Partial<Record<string, Partial<Record<string, number>>>>> = {
   USD: {
-    FAMILY: { monthly: 299, yearly: 2900 },
-    DEEP: { monthly: 799, yearly: 7900 },
-    LEGACY: { lifetime: 24900 },
-    FOREVER: { lifetime: 24900 }, // legacy alias for LEGACY
+    FAMILY: { monthly: c(PRICING.FAMILY.monthly), yearly: c(PRICING.FAMILY.yearly) },
+    DEEP: { monthly: c(PRICING.DEEP.monthly), yearly: c(PRICING.DEEP.yearly) },
+    LEGACY: { lifetime: c(PRICING.FOUNDER.lifetime) },
+    FOREVER: { lifetime: c(PRICING.FOUNDER.lifetime) }, // legacy alias for LEGACY
   },
 };
 

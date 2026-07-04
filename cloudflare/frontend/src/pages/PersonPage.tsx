@@ -331,7 +331,7 @@ export function PersonPage() {
             optional freeform label, removable. The add-relation picker is the
             shared AddRelationshipPicker used on the Family roster. */}
         <div style={{ marginTop: 48 }}>
-          <SectionLabel>kin</SectionLabel>
+          <SectionLabel>family</SectionLabel>
           {kinEdges.length > 0 ? (
             <div>
               {kinEdges.map((edge) => (
@@ -365,7 +365,7 @@ export function PersonPage() {
             </div>
           ) : (
             <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 15, color: 'var(--bone-faint)', margin: '18px 0 0' }}>
-              No kin lowered in yet.
+              No family added yet.
             </p>
           )}
 

@@ -264,7 +264,7 @@ function routeLabel(pathname: string): string {
   if (pathname.startsWith('/loom/pwa'))    return 'the Deep';
   if (pathname.startsWith('/loom/compose')) return 'compose';
   if (pathname.startsWith('/loom/tied'))    return 'tied off';
-  if (pathname.startsWith('/loom/kin'))     return 'kin';
+  if (pathname.startsWith('/loom/kin'))     return 'family';
   if (pathname.startsWith('/loom/read'))    return 'reading room';
   if (pathname.startsWith('/billing'))      return 'billing';
   if (pathname.startsWith('/settings'))     return 'settings';

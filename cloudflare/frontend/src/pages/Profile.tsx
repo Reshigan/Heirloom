@@ -161,7 +161,7 @@ export function Profile() {
 
         <EntryRow
           title="Your family"
-          sub="The kin who share your Deep"
+          sub="The family who share your Deep"
           meta="VIEW →"
           onClick={() => navigate('/family')}
         />

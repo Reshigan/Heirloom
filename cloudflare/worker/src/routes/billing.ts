@@ -48,7 +48,7 @@ function isAnnualOnlyCountry(countryCode: string): boolean {
 // Stripe is charged the exact number below via dynamic price_data (no fixed
 // Price IDs), so the displayed price always equals the charged price.
 type TierPrices = { monthly: number; yearly: number };
-const PRICING: {
+export const PRICING: {
   symbol: string;
   code: string;
   FAMILY: TierPrices;
