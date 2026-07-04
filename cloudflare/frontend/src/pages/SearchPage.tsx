@@ -151,7 +151,7 @@ export function SearchPage() {
             marginBottom: 14,
           }}
         >
-          Search the thread
+          Search the Deep
         </div>
         <div
           aria-hidden="true"
@@ -253,7 +253,7 @@ export function SearchPage() {
               lineHeight: 1.6,
             }}
           >
-            nothing in the thread matches that — yet.
+            nothing in the Deep matches that — yet.
           </p>
         ) : (
           <>

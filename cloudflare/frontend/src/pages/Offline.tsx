@@ -270,7 +270,7 @@ export function Offline() {
             fontWeight: 400,
           }}
         >
-          You're offline. Write anyway. The thread holds it here until you reconnect.
+          You're offline. Write anyway. The Deep holds it here until you reconnect.
         </p>
 
         {/* Composer — textarea + hold button */}
