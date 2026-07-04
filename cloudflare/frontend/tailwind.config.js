@@ -36,15 +36,15 @@ export default {
         // "gold" to copper #e0a062 so the whole app speaks the one accent color.
         // Used sparingly per the constitution.
         gold: {
-          DEFAULT: '#e0a062',
-          light: '#f0c074',
-          bright: '#f0c074',
-          dim: '#b07a3e',
-          deep: '#8a5a2a',
-          40: 'rgba(224, 160, 98, 0.4)',
-          20: 'rgba(224, 160, 98, 0.2)',
-          10: 'rgba(224, 160, 98, 0.1)',
-          '05': 'rgba(224, 160, 98, 0.05)',
+          DEFAULT: '#cf8248',
+          light: '#eaa964',
+          bright: '#eaa964',
+          dim: '#b07138',
+          deep: '#8a5320',
+          40: 'rgba(207, 130, 72, 0.4)',
+          20: 'rgba(207, 130, 72, 0.2)',
+          10: 'rgba(207, 130, 72, 0.1)',
+          '05': 'rgba(207, 130, 72, 0.05)',
         },
         // BLOOD — retained only for destructive/record states, retuned to the
         // dye-madder family so it sits inside the natural-dye world.
@@ -64,9 +64,9 @@ export default {
         char: 'rgba(242, 230, 208, 0.55)',
         edge: 'rgba(242, 230, 208, 0.14)',
         mark: {
-          DEFAULT: '#e0a062',
-          deep: '#b07a3e',
-          tint: '#f0c074',
+          DEFAULT: '#cf8248',
+          deep: '#b07138',
+          tint: '#eaa964',
         },
         'blood-v3': '#9f3a2a',
 

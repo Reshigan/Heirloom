@@ -42,7 +42,7 @@ export function useLoomTheme() {
 
 /**
  * Loom accent — the single point of emotion (ART_DIRECTION §2), now a per-user
- * choice rather than a brand edict. Five hues; default 'seafoam' (cool, sits in
+ * choice rather than a brand edict. Five hues; default 'copper' (warm, the sealed-letter hue —
  * the deep water). Applied as `data-accent` on `<html>`; globals.css derives the
  * whole warm/copper family from one `--accent` pair in the dark scope. Light
  * theme keeps its AA copper-browns regardless — accent is a dark-water choice.
@@ -59,7 +59,7 @@ function readInitialAccent(): LoomAccent {
   } catch {
     /* ignore */
   }
-  return 'seafoam';
+  return 'copper';
 }
 
 export function useLoomAccent() {

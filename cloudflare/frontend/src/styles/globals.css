@@ -37,10 +37,10 @@
 
   /* WARM — copper, the one emotional accent (was "gold"). Reference copper
      family: primary #e0a062, bright #f0c074, deep #b07a3e, shadow #8a5a2a. */
-  --gold: #e0a062;
-  --gold-light: #f0c074;
-  --gold-bright: #f0c074;
-  --gold-dim: #b07a3e;
+  --gold: #cf8248;
+  --gold-light: #eaa964;
+  --gold-bright: #eaa964;
+  --gold-dim: #b07138;
   --gold-deep: #8a5a2a;
 
   /* Copper opacity scales */
@@ -108,8 +108,8 @@
      warm/copper family below is DERIVED from this pair inside the dark scope
      (color-mix); the [data-accent="…"] blocks only swap these two values. Light
      theme ignores accent entirely — it re-hardcodes AA copper-browns. */
-  --accent: #7fd4c4;
-  --accent-bright: #a0e8d8;
+  --accent: #cf8248;
+  --accent-bright: #eaa964;
   /* Derived from the single accent — the whole emotion layer follows the
      family's one chosen hue, including portaled overlays outside .loom. */
   --warm: var(--accent);
@@ -334,7 +334,7 @@
 /* Per-user accent — set on <html> by theme-boot.js + useLoomAccent. Only the
    --accent pair changes; the dark derivation above expands it. Cascades into
    .loom as a descendant. Keep this set in sync with LoomAccent in theme.ts. */
-[data-accent="copper"]    { --accent: #e0a062; --accent-bright: #f0c074; }
+[data-accent="copper"]    { --accent: #cf8248; --accent-bright: #eaa964; }
 [data-accent="seafoam"]   { --accent: #7fd4c4; --accent-bright: #a0e8d8; }
 [data-accent="glacial"]   { --accent: #6cc9dd; --accent-bright: #92dcea; }
 [data-accent="jade"]      { --accent: #86d2ab; --accent-bright: #a8e4c6; }

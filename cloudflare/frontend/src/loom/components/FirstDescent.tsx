@@ -123,8 +123,10 @@ export function FirstDescent({ onDone }: { onDone: () => void }) {
             <h1 style={{ fontFamily: 'var(--serif-display)', fontWeight: 340, fontSize: 'clamp(32px, 7.5vw, 52px)', lineHeight: 1.12, color: 'var(--bone)', margin: 0, maxWidth: '13em' }}>
               This water is <span style={{ color: 'var(--bone-dim)' }}>empty.</span>
             </h1>
-            <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 17, lineHeight: 1.6, color: 'var(--bone-dim)', margin: '20px 0 0', maxWidth: '26em' }}>
-              No one in your family has spoken yet. The Deep begins with a single drop — yours.
+            <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 17, lineHeight: 1.65, color: 'var(--bone-dim)', margin: '20px 0 0', maxWidth: '27em' }}>
+              The backdrop is the Deep itself — living water that stirs and takes
+              on your family's colours as they speak into it. No one has yet. It
+              begins with a single drop — yours.
             </p>
             <div style={{ marginTop: 48 }}>
               <Verb onClick={() => scroller.current?.scrollTo({ top: scroller.current.clientHeight, behavior: 'smooth' })} drop>
@@ -172,9 +174,11 @@ export function FirstDescent({ onDone }: { onDone: () => void }) {
                   <SurfaceRing size={16} />
                   <span style={{ fontFamily: 'var(--serif-display)', fontStyle: 'italic', fontWeight: 360, fontSize: 24 }}>settled</span>
                 </div>
-                <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 17, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '22px 0 0', maxWidth: '26em' }}>
-                  Watch the water — it just took your colour. That line will still
-                  be here in a hundred years, exactly as you wrote it.
+                <p style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', fontWeight: 300, fontSize: 17, lineHeight: 1.7, color: 'var(--bone-dim)', margin: '22px 0 0', maxWidth: '27em' }}>
+                  Watch the water — it just took your colour. From now on the
+                  backdrop carries your family's hues, deepening as more is
+                  lowered in. That line will still be here in a hundred years,
+                  exactly as you wrote it.
                 </p>
               </>
             )}

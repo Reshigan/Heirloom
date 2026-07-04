@@ -658,7 +658,7 @@ export function Settings() {
             value={
               <span role="radiogroup" aria-label="Accent" style={{ display: 'inline-flex', gap: 14, alignItems: 'center' }}>
                 {([
-                  { key: 'copper',    swatch: '#e0a062' },
+                  { key: 'copper',    swatch: '#cf8248' },
                   { key: 'seafoam',   swatch: '#7fd4c4' },
                   { key: 'glacial',   swatch: '#6cc9dd' },
                   { key: 'jade',      swatch: '#86d2ab' },
