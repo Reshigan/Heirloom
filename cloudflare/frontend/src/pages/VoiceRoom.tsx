@@ -520,8 +520,8 @@ export function VoiceRoom() {
                         what you said
                       </div>
                       <p className="hl-serif" style={{
-                        fontFamily: 'var(--serif)', fontSize: 16, fontWeight: 300,
-                        color: 'var(--bone-dim)', lineHeight: 1.72, margin: 0,
+                        fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 300,
+                        color: 'var(--bone-dim)', lineHeight: 1.8, margin: 0,
                       }}>
                         {entry.transcript}
                       </p>

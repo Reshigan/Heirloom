@@ -304,7 +304,7 @@ function ReadingContent({
           {paras.length > 0 ? (
             paras.map((p, i) => (
               <p key={i} style={{
-                fontFamily: 'var(--serif)', fontSize: 17, lineHeight: 1.75,
+                fontFamily: 'var(--serif)', fontSize: 18, lineHeight: 1.8,
                 color: 'var(--text-warm)', margin: '0 0 24px', fontWeight: 400,
                 textAlign: 'justify', textJustify: 'inter-word', hyphens: 'auto',
               }}>

@@ -96,7 +96,7 @@ export function MemoryRoom() {
     padding: '10px 2px',
     color: 'var(--parchment-ink)',
     fontFamily: 'var(--serif)',
-    fontSize: 15,
+    fontSize: 18,
     lineHeight: 1.7,
     outline: 'none',
     boxSizing: 'border-box',
@@ -131,7 +131,7 @@ export function MemoryRoom() {
             </h1>
             <p
               className="hl-prose dark"
-              style={{ fontSize: 15, color: 'var(--bone-dim)', margin: 0 }}
+              style={{ fontSize: 18, lineHeight: 1.8, color: 'var(--bone-dim)', margin: 0 }}
             >
               This memory room may not be active or the link may be invalid.
             </p>

@@ -313,7 +313,7 @@ export function LetterRoom() {
                 ) : (
                   <>
                     <p style={{
-                      fontFamily: 'var(--serif)', fontSize: 17, fontWeight: 300,
+                      fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 300,
                       color: 'var(--letter-body-dim)', lineHeight: 1.85, margin: 0,
                       whiteSpace: 'pre-wrap',
                     }}>
@@ -575,7 +575,7 @@ export function LetterRoom() {
                             maxWidth: '38em', margin: '0 auto',
                           }}>
                             <p style={{
-                              fontFamily: 'var(--serif)', fontSize: 17, fontWeight: 300,
+                              fontFamily: 'var(--serif)', fontSize: 18, fontWeight: 300,
                               color: 'var(--letter-body-dim)', lineHeight: 1.85, margin: 0,
                               whiteSpace: 'pre-wrap',
                             }}>

@@ -54,9 +54,11 @@ function Mote({ e, offset }: { e: CanvasEntry; offset: number }) {
   return (
     <Link
       to={entryHref(e)}
+      className="hl-float-word"
       style={{
         display: 'flex', alignItems: 'flex-start', gap: 16, textDecoration: 'none',
         marginLeft: `${offset}%`, maxWidth: '68%', padding: '10px 0',
+        animationDelay: `${(offset % 7) * 0.8}s`, animationDuration: '11s',
       }}
     >
       <span aria-hidden style={{

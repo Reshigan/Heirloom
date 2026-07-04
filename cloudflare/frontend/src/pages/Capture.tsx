@@ -559,14 +559,17 @@ const ghost: React.CSSProperties = { fontFamily: 'var(--serif)', fontStyle: 'ita
 // The fork chips — warm copper hairline + copper text when chosen, faint
 // otherwise. No fill (dyes/copper are signal only, never backgrounds).
 const forkBtn = (active: boolean): React.CSSProperties => ({
-  ...mono,
   background: 'none',
-  border: `1px solid ${active ? 'var(--warm)' : 'var(--rule)'}`,
-  color: active ? 'var(--warm)' : 'var(--bone-dim)',
+  border: 0,
+  fontFamily: 'var(--serif-display)',
+  fontStyle: 'italic',
+  fontWeight: active ? 360 : 300,
+  fontSize: active ? 20 : 17,
+  color: active ? 'var(--warm)' : 'var(--bone-faint)',
   cursor: 'pointer',
   minHeight: 44,
-  padding: '0 18px',
-  transition: 'color 180ms var(--ease), border-color 180ms var(--ease)',
+  padding: '0 8px',
+  transition: 'color 180ms var(--ease), font-size 180ms var(--ease)',
 });
 
 /* ─── helpers (copied lean from Compose/Record to keep this page standalone) ─ */

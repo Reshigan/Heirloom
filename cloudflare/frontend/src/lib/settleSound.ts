@@ -40,6 +40,16 @@ function play(): void {
   }
 }
 
+// A single soft pulse the instant something settles — the physical twin of
+// the drop-note. Respects the same silent opt-out.
+function haptic(): void {
+  try {
+    if (localStorage.getItem('heirloom-silent') === '1') return;
+    navigator.vibrate?.(12);
+  } catch { /* unsupported */ }
+}
+
 export function initSettleSound(): void {
   window.addEventListener('deep:settled', play);
+  window.addEventListener('deep:settled', haptic);
 }
