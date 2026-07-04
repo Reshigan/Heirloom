@@ -4,8 +4,8 @@
 // heirloom-drop-*.svg); the ripple on every page foot is this mark come alive.
 //
 // Size API: size='sm'|'md'|'lg' (sm=topbar, md=page, lg=splash).
-// `href` renders the whole mark as a STANDOUT BUTTON — a hairline-bordered
-// tile that warms on hover/focus — the one always-present way home.
+// `href` renders the mark as the always-present way home — floating bare on
+// the water (the tile border was retired; nothing on the surface is boxed).
 // Legacy numeric sizes and deprecated props (glow, mono, color, wordColor,
 // tagline, style) are accepted but silently ignored.
 
@@ -83,16 +83,13 @@ export function HLogo({ size = 'sm', wordmark = true, href }: HLogoProps) {
           display: 'inline-flex',
           textDecoration: 'none',
           color: 'inherit',
-          padding: token === 'sm' ? '7px 12px' : '9px 16px',
-          border: '1px solid var(--rule)',
-          borderRadius: 0,
+          // the mark floats bare on the water — no tile, no box; hover warms
+          // the wordmark instead of a border
+          padding: token === 'sm' ? '7px 2px' : '9px 4px',
           minHeight: 44,
           boxSizing: 'border-box',
-          transition: 'border-color 180ms var(--ease), background 180ms var(--ease)',
           ...rowBase,
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--copper-border, var(--warm))'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--rule)'; }}
       >
         {mark}
       </Link>

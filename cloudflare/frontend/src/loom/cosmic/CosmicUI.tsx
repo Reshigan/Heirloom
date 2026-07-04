@@ -41,7 +41,7 @@ export function CosmicHeader({
     const cut = Math.min(3, Math.max(1, Math.floor(w.length / 3)));
     shown = (
       <>
-        {w.slice(0, cut).join(' ')}{' '}
+        <span className="hl-lit">{w.slice(0, cut).join(' ')}</span>{' '}
         <span style={{ color: 'var(--bone-dim)' }}>{w.slice(cut).join(' ')}</span>
       </>
     );

@@ -23,7 +23,7 @@ export function DropRing({
       type="button"
       onClick={onClick}
       aria-label={ariaLabel ?? label}
-      className="hl-drop-breathe--soft"
+      className="hl-drop-breathe--soft hl-reflect"
       style={{
         position: 'relative',
         width: size, height: size, borderRadius: '50%',

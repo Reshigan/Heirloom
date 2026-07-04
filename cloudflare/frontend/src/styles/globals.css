@@ -2328,3 +2328,48 @@ input:-webkit-autofill:active {
     50% { box-shadow: 0 0 0 12px rgba(224, 160, 98, 0.05), 0 0 0 26px rgba(224, 160, 98, 0.02); }
   }
 }
+
+
+/* ════════════════════════════════════════════════════════════════════
+   OF THE WATER — the foreground stops sitting ON the surface and starts
+   belonging to it. Three behaviours, all reduced-motion gated:
+   1. .hl-lit        — light through water: the opening words carry a slow
+                       specular drift, as if lit from above the surface.
+   2. .hl-float-word — the question floats: each word rides its own slow
+                       swell (transform-only; GPU cheap).
+   3. .hl-reflect    — standing on the water: warm verbs and the capture
+                       ring cast a faint inverted reflection beneath them
+                       (WebKit progressive enhancement; Firefox sees none).
+   ════════════════════════════════════════════════════════════════════ */
+@keyframes hl-lit-drift {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.hl-lit {
+  text-shadow: none;
+  background-image: linear-gradient(105deg,
+    var(--bone) 0%, #fffef6 12%, var(--bone) 26%, var(--bone) 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: hl-lit-drift 14s linear infinite;
+}
+@keyframes hl-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3.5px); }
+}
+.hl-float-word {
+  display: inline-block;
+  animation: hl-float 8s var(--ease) infinite;
+  will-change: transform;
+}
+.hl-reflect {
+  -webkit-box-reflect: below -10px
+    linear-gradient(transparent 58%, rgba(255, 255, 255, 0.18));
+}
+@media (prefers-reduced-motion: reduce) {
+  .hl-lit { animation: none; background: none; -webkit-text-fill-color: currentColor; color: var(--bone); }
+  .hl-float-word { animation: none; }
+}

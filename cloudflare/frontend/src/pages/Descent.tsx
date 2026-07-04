@@ -200,7 +200,14 @@ export function Descent() {
           fontSize: 'clamp(32px, 8.6vw, 44px)', lineHeight: 1.1, letterSpacing: '-0.014em',
           margin: '24px 0 0', maxWidth: '14ch', color: 'var(--bone)',
         }}>
-          {head} <span style={{ color: 'var(--bone-dim)' }}>{rest}</span>
+          {/* the question floats on the swell — each word on its own phase;
+              the opening words carry the light */}
+          {head.split(' ').map((w, i) => (
+            <span key={`h${i}`} className="hl-lit hl-float-word" style={{ animationDelay: `${(i * 0.9) % 4}s` }}>{w}{'\u00A0'}</span>
+          ))}
+          {rest.split(' ').filter(Boolean).map((w, i) => (
+            <span key={`r${i}`} className="hl-float-word" style={{ color: 'var(--bone-dim)', animationDelay: `${((i + 2) * 1.1) % 5}s` }}>{w}{'\u00A0'}</span>
+          ))}
         </h1>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 16, marginTop: 48, flexWrap: 'wrap', justifyContent: 'center' }}>
           <button type="button" onClick={() => navigate('/record')} style={{
