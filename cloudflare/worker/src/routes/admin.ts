@@ -273,20 +273,20 @@ adminRoutes.get('/analytics', adminAuth, async (c) => {
     `).all(),
     c.env.DB.prepare(`
       SELECT
-        (SELECT COUNT(*) FROM memories) as total_memories,
-        (SELECT COUNT(*) FROM letters) as total_letters,
-        (SELECT COUNT(*) FROM voice_recordings) as total_voice,
-        (SELECT COUNT(*) FROM family_members) as total_family_members
+        (SELECT COUNT(*) FROM memories WHERE deleted_at IS NULL) as total_memories,
+        (SELECT COUNT(*) FROM letters WHERE deleted_at IS NULL) as total_letters,
+        (SELECT COUNT(*) FROM voice_recordings WHERE deleted_at IS NULL) as total_voice,
+        (SELECT COUNT(*) FROM family_members WHERE deleted_at IS NULL) as total_family_members
     `).first(),
     c.env.DB.prepare(`
       SELECT
         COALESCE(SUM(file_size), 0) as memory_storage
-      FROM memories
+      FROM memories WHERE deleted_at IS NULL
     `).first(),
     c.env.DB.prepare(`
       SELECT
         COALESCE(SUM(file_size), 0) as voice_storage
-      FROM voice_recordings
+      FROM voice_recordings WHERE deleted_at IS NULL
     `).first(),
     c.env.DB.prepare(`
       SELECT id, email, first_name, last_name, created_at
@@ -431,10 +431,10 @@ adminRoutes.get('/users/:id', adminAuth, async (c) => {
   // Get user stats
   const stats = await c.env.DB.prepare(`
     SELECT 
-      (SELECT COUNT(*) FROM memories WHERE user_id = ?) as memories,
-      (SELECT COUNT(*) FROM letters WHERE user_id = ?) as letters,
-      (SELECT COUNT(*) FROM voice_recordings WHERE user_id = ?) as voice,
-      (SELECT COUNT(*) FROM family_members WHERE user_id = ?) as family
+      (SELECT COUNT(*) FROM memories WHERE user_id = ? AND deleted_at IS NULL) as memories,
+      (SELECT COUNT(*) FROM letters WHERE user_id = ? AND deleted_at IS NULL) as letters,
+      (SELECT COUNT(*) FROM voice_recordings WHERE user_id = ? AND deleted_at IS NULL) as voice,
+      (SELECT COUNT(*) FROM family_members WHERE user_id = ? AND deleted_at IS NULL) as family
   `).bind(userId, userId, userId, userId).first();
   
   return c.json({
@@ -994,13 +994,13 @@ adminRoutes.get('/system/stats', adminAuth, async (c) => {
   const stats = await c.env.DB.prepare(`
     SELECT 
       (SELECT COUNT(*) FROM users) as total_users,
-      (SELECT COUNT(*) FROM memories) as total_memories,
-      (SELECT COUNT(*) FROM letters) as total_letters,
-      (SELECT COUNT(*) FROM voice_recordings) as total_voice,
-      (SELECT COUNT(*) FROM family_members) as total_family,
+      (SELECT COUNT(*) FROM memories WHERE deleted_at IS NULL) as total_memories,
+      (SELECT COUNT(*) FROM letters WHERE deleted_at IS NULL) as total_letters,
+      (SELECT COUNT(*) FROM voice_recordings WHERE deleted_at IS NULL) as total_voice,
+      (SELECT COUNT(*) FROM family_members WHERE deleted_at IS NULL) as total_family,
       (SELECT COUNT(*) FROM support_tickets WHERE status != 'RESOLVED') as open_tickets,
-      (SELECT COALESCE(SUM(file_size), 0) FROM memories) as memory_storage,
-      (SELECT COALESCE(SUM(file_size), 0) FROM voice_recordings) as voice_storage
+      (SELECT COALESCE(SUM(file_size), 0) FROM memories WHERE deleted_at IS NULL) as memory_storage,
+      (SELECT COALESCE(SUM(file_size), 0) FROM voice_recordings WHERE deleted_at IS NULL) as voice_storage
   `).first();
   
   return c.json({
@@ -1775,9 +1775,9 @@ adminRoutes.get('/analytics/overview', adminAuth, async (c) => {
   
   const contentStats = await c.env.DB.prepare(`
     SELECT 
-      (SELECT COUNT(*) FROM memories) as memories,
-      (SELECT COUNT(*) FROM letters) as letters,
-      (SELECT COUNT(*) FROM voice_recordings) as voice_recordings
+      (SELECT COUNT(*) FROM memories WHERE deleted_at IS NULL) as memories,
+      (SELECT COUNT(*) FROM letters WHERE deleted_at IS NULL) as letters,
+      (SELECT COUNT(*) FROM voice_recordings WHERE deleted_at IS NULL) as voice_recordings
   `).first();
   
   return c.json({
@@ -1832,9 +1832,9 @@ adminRoutes.get('/analytics/users', adminAuth, async (c) => {
   
   const withContent = await c.env.DB.prepare(`
     SELECT COUNT(DISTINCT user_id) as count FROM (
-      SELECT user_id FROM memories
-      UNION SELECT user_id FROM letters
-      UNION SELECT user_id FROM voice_recordings
+      SELECT user_id FROM memories WHERE deleted_at IS NULL
+      UNION SELECT user_id FROM letters WHERE deleted_at IS NULL
+      UNION SELECT user_id FROM voice_recordings WHERE deleted_at IS NULL
     )
   `).first();
   
@@ -2055,8 +2055,8 @@ adminRoutes.get('/analytics/usage', adminAuth, async (c) => {
       u.last_name,
       u.last_login_at,
       s.tier,
-      (SELECT COUNT(*) FROM memories WHERE user_id = u.id) as memory_count,
-      (SELECT COUNT(*) FROM letters WHERE user_id = u.id) as letter_count
+      (SELECT COUNT(*) FROM memories WHERE user_id = u.id AND deleted_at IS NULL) as memory_count,
+      (SELECT COUNT(*) FROM letters WHERE user_id = u.id AND deleted_at IS NULL) as letter_count
     FROM users u
     LEFT JOIN subscriptions s ON u.id = s.user_id
     WHERE u.last_login_at IS NOT NULL

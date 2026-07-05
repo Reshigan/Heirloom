@@ -459,6 +459,21 @@ voiceRoutes.post('/', async (c) => {
       }
     }
 
+  // Close the check-then-insert quota race (see memories.ts): re-verify AFTER the
+  // write against actual usage; if over cap, undo this row and refuse. Fails closed.
+  if (incomingBytes > 0 && insertResult.meta.changes > 0) {
+    const after = await checkStorageQuota(c.env, userId, 1); // probe: .used is real usage now
+    if (after.used > after.cap) {
+      await c.env.DB.prepare(`UPDATE voice_recordings SET deleted_at = ? WHERE id = ?`).bind(now, id).run();
+      if (fileKey) { try { await c.env.STORAGE.delete(fileKey); } catch {} }
+      return c.json({
+        error: 'Storage limit reached for your plan. Upgrade for more room, or remove a few large items.',
+        used: after.used,
+        cap: after.cap,
+      }, 413);
+    }
+  }
+
   // Dual-write into the Family Thread.
   await mirrorIntoDefaultThread(c.env, userId, {
     voiceRecordingId: id,

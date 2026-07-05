@@ -701,6 +701,24 @@ memoriesRoutes.post('/', async (c) => {
       }
     }
 
+  // Close the check-then-insert quota race: two concurrent uploads can each pass
+  // the pre-check, then both insert and overshoot the cap. Re-verify AFTER the
+  // write against actual post-insert usage; if we're over, undo this row
+  // (soft-delete + drop the R2 object) and refuse. Fails closed — racing writers
+  // may both back off, but usage never exceeds the cap.
+  if (fileSize && insertResult.meta.changes > 0) {
+    const after = await checkStorageQuota(c.env, userId, 1); // probe: .used is real usage now
+    if (after.used > after.cap) {
+      await c.env.DB.prepare(`UPDATE memories SET deleted_at = ? WHERE id = ?`).bind(now, id).run();
+      if (fileKey) { try { await c.env.STORAGE.delete(fileKey); } catch {} }
+      return c.json({
+        error: 'Storage limit reached for your plan. Upgrade for more room, or remove a few large items.',
+        used: after.used,
+        cap: after.cap,
+      }, 402);
+    }
+  }
+
   // Dual-write into the Family Thread (best-effort; never blocks the legacy write).
   await mirrorIntoDefaultThread(c.env, userId, {
     memoryId: id,
