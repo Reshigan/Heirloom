@@ -9,6 +9,7 @@ import { mirrorFamilyMemberIntoDefaultThread } from '../services/threadMesh';
 import { readDescription } from '../lib/legacyArchive';
 import { sendEmail, notifyAuthorDeliveryFailed } from '../utils/email';
 import { letterDeliveryEmail } from '../email-templates';
+import { MEMBER_HARD_CAP } from '../lib/quota';
 
 export const familyRoutes = new Hono<AppEnv>();
 
@@ -364,36 +365,17 @@ familyRoutes.post('/', async (c) => {
     return c.json({ error: 'Name and relationship are required' }, 400);
   }
   
-  // Check tier limits
-  const subscription = await c.env.DB.prepare(`
-    SELECT tier FROM subscriptions WHERE user_id = ?
-  `).bind(userId).first();
-  
-  const tier = subscription?.tier || 'STARTER';
-  const limits: Record<string, number> = {
-    STARTER: 2,
-    FAMILY: 10,
-    FOREVER: -1, // Unlimited
-    // Legacy tier names for backwards compatibility
-    FREE: 2,
-    ESSENTIAL: 5,
-    LEGACY: -1,
-  };
-  
-  const maxRecipients = limits[tier as string] ?? 2;
-  
-  if (maxRecipients !== -1) {
-    const count = await c.env.DB.prepare(`
-      SELECT COUNT(*) as count FROM family_members WHERE user_id = ? AND deleted_at IS NULL
-    `).bind(userId).first();
-    
-    if ((count?.count as number) >= maxRecipients) {
-      return c.json({ 
-        error: `You've reached your limit of ${maxRecipients} family members. Upgrade your plan to add more.` 
-      }, 403);
-    }
+  // No tier gate on family members — TIER_LIMITS.maxFamilyMembers is -1 on every
+  // tier and free is gated on storage + one thread instead (quota.ts, threads.ts).
+  // MEMBER_HARD_CAP bounds abuse only; it is not a pricing lever.
+  const count = await c.env.DB.prepare(`
+    SELECT COUNT(*) as count FROM family_members WHERE user_id = ? AND deleted_at IS NULL
+  `).bind(userId).first<{ count: number }>();
+
+  if ((count?.count ?? 0) >= MEMBER_HARD_CAP) {
+    return c.json({ error: `You cannot hold more than ${MEMBER_HARD_CAP} family members.` }, 403);
   }
-  
+
   const id = crypto.randomUUID();
   const now = new Date().toISOString();
   

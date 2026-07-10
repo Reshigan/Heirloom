@@ -119,7 +119,7 @@ export const TIER_LIMITS = {
     maxStorageLabel: '50 GB',
     maxThreads: -1,
     maxMemoriesPerMonth: -1, // unlimited
-    maxFamilyMembers: 5,
+    maxFamilyMembers: -1, // unlimited — membership is never a pricing gate
     maxRecipients: -1,
     maxLetters: -1,
     maxVoiceMinutes: -1,
@@ -312,7 +312,7 @@ billingRoutes.get('/pricing', async (c) => {
         description: 'The whole bloodline, unlimited entries, with the keepsake features',
         storage: TIER_LIMITS.FAMILY.maxStorageLabel,
         maxThreads: -1,
-        maxFamilyMembers: 5,
+        maxFamilyMembers: TIER_LIMITS.FAMILY.maxFamilyMembers,
         maxMemoriesPerMonth: -1,
         popular: true,
         monthly: isAnnualOnly ? null : {
@@ -325,19 +325,20 @@ billingRoutes.get('/pricing', async (c) => {
           perMonth: `${prices.symbol}${(prices.FAMILY.yearly / 12).toFixed(2)}`,
           savings: '2 months free'
         },
+        // Membership is never a pricing gate — maxFamilyMembers is -1 on every
+        // tier. Paid tiers differ on bloodlines (threads) and storage only.
         features: [
-          'Unlimited entries in the Deep',
+          'Unlimited bloodlines in the Deep',
+          `${TIER_LIMITS.FAMILY.maxStorageLabel} storage`,
           'Voice entries',
           'Sealed & time-locked notes',
-          'Up to 5 family members',
-          `${TIER_LIMITS.FAMILY.maxStorageLabel} storage`,
           'Family tree + premium export',
         ],
       },
       {
         id: 'DEEP',
         name: 'Deep',
-        description: `The multi-generational bloodline — unlimited members, ${TIER_LIMITS.DEEP.maxStorageLabel}, priority`,
+        description: `The multi-generational bloodline — ${TIER_LIMITS.DEEP.maxStorageLabel}, priority, the annual book`,
         storage: TIER_LIMITS.DEEP.maxStorageLabel,
         maxThreads: -1,
         maxFamilyMembers: -1,
@@ -354,7 +355,6 @@ billingRoutes.get('/pricing', async (c) => {
         },
         features: [
           'Everything in Family',
-          'Unlimited family members — the whole bloodline',
           `${TIER_LIMITS.DEEP.maxStorageLabel} storage`,
           'Unlimited voice & video entries',
           'Priority support + dedicated onboarding',

@@ -1060,7 +1060,7 @@ settingsRoutes.get('/export', async (c) => {
     //     users, memories, voice_recordings, letters, family_members,
     //     legacy_contacts (incl. soft-deleted, see below), dead_man_switches,
     //     subscriptions, letter/memory/voice legacy-recipient junctions,
-    //     legacy_revisions, wrapped_data, thread_members.
+    //     legacy_revisions, wrapped_data, thread_members, thread_entries.
     //   INTENTIONALLY EXCLUDED (operational/transient, not user content):
     //     notifications, audit_logs, device_tokens, shamir_shares (key escrow —
     //     never exported in cleartext), password_resets, sessions,
@@ -1070,7 +1070,7 @@ settingsRoutes.get('/export', async (c) => {
       user, memories, voiceRecordings, letters, familyMembers, legacyContacts,
       deadManSwitch, subscription,
       letterBequests, memoryBequests, voiceBequests, legacyRevisions,
-      wrappedData, threadMemberships,
+      wrappedData, threadMemberships, threadEntries,
     ] = await Promise.all([
       c.env.DB.prepare(`
         SELECT id, email, first_name, last_name, avatar_url, preferred_currency,
@@ -1119,6 +1119,23 @@ settingsRoutes.get('/export', async (c) => {
       c.env.DB.prepare(`SELECT * FROM wrapped_data WHERE user_id = ? ORDER BY year ASC`).bind(userId).all(),
       // Family Thread memberships — the user's place(s) in any bloodline thread.
       c.env.DB.prepare(`SELECT * FROM thread_members WHERE user_id = ?`).bind(userId).all(),
+      // Family Thread entries — every entry in every thread the user belongs to.
+      // This is the newer primary content surface; without it the "complete"
+      // archive would silently omit most of what a modern family writes. Bodies
+      // are emitted as stored (ciphertext + iv + auth_tag) exactly as the read
+      // API serves them, so an offline reader with the family key can decrypt.
+      // Author attribution resolves through thread_members, not users, so it
+      // survives the author's account deletion.
+      c.env.DB.prepare(`
+        SELECT te.*, am.display_name AS author_display_name, am.relation_label AS author_relation,
+               m.file_key AS memory_file_key, v.file_key AS voice_file_key
+        FROM thread_entries te
+        JOIN thread_members me ON me.thread_id = te.thread_id AND me.user_id = ? AND me.revoked_at IS NULL
+        JOIN thread_members am ON am.id = te.author_member_id
+        LEFT JOIN memories m ON m.id = te.memory_id
+        LEFT JOIN voice_recordings v ON v.id = te.voice_recording_id
+        ORDER BY te.created_at ASC
+      `).bind(userId).all(),
     ]);
 
     // Decrypt encrypted memory descriptions so the personal data export carries
@@ -1165,31 +1182,27 @@ settingsRoutes.get('/export', async (c) => {
       });
     }
 
-    // Build file manifest with R2 URLs
+    // Build file manifest with R2 URLs. Deduped by key: a thread entry points at
+    // a memory/voice row that may also be the user's own, and an archive that
+    // lists the same object twice reads as corrupt.
     const fileManifest: { type: string; key: string; url: string }[] = [];
-    
-    // Add memory files
-    for (const memory of memories.results) {
-      if (memory.file_key) {
-        fileManifest.push({
-          type: 'memory',
-          key: memory.file_key as string,
-          url: `${c.env.API_URL}/api/memories/file/${encodeURIComponent(memory.file_key as string)}`,
-        });
-      }
+    const seenKeys = new Set<string>();
+    const addFile = (type: 'memory' | 'voice', key: unknown) => {
+      if (typeof key !== 'string' || !key || seenKeys.has(key)) return;
+      seenKeys.add(key);
+      const base = type === 'memory' ? 'memories' : 'voice';
+      fileManifest.push({ type, key, url: `${c.env.API_URL}/api/${base}/file/${encodeURIComponent(key)}` });
+    };
+
+    for (const memory of memories.results) addFile('memory', memory.file_key);
+    for (const voice of voiceRecordings.results) addFile('voice', voice.file_key);
+    // Media attached to thread entries — including entries authored by other
+    // members of the user's threads, which never appear in the two tables above.
+    for (const te of threadEntries.results as any[]) {
+      addFile('memory', te.memory_file_key);
+      addFile('voice', te.voice_file_key);
     }
-    
-    // Add voice recording files
-    for (const voice of voiceRecordings.results) {
-      if (voice.file_key) {
-        fileManifest.push({
-          type: 'voice',
-          key: voice.file_key as string,
-          url: `${c.env.API_URL}/api/voice/file/${encodeURIComponent(voice.file_key as string)}`,
-        });
-      }
-    }
-    
+
     // Build export data
     const exportData = {
       // Forward-compat marker for offline readers / future importers. Bump when
@@ -1341,6 +1354,26 @@ settingsRoutes.get('/export', async (c) => {
         role: tm.role,
         targetRole: tm.target_role,
         createdAt: tm.created_at,
+      })),
+      // Every entry in every thread the user belongs to. Bodies stay encrypted —
+      // the ciphertext, iv and auth tag travel together so the family key can
+      // open them offline, exactly as the read API serves them.
+      threadEntries: (threadEntries.results as any[]).map((te: any) => ({
+        id: te.id,
+        threadId: te.thread_id,
+        author: { memberId: te.author_member_id, displayName: te.author_display_name, relationLabel: te.author_relation },
+        title: te.title,
+        body: te.body_ciphertext
+          ? { ciphertext: te.body_ciphertext, iv: te.body_iv, authTag: te.body_auth_tag }
+          : null,
+        memoryId: te.memory_id,
+        voiceRecordingId: te.voice_recording_id,
+        visibility: te.visibility,
+        eraLabel: te.era_label,
+        eraYear: te.era_year,
+        visibilityRevokedAt: te.visibility_revoked_at,
+        createdAt: te.created_at,
+        updatedAt: te.updated_at,
       })),
       fileManifest,
     };

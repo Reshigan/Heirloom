@@ -13,6 +13,7 @@ import { Hono } from 'hono';
 import type { AppEnv } from '../index';
 import { threadInvitationEmail } from '../email-templates';
 import { sendEmail } from '../utils/email';
+import { MEMBER_HARD_CAP } from '../lib/quota';
 
 export const threadsRoutes = new Hono<AppEnv>();
 
@@ -246,26 +247,10 @@ threadsRoutes.post('/:id/members', async (c) => {
     return c.json({ error: 'Invalid role' }, 400);
   }
 
-  // Get requester's subscription tier
-  const memberSubscription = await c.env.DB.prepare(
-    'SELECT tier FROM subscriptions WHERE user_id = ? ORDER BY created_at DESC LIMIT 1'
-  ).bind(userId).first<{ tier: string }>();
-
-  const memberTier = memberSubscription?.tier?.toUpperCase() ?? 'STARTER';
-  const memberLimit = (memberTier === 'LEGACY' || memberTier === 'FOREVER') ? Infinity
-    : memberTier === 'FAMILY' || memberTier === 'ESSENTIAL' ? 10
-    : 5; // STARTER free tier
-
-  const memberCount = await c.env.DB.prepare(
-    'SELECT COUNT(*) as count FROM thread_members WHERE thread_id = ? AND revoked_at IS NULL'
-  ).bind(threadId).first<{ count: number }>();
-
-  if ((memberCount?.count ?? 0) >= memberLimit) {
-    return c.json({ error: 'Member limit reached for your plan. Upgrade to add more family members.' }, 403);
-  }
-
-  // Atomic INSERT using the tier-aware limit to eliminate TOCTOU races.
-  const effectiveLimit = Number.isFinite(memberLimit) ? memberLimit : 999999;
+  // Membership carries NO tier gate. TIER_LIMITS.maxFamilyMembers is -1 on every
+  // tier, and free is gated on storage + one thread instead (quota.ts, POST / above).
+  // MEMBER_HARD_CAP exists only to keep this INSERT atomic against TOCTOU races
+  // and to bound abuse — it is not a pricing lever.
   const id = crypto.randomUUID();
   const result = await c.env.DB.prepare(
     `INSERT INTO thread_members
@@ -288,12 +273,12 @@ threadsRoutes.post('/:id/members', async (c) => {
       body.generation_offset ?? 0,
       inviter.id,
       threadId,
-      effectiveLimit,
+      MEMBER_HARD_CAP,
     )
     .run();
 
   if (result.meta.changes === 0) {
-    return c.json({ error: 'Member limit reached for your plan. Upgrade to add more family members.' }, 403);
+    return c.json({ error: `A thread cannot hold more than ${MEMBER_HARD_CAP} members.` }, 403);
   }
 
   // Send invitation email if recipient has an email address.

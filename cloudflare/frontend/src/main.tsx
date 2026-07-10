@@ -8,9 +8,9 @@ import { captureRef } from './lib/attribution';
 import { initSettleSound } from './lib/settleSound';
 
 // Self-hosted typefaces (no render-blocking third-party font requests).
-// BRAND §6.2 type system: Fraunces = display/voice (variable, opsz-aware),
-// Source Serif 4 = reading/prose/inputs (variable), JetBrains Mono = archival
-// labels/metadata, Inter = residual UI chrome.
+// BRAND §6.2 type system — three faces, no fourth: Fraunces = display/voice
+// (variable, opsz-aware), Source Serif 4 = reading/prose/inputs/UI (variable),
+// JetBrains Mono = archival labels/metadata. A UI sans would read as 2026.
 import '@fontsource-variable/fraunces/full.css';
 import '@fontsource-variable/fraunces/wght-italic.css';
 import '@fontsource-variable/source-serif-4';
@@ -18,10 +18,6 @@ import '@fontsource-variable/source-serif-4/wght-italic.css';
 import '@fontsource/jetbrains-mono/400.css';
 import '@fontsource/jetbrains-mono/500.css';
 import '@fontsource/jetbrains-mono/700.css';
-import '@fontsource/inter/300.css';
-import '@fontsource/inter/400.css';
-import '@fontsource/inter/500.css';
-import '@fontsource/inter/600.css';
 
 import './styles/globals.css';
 import './styles/cosmic.css';

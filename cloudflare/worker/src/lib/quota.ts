@@ -22,6 +22,15 @@ const GB = 1024 * MB;
  */
 export const FREE_STORAGE_BYTES = 50 * MB;
 
+/**
+ * Abuse ceiling on family/thread membership — NOT a pricing gate. Every tier
+ * grants unlimited members (billing.ts TIER_LIMITS.maxFamilyMembers === -1); an
+ * archive that caps who may join a bloodline is broken as a product, so free is
+ * gated on storage and one thread instead. This constant only bounds a runaway
+ * loop and lets the thread_members INSERT stay atomic against TOCTOU races.
+ */
+export const MEMBER_HARD_CAP = 500;
+
 /** Bytes a user is allowed, resolved from tier + active-trial state. */
 export function storageCapBytes(tier: string | null | undefined, trialActive: boolean): number {
   if (trialActive) return 50 * GB; // Family trial gets the Family cap

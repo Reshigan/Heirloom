@@ -196,6 +196,23 @@ export function Marketing() {
             The things only you remember die with you. Here, they don't.
           </p>
 
+          {/* The one concrete line: what the product actually does. A hero that
+              only sells the feeling leaves a visitor unable to say what it is. */}
+          <p style={{
+            fontFamily: 'var(--serif)',
+            fontSize: 'clamp(14px, 1.3vw, 16px)',
+            lineHeight: 1.7,
+            margin: '-14px 0 clamp(30px, 4.5vh, 44px)',
+            maxWidth: '42ch',
+            color: 'var(--bone-faint)',
+            opacity: taglineIn ? 1 : 0,
+            transition: reduceMotion ? 'none' : `opacity 1400ms ${ease}`,
+            transitionDelay: '270ms',
+          }}>
+            Write it, speak it, photograph it — alone or with the whole family.
+            Seal a note for a date years away. Nothing is ever deleted.
+          </p>
+
           <div style={{
             display: 'flex', gap: 20, alignItems: 'center', flexWrap: 'wrap',
             opacity: taglineIn ? 1 : 0,

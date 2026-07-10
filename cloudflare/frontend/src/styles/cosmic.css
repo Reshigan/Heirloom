@@ -75,7 +75,7 @@
 
 /* buttons — warm hairline that fills with glow, never a solid warm slab */
 .cosmic-btn {
-  font-family: var(--sans);
+  font-family: var(--mono);
   font-size: 12px;
   letter-spacing: 0.08em;
   line-height: 1;

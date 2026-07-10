@@ -519,21 +519,26 @@ export const letterOpenedNotificationEmail = (
   `),
 });
 
+// Reaches a beneficiary in the days after a death. It carries the only copy of a
+// decryption key, so the mechanics stay plain and unmissable — but the voice is
+// verifyContactEmail's, not a product announcement. No "vault", no shouted CTA.
 export const escrowKeyReleaseEmail = (
   beneficiaryName: string,
   userName: string,
   encryptedKey: string
 ) => ({
-  subject: `${userName} has left you something precious`,
+  subject: `${userName} left their Deep open to you`,
   html: baseTemplate(`
-    <h2>A Gift From Beyond</h2>
+    <h2>It was left to you.</h2>
     <p>Dear ${esc(beneficiaryName)},</p>
-    <p><span class="gold">${esc(userName)}</span> designated you as a beneficiary of their Heirloom vault.</p>
-    <p>Their encrypted memories, voice recordings, and letters are now available for you.</p>
-    <p>To access their content, you'll need the decryption key below:</p>
+    <p><span class="warm">${esc(userName)}</span> asked that when they were gone, what they wrote,
+    spoke and kept should pass to you. That day has come, and it now has.</p>
+    <p>There is no hurry. It will keep. When you are ready, the key below opens it.</p>
     <div class="code-box">${encryptedKey}</div>
-    <a href="${APP_URL}/legacy-access" class="button">ACCESS MEMORIES</a>
-    <p>Please keep this key safe. It's the only way to decrypt ${esc(userName)}'s content.</p>
+    <a href="${APP_URL}/legacy-access" class="button-warm">Open what was left to you</a>
+    <p class="muted" style="font-size: 14px; margin-top: 28px;">Keep this key somewhere safe and
+    private. It is the only key that will ever open ${esc(userName)}'s Deep &mdash; we hold no copy,
+    and it cannot be reissued. Anyone who has it can read everything.</p>
   `),
 });
 

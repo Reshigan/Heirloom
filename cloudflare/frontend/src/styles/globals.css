@@ -184,7 +184,10 @@
      .loom-mark) — never from this token. Legibility over flourish. */
   --serif: 'Source Serif 4 Variable', 'Source Serif 4', Charter, Georgia, serif;
   --serif-display: 'Fraunces Variable', 'Fraunces', 'Source Serif 4 Variable', 'Source Serif 4', Charter, Georgia, serif;
-  --sans: 'Inter', system-ui, sans-serif;
+  /* There is no sans in this type system (ART_DIRECTION rule 1 — three faces).
+     The token survives only as an alias so legacy consumers land on the body
+     serif instead of a system sans. Labels use --mono, never this. */
+  --sans: var(--serif);
   --mono: 'JetBrains Mono', ui-monospace, monospace;
 
   /* Semantic tokens */
@@ -1576,7 +1579,7 @@ html {
 .loom {
   background: var(--loom-ink);
   color: var(--loom-bone);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--serif);
   font-feature-settings: 'ss01', 'cv11';
   -webkit-font-smoothing: antialiased;
   text-rendering: geometricPrecision;
@@ -1809,10 +1812,10 @@ html {
    no double-up cost.
    ───────────────────────────────────────────────────────────────── */
 
-/* ── Body / root: drop the v1/v2 Cormorant + Cinzel and load Inter ── */
+/* ── Body / root: drop the v1/v2 Cormorant + Cinzel; body is the serif ── */
 .loom body,
 .loom {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--serif);
 }
 
 /* ── Hide v1/v2 cosmic chrome ──────────────────────────────────── */
@@ -1929,7 +1932,7 @@ html {
 .loom .btn-ghost,
 .loom .btn-danger,
 .loom .btn-record {
-  font-family: 'Inter', sans-serif !important;
+  font-family: var(--mono) !important;
   font-size: 12px !important;
   font-weight: 500 !important;
   letter-spacing: 0.16em !important;

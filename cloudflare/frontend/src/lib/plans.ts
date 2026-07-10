@@ -39,16 +39,18 @@ export const PLAN_FEATURES: Record<string, string[]> = {
     'Invite your whole family',
     'Export anytime — no lock-in',
   ],
+  // Membership is never a pricing gate (worker: quota.ts MEMBER_HARD_CAP,
+  // billing.ts TIER_LIMITS.maxFamilyMembers === -1). Paid tiers differ on
+  // bloodlines (threads) and storage — never on who is allowed to join.
   FAMILY: [
-    'Unlimited entries in the Deep',
+    'Unlimited bloodlines in the Deep',
+    `${PLAN_STORAGE.FAMILY} storage`,
     'Voice entries',
     'Sealed & time-locked notes',
-    'Up to 5 family members',
-    `${PLAN_STORAGE.FAMILY} storage`,
+    'Export anytime — no lock-in',
   ],
   DEEP: [
     'Everything in Family',
-    'Unlimited family members — the whole bloodline',
     `${PLAN_STORAGE.DEEP} storage`,
     'Unlimited voice & video entries',
     'Priority support + dedicated onboarding',
@@ -67,25 +69,25 @@ export const PLAN_LIMITS: Record<string, Array<[string, string]>> = {
   STARTER: [
     ['entries', 'unlimited'],
     ['members', 'unlimited'],
-    ['voice', 'included'],
+    ['bloodlines', '1'],
     ['storage', PLAN_STORAGE.STARTER],
   ],
   FAMILY: [
     ['entries', 'unlimited'],
-    ['members', '5'],
-    ['voice', 'unlimited'],
+    ['members', 'unlimited'],
+    ['bloodlines', 'unlimited'],
     ['storage', PLAN_STORAGE.FAMILY],
   ],
   DEEP: [
     ['entries', 'unlimited'],
     ['members', 'unlimited'],
-    ['voice', 'unlimited'],
+    ['bloodlines', 'unlimited'],
     ['storage', PLAN_STORAGE.DEEP],
   ],
   LEGACY: [
     ['entries', 'unlimited'],
     ['members', 'unlimited'],
-    ['voice', 'unlimited'],
+    ['bloodlines', 'unlimited'],
     ['storage', PLAN_STORAGE.FOUNDER],
   ],
 };

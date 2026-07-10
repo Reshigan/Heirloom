@@ -101,7 +101,6 @@ export default {
         news: ['"Source Serif 4 Variable"', '"Source Serif 4"', 'ui-serif', 'Georgia', 'serif'],
         v3mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
         'loom-serif': ['"Source Serif 4 Variable"', '"Source Serif 4"', 'Charter', 'Georgia', 'serif'],
-        'loom-ui': ['Inter', 'system-ui', 'sans-serif'],
         'loom-mono': ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       transitionTimingFunction: {
