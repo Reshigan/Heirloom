@@ -55,17 +55,20 @@ void main(){
   float ramp = clamp(d + (r.x-0.5)*0.22 + (q.y-0.5)*0.10, 0.0, 1.0);
   vec3 col = dye(ramp);
 
-  vec3 water = vec3(0.015,0.04,0.055);
-  // Lower the surface lift so the upper field stays deep — text lives up here,
-  // and the constitution wants 60–70% calm negative space, not a blown-out pool.
-  float lift = mix(0.55, 1.35, pow(1.0-d, 0.5));
-  vec3 c = mix(water, col*1.7, dens*lift);
+  vec3 water = vec3(0.026,0.066,0.090);
+  // Brightness is spent DOWNWARD. The old field was near-black everywhere; the
+  // fix is to lift the deep, not the surface — the surface (low d) is where
+  // headlines, topbar labels and form fields sit, and every lit term below
+  // (lift, caustics, rays, shaft) already peaks there. So the bottom of each
+  // mix() pair moves a lot and the top barely moves.
+  float lift = mix(1.05, 1.42, pow(1.0-d, 0.5));
+  vec3 c = mix(water, col*2.0, dens*lift);
 
   float caust = fbm(vec2(p.x*9.0 + t*2.2, p.y*3.0 - t));
   caust = pow(max(caust,0.0), 2.0);
-  c += vec3(0.55,0.80,0.70) * caust * smoothstep(0.0,0.42,1.0-d) * 0.16;
+  c += vec3(0.55,0.80,0.70) * caust * smoothstep(0.0,0.42,1.0-d) * 0.17;
 
-  float ray = pow(max(0.0,1.0-d),1.6) * (0.5+0.5*sin(p.x*5.0+1.2)) * (0.5+0.5*sin(p.x*11.0)) * 0.07;
+  float ray = pow(max(0.0,1.0-d),1.6) * (0.5+0.5*sin(p.x*5.0+1.2)) * (0.5+0.5*sin(p.x*11.0)) * 0.075;
   c += vec3(0.60,0.80,0.95) * ray;
 
   // The focal shaft — pulled WAY down from a sun-bright bloom to a distant deep-
@@ -74,8 +77,8 @@ void main(){
   // keeps the light's direction without competing with the type (Rule 1).
   vec2 dp = vec2(0.60*asp, 0.70);
   float dd = length(p - dp);
-  c += vec3(0.72,0.90,1.0) * exp(-dd*dd*2600.0) * 0.80;
-  c += vec3(0.38,0.64,0.86) * exp(-dd*dd*240.0) * 0.15;
+  c += vec3(0.72,0.90,1.0) * exp(-dd*dd*2600.0) * 0.40;
+  c += vec3(0.38,0.64,0.86) * exp(-dd*dd*240.0) * 0.13;
   float tail = exp(-pow((p.x-dp.x)*70.0,2.0)) * smoothstep(0.70,0.42,uv.y) * 0.11;
   c += vec3(0.40,0.62,0.80)*tail;
 
@@ -84,8 +87,8 @@ void main(){
   float pd = length(p - u_ptr);
   c += vec3(0.45, 0.68, 0.80) * exp(-pd*pd*70.0) * 0.10 * u_ptrAmt;
 
-  c *= mix(0.88, 0.40, d);
-  float vig = smoothstep(1.25, 0.35, length(uv-0.5));
+  c *= mix(0.92, 0.78, d);
+  float vig = smoothstep(1.45, 0.30, length(uv-0.5));
   c *= vig;
 
   c = pow(max(c,0.0), vec3(0.92));

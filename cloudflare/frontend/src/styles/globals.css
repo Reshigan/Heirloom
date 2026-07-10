@@ -2272,7 +2272,11 @@ input:-webkit-autofill:active {
    (ClothBackdrop), so the veil is transparent there. Radial, not flat: densest
    under the centred reading column, fading toward the margins so the Deep still
    breathes at the edges (rule 3: negative space). No blur — that would be
-   glassmorphism (anti-pattern). */
+   glassmorphism (anti-pattern). Kept as thin as the contrast budget allows: it
+   is an alpha veil, so every point it sheds is water the reader gets back.
+   e2e/water-contrast.spec.ts gates it from both sides: bone-on-water contrast at
+   AA (4.5:1), and a luminance floor under the water so nobody re-inks the sea
+   back to a black field to buy contrast it does not need. */
 .deep-scrim {
   position: absolute;
   inset: 0;
@@ -2281,12 +2285,23 @@ input:-webkit-autofill:active {
   background: none;
 }
 [data-theme='dark'] .loom .deep-scrim {
-  background: radial-gradient(
-    130% 105% at 50% 36%,
-    color-mix(in srgb, var(--ink) 86%, transparent) 0%,
-    color-mix(in srgb, var(--ink) 60%, transparent) 50%,
-    color-mix(in srgb, var(--ink) 24%, transparent) 100%
-  );
+  background:
+    /* The topbar strip. The water is brightest at the surface (low `d` in the
+       shader), which is exactly where the mono topbar labels sit — they lose
+       ~4 points of contrast to it. One local band keeps them without dimming
+       the sea everywhere else. */
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--ink) 62%, transparent) 0,
+      transparent 150px
+    ),
+    radial-gradient(
+      92% 100% at 50% 34%,
+      color-mix(in srgb, var(--ink) 62%, transparent) 0%,
+      color-mix(in srgb, var(--ink) 54%, transparent) 44%,
+      color-mix(in srgb, var(--ink) 26%, transparent) 80%,
+      color-mix(in srgb, var(--ink) 10%, transparent) 100%
+    );
 }
 
 /* ── Type on living water — legibility lift ──────────────────────────────
