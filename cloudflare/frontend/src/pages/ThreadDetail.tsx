@@ -28,7 +28,9 @@ export function ThreadDetail() {
   const [inviteName, setInviteName] = useState('');
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRelation, setInviteRelation] = useState('');
-  const [inviteRole, setInviteRole] = useState<Exclude<ThreadRole, 'FOUNDER'>>('READER');
+  // You invite family to a Deep so they can add to it. Reader is the deliberate
+  // downgrade, not the default — a silent READER makes every relative a spectator.
+  const [inviteRole, setInviteRole] = useState<Exclude<ThreadRole, 'FOUNDER'>>('AUTHOR');
   const [inviteGen, setInviteGen] = useState<number>(0);
   const [inviteError, setInviteError] = useState<string | null>(null);
 
@@ -74,7 +76,7 @@ export function ThreadDetail() {
       setInviteName('');
       setInviteEmail('');
       setInviteRelation('');
-      setInviteRole('READER');
+      setInviteRole('AUTHOR');
       setInviteGen(0);
       setInviteError(null);
     },
@@ -376,8 +378,8 @@ export function ThreadDetail() {
                           onChange={(e) => setInviteRole(e.target.value as typeof inviteRole)}
                           style={fieldSelectStyle}
                         >
-                          <option value="READER">Reader — can read, can't write</option>
                           <option value="AUTHOR">Author — can read and add entries</option>
+                          <option value="READER">Reader — can read, can't write</option>
                           <option value="SUCCESSOR">Successor — inherits if you step away</option>
                           <option value="PLACEHOLDER">Placeholder — descendant not yet born</option>
                         </select>

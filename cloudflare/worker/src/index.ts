@@ -50,6 +50,7 @@ import { onThisDayRoutes } from './routes/on-this-day';
 import { socialRoutes } from './routes/social';
 import { processSocialQueue } from './crons/social-posting';
 import { resolveTimeLocks } from './crons/time-locks';
+import { pushOnThisDay } from './crons/on-this-day-push';
 import { processArchivePinning } from './crons/archive-pinning';
 import { backfillMemoryDescriptionEncryption } from './crons/legacy-encryption-backfill';
 import { processScheduledDeletions } from './crons/scheduled-deletion';
@@ -1063,6 +1064,15 @@ export default {
       logger.info('Resolving Thread time-locks…');
       const lockResult = await resolveTimeLocks(env);
       logger.info(`Time-locks resolved — date:${lockResult.resolvedDate} age:${lockResult.resolvedAge} gen:${lockResult.resolvedGeneration} notifications:${lockResult.notifications}`);
+
+      // An anniversary nobody is told about is an anniversary nobody notices.
+      logger.info('Resurfacing "on this day"…');
+      try {
+        const otd = await pushOnThisDay(env);
+        logger.info(`On-this-day pushed to ${otd.pushed}/${otd.candidates} members`);
+      } catch (err) {
+        logger.error(`On-this-day push failed: ${err instanceof Error ? err.message : String(err)}`);
+      }
 
       logger.info('Processing influencer outreach...');
       const influencerResult = await processInfluencerOutreach(env);
