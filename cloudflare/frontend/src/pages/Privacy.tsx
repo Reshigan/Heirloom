@@ -15,7 +15,7 @@ const SECTIONS = [
   {
     n: 'one',
     h: 'Your entries are private to your thread.',
-    b: 'Your data is stored on infrastructure that encrypts it at rest, and moves only over encrypted connections. Access is controlled by your account and your thread membership — no one outside the thread can read it. We operate that infrastructure, so this is not end-to-end or zero-knowledge encryption: the platform holds the keys. We never read your prose as a matter of policy, and if we are subpoenaed we hand over only what is genuinely demanded. The security page lists exactly what we have built and what we have not.',
+    b: 'Your data is stored on infrastructure that encrypts it at rest, and moves only over encrypted connections. The body of every entry is sealed again on top of that, by us, with a key held outside the database. Access is controlled by your account and your thread membership — no one outside the thread can read it. We operate that infrastructure, so this is not end-to-end or zero-knowledge encryption: the platform holds the keys. We never read your prose as a matter of policy, and if we are subpoenaed we hand over only what is genuinely demanded. The security page lists exactly what we have built and what we have not.',
   },
   {
     n: 'two',

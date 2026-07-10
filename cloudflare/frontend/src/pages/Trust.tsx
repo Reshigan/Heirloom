@@ -9,6 +9,9 @@ import { CosmicHeader, SectionLabel, WaxSeal } from '../loom/cosmic/CosmicUI';
 // reader is entitled to take literally. Section eight exists because of that —
 // if a control is not built, it is named there rather than omitted. Before
 // editing any sentence below, verify it against the worker, not against intent.
+// Claims that depend on a deployed secret (encryption, cron) are not decidable
+// from source alone — `curl https://api.heirloom.blue/api/health` returns the
+// readiness booleans the worker actually sees.
 
 const META_TITLE = 'Security';
 const META_DESCRIPTION = 'How Heirloom holds your family’s archive — and what we have not built yet.';
@@ -25,7 +28,7 @@ const SECTIONS = [
   {
     n: 'two',
     h: 'What our encryption is, and what it is not.',
-    b: 'Everything moves over TLS, and the disks underneath us are encrypted at rest by our infrastructure provider. That is the honest extent of it. Heirloom is not end-to-end encrypted and it is not zero-knowledge: we operate the servers and we hold the keys, which is what makes server-side search, sealed-note release, and account recovery possible at all. Anyone who tells you a product can do all three of those and also hold no keys is selling something. We would rather you know exactly who can read what.',
+    b: 'Everything moves over TLS, and the disks underneath us are encrypted at rest by our infrastructure provider. Above that, the body of every entry you write is sealed a second time, with AES-256-GCM, under a master key held outside the database — so a stolen copy of the database, on its own, does not read as prose. That is the honest extent of it. Heirloom is not end-to-end encrypted and it is not zero-knowledge: we run the servers and we hold that key, which is what makes search, sealed-note release, and account recovery possible at all. Anyone who tells you a product does all three of those and holds no keys is selling something. We would rather you know exactly who can read what.',
   },
   {
     n: 'three',
@@ -58,7 +61,7 @@ const SECTIONS = [
 // built; each is a real weakness a determined reader deserves before they trust
 // us with the only copy of their grandmother's voice.
 const NOT_YET = [
-  'Application-level field encryption is written but not switched on. Underneath, the provider still encrypts the disks.',
+  'That second layer of encryption reaches the body of an entry and stops there. Titles, letters, voice transcripts, and the revision log are stored as you wrote them, protected only by the provider’s disk encryption.',
   'Two-factor secrets are stored unencrypted in our database. Someone with a database dump could reconstruct your authenticator codes. Your password hash would still stand between them and your account.',
   'There is no lockout after repeated failed passwords — only per-address rate limiting, which a distributed attacker can spread out under.',
   'Backups live with the same provider as the live data, and we have not yet run a full restore drill. An untested backup is a hypothesis.',

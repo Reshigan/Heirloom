@@ -19,15 +19,23 @@
 
 ### Worker secrets (set via `wrangler secret put` or CI sync)
 
+Status verified 10 jul 2026 against `npx wrangler secret list` (names) and
+`curl https://api.heirloom.blue/api/health` (the booleans the running worker
+actually sees). Neither exposes a value — re-run both rather than trusting this
+table, and never infer a secret's presence from source.
+
 | Secret | Required? | Status |
 |---|---|---|
-| `JWT_SECRET` | ❌ Required — auth is broken without it | Unknown — must verify in CF dashboard |
-| `STRIPE_SECRET_KEY` | ❌ Required for billing | Unknown — CI syncs it if GH secret set; deployment comment says "Stripe billing stays disabled" if absent |
-| `STRIPE_WEBHOOK_SECRET` | ❌ Required for webhook verification | Unknown — same as above; absent = webhooks unverified (Stripe subscription events silently dropped) |
-| `RESEND_API_KEY` | ❌ Required for transactional email (welcome, verification, check-in reminders) | Unknown |
-| `VAPID_PRIVATE_KEY` | ⚠️ Optional — web push dormant if absent | Unknown — CI skips cleanly if unset |
-| `ENCRYPTION_MASTER_KEY` | ⚠️ Optional — at-rest encryption dormant if absent | Known missing per project memory; dormant until set |
-| `HEIRLOOM_ADMIN_TOKEN` | ⚠️ Optional — marketing automation handoff | Unknown |
+| `JWT_SECRET` | ❌ Required — auth is broken without it | ✅ SET (`readiness.jwtSecret: true`) |
+| `STRIPE_SECRET_KEY` | ❌ Required for billing | ✅ SET (`readiness.stripe: true`) — but see the rotation note in §7; presence is not safety |
+| `STRIPE_WEBHOOK_SECRET` | ❌ Required for webhook verification | ✅ SET — the endpoint still has to be registered in the Stripe Dashboard |
+| `RESEND_API_KEY` | ❌ Required for transactional email | ✅ SET (`readiness.email: true`; `MS_*` is also wired) |
+| `VAPID_PRIVATE_KEY` | ⚠️ Optional — web push dormant if absent | ✅ SET |
+| `ENCRYPTION_MASTER_KEY` | ⚠️ Optional — at-rest encryption dormant if absent | ✅ SET (`readiness.encryptionKey: true`) — entry bodies encrypt on write; the daily cron backfills pre-key rows |
+| `CRON_ENABLED` | ⚠️ Scheduled jobs no-op if not `"true"` | ✅ `"true"` (`readiness.cronEnabled: true`) |
+| `ADMIN_SETUP_SECRET` | ⚠️ Guards `/admin/*` maintenance routes | ✅ SET |
+| `ADOPTION_EMAILS_ENABLED` | ⚠️ Optional — adoption email sequence | ❌ NOT SET (`readiness.adoptionEmails: false`) |
+| `HEIRLOOM_ADMIN_TOKEN` | ⚠️ Optional — marketing automation handoff | ❌ NOT SET — absent from `secret list` |
 
 ### Worker vars (set in `wrangler.toml` — committed, confirmed)
 
@@ -117,7 +125,9 @@
 | `STRIPE_SECRET_KEY` in worker Env type | ✅ PASS | Declared at `index.ts:90`. |
 | `STRIPE_WEBHOOK_SECRET` in worker Env type | ✅ PASS | Declared at `index.ts:91`. |
 | Stripe test vs live mode indicator | ⚠️ WARNING | No `sk_test_`/`sk_live_` prefix guard in code. No `STRIPE_MODE` env var. Whether the live site is hitting Stripe test or live depends entirely on which key was `wrangler secret put`. Confirm the GH secret `STRIPE_SECRET_KEY` begins with `sk_live_` before accepting real payments. |
-| Billing if secrets absent | ❌ BLOCKER | If `STRIPE_SECRET_KEY` is not set as a worker secret, billing endpoints will fail silently (no Stripe client). Subscription checkout, webhook processing, and gift vouchers all depend on it. Must confirm the secret is present in the CF dashboard. |
+| Billing secrets present | ✅ PASS | `readiness.stripe: true` on the live worker — both Stripe secrets are set. (When absent, billing endpoints fail silently: no Stripe client, so checkout, webhooks, and gift vouchers all die quietly.) |
+| Stripe key rotation | ❌ BLOCKER | A live `rk_live_…` restricted key was pasted into a chat transcript and must be treated as compromised: **roll it in the Stripe Dashboard, then `npx wrangler secret put STRIPE_SECRET_KEY`.** A key being present is not a key being safe. |
+| Stripe webhook endpoint registered | ❌ BLOCKER | The secret exists, but `https://api.heirloom.blue/api/billing/webhook` must be registered as an endpoint in the Stripe Dashboard, and its signing secret must be the one in `STRIPE_WEBHOOK_SECRET`. Until then subscription lifecycle events are never delivered. |
 | Non-card payment methods (iDEAL, Pix, SEPA…) | ⚠️ DASHBOARD ACTION | Nothing to change in code. All four checkout sites (`billing.ts`, `books.ts`, `gift-vouchers.ts`, `partners.ts`) already omit `payment_method_types`, which is exactly how Stripe turns on dynamic payment methods — it then shows whatever is enabled in **Dashboard → Settings → Payment methods**. (`automatic_payment_methods` is a PaymentIntent parameter and is *not* accepted on Checkout Sessions; sending it 400s the request.) A global launch means enabling the local methods there. |
 | Book + wholesale orders are USD-only | ⚠️ WARNING | `books.ts:174` and `partners.ts:551` hardcode `currency: 'usd'`, while subscriptions and gifts charge in the user's currency. Dynamic payment methods key off the charge currency, so a European book buyer is billed in dollars and never sees iDEAL/SEPA. Needs an FX source before it can be fixed — not a one-line change. |
 
@@ -163,22 +173,20 @@
 
 ### Blockers (must fix before accepting real customers)
 
-1. **❌ Workers AI binding missing** — `[[ai]]` is not declared in `wrangler.toml`. The `/ai/*` routes (prompt generation, future letters, legacy score) will 500 in production. Add:
-   ```toml
-   [ai]
-   binding = "AI"
-   ```
+1. **❌ Rotate the Stripe key** — A live `rk_live_…` key was pasted into a chat transcript. Roll it in the Stripe Dashboard, then `npx wrangler secret put STRIPE_SECRET_KEY`. Nothing else on this list matters as much.
 
-2. **❌ Stripe secrets unconfirmed** — Billing is the revenue engine. Confirm `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` are set as Cloudflare Worker secrets (not just GitHub secrets — the CI sync step only runs on deploy). Verify the key prefix is `sk_live_` not `sk_test_`.
+2. **❌ Register the Stripe webhook** — `https://api.heirloom.blue/api/billing/webhook` is not registered as a Dashboard endpoint. The signing secret is set; the endpoint is not. Subscription lifecycle events are being dropped.
 
-3. **❌ JWT_SECRET and RESEND_API_KEY unconfirmed** — Auth and transactional email are non-functional without these. Confirm both are set in the CF Worker secrets panel.
+3. **❌ No off-Cloudflare backup, no restore drill** — `crons/backup.ts` dumps to the same R2 bucket as the media it is backing up. One account-level failure takes both. An untested backup is a hypothesis; this is disclosed on `/security` rather than papered over.
+
+*Resolved 10 jul 2026 — previously listed here:* Workers AI binding (`[ai]` is declared at `wrangler.toml:48`); Stripe/JWT/Resend secrets unconfirmed (all set — see §2).
 
 ### Warnings (should fix soon after launch)
 
 4. **⚠️ No error monitoring** — No Sentry, Axiom, or tail worker. Failures are invisible in production.
 5. **⚠️ Migration 0052 is a table rebuild** — Safe in theory (SQLite atomic), but validate against a backup before the next deploy with active subscriber rows.
 6. **⚠️ Stripe mode not code-guarded** — No assertion that `STRIPE_SECRET_KEY` starts with `sk_live_` in production. Risk of accidentally charging test cards.
-7. **⚠️ ENCRYPTION_MASTER_KEY not set** — Memory description encryption is dormant. Not a blocker, but user data is not encrypted at rest until this is set.
-8. **⚠️ VAPID_PRIVATE_KEY not confirmed** — Web push notifications are silently disabled. Not a blocker but a shipped feature that appears broken to users.
+7. **⚠️ At-rest encryption covers entry bodies only** — `ENCRYPTION_MASTER_KEY` is set and `descriptionColumnsForWrite` seals memory descriptions on write, with the daily cron backfilling pre-key rows. Titles, letters, voice transcripts, and the revision log have the columns but are written in cleartext. Disclosed on `/security`.
+8. **⚠️ `ADOPTION_EMAILS_ENABLED` not set** — the adoption email sequence is dormant (`readiness.adoptionEmails: false`). A built feature, silently off.
 9. **⚠️ Marketing engine idle** — Add `ANTHROPIC_API_KEY` + platform secrets to GH secrets to activate.
 10. **⚠️ Large bundle chunks** — `ClothCanvas3D` (515 kB) and `index` (363 kB) exceed Rollup's 500 kB threshold. No user-facing breakage but hurts mobile performance.
