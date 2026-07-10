@@ -6,6 +6,7 @@
 import { Hono } from 'hono';
 import type { AppEnv } from '../index';
 import { mirrorIntoDefaultThread } from '../services/threadMesh';
+import { unlockMatured } from '../utils/timeLock';
 
 export const capsulesRoutes = new Hono<AppEnv>();
 
@@ -181,8 +182,7 @@ capsulesRoutes.post('/:id/open', async (c) => {
     return c.json({ error: 'Capsule is already opened' }, 400);
   }
 
-  const unlockDate = new Date(capsule.unlock_date as string);
-  if (now < unlockDate) {
+  if (!unlockMatured(capsule.unlock_date as string, new Date(now))) {
     return c.json({ error: 'Capsule unlock date has not yet arrived' }, 400);
   }
 

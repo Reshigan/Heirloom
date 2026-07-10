@@ -18,6 +18,7 @@
 import type { AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
 import { sendPushToUser } from '../routes/push-notifications';
+import { ageMatured, unlockMatured } from '../utils/timeLock';
 
 interface PendingUnlock {
   id: string;
@@ -35,14 +36,6 @@ interface PendingUnlock {
   target_generation: number | null;
   entry_title: string | null;
   author_member_id: string;
-}
-
-function ageOn(birth: string, asOf: Date): number {
-  const b = new Date(birth);
-  let age = asOf.getUTCFullYear() - b.getUTCFullYear();
-  const m = asOf.getUTCMonth() - b.getUTCMonth();
-  if (m < 0 || (m === 0 && asOf.getUTCDate() < b.getUTCDate())) age--;
-  return age;
 }
 
 export async function resolveTimeLocks(env: AppEnv['Bindings']): Promise<{
@@ -89,13 +82,13 @@ export async function resolveTimeLocks(env: AppEnv['Bindings']): Promise<{
       let resolutionNote = '';
 
       if (lock.lock_type === 'DATE' && lock.unlock_date) {
-        if (new Date(lock.unlock_date) <= now) {
+        if (unlockMatured(lock.unlock_date, now)) {
           shouldResolve = true;
           resolutionNote = `Date reached (${lock.unlock_date.slice(0, 10)})`;
           resolvedDate++;
         }
       } else if (lock.lock_type === 'AGE' && lock.age_years && lock.birth_date) {
-        if (ageOn(lock.birth_date, now) >= lock.age_years) {
+        if (ageMatured(lock.birth_date, lock.age_years, now)) {
           shouldResolve = true;
           resolutionNote = `${lock.target_member_name ?? 'Recipient'} reached age ${lock.age_years}`;
           resolvedAge++;

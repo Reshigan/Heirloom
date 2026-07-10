@@ -7,6 +7,7 @@ import { Hono } from 'hono';
 import type { AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
 import { readDescription } from '../lib/legacyArchive';
+import { unlockMatured } from '../utils/timeLock';
 
 function escapeHtml(s: string): string {
   return String(s)
@@ -128,8 +129,7 @@ giftsV2Routes.get('/receive/:token', async (c) => {
 
   // Check unlock date
   if (gift.unlock_date) {
-    const unlockDate = new Date(gift.unlock_date as string);
-    if (new Date() < unlockDate) {
+    if (!unlockMatured(gift.unlock_date as string, new Date())) {
       return c.json({
         id: gift.id,
         sender_name: `${gift.sender_first_name || ''} ${gift.sender_last_name || ''}`.trim(),

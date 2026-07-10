@@ -8,6 +8,22 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+/**
+ * `<input type="date">` yields a bare `YYYY-MM-DD`, and the server can only read
+ * that as UTC midnight — which is the evening *before* for anyone west of UTC.
+ * A sealed note that opens early is a broken promise, so we resolve the date
+ * here, in the only place that knows the author's zone: their browser.
+ *
+ * Send the instant, not the date. The worker's `unlockMatured` still guards the
+ * bare form for older rows, but conservatively (12:00 UTC), so every unlock the
+ * app writes should come through this function.
+ */
+export const localDateToInstant = (day: string | undefined): string | undefined => {
+  if (!day || !/^\d{4}-\d{2}-\d{2}$/.test(day.trim())) return day; // already an instant, or empty
+  const [y, m, d] = day.trim().split('-').map(Number);
+  return new Date(y, m - 1, d, 0, 0, 0, 0).toISOString(); // local midnight → UTC instant
+};
+
 // Token management functions
 export const setTokens = (accessToken: string, refreshToken: string) => {
   // Guard against a malformed auth response writing the string "undefined" into
@@ -257,7 +273,7 @@ export const billingApi = {
 // Gifts API (Gift-a-Memory viral loop)
 export const giftsApi = {
   send: (data: { memory_type: string; memory_id: string; recipient_email: string; recipient_name: string; personal_message?: string; unlock_date?: string }) =>
-    api.post('/gifts/send', data),
+    api.post('/gifts/send', { ...data, unlock_date: localDateToInstant(data.unlock_date) }),
   receive: (token: string) => api.get(`/gifts/receive/${token}`),
   claim: (token: string) => api.post(`/gifts/claim/${token}`),
 };
@@ -267,7 +283,7 @@ export const capsulesApi = {
   getAll: () => api.get('/capsules'),
   getOne: (id: string) => api.get(`/capsules/${id}`),
   create: (data: { title: string; description?: string; unlock_date: string; cover_style?: string }) =>
-    api.post('/capsules', data),
+    api.post('/capsules', { ...data, unlock_date: localDateToInstant(data.unlock_date) }),
   addItem: (capsuleId: string, data: { item_type: string; title: string; content?: string; file_key?: string }) =>
     api.post(`/capsules/${capsuleId}/items`, data),
   seal: (capsuleId: string) => api.post(`/capsules/${capsuleId}/seal`),
@@ -847,7 +863,10 @@ export const threadsApi = {
         encrypted_key: string;
       };
     },
-  ) => api.post<{ entry: { id: string; visibility: ThreadVisibility; mutable_until: string } }>(`/threads/${threadId}/entries`, data),
+  ) => api.post<{ entry: { id: string; visibility: ThreadVisibility; mutable_until: string } }>(`/threads/${threadId}/entries`, {
+    ...data,
+    ...(data.unlock ? { unlock: { ...data.unlock, unlock_date: localDateToInstant(data.unlock.unlock_date) } } : {}),
+  }),
   addComment: (
     threadId: string,
     entryId: string,
