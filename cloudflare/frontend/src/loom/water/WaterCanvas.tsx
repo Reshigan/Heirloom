@@ -31,10 +31,14 @@ export default function WaterCanvas() {
       window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
     const opts: WebGLContextAttributes = {
+      // Required: water/capture.ts reads the canvas back via toDataURL.
       preserveDrawingBuffer: true,
       alpha: false,
       antialias: false,
-      powerPreference: 'high-performance',
+      // 'default', not 'high-performance'. This is an always-on ambient surface;
+      // asking a laptop to spin up the discrete GPU for it costs battery for no
+      // visible gain on a fragment shader this cheap.
+      powerPreference: 'default',
     };
     const gl = (cv.getContext('webgl', opts) ||
       cv.getContext('experimental-webgl', opts)) as WebGLRenderingContext | null;

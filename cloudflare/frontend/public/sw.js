@@ -31,22 +31,23 @@ const API_CACHE = 'heirloom-api-v1'; // preserved across shell bumps — offline
 // would make cache.addAll() reject and the whole install fail. Use `/`.
 const SHELL = '/';
 const OFFLINE = '/offline';
+// The icon cache-bust tag. Cache-first matches the FULL URL incl. query, so this
+// MUST equal the `?v=` used in index.html and manifest.webmanifest — if it
+// drifts, offline requests miss and the new marks never appear. Bump all three
+// together. Every URL below must 200: addAll() rejects the whole install on one 404.
+const ICON_V = '20260702drop';
+const icon = (path) => `${path}?v=${ICON_V}`;
 const PRECACHE = [
   '/',
   '/manifest.webmanifest',
-  // The Deep icon set is cache-busted (?v=20260624deep) wherever the head and
-  // manifest reference it. Cache-first matches the FULL URL incl. query, so the
-  // precached URLs must carry the same tag or offline requests miss and the new
-  // marks never appear. Every URL below must 200 — addAll() rejects the whole
-  // install on a single 404.
-  '/favicon.svg?v=20260624deep',
-  '/icon.svg?v=20260624deep',
-  '/icons/icon-192.png?v=20260624deep',
-  '/icons/icon-512.png?v=20260624deep',
-  '/icons/icon-maskable-192.png?v=20260624deep',
-  '/icons/icon-maskable-512.png?v=20260624deep',
-  '/icons/apple-touch-icon.png?v=20260624deep',
-  '/og-image.png?v=20260624deep',
+  icon('/favicon.svg'),
+  icon('/icon.svg'),
+  icon('/icons/icon-192.png'),
+  icon('/icons/icon-512.png'),
+  icon('/icons/icon-maskable-192.png'),
+  icon('/icons/icon-maskable-512.png'),
+  icon('/icons/apple-touch-icon.png'),
+  icon('/og-image.png'),
   OFFLINE,
   // The offline page's logic lives in an external file (CSP blocks inline
   // scripts); precache it so the holding queue works with no network.
