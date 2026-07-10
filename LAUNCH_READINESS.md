@@ -118,6 +118,8 @@
 | `STRIPE_WEBHOOK_SECRET` in worker Env type | ✅ PASS | Declared at `index.ts:91`. |
 | Stripe test vs live mode indicator | ⚠️ WARNING | No `sk_test_`/`sk_live_` prefix guard in code. No `STRIPE_MODE` env var. Whether the live site is hitting Stripe test or live depends entirely on which key was `wrangler secret put`. Confirm the GH secret `STRIPE_SECRET_KEY` begins with `sk_live_` before accepting real payments. |
 | Billing if secrets absent | ❌ BLOCKER | If `STRIPE_SECRET_KEY` is not set as a worker secret, billing endpoints will fail silently (no Stripe client). Subscription checkout, webhook processing, and gift vouchers all depend on it. Must confirm the secret is present in the CF dashboard. |
+| Non-card payment methods (iDEAL, Pix, SEPA…) | ⚠️ DASHBOARD ACTION | Nothing to change in code. All four checkout sites (`billing.ts`, `books.ts`, `gift-vouchers.ts`, `partners.ts`) already omit `payment_method_types`, which is exactly how Stripe turns on dynamic payment methods — it then shows whatever is enabled in **Dashboard → Settings → Payment methods**. (`automatic_payment_methods` is a PaymentIntent parameter and is *not* accepted on Checkout Sessions; sending it 400s the request.) A global launch means enabling the local methods there. |
+| Book + wholesale orders are USD-only | ⚠️ WARNING | `books.ts:174` and `partners.ts:551` hardcode `currency: 'usd'`, while subscriptions and gifts charge in the user's currency. Dynamic payment methods key off the charge currency, so a European book buyer is billed in dollars and never sees iDEAL/SEPA. Needs an FX source before it can be fixed — not a one-line change. |
 
 ---
 

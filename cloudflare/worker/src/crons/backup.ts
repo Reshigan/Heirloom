@@ -4,8 +4,8 @@
 //
 // ponytail: intra-R2 (same bucket as media) is a single-vendor backup — a
 // real off-Cloudflare copy (B2/S3) and a tested restore drill are still the
-// job (see OPS_LAUNCH_CRITICAL.md §3). This is the safe first rung: a
-// restorable dump that survives a D1 wipe.
+// job. This is the safe first rung: a restorable dump that survives a D1 wipe.
+// Both gaps are disclosed to users on /security rather than papered over.
 //
 // ponytail: no pagination — dumps whole tables in one .all(). Fine at launch
 // scale (< tens of thousands of rows). When a table crosses ~50k rows, add
