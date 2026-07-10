@@ -44,6 +44,7 @@ const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(m => ({ 
 const Wrapped = lazy(() => import('./pages/Wrapped'));
 const Privacy = lazy(() => import('./pages/Privacy').then(m => ({ default: m.Privacy })));
 const Terms = lazy(() => import('./pages/Terms').then(m => ({ default: m.Terms })));
+const Trust = lazy(() => import('./pages/Trust').then(m => ({ default: m.Trust })));
 const Inherit = lazy(() => import('./pages/Inherit').then(m => ({ default: m.Inherit })));
 const VerifyEmail = lazy(() => import('./pages/VerifyEmail').then(m => ({ default: m.VerifyEmail })));
 const FutureLetter = lazy(() => import('./pages/FutureLetter').then(m => ({ default: m.FutureLetter })));
@@ -329,6 +330,7 @@ export default function App() {
                               <Route path="/founders-wall" element={<FoundersWall />} />
                               <Route path="/privacy" element={<Privacy />} />
                               <Route path="/terms" element={<Terms />} />
+                              <Route path="/security" element={<Trust />} />
                               <Route path="/contact" element={<Contact />} />
                               <Route path="/unsubscribe" element={<Unsubscribe />} />
                                                             {/* Founder SKU withdrawn from sale — the page redirects to pricing.

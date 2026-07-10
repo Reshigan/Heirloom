@@ -129,6 +129,19 @@ export function Terms() {
           >
             Privacy
           </Link>
+          <Link
+            to="/security"
+            style={{
+              fontFamily: 'var(--mono)',
+              fontSize: 10,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              textDecoration: 'none',
+            }}
+          >
+            Security
+          </Link>
           <a
             href="mailto:support@heirloom.blue"
             style={{

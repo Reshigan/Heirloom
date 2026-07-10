@@ -15,7 +15,7 @@ const SECTIONS = [
   {
     n: 'one',
     h: 'Your entries are private to your thread.',
-    b: 'Your data is stored on infrastructure that encrypts it at rest, and moves only over encrypted connections. Access is controlled by your account and your thread membership — no one outside the thread can read it. We operate that infrastructure, so this is not end-to-end or zero-knowledge encryption: the platform holds the keys. Some fields carry an additional layer of application-level encryption, which we are extending. We never read your prose as a matter of policy, and if we are subpoenaed we hand over only what is genuinely demanded.',
+    b: 'Your data is stored on infrastructure that encrypts it at rest, and moves only over encrypted connections. Access is controlled by your account and your thread membership — no one outside the thread can read it. We operate that infrastructure, so this is not end-to-end or zero-knowledge encryption: the platform holds the keys. We never read your prose as a matter of policy, and if we are subpoenaed we hand over only what is genuinely demanded. The security page lists exactly what we have built and what we have not.',
   },
   {
     n: 'two',
@@ -40,7 +40,7 @@ const SECTIONS = [
   {
     n: 'six',
     h: 'You can ask us to forget you.',
-    b: 'A request to delete the account erases personal identifiers within 90 days. Content remains in the thread under whatever recipient grants you set. The 90-day grace exists because grief sometimes asks for things grief later regrets.',
+    b: 'Delete the account outright and the purge runs that moment — rows, files, payment record. Or schedule it, and the account sits archived and recoverable for 90 days first, because grief sometimes asks for things grief later regrets. Either way you are out of the last nightly backup within 35 days. Content you gave to a thread remains in it under whatever recipient grants you set.',
   },
 ];
 
@@ -176,6 +176,19 @@ export function Privacy() {
             }}
           >
             Terms
+          </Link>
+          <Link
+            to="/security"
+            className="hl-mono"
+            style={{
+              fontSize: 10,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: 'var(--bone-faint)',
+              textDecoration: 'none',
+            }}
+          >
+            Security
           </Link>
           <a
             href="mailto:support@heirloom.blue"
