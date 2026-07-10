@@ -14,7 +14,10 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import { env, SELF } from 'cloudflare:test';
-import { applyMigrations, seedUser } from './helpers/migrate';
+import { applyMigrations } from './helpers/migrate';
+// The one source of truth for prices. Asserting literals here is how this suite
+// drifted: the table moved to $2.99/$29 and the tests kept demanding $6.99/$69.
+import { PRICING } from '../routes/billing';
 
 const API = 'http://localhost';
 
@@ -52,13 +55,12 @@ describe('GET /api/gift-vouchers/pricing', () => {
     expect(body.tiers.length).toBeGreaterThanOrEqual(2);
   });
 
-  it('mirrors the canonical plans: Starter free, Family monthly+yearly, Legacy lifetime', async () => {
+  it('mirrors the canonical plans: Starter free, Family monthly+yearly, no Legacy', async () => {
     const res = await json('/api/gift-vouchers/pricing');
     const { tiers } = await res.json() as any;
 
     const starter = tiers.find((t: any) => t.id === 'STARTER');
     const family = tiers.find((t: any) => t.id === 'FAMILY');
-    const legacy = tiers.find((t: any) => t.id === 'LEGACY');
 
     expect(starter?.free, 'Starter must be free').toBe(true);
 
@@ -69,8 +71,8 @@ describe('GET /api/gift-vouchers/pricing', () => {
       expect(family[cycle].amount, `FAMILY.${cycle}.amount <= 0`).toBeGreaterThan(0);
     }
 
-    expect(legacy.lifetime, 'LEGACY.lifetime undefined').toBeDefined();
-    expect(legacy.lifetime.amount, 'LEGACY.lifetime.amount <= 0').toBeGreaterThan(0);
+    // The Founder/Legacy SKU is withdrawn from sale — it must not be offered.
+    expect(tiers.find((t: any) => t.id === 'LEGACY')).toBeUndefined();
   });
 
   it('Family yearly is less than 12× monthly (the year-discount makes sense)', async () => {
@@ -84,14 +86,10 @@ describe('GET /api/gift-vouchers/pricing', () => {
     const res = await json('/api/gift-vouchers/pricing?currency=USD');
     const { tiers } = await res.json() as any;
     const family = tiers.find((t: any) => t.id === 'FAMILY');
-    const legacy = tiers.find((t: any) => t.id === 'LEGACY');
-    // Family yearly: list $69.00 → giver pays $62.10
-    expect(family.yearly.listAmount).toBe(69);
-    expect(family.yearly.amount).toBe(62.1);
+    const list = PRICING.FAMILY.yearly;
+    expect(family.yearly.listAmount).toBe(list);
+    expect(family.yearly.amount).toBe(Math.round(list * 100 * 0.9) / 100);
     expect(family.yearly.giftDiscount).toBe('10% off');
-    // Legacy lifetime: list $249.00 → giver pays $224.10
-    expect(legacy.lifetime.listAmount).toBe(249);
-    expect(legacy.lifetime.amount).toBe(224.1);
   });
 
   it('display strings match amounts', async () => {
@@ -106,11 +104,11 @@ describe('GET /api/gift-vouchers/pricing', () => {
     }
   });
 
-  it('USD Family monthly matches the canonical $6.99 list price', async () => {
+  it('USD Family monthly matches the canonical billing.ts list price', async () => {
     const res = await json('/api/gift-vouchers/pricing?currency=USD');
     const { tiers } = await res.json() as any;
     const family = tiers.find((t: any) => t.id === 'FAMILY');
-    expect(family.monthly.listAmount).toBe(6.99);
+    expect(family.monthly.listAmount).toBe(PRICING.FAMILY.monthly);
   });
 
   it('falls back to USD for unknown currency', async () => {
@@ -169,33 +167,22 @@ describe('POST /api/gift-vouchers/checkout — validation', () => {
     expect(body.error).toMatch(/free/i);
   });
 
-  it('400 when Legacy is gifted on a non-lifetime cycle', async () => {
-    const res = await post('/api/gift-vouchers/checkout', {
-      tier: 'LEGACY',
-      billingCycle: 'yearly',
-      purchaserEmail: 'buyer@example.com',
-      currency: 'USD',
+  // The Founder/LEGACY gift SKU is withdrawn from sale. The UI no longer offers
+  // it, but the server must refuse it too — otherwise a hand-rolled POST buys a
+  // closed SKU. Both cycles, including the lifetime one it used to accept.
+  for (const billingCycle of ['yearly', 'lifetime'] as const) {
+    it(`400 when the withdrawn LEGACY tier is gifted (${billingCycle})`, async () => {
+      const res = await post('/api/gift-vouchers/checkout', {
+        tier: 'LEGACY',
+        billingCycle,
+        purchaserEmail: 'buyer@example.com',
+        currency: 'USD',
+      });
+      expect(res.status).toBe(400);
+      const body = await res.json() as any;
+      expect(body.error).toMatch(/invalid tier/i);
     });
-    expect(res.status).toBe(400);
-    const body = await res.json() as any;
-    expect(body.error).toMatch(/lifetime/i);
-  });
-
-  it('accepts LEGACY lifetime as a valid input', async () => {
-    // Should not 400 on validation — it reaches the Stripe call, which fails
-    // without a real key in the test env. We only assert validation passed.
-    const res = await post('/api/gift-vouchers/checkout', {
-      tier: 'LEGACY',
-      billingCycle: 'lifetime',
-      purchaserEmail: 'buyer@example.com',
-      currency: 'USD',
-    });
-    const body = await res.json() as any;
-    expect(body.error).not.toMatch(/invalid tier/i);
-    expect(body.error).not.toMatch(/invalid billing cycle/i);
-    expect(body.error).not.toMatch(/pricing unavailable/i);
-    expect(body.error).not.toMatch(/lifetime gift/i);
-  });
+  }
 
   it('accepts FAMILY monthly', async () => {
     const res = await post('/api/gift-vouchers/checkout', {

@@ -6,7 +6,7 @@
 import { Hono } from 'hono';
 import type { Env, AppEnv } from '../index';
 import { sendEmail } from '../utils/email';
-import { getOrCreateDefaultThread } from '../services/threadMesh';
+import { getOrCreateDefaultThread, claimThreadInvitesByEmail } from '../services/threadMesh';
 
 export const authRoutes = new Hono<AppEnv>();
 
@@ -684,7 +684,12 @@ authRoutes.get('/verify-email', async (c) => {
   await c.env.DB.prepare(
     'UPDATE email_verification_tokens SET used_at = ? WHERE id = ?'
   ).bind(new Date().toISOString(), verifyRecord.id).run();
-  
+
+  // The address is only now trustworthy, so this is the first moment any
+  // thread invited to it may be claimed. Without this the invitee would have
+  // to log out and back in before the family's thread appeared.
+  await claimThreadInvitesByEmail(c.env, verifyRecord.user_id as string);
+
   return c.json({ success: true, message: 'Email verified successfully!' });
 });
 
@@ -876,7 +881,13 @@ async function createSession(env: Env, userId: string, existingSessionId?: strin
   await env.KV.put(`refresh:${refreshToken}`, JSON.stringify({ userId, sessionId, issuedAt: now }), {
     expirationTtl: 30 * 24 * 3600,
   });
-  
+
+  // Every entry into an authenticated context passes through here (register,
+  // login, 2FA, hourly refresh), which makes it the one place a pending
+  // email invitation reliably becomes a real membership. Verification is
+  // enforced inside the claim itself, not here.
+  await claimThreadInvitesByEmail(env, userId);
+
   // Store session in DB for tracking with cleanup of old sessions
   if (!existingSessionId) {
     try {

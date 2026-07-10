@@ -251,12 +251,17 @@ threadsRoutes.post('/:id/members', async (c) => {
   // tier, and free is gated on storage + one thread instead (quota.ts, POST / above).
   // MEMBER_HARD_CAP exists only to keep this INSERT atomic against TOCTOU races
   // and to bound abuse — it is not a pricing lever.
+  // invited_at marks this seat as claimable by whoever verifies that address
+  // (services/threadMesh claimThreadInvitesByEmail). Only stamp it when an
+  // address was actually given and an invitation email is about to go out —
+  // a PLACEHOLDER seat for an unborn or long-dead relative is not an invite.
   const id = crypto.randomUUID();
+  const invitedAt = body.email ? new Date().toISOString() : null;
   const result = await c.env.DB.prepare(
     `INSERT INTO thread_members
       (id, thread_id, display_name, email, relation_label, role, age_gate_years, target_role,
-       birth_date, parent_member_id, generation_offset, granted_by_member_id)
-     SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+       birth_date, parent_member_id, generation_offset, granted_by_member_id, invited_at)
+     SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
      WHERE (SELECT COUNT(*) FROM thread_members WHERE thread_id = ? AND revoked_at IS NULL) < ?`,
   )
     .bind(
@@ -272,6 +277,7 @@ threadsRoutes.post('/:id/members', async (c) => {
       body.parent_member_id ?? null,
       body.generation_offset ?? 0,
       inviter.id,
+      invitedAt,
       threadId,
       MEMBER_HARD_CAP,
     )

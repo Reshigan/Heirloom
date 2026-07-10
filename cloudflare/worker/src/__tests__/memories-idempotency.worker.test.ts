@@ -42,7 +42,7 @@ describe('memory create idempotency (ON CONFLICT user_id, client_key)', () => {
     const insert = (id: string) =>
       env.DB!.prepare(
         `INSERT INTO memories (id, user_id, type, title, client_key)
-         VALUES (?, ?, 'note', 'A held memory', ?)
+         VALUES (?, ?, 'NOTE', 'A held memory', ?)
          ON CONFLICT(user_id, client_key) DO NOTHING`,
       )
         .bind(id, userId, clientKey)
@@ -62,7 +62,7 @@ describe('memory create idempotency (ON CONFLICT user_id, client_key)', () => {
 
     await env.DB!.prepare(
       `INSERT INTO memories (id, user_id, type, title, client_key)
-       VALUES ('mem-first-0002', ?, 'note', 'Original title', ?)
+       VALUES ('mem-first-0002', ?, 'NOTE', 'Original title', ?)
        ON CONFLICT(user_id, client_key) DO NOTHING`,
     )
       .bind(userId, clientKey)
@@ -70,7 +70,7 @@ describe('memory create idempotency (ON CONFLICT user_id, client_key)', () => {
 
     await env.DB!.prepare(
       `INSERT INTO memories (id, user_id, type, title, client_key)
-       VALUES ('mem-second-0002', ?, 'note', 'Replayed title', ?)
+       VALUES ('mem-second-0002', ?, 'NOTE', 'Replayed title', ?)
        ON CONFLICT(user_id, client_key) DO NOTHING`,
     )
       .bind(userId, clientKey)
@@ -95,7 +95,7 @@ describe('memory create idempotency (ON CONFLICT user_id, client_key)', () => {
     ] as const) {
       await env.DB!.prepare(
         `INSERT INTO memories (id, user_id, type, title, client_key)
-         VALUES (?, ?, 'note', 'Distinct', ?)
+         VALUES (?, ?, 'NOTE', 'Distinct', ?)
          ON CONFLICT(user_id, client_key) DO NOTHING`,
       )
         .bind(id, userId, ck)
@@ -117,12 +117,12 @@ describe('memory create idempotency (ON CONFLICT user_id, client_key)', () => {
     const userId = await seedUser(env.DB!, { id: 'u-idem-4', email: 'idem4@heirloom.blue' });
 
     await env.DB!.prepare(
-      `INSERT INTO memories (id, user_id, type, title) VALUES ('mem-null-1', ?, 'note', 'No key 1')`,
+      `INSERT INTO memories (id, user_id, type, title) VALUES ('mem-null-1', ?, 'NOTE', 'No key 1')`,
     )
       .bind(userId)
       .run();
     await env.DB!.prepare(
-      `INSERT INTO memories (id, user_id, type, title) VALUES ('mem-null-2', ?, 'note', 'No key 2')`,
+      `INSERT INTO memories (id, user_id, type, title) VALUES ('mem-null-2', ?, 'NOTE', 'No key 2')`,
     )
       .bind(userId)
       .run();

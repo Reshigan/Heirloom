@@ -31,7 +31,7 @@ describe('processScheduledLetters — failed send is not marked delivered', () =
        VALUES ('l-1', ?, 't', 'Dear', 'body', 'sig', 'SCHEDULED', ?, ?, NULL)`,
     ).bind(userId, PAST, PAST).run();
     await env.DB.prepare(
-      `INSERT INTO family_members (id, user_id, name, email) VALUES ('fm-1', ?, 'Kid', 'kid@example.com')`,
+      `INSERT INTO family_members (id, user_id, name, email, relationship) VALUES ('fm-1', ?, 'Kid', 'kid@example.com', 'child')`,
     ).bind(userId).run();
     await env.DB.prepare(
       `INSERT INTO letter_recipients (id, letter_id, family_member_id) VALUES ('lr-1', 'l-1', 'fm-1')`,

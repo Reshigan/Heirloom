@@ -1,414 +1,89 @@
 /**
- * Test helper — creates the DB schema for in-memory D1 tests.
+ * Test helper — builds the DB schema for in-memory D1 tests from the REAL
+ * migrations in cloudflare/migrations, replayed in filename order.
  *
- * Embeds only the tables actually exercised by worker tests (users +
- * gift_vouchers). Using the embedded schema rather than reading migration
- * files from disk avoids filesystem sandbox issues in the Workers runtime.
+ * This used to be a hand-written stub of "only the tables the tests touch".
+ * It drifted: users grew signup_source in production and every register test
+ * started failing with `table users has no column named signup_source`, which
+ * says nothing about the code under test. A stub schema tests the stub.
+ *
+ * Vite inlines the .sql files at transform time (import.meta.glob + ?raw), so
+ * nothing reads the filesystem inside the Workers runtime.
  */
 
-const TEST_SCHEMA = `
-CREATE TABLE IF NOT EXISTS users (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  email TEXT UNIQUE NOT NULL,
-  password_hash TEXT NOT NULL,
-  first_name TEXT NOT NULL,
-  last_name TEXT NOT NULL,
-  avatar_url TEXT,
-  email_verified INTEGER DEFAULT 0,
-  two_factor_enabled INTEGER DEFAULT 0,
-  two_factor_secret TEXT,
-  preferred_currency TEXT DEFAULT 'USD',
-  encryption_salt TEXT,
-  encrypted_master_key TEXT,
-  key_derivation_params TEXT,
-  terms_accepted_at TEXT,
-  marketing_consent INTEGER DEFAULT 0,
-  gold_legacy_member INTEGER DEFAULT 0,
-  gold_member_number TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now')),
-  last_login_at TEXT,
-  trial_ends_at TEXT,
-  stripe_customer_id TEXT UNIQUE
-);
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+const MIGRATIONS = import.meta.glob('../../../../migrations/*.sql', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+}) as Record<string, string>;
 
-CREATE TABLE IF NOT EXISTS sessions (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  token TEXT UNIQUE NOT NULL,
-  user_agent TEXT,
-  ip_address TEXT,
-  expires_at TEXT NOT NULL,
-  created_at TEXT DEFAULT (datetime('now'))
-);
+// A glob that matches nothing is not an error in Vite — it yields {} and every
+// test then fails with "no such table: users", which reads like a code bug.
+if (Object.keys(MIGRATIONS).length === 0) {
+  throw new Error('migrate.ts: no migrations matched — check the glob path');
+}
 
-CREATE TABLE IF NOT EXISTS subscriptions (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  user_id TEXT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  tier TEXT DEFAULT 'FREE' CHECK (tier IN ('FREE', 'ESSENTIAL', 'FAMILY', 'LEGACY', 'STARTER', 'FOREVER', 'DEEP')),
-  status TEXT DEFAULT 'TRIALING' CHECK (status IN ('ACTIVE', 'CANCELLED', 'PAST_DUE', 'TRIALING')),
-  stripe_customer_id TEXT UNIQUE,
-  stripe_subscription_id TEXT UNIQUE,
-  current_period_start TEXT,
-  current_period_end TEXT,
-  cancel_at_period_end INTEGER DEFAULT 0,
-  trial_ends_at TEXT,
-  billing_cycle TEXT DEFAULT 'monthly' CHECK (billing_cycle IN ('monthly', 'quarterly', 'yearly', 'lifetime')),
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now'))
-);
+/**
+ * Split a migration into executable statements. D1's .prepare() takes one
+ * statement at a time, so a naive `split(';')` is tempting — but a `;` also
+ * appears inside `--` comments and inside CREATE TRIGGER ... BEGIN ... END
+ * bodies. Strip the comments, then only treat a `;` as a terminator when it
+ * isn't inside a trigger body.
+ */
+function splitStatements(sql: string): string[] {
+  const clean = sql.replace(/--[^\n]*/g, '');
+  const statements: string[] = [];
+  let current = '';
+  let inTrigger = false;
 
-CREATE TABLE IF NOT EXISTS gift_vouchers (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  code TEXT UNIQUE NOT NULL,
-  purchaser_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
-  purchaser_email TEXT NOT NULL,
-  purchaser_name TEXT,
-  recipient_email TEXT,
-  recipient_name TEXT,
-  recipient_message TEXT,
-  tier TEXT NOT NULL CHECK (tier IN ('STARTER', 'FAMILY', 'FOREVER', 'DEEP')),
-  billing_cycle TEXT NOT NULL CHECK (billing_cycle IN ('monthly', 'quarterly', 'yearly', 'lifetime')),
-  duration_months INTEGER NOT NULL DEFAULT 12,
-  amount INTEGER NOT NULL,
-  currency TEXT NOT NULL DEFAULT 'USD',
-  stripe_payment_intent_id TEXT UNIQUE,
-  stripe_checkout_session_id TEXT,
-  status TEXT DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'PAID', 'SENT', 'REDEEMED', 'EXPIRED', 'REFUNDED', 'CANCELLED')),
-  redeemed_by_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
-  redeemed_at TEXT,
-  expires_at TEXT NOT NULL,
-  admin_notes TEXT,
-  created_by_admin_id TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now')),
-  paid_at TEXT,
-  sent_at TEXT,
-  voucher_type TEXT DEFAULT 'GIFT' CHECK (voucher_type IN ('GIFT', 'GOLD_LEGACY')),
-  gold_member_number TEXT
-);
-CREATE INDEX IF NOT EXISTS idx_gift_vouchers_code ON gift_vouchers(code);
-CREATE INDEX IF NOT EXISTS idx_gift_vouchers_status ON gift_vouchers(status);
+  for (const part of clean.split(';')) {
+    current += part;
+    if (/\bCREATE\s+TRIGGER\b/i.test(current)) inTrigger = true;
+    // The trigger body ends at the `END` that closes its `BEGIN`.
+    if (inTrigger && !/\bEND\s*$/i.test(current.trim())) {
+      current += ';';
+      continue;
+    }
+    const stmt = current.trim();
+    if (stmt) statements.push(stmt);
+    current = '';
+    inTrigger = false;
+  }
+  const tail = current.trim();
+  if (tail) statements.push(tail);
+  return statements;
+}
 
-CREATE TABLE IF NOT EXISTS email_verification_tokens (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  token_hash TEXT NOT NULL,
-  expires_at TEXT NOT NULL,
-  created_at TEXT DEFAULT (datetime('now'))
-);
+const SCHEMA: string[] = Object.keys(MIGRATIONS)
+  .sort()
+  .flatMap((path) => splitStatements(MIGRATIONS[path]));
 
-CREATE TABLE IF NOT EXISTS password_resets (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  token_hash TEXT NOT NULL,
-  expires_at TEXT NOT NULL,
-  created_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS dead_man_switches (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  user_id TEXT UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  enabled INTEGER DEFAULT 1,
-  status TEXT DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE', 'WARNING', 'TRIGGERED', 'VERIFIED', 'RELEASED', 'CANCELLED')),
-  check_in_interval_days INTEGER DEFAULT 30,
-  grace_period_days INTEGER DEFAULT 7,
-  trigger_action TEXT DEFAULT 'RELEASE_ALL',
-  required_verifications INTEGER DEFAULT 2,
-  last_check_in TEXT,
-  next_check_in_due TEXT,
-  missed_check_ins INTEGER DEFAULT 0,
-  triggered_at TEXT,
-  verified_at TEXT,
-  released_at TEXT,
-  reminder_sent_at TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS legacy_contacts (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  phone TEXT,
-  relationship TEXT NOT NULL,
-  verification_status TEXT DEFAULT 'PENDING' CHECK (verification_status IN ('PENDING', 'VERIFIED', 'REJECTED')),
-  verification_token TEXT UNIQUE,
-  verified_at TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now')),
-  -- migration 0066 append-only soft-delete. A removed contact (deleted_at NOT
-  -- NULL) must never receive a new delivery token, so trigger fan-out filters it
-  deleted_at TEXT
-);
-
-CREATE TABLE IF NOT EXISTS founder_pledges (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  family_name TEXT,
-  notes TEXT,
-  status TEXT NOT NULL DEFAULT 'PLEDGED' CHECK (status IN ('PLEDGED', 'PAID', 'ENGRAVED', 'REVOKED')),
-  stripe_session_id TEXT,
-  thread_id TEXT,
-  pledge_number INTEGER UNIQUE,
-  paid_at TEXT,
-  engraved_at TEXT,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS switch_verifications (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  dead_man_switch_id TEXT NOT NULL,
-  legacy_contact_id TEXT NOT NULL,
-  verification_token TEXT NOT NULL,
-  expires_at TEXT NOT NULL,
-  created_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS memories (
-  -- Content + junction tables below are exercised by the GDPR export route
-  -- (settings-export.worker.test.ts). Minimal column sets covering only what
-  -- the export gather selects/maps. All CREATE IF NOT EXISTS so additive to the
-  -- suites that share this helper. (Comments live INSIDE a statement, never
-  -- leading a chunk — applyMigrations drops any chunk that starts with '--'.)
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  type TEXT,
-  title TEXT,
-  description TEXT,
-  description_enc TEXT,
-  description_iv TEXT,
-  file_key TEXT,
-  file_size INTEGER DEFAULT 0,
-  metadata TEXT,
-  client_key TEXT,
-  deleted_at TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now'))
-);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_memories_client_key
-  ON memories(user_id, client_key);
-
-CREATE TABLE IF NOT EXISTS voice_recordings (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  title TEXT,
-  description TEXT,
-  file_url TEXT,
-  file_key TEXT,
-  file_size INTEGER DEFAULT 0,
-  duration INTEGER,
-  transcript TEXT,
-  client_key TEXT,
-  deleted_at TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now'))
-);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_voice_recordings_client_key
-  ON voice_recordings(user_id, client_key);
-
-CREATE TABLE IF NOT EXISTS letters (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  title TEXT,
-  salutation TEXT,
-  body TEXT,
-  signature TEXT,
-  delivery_trigger TEXT,
-  scheduled_date TEXT,
-  sealed_at TEXT,
-  delivered_at TEXT,
-  deleted_at TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS family_members (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  name TEXT,
-  relationship TEXT,
-  email TEXT,
-  phone TEXT,
-  birth_date TEXT,
-  notes TEXT,
-  avatar_url TEXT,
-  dye TEXT,
-  linked_user_id TEXT REFERENCES users(id) ON DELETE SET NULL,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now')),
-  deleted_at TEXT
-);
-
--- Pending email invitations to join the inviter's bloodline thread.
--- relationship/dye/birth_date/notes are the inviter's pre-set identity fields
--- (migration 0071) that seed a family_members row on accept.
-CREATE TABLE IF NOT EXISTS family_invites (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  inviter_user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  invitee_email TEXT NOT NULL,
-  invitee_name TEXT,
-  invite_code TEXT NOT NULL,
-  thread_id TEXT,
-  relationship TEXT,
-  dye TEXT,
-  birth_date TEXT,
-  notes TEXT,
-  status TEXT DEFAULT 'pending',
-  sent_at TEXT,
-  expires_at TEXT,
-  accepted_at TEXT,
-  reward_claimed INTEGER DEFAULT 0,
-  -- B1: where the invite originated. 'inherit' = minted from a delivered letter
-  -- (recipient→author loop); 'manual' = direct author invite; NULL = legacy.
-  source TEXT,
-  source_letter_id TEXT REFERENCES letters(id) ON DELETE SET NULL,
-  created_at TEXT DEFAULT (datetime('now'))
-);
-
--- Typed family-tree edges between two family_members (migration 0071).
--- Symmetric types (spouse/sibling) are canonicalized lower-id-first at the
--- route so a reversed edge cannot sneak past the UNIQUE.
-CREATE TABLE IF NOT EXISTS family_relationships (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  from_member_id TEXT NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
-  to_member_id TEXT NOT NULL REFERENCES family_members(id) ON DELETE CASCADE,
-  type TEXT NOT NULL CHECK (type IN ('parent','child','spouse','sibling')),
-  label TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now')),
-  UNIQUE (user_id, from_member_id, to_member_id, type)
-);
-
-CREATE TABLE IF NOT EXISTS letter_recipients (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  letter_id TEXT NOT NULL,
-  family_member_id TEXT NOT NULL,
-  created_at TEXT DEFAULT (datetime('now')),
-  UNIQUE(letter_id, family_member_id)
-);
-
-CREATE TABLE IF NOT EXISTS letter_deliveries (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  letter_id TEXT NOT NULL,
-  recipient_email TEXT NOT NULL,
-  status TEXT DEFAULT 'PENDING',
-  sent_at TEXT,
-  delivered_at TEXT,
-  failed_at TEXT,
-  failure_reason TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS letter_legacy_recipients (
-  letter_id TEXT NOT NULL,
-  legacy_contact_id TEXT NOT NULL,
-  added_at TEXT DEFAULT (datetime('now')),
-  PRIMARY KEY (letter_id, legacy_contact_id)
-);
-
--- B4: share-this-note — public read-only letter path. An opaque token unlocks
--- a single letter for unauthenticated readers; revocable by the author.
-CREATE TABLE IF NOT EXISTS letter_share_tokens (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  letter_id TEXT NOT NULL REFERENCES letters(id) ON DELETE CASCADE,
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  token TEXT NOT NULL UNIQUE,
-  revoked_at TEXT,
-  created_at TEXT DEFAULT (datetime('now'))
-);
-CREATE INDEX IF NOT EXISTS idx_letter_share_tokens_token ON letter_share_tokens(token);
-
-CREATE TABLE IF NOT EXISTS memory_legacy_recipients (
-  memory_id TEXT NOT NULL,
-  legacy_contact_id TEXT NOT NULL,
-  added_at TEXT DEFAULT (datetime('now')),
-  PRIMARY KEY (memory_id, legacy_contact_id)
-);
-
-CREATE TABLE IF NOT EXISTS voice_legacy_recipients (
-  voice_recording_id TEXT NOT NULL,
-  legacy_contact_id TEXT NOT NULL,
-  added_at TEXT DEFAULT (datetime('now')),
-  PRIMARY KEY (voice_recording_id, legacy_contact_id)
-);
-
-CREATE TABLE IF NOT EXISTS legacy_revisions (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  entity_type TEXT NOT NULL CHECK (entity_type IN ('memory', 'letter', 'voice', 'legacy_contact')),
-  entity_id TEXT NOT NULL,
-  snapshot TEXT,
-  reason TEXT,
-  created_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS wrapped_data (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  year INTEGER NOT NULL,
-  total_memories INTEGER DEFAULT 0,
-  total_voice_stories INTEGER DEFAULT 0,
-  total_letters INTEGER DEFAULT 0,
-  total_storage INTEGER DEFAULT 0,
-  longest_streak INTEGER DEFAULT 0,
-  current_streak INTEGER DEFAULT 0,
-  top_emotions TEXT,
-  top_tagged_people TEXT,
-  highlights TEXT,
-  summary TEXT,
-  generated_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS thread_members (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  thread_id TEXT,
-  user_id TEXT,
-  display_name TEXT,
-  email TEXT,
-  relation_label TEXT,
-  role TEXT,
-  target_role TEXT,
-  created_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS thread_entries (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  thread_id TEXT,
-  author_member_id TEXT,
-  title TEXT,
-  created_at TEXT DEFAULT (datetime('now'))
-);
-
-CREATE TABLE IF NOT EXISTS entry_unlocks (
-  id TEXT PRIMARY KEY DEFAULT (lower(hex(randomblob(16)))),
-  entry_id TEXT NOT NULL,
-  lock_type TEXT NOT NULL,
-  resolved_at TEXT,
-  resolution_note TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now'))
-);
-`;
+// Most suites call applyMigrations() from beforeEach. Replaying 76 migrations
+// per test is slow, and the data-fixup UPDATEs inside them re-fire the FTS5
+// triggers against an already-populated index, which SQLite reports as
+// SQLITE_CORRUPT_VTAB. isolatedStorage is off, so once per DB is enough.
+const applied = new WeakSet<D1Database>();
 
 export async function applyMigrations(db: D1Database): Promise<void> {
-  const statements = TEST_SCHEMA
-    .split(';')
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith('--'));
+  if (applied.has(db)) return;
+  applied.add(db);
 
-  for (const stmt of statements) {
-    await db.prepare(stmt).run();
+  for (const stmt of SCHEMA) {
+    try {
+      await db.prepare(stmt).run();
+    } catch (err) {
+      // Migrations replay onto a DB that may already carry earlier statements
+      // (isolatedStorage is off, so a file's second applyMigrations() re-runs
+      // everything). CREATE ... IF NOT EXISTS is idempotent; a bare ALTER TABLE
+      // ADD COLUMN and a seed-data INSERT are not — re-running either is a
+      // no-op we want to swallow, not a schema error.
+      const msg = String(err);
+      if (/duplicate column name|already exists|UNIQUE constraint failed/i.test(msg)) continue;
+      throw new Error(`migration statement failed: ${stmt.slice(0, 120)}…\n${msg}`);
+    }
   }
 }
 
-/** Seed a minimal valid user row; returns the user id. */
 export async function seedUser(
   db: D1Database,
   overrides: Partial<{

@@ -32,14 +32,26 @@ async function seedLock(
   unlockId: string,
   resolved = false,
 ) {
-  await env.DB.prepare(`INSERT OR IGNORE INTO thread_members (id, user_id) VALUES (?, ?)`)
-    .bind(memberId, userId)
-    .run();
-  await env.DB.prepare(`INSERT INTO thread_entries (id, author_member_id) VALUES (?, ?)`)
-    .bind(entryId, memberId)
+  const threadId = `th-${userId}`;
+  await env.DB.prepare(
+    `INSERT OR IGNORE INTO threads (id, name, founder_user_id, default_visibility, plan, status)
+     VALUES (?, 'Test thread', ?, 'FAMILY', 'FREE', 'ACTIVE')`,
+  )
+    .bind(threadId, userId)
     .run();
   await env.DB.prepare(
-    `INSERT INTO entry_unlocks (id, entry_id, lock_type, resolved_at) VALUES (?, ?, ?, ?)`,
+    `INSERT OR IGNORE INTO thread_members (id, thread_id, user_id, display_name, role)
+     VALUES (?, ?, ?, 'Author', 'FOUNDER')`,
+  )
+    .bind(memberId, threadId, userId)
+    .run();
+  await env.DB.prepare(
+    `INSERT INTO thread_entries (id, thread_id, author_member_id, mutable_until) VALUES (?, ?, ?, ?)`,
+  )
+    .bind(entryId, threadId, memberId, PAST)
+    .run();
+  await env.DB.prepare(
+    `INSERT INTO entry_unlocks (id, entry_id, lock_type, encrypted_key, resolved_at) VALUES (?, ?, ?, '', ?)`,
   )
     .bind(unlockId, entryId, lockType, resolved ? PAST : null)
     .run();
@@ -149,6 +161,10 @@ describe('verify-passing — the human attestation fast-path', () => {
        VALUES (?, ?, 1, 'TRIGGERED', 7, 5, ?, 'RELEASE_ALL')`,
     ).bind(`dms-${userId}`, userId, PAST).run();
     await env.DB.prepare(
+      `INSERT INTO legacy_contacts (id, user_id, name, email, relationship, verification_status)
+       VALUES (?, ?, 'Griever', ?, 'sibling', 'VERIFIED')`,
+    ).bind(`lc-${userId}`, userId, `lc-${userId}@heirloom.blue`).run();
+    await env.DB.prepare(
       `INSERT INTO switch_verifications (id, dead_man_switch_id, legacy_contact_id, verification_token, expires_at)
        VALUES (?, ?, ?, ?, ?)`,
     ).bind(`sv-${userId}`, `dms-${userId}`, `lc-${userId}`, token, expires).run();
@@ -168,12 +184,21 @@ describe('verify-passing — the human attestation fast-path', () => {
     expect(sw.status).toBe('RELEASED');
     expect((await unlockResolved(lock))?.resolved_at).not.toBeNull();
 
-    // Token consumed — a replay can't re-run the release.
-    const gone = await env.DB.prepare(`SELECT id FROM switch_verifications WHERE verification_token = ?`).bind('tok-good').first();
-    expect(gone).toBeNull();
+    // The token row SURVIVES — inherit.ts reads it by verification_token to grant
+    // the legacy contact access. Deleting it locked them out. Replay-safety comes
+    // from the RELEASED status guard instead, so a second POST must not re-release.
+    const survived = await env.DB.prepare(
+      `SELECT verified FROM switch_verifications WHERE verification_token = ?`,
+    ).bind('tok-good').first<{ verified: number }>();
+    expect(survived?.verified).toBe(1);
+
+    const releasedAt = await env.DB.prepare(`SELECT released_at FROM dead_man_switches WHERE user_id = ?`)
+      .bind(userId).first<{ released_at: string }>();
     const replay = await SELF.fetch(`${API}/api/deadman/verify-passing/tok-good`, { method: 'POST' });
-    const body = await replay.text();
-    expect(body).toContain('couldn');
+    expect(replay.status).toBe(200);
+    const after = await env.DB.prepare(`SELECT released_at FROM dead_man_switches WHERE user_id = ?`)
+      .bind(userId).first<{ released_at: string }>();
+    expect(after?.released_at).toBe(releasedAt?.released_at); // not re-released
   });
 
   it('refuses to release on an expired token', async () => {

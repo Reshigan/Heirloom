@@ -269,3 +269,49 @@ export async function mirrorFamilyMemberIntoDefaultThread(
     return null;
   }
 }
+
+/**
+ * Bind a user account to any thread_members rows that were invited by email
+ * before that account existed.
+ *
+ * POST /api/threads/:id/members writes display_name + email and leaves user_id
+ * NULL; getMembership() resolves membership by user_id alone. Without this
+ * step an invitation is a dead end — the invitee registers, opens the link in
+ * the email, and the thread reports "Not a member".
+ *
+ * This is an authorization grant, so it is deliberately narrow:
+ *   - only seats stamped invited_at, i.e. written by POST /threads/:id/members
+ *     with an address that was actually emailed an invitation. A family-tree
+ *     mirror row (mirrorFamilyMemberIntoDefaultThread) carries an email but is
+ *     not an invitation, and must never grant its own read access.
+ *   - only for a VERIFIED email address, because registration hands out a
+ *     session before verification; otherwise anyone could sign up as
+ *     someone@example.com and read that family's thread.
+ *   - only rows that are still unclaimed (user_id IS NULL) and not revoked,
+ *     so a claimed seat can never be stolen or a revoked one resurrected.
+ *   - never a second seat in a thread the user already belongs to, which
+ *     would make getMembership's `LIMIT 1` pick a role at random.
+ *
+ * Best-effort: a failure here must not block login. The next call reclaims.
+ * Returns the number of memberships claimed.
+ */
+export async function claimThreadInvitesByEmail(env: Env, userId: string): Promise<number> {
+  try {
+    const result = await env.DB.prepare(
+      `UPDATE thread_members
+          SET user_id = ?1
+        WHERE user_id IS NULL
+          AND invited_at IS NOT NULL
+          AND revoked_at IS NULL
+          AND email IS NOT NULL
+          AND lower(email) = (SELECT lower(email) FROM users WHERE id = ?1 AND email_verified = 1)
+          AND thread_id NOT IN (SELECT thread_id FROM thread_members WHERE user_id = ?1)`,
+    ).bind(userId).run();
+    const claimed = result.meta.changes ?? 0;
+    if (claimed > 0) console.log(`[threadMesh] claimed ${claimed} thread invite(s) for ${userId}`);
+    return claimed;
+  } catch (err) {
+    console.error('[threadMesh] invite claim failed', err);
+    return 0;
+  }
+}
