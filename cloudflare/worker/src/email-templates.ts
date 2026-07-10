@@ -238,12 +238,12 @@ export const welcomeEmail = (name: string) => ({
     <p>Your <span class="gold">30-day free trial</span> has begun. During this time, you'll have access to all features.</p>
     <p>Here's what you can do:</p>
     <ul>
-      <li>Upload photos and videos with stories</li>
+      <li>Let photos and videos settle, with the story attached</li>
       <li>Record your voice with guided prompts</li>
       <li>Write letters to loved ones</li>
       <li>Set up posthumous delivery</li>
     </ul>
-    <a href="${APP_URL}/dashboard" class="button">ENTER YOUR VAULT</a>
+    <a href="${APP_URL}/dashboard" class="button">ENTER THE DEEP</a>
   `),
 });
 
@@ -303,7 +303,7 @@ export const subscriptionConfirmationEmail = (name: string, tier: string) => ({
     <p>Hi ${esc(name)},</p>
     <p>Your subscription to the <span class="gold">${esc(tier)}</span> plan is now active.</p>
     <p>Your memories are now protected and will be preserved for generations.</p>
-    <a href="${APP_URL}/dashboard" class="button">CONTINUE TO VAULT</a>
+    <a href="${APP_URL}/dashboard" class="button">CONTINUE TO THE DEEP</a>
   `),
 });
 
@@ -689,8 +689,8 @@ export const giftVoucherRedeemedEmail = (
       <p><strong>Plan:</strong> <span class="gold">${esc(tier)}</span></p>
       <p><strong>Duration:</strong> ${durationMonths} month${durationMonths > 1 ? 's' : ''}</p>
     </div>
-    <p>Your sanctuary is ready. Start preserving your most precious memories today.</p>
-    <a href="${APP_URL}/dashboard" class="button">ENTER YOUR VAULT</a>
+    <p>The water is still. Let the first thing settle today.</p>
+    <a href="${APP_URL}/dashboard" class="button">ENTER THE DEEP</a>
   `),
 });
 
@@ -741,13 +741,13 @@ export const postReminderMemoryEmail = (
       <h2>${hasPosted ? 'Continue Your Story' : 'Begin Your Legacy'}</h2>
       <p>Dear ${esc(userName)},</p>
       ${hasPosted 
-        ? `<p>You've preserved <span class="gold">${memoriesCount} ${memoriesCount === 1 ? 'memory' : 'memories'}</span> so far—each one a treasure for future generations.${daysSinceLastPost ? ` It's been ${daysSinceLastPost} days since your last upload.` : ''}</p>`
-        : `<p>Your vault is ready and waiting. Every photo, every moment you capture becomes a gift to those who come after you.</p>`
+        ? `<p>You've preserved <span class="gold">${memoriesCount} ${memoriesCount === 1 ? 'memory' : 'memories'}</span> so far—each one a treasure for future generations.${daysSinceLastPost ? ` It's been ${daysSinceLastPost} days since anything last settled.` : ''}</p>`
+        : `<p>The Deep is still, and waiting. Every photo, every moment you capture becomes a gift to those who come after you.</p>`
       }
       <div class="letter-box">
         <p style="font-style: italic; color: #a86220;">"${prompt}"</p>
       </div>
-      <p>Take a moment today to preserve something meaningful. It only takes a few seconds to upload a photo or share a story.</p>
+      <p>Take a moment today to preserve something meaningful. It takes a few seconds to let a photo or a story settle.</p>
       <a href="${APP_URL}/memories" class="button">ADD A MEMORY</a>
       <p style="margin-top: 24px; font-size: 14px; color: rgba(245,243,238,0.6);">Your memories are encrypted and protected. Only you and those you choose can access them.</p>
     `),
@@ -823,7 +823,7 @@ export const postReminderWeeklyDigestEmail = (
   suggestedAction: 'memory' | 'voice' | 'letter' | 'family'
 ) => {
   const actionMap = {
-    memory: { text: 'Upload a Memory', url: `${APP_URL}/memories`, prompt: getRandomPrompt(memoryPrompts) },
+    memory: { text: 'Let One Settle', url: `${APP_URL}/memories`, prompt: getRandomPrompt(memoryPrompts) },
     voice: { text: 'Record a Message', url: `${APP_URL}/record`, prompt: getRandomPrompt(voicePrompts) },
     letter: { text: 'Write a Letter', url: `${APP_URL}/compose`, prompt: getRandomPrompt(letterPrompts) },
     family: { text: 'Add Family Member', url: `${APP_URL}/family`, prompt: 'Connect with someone you want to share your legacy with.' },

@@ -43,9 +43,12 @@ const TIERS: {
   sub: string;
   body: string;
 }[] = [
-  { id: 'free', name: 'Free', price: PLAN_PRICE.FREE.amount, sub: PLAN_PRICE.FREE.cycle, body: '1 bloodline · 50 MB · try every feature' },
-  { id: 'family', name: 'Family', price: PLAN_PRICE.FAMILY.monthly, sub: PLAN_PRICE.FAMILY.perMonth, body: 'unlimited entries · up to 5 members · voice · sealed notes' },
-  { id: 'deep', name: 'Deep', price: PLAN_PRICE.DEEP.monthly, sub: PLAN_PRICE.DEEP.perMonth, body: 'everything in Family · unlimited members · 250 GB · priority' },
+  // Never sell membership here. Every tier invites the whole family
+  // (billing.ts TIER_LIMITS.maxFamilyMembers === -1); the tiers differ on
+  // bloodlines and storage only. Storage reads from PLAN_STORAGE, one source.
+  { id: 'free', name: 'Free', price: PLAN_PRICE.FREE.amount, sub: PLAN_PRICE.FREE.cycle, body: `1 bloodline · ${PLAN_STORAGE.STARTER} · try every feature` },
+  { id: 'family', name: 'Family', price: PLAN_PRICE.FAMILY.monthly, sub: PLAN_PRICE.FAMILY.perMonth, body: `unlimited bloodlines · ${PLAN_STORAGE.FAMILY} · voice · sealed notes` },
+  { id: 'deep', name: 'Deep', price: PLAN_PRICE.DEEP.monthly, sub: PLAN_PRICE.DEEP.perMonth, body: `everything in Family · ${PLAN_STORAGE.DEEP} · video · priority support` },
 ];
 
 import { EASE } from '../loom/motion';

@@ -1842,7 +1842,7 @@ export function Compose() {
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                aria-label="Upload photos"
+                aria-label="Attach photos"
                 style={{
                   background: 'transparent',
                   border: '1px solid var(--rule)',

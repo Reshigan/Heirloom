@@ -305,7 +305,7 @@ export function TimeCapsule() {
   );
 
   return (
-    <ClothShell topbarLeft={backLink} topbarCenter="time capsules">
+    <ClothShell topbarLeft={backLink} topbarCenter="sealed notes">
       <div
         style={{
           maxWidth: 'var(--page-max-prose)',
@@ -321,7 +321,7 @@ export function TimeCapsule() {
           <div aria-hidden style={{ marginBottom: 28 }}>
             <WaxSeal size={30} />
           </div>
-          <CosmicHeader eyebrow="sealed until" title="Time Capsules" />
+          <CosmicHeader eyebrow="sealed until" title="Sealed Notes" />
         </div>
 
         {/* Capsule list */}

@@ -725,7 +725,7 @@ export function StoryArtifact() {
                     disabled={isUploading}
                     style={{ ...monoAffordance, color: 'var(--bone-dim)', opacity: isUploading ? 0.4 : 1 }}
                   >
-                    {isUploading ? 'Uploading…' : 'Upload'}
+                    {isUploading ? 'Settling…' : 'Attach'}
                   </button>
                   <input
                     ref={fileInputRef}
