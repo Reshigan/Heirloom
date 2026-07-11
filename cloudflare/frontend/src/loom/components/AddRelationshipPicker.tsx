@@ -111,7 +111,7 @@ export function AddRelationshipPicker({
               borderBottom: type === t.key ? '1px solid var(--warm)' : '1px solid transparent',
               fontFamily: 'var(--mono)', fontSize: 12, letterSpacing: '0.18em',
               textTransform: 'uppercase', color: type === t.key ? 'var(--warm)' : 'var(--bone-dim)',
-              transition: 'color 180ms var(--ease)', touchAction: 'manipulation', minHeight: 36,
+              transition: 'color 180ms var(--ease)', touchAction: 'manipulation', minHeight: 44,
             }}
           >
             {t.label}

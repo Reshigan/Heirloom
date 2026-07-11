@@ -172,7 +172,7 @@ export function PwaWizard({ onDone }: { onDone: () => void }) {
         <button
           type="button"
           onClick={skip}
-          style={{ background: 'transparent', border: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', padding: '8px 0', minHeight: 36 }}
+          style={{ background: 'transparent', border: 0, cursor: 'pointer', fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--bone-faint)', padding: '8px 0', minHeight: 44 }}
         >
           skip
         </button>

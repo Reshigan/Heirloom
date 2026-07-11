@@ -632,7 +632,8 @@ export function BookBuilder() {
                       style={{
                         background: 'transparent',
                         border: 0,
-                        padding: 0,
+                        padding: '15px 10px',
+                        margin: '-15px 0', // 44px tap target; row padding (15px) absorbs the overflow
                         cursor: copies <= 1 ? 'default' : 'pointer',
                         fontSize: 14,
                         lineHeight: 1,
@@ -658,7 +659,8 @@ export function BookBuilder() {
                       style={{
                         background: 'transparent',
                         border: 0,
-                        padding: 0,
+                        padding: '15px 10px',
+                        margin: '-15px 0', // 44px tap target; row padding (15px) absorbs the overflow
                         cursor: copies >= 99 ? 'default' : 'pointer',
                         fontSize: 14,
                         lineHeight: 1,
