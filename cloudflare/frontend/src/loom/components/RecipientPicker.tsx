@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { familyApi } from '../../services/api';
-import { dyeColor } from '../dye';
+import { dyeColor, dyeTextColor } from '../dye';
 
 export interface RecipientMember {
   id: string;
@@ -236,7 +236,7 @@ export function RecipientPicker({
                 cursor: 'pointer',
                 fontFamily: MONO,
                 fontSize: 13.5,
-                color: dyeColor(m.id, m.dye),
+                color: dyeTextColor(m.id, m.dye),
                 borderBottom: '1px solid var(--rule)',
               }}
             >
@@ -409,7 +409,7 @@ export function RecipientPicker({
           />
           <span>
             already woven into your bloodline ·{' '}
-            <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', color: dyeColor(selected.id, selected.dye) }}>
+            <span style={{ fontFamily: 'var(--serif)', fontStyle: 'italic', color: dyeTextColor(selected.id, selected.dye) }}>
               {selected.name}
             </span>
           </span>

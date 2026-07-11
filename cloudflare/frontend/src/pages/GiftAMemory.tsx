@@ -4,7 +4,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { ClothShell } from '../loom/components/ClothShell';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
-import { dyeForId, dyeVar } from '../loom/dye';
+import { dyeForId, dyeVar, dyeTextVar } from '../loom/dye';
 import { giftsApi, memoriesApi, lettersApi, voiceApi } from '../services/api';
 
 interface GiftConfig {
@@ -142,6 +142,9 @@ export function GiftAMemory() {
   // The recipient owns a stable dye, signalled as a quiet dot beside their name.
   const recipientKey = config.recipientEmail.trim() || config.recipientName.trim();
   const recipientDye = recipientKey ? dyeVar(dyeForId(recipientKey)) : 'var(--warm)';
+  // Thread token (dyeVar) is for the signal dot only. Typed NAME text must ride
+  // the AA-tuned text token or yellow dyes (weld/saffron) vanish on the water.
+  const recipientDyeText = recipientKey ? dyeTextVar(dyeForId(recipientKey)) : 'var(--bone)';
 
   const breadcrumbs = (
     <Breadcrumbs trail={[{ label: 'heirloom', to: '/loom' }, { label: 'gift' }]} />
@@ -410,7 +413,7 @@ export function GiftAMemory() {
                   outline: 'none',
                   fontFamily: 'var(--serif)',
                   fontSize: 20,
-                  color: recipientKey ? recipientDye : 'var(--bone)',
+                  color: recipientDyeText,
                   caretColor: 'var(--warm)',
                   padding: '8px 0',
                   boxSizing: 'border-box',

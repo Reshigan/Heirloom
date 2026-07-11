@@ -5,7 +5,7 @@ import { ProgressHair } from '../loom/components/ProgressHair';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { CosmicHeader, EntryRow, WaxSeal } from '../loom/cosmic/CosmicUI';
 import { RoomError } from '../loom/components/RoomError';
-import { dyeColor, dyeFromMetadata, dyeForId } from '../loom/dye';
+import { dyeColor, dyeTextColor, dyeFromMetadata, dyeForId } from '../loom/dye';
 import { memorialsApi } from '../services/api';
 import { copyToClipboard } from '../utils/clipboard';
 import { useFocusTrap } from '../lib/useFocusTrap';
@@ -519,7 +519,7 @@ export function Memorials() {
               style={{
                 fontSize: 24,
                 fontWeight: 400,
-                color: dyeColor(String(selectedMemorial.id ?? selectedMemorial.qr_code ?? selectedMemorial.memorial_name ?? '')),
+                color: dyeTextColor(String(selectedMemorial.id ?? selectedMemorial.qr_code ?? selectedMemorial.memorial_name ?? '')),
                 margin: '0 0 6px',
                 lineHeight: 1.2,
               }}

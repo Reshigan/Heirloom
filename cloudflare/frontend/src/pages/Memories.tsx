@@ -7,7 +7,7 @@ import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { Link, useNavigate } from 'react-router-dom';
 import { useListener } from '../hooks/useListener';
 import { type Memory } from '../types';
-import { dyeColor, dyeVar, type Dye } from '../loom/dye';
+import { dyeColor, dyeVar, dyeTextVar, type Dye } from '../loom/dye';
 import { WaxSeal, SectionLabel } from '../loom/cosmic/CosmicUI';
 import { ProgressHair } from '../loom/components/ProgressHair';
 import { RoomError } from '../loom/components/RoomError';
@@ -263,7 +263,7 @@ function FilterBar({ memories, filters, setFilters }: {
                 fontSize: 10,
                 letterSpacing: '0.16em',
                 textTransform: 'uppercase',
-                color: isOn ? dyeVar(em.dye) : 'var(--bone-faint)',
+                color: isOn ? dyeTextVar(em.dye) : 'var(--bone-faint)',
                 transition: 'color 180ms var(--ease)',
                 // 44px tap target for the mobile PWA without detaching the
                 // active underline from the label — the rule rides an inner
