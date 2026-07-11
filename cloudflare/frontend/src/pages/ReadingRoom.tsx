@@ -215,10 +215,11 @@ function PagerCounter({ index, total, dye }: { index: number; total: number; dye
 
 // ── ReadingContent ────────────────────────────────────────────────────────────
 function ReadingContent({
-  t, dye, onPrev, onNext, onJump, activeIndex, total,
+  t, dye, dyeText, onPrev, onNext, onJump, activeIndex, total,
 }: {
   t: Thread;
   dye: string;
+  dyeText: string;
   onPrev?: () => void;
   onNext?: () => void;
   onJump: (i: number) => void;
@@ -356,7 +357,7 @@ function ReadingContent({
           </button>
 
           {total > DOT_CAP ? (
-            <PagerCounter index={activeIndex} total={total} dye={dye} />
+            <PagerCounter index={activeIndex} total={total} dye={dyeText} />
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
               {Array.from({ length: total }, (_, i) => (
@@ -390,7 +391,7 @@ function ReadingContent({
               background: 'transparent', border: 0, padding: 0,
               fontFamily: 'var(--mono)', fontSize: 10, letterSpacing: '0.2em',
               textTransform: 'uppercase',
-              color: onNext ? dye : 'var(--bone-ghost)',
+              color: onNext ? dyeText : 'var(--bone-ghost)',
               cursor: onNext ? 'pointer' : 'default',
             }}
           >
@@ -539,6 +540,9 @@ export function ReadingRoom() {
 
   const t   = entries[active] ?? entries[0] ?? null;
   const dye = t ? dyeVar(t.dye) : 'var(--warm)';
+  // Thread token (dye) rides borders/marks; dye-tinted TEXT must use the
+  // AA-tuned token or weld/saffron fail contrast on the water.
+  const dyeText = t ? dyeTextVar(t.dye) : 'var(--warm)';
 
   const handleSelect = (i: number) => {
     if (i === active) return;
@@ -877,6 +881,7 @@ export function ReadingRoom() {
               <ReadingContent
                 t={t}
                 dye={dye}
+                dyeText={dyeText}
                 onPrev={active > 0 ? () => handleSelect(active - 1) : undefined}
                 onNext={active < entries.length - 1 ? () => handleSelect(active + 1) : undefined}
                 onJump={handleSelect}

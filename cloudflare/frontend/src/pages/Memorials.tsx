@@ -187,7 +187,7 @@ export function Memorials() {
               const hasDates = memorial.birth_date || memorial.death_date;
               const memKey = String(memorial.id ?? memorial.qr_code ?? memorial.memorial_name ?? '');
               const dye = dyeFromMetadata(memorial) ?? dyeForId(memKey);
-              const tint = dyeColor(memKey);
+              const tint = dyeTextColor(memKey);
               return (
                 <div key={memorial.id} style={{ borderBottom: '1px solid var(--rule)' }}>
                   {/* Row: name in dye hue + mono born–died years + dye dot */}

@@ -6,7 +6,7 @@ import { ProgressHair } from '../loom/components/ProgressHair';
 import { Breadcrumbs } from '../loom/components/Breadcrumbs';
 import { voiceApi } from '../services/api';
 import { useAuthStore } from '../stores/authStore';
-import { dyeColor } from '../loom/dye';
+import { dyeColor, dyeTextColor } from '../loom/dye';
 import { VoiceRefine } from '../loom/components/VoiceRefine';
 import { CosmicHeader, WarmDot, WaxSeal } from '../loom/cosmic/CosmicUI';
 
@@ -309,6 +309,7 @@ export function VoiceRoom() {
           <div style={{ display: 'flex', flexDirection: 'column' }}>
             {recordings.map((entry) => {
               const dye = dyeColor(entry.id, entry.metadata);
+              const dyeText = dyeTextColor(entry.id, entry.metadata);
               const isPlaying = playingId === entry.id;
               const duration = formatDuration(entry.duration);
               const isEditing = editingId === entry.id;
@@ -368,7 +369,7 @@ export function VoiceRoom() {
                       <span style={{ color: 'var(--bone-faint)' }}>{year}</span>
                       <WarmDot color={dye} size={5} />
                       {author && (
-                        <span style={{ color: dye, textTransform: 'uppercase', letterSpacing: '0.16em' }}>
+                        <span style={{ color: dyeText, textTransform: 'uppercase', letterSpacing: '0.16em' }}>
                           {author}
                         </span>
                       )}
