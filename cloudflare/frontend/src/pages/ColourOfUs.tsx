@@ -77,7 +77,7 @@ function renderSpectrumCard(
   // Title — the thread name, or the brand line.
   ctx.fillStyle = BONE;
   ctx.font = '400 64px "Fraunces", Georgia, serif';
-  ctx.fillText(threadName || 'One thread, every hand', W / 2, 168);
+  ctx.fillText(threadName || 'One water, every hand', W / 2, 168);
 
   // The orb — the blended family colour. Falls back to copper if no blend.
   const [r, g, b] = blend ?? [224, 160, 98];

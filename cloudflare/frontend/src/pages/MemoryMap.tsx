@@ -241,6 +241,10 @@ export function MemoryMap() {
                       left: `${d.x}%`,
                       top: `${d.y}%`,
                       transform: 'translate(-50%, -50%)',
+                      // 44px transparent hit target around the 3-4px pin (a11y);
+                      // the pin itself stays a hairline speck.
+                      minWidth: 44, minHeight: 44,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
                       padding: 0,
                       border: 0,
                       background: 'transparent',

@@ -262,23 +262,11 @@ export function SurfaceRing({ size = 13 }: { size?: number }) {
  * Drawn in the brand's brushed hand: each ring is an offset-centre band whose
  * stroke swells and tapers (the offsets alternate, so the rings breathe
  * against each other the way real ripples do). */
-export function WaxSeal({ size = 30 }: { size?: number }) {
-  const d = size * 1.5;
-  return (
-    <div aria-hidden style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-      width: size * 2.2, height: size * 2.2 }}>
-      <svg viewBox="0 0 48 48" width={d} height={d}>
-        <path fill="var(--bone)" fillOpacity="0.55" fillRule="evenodd" d="
-          M24 16.6 a7.4 7.4 0 1 0 0.02 0 Z
-          M24.45 18.1 a5.95 5.95 0 1 1 -0.02 0 Z" />
-        <path fill="var(--bone)" fillOpacity="0.3" fillRule="evenodd" d="
-          M24 9.4 a14.6 14.6 0 1 0 0.02 0 Z
-          M23.5 10.9 a13.05 13.05 0 1 1 -0.02 0 Z" />
-        <path fill="var(--bone)" fillOpacity="0.13" fillRule="evenodd" d="
-          M24 2.4 a21.6 21.6 0 1 0 0.02 0 Z
-          M24.6 3.7 a20.15 20.15 0 1 1 -0.02 0 Z" />
-        <circle cx="24" cy="24" r="1.8" fill="var(--warm-dim)" />
-      </svg>
-    </div>
-  );
+// Retired. The concentric-ring foot mark was a leftover from the loom/cloth
+// brand; the surface is the Deep (water) now, so the page foot is empty
+// negative space. Kept as a no-op so ~90 callers need no edit.
+// ponytail: null render kills it everywhere in one place; delete callers if a
+// pixel-tight foot sweep is ever wanted.
+export function WaxSeal(_props: { size?: number }) {
+  return null;
 }

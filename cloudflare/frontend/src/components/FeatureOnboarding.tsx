@@ -219,15 +219,21 @@ export function FeatureOnboarding({ featureKey, onComplete, onDismiss, isOpen }:
                   key={index}
                   onClick={() => setCurrentStep(index)}
                   aria-label={`Go to step ${index + 1}`}
-                  className={`h-px rounded-none transition-all duration-fast ease-out ${
-                    index === currentStep ? 'w-10' : 'w-6'
-                  }`}
-                  style={
-                    index <= currentStep
-                      ? { backgroundColor: 'var(--bone-dim)', opacity: index === currentStep ? 1 : 0.5 }
-                      : { backgroundColor: 'var(--rule)' }
-                  }
-                />
+                  className="flex items-center justify-center"
+                  style={{ minWidth: 44, minHeight: 44, padding: 0, border: 0, background: 'transparent', cursor: 'pointer' }}
+                >
+                  <span
+                    aria-hidden
+                    className={`block h-px rounded-none transition-all duration-fast ease-out ${
+                      index === currentStep ? 'w-10' : 'w-6'
+                    }`}
+                    style={
+                      index <= currentStep
+                        ? { backgroundColor: 'var(--bone-dim)', opacity: index === currentStep ? 1 : 0.5 }
+                        : { backgroundColor: 'var(--rule)' }
+                    }
+                  />
+                </button>
               ))}
             </div>
 
